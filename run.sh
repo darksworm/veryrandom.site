@@ -83,23 +83,4 @@ if [ "$SIZE" -lt 3000 ]; then
   exit 1
 fi
 
-# Wrap in JSON for the cache
-node -e "
-const fs = require('fs');
-const html = fs.readFileSync('$TARGET','utf8');
-const page = {
-  id: '$ID',
-  createdAt: new Date().toISOString(),
-  title: $(jq '.idea' <<< "$PARAMS"),
-  description: $(jq '.idea' <<< "$PARAMS"),
-  seed: $(jq '.idea' <<< "$PARAMS"),
-  entropy: $PARAMS,
-  html,
-  mode: 'handcrafted'
-};
-fs.writeFileSync('cache/pages/${ID}.json', JSON.stringify(page,null,2));
-console.log('Saved: ${ID} (' + html.length + ' bytes)');
-"
-
-# Clean up the raw HTML file (we keep the JSON)
-rm "$TARGET"
+echo "✅ Saved: ${ID} ($SIZE bytes)"

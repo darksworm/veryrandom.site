@@ -10,6 +10,6 @@ echo "deploying to $SERVER..."
 git push origin main
 
 # Pull, install, restart on server
-ssh "$SERVER" "cd $APP_DIR && git pull && npm install --production && sudo systemctl restart veryrandom"
+ssh "$SERVER" "cd $APP_DIR && git pull && npm install --production && sudo cp nginx.conf /etc/nginx/sites-available/veryrandom && sudo nginx -t && sudo systemctl reload nginx && sudo systemctl restart veryrandom"
 
 echo "deployed!"

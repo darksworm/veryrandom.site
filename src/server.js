@@ -23,9 +23,16 @@ function loadVotes() {
   try { return JSON.parse(fs.readFileSync(VOTES_PATH, 'utf8')); }
   catch { return {}; }
 }
-function saveVotes(votes) {
-  fs.writeFileSync(VOTES_PATH, JSON.stringify(votes, null, 2));
+let votesDirty = false;
+function saveVotes() {
+  votesDirty = true;
 }
+// Flush votes to disk every 10 seconds if changed
+setInterval(() => {
+  if (!votesDirty) return;
+  votesDirty = false;
+  fs.writeFileSync(VOTES_PATH, JSON.stringify(votes, null, 2));
+}, 10000);
 
 let votes = loadVotes(); // { [pageId]: { up: number, down: number } }
 
@@ -131,7 +138,7 @@ window.scrollTo(0,0);
 
 async function refreshCache() {
   const raw = await loadPages();
-  pages = raw.filter((page) => typeof page?.html === 'string' && page.html.trim().length > 0);
+  pages = raw.filter((p) => p.html && p.html.trim().length > 0);
   shuffleBag = []; // reset so new pages get shuffled in
   console.log(`[server] Loaded ${pages.length} cached HTML page(s)`);
 }
@@ -202,8 +209,7 @@ app.get('/random', (req, res) => {
   res
     .status(200)
     .type('html')
-    .setHeader('X-Hallucination-Id', page.id)
-    .setHeader('X-Hallucination-Mode', page.mode || 'unknown')
+    .setHeader('X-Page-Id', page.id)
     .send(injectOverlay(page.html, page.id));
 });
 
@@ -218,8 +224,7 @@ app.get('/page/:id', (req, res) => {
     .status(200)
     .type('html')
     .setHeader('Cache-Control', 'no-store, max-age=0')
-    .setHeader('X-Hallucination-Id', page.id)
-    .setHeader('X-Hallucination-Mode', page.mode || 'unknown')
+    .setHeader('X-Page-Id', page.id)
     .send(injectOverlay(page.html, page.id));
 });
 
@@ -227,7 +232,7 @@ app.get('/top', (req, res) => {
   const ranked = pages
     .map(p => {
       const v = votes[p.id] || { up: 0, down: 0 };
-      return { id: p.id, title: extractH1(p.html) || p.title || p.id, up: v.up, down: v.down, score: v.up - v.down };
+      return { id: p.id, title: extractH1(p.html) || p.id, up: v.up, down: v.down, score: v.up - v.down };
     })
     .sort((a, b) => b.score - a.score || b.up - a.up)
     .slice(0, 50);
@@ -362,21 +367,11 @@ app.post('/api/vote', (req, res) => {
 });
 
 app.get('/api/stats', (req, res) => {
-  res.json({
-    count: pages.length,
-    newest: pages[0]?.createdAt || null,
-    sample: pages[0]
-      ? {
-          id: pages[0].id,
-          title: pages[0].title,
-          mode: pages[0].mode,
-        }
-      : null,
-  });
+  res.json({ count: pages.length });
 });
 
 app.listen(PORT, async () => {
   await refreshCache();
-  setInterval(refreshCache, 3000);
+  setInterval(refreshCache, 30000);
   console.log(`[server] Listening on http://localhost:${PORT}`);
 });

@@ -1,0 +1,230 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Hallucinated Web Cache</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Azeret+Mono:wght@400;600;800&family=Space+Grotesk:wght@400;700&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      :root {
+        --bg: #0f1021;
+        --fg: #f5f5f0;
+        --accent: #ff4d6d;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        min-height: 100vh;
+        background:
+          radial-gradient(circle at 20% 10%, color-mix(in srgb, var(--accent), transparent 85%), transparent 45%),
+          radial-gradient(circle at 85% 80%, color-mix(in srgb, var(--fg), transparent 90%), transparent 55%),
+          linear-gradient(155deg, var(--bg), #050505);
+        color: var(--fg);
+        font-family: 'Space Grotesk', sans-serif;
+      }
+
+      .shell {
+        max-width: 1000px;
+        margin: 0 auto;
+        padding: 2rem 1.2rem 4rem;
+      }
+
+      .header {
+        margin-bottom: 1.4rem;
+      }
+
+      .title {
+        margin: 0;
+        font-family: 'Azeret Mono', monospace;
+        font-size: clamp(1.6rem, 4vw, 2.8rem);
+        letter-spacing: 0.02em;
+      }
+
+      .vibe {
+        margin-top: 0.4rem;
+        color: color-mix(in srgb, var(--fg), transparent 24%);
+        font-size: 1rem;
+      }
+
+      .controls {
+        margin-top: 1rem;
+        display: flex;
+        gap: 0.8rem;
+        align-items: center;
+        flex-wrap: wrap;
+      }
+
+      button {
+        border: 1px solid color-mix(in srgb, var(--accent), white 30%);
+        background: color-mix(in srgb, var(--accent), transparent 75%);
+        color: var(--fg);
+        font-family: 'Azeret Mono', monospace;
+        padding: 0.55rem 0.9rem;
+        cursor: pointer;
+        transition: transform 120ms ease, box-shadow 120ms ease;
+      }
+
+      button:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 5px 24px color-mix(in srgb, var(--accent), transparent 70%);
+      }
+
+      .meta {
+        font-family: 'Azeret Mono', monospace;
+        font-size: 0.8rem;
+        opacity: 0.85;
+      }
+
+      .terminal {
+        border: 1px solid color-mix(in srgb, var(--fg), transparent 80%);
+        background: color-mix(in srgb, var(--bg), black 18%);
+        border-radius: 14px;
+        padding: 1rem;
+        min-height: 60vh;
+        backdrop-filter: blur(6px);
+      }
+
+      .stream {
+        margin: 0;
+        font-family: 'Azeret Mono', monospace;
+        font-size: 0.95rem;
+        line-height: 1.6;
+        white-space: pre-wrap;
+      }
+
+      .cursor {
+        display: inline-block;
+        width: 0.75ch;
+        color: var(--accent);
+        animation: blink 0.85s steps(2, end) infinite;
+      }
+
+      @keyframes blink {
+        50% {
+          opacity: 0;
+        }
+      }
+
+      @media (max-width: 700px) {
+        .shell {
+          padding: 1.2rem 0.8rem 2.5rem;
+        }
+
+        .terminal {
+          min-height: 67vh;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <main class="shell">
+      <header class="header">
+        <h1 class="title" id="title">Loading hallucination...</h1>
+        <div class="vibe" id="vibe"></div>
+        <div class="controls">
+          <button id="new-page" type="button">Load Another Hallucination</button>
+          <span class="meta" id="meta"></span>
+        </div>
+      </header>
+
+      <section class="terminal">
+        <pre class="stream" id="stream"></pre><span class="cursor">▋</span>
+      </section>
+    </main>
+
+    <script>
+      const titleEl = document.getElementById('title');
+      const vibeEl = document.getElementById('vibe');
+      const streamEl = document.getElementById('stream');
+      const metaEl = document.getElementById('meta');
+      const root = document.documentElement;
+      const button = document.getElementById('new-page');
+
+      let runToken = 0;
+
+      const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+      const randomInt = (min, max) => Math.floor(Math.random() * (max - min + 1)) + min;
+
+      function remix(chunks) {
+        const line = chunks[randomInt(0, chunks.length - 1)] || 'signal lost';
+        const extras = [
+          '[auto-remix]',
+          '[schema drift]',
+          '[dream patch]',
+          '[unlicensed imagination]',
+          '[layout mutation]',
+        ];
+        return `${line} ${extras[randomInt(0, extras.length - 1)]}`;
+      }
+
+      async function typeLine(line, token) {
+        for (let i = 0; i < line.length; i += 1) {
+          if (token !== runToken) return;
+          streamEl.textContent += line[i];
+          await sleep(randomInt(6, 18));
+        }
+        streamEl.textContent += '\n';
+      }
+
+      async function runStream(page, token) {
+        const chunks = Array.isArray(page.chunks) ? page.chunks.filter(Boolean) : [];
+        if (!chunks.length) return;
+
+        let idx = 0;
+        while (token === runToken) {
+          const nextLine = idx < chunks.length ? chunks[idx] : remix(chunks);
+          idx += 1;
+          await typeLine(nextLine, token);
+          await sleep(randomInt(20, 140));
+
+          if (streamEl.textContent.length > 18000) {
+            streamEl.textContent = streamEl.textContent.slice(-10000);
+          }
+        }
+      }
+
+      async function loadRandomPage() {
+        const token = ++runToken;
+        streamEl.textContent = '';
+
+        const response = await fetch('/api/page/random', { cache: 'no-store' });
+        if (!response.ok) {
+          const err = await response.json().catch(() => ({}));
+          titleEl.textContent = 'No cache yet';
+          vibeEl.textContent = err.hint || 'Start the generator process first.';
+          metaEl.textContent = '';
+          return;
+        }
+
+        const page = await response.json();
+
+        titleEl.textContent = page.title || 'Untitled hallucination';
+        vibeEl.textContent = page.vibe || '';
+        metaEl.textContent = `id: ${page.id} • created: ${new Date(page.createdAt).toLocaleString()}`;
+
+        if (page.palette) {
+          if (page.palette.background) root.style.setProperty('--bg', page.palette.background);
+          if (page.palette.foreground) root.style.setProperty('--fg', page.palette.foreground);
+          if (page.palette.accent) root.style.setProperty('--accent', page.palette.accent);
+        }
+
+        runStream(page, token);
+      }
+
+      button.addEventListener('click', () => {
+        loadRandomPage();
+      });
+
+      loadRandomPage();
+    </script>
+  </body>
+</html>

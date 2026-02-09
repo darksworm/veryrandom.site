@@ -79,6 +79,7 @@ function injectOverlay(html, pageId) {
 <script>
 if('scrollRestoration' in history) history.scrollRestoration='manual';
 window.scrollTo(0,0);
+if(location.pathname!=='/random') history.replaceState(null,'','/random');
 (function(){
   var pid='${pageId}';
   var host=document.getElementById('__overlay-host');

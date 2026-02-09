@@ -29,6 +29,12 @@ if [ "$CHAOS" = "true" ]; then
   echo "🎨 CHAOS MODE"
 fi
 
+NONPROFIT_LINE=""
+if [ $((RANDOM % 10)) -eq 0 ]; then
+  NONPROFIT_LINE="TWIST: This is a non-profit organization. They have a donate button, a mission statement, volunteer opportunities, and that specific earnest non-profit energy. They genuinely believe they are making the world a better place."
+  echo "🕊️ NONPROFIT MODE"
+fi
+
 echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
 echo "Idea:    $IDEA"
 echo "Style:   $STYLE"
@@ -60,7 +66,7 @@ CRITICAL: Do NOT build a page that explains or showcases this concept. Do NOT ma
 
 STRUCTURE: Do NOT use a formulaic beginning/middle/end structure. Do NOT label sections like 'Chapter 1' or 'The Journey'. This is a WEBSITE, not a story. Structure it like a real website would be structured — nav, hero, features, pricing, testimonials, FAQ, footer, whatever fits. Mix it up. Some pages should be simple landing pages, some should be dense content sites, some should be app-like. Vary the structure every time. Never be predictable.
 
-Visual style: ${STYLE}. Color palette: ${COLOR}. Layout: ${LAYOUT}. ${CAT_LINE} ${CHAOS_LINE} CREATIVE DIRECTION: ${DENSITY_PROMPT}
+Visual style: ${STYLE}. Color palette: ${COLOR}. Layout: ${LAYOUT}. ${CAT_LINE} ${CHAOS_LINE} ${NONPROFIT_LINE} CREATIVE DIRECTION: ${DENSITY_PROMPT}
 
 MANDATORY — KEEP BOTTOM-RIGHT CORNER CLEAR: Do not place any fixed/sticky elements, popups, toasts, chat widgets, or important text in the bottom-right corner of the screen. That area is reserved for an external overlay.
 

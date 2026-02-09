@@ -70,6 +70,8 @@ function injectOverlay(html, pageId) {
   const favicon = `<link rel="icon" href="/favicon.svg" type="image/svg+xml">`;
   const snippet = `${html.includes('<head>') ? '' : favicon}<div id="__overlay-host"></div>
 <script>
+if('scrollRestoration' in history) history.scrollRestoration='manual';
+window.scrollTo(0,0);
 (function(){
   var pid='${pageId}';
   var host=document.getElementById('__overlay-host');

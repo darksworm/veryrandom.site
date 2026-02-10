@@ -1,0 +1,913 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Deep Current Institute — Tidal Strategy Consultancy</title>
+<link rel="stylesheet" href="/assets/css/fonts.css">
+<script src="/assets/js/gsap.min.js"></script>
+<style>
+  *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+  :root {
+    --terracotta: #C2704A;
+    --sand: #E8D5B7;
+    --olive: #6B7F4E;
+    --cream: #F5EDE0;
+    --dark: #2A2118;
+    --warm-grey: #8B7D6B;
+    --deep-brown: #3D2E1F;
+  }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    font-family: 'Crimson Pro', Georgia, serif;
+    background-color: var(--cream);
+    color: var(--dark);
+    overflow-x: hidden;
+    line-height: 1.6;
+    font-size: 18px;
+  }
+
+  /* Windows 95 luxury aesthetic */
+  .win95-border {
+    border: 2px solid var(--dark);
+    box-shadow: 3px 3px 0 var(--dark);
+  }
+
+  .win95-inset {
+    border: 2px solid var(--dark);
+    border-top-color: #6B5D4D;
+    border-left-color: #6B5D4D;
+    border-right-color: var(--sand);
+    border-bottom-color: var(--sand);
+  }
+
+  .win95-outset {
+    border: 2px solid var(--dark);
+    border-top-color: var(--sand);
+    border-left-color: var(--sand);
+    border-right-color: #6B5D4D;
+    border-bottom-color: #6B5D4D;
+  }
+
+  /* Title bar */
+  .title-bar {
+    background: linear-gradient(90deg, var(--deep-brown), var(--terracotta));
+    color: #F5EDE0;
+    padding: 4px 8px;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 13px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    letter-spacing: 0.05em;
+  }
+
+  .title-bar-buttons {
+    display: flex;
+    gap: 3px;
+  }
+
+  .title-bar-btn {
+    width: 18px;
+    height: 18px;
+    background: var(--sand);
+    border: 1px solid var(--dark);
+    font-size: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: default;
+    color: var(--dark);
+    font-family: 'IBM Plex Mono', monospace;
+  }
+
+  /* Navigation */
+  nav {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 100;
+    background: var(--cream);
+    border-bottom: 2px solid var(--dark);
+  }
+
+  .nav-inner {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 24px;
+  }
+
+  .nav-menu {
+    display: flex;
+    gap: 0;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 13px;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+  }
+
+  .nav-menu a {
+    color: var(--dark);
+    text-decoration: none;
+    padding: 12px 16px;
+    display: block;
+    border-right: 1px solid var(--dark);
+    transition: background 0.3s;
+  }
+
+  .nav-menu a:first-child {
+    border-left: 1px solid var(--dark);
+  }
+
+  .nav-menu a:hover {
+    background: var(--sand);
+  }
+
+  /* Main container */
+  .container {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 0 24px;
+  }
+
+  /* Hero */
+  .hero {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding-top: 60px;
+  }
+
+  .hero h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(3rem, 10vw, 8rem);
+    line-height: 0.95;
+    letter-spacing: -0.03em;
+    color: var(--dark);
+    margin-bottom: 40px;
+  }
+
+  .hero h1 em {
+    font-style: italic;
+    color: var(--terracotta);
+  }
+
+  .hero-subtitle {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: clamp(11px, 1.5vw, 13px);
+    text-transform: uppercase;
+    letter-spacing: 0.2em;
+    color: #4A3D30;
+    margin-bottom: 60px;
+    line-height: 1.8;
+  }
+
+  .hero-tagline {
+    font-size: clamp(1.2rem, 3vw, 1.8rem);
+    color: #3D2E1F;
+    max-width: 600px;
+    line-height: 1.5;
+  }
+
+  /* Divider */
+  .divider {
+    width: 100%;
+    height: 2px;
+    background: var(--dark);
+    margin: 80px 0;
+    position: relative;
+  }
+
+  .divider::after {
+    content: '◆';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: var(--cream);
+    padding: 0 12px;
+    font-size: 10px;
+    color: var(--terracotta);
+  }
+
+  /* Section titles */
+  .section-label {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.3em;
+    color: #4A3D30;
+    margin-bottom: 16px;
+  }
+
+  .section-heading {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(2rem, 6vw, 4.5rem);
+    line-height: 1.05;
+    letter-spacing: -0.02em;
+    color: var(--dark);
+    margin-bottom: 40px;
+  }
+
+  /* Margaret notice */
+  .margaret-notice {
+    background: var(--sand);
+    padding: 32px;
+    margin: 60px 0;
+    position: relative;
+  }
+
+  .margaret-notice .notice-header {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.2em;
+    color: #4A3D30;
+    margin-bottom: 12px;
+  }
+
+  .margaret-notice p {
+    font-size: 1.1rem;
+    color: #2A2118;
+    line-height: 1.7;
+  }
+
+  .margaret-status {
+    display: inline-block;
+    width: 8px;
+    height: 8px;
+    background: var(--olive);
+    border-radius: 50%;
+    margin-right: 6px;
+    animation: pulse-dot 3s ease-in-out infinite;
+  }
+
+  @keyframes pulse-dot {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.3; }
+  }
+
+  /* Tidal menu */
+  .tide-window {
+    margin: 80px 0;
+  }
+
+  .tide-window .window-body {
+    background: var(--cream);
+    padding: 40px;
+  }
+
+  .tide-phase {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 12px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: #4A3D30;
+    margin-bottom: 8px;
+  }
+
+  .tide-status {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(1.5rem, 4vw, 2.5rem);
+    color: var(--dark);
+    margin-bottom: 32px;
+  }
+
+  .menu-items {
+    list-style: none;
+    padding: 0;
+  }
+
+  .menu-items li {
+    padding: 20px 0;
+    border-bottom: 1px solid var(--dark);
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .menu-items li:last-child {
+    border-bottom: none;
+  }
+
+  .menu-item-name {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(1.1rem, 2.5vw, 1.5rem);
+    color: var(--dark);
+  }
+
+  .menu-item-price {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 14px;
+    color: #3D2E1F;
+    white-space: nowrap;
+  }
+
+  .menu-item-note {
+    width: 100%;
+    font-size: 0.9rem;
+    color: #4A3D30;
+    font-style: italic;
+    margin-top: 4px;
+  }
+
+  .menu-redacted {
+    background: var(--dark);
+    color: var(--dark);
+    padding: 2px 8px;
+    cursor: pointer;
+    transition: all 1.5s ease;
+    user-select: none;
+  }
+
+  .menu-redacted.revealed {
+    background: transparent;
+    color: var(--terracotta);
+  }
+
+  /* Subscriptions */
+  .subscription-tier {
+    margin: 60px 0;
+    padding: 48px;
+    background: var(--sand);
+    position: relative;
+  }
+
+  .subscription-tier.featured {
+    background: var(--deep-brown);
+    color: var(--cream);
+  }
+
+  .subscription-tier.featured .tier-name,
+  .subscription-tier.featured .tier-price,
+  .subscription-tier.featured p,
+  .subscription-tier.featured li {
+    color: #E8D5B7;
+  }
+
+  .subscription-tier.featured .tier-label {
+    color: #C2A882;
+  }
+
+  .tier-label {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.3em;
+    color: #4A3D30;
+    margin-bottom: 8px;
+  }
+
+  .tier-name {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(1.8rem, 5vw, 3rem);
+    color: var(--dark);
+    margin-bottom: 8px;
+  }
+
+  .tier-price {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: clamp(1rem, 2vw, 1.3rem);
+    color: #3D2E1F;
+    margin-bottom: 24px;
+  }
+
+  .tier-features {
+    list-style: none;
+    padding: 0;
+  }
+
+  .tier-features li {
+    padding: 8px 0;
+    font-size: 1rem;
+    color: #2A2118;
+    border-bottom: 1px solid rgba(42,33,24,0.15);
+  }
+
+  .tier-features li:last-child {
+    border-bottom: none;
+  }
+
+  .subscription-tier.featured .tier-features li {
+    border-bottom-color: rgba(232,213,183,0.15);
+  }
+
+  .margaret-overlay-text {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%) rotate(-5deg);
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: clamp(10px, 1.5vw, 13px);
+    text-transform: uppercase;
+    letter-spacing: 0.2em;
+    color: var(--terracotta);
+    white-space: nowrap;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 2s ease;
+  }
+
+  .subscription-tier:hover .margaret-overlay-text {
+    opacity: 1;
+  }
+
+  /* Testimonials */
+  .testimonial {
+    margin: 60px 0;
+    padding: 0;
+  }
+
+  .testimonial blockquote {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(1.3rem, 3.5vw, 2.2rem);
+    line-height: 1.4;
+    color: var(--dark);
+    margin-bottom: 20px;
+    font-style: italic;
+  }
+
+  .testimonial cite {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.15em;
+    color: #4A3D30;
+    font-style: normal;
+    display: block;
+  }
+
+  /* FAQ */
+  .faq-item {
+    margin: 40px 0;
+  }
+
+  .faq-item h3 {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(1.2rem, 3vw, 1.6rem);
+    color: var(--dark);
+    margin-bottom: 12px;
+  }
+
+  .faq-item p {
+    font-size: 1rem;
+    color: #2A2118;
+    line-height: 1.7;
+    max-width: 700px;
+  }
+
+  /* Footer */
+  footer {
+    margin-top: 120px;
+    padding: 48px 0 80px;
+    border-top: 2px solid var(--dark);
+  }
+
+  .footer-text {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.2em;
+    color: #4A3D30;
+    line-height: 2;
+  }
+
+  .footer-large {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(1.5rem, 4vw, 3rem);
+    color: var(--dark);
+    margin-top: 24px;
+    line-height: 1.2;
+  }
+
+  /* Slow float animation */
+  .float-slow {
+    animation: floatSlow 8s ease-in-out infinite;
+  }
+
+  @keyframes floatSlow {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-8px); }
+  }
+
+  /* Cat cursor area */
+  .cat-cursor-zone {
+    cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24'%3E%3Ctext y='20' font-size='18'%3E🐱%3C/text%3E%3C/svg%3E") 12 12, auto;
+  }
+
+  /* Massive pull quote */
+  .pull-quote {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(2.5rem, 8vw, 6rem);
+    line-height: 1.05;
+    letter-spacing: -0.02em;
+    color: var(--terracotta);
+    margin: 120px 0;
+    text-indent: -0.05em;
+  }
+
+  /* Responsive */
+  @media (max-width: 768px) {
+    .nav-menu {
+      flex-wrap: wrap;
+    }
+    .nav-menu a {
+      padding: 10px 12px;
+      font-size: 11px;
+      border-bottom: 1px solid var(--dark);
+    }
+    .subscription-tier {
+      padding: 32px 24px;
+    }
+    .tide-window .window-body {
+      padding: 24px;
+    }
+    .margaret-notice {
+      padding: 24px;
+    }
+    .pull-quote {
+      margin: 80px 0;
+    }
+  }
+
+  @media (max-width: 480px) {
+    body { font-size: 16px; }
+    .hero { padding-top: 80px; }
+    .nav-menu a {
+      flex: 1 1 auto;
+      text-align: center;
+      font-size: 10px;
+      padding: 8px 6px;
+    }
+  }
+
+  /* Reveal animation classes */
+  .reveal-el {
+    visibility: hidden;
+  }
+</style>
+</head>
+<body>
+
+<!-- Navigation -->
+<nav>
+  <div class="title-bar">
+    <span>deepcurrent.exe — The Deep Current Institute</span>
+    <div class="title-bar-buttons">
+      <span class="title-bar-btn">_</span>
+      <span class="title-bar-btn">□</span>
+      <span class="title-bar-btn">×</span>
+    </div>
+  </div>
+  <div class="nav-inner">
+    <div class="nav-menu">
+      <a href="#services">Services</a>
+      <a href="#menu">Today's Menu</a>
+      <a href="#subscribe">Subscribe</a>
+      <a href="#clients">Clients</a>
+      <a href="#faq">FAQ</a>
+    </div>
+  </div>
+</nav>
+
+<!-- Hero -->
+<section class="hero container">
+  <div class="hero-subtitle reveal-el">
+    Est. 2011 &nbsp;·&nbsp; Tank #7, East Wing &nbsp;·&nbsp; Tidal Strategy Since the Waning Gibbous
+  </div>
+  <h1 class="reveal-el">The Deep<br><em>Current</em><br>Institute</h1>
+  <p class="hero-tagline reveal-el">
+    We see what you cannot. Partly because we are submerged. Partly because Margaret is sleeping on your Q3 projections again.
+  </p>
+</section>
+
+<div class="container">
+  <div class="divider"></div>
+</div>
+
+<!-- About / Services -->
+<section id="services" class="container">
+  <p class="section-label reveal-el">A Message from Dr. Gill Worthington, Founder & Senior Strategist</p>
+  <h2 class="section-heading reveal-el">Strategy is a <em>current.</em></h2>
+  <div style="max-width:700px;">
+    <p class="reveal-el" style="font-size:1.15rem; line-height:1.8; color:#2A2118; margin-bottom:24px;">
+      For fourteen years I have circled this tank. Fourteen years of observation. Fourteen years of pattern recognition at 0.3 miles per hour. I have watched markets rise and fall from behind 12mm of curved glass. I have developed methodologies that your land-based consultants could never conceive — primarily because they are distracted by gravity, weather, and the concept of "walking."
+    </p>
+    <p class="reveal-el" style="font-size:1.15rem; line-height:1.8; color:#2A2118; margin-bottom:24px;">
+      Our team of 23 fish — including 4 guppies in our Rapid Insights Division and one very senior catfish who has not moved since 2019 but whose presence we find grounding — offers strategic counsel calibrated to the only force that has never lied: the tide.
+    </p>
+    <p class="reveal-el" style="font-size:1.15rem; line-height:1.8; color:#2A2118;">
+      We will change the way you think about business. If you can get to the document before Margaret does.
+    </p>
+  </div>
+</section>
+
+<!-- Margaret Notice -->
+<div class="container">
+  <div class="margaret-notice win95-inset reveal-el">
+    <p class="notice-header"><span class="margaret-status"></span> Margaret Status: Active</p>
+    <p>
+      Margaret (domestic shorthair, 9 lbs, orange tabby, employee since 2016) is currently sleeping on the 2026 Strategic Outlook Report, pages 14–37. Estimated wake time: unknown. Previous record: 11 hours. She has never been moved. Board policy explicitly forbids it. We have tried placing decoy documents. She knows.
+    </p>
+  </div>
+</div>
+
+<!-- Pull Quote -->
+<div class="container">
+  <p class="pull-quote reveal-el">The tide doesn't care about your roadmap.</p>
+</div>
+
+<!-- Tidal Menu -->
+<section id="menu" class="container">
+  <div class="tide-window win95-border">
+    <div class="title-bar">
+      <span>tidal_menu.exe — Today's Offerings</span>
+      <div class="title-bar-buttons">
+        <span class="title-bar-btn">_</span>
+        <span class="title-bar-btn">□</span>
+        <span class="title-bar-btn">×</span>
+      </div>
+    </div>
+    <div class="window-body">
+      <p class="tide-phase reveal-el" id="tide-phase-text">Current Tide Phase: Calculating...</p>
+      <h2 class="tide-status reveal-el" id="tide-status-text">Loading tidal data...</h2>
+
+      <ul class="menu-items" id="menu-list">
+        <!-- Populated by JS based on time -->
+      </ul>
+
+      <p style="margin-top:32px; font-family:'IBM Plex Mono',monospace; font-size:11px; letter-spacing:0.15em; text-transform:uppercase; color:#4A3D30;" class="reveal-el">
+        Menu changes with the tide. We do not control this. Nobody controls this.
+      </p>
+    </div>
+  </div>
+</section>
+
+<div class="container">
+  <div class="divider"></div>
+</div>
+
+<!-- Subscription Tiers -->
+<section id="subscribe" class="container">
+  <p class="section-label reveal-el">Membership</p>
+  <h2 class="section-heading reveal-el">Subscribe to the Current</h2>
+
+  <div class="subscription-tier win95-outset reveal-el">
+    <p class="tier-label">Tier I</p>
+    <h3 class="tier-name">Shallow End</h3>
+    <p class="tier-price">$47.99/month — Billed during low tide only</p>
+    <ul class="tier-features">
+      <li>Weekly strategic memo (3–7 pages visible, remainder under Margaret)</li>
+      <li>Tide-adjusted market forecasts every 12 hours and 25 minutes</li>
+      <li>One (1) minute of direct observation through the tank glass per month</li>
+      <li>Access to our ambient tank livestream (no audio — fish are thinking)</li>
+    </ul>
+    <span class="margaret-overlay-text">[ Margaret is on this document ]</span>
+  </div>
+
+  <div class="subscription-tier featured win95-outset reveal-el">
+    <p class="tier-label">Tier II — Most Popular</p>
+    <h3 class="tier-name">The Thermocline</h3>
+    <p class="tier-price">$249.99/month — Billed when the moon says so</p>
+    <ul class="tier-features">
+      <li>Everything in Shallow End</li>
+      <li>Bi-weekly 1-on-1 with Dr. Worthington (you speak; he circles)</li>
+      <li>Priority document retrieval attempts (Margaret success rate: 0%)</li>
+      <li>Custom tidal strategy deck, hand-delivered by intern with net</li>
+      <li>The catfish will blink at you once (interpreted by senior staff)</li>
+    </ul>
+    <span class="margaret-overlay-text" style="color:#E8D5B7;">[ Margaret is on this document ]</span>
+  </div>
+
+  <div class="subscription-tier win95-outset reveal-el">
+    <p class="tier-label">Tier III</p>
+    <h3 class="tier-name">The Abyssal</h3>
+    <p class="tier-price">$1,200/month — Billed in shells</p>
+    <ul class="tier-features">
+      <li>Everything in The Thermocline</li>
+      <li>Your name etched into the castle decoration (east turret only)</li>
+      <li>Margaret will be shown a photograph of your face (no guarantees)</li>
+      <li>Full tidal audit of your organization — 400-page report (est. 112 pages accessible)</li>
+      <li>You may tap the glass twice (Dr. Worthington will not acknowledge this, but he notices)</li>
+      <li>Emergency consultation during spring tides (surcharge: one bloodworm)</li>
+    </ul>
+    <span class="margaret-overlay-text">[ Margaret is on this document ]</span>
+  </div>
+</section>
+
+<div class="container">
+  <div class="divider"></div>
+</div>
+
+<!-- Testimonials -->
+<section id="clients" class="container">
+  <p class="section-label reveal-el">Client Reflections</p>
+
+  <div class="testimonial reveal-el">
+    <blockquote>
+      "I came for the tidal forecasting. I stayed because a fish looked at me for nine consecutive seconds and I have never felt more understood by a financial advisor."
+    </blockquote>
+    <cite>— Patricia Helm, CFO, Brackwater Holdings</cite>
+  </div>
+
+  <div class="testimonial reveal-el">
+    <blockquote>
+      "The 400-page audit was extraordinary. I could only read pages 1–12 and 38–41 because of the cat, but those 17 pages restructured my entire supply chain."
+    </blockquote>
+    <cite>— Dennis Koi (no relation), Director of Operations, TerraFirm Ltd.</cite>
+  </div>
+
+  <div class="testimonial reveal-el">
+    <blockquote>
+      "Dr. Worthington circled left during my presentation. My team took that as a sell signal. We avoided a $2.3M loss. He may have just been turning around. We will never know. That's the beauty."
+    </blockquote>
+    <cite>— Anonymous, Fortune 500</cite>
+  </div>
+</section>
+
+<div class="container">
+  <p class="pull-quote reveal-el" style="font-size:clamp(1.5rem,5vw,3.5rem);">Margaret has been asleep for six hours. The board is concerned but will not intervene.</p>
+</div>
+
+<div class="container">
+  <div class="divider"></div>
+</div>
+
+<!-- FAQ -->
+<section id="faq" class="container">
+  <p class="section-label reveal-el">Frequently Asked Questions</p>
+  <h2 class="section-heading reveal-el">We anticipated your confusion.</h2>
+
+  <div class="faq-item reveal-el">
+    <h3>Can I meet Dr. Worthington in person?</h3>
+    <p>
+      Dr. Worthington is available for viewing during tank hours (8am–6pm, tidal permitting). He will not speak to you. He will not look at you on command. If he does look at you, our Senior Gaze Interpreter will provide a written analysis within 3–5 business days. Please do not tap the glass. He is working.
+    </p>
+  </div>
+
+  <div class="faq-item reveal-el">
+    <h3>Why can't you just move the cat?</h3>
+    <p>
+      In 2018, an intern named Derek attempted to relocate Margaret from the Q4 earnings summary. Margaret bit Derek. Derek filed a workers' comp claim. The board voted 7–2 (the two dissenters were guppies, who have since been reassigned) to classify Margaret as "immovable critical infrastructure." She now has her own line item in the budget: $14,200/year for premium cat food and a heated blanket that she has never used because she prefers the documents.
+    </p>
+  </div>
+
+  <div class="faq-item reveal-el">
+    <h3>What if I need the document Margaret is sleeping on?</h3>
+    <p>
+      You wait. We have a notification system. When Margaret shifts position — even slightly — an alert is sent to all Thermocline and Abyssal subscribers. Average window of opportunity: 4 seconds. Our fastest client once retrieved 3 pages in a single shift event. She wept. We all wept. Margaret went back to sleep.
+    </p>
+  </div>
+
+  <div class="faq-item reveal-el">
+    <h3>How does the tide affect your services?</h3>
+    <p>
+      The tide is the only honest consultant. At high tide, we offer expansive, optimistic strategy. At low tide, brutal operational audits. During neap tides, we simply observe. During king tides, Dr. Worthington becomes "energized" (he swims 12% faster) and we issue our most aggressive recommendations. This is not pseudoscience. This is marine-calibrated strategic methodology.
+    </p>
+  </div>
+
+  <div class="faq-item reveal-el">
+    <h3>Has the catfish moved since 2019?</h3>
+    <p>
+      Once, in March 2022. He shifted 2 centimeters to the left. Our team interpreted this as a strong buy signal for emerging markets. Clients who acted on this insight saw a 23% return. He has not moved since. We are watching.
+    </p>
+  </div>
+</section>
+
+<!-- Footer -->
+<footer class="container">
+  <p class="footer-text">
+    The Deep Current Institute &nbsp;·&nbsp; Tank #7, East Wing<br>
+    14 years of circling &nbsp;·&nbsp; 0 documents fully retrieved<br>
+    Margaret Employee of the Month: every month since 2016<br><br>
+    © 2026 The Deep Current Institute. All strategies are tidal and non-refundable.<br>
+    Dr. Worthington is a koi, not a fiduciary. This is not financial advice. This is water.
+  </p>
+  <p class="footer-large reveal-el">The current knows.</p>
+</footer>
+
+<div style="height:40px;"></div>
+
+<script>
+(function() {
+  "use strict";
+
+  // Tidal menu system — changes based on time of day to simulate tide
+  var hour = new Date().getHours();
+  var tidePhase, tideTitle, menuData;
+
+  if (hour >= 0 && hour < 6) {
+    tidePhase = "LOW TIDE — WANING";
+    tideTitle = "The Brutal Hours";
+    menuData = [
+      { name: "Unflinching Operational Audit", price: "$3,400", note: "\"We will tell you what the tide sees. You will not enjoy it.\"" },
+      { name: "Cost Reduction via Silence", price: "$800", note: "Dr. Worthington stares at your P&L. Says nothing. You understand." },
+      { name: "The Mud Report", price: "$1,100", note: "What's left when the water recedes. 60% visible (Margaret: pages 8–22)." },
+      { name: "Emergency Gravel Consultation", price: "$475", note: "For when things are at the bottom." }
+    ];
+  } else if (hour >= 6 && hour < 12) {
+    tidePhase = "RISING TIDE — MORNING CURRENT";
+    tideTitle = "Ascending Offerings";
+    menuData = [
+      { name: "Dawn Positioning Strategy", price: "$2,200", note: "\"The market opens. The filter hums. Possibility is everywhere.\"" },
+      { name: "Momentum Circling Session", price: "$950", note: "Dr. Worthington circles your problem counterclockwise. Insights follow." },
+      { name: "The First Feeding Forecast", price: "$1,800", note: "Timed to 9:30am ET. Correlates with bloodworm delivery. 87% accuracy." },
+      { name: "Partial Document Recovery Attempt", price: "$600", note: "Margaret typically shifts at 7:14am. No guarantees. Bring gloves." }
+    ];
+  } else if (hour >= 12 && hour < 18) {
+    tidePhase = "HIGH TIDE — PEAK CURRENT";
+    tideTitle = "Expansive Visions";
+    menuData = [
+      { name: "Grand Strategic Panorama", price: "$5,200", note: "\"At high tide, we see everything. Except pages 14–37. Margaret.\"" },
+      { name: "Optimistic Growth Circling", price: "$2,800", note: "Dr. Worthington circles RIGHT. This means growth. We are almost certain." },
+      { name: "The Full Tank Experience", price: "$4,100", note: "All 23 fish aligned toward your quarterly goals. The catfish participates spiritually." },
+      { name: "Kelp-Forward Innovation Brief", price: "$1,500", note: "Redacted — see below", redacted: "\"The kelp is a metaphor. The kelp is also literal. We are in a tank.\"" }
+    ];
+  } else {
+    tidePhase = "EBBING TIDE — EVENING RETREAT";
+    tideTitle = "Reflective Withdrawals";
+    menuData = [
+      { name: "Sunset Risk Assessment", price: "$1,900", note: "\"As the water recedes, so do your illusions about Q4.\"" },
+      { name: "The Quiet Audit", price: "$1,200", note: "Performed while the tank light dims. Very atmospheric. Very honest." },
+      { name: "Margaret's Evening Report", price: "$700", note: "Pages she has rolled onto during the day, interpreted by our Fur Analyst." },
+      { name: "End-of-Cycle Gravel Reset", price: "$450", note: "We rearrange the gravel. Symbolically and literally. Fresh start." }
+    ];
+  }
+
+  var phaseEl = document.getElementById("tide-phase-text");
+  var statusEl = document.getElementById("tide-status-text");
+  var menuList = document.getElementById("menu-list");
+
+  if (phaseEl) phaseEl.textContent = "Current Tide Phase: " + tidePhase;
+  if (statusEl) statusEl.textContent = tideTitle;
+
+  if (menuList) {
+    var html = "";
+    for (var i = 0; i < menuData.length; i++) {
+      var item = menuData[i];
+      html += '<li class="reveal-el">';
+      html += '<span class="menu-item-name">' + item.name + '</span>';
+      html += '<span class="menu-item-price">' + item.price + '</span>';
+      if (item.redacted) {
+        html += '<span class="menu-item-note"><span class="menu-redacted" data-text="' + item.redacted.replace(/"/g, '&quot;') + '">[REDACTED — Click to attempt retrieval]</span></span>';
+      } else {
+        html += '<span class="menu-item-note">' + item.note + '</span>';
+      }
+      html += '</li>';
+    }
+    menuList.innerHTML = html;
+  }
+
+  // Redacted text reveal
+  document.addEventListener("click", function(e) {
+    if (e.target && e.target.classList.contains("menu-redacted")) {
+      e.target.classList.add("revealed");
+      e.target.textContent = e.target.getAttribute("data-text");
+    }
+  });
+
+  // GSAP reveal animations
+  function initAnimations() {
+    var els = document.querySelectorAll(".reveal-el");
+    for (var i = 0; i < els.length; i++) {
+      els[i].style.visibility = "visible";
+    }
+
+    gsap.fromTo(".reveal-el",
+      { y: 30, opacity: 0 },
+      {
+        y: 0,
+        opacity: 1,
+        duration: 0.9,
+        stagger: 0.08,
+        ease: "power2.out",
+        clearProps: "opacity,transform",
+        onComplete: function() {
+          var allEls = document.querySelectorAll(".reveal-el");
+          for (var j = 0; j < allEls.length; j++) {
+            allEls[j].style.opacity = "";
+            allEls[j].style.transform = "";
+            allEls[j].style.visibility = "";
+          }
+        }
+      }
+    );
+  }
+
+  // Run on DOM ready
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", initAnimations);
+  } else {
+    initAnimations();
+  }
+})();
+</script>
+</body>
+</html>

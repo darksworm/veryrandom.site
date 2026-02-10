@@ -1,0 +1,706 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Moonwhisker Treasury Library</title>
+  <link rel="stylesheet" href="/assets/css/pico.min.css" />
+  <link rel="stylesheet" href="/assets/css/fonts.css" />
+  <style>
+    :root {
+      --ink: #111217;
+      --paper: #fdfdfd;
+      --night: #0f1020;
+      --neon: #9ff8ff;
+      --a: #ffd1dc;
+      --b: #ffe9b3;
+      --c: #c8ffd6;
+      --d: #cfe3ff;
+      --e: #efdbff;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      color: #f8f9ff;
+      font-family: "Space Grotesk", sans-serif;
+      background:
+        radial-gradient(circle at 8% 10%, #2a1b45 0%, transparent 40%),
+        radial-gradient(circle at 92% 18%, #1c4068 0%, transparent 36%),
+        radial-gradient(circle at 30% 88%, #3d174d 0%, transparent 35%),
+        linear-gradient(160deg, #090b14 0%, #11152c 60%, #0b0d1d 100%);
+      min-height: 100vh;
+    }
+
+    a {
+      color: #101010;
+    }
+
+    .site-wrap {
+      width: min(1400px, 96vw);
+      margin: 1.25rem auto 2.25rem;
+      position: relative;
+      padding-bottom: 1rem;
+    }
+
+    .masthead {
+      background: linear-gradient(100deg, var(--a), var(--c), var(--d), var(--e));
+      color: var(--ink);
+      border: 2px solid #07070c;
+      border-radius: 18px;
+      box-shadow: 0 0 0 2px #4ef0ff, 0 0 18px rgba(78, 240, 255, 0.4);
+      padding: 1rem 1.2rem;
+      display: grid;
+      gap: 0.75rem;
+    }
+
+    .brand-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 0.8rem;
+    }
+
+    .brand {
+      font-family: "Playfair Display", serif;
+      font-size: clamp(1.5rem, 2.7vw, 2.4rem);
+      margin: 0;
+      letter-spacing: 0.01em;
+      color: #050507;
+    }
+
+    .tagline {
+      margin: 0;
+      font-size: 0.98rem;
+      color: #151525;
+      font-weight: 700;
+    }
+
+    nav ul {
+      display: flex;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+      list-style: none;
+      padding: 0;
+      margin: 0;
+    }
+
+    nav a {
+      display: inline-block;
+      background: #ffffff;
+      color: #0d0d14;
+      border: 1px solid #111;
+      border-radius: 999px;
+      padding: 0.35rem 0.7rem;
+      text-decoration: none;
+      font-size: 0.84rem;
+      font-weight: 700;
+    }
+
+    nav a:hover {
+      background: #f2f8ff;
+    }
+
+    .desktop {
+      position: relative;
+      margin-top: 1.1rem;
+      display: grid;
+      grid-template-columns: repeat(12, 1fr);
+      gap: 1rem;
+    }
+
+    .window {
+      border: 2px solid #101018;
+      border-radius: 16px;
+      color: #121212;
+      background: linear-gradient(120deg, #ffffff, #f6fbff);
+      box-shadow: 0 12px 24px rgba(0, 0, 0, 0.35), 0 0 0 1px rgba(255, 255, 255, 0.6) inset;
+      overflow: hidden;
+    }
+
+    .w-head {
+      border-bottom: 2px solid #0e0f19;
+      padding: 0.55rem 0.85rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 0.5rem;
+      background: linear-gradient(90deg, var(--a), var(--b), var(--c), var(--d), var(--e));
+      color: #0c0c12;
+      font-weight: 700;
+      font-size: 0.84rem;
+    }
+
+    .lights {
+      display: inline-flex;
+      gap: 0.3rem;
+    }
+
+    .dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 999px;
+      border: 1px solid #111;
+      background: #fff;
+    }
+
+    .w-body {
+      padding: 1rem;
+      background: linear-gradient(150deg, #fffdfa, #f9faff);
+      color: #0f0f14;
+    }
+
+    .hero {
+      grid-column: 1 / 9;
+      transform: rotate(-1.1deg);
+      z-index: 3;
+    }
+
+    .bulletin {
+      grid-column: 8 / 13;
+      margin-top: 2.8rem;
+      transform: rotate(1.2deg);
+      z-index: 2;
+    }
+
+    .programs {
+      grid-column: 1 / 7;
+      margin-top: -0.8rem;
+      transform: rotate(0.6deg);
+      z-index: 4;
+    }
+
+    .letters {
+      grid-column: 7 / 13;
+      margin-top: 0.7rem;
+      transform: rotate(-1.3deg);
+      z-index: 5;
+    }
+
+    .staff {
+      grid-column: 1 / 8;
+      margin-top: 0.4rem;
+      transform: rotate(1deg);
+      z-index: 2;
+    }
+
+    .faq {
+      grid-column: 8 / 13;
+      margin-top: -0.5rem;
+      transform: rotate(-0.4deg);
+      z-index: 3;
+    }
+
+    .press {
+      grid-column: 1 / 13;
+      margin-top: -0.2rem;
+      transform: rotate(0.2deg);
+      z-index: 1;
+    }
+
+    h1, h2, h3 {
+      color: #080810;
+      margin-top: 0;
+    }
+
+    h1 {
+      font-family: "Playfair Display", serif;
+      font-size: clamp(2rem, 4.2vw, 3.3rem);
+      margin-bottom: 0.55rem;
+    }
+
+    .lede {
+      font-size: 1rem;
+      line-height: 1.6;
+      color: #111118;
+      margin-bottom: 0.8rem;
+    }
+
+    .mono {
+      font-family: "IBM Plex Mono", monospace;
+      font-size: 0.83rem;
+      color: #15151f;
+      background: #f3f5ff;
+      border: 1px solid #181824;
+      border-radius: 8px;
+      padding: 0.35rem 0.55rem;
+      display: inline-block;
+      margin-right: 0.35rem;
+      margin-bottom: 0.35rem;
+    }
+
+    .tab-row {
+      display: flex;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+      margin-bottom: 0.75rem;
+    }
+
+    .tab-row button {
+      margin: 0;
+      border: 1px solid #101017;
+      border-radius: 999px;
+      background: #fff;
+      color: #0f0f18;
+      font-weight: 700;
+      font-size: 0.8rem;
+      padding: 0.35rem 0.7rem;
+      cursor: pointer;
+    }
+
+    .tab-row button.active {
+      background: #0f1222;
+      color: #ffffff;
+    }
+
+    .note {
+      border-left: 4px solid #101018;
+      padding-left: 0.7rem;
+      margin: 0.55rem 0;
+      color: #111;
+      background: #f6f8ff;
+    }
+
+    .pricing-grid,
+    .testimonials,
+    .team-grid,
+    .press-grid {
+      display: grid;
+      gap: 0.75rem;
+    }
+
+    .pricing-grid {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+
+    .team-grid {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+
+    .testimonials {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .press-grid {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+
+    .card {
+      border: 1px solid #111219;
+      border-radius: 12px;
+      padding: 0.8rem;
+      background: #ffffff;
+      color: #0e0f14;
+    }
+
+    .card h3, .card h4 {
+      margin-bottom: 0.4rem;
+    }
+
+    .price {
+      font-family: "Playfair Display", serif;
+      font-size: 1.5rem;
+      margin-bottom: 0.35rem;
+      color: #090911;
+    }
+
+    .soup {
+      font-family: "IBM Plex Mono", monospace;
+      font-size: 0.88rem;
+      font-weight: 700;
+      color: #141420;
+      background: #eef6ff;
+      border: 1px solid #101010;
+      display: inline-block;
+      padding: 0.2rem 0.45rem;
+      border-radius: 8px;
+    }
+
+    .reveal {
+      background: #f9fbff;
+      border: 1px solid #111;
+      border-radius: 10px;
+      padding: 0.6rem;
+      transition: transform 0.2s ease;
+    }
+
+    .reveal .extra {
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.25s ease;
+      color: #101018;
+      font-size: 0.92rem;
+    }
+
+    .reveal:hover {
+      transform: translateY(-3px);
+    }
+
+    .reveal:hover .extra {
+      max-height: 220px;
+    }
+
+    .faq-item {
+      border: 1px solid #0f1017;
+      border-radius: 10px;
+      margin-bottom: 0.55rem;
+      background: #ffffff;
+      overflow: hidden;
+    }
+
+    .faq-q {
+      width: 100%;
+      text-align: left;
+      border: 0;
+      background: #ffffff;
+      color: #0d0d14;
+      padding: 0.7rem 0.8rem;
+      font-weight: 700;
+      cursor: pointer;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 0.6rem;
+    }
+
+    .faq-a {
+      padding: 0 0.8rem 0.8rem;
+      color: #111;
+      background: #fbfdff;
+    }
+
+    footer {
+      margin-top: 1rem;
+      color: #f8f8ff;
+      font-size: 0.9rem;
+      text-align: left;
+      padding: 0.4rem 0.2rem;
+    }
+
+    .icon {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      font-weight: 700;
+      color: #101010;
+    }
+
+    @media (max-width: 960px) {
+      .desktop {
+        grid-template-columns: 1fr;
+      }
+
+      .hero,
+      .bulletin,
+      .programs,
+      .letters,
+      .staff,
+      .faq,
+      .press {
+        grid-column: auto;
+        margin-top: 0;
+        transform: none;
+      }
+
+      .pricing-grid,
+      .team-grid,
+      .testimonials,
+      .press-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="site-wrap">
+    <header class="masthead">
+      <div class="brand-row">
+        <div>
+          <p class="tagline">Registered Treasury Reading Room • Est. 2022</p>
+          <h1 class="brand">Moonwhisker Treasury Library</h1>
+        </div>
+        <div class="icon"><i data-lucide="cat"></i> Licensed Dance Communication Desk</div>
+      </div>
+      <nav aria-label="primary">
+        <ul>
+          <li><a href="#prospectus">Prospectus</a></li>
+          <li><a href="#programs">Programs</a></li>
+          <li><a href="#letters">Client Letters</a></li>
+          <li><a href="#staff">Advisors</a></li>
+          <li><a href="#faq">FAQ</a></li>
+          <li><a href="#press">Press Room</a></li>
+        </ul>
+      </nav>
+    </header>
+
+    <section class="desktop">
+      <article class="window hero" id="prospectus" x-data="{ tab: 'daily' }">
+        <div class="w-head">
+          <span>Primary Reading Terminal: Feline Macro Prospectus</span>
+          <span class="lights"><span class="dot"></span><span class="dot"></span><span class="dot"></span></span>
+        </div>
+        <div class="w-body">
+          <h2>Caretaker-grade wealth guidance, translated in full-body motion.</h2>
+          <p class="lede">Moonwhisker Treasury Library advises households, clubs, and corner bakeries on balanced digital asset stewardship through a choreographic briefing model. Your lead advisor performs market position, risk appetite, and treasury direction in a sequence of cataloged gestures; each motion maps to a published glossary in our Reading Annex.</p>
+          <p class="lede">Our flagship instrument, <strong>Pirouette Ledger Unit (PLU)</strong>, is the cooperative reserve coin used for long-horizon household liquidity. Subscription and retainers are settled in soup, transferred in sealed portions and documented against your account folio.</p>
+
+          <div>
+            <span class="mono">Dance-to-decision protocol: Revision 5.4</span>
+            <span class="mono">Soup clearing windows: Tue/Fri 07:00-11:00</span>
+            <span class="mono">Custody model: Cozy + Auditable</span>
+          </div>
+
+          <h3 style="margin-top:1rem;">Current brief format</h3>
+          <div class="tab-row" role="tablist" aria-label="brief tabs">
+            <button :class="tab === 'daily' ? 'active' : ''" x-on:click="tab = 'daily'">Daily Floor Notes</button>
+            <button :class="tab === 'weekly' ? 'active' : ''" x-on:click="tab = 'weekly'">Weekly Stacks</button>
+            <button :class="tab === 'seasonal' ? 'active' : ''" x-on:click="tab = 'seasonal'">Seasonal Memo</button>
+          </div>
+
+          <div x-show="tab === 'daily'">
+            <p class="note">Morning sequence begins with two clockwise paw arcs, signaling conservative entry allocation. Shoulder dip equals low-leverage stance. Tail sweep concludes with treasury hold recommendation.</p>
+            <p>Suitable for members who track volatility by the hour and prefer immediate choreography notes before opening bell.</p>
+          </div>
+          <div x-show="tab === 'weekly'" x-cloak>
+            <p class="note">Weekly stack compiles five sessions of dance transcripts, annotated with folio citations, pantry balancing suggestions, and soup exposure limits by family size.</p>
+            <p>Designed for syndicates and apartment associations budgeting three to six months of digital reserves.</p>
+          </div>
+          <div x-show="tab === 'seasonal'" x-cloak>
+            <p class="note">Seasonal memo includes long-wave thematic choreography: infrastructure, custody resilience, and regional broth pricing pressure.</p>
+            <p>Recommended for patrons who treat treasury management as civic stewardship and prefer fewer but deeper reviews.</p>
+          </div>
+        </div>
+      </article>
+
+      <article class="window bulletin">
+        <div class="w-head">
+          <span>Stacks Bulletin Board</span>
+          <span class="lights"><span class="dot"></span><span class="dot"></span><span class="dot"></span></span>
+        </div>
+        <div class="w-body">
+          <h3>Research notes from this fortnight</h3>
+          <div class="card">
+            <h4>The Quiet Utility Thesis for PLU in Neighborhood Treasuries</h4>
+            <p>Our analysts reviewed 41 small-organization cash logs and found that choreography-first advisories reduced panic reallocation during high-noise weeks. Soup-denominated billing also improved expense discipline because teams can physically see outflow in pantry terms.</p>
+            <p><strong>Reading note:</strong> prioritize liquidity routines over headline momentum, especially when broth futures spike near holiday kitchens.</p>
+          </div>
+          <div class="card">
+            <h4>Dance Lexicon Update 2.1</h4>
+            <p>Added three new gestures: the Lantern Pivot (yield caution), the Archive Step (steady accumulation), and the Balcony Reach (temporary hedge posture). All gestures now include left- and right-paw variants for accessibility.</p>
+          </div>
+          <div class="card">
+            <h4>Community Notice</h4>
+            <p>The Reading Annex now hosts monthly quiet hours for first-time coin members. Bring your portfolio notebook and one labeled soup container per participant for onboarding credit.</p>
+          </div>
+        </div>
+      </article>
+
+      <article class="window programs" id="programs">
+        <div class="w-head">
+          <span>Retainer Programs & Soup Billing</span>
+          <span class="lights"><span class="dot"></span><span class="dot"></span><span class="dot"></span></span>
+        </div>
+        <div class="w-body">
+          <h3>Subscription catalog</h3>
+          <p>All plans include choreographic briefings, transcript archive access, and pantry-safe invoicing. Soup is accepted chilled or room temperature; each transfer is weighed and receipted.</p>
+          <div class="pricing-grid">
+            <div class="card">
+              <h4>Reading Card</h4>
+              <p class="price">14 ladles / month</p>
+              <p class="soup">Vegetable or tomato accepted</p>
+              <p>Two dance briefings monthly, one reallocation consultation, and public stacks newsletter.</p>
+            </div>
+            <div class="card">
+              <h4>Archive Steward</h4>
+              <p class="price">32 ladles / month</p>
+              <p class="soup">Add chowder with provenance note</p>
+              <p>Weekly briefings, household treasury binder, and priority desk hours on market turbulence days.</p>
+            </div>
+            <div class="card">
+              <h4>Municipal Lantern</h4>
+              <p class="price">74 ladles / month</p>
+              <p class="soup">Broth blend portfolio permitted</p>
+              <p>Full choreography syndication, advisory committee attendance, and quarterly pantry stress testing.</p>
+            </div>
+          </div>
+          <p style="margin-top:0.7rem;"><strong>Settlement note:</strong> canned, jarred, or vacuum-sealed formats are accepted; please label sodium content for compliance logs.</p>
+        </div>
+      </article>
+
+      <article class="window letters" id="letters">
+        <div class="w-head">
+          <span>Letters from Members</span>
+          <span class="lights"><span class="dot"></span><span class="dot"></span><span class="dot"></span></span>
+        </div>
+        <div class="w-body">
+          <h3>Filed testimonials</h3>
+          <div class="testimonials">
+            <div class="card">
+              <h4>G. Morita, bakery cooperative treasurer</h4>
+              <p>"Before Moonwhisker, we made rushed moves based on whichever headline was loudest. The Tuesday dance brief became our ritual. We now allocate by policy, not panic. Also, soup settlement made budget meetings unexpectedly civil."</p>
+            </div>
+            <div class="card">
+              <h4>Hearthline Tenants Association</h4>
+              <p>"The Archive Step sequence helped us separate repair reserves from growth funds. Our members finally understand the difference because the choreography is memorable and the transcripts are plain language."</p>
+            </div>
+            <div class="card">
+              <h4>North Quay Night Librarians Guild</h4>
+              <p>"The team never misses a monthly memo. Their risk explanations are unusually calm, and the pantry receipts are the cleanest records we file all year."</p>
+            </div>
+            <div class="card">
+              <h4>R. Alvarez, solo contractor</h4>
+              <p>"I came for the coin, stayed for the method. Every movement has a glossary note. I can act quickly without feeling reckless."</p>
+            </div>
+          </div>
+        </div>
+      </article>
+
+      <article class="window staff" id="staff">
+        <div class="w-head">
+          <span>Advisors & Floor Team</span>
+          <span class="lights"><span class="dot"></span><span class="dot"></span><span class="dot"></span></span>
+        </div>
+        <div class="w-body">
+          <h3>Desk biographies</h3>
+          <p>Hover any profile to expand their current research concentration and soup pairing preference for consultation sessions.</p>
+          <div class="team-grid">
+            <div class="reveal">
+              <h4>Chair: Mx. Selene Moonwhisker, CFA</h4>
+              <p>Specialty: household crypto policy and long-run liquidity choreography.</p>
+              <div class="extra">
+                <p>Former treasury fellow at the Harbor Reading Board. Leads the Lantern Pivot working group and maintains the dance lexicon for novice members.</p>
+                <p><strong>Preferred session soup:</strong> roasted tomato, pepper-forward.</p>
+              </div>
+            </div>
+            <div class="reveal">
+              <h4>Rook Fen, Head Archivist</h4>
+              <p>Specialty: transcript integrity and gesture-to-action accuracy audits.</p>
+              <div class="extra">
+                <p>Built the cooperative's three-tier annotation system that links choreography notation to portfolio rules and settlement logs.</p>
+                <p><strong>Preferred session soup:</strong> clear mushroom broth.</p>
+              </div>
+            </div>
+            <div class="reveal">
+              <h4>Petra Lin, Pantry Comptroller</h4>
+              <p>Specialty: receipting, storage, and soup valuation controls.</p>
+              <div class="extra">
+                <p>Maintains compliance schedule for every incoming container and publishes monthly conversion bulletins for mixed soup submissions.</p>
+                <p><strong>Preferred session soup:</strong> leek and potato, low sodium.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </article>
+
+      <article class="window faq" id="faq" x-data="{ open: 0 }">
+        <div class="w-head">
+          <span>Frequently Shelved Questions</span>
+          <span class="lights"><span class="dot"></span><span class="dot"></span><span class="dot"></span></span>
+        </div>
+        <div class="w-body">
+          <h3>Member onboarding and policy</h3>
+          <div class="faq-item">
+            <button class="faq-q" x-on:click="open = open === 0 ? -1 : 0">
+              <span>How do I interpret a dance briefing if I missed the live session?</span>
+              <i data-lucide="chevron-down"></i>
+            </button>
+            <div class="faq-a" x-show="open === 0">
+              <p>Each performance is accompanied by a timestamped transcript and glossary mapping. Missed sessions can be replayed in notation form inside your member folio within one business day.</p>
+            </div>
+          </div>
+          <div class="faq-item">
+            <button class="faq-q" x-on:click="open = open === 1 ? -1 : 1">
+              <span>What soups are not accepted for settlement?</span>
+              <i data-lucide="chevron-down"></i>
+            </button>
+            <div class="faq-a" x-show="open === 1">
+              <p>Unlabeled blends, sweet dessert soups, and containers without ingredient dates are declined. We can provide a compliant packing slip if you need one for your procurement office.</p>
+            </div>
+          </div>
+          <div class="faq-item">
+            <button class="faq-q" x-on:click="open = open === 2 ? -1 : 2">
+              <span>Is PLU suitable for very small community groups?</span>
+              <i data-lucide="chevron-down"></i>
+            </button>
+            <div class="faq-a" x-show="open === 2">
+              <p>Yes. Most small groups begin with Reading Card subscriptions, establish pantry controls, then increase allocation only after three monthly policy reviews.</p>
+            </div>
+          </div>
+          <div class="faq-item">
+            <button class="faq-q" x-on:click="open = open === 3 ? -1 : 3">
+              <span>Do you offer enterprise choreography licenses?</span>
+              <i data-lucide="chevron-down"></i>
+            </button>
+            <div class="faq-a" x-show="open === 3">
+              <p>Enterprise licenses are available for unions, schools, and municipal boards. Licensing includes notation training, transcript standards, and annual dance lexicon calibration.</p>
+            </div>
+          </div>
+        </div>
+      </article>
+
+      <article class="window press" id="press">
+        <div class="w-head">
+          <span>Press Room & Long-Form Filing Cabinet</span>
+          <span class="lights"><span class="dot"></span><span class="dot"></span><span class="dot"></span></span>
+        </div>
+        <div class="w-body">
+          <h3>Recent releases, essays, and board notes</h3>
+          <div class="press-grid">
+            <div class="card">
+              <h4>Press Release: Annex Expansion</h4>
+              <p><strong>Date:</strong> January 14</p>
+              <p>Moonwhisker Treasury Library expanded its reading annex to include evening choreography clinics and document support for multigenerational households entering digital asset planning for the first time.</p>
+              <p>Programming now includes plain-language custody workshops with pantry accounting drills.</p>
+            </div>
+            <div class="card">
+              <h4>Essay: Why Motion Improves Risk Memory</h4>
+              <p><strong>By:</strong> Selene Moonwhisker</p>
+              <p>Traditional advisories bury important caution notes in dense pages. Movement-driven instruction appears to anchor decision boundaries more reliably, particularly among teams operating under deadline stress.</p>
+              <p>The essay recommends pairing every allocation rule with a repeatable physical cue.</p>
+            </div>
+            <div class="card">
+              <h4>Board Minute Excerpt</h4>
+              <p><strong>Topic:</strong> Soup Reserve Stabilization</p>
+              <p>The board approved a diversified pantry reserve so billing can remain predictable during seasonal ingredient swings. A tri-broth benchmark is now used for large contracts.</p>
+              <p>Next vote scheduled after spring distribution cycle.</p>
+            </div>
+          </div>
+          <details style="margin-top:0.8rem; border:1px solid #111; border-radius:10px; background:#fff; color:#0f0f14; padding:0.6rem;">
+            <summary style="font-weight:700; color:#0d0d14;">Open library circular #27: Dance Symbol Index (abridged)</summary>
+            <p style="margin-top:0.6rem;">Archive Step = measured accumulation schedule. Lantern Pivot = volatility caution and buffer rebuild. Balcony Reach = temporary hedge while preserving pantry runway. Member copies can be requested in print or mono-spaced ledger format.</p>
+          </details>
+        </div>
+      </article>
+    </section>
+
+    <footer>
+      Moonwhisker Treasury Library • Reading Annex 4, Riverlight District • Intake desk hours: Tuesday-Friday, 07:00-18:00
+    </footer>
+  </main>
+
+  <script defer src="/assets/js/alpine.min.js"></script>
+  <script src="/assets/js/gsap.min.js"></script>
+  <script src="/assets/js/lucide.min.js"></script>
+  <script>
+    document.addEventListener("DOMContentLoaded", function () {
+      if (window.lucide) {
+        window.lucide.createIcons();
+      }
+
+      if (window.gsap) {
+        gsap.from(".window", {
+          y: 24,
+          opacity: 0,
+          duration: 0.55,
+          ease: "power2.out",
+          stagger: 0.08
+        });
+      }
+    });
+  </script>
+</body>
+</html>

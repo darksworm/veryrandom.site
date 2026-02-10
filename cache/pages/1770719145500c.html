@@ -1,0 +1,784 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Moon Ledger Bureau | Admiral Bubbles</title>
+  <link rel="stylesheet" href="/assets/css/pico.min.css" />
+  <link rel="stylesheet" href="/assets/css/fonts.css" />
+  <style>
+    :root {
+      --ocean-1: #041c2c;
+      --ocean-2: #0b2f45;
+      --ocean-3: #134a63;
+      --bio-1: #00e39f;
+      --bio-2: #58ffcb;
+      --bio-3: #9cffdf;
+      --paper: #f4fffb;
+      --ink: #062436;
+      --line: #1c6b84;
+      --alert: #ffd166;
+      --danger: #ff6b6b;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 16px;
+      color: #eafff7;
+      background:
+        radial-gradient(circle at 12% 10%, #0f4f62 0%, #07293d 30%, #041c2c 65%),
+        linear-gradient(140deg, #041c2c 0%, #0b2f45 50%, #062436 100%);
+      overflow-x: hidden;
+    }
+
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      background-image:
+        linear-gradient(transparent 96%, #0f3f54 96%),
+        linear-gradient(90deg, transparent 96%, #0f3f54 96%);
+      background-size: 22px 22px;
+      mix-blend-mode: soft-light;
+    }
+
+    .shell {
+      width: min(1400px, 96vw);
+      margin: 1rem auto 2rem;
+      position: relative;
+      z-index: 1;
+    }
+
+    .topbar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.75rem;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0.8rem 1rem;
+      border: 2px solid var(--line);
+      border-radius: 16px;
+      background: #08344d;
+      box-shadow: 0 0 0 2px #0e5974, 0 14px 26px #01141f;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      font-weight: 700;
+      color: #f0fffa;
+      letter-spacing: 0.02em;
+      margin: 0;
+      font-size: clamp(1rem, 1.8vw, 1.25rem);
+    }
+
+    .brand small {
+      color: #aefee1;
+      font-weight: 600;
+      font-size: 0.85rem;
+    }
+
+    .pill-row {
+      display: flex;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+
+    .status-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      border: 1px solid #2f879f;
+      border-radius: 999px;
+      padding: 0.3rem 0.75rem;
+      background: #0c3f57;
+      color: #dffef4;
+      font-size: 0.88rem;
+      font-weight: 700;
+      min-height: 40px;
+    }
+
+    .btn {
+      border: 2px solid #2c8ba2;
+      background: #0f4f62;
+      color: #f1fffa;
+      font-weight: 700;
+      min-height: 44px;
+      border-radius: 12px;
+      padding: 0.45rem 0.8rem;
+      cursor: pointer;
+      font-family: inherit;
+    }
+
+    .btn:hover,
+    .btn:focus-visible {
+      background: #13657b;
+      border-color: #66ffd2;
+      outline: none;
+    }
+
+    .btn.alt {
+      background: #0a3b52;
+      border-color: #306f91;
+    }
+
+    .btn.warn {
+      background: #6a4f12;
+      border-color: #d2a83a;
+      color: #fffbe8;
+    }
+
+    .desktop {
+      margin-top: 1rem;
+      display: grid;
+      grid-template-columns: repeat(12, minmax(0, 1fr));
+      gap: 0.9rem;
+      align-items: start;
+    }
+
+    .window {
+      border: 2px solid var(--line);
+      border-radius: 14px;
+      background: #082f44;
+      box-shadow: 0 10px 18px #001019;
+      min-width: 0;
+    }
+
+    .window .title {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.45rem 0.65rem;
+      border-bottom: 1px solid #2f7088;
+      background: #0d435b;
+      color: #e9fff9;
+      font-size: 0.86rem;
+      font-family: 'IBM Plex Mono', monospace;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .dotset {
+      display: flex;
+      gap: 0.35rem;
+    }
+
+    .dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: #58ffcb;
+      border: 1px solid #024d3d;
+    }
+
+    .window .content {
+      padding: 0.85rem;
+    }
+
+    h1, h2, h3, p, small, th, td, label, li, a, span {
+      color: #ecfff9;
+    }
+
+    h1 {
+      margin: 0.1rem 0 0.45rem;
+      font-size: clamp(1.4rem, 3.6vw, 2.2rem);
+      line-height: 1.15;
+    }
+
+    h2 {
+      margin: 0.2rem 0 0.4rem;
+      font-size: clamp(1.1rem, 2vw, 1.35rem);
+      color: #d8ffef;
+    }
+
+    p {
+      margin: 0.45rem 0;
+      color: #d9fff0;
+    }
+
+    .mono {
+      font-family: 'IBM Plex Mono', monospace;
+    }
+
+    .muted {
+      color: #bdeedf;
+    }
+
+    .hero {
+      grid-column: span 7;
+      transform: rotate(-0.9deg);
+    }
+
+    .radar {
+      grid-column: span 5;
+      transform: rotate(0.8deg);
+    }
+
+    .ledger {
+      grid-column: span 4;
+      transform: rotate(-0.4deg);
+    }
+
+    .services {
+      grid-column: span 8;
+      transform: rotate(0.5deg);
+    }
+
+    .testimonials {
+      grid-column: span 4;
+      transform: rotate(1.2deg);
+    }
+
+    .faq {
+      grid-column: span 6;
+      transform: rotate(-1deg);
+    }
+
+    .ticker {
+      grid-column: span 6;
+      transform: rotate(0.4deg);
+    }
+
+    .split {
+      display: grid;
+      grid-template-columns: 1.1fr 0.9fr;
+      gap: 0.8rem;
+      align-items: start;
+    }
+
+    .kpis {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 0.55rem;
+      margin-top: 0.7rem;
+    }
+
+    .kpi {
+      border: 1px solid #2f738a;
+      border-radius: 10px;
+      padding: 0.55rem;
+      background: #0a3850;
+    }
+
+    .kpi .value {
+      font-size: 1.35rem;
+      font-weight: 700;
+      color: #9cffdf;
+      line-height: 1.1;
+    }
+
+    .chart {
+      border: 1px solid #2d7a93;
+      border-radius: 10px;
+      background: #0a3550;
+      padding: 0.6rem;
+    }
+
+    .bars {
+      display: flex;
+      gap: 0.45rem;
+      align-items: flex-end;
+      height: 130px;
+      margin-top: 0.4rem;
+    }
+
+    .bar {
+      flex: 1;
+      border-radius: 8px 8px 4px 4px;
+      background: linear-gradient(180deg, #66ffd2 0%, #198565 100%);
+      border: 1px solid #0d6f56;
+      min-height: 8px;
+      transition: height 0.3s ease;
+    }
+
+    .controls {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      margin-top: 0.8rem;
+    }
+
+    .meter {
+      margin-top: 0.6rem;
+      border: 1px solid #2d738a;
+      border-radius: 999px;
+      background: #052537;
+      height: 16px;
+      overflow: hidden;
+    }
+
+    .meter > span {
+      display: block;
+      height: 100%;
+      background: linear-gradient(90deg, #2ef3b1 0%, #7affde 100%);
+      transition: width 0.25s ease;
+    }
+
+    input[type='range'] {
+      width: 100%;
+      margin: 0.4rem 0;
+      accent-color: #5fffce;
+      min-height: 44px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 0.5rem;
+      font-size: 0.95rem;
+    }
+
+    th, td {
+      border: 1px solid #2b7089;
+      padding: 0.45rem;
+      text-align: left;
+    }
+
+    th {
+      background: #0e4860;
+      color: #edfff9;
+    }
+
+    td {
+      background: #0a3550;
+      color: #dffcf2;
+    }
+
+    .quote {
+      border: 1px solid #2f7590;
+      border-radius: 12px;
+      padding: 0.7rem;
+      background: #0a3550;
+      margin-bottom: 0.55rem;
+    }
+
+    .faq-item {
+      border: 1px solid #2a728c;
+      border-radius: 10px;
+      margin-bottom: 0.5rem;
+      background: #0a3650;
+      overflow: hidden;
+    }
+
+    .faq-q {
+      width: 100%;
+      text-align: left;
+      border: 0;
+      background: #0f4b64;
+      color: #f0fffa;
+      font-weight: 700;
+      padding: 0.65rem;
+      min-height: 44px;
+      cursor: pointer;
+      font-family: inherit;
+    }
+
+    .faq-a {
+      padding: 0.65rem;
+      color: #d8fced;
+    }
+
+    .ticker-line {
+      border: 1px dashed #4ebf9f;
+      border-radius: 10px;
+      padding: 0.55rem;
+      margin-bottom: 0.5rem;
+      background: #092f45;
+      font-family: 'IBM Plex Mono', monospace;
+      color: #cffff0;
+    }
+
+    .footnote {
+      font-size: 0.78rem;
+      color: #cdeee2;
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      border: 1px solid #3f8ca4;
+      border-radius: 999px;
+      padding: 0.18rem 0.55rem;
+      background: #0b435b;
+      font-size: 0.78rem;
+      color: #d9fff0;
+      font-weight: 700;
+    }
+
+    .footer {
+      margin-top: 0.8rem;
+      text-align: center;
+      color: #d4f8eb;
+      font-size: 0.9rem;
+      padding: 0.5rem;
+    }
+
+    @media (max-width: 980px) {
+      .desktop {
+        grid-template-columns: repeat(8, minmax(0, 1fr));
+      }
+
+      .hero,
+      .services,
+      .faq,
+      .ticker {
+        grid-column: span 8;
+        transform: none;
+      }
+
+      .radar,
+      .ledger,
+      .testimonials {
+        grid-column: span 4;
+        transform: none;
+      }
+    }
+
+    @media (max-width: 700px) {
+      .desktop {
+        grid-template-columns: 1fr;
+      }
+
+      .window,
+      .hero,
+      .radar,
+      .ledger,
+      .services,
+      .testimonials,
+      .faq,
+      .ticker {
+        grid-column: span 1;
+        transform: none;
+      }
+
+      .split {
+        grid-template-columns: 1fr;
+      }
+
+      .topbar {
+        padding: 0.7rem;
+      }
+
+      .pill-row {
+        width: 100%;
+      }
+
+      .btn {
+        flex: 1 1 auto;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="shell" x-data="moonLedger()" x-init="boot()">
+    <nav class="topbar" aria-label="Main navigation">
+      <p class="brand">
+        <i data-lucide="fish"></i>
+        Moon Ledger Bureau
+        <small>by Admiral Bubbles, Goldfish CPA (Cat Partnership Unit)</small>
+      </p>
+      <div class="pill-row">
+        <span class="status-pill"><i data-lucide="moon-star"></i> Moon: <span x-text="isFullMoon ? 'FULL' : 'Not Full Yet'"></span></span>
+        <span class="status-pill"><i data-lucide="paw-print"></i> Cats on shift: <span x-text="catsOnShift"></span></span>
+        <button class="btn" x-on:click="toggleMoon()">Toggle Moon Compliance</button>
+      </div>
+    </nav>
+
+    <section class="desktop" aria-live="polite">
+      <article class="window hero">
+        <div class="title">
+          <span>Founder's Broadcast</span>
+          <span class="dotset"><span class="dot"></span><span class="dot"></span><span class="dot"></span></span>
+        </div>
+        <div class="content">
+          <h1>I am Admiral Bubbles. I audit your budget, then my cats solve who stole your emergency tuna fund.</h1>
+          <p>I used to live in a bowl outside a tax office. I heard every excuse. Now I run night operations only during full moons because daylight makes Detective Marmalade overconfident.</p>
+          <p class="mono">Operating promise: <strong>one spreadsheet, one whisker-print, one truth.</strong></p>
+          <div class="controls">
+            <button class="btn" x-on:click="openCase()"><i data-lucide="folder-open"></i> Open New Case</button>
+            <button class="btn alt" x-on:click="boostConfidence()"><i data-lucide="sparkles"></i> Compliment the Founder</button>
+            <button class="btn warn" x-on:click="panicLantern = !panicLantern"><i data-lucide="lamp"></i> Panic Lantern</button>
+          </div>
+          <div class="kpis">
+            <div class="kpi">
+              <div class="muted">Cases this moon</div>
+              <div class="value" x-text="cases"></div>
+            </div>
+            <div class="kpi">
+              <div class="muted">Founder confidence</div>
+              <div class="value"><span x-text="confidence"></span>%</div>
+            </div>
+            <div class="kpi">
+              <div class="muted">Lantern status</div>
+              <div class="value" x-text="panicLantern ? 'BLINDING' : 'POLITE'"></div>
+            </div>
+            <div class="kpi">
+              <div class="muted">Minutes to moon window</div>
+              <div class="value" x-text="countdown"></div>
+            </div>
+          </div>
+          <p class="footnote">* If confidence exceeds 150%, I legally become "Fleet Admiral Bubbles" and invoice in clams.</p>
+        </div>
+      </article>
+
+      <article class="window radar">
+        <div class="title">
+          <span>Suspicion Radar</span>
+          <span class="badge">live</span>
+        </div>
+        <div class="content">
+          <p class="muted">How suspicious is your cousin "borrowing" your side hustle login?</p>
+          <input type="range" min="0" max="100" step="1" x-model="suspicion" aria-label="Suspicion slider" />
+          <p>Current suspicion: <strong x-text="suspicion + '%'">0%</strong> <span x-text="suspicionLabel"></span></p>
+          <div class="meter" role="progressbar" aria-valuemin="0" aria-valuemax="100" x-bind:aria-valuenow="suspicion">
+            <span x-bind:style="'width:' + suspicion + '%' "></span>
+          </div>
+          <div class="chart" style="margin-top: 0.8rem;">
+            <strong>Whisker-Twitch Graph</strong>
+            <div class="bars">
+              <div class="bar" x-bind:style="'height:' + barHeights[0] + '%' "></div>
+              <div class="bar" x-bind:style="'height:' + barHeights[1] + '%' "></div>
+              <div class="bar" x-bind:style="'height:' + barHeights[2] + '%' "></div>
+              <div class="bar" x-bind:style="'height:' + barHeights[3] + '%' "></div>
+              <div class="bar" x-bind:style="'height:' + barHeights[4] + '%' "></div>
+            </div>
+            <button class="btn alt" style="margin-top: 0.6rem; width: 100%;" x-on:click="shuffleBars()">Recompute Cat Probability Matrix</button>
+          </div>
+        </div>
+      </article>
+
+      <article class="window ledger">
+        <div class="title">
+          <span>Lunar Ledger</span>
+          <span class="badge">regulated-ish</span>
+        </div>
+        <div class="content">
+          <table>
+            <thead>
+              <tr><th>Account</th><th>Amount</th></tr>
+            </thead>
+            <tbody>
+              <tr><td>Emergency Sardine Reserve</td><td>$<span x-text="(470 + cases * 13).toFixed(2)"></span></td></tr>
+              <tr><td>Cat Trenchcoat Depreciation</td><td>$<span x-text="(112 + suspicion * 1.7).toFixed(2)"></span></td></tr>
+              <tr><td>Moonlight Utility Credit</td><td>$<span x-text="(89 + confidence * 0.5).toFixed(2)"></span></td></tr>
+            </tbody>
+          </table>
+          <p class="footnote">Filed under maritime accounting because my bowl is technically a port.</p>
+        </div>
+      </article>
+
+      <article class="window services">
+        <div class="title">
+          <span>Case Packages</span>
+          <span class="badge">bookable</span>
+        </div>
+        <div class="content split">
+          <div>
+            <h2>Pick a service stack</h2>
+            <table>
+              <thead>
+                <tr><th>Package</th><th>Includes</th><th>Price</th></tr>
+              </thead>
+              <tbody>
+                <tr><td>Window Sill Basic</td><td>1 cat, 2 receipts, 0 mercy</td><td>$47.99/moon</td></tr>
+                <tr><td>Lantern Deluxe</td><td>3 cats, audit trail, dramatic cloak</td><td>$129.50/moon</td></tr>
+                <tr><td>Whisker Black Ops</td><td>5 cats, covert purring, hostile spreadsheet</td><td>$311.00/moon</td></tr>
+              </tbody>
+            </table>
+            <div class="controls">
+              <button class="btn" x-on:click="selectedPlan='Window Sill Basic'; fee=47.99">Window Sill</button>
+              <button class="btn" x-on:click="selectedPlan='Lantern Deluxe'; fee=129.50">Lantern Deluxe</button>
+              <button class="btn" x-on:click="selectedPlan='Whisker Black Ops'; fee=311.00">Black Ops</button>
+            </div>
+          </div>
+          <div>
+            <h2>Current draft contract</h2>
+            <p><strong>Plan:</strong> <span x-text="selectedPlan"></span></p>
+            <p><strong>Rush factor:</strong> <span x-text="rush ? 'Yes (+$38)' : 'No' "></span></p>
+            <label>
+              <input type="checkbox" x-model="rush" />
+              <span>Need results before next awkward family dinner</span>
+            </label>
+            <p><strong>Estimated bill:</strong> $<span x-text="totalFee.toFixed(2)"></span></p>
+            <button class="btn alt" style="width: 100%;" x-on:click="stampContract()">Stamp with Wet Fin</button>
+            <p class="footnote" x-text="stampMessage"></p>
+          </div>
+        </div>
+      </article>
+
+      <article class="window testimonials">
+        <div class="title">
+          <span>Field Reports</span>
+          <span class="badge">verified-ish</span>
+        </div>
+        <div class="content">
+          <div class="quote">
+            <p x-text="testimonials[currentTestimonial].line"></p>
+            <small class="muted" x-text="testimonials[currentTestimonial].name"></small>
+          </div>
+          <button class="btn" style="width: 100%;" x-on:click="nextTestimonial()">Next Testimonial</button>
+          <p class="footnote">No testimonial was written by my cats. One was written by my rival, Kevin the Koi, under supervision.</p>
+        </div>
+      </article>
+
+      <article class="window faq">
+        <div class="title">
+          <span>FAQ & Legal Panic</span>
+          <span class="badge">important</span>
+        </div>
+        <div class="content">
+          <template x-for="(item, idx) in faqs" :key="idx">
+            <div class="faq-item">
+              <button class="faq-q" x-on:click="item.open = !item.open" x-text="item.q"></button>
+              <div class="faq-a" x-show="item.open" x-transition>
+                <p x-text="item.a"></p>
+              </div>
+            </div>
+          </template>
+        </div>
+      </article>
+
+      <article class="window ticker">
+        <div class="title">
+          <span>Operations Feed</span>
+          <span class="badge">auto</span>
+        </div>
+        <div class="content">
+          <div class="ticker-line">Moon window opens in: <strong x-text="countdown + ' minutes'"></strong></div>
+          <div class="ticker-line">Fresh clue: <strong x-text="liveClue"></strong></div>
+          <div class="ticker-line">Cat morale index: <strong x-text="catMorale"></strong>/10</div>
+          <div class="ticker-line">Invoices stamped today: <strong x-text="stamps"></strong></div>
+          <p class="footnote">If feed freezes, tap any button. If still frozen, gently rotate your aquarium 3 degrees east.</p>
+        </div>
+      </article>
+    </section>
+
+    <footer class="footer">
+      Moon Ledger Bureau, Dock 7B, Former Fountain District. Licensed for lunar audits in 11 states and one ornamental pond.
+    </footer>
+  </main>
+
+  <script defer src="/assets/js/alpine.min.js"></script>
+  <script src="/assets/js/gsap.min.js"></script>
+  <script src="/assets/js/lucide.min.js"></script>
+  <script>
+    function moonLedger() {
+      return {
+        isFullMoon: true,
+        catsOnShift: 3,
+        cases: 12,
+        confidence: 94,
+        panicLantern: false,
+        suspicion: 41,
+        barHeights: [36, 58, 44, 73, 52],
+        selectedPlan: 'Lantern Deluxe',
+        fee: 129.50,
+        rush: false,
+        stampMessage: 'Awaiting wet-fin authorization.',
+        stamps: 27,
+        countdown: 184,
+        catMorale: 8,
+        liveClue: 'Marmalade found a receipt inside a hollow baguette.',
+        currentTestimonial: 0,
+        testimonials: [
+          { name: 'Nora P., beekeeper and reluctant debtor', line: 'Admiral Bubbles found my missing invoice under my own hat in 14 minutes. Humiliating. Effective.' },
+          { name: 'Dr. Lyle Finch, dentist', line: 'I paid for Whisker Black Ops. They recovered my tax records and one emotional support ferret.' },
+          { name: 'Mildred from Pier 4', line: 'The cat in a tiny tie stared at me until I remembered where I hid my business expenses.' }
+        ],
+        faqs: [
+          { q: 'Are you actually a goldfish?', a: 'Yes. Confidently yes. Confidence is 60% of bookkeeping.', open: true },
+          { q: 'Why only full moons?', a: 'Cats perform peak deduction analysis under moonlight. We tested fluorescents. Cat union vetoed it.', open: false },
+          { q: 'Do you accept payment plans?', a: 'Yes: card, transfer, or premium anchovies. No exposure therapy sessions.', open: false },
+          { q: 'What if my suspect is also a cat?', a: 'Then we assign two neutral rabbits as auditors and proceed with dignity.', open: false }
+        ],
+        get suspicionLabel() {
+          if (this.suspicion < 25) return '(probably innocent, still weird)';
+          if (this.suspicion < 60) return '(keep receipts and watch the pantry)';
+          if (this.suspicion < 85) return '(highly suspicious, hide your spreadsheets)';
+          return '(call me immediately and lock the tuna cabinet)';
+        },
+        get totalFee() {
+          return this.fee + (this.rush ? 38 : 0);
+        },
+        boot() {
+          setInterval(() => {
+            this.countdown = this.countdown > 0 ? this.countdown - 1 : 240;
+            this.catMorale = Math.max(5, Math.min(10, this.catMorale + (Math.random() > 0.5 ? 1 : -1)));
+            const clues = [
+              'A paw print was found on line item 14b.',
+              'New witness: landlord heard midnight purring near the safe.',
+              'The missing funds were converted to artisanal litter futures.',
+              'Clue recovered from a rain boot: half a coupon and a threat.',
+              'Tuna ledger imbalance detected in pantry sector C.'
+            ];
+            this.liveClue = clues[Math.floor(Math.random() * clues.length)];
+          }, 2200);
+        },
+        toggleMoon() {
+          this.isFullMoon = !this.isFullMoon;
+          this.catsOnShift = this.isFullMoon ? 3 : 1;
+        },
+        openCase() {
+          this.cases += 1;
+          this.stamps += 1;
+          this.confidence = Math.min(180, this.confidence + 3);
+        },
+        boostConfidence() {
+          this.confidence = Math.min(180, this.confidence + 11);
+          this.stampMessage = 'Founder compliment logged. Morale up. Ego stable.';
+        },
+        shuffleBars() {
+          this.barHeights = this.barHeights.map(() => Math.floor(Math.random() * 75) + 20);
+        },
+        stampContract() {
+          this.stamps += 1;
+          const lines = [
+            'Stamped. Ink smear resembles authority.',
+            'Contract sealed with ceremonial fin flick.',
+            'Approved. Cat courier leaves at moonrise.',
+            'Stamped loudly. Neighbor asked questions.'
+          ];
+          this.stampMessage = lines[Math.floor(Math.random() * lines.length)];
+        },
+        nextTestimonial() {
+          this.currentTestimonial = (this.currentTestimonial + 1) % this.testimonials.length;
+        }
+      };
+    }
+
+    window.addEventListener('DOMContentLoaded', function () {
+      if (window.lucide && typeof window.lucide.createIcons === 'function') {
+        window.lucide.createIcons();
+      }
+
+      if (window.gsap) {
+        const windows = document.querySelectorAll('.window');
+        windows.forEach(function (el, i) {
+          gsap.fromTo(
+            el,
+            { y: 24, opacity: 0 },
+            { y: 0, opacity: 1, duration: 0.45 + i * 0.04, ease: 'power2.out', clearProps: 'opacity,transform' }
+          );
+        });
+
+        gsap.fromTo(
+          '.topbar',
+          { y: -16, opacity: 0 },
+          { y: 0, opacity: 1, duration: 0.55, ease: 'power2.out', clearProps: 'opacity,transform' }
+        );
+      }
+    });
+  </script>
+</body>
+</html>

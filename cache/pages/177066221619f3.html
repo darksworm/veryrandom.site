@@ -1,0 +1,489 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Crayonwave Subscription Service</title>
+<style>
+  :root {
+    --ocean-900: #041726;
+    --ocean-800: #06253b;
+    --ocean-700: #0a344d;
+    --teal-500: #19d3b4;
+    --teal-400: #39f0cf;
+    --glow-300: #7cffea;
+    --ink: #e6f7f2;
+    --grit: rgba(255,255,255,0.06);
+  }
+
+  * {
+    box-sizing: border-box;
+  }
+
+  html, body {
+    height: 100%;
+  }
+
+  body {
+    margin: 0;
+    color: var(--ink);
+    font-family: "Georgia", "Times New Roman", serif;
+    background:
+      radial-gradient(1100px 700px at 80% -10%, rgba(25, 211, 180, 0.25), transparent 60%),
+      radial-gradient(800px 600px at 0% 100%, rgba(57, 240, 207, 0.18), transparent 55%),
+      linear-gradient(140deg, var(--ocean-900), var(--ocean-700));
+    overflow-x: hidden;
+  }
+
+  body::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    background:
+      repeating-linear-gradient(25deg, rgba(255,255,255,0.02), rgba(255,255,255,0.02) 2px, transparent 2px, transparent 6px),
+      radial-gradient(closest-side, rgba(255,255,255,0.05), transparent 70%);
+    mix-blend-mode: screen;
+    pointer-events: none;
+    animation: filmGrain 14s ease-in-out infinite;
+    z-index: 1;
+  }
+
+  @keyframes filmGrain {
+    0%, 100% { opacity: 0.25; transform: translateY(0); }
+    50% { opacity: 0.4; transform: translateY(6px); }
+  }
+
+  .page {
+    position: relative;
+    z-index: 2;
+    padding: 8vh 8vw 12vh;
+    display: grid;
+    gap: 6vh;
+  }
+
+  header {
+    position: relative;
+    display: grid;
+    grid-template-columns: 1.2fr 0.8fr;
+    gap: 4vw;
+    align-items: end;
+  }
+
+  .title-block {
+    padding: 4vh 4vw;
+    border: 1px solid rgba(124, 255, 234, 0.2);
+    background: linear-gradient(160deg, rgba(4, 23, 38, 0.9), rgba(6, 37, 59, 0.7));
+    box-shadow: 0 20px 50px rgba(0,0,0,0.4);
+    transform: rotate(-1.5deg);
+  }
+
+  .title-block h1 {
+    margin: 0;
+    font-size: clamp(2.8rem, 4vw, 5rem);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  .title-block p {
+    margin-top: 1rem;
+    font-size: 1.1rem;
+    line-height: 1.6;
+    color: rgba(230, 247, 242, 0.85);
+  }
+
+  .badge {
+    justify-self: end;
+    background: rgba(10, 52, 77, 0.8);
+    padding: 2vh 2vw;
+    border: 2px dashed rgba(124, 255, 234, 0.4);
+    transform: rotate(3deg);
+    position: relative;
+  }
+
+  .badge::after {
+    content: "\2726 ALWAYS-ON SOUNDTRACK";
+    position: absolute;
+    inset: 12px;
+    border: 1px solid rgba(57, 240, 207, 0.3);
+    display: grid;
+    place-items: center;
+    font-family: "Courier New", monospace;
+    font-size: 0.75rem;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    color: var(--glow-300);
+    opacity: 0.6;
+  }
+
+  main {
+    display: grid;
+    grid-template-columns: 1fr 0.9fr;
+    gap: 6vw;
+    align-items: start;
+  }
+
+  .crayon-note {
+    position: relative;
+    padding: 3.5vh 3vw;
+    background: rgba(6, 37, 59, 0.65);
+    border-left: 6px solid var(--teal-500);
+    box-shadow: -10px 20px 40px rgba(0,0,0,0.5);
+    transform: translateX(6%) rotate(-0.8deg);
+  }
+
+  .crayon-note::before {
+    content: "";
+    position: absolute;
+    inset: 10px;
+    border: 2px dashed rgba(25, 211, 180, 0.3);
+    pointer-events: none;
+  }
+
+  .crayon-note h2 {
+    font-size: clamp(2rem, 3vw, 3rem);
+    margin: 0 0 1.5rem 0;
+  }
+
+  .crayon-note p {
+    margin: 0 0 1rem 0;
+    line-height: 1.7;
+  }
+
+  .crayon-note .highlight {
+    font-family: "Courier New", monospace;
+    color: var(--glow-300);
+    letter-spacing: 0.08em;
+  }
+
+  .manifesto {
+    position: relative;
+    padding: 4vh 3vw;
+    background: linear-gradient(180deg, rgba(10, 52, 77, 0.8), rgba(4, 23, 38, 0.9));
+    box-shadow: 0 25px 55px rgba(0,0,0,0.55);
+    transform: translateY(5%) rotate(1deg);
+  }
+
+  .manifesto h3 {
+    margin: 0 0 1rem 0;
+    font-size: 1.5rem;
+    text-transform: uppercase;
+    letter-spacing: 0.2em;
+    color: var(--teal-400);
+  }
+
+  .manifesto p {
+    line-height: 1.8;
+    color: rgba(230, 247, 242, 0.8);
+  }
+
+  .manifesto .whisper {
+    font-style: italic;
+    color: rgba(124, 255, 234, 0.7);
+  }
+
+  .audio-panel {
+    margin-top: 6vh;
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 2vw;
+    align-items: center;
+    background: rgba(4, 23, 38, 0.85);
+    border: 1px solid rgba(57, 240, 207, 0.3);
+    padding: 2vh 2vw;
+    box-shadow: 0 18px 40px rgba(0,0,0,0.5);
+  }
+
+  .audio-panel button {
+    background: transparent;
+    border: 1px solid var(--teal-500);
+    color: var(--ink);
+    padding: 0.7rem 1.4rem;
+    font-family: "Courier New", monospace;
+    text-transform: uppercase;
+    letter-spacing: 0.2em;
+    cursor: pointer;
+    transition: transform 1.2s ease, box-shadow 1.2s ease, background 1.2s ease;
+  }
+
+  .audio-panel button:hover {
+    transform: translateY(-4px) scale(1.03);
+    box-shadow: 0 0 20px rgba(57, 240, 207, 0.4);
+    background: rgba(25, 211, 180, 0.1);
+  }
+
+  .audio-status {
+    font-size: 0.95rem;
+    letter-spacing: 0.08em;
+    color: rgba(230, 247, 242, 0.75);
+  }
+
+  .audio-status span {
+    color: var(--glow-300);
+  }
+
+  .callout {
+    margin-top: 6vh;
+    padding: 4vh 4vw;
+    background: rgba(10, 52, 77, 0.7);
+    border: 2px solid rgba(124, 255, 234, 0.3);
+    transform: rotate(-2deg);
+    position: relative;
+    overflow: hidden;
+  }
+
+  .callout::after {
+    content: "CRAYON-CERTIFIED";
+    position: absolute;
+    top: 15%;
+    right: -10%;
+    font-size: 3rem;
+    letter-spacing: 0.25em;
+    color: rgba(124, 255, 234, 0.2);
+    transform: rotate(12deg);
+  }
+
+  .callout p {
+    margin: 0;
+    font-size: 1.2rem;
+    line-height: 1.8;
+  }
+
+  .hover-reveal {
+    margin-top: 5vh;
+    padding: 2vh 2vw;
+    border-left: 4px solid rgba(57, 240, 207, 0.5);
+    position: relative;
+    cursor: pointer;
+    transition: color 2s ease;
+  }
+
+  .hover-reveal::after {
+    content: "(hover to unfold the intern's pledge)";
+    font-family: "Courier New", monospace;
+    font-size: 0.8rem;
+    letter-spacing: 0.2em;
+    color: rgba(124, 255, 234, 0.6);
+  }
+
+  .hover-reveal p {
+    max-height: 0;
+    overflow: hidden;
+    margin: 0;
+    transition: max-height 2.4s ease, opacity 2.4s ease;
+    opacity: 0.1;
+  }
+
+  .hover-reveal:hover p {
+    max-height: 200px;
+    opacity: 0.9;
+  }
+
+  footer {
+    margin-top: 8vh;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 5vw;
+    align-items: end;
+  }
+
+  .footer-card {
+    padding: 3vh 3vw;
+    background: rgba(4, 23, 38, 0.8);
+    border: 1px dashed rgba(25, 211, 180, 0.4);
+    transform: translateX(-4%) rotate(1deg);
+  }
+
+  .footer-card h4 {
+    margin: 0 0 0.8rem 0;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    font-size: 0.9rem;
+    color: var(--teal-400);
+  }
+
+  .footer-card p {
+    margin: 0;
+    line-height: 1.7;
+    color: rgba(230, 247, 242, 0.75);
+  }
+
+  .signal {
+    justify-self: end;
+    font-family: "Courier New", monospace;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    opacity: 0.6;
+    position: relative;
+  }
+
+  .signal::before {
+    content: "";
+    position: absolute;
+    width: 120%;
+    height: 1px;
+    left: -10%;
+    top: -8px;
+    background: linear-gradient(90deg, transparent, rgba(124, 255, 234, 0.8), transparent);
+    animation: slowPulse 6s ease-in-out infinite;
+  }
+
+  @keyframes slowPulse {
+    0%, 100% { opacity: 0.3; transform: scaleX(0.9); }
+    50% { opacity: 0.9; transform: scaleX(1.05); }
+  }
+
+  @keyframes drift {
+    0%, 100% { transform: translateY(0px); }
+    50% { transform: translateY(-12px); }
+  }
+
+  .float {
+    animation: drift 9s ease-in-out infinite;
+  }
+
+  @media (max-width: 900px) {
+    header,
+    main,
+    footer {
+      grid-template-columns: 1fr;
+    }
+
+    .badge,
+    .signal {
+      justify-self: start;
+    }
+
+    .title-block,
+    .manifesto,
+    .footer-card {
+      transform: none;
+    }
+
+    .crayon-note {
+      transform: none;
+    }
+
+    .callout {
+      transform: none;
+    }
+  }
+</style>
+</head>
+<body>
+  <div class="page">
+    <header>
+      <div class="title-block float">
+        <h1>Crayonwave</h1>
+        <p>
+          The intern stared at the infinite ocean of subscriptions and whispered,
+          “What if the soundtrack never stops?” The deck was drawn in crayon. The
+          investor deck was drawn in crayon. The contracts, too. The ocean nodded.
+        </p>
+      </div>
+      <div class="badge">
+        <strong>Subscription Service</strong><br />
+        <span class="audio-status">Status: <span id="soundState">perpetually humming</span></span>
+      </div>
+    </header>
+
+    <main>
+      <section class="crayon-note">
+        <h2>All Documents in Crayon</h2>
+        <p>
+          Every invoice is a gentle smear of wax. Every receipt is a smeared green
+          glacier drifting across the paper. The intern insists this makes trust
+          <span class="highlight">more tactile</span>.
+        </p>
+        <p>
+          The marketplace calls it a grunge zine cryptocurrency exchange. We call
+          it the sea. We call it a minute-long chord that never resolves.
+        </p>
+      </section>
+
+      <section class="manifesto float">
+        <h3>Manifesto</h3>
+        <p>
+          We will have fewer features, and they will be louder. We will take our
+          time. We will take the slow elevator. We will keep the score humming
+          even when we sleep. The intern says the music is a compliance layer.
+        </p>
+        <p class="whisper">
+          The chorus is a bioluminescent tide, glowing in deep ocean blues.
+        </p>
+
+        <div class="audio-panel">
+          <div>
+            <div class="audio-status">Soundtrack: <span id="trackName">Crayon Nebula Mix</span></div>
+            <div class="audio-status">Tempo: <span id="tempo">slow</span></div>
+          </div>
+          <button id="toggleSound" type="button">Lean In</button>
+        </div>
+      </section>
+    </main>
+
+    <section class="callout">
+      <p>
+        A subscription is a promise to keep the lights weird. We deliver glow,
+        tide, and a slow oscillation of neon-green commas. Please do not ask for
+        a refund; the intern used it to buy more crayons.
+      </p>
+    </section>
+
+    <div class="hover-reveal">
+      <p>
+        I, the intern, hereby pledge to keep the soundtrack audible, the
+        paperwork waxy, and the exchange feral. If the tempo slips, I will hold
+        the boombox higher.
+      </p>
+    </div>
+
+    <footer>
+      <div class="footer-card">
+        <h4>Launch Notes</h4>
+        <p>
+          The launch button was hand-drawn and pressed with a mitten. The
+          confirmation email arrived as a poem. The ledger smells faintly of
+          ocean salt and graphite.
+        </p>
+      </div>
+      <div class="signal">Signal: always on</div>
+    </footer>
+  </div>
+
+<script>
+  const toggleButton = document.getElementById('toggleSound');
+  const soundState = document.getElementById('soundState');
+  const trackName = document.getElementById('trackName');
+  const tempo = document.getElementById('tempo');
+
+  const states = [
+    {
+      label: 'perpetually humming',
+      track: 'Crayon Nebula Mix',
+      tempo: 'slow'
+    },
+    {
+      label: 'glowing louder',
+      track: 'Intern Anthem (Wax Cut)',
+      tempo: 'slower'
+    },
+    {
+      label: 'distant thunder',
+      track: 'Ocean Static Suite',
+      tempo: 'glacial'
+    }
+  ];
+
+  let index = 0;
+
+  toggleButton.addEventListener('click', () => {
+    index = (index + 1) % states.length;
+    const state = states[index];
+    soundState.textContent = state.label;
+    trackName.textContent = state.track;
+    tempo.textContent = state.tempo;
+    toggleButton.textContent = index === 0 ? 'Lean In' : 'Sink Deeper';
+  });
+</script>
+</body>
+</html>

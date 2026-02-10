@@ -1,0 +1,598 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>HelioRodent Embassy Exchange</title>
+  <link rel="stylesheet" href="/assets/css/pico.min.css" />
+  <link rel="stylesheet" href="/assets/css/fonts.css" />
+  <style>
+    :root {
+      --deep-blue: #081a4a;
+      --mid-blue: #102a72;
+      --purple: #5c2f8f;
+      --coral: #ff6f61;
+      --gold: #ffbe3b;
+      --paper: #fff6ea;
+      --ink: #0f1022;
+      --white: #ffffff;
+      --radius: 16px;
+      --shadow: 0 12px 28px rgba(0, 0, 0, 0.28);
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: 'Space Grotesk', sans-serif;
+      color: var(--white);
+      background:
+        radial-gradient(circle at 10% 20%, #ff6f61 0%, transparent 28%),
+        radial-gradient(circle at 90% 10%, #ffbe3b 0%, transparent 24%),
+        radial-gradient(circle at 80% 80%, #5c2f8f 0%, transparent 30%),
+        linear-gradient(160deg, var(--deep-blue), #070f2e 60%, #090919 100%);
+      min-height: 100vh;
+    }
+
+    main {
+      width: min(1080px, 94vw);
+      margin: 1.2rem auto 2.4rem;
+      display: grid;
+      gap: 1.1rem;
+    }
+
+    .panel {
+      border: 2px solid var(--gold);
+      background: rgba(16, 42, 114, 0.94);
+      border-radius: var(--radius);
+      padding: 1rem;
+      box-shadow: var(--shadow);
+    }
+
+    .paper {
+      background: var(--paper);
+      color: var(--ink);
+      border: 2px solid var(--ink);
+    }
+
+    h1, h2, h3 {
+      margin: 0;
+      line-height: 0.96;
+      text-transform: uppercase;
+      letter-spacing: 0.03em;
+    }
+
+    h1 {
+      font-size: clamp(2.2rem, 9vw, 7rem);
+      margin-bottom: 0.35rem;
+    }
+
+    h2 {
+      font-size: clamp(1.2rem, 4vw, 2.8rem);
+      margin-bottom: 0.45rem;
+    }
+
+    h3 {
+      font-size: clamp(1rem, 2.3vw, 1.45rem);
+      margin-bottom: 0.35rem;
+    }
+
+    p, li, small, td, th, label, input, button, a {
+      color: inherit;
+      opacity: 1;
+    }
+
+    .mono {
+      font-family: 'IBM Plex Mono', monospace;
+      letter-spacing: 0.02em;
+    }
+
+    .nav {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.55rem;
+      margin-top: 0.5rem;
+    }
+
+    .nav a {
+      text-decoration: none;
+      border: 1px solid var(--white);
+      border-radius: 999px;
+      padding: 0.28rem 0.72rem;
+      color: var(--white);
+      background: #172a63;
+      font-weight: 700;
+    }
+
+    .bigline {
+      font-size: clamp(1rem, 2.2vw, 1.55rem);
+      max-width: 72ch;
+      font-weight: 700;
+    }
+
+    .grid {
+      display: grid;
+      gap: 0.75rem;
+    }
+
+    .stats {
+      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    }
+
+    .card {
+      background: #152d74;
+      border: 1px solid var(--gold);
+      border-radius: 12px;
+      padding: 0.7rem;
+    }
+
+    .card strong {
+      display: block;
+      font-size: 1.25rem;
+      color: var(--gold);
+      margin-top: 0.25rem;
+    }
+
+    .ticker-row {
+      display: grid;
+      grid-template-columns: 128px 1fr 110px;
+      gap: 0.5rem;
+      align-items: center;
+      border-bottom: 1px solid #ffe2b0;
+      padding: 0.35rem 0;
+    }
+
+    .bar-wrap {
+      height: 12px;
+      border: 1px solid var(--ink);
+      border-radius: 999px;
+      background: #f0d0a0;
+      overflow: hidden;
+    }
+
+    .bar {
+      height: 100%;
+      background: linear-gradient(90deg, var(--coral), var(--purple));
+      transition: width 0.35s ease;
+    }
+
+    .btn-row {
+      display: flex;
+      gap: 0.45rem;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+
+    button, [role="button"] {
+      margin: 0;
+      background: var(--coral);
+      color: #1d0518;
+      border: 2px solid #1d0518;
+      border-radius: 10px;
+      font-weight: 800;
+      padding: 0.42rem 0.72rem;
+      cursor: pointer;
+    }
+
+    button.alt {
+      background: var(--gold);
+      color: #18120a;
+    }
+
+    button.ghost {
+      background: #18327f;
+      color: #ffffff;
+      border-color: #ffffff;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.9rem;
+    }
+
+    th, td {
+      border: 1px solid #1d2452;
+      padding: 0.4rem;
+      text-align: left;
+    }
+
+    th {
+      background: #ffbe3b;
+      color: #12121d;
+    }
+
+    td {
+      background: #fff8ef;
+      color: #12121d;
+    }
+
+    input[type="text"] {
+      background: #fffef9;
+      color: #0f1022;
+      border: 2px solid #0f1022;
+      margin: 0;
+      padding: 0.38rem 0.5rem;
+    }
+
+    .pricing {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 0.7rem;
+    }
+
+    .price {
+      border: 2px solid var(--white);
+      border-radius: 12px;
+      padding: 0.7rem;
+      background: #442067;
+    }
+
+    .price strong {
+      font-size: 1.95rem;
+      color: var(--gold);
+      display: block;
+    }
+
+    .blink {
+      animation: pulse 1.2s ease-in-out infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.03); }
+    }
+
+    .footnotes {
+      font-size: 0.84rem;
+      line-height: 1.4;
+      border-top: 2px dashed var(--gold);
+      padding-top: 0.7rem;
+    }
+
+    .quote {
+      border-left: 6px solid var(--coral);
+      padding-left: 0.7rem;
+      margin: 0.6rem 0;
+      font-size: 1.03rem;
+      font-weight: 700;
+    }
+
+    .warn {
+      background: #fff1c8;
+      color: #1b1523;
+      border: 2px solid #1b1523;
+      border-radius: 10px;
+      padding: 0.55rem;
+      font-weight: 700;
+    }
+
+    .iconline {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+    }
+
+    .iconline i { width: 18px; height: 18px; }
+  </style>
+</head>
+<body>
+  <main x-data="embassyApp()" x-init="init()">
+    <section class="panel">
+      <h1>HelioRodent Embassy Exchange</h1>
+      <p class="bigline">Apostolic market stewardship for grain-backed derivatives, shelf-resilient operations, and secure liturgical connectivity.</p>
+      <div class="nav mono">
+        <a href="#ops">Operations</a>
+        <a href="#liturgy">Liturgy Wi-Fi</a>
+        <a href="#pricing">Membership Tiers</a>
+        <a href="#ledger">Incident Ledger</a>
+        <a href="#compliance">Compliance</a>
+      </div>
+      <div class="grid stats" style="margin-top:0.8rem;">
+        <div class="card"><span class="iconline"><i data-lucide="clock-3"></i> Local Time</span><strong class="mono" x-text="nowText"></strong></div>
+        <div class="card"><span class="iconline"><i data-lucide="cpu"></i> Matching Engine Uptime</span><strong class="mono" x-text="uptime"></strong></div>
+        <div class="card"><span class="iconline"><i data-lucide="wifi"></i> Wi-Fi Latency</span><strong class="mono" x-text="latency + ' ms'"></strong></div>
+        <div class="card"><span class="iconline"><i data-lucide="bar-chart-3"></i> Risk Index</span><strong class="mono" x-text="riskIndex.toFixed(1)"></strong></div>
+        <div class="card"><span class="iconline"><i data-lucide="timer"></i> Bell Countdown</span><strong class="mono" x-text="countdown"></strong></div>
+        <div class="card"><span class="iconline"><i data-lucide="paw-print"></i> Shelf Integrity Events</span><strong class="mono" x-text="shelfEvents"></strong></div>
+      </div>
+    </section>
+
+    <section id="ops" class="panel paper">
+      <h2>Order Floor / Broadcast Stack</h2>
+      <p>The Exchange accepts sunflower, millet, and ceremonial oat futures. All order routing remains active during approved cat interference windows.</p>
+      <div class="btn-row" style="margin:0.55rem 0 0.7rem;">
+        <button @click="runBlessingTrade()" class="blink">Execute Blessing Trade</button>
+        <button @click="reportCat()" class="alt">Log Cat Disturbance</button>
+        <button @click="toggleBell()" class="ghost" x-text="bellSilent ? 'Silent Bell: ON' : 'Silent Bell: OFF'"></button>
+        <button @click="randomizeRisk()" class="alt">Rebalance Volatility</button>
+      </div>
+      <div class="warn mono" x-text="tradeMessage"></div>
+
+      <h3 style="margin-top:0.8rem;">Live Pairs</h3>
+      <div class="mono" style="display:grid; gap:0.25rem;">
+        <template x-for="item in ticker" :key="item.sym">
+          <div class="ticker-row">
+            <strong x-text="item.sym"></strong>
+            <div class="bar-wrap">
+              <div class="bar" :style="`width:${item.momentum}%;`"></div>
+            </div>
+            <span x-text="item.price.toFixed(2)"></span>
+          </div>
+        </template>
+      </div>
+
+      <h3 style="margin-top:0.8rem;">Desk Allocation Matrix</h3>
+      <table>
+        <thead>
+          <tr><th>Desk</th><th>Lead Hamster</th><th>Mandate</th><th>Active Orders</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Sunset Macro</td><td>Marshal Poppy</td><td>Grain curve mean reversion</td><td x-text="120 + trades"></td></tr>
+          <tr><td>Aisle Seven Equity</td><td>Brother Hazelnut</td><td>Shelf restitution bonds</td><td x-text="88 + shelfEvents"></td></tr>
+          <tr><td>Cat Impact Desk</td><td>Priory Saffron</td><td>Shock absorption swaps</td><td x-text="42 + Math.floor(riskIndex)"></td></tr>
+          <tr><td>Ritual Connectivity</td><td>Archivist Nibble</td><td>Password choreography futures</td><td x-text="64 + offerings"></td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section id="liturgy" class="panel">
+      <h2>Connectivity Liturgy Protocol</h2>
+      <p class="mono">Network Access Phrase: accepted only as movement. Select approved gestures to render today's credential.</p>
+      <div class="btn-row" style="margin:0.5rem 0;">
+        <template x-for="move in danceMoves" :key="move">
+          <button @click="selectMove(move)" :class="selectedMove === move ? 'alt' : ''" x-text="move"></button>
+        </template>
+      </div>
+      <div class="card" style="background:#11285f; border-color:#ffffff;">
+        <p style="margin:0; font-weight:800;">Current Access Motion:</p>
+        <h3 class="mono" x-text="selectedMove"></h3>
+      </div>
+      <div class="grid stats" style="margin-top:0.75rem;">
+        <div class="card"><span>Pilgrims Awaiting Verification</span><strong class="mono" x-text="pilgrimQueue"></strong></div>
+        <div class="card"><span>Completed Gesture Handshakes</span><strong class="mono" x-text="handshakes"></strong></div>
+        <div class="card"><span>Sunflower Offerings</span><strong class="mono" x-text="offerings"></strong></div>
+      </div>
+      <div class="btn-row" style="margin-top:0.6rem;">
+        <button @click="processPilgrim()">Process Next Pilgrim</button>
+        <button @click="offerSunflower()" class="alt">Offer Sunflower</button>
+        <button @click="addPilgrim()" class="ghost">Add Walk-In Pilgrim</button>
+      </div>
+    </section>
+
+    <section id="pricing" class="panel">
+      <h2>Membership Tiers</h2>
+      <div class="btn-row" style="margin:0.45rem 0 0.75rem;">
+        <button @click="billing='monthly'" :class="billing==='monthly' ? 'alt' : ''">Monthly</button>
+        <button @click="billing='annual'" :class="billing==='annual' ? 'alt' : ''">Annual</button>
+      </div>
+      <div class="pricing">
+        <article class="price">
+          <h3>Novice Desk Pass</h3>
+          <strong x-text="billing==='monthly' ? '$49' : '$490'"></strong>
+          <p class="mono" x-text="billing==='monthly' ? 'per month' : 'per year'"></p>
+          <p>Entry-level chapel access, one supervised trade each sunrise cycle, basic cat-impact alerts.</p>
+        </article>
+        <article class="price">
+          <h3>Floor Deacon</h3>
+          <strong x-text="billing==='monthly' ? '$139' : '$1390'"></strong>
+          <p class="mono" x-text="billing==='monthly' ? 'per month' : 'per year'"></p>
+          <p>Priority router lane, advanced gesture decoding, and shelf-incident offset credits.</p>
+        </article>
+        <article class="price">
+          <h3>Orbital Synod</h3>
+          <strong x-text="billing==='monthly' ? '$399' : '$3990'"></strong>
+          <p class="mono" x-text="billing==='monthly' ? 'per month' : 'per year'"></p>
+          <p>Embassy-level arbitration, private grain oracle stream, and direct bell override authority.</p>
+        </article>
+      </div>
+    </section>
+
+    <section id="ledger" class="panel paper">
+      <h2>Testimonial Feed + Disturbance Ledger</h2>
+      <p class="quote" x-text="testimonials[testimonialIndex]"></p>
+      <div class="btn-row" style="margin-bottom:0.8rem;">
+        <button @click="nextTestimonial()">Next Testimonial</button>
+      </div>
+
+      <h3>Recent Shelf Incidents</h3>
+      <table class="mono">
+        <thead>
+          <tr><th>Time</th><th>Aisle</th><th>Object</th><th>Status</th></tr>
+        </thead>
+        <tbody>
+          <template x-for="row in incidents" :key="row.id">
+            <tr>
+              <td x-text="row.t"></td>
+              <td x-text="row.aisle"></td>
+              <td x-text="row.obj"></td>
+              <td x-text="row.status"></td>
+            </tr>
+          </template>
+        </tbody>
+      </table>
+    </section>
+
+    <section id="compliance" class="panel">
+      <h2>Notices, Covenants, and Required Fine Print</h2>
+      <div class="footnotes mono">
+        <p>1. Connectivity may be delayed during high-velocity tail flick events.</p>
+        <p>2. Shelf restitution windows are adjudicated by the Evening Crumb Council.</p>
+        <p>3. No credential is valid without performed motion in full count and tempo.</p>
+        <p>4. Grain-backed products are not sovereign tender in non-sanctified pet stores.</p>
+        <p>5. All figures shown are ceremonial estimates and may oscillate by design.</p>
+        <p>6. If bell is silent, traders must infer close from ambient squeaking cadence.</p>
+      </div>
+    </section>
+  </main>
+
+  <script defer src="/assets/js/alpine.min.js"></script>
+  <script src="/assets/js/gsap.min.js"></script>
+  <script src="/assets/js/lucide.min.js"></script>
+  <script>
+    function embassyApp() {
+      return {
+        nowText: '',
+        uptimeSec: 173642,
+        latency: 24,
+        riskIndex: 48.3,
+        countdownSec: 7265,
+        shelfEvents: 312,
+        trades: 958,
+        offerings: 1402,
+        pilgrimQueue: 27,
+        handshakes: 6119,
+        bellSilent: false,
+        billing: 'monthly',
+        selectedMove: 'Moonwalk Pivot',
+        tradeMessage: 'Desk is open. Awaiting next invocation.',
+        danceMoves: ['Moonwalk Pivot', 'Crab Step Cipher', 'Shoulder Pop Sequence', 'Two-Beat Spin', 'Lantern Glide'],
+        testimonials: [
+          '"Our aisle losses dropped 63% after joining Floor Deacon. Reverent and efficient." - Quartermaster Ellery, Dock 14',
+          '"Gesture-only Wi-Fi removed all password leaks overnight." - Sister Vanta, Broadcast Chapel',
+          '"Cat Impact swaps paid out before the seventh ceramic bowl hit the tile." - Operations Marshal Inez',
+          '"Orbital Synod gave us bell authority during peak sunflower volatility." - Steward Kaito'
+        ],
+        testimonialIndex: 0,
+        ticker: [
+          { sym: 'HAMSUN', price: 112.40, momentum: 66 },
+          { sym: 'CRMBND', price: 78.16, momentum: 44 },
+          { sym: 'AISLE9', price: 203.52, momentum: 75 },
+          { sym: 'CATPUT', price: 58.08, momentum: 38 },
+          { sym: 'WIFIDN', price: 134.91, momentum: 57 }
+        ],
+        incidents: [
+          { id: 1, t: '06:31', aisle: '3B', obj: 'Porcelain Oracle Bowl', status: 'Settled' },
+          { id: 2, t: '07:12', aisle: '1A', obj: 'Ledger Crystal Jar', status: 'Insured' },
+          { id: 3, t: '08:03', aisle: '7C', obj: 'Broadcast Bell Stand', status: 'Pending' },
+          { id: 4, t: '08:54', aisle: '2D', obj: 'Oat Futures Placard', status: 'Settled' }
+        ],
+
+        get uptime() {
+          const h = String(Math.floor(this.uptimeSec / 3600)).padStart(2, '0');
+          const m = String(Math.floor((this.uptimeSec % 3600) / 60)).padStart(2, '0');
+          const s = String(this.uptimeSec % 60).padStart(2, '0');
+          return h + ':' + m + ':' + s;
+        },
+
+        get countdown() {
+          const sec = Math.max(this.countdownSec, 0);
+          const h = String(Math.floor(sec / 3600)).padStart(2, '0');
+          const m = String(Math.floor((sec % 3600) / 60)).padStart(2, '0');
+          const s = String(sec % 60).padStart(2, '0');
+          return h + ':' + m + ':' + s;
+        },
+
+        init() {
+          this.setClock();
+          setInterval(() => {
+            this.uptimeSec += 1;
+            this.countdownSec = this.countdownSec > 0 ? this.countdownSec - 1 : 0;
+            this.latency = Math.max(8, Math.min(92, this.latency + (Math.random() * 8 - 4)));
+            this.riskIndex = Math.max(5, Math.min(99, this.riskIndex + (Math.random() * 3 - 1.5)));
+            this.ticker = this.ticker.map((t) => {
+              const drift = (Math.random() * 3 - 1.5);
+              const p = Math.max(10, t.price + drift);
+              const m = Math.max(5, Math.min(98, t.momentum + drift * 4));
+              return { sym: t.sym, price: p, momentum: m };
+            });
+            if (Math.random() > 0.72) {
+              this.pilgrimQueue += 1;
+            }
+            this.setClock();
+          }, 1000);
+
+          if (window.gsap) {
+            gsap.fromTo('.panel', {
+              y: 24,
+              opacity: 0
+            }, {
+              y: 0,
+              opacity: 1,
+              duration: 0.65,
+              stagger: 0.08,
+              ease: 'power2.out',
+              clearProps: 'opacity,transform'
+            });
+          }
+
+          if (window.lucide) {
+            lucide.createIcons();
+          }
+        },
+
+        setClock() {
+          this.nowText = new Date().toLocaleTimeString([], { hour12: false });
+        },
+
+        runBlessingTrade() {
+          this.trades += 1;
+          this.handshakes += 2;
+          this.riskIndex = Math.max(1, this.riskIndex - 0.8);
+          this.tradeMessage = 'Blessing trade confirmed at ' + this.nowText + '. Routing through Sunset Macro.';
+        },
+
+        reportCat() {
+          this.shelfEvents += 1;
+          this.riskIndex = Math.min(99, this.riskIndex + 1.7);
+          this.tradeMessage = 'Cat disturbance logged. Spill-response desk mobilized.';
+          const aisles = ['1A', '2D', '3B', '5F', '7C', '9E'];
+          const objects = ['Glass Tally Prism', 'Ceremonial Scale', 'Crumb Archive Tube', 'Oat Lamp', 'Signal Flag Rack'];
+          const statuses = ['Pending', 'Insured', 'Settled'];
+          const stamp = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false });
+          this.incidents.unshift({
+            id: Date.now(),
+            t: stamp,
+            aisle: aisles[Math.floor(Math.random() * aisles.length)],
+            obj: objects[Math.floor(Math.random() * objects.length)],
+            status: statuses[Math.floor(Math.random() * statuses.length)]
+          });
+          if (this.incidents.length > 8) this.incidents.pop();
+        },
+
+        toggleBell() {
+          this.bellSilent = !this.bellSilent;
+          this.tradeMessage = this.bellSilent
+            ? 'Silent Bell protocol enabled. Close inferred via floor cadence.'
+            : 'Audible Bell protocol restored for all desks.';
+        },
+
+        randomizeRisk() {
+          this.riskIndex = 15 + Math.random() * 70;
+          this.tradeMessage = 'Volatility basket recalibrated. New risk target posted.';
+        },
+
+        selectMove(move) {
+          this.selectedMove = move;
+          this.handshakes += 1;
+          this.tradeMessage = 'Connectivity liturgy switched to ' + move + '.';
+        },
+
+        processPilgrim() {
+          if (this.pilgrimQueue > 0) {
+            this.pilgrimQueue -= 1;
+            this.handshakes += 1;
+            this.tradeMessage = 'Pilgrim credentialed and routed to the chapel LAN.';
+          } else {
+            this.tradeMessage = 'No pilgrims in queue. Front gate awaiting arrivals.';
+          }
+        },
+
+        offerSunflower() {
+          this.offerings += 1;
+          this.tradeMessage = 'Offering accepted. Liquidity hymn updated.';
+        },
+
+        addPilgrim() {
+          this.pilgrimQueue += 1;
+          this.tradeMessage = 'Walk-in pilgrim added to verification queue.';
+        },
+
+        nextTestimonial() {
+          this.testimonialIndex = (this.testimonialIndex + 1) % this.testimonials.length;
+        }
+      };
+    }
+  </script>
+</body>
+</html>

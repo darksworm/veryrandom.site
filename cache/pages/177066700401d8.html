@@ -1,0 +1,631 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Orbit Sweep Exchange</title>
+  <link rel="stylesheet" href="/assets/css/pico.min.css" />
+  <link rel="stylesheet" href="/assets/css/fonts.css" />
+  <style>
+    :root {
+      --pink: #ff2ea6;
+      --blue: #0076ff;
+      --lime: #b8ff2c;
+      --ink: #090909;
+      --paper: #f8f8f5;
+      --tempo: 1;
+      --panel: #ffffff;
+      --accent: linear-gradient(135deg, var(--pink) 0%, var(--blue) 52%, var(--lime) 100%);
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      color: var(--ink);
+      background:
+        radial-gradient(1200px 500px at 12% -5%, #ffe2f4 0%, transparent 70%),
+        radial-gradient(900px 520px at 105% 14%, #dfeeff 0%, transparent 73%),
+        linear-gradient(180deg, #f8fff1 0%, #f9f7ff 42%, #fff6fc 100%);
+      font-family: 'Space Grotesk', sans-serif;
+      overflow-x: hidden;
+    }
+
+    body.alt-palette {
+      --pink: #ff4a7a;
+      --blue: #1445ff;
+      --lime: #d2ff3b;
+      background:
+        radial-gradient(900px 400px at 85% 8%, #ffd0eb 0%, transparent 72%),
+        radial-gradient(1100px 470px at -5% 20%, #cbe8ff 0%, transparent 72%),
+        linear-gradient(180deg, #f6ffea 0%, #eef4ff 42%, #fff0f8 100%);
+    }
+
+    main {
+      width: min(980px, 92vw);
+      margin: 0 auto;
+      padding: 1.25rem 0 4rem;
+      display: grid;
+      gap: 2.5rem;
+    }
+
+    .mono {
+      font-family: 'IBM Plex Mono', monospace;
+      letter-spacing: 0.02em;
+    }
+
+    nav {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: center;
+      gap: 1rem;
+      padding: 0.8rem 1rem;
+      border: 2px solid #000;
+      border-radius: 18px;
+      background: #ffffff;
+      box-shadow: 7px 7px 0 #000;
+      position: relative;
+      isolation: isolate;
+    }
+
+    nav::after {
+      content: '';
+      position: absolute;
+      inset: -2px;
+      border-radius: 18px;
+      background: var(--accent);
+      z-index: -1;
+      transform: translate(8px, -8px);
+      opacity: 0.42;
+    }
+
+    .brand {
+      margin: 0;
+      font-size: clamp(1.2rem, 2.6vw, 1.8rem);
+      text-transform: uppercase;
+      color: #000;
+    }
+
+    .nav-links {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+    }
+
+    .nav-links a {
+      text-decoration: none;
+      color: #000;
+      background: #fff;
+      border: 1px solid #000;
+      border-radius: 999px;
+      padding: 0.35rem 0.75rem;
+      font-size: 0.84rem;
+      font-weight: 700;
+    }
+
+    .hero {
+      position: relative;
+      border: 3px solid #000;
+      border-radius: 32px;
+      background: #fff;
+      padding: clamp(1.3rem, 3vw, 2.4rem);
+      box-shadow: 12px 12px 0 #000;
+      overflow: hidden;
+      isolation: isolate;
+    }
+
+    .hero::before,
+    .hero::after {
+      content: '';
+      position: absolute;
+      pointer-events: none;
+    }
+
+    .hero::before {
+      width: 340px;
+      aspect-ratio: 1;
+      background: conic-gradient(from 20deg, var(--pink), var(--lime), var(--blue), var(--pink));
+      top: -140px;
+      right: -100px;
+      border: 3px solid #000;
+      border-radius: 34% 66% 58% 42% / 48% 31% 69% 52%;
+      animation: blobSpin calc(10s / var(--tempo)) linear infinite;
+      opacity: 0.8;
+    }
+
+    .hero::after {
+      width: 200px;
+      height: 120px;
+      background: #000;
+      left: -36px;
+      bottom: -28px;
+      clip-path: polygon(0 0, 100% 12%, 82% 100%, 0 100%);
+      opacity: 0.13;
+    }
+
+    @keyframes blobSpin {
+      to { transform: rotate(1turn); }
+    }
+
+    .display {
+      margin: 0;
+      font-size: clamp(2.7rem, 10vw, 7rem);
+      line-height: 0.92;
+      text-transform: uppercase;
+      color: #000;
+      max-width: 13ch;
+    }
+
+    .sub {
+      margin: 1rem 0 0;
+      max-width: 60ch;
+      font-size: clamp(1rem, 2.6vw, 1.35rem);
+      color: #111;
+      font-weight: 600;
+    }
+
+    .ticker {
+      margin-top: 1.1rem;
+      padding: 0.7rem;
+      border: 2px solid #000;
+      background: #000;
+      color: #fff;
+      border-radius: 12px;
+      overflow: hidden;
+      white-space: nowrap;
+    }
+
+    .ticker-track {
+      display: inline-block;
+      padding-left: 100%;
+      animation: roll calc(16s / var(--tempo)) linear infinite;
+      font-size: 0.9rem;
+      letter-spacing: 0.07em;
+      text-transform: uppercase;
+    }
+
+    @keyframes roll {
+      to { transform: translateX(-100%); }
+    }
+
+    .control-row {
+      display: grid;
+      gap: 1rem;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    }
+
+    .control {
+      background: #fff;
+      border: 2px solid #000;
+      border-radius: 16px;
+      padding: 1rem;
+      box-shadow: 6px 6px 0 #000;
+    }
+
+    .control label,
+    .control output,
+    .control p {
+      color: #000;
+      margin: 0;
+      font-weight: 700;
+    }
+
+    input[type='range'] {
+      width: 100%;
+      accent-color: #000;
+    }
+
+    .btn-pulse {
+      width: 100%;
+      border: 2px solid #000;
+      color: #000;
+      background: var(--lime);
+      font-weight: 800;
+    }
+
+    .btn-pulse:hover {
+      background: var(--pink);
+      color: #000;
+    }
+
+    .grid {
+      display: grid;
+      gap: 1rem;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    }
+
+    .bureau-card {
+      border: 2px solid #000;
+      border-radius: 22px;
+      padding: 1rem;
+      background: #fff;
+      color: #000;
+      box-shadow: 9px 9px 0 #000;
+      position: relative;
+      overflow: hidden;
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+      isolation: isolate;
+    }
+
+    .bureau-card::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: var(--accent);
+      clip-path: polygon(0 0, 100% 0, 100% 22%, 0 42%);
+      opacity: 0.6;
+      z-index: -1;
+      transition: clip-path 0.35s ease, opacity 0.35s ease;
+    }
+
+    .bureau-card:hover {
+      transform: translate(-4px, -4px) rotate(-0.8deg);
+      box-shadow: 15px 15px 0 #000;
+    }
+
+    .bureau-card:hover::before {
+      clip-path: polygon(0 0, 100% 0, 100% 75%, 0 100%);
+      opacity: 0.8;
+    }
+
+    .bureau-card h3,
+    .bureau-card p,
+    .bureau-card small {
+      color: #000;
+      margin: 0;
+    }
+
+    .bureau-card h3 {
+      font-size: 1.5rem;
+      margin-bottom: 0.35rem;
+      text-transform: uppercase;
+    }
+
+    .bureau-card p { font-size: 0.97rem; font-weight: 600; }
+
+    .bureau-card small {
+      display: inline-block;
+      margin-top: 0.8rem;
+      border: 1px solid #000;
+      border-radius: 999px;
+      padding: 0.2rem 0.58rem;
+      background: #fff;
+      font-weight: 700;
+    }
+
+    .pricing {
+      border: 3px solid #000;
+      border-radius: 28px;
+      background: #000;
+      color: #fff;
+      padding: 1.2rem;
+      box-shadow: 11px 11px 0 var(--blue);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .pricing::before {
+      content: '';
+      position: absolute;
+      width: 250px;
+      height: 250px;
+      border-radius: 50%;
+      border: 3px dashed var(--lime);
+      top: -95px;
+      left: -80px;
+      opacity: 0.8;
+      animation: orbit calc(12s / var(--tempo)) linear infinite;
+    }
+
+    @keyframes orbit { to { transform: rotate(1turn); } }
+
+    .price-list {
+      display: grid;
+      gap: 0.8rem;
+      margin-top: 0.8rem;
+    }
+
+    .line-item {
+      display: flex;
+      justify-content: space-between;
+      gap: 1rem;
+      border: 1px solid #fff;
+      border-radius: 12px;
+      padding: 0.7rem 0.85rem;
+      background: #121212;
+    }
+
+    .line-item span { color: #fff; font-weight: 700; }
+
+    .line-item .cost {
+      color: #000;
+      background: var(--lime);
+      border-radius: 999px;
+      padding: 0.15rem 0.62rem;
+      white-space: nowrap;
+    }
+
+    .quotes {
+      display: grid;
+      gap: 1rem;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    }
+
+    blockquote {
+      margin: 0;
+      border: 2px solid #000;
+      border-left-width: 10px;
+      border-radius: 16px;
+      padding: 0.9rem 1rem;
+      background: #fff;
+      box-shadow: 6px 6px 0 #000;
+      color: #000;
+      font-weight: 700;
+    }
+
+    blockquote footer {
+      margin-top: 0.65rem;
+      color: #000;
+      font-size: 0.84rem;
+      font-family: 'IBM Plex Mono', monospace;
+    }
+
+    .stamp-wrap {
+      border: 2px solid #000;
+      border-radius: 20px;
+      padding: 1rem;
+      background: #fff;
+      box-shadow: 6px 6px 0 #000;
+      position: relative;
+    }
+
+    .seal {
+      margin-top: 1rem;
+      width: 200px;
+      height: 200px;
+      border-radius: 50%;
+      border: 6px double #000;
+      display: grid;
+      place-items: center;
+      background: var(--accent);
+      color: #000;
+      font-weight: 900;
+      font-size: 1.5rem;
+      opacity: 0;
+      transform: scale(0.5) rotate(-50deg);
+      transform-origin: center;
+      text-align: center;
+      line-height: 1.05;
+    }
+
+    details {
+      border: 2px solid #000;
+      border-radius: 12px;
+      background: #fff;
+      color: #000;
+      padding: 0.65rem 0.8rem;
+    }
+
+    summary {
+      cursor: pointer;
+      color: #000;
+      font-weight: 800;
+    }
+
+    details p {
+      margin: 0.7rem 0 0;
+      color: #000;
+      font-weight: 600;
+    }
+
+    footer {
+      border-top: 2px solid #000;
+      padding: 1.4rem 0 0.6rem;
+      color: #000;
+      font-weight: 700;
+      display: flex;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 0.6rem;
+    }
+
+    .icon-row {
+      display: flex;
+      gap: 0.7rem;
+      align-items: center;
+    }
+
+    .icon-chip {
+      border: 1px solid #000;
+      border-radius: 999px;
+      padding: 0.25rem 0.65rem;
+      background: #fff;
+      color: #000;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      font-size: 0.78rem;
+      font-weight: 700;
+    }
+
+    @media (max-width: 740px) {
+      .display { font-size: clamp(2.4rem, 16vw, 5rem); }
+      .seal { width: 160px; height: 160px; font-size: 1.2rem; }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <nav aria-label="Primary">
+      <h1 class="brand mono">Orbit Sweep Exchange</h1>
+      <div class="nav-links mono">
+        <a href="#services">Service Index</a>
+        <a href="#ledger">Compliment Ledger</a>
+        <a href="#proof">Client Proof</a>
+        <a href="#desk">Desk</a>
+      </div>
+    </nav>
+
+    <section class="hero" id="services">
+      <p class="mono" style="margin:0;color:#000;font-weight:800;">Central Dance Relay / District 07</p>
+      <h2 class="display">Floors Cleared by Choreography</h2>
+      <p class="sub">Autonomous sweep routines for retail aisles, foyers, and long corridors. Settlement accepted in structured praise delivered with full-body motion.</p>
+      <div class="ticker" aria-label="Live operations ticker">
+        <div class="ticker-track mono">INTAKE OPEN · 14:00 STUDIO REHEARSAL · EXPRESS SWEEP WINDOW AVAILABLE · ROUTE AUDITS VERIFIED · INVOICE FORMAT: COMPLIMENT BUNDLE</div>
+      </div>
+    </section>
+
+    <section class="control-row" id="desk" aria-label="Control desk">
+      <article class="control">
+        <p class="mono">Tempo Regulator</p>
+        <label for="tempo">Cadence multiplier</label>
+        <input id="tempo" type="range" min="0.7" max="1.8" step="0.1" value="1" />
+        <output id="tempoValue" for="tempo">1.0x</output>
+      </article>
+      <article class="control">
+        <p class="mono">Palette Rotation</p>
+        <button class="btn-pulse" id="paletteBtn" type="button">Shift Logistics Colors</button>
+      </article>
+      <article class="control">
+        <p class="mono">Compliance Seal</p>
+        <button class="btn-pulse" id="stampBtn" type="button">Stamp Dance-Ready</button>
+      </article>
+    </section>
+
+    <section class="grid" aria-label="Service catalog">
+      <article class="bureau-card">
+        <h3>Foyer Glide</h3>
+        <p>Quick perimeter sweep with soft corner pivots and audience-safe gesture language.</p>
+        <small class="mono">15 compliments / cycle</small>
+      </article>
+      <article class="bureau-card">
+        <h3>Aisle Waltz</h3>
+        <p>Alternating lane pattern for high-traffic stores with rhythmic obstacle etiquette.</p>
+        <small class="mono">24 compliments / cycle</small>
+      </article>
+      <article class="bureau-card">
+        <h3>Midnight Rondo</h3>
+        <p>After-hours deep sweep with archival-grade dust collection and ceremonial exit spin.</p>
+        <small class="mono">40 compliments / cycle</small>
+      </article>
+    </section>
+
+    <section class="pricing" id="ledger">
+      <h3 style="margin:0;color:#fff;text-transform:uppercase;">Compliment Ledger</h3>
+      <p style="margin:0.5rem 0 0;color:#fff;font-weight:600;max-width:60ch;">Compliments are logged by tone, specificity, and posture accuracy. Three quality tiers accepted.</p>
+      <div class="price-list mono">
+        <div class="line-item"><span>Precise compliment</span><span class="cost">+5 credits</span></div>
+        <div class="line-item"><span>Poetic compliment</span><span class="cost">+9 credits</span></div>
+        <div class="line-item"><span>Standing ovation phrase</span><span class="cost">+14 credits</span></div>
+      </div>
+    </section>
+
+    <section id="proof">
+      <div class="quotes">
+        <blockquote>
+          "The route map was conveyed in two pirouettes and a shoulder drop. Perfectly clear."
+          <footer>Warehouse Lead, North Pier Fulfillment</footer>
+        </blockquote>
+        <blockquote>
+          "We settled our entire month with sincere applause language. Zero billing friction."
+          <footer>Operations Manager, Lunet Grocer</footer>
+        </blockquote>
+        <blockquote>
+          "Every corridor looked staged for opening night. Dust metrics improved by noon."
+          <footer>Facilities Director, Helio Offices</footer>
+        </blockquote>
+      </div>
+    </section>
+
+    <section class="stamp-wrap" aria-label="Verification and FAQ">
+      <h3 style="margin:0;color:#000;text-transform:uppercase;">Dispatch Office</h3>
+      <p style="margin:0.45rem 0 0;color:#000;font-weight:700;">Send booking intent by movement phrase between 09:00 and 18:00 local aisle time.</p>
+      <div class="icon-row" style="margin-top:0.85rem;">
+        <span class="icon-chip"><i data-lucide="badge-check"></i> Certified routing</span>
+        <span class="icon-chip"><i data-lucide="music-4"></i> Dance relay only</span>
+        <span class="icon-chip"><i data-lucide="scan-line"></i> Daily calibration</span>
+      </div>
+
+      <div class="grid" style="margin-top:1rem;">
+        <details>
+          <summary>Can we book recurring sweeps?</summary>
+          <p>Yes. Weekly and nightly loops are opened every Monday with priority for existing ledgers.</p>
+        </details>
+        <details>
+          <summary>Do you accept mixed compliment bundles?</summary>
+          <p>Yes. Blended bundles are normalized by specificity, then applied to the next available route.</p>
+        </details>
+        <details>
+          <summary>How do we submit instructions?</summary>
+          <p>Use mirrored hand paths for room dimensions, then finish with a clear endpoint gesture.</p>
+        </details>
+      </div>
+
+      <div class="seal mono" id="seal">DANCE<br/>READY</div>
+    </section>
+
+    <footer>
+      <span class="mono">Orbit Sweep Exchange, Route Desk 07</span>
+      <span class="mono">Compliment clearing authority: Active</span>
+    </footer>
+  </main>
+
+  <script src="/assets/js/gsap.min.js"></script>
+  <script src="/assets/js/lucide.min.js"></script>
+  <script>
+    const root = document.documentElement;
+    const body = document.body;
+    const tempo = document.getElementById('tempo');
+    const tempoValue = document.getElementById('tempoValue');
+    const paletteBtn = document.getElementById('paletteBtn');
+    const stampBtn = document.getElementById('stampBtn');
+    const seal = document.getElementById('seal');
+
+    function setTempo(v) {
+      const value = Number(v).toFixed(1);
+      root.style.setProperty('--tempo', value);
+      tempoValue.textContent = value + 'x';
+    }
+
+    tempo.addEventListener('input', (e) => {
+      setTempo(e.target.value);
+      gsap.to('.hero', { duration: 0.25, y: -2, repeat: 1, yoyo: true, ease: 'power1.out' });
+    });
+
+    paletteBtn.addEventListener('click', () => {
+      body.classList.toggle('alt-palette');
+      gsap.fromTo('.bureau-card',
+        { rotate: -1.5, y: 10 },
+        { rotate: 0, y: 0, duration: 0.45, stagger: 0.05, ease: 'back.out(1.8)' }
+      );
+    });
+
+    stampBtn.addEventListener('click', () => {
+      gsap.to(seal, {
+        opacity: 1,
+        scale: 1,
+        rotate: 0,
+        duration: 0.55,
+        ease: 'elastic.out(1, 0.55)'
+      });
+      gsap.fromTo('.pricing',
+        { boxShadow: '11px 11px 0 var(--blue)' },
+        { boxShadow: '0 0 0 var(--blue)', duration: 0.16, yoyo: true, repeat: 1 }
+      );
+    });
+
+    document.querySelectorAll('.bureau-card').forEach((card, i) => {
+      card.addEventListener('mouseenter', () => {
+        gsap.to(card, { duration: 0.35, y: -4, rotate: (i % 2 ? -0.8 : 0.8), ease: 'power2.out' });
+      });
+      card.addEventListener('mouseleave', () => {
+        gsap.to(card, { duration: 0.35, y: 0, rotate: 0, ease: 'power2.out' });
+      });
+    });
+
+    setTempo(tempo.value);
+    lucide.createIcons();
+  </script>
+</body>
+</html>

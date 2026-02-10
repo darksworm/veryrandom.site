@@ -1,0 +1,830 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Microprint Gazette Systems</title>
+  <link rel="stylesheet" href="/assets/css/pico.min.css" />
+  <link rel="stylesheet" href="/assets/css/fonts.css" />
+  <style>
+    :root {
+      --acid: #b6ff00;
+      --warning: #ffe600;
+      --hazard: #ff7a00;
+      --ink: #0b0b0b;
+      --paper: #fffdf5;
+      --slate: #1f1f1f;
+      --panel: #fef0a6;
+      --panel-2: #d9ff6b;
+      --panel-3: #ffd07a;
+      --border: #111111;
+      --shadow: 0 8px 0 #0b0b0b;
+    }
+
+    html, body {
+      background: var(--paper);
+      color: var(--ink);
+      font-family: "Space Grotesk", "Inter", sans-serif;
+    }
+
+    body {
+      margin: 0;
+    }
+
+    .app {
+      display: grid;
+      grid-template-columns: 300px 1fr;
+      min-height: 100vh;
+    }
+
+    .sidebar {
+      background: linear-gradient(180deg, var(--acid), var(--warning));
+      border-right: 4px solid var(--border);
+      padding: 1.25rem;
+      position: sticky;
+      top: 0;
+      height: 100vh;
+      overflow: auto;
+    }
+
+    .brand {
+      background: var(--slate);
+      color: #ffffff;
+      padding: 0.75rem 0.9rem;
+      border: 3px solid var(--border);
+      box-shadow: var(--shadow);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      font-weight: 700;
+    }
+
+    .sidebar nav a {
+      display: block;
+      background: #ffffff;
+      color: var(--ink);
+      padding: 0.55rem 0.7rem;
+      border: 2px solid var(--border);
+      margin-top: 0.5rem;
+      font-weight: 600;
+      text-decoration: none;
+    }
+
+    .sidebar nav a:hover {
+      background: var(--panel-3);
+    }
+
+    .badge {
+      display: inline-block;
+      padding: 0.15rem 0.4rem;
+      background: var(--slate);
+      color: #ffffff;
+      font-family: "IBM Plex Mono", monospace;
+      font-size: 0.7rem;
+      border: 2px solid var(--border);
+    }
+
+    main {
+      padding: 1.5rem 1.75rem 2rem;
+      background: radial-gradient(circle at 10% 10%, #ffffff, var(--paper));
+    }
+
+    .hero {
+      display: grid;
+      grid-template-columns: 1.2fr 0.8fr;
+      gap: 1rem;
+      margin-bottom: 1.25rem;
+    }
+
+    .card {
+      background: var(--panel);
+      border: 3px solid var(--border);
+      box-shadow: var(--shadow);
+      padding: 1rem;
+    }
+
+    .card.dark {
+      background: var(--slate);
+      color: #ffffff;
+    }
+
+    .card.orange {
+      background: var(--panel-3);
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(12, 1fr);
+      gap: 1rem;
+    }
+
+    .span-4 { grid-column: span 4; }
+    .span-6 { grid-column: span 6; }
+    .span-8 { grid-column: span 8; }
+    .span-12 { grid-column: span 12; }
+
+    .panel-title {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-bottom: 0.6rem;
+    }
+
+    .stat-row {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 0.5rem;
+    }
+
+    .stat {
+      background: #ffffff;
+      border: 2px solid var(--border);
+      padding: 0.6rem;
+      text-align: center;
+      font-weight: 700;
+    }
+
+    .stat span {
+      display: block;
+      font-size: 0.75rem;
+      font-weight: 600;
+    }
+
+    .bar-chart {
+      display: grid;
+      grid-template-columns: repeat(6, 1fr);
+      gap: 0.4rem;
+      align-items: end;
+      height: 140px;
+      margin-top: 0.5rem;
+    }
+
+    .bar {
+      background: var(--hazard);
+      border: 2px solid var(--border);
+      height: var(--h, 40%);
+    }
+
+    .bar:nth-child(even) {
+      background: var(--acid);
+    }
+
+    .ticker {
+      background: #ffffff;
+      border: 2px solid var(--border);
+      padding: 0.5rem;
+      font-family: "IBM Plex Mono", monospace;
+      font-size: 0.85rem;
+      overflow: hidden;
+      white-space: nowrap;
+    }
+
+    .ticker span {
+      display: inline-block;
+      padding-left: 100%;
+      animation: tick 18s linear infinite;
+    }
+
+    @keyframes tick {
+      0% { transform: translateX(0); }
+      100% { transform: translateX(-100%); }
+    }
+
+    .btn {
+      border: 2px solid var(--border);
+      background: #ffffff;
+      color: var(--ink);
+      font-weight: 700;
+      padding: 0.45rem 0.7rem;
+      cursor: pointer;
+      margin: 0.2rem 0.2rem 0.2rem 0;
+    }
+
+    .btn.accent {
+      background: var(--acid);
+    }
+
+    .btn.orange {
+      background: var(--hazard);
+      color: #111111;
+    }
+
+    .btn.dark {
+      background: var(--slate);
+      color: #ffffff;
+    }
+
+    .table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.9rem;
+    }
+
+    .table th, .table td {
+      border: 2px solid var(--border);
+      padding: 0.4rem 0.5rem;
+      text-align: left;
+      background: #ffffff;
+      color: var(--ink);
+    }
+
+    .table th {
+      background: var(--warning);
+    }
+
+    .tag {
+      display: inline-block;
+      padding: 0.1rem 0.4rem;
+      border: 2px solid var(--border);
+      font-family: "IBM Plex Mono", monospace;
+      background: #ffffff;
+      font-size: 0.75rem;
+    }
+
+    .footnotes {
+      font-size: 0.75rem;
+      background: #ffffff;
+      border: 2px dashed var(--border);
+      padding: 0.5rem;
+    }
+
+    .mini-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 0.6rem;
+    }
+
+    .toggle {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-weight: 600;
+      background: #ffffff;
+      border: 2px solid var(--border);
+      padding: 0.4rem 0.6rem;
+    }
+
+    .toggle input {
+      width: 1.2rem;
+      height: 1.2rem;
+    }
+
+    .disclaimer {
+      background: var(--slate);
+      color: #ffffff;
+      padding: 0.6rem;
+      border: 2px solid var(--border);
+      font-size: 0.8rem;
+    }
+
+    .pill {
+      background: #ffffff;
+      border: 2px solid var(--border);
+      padding: 0.25rem 0.5rem;
+      font-size: 0.75rem;
+      font-weight: 700;
+      display: inline-block;
+      margin-right: 0.3rem;
+      margin-bottom: 0.3rem;
+    }
+
+    .list {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+      display: grid;
+      gap: 0.4rem;
+    }
+
+    .list li {
+      background: #ffffff;
+      border: 2px solid var(--border);
+      padding: 0.4rem 0.6rem;
+    }
+
+    .chart-labels {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.7rem;
+      font-family: "IBM Plex Mono", monospace;
+      margin-top: 0.3rem;
+    }
+
+    .tabs {
+      display: flex;
+      gap: 0.4rem;
+      margin-bottom: 0.6rem;
+    }
+
+    .tab {
+      border: 2px solid var(--border);
+      background: #ffffff;
+      font-weight: 700;
+      padding: 0.35rem 0.6rem;
+      cursor: pointer;
+    }
+
+    .tab.active {
+      background: var(--acid);
+    }
+
+    .micro {
+      font-size: 0.8rem;
+      font-family: "IBM Plex Mono", monospace;
+    }
+
+    .signal {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.3rem;
+      background: #ffffff;
+      border: 2px solid var(--border);
+      padding: 0.25rem 0.4rem;
+      font-family: "IBM Plex Mono", monospace;
+      font-size: 0.8rem;
+    }
+
+    .signal i {
+      width: 16px;
+      height: 16px;
+    }
+
+    .fieldset {
+      border: 2px solid var(--border);
+      padding: 0.6rem;
+      background: #ffffff;
+    }
+
+    .fieldset label {
+      display: block;
+      font-weight: 600;
+      margin-top: 0.4rem;
+      color: var(--ink);
+    }
+
+    .fieldset input, .fieldset select {
+      width: 100%;
+      border: 2px solid var(--border);
+      padding: 0.4rem;
+      background: #ffffff;
+      color: var(--ink);
+    }
+
+    .footer {
+      margin-top: 1rem;
+      background: var(--warning);
+      border: 3px solid var(--border);
+      padding: 0.8rem;
+      display: grid;
+      grid-template-columns: 1.2fr 1fr;
+      gap: 1rem;
+    }
+
+    @media (max-width: 1100px) {
+      .app { grid-template-columns: 1fr; }
+      .sidebar { position: relative; height: auto; }
+      .hero { grid-template-columns: 1fr; }
+      .grid { grid-template-columns: repeat(6, 1fr); }
+      .span-4, .span-6, .span-8 { grid-column: span 6; }
+      .span-12 { grid-column: span 6; }
+    }
+
+    @media (max-width: 700px) {
+      .grid { grid-template-columns: repeat(2, 1fr); }
+      .span-4, .span-6, .span-8, .span-12 { grid-column: span 2; }
+      .footer { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <aside class="sidebar">
+      <div class="brand">Microprint Gazette Systems</div>
+      <p class="micro" style="margin-top:0.8rem; background:#ffffff; border:2px solid var(--border); padding:0.5rem;">
+        Trusted by 312 tiny districts and 9,402 miniature households. Office size: 8.7 cm tall.
+      </p>
+      <nav aria-label="Primary">
+        <a href="#news">Newsroom Console</a>
+        <a href="#press">Press Control</a>
+        <a href="#plans">Subscriptions</a>
+        <a href="#dispatch">Dispatch Desk</a>
+        <a href="#safety">Safety & Compliance</a>
+        <a href="#contact">Contact</a>
+      </nav>
+      <div style="margin-top:1rem;">
+        <div class="panel-title">Live Access <span class="badge">STAFF</span></div>
+        <div class="signal"><i data-lucide="wifi"></i><span id="wifi-status">Connected</span></div>
+        <p class="micro" style="margin-top:0.5rem;">Wi‑Fi password: Lateral Shuffle</p>
+        <div class="toggle" style="margin-top:0.6rem;">
+          <input type="checkbox" id="opinion-filter" checked />
+          <label for="opinion-filter">Opinion Filter ON</label>
+        </div>
+      </div>
+      <div style="margin-top:1rem;" class="disclaimer">
+        <strong>Notice:</strong> All measurements listed in centimeters unless annotated with <span class="badge">TINY</span>.
+      </div>
+    </aside>
+
+    <main>
+      <section class="hero" id="news">
+        <div class="card">
+          <div class="panel-title">Front Page <span class="badge">ED. 114</span></div>
+          <h2 id="headline">Council Approves Extra Thimble of Ink</h2>
+          <p>Microprint Gazette is the longest-running miniature newspaper with a publicly documented opinion on kerning. Daily edition arrives folded, sealed, and mischief-free.</p>
+          <div>
+            <button class="btn accent" data-headline="The Printer Declares Tuesday a Full-Color Day">Editorial Override</button>
+            <button class="btn" data-headline="Wind Advisory Issued for the 2cm Plaza">Weather Addendum</button>
+            <button class="btn orange" data-headline="Neighborhood Votes to Rotate Paper Grain">Civic Pulse</button>
+          </div>
+          <div class="ticker" style="margin-top:0.7rem;"><span id="ticker">INK PRESSURE 1.3 microbars • DELIVERY ETA 07:12 • CARRYING HANDLE ALIGNED • OPINION DENSITY STABLE •</span></div>
+        </div>
+        <div class="card dark">
+          <div class="panel-title">Next Press Run <span class="badge">TIMER</span></div>
+          <h3 id="countdown">00:18:40</h3>
+          <div class="stat-row">
+            <div class="stat"><div id="issues-today">642</div><span>Issues Today</span></div>
+            <div class="stat"><div id="staples-used">4,220</div><span>Staples Used</span></div>
+            <div class="stat"><div id="crumbs">18</div><span>Crumbs Tracked</span></div>
+          </div>
+          <div style="margin-top:0.8rem;">
+            <div class="pill">Ink: Citrus Black</div>
+            <div class="pill">Paper: Thin Hillside</div>
+            <div class="pill">Scale: 1:24</div>
+          </div>
+        </div>
+      </section>
+
+      <section class="grid" id="press">
+        <div class="card span-8">
+          <div class="panel-title">Press Control Board <span class="badge">LIVE</span></div>
+          <div class="mini-grid">
+            <div class="fieldset">
+              <div class="micro">Trim Size (mm)</div>
+              <div style="display:flex; align-items:center; gap:0.4rem; margin-top:0.4rem;">
+                <button class="btn" id="size-down">-</button>
+                <div id="trim-size" style="font-weight:700;">28</div>
+                <button class="btn" id="size-up">+</button>
+              </div>
+              <label for="edition">Edition Mood</label>
+              <select id="edition">
+                <option>Measured Optimism</option>
+                <option>Respectful Doubt</option>
+                <option>Playful Scrutiny</option>
+                <option>Firmly Held Spite</option>
+              </select>
+              <label for="ink-level">Ink Level</label>
+              <input id="ink-level" type="range" min="30" max="100" value="82" />
+            </div>
+            <div class="fieldset">
+              <div class="micro">Opinion Density</div>
+              <div class="bar-chart" id="opinion-chart">
+                <div class="bar" style="--h:70%"></div>
+                <div class="bar" style="--h:35%"></div>
+                <div class="bar" style="--h:90%"></div>
+                <div class="bar" style="--h:52%"></div>
+                <div class="bar" style="--h:66%"></div>
+                <div class="bar" style="--h:42%"></div>
+              </div>
+              <div class="chart-labels"><span>Mon</span><span>Tue</span><span>Wed</span><span>Thu</span><span>Fri</span><span>Sat</span></div>
+              <div style="margin-top:0.6rem;">
+                <button class="btn dark" id="reroll">Reroll Density</button>
+                <button class="btn" id="lock-press">Lock Press</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card span-4 orange">
+          <div class="panel-title">Quality Warnings <span class="badge">QA</span></div>
+          <ul class="list" id="qa-list">
+            <li>Microscopic fold drift detected on batch #9.</li>
+            <li>Courier cap rotation exceeds 11 degrees.</li>
+            <li>Margins argued with the foreman.</li>
+            <li>Paper grain prefers horizontal.</li>
+          </ul>
+          <button class="btn" id="acknowledge">Acknowledge & Calibrate</button>
+        </div>
+
+        <div class="card span-4" id="plans">
+          <div class="panel-title">Subscriptions <span class="badge">PLANS</span></div>
+          <div class="tabs">
+            <button class="tab active" data-plan="daily">Daily</button>
+            <button class="tab" data-plan="weekly">Weekly</button>
+            <button class="tab" data-plan="institutional">Institutional</button>
+          </div>
+          <div id="plan-detail">
+            <h4>Daily Fold</h4>
+            <p>Delivered at dawn with a temperature log and 1 editorial aside.</p>
+            <div class="pill">$14 / month</div>
+            <div class="pill">1cm delivery tube</div>
+          </div>
+        </div>
+
+        <div class="card span-4">
+          <div class="panel-title">Dispatch Desk <span class="badge">QUEUE</span></div>
+          <table class="table">
+            <thead>
+              <tr><th>Route</th><th>Courier</th><th>Status</th></tr>
+            </thead>
+            <tbody id="dispatch-table">
+              <tr><td>Mini‑North</td><td>R. Finch</td><td>Folded</td></tr>
+              <tr><td>Harbor Thumb</td><td>V. Coil</td><td>In Transit</td></tr>
+              <tr><td>Capillaries</td><td>J. Patch</td><td>Queued</td></tr>
+              <tr><td>Orbit Lane</td><td>K. Quilt</td><td>Stamped</td></tr>
+            </tbody>
+          </table>
+          <button class="btn accent" id="dispatch-refresh">Refresh Board</button>
+        </div>
+
+        <div class="card span-4" id="dispatch">
+          <div class="panel-title">Live Counters <span class="badge">AUTO</span></div>
+          <div class="stat-row">
+            <div class="stat"><div id="circulation">1,240</div><span>Circulation</span></div>
+            <div class="stat"><div id="ink-temp">21.4°C</div><span>Ink Temp</span></div>
+            <div class="stat"><div id="noise">4.2 dB</div><span>Press Noise</span></div>
+          </div>
+          <div style="margin-top:0.6rem;">
+            <button class="btn" id="boost">Boost Output</button>
+            <button class="btn orange" id="cool">Cool Ink</button>
+          </div>
+        </div>
+
+        <div class="card span-8" id="safety">
+          <div class="panel-title">Safety & Compliance <span class="badge">REQUIRED</span></div>
+          <div class="mini-grid">
+            <div>
+              <p><strong>Standard M‑7</strong> requires all operators to perform the pre-press shuffle and sign the tiny logbook.</p>
+              <div class="toggle"><input type="checkbox" id="shuffle" checked /><label for="shuffle">Shuffle Verified</label></div>
+              <div class="toggle"><input type="checkbox" id="logbook" checked /><label for="logbook">Logbook Signed</label></div>
+              <div class="toggle"><input type="checkbox" id="safety-gloves" /><label for="safety-gloves">Gloves Issued</label></div>
+            </div>
+            <div>
+              <p class="micro">Hazard Readout</p>
+              <div class="bar-chart" id="hazard-chart">
+                <div class="bar" style="--h:45%"></div>
+                <div class="bar" style="--h:60%"></div>
+                <div class="bar" style="--h:30%"></div>
+                <div class="bar" style="--h:75%"></div>
+                <div class="bar" style="--h:55%"></div>
+                <div class="bar" style="--h:38%"></div>
+              </div>
+              <div class="chart-labels"><span>Heat</span><span>Ink</span><span>Cut</span><span>Fold</span><span>Trip</span><span>Wind</span></div>
+              <div class="micro" id="hazard-text" style="margin-top:0.4rem;">Risk Class: ORANGE-2</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card span-12" id="contact">
+          <div class="panel-title">Client Services <span class="badge">OFFICE</span></div>
+          <div class="grid" style="grid-template-columns: repeat(12, 1fr); gap:1rem;">
+            <div class="span-6">
+              <p>We manage micro-distribution, opinion alignment, and quick-turn retractions. Visit the intake counter between 08:00 and 08:09.</p>
+              <div class="footnotes">
+                <div>Footnote A: All deliveries arrive by fingertip or tweezers.</div>
+                <div>Footnote B: Carrier pigeons are not miniature; they are simply polite.</div>
+                <div>Footnote C: Reprints include a remorse stamp.</div>
+              </div>
+              <div style="margin-top:0.6rem;">
+                <div class="pill">Call: 3‑digit extension 042</div>
+                <div class="pill">Desk: Booth 2C</div>
+                <div class="pill">Lobby: East Matchbox</div>
+              </div>
+            </div>
+            <div class="span-6">
+              <form class="fieldset" id="intake">
+                <div class="micro">Request a micro run</div>
+                <label for="client-name">Client Name</label>
+                <input id="client-name" type="text" placeholder="Tiny Borough Gazette" />
+                <label for="run-size">Run Size (copies)</label>
+                <input id="run-size" type="number" min="50" max="5000" value="320" />
+                <label for="delivery">Delivery Method</label>
+                <select id="delivery">
+                  <option>Envelope Wedge</option>
+                  <option>Thimble Drop</option>
+                  <option>Magnet Board</option>
+                </select>
+                <button type="button" class="btn dark" id="submit-request">Log Request</button>
+                <div id="request-status" class="micro" style="margin-top:0.4rem;">Queue open for 2 slots.</div>
+              </form>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="footer" aria-label="Testimonials">
+        <div>
+          <div class="panel-title">Client Notes <span class="badge">VERIFIED</span></div>
+          <p>“The fold accuracy is so precise it corrected our civic rumor.” — <strong>Archivist Lena, Dock 3</strong></p>
+          <p>“I trust their opinions because they arrive pre-measured.” — <strong>Mayor Finch, Pine Button Ward</strong></p>
+          <p>“Our council reads it under a magnifier and still gasps.” — <strong>Guildmaster Orr</strong></p>
+        </div>
+        <div>
+          <div class="panel-title">Service Ledger <span class="badge">LIVE</span></div>
+          <ul class="list" id="ledger">
+            <li>Retraction filed for headline: “Thimble shortage.”</li>
+            <li>Ink shipment inspected and approved.</li>
+            <li>Staff dance certified for access.</li>
+            <li>Miniature bench replaced.</li>
+          </ul>
+          <div class="disclaimer" style="margin-top:0.6rem;">
+            Compliance reminder: keep bottom-right corner clear for overlay use.
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script src="/assets/js/lucide.min.js"></script>
+  <script src="/assets/js/gsap.min.js"></script>
+  <script>
+    const headlines = document.querySelectorAll('[data-headline]');
+    const headlineEl = document.getElementById('headline');
+    headlines.forEach(btn => {
+      btn.addEventListener('click', () => {
+        headlineEl.textContent = btn.getAttribute('data-headline');
+      });
+    });
+
+    const sizeDown = document.getElementById('size-down');
+    const sizeUp = document.getElementById('size-up');
+    const trimSize = document.getElementById('trim-size');
+    let sizeValue = 28;
+    sizeDown.addEventListener('click', () => {
+      sizeValue = Math.max(18, sizeValue - 1);
+      trimSize.textContent = sizeValue;
+    });
+    sizeUp.addEventListener('click', () => {
+      sizeValue = Math.min(40, sizeValue + 1);
+      trimSize.textContent = sizeValue;
+    });
+
+    const reroll = document.getElementById('reroll');
+    const opinionBars = document.querySelectorAll('#opinion-chart .bar');
+    reroll.addEventListener('click', () => {
+      opinionBars.forEach(bar => {
+        const h = Math.floor(30 + Math.random() * 70);
+        bar.style.setProperty('--h', h + '%');
+      });
+    });
+
+    const lockPress = document.getElementById('lock-press');
+    lockPress.addEventListener('click', () => {
+      lockPress.textContent = lockPress.textContent.includes('Lock') ? 'Unlock Press' : 'Lock Press';
+    });
+
+    const qaList = document.getElementById('qa-list');
+    document.getElementById('acknowledge').addEventListener('click', () => {
+      const item = document.createElement('li');
+      item.textContent = 'Calibration complete. New fold angle: ' + (10 + Math.floor(Math.random() * 6)) + '°.';
+      qaList.insertBefore(item, qaList.firstChild);
+    });
+
+    const tabs = document.querySelectorAll('.tab');
+    const planDetail = document.getElementById('plan-detail');
+    const plans = {
+      daily: {
+        title: 'Daily Fold',
+        body: 'Delivered at dawn with a temperature log and 1 editorial aside.',
+        meta: ['$14 / month', '1cm delivery tube']
+      },
+      weekly: {
+        title: 'Weekly Bundle',
+        body: 'Seven editions nested with a signed opinion slip.',
+        meta: ['$9 / month', 'Weekend carrier slot']
+      },
+      institutional: {
+        title: 'Institutional Grid',
+        body: 'Bulk runs, council annotations, and emergency retractions.',
+        meta: ['$42 / month', 'Archive drawer service']
+      }
+    };
+    tabs.forEach(tab => {
+      tab.addEventListener('click', () => {
+        tabs.forEach(t => t.classList.remove('active'));
+        tab.classList.add('active');
+        const plan = plans[tab.dataset.plan];
+        planDetail.innerHTML = '<h4>' + plan.title + '</h4><p>' + plan.body + '</p>' +
+          '<div class="pill">' + plan.meta[0] + '</div><div class="pill">' + plan.meta[1] + '</div>';
+      });
+    });
+
+    const dispatchRefresh = document.getElementById('dispatch-refresh');
+    const dispatchTable = document.getElementById('dispatch-table');
+    const statuses = ['Queued', 'Folded', 'Stamped', 'In Transit', 'Delivered'];
+    dispatchRefresh.addEventListener('click', () => {
+      Array.from(dispatchTable.rows).forEach(row => {
+        row.cells[2].textContent = statuses[Math.floor(Math.random() * statuses.length)];
+      });
+    });
+
+    const boost = document.getElementById('boost');
+    const cool = document.getElementById('cool');
+    const circulation = document.getElementById('circulation');
+    const inkTemp = document.getElementById('ink-temp');
+    let circValue = 1240;
+    let tempValue = 21.4;
+    boost.addEventListener('click', () => {
+      circValue += 50;
+      circulation.textContent = circValue.toLocaleString();
+    });
+    cool.addEventListener('click', () => {
+      tempValue = Math.max(18, tempValue - 0.6);
+      inkTemp.textContent = tempValue.toFixed(1) + '°C';
+    });
+
+    const countdown = document.getElementById('countdown');
+    let seconds = 18 * 60 + 40;
+    setInterval(() => {
+      seconds = seconds > 0 ? seconds - 1 : 18 * 60 + 40;
+      const h = String(Math.floor(seconds / 3600)).padStart(2, '0');
+      const m = String(Math.floor((seconds % 3600) / 60)).padStart(2, '0');
+      const s = String(seconds % 60).padStart(2, '0');
+      countdown.textContent = `${h}:${m}:${s}`;
+    }, 1000);
+
+    const issuesToday = document.getElementById('issues-today');
+    const staplesUsed = document.getElementById('staples-used');
+    const crumbs = document.getElementById('crumbs');
+    let issues = 642;
+    let staples = 4220;
+    let crumbCount = 18;
+    setInterval(() => {
+      issues += Math.floor(Math.random() * 4);
+      staples += Math.floor(Math.random() * 12);
+      crumbCount += Math.random() > 0.7 ? 1 : 0;
+      issuesToday.textContent = issues.toLocaleString();
+      staplesUsed.textContent = staples.toLocaleString();
+      crumbs.textContent = crumbCount;
+    }, 2400);
+
+    const ticker = document.getElementById('ticker');
+    const tickerItems = [
+      'INK PRESSURE 1.3 microbars',
+      'DELIVERY ETA 07:12',
+      'CARRYING HANDLE ALIGNED',
+      'OPINION DENSITY STABLE',
+      'MINI WEATHER: BRISK',
+      'EDITORS CALM, MOSTLY'
+    ];
+    setInterval(() => {
+      ticker.textContent = tickerItems.sort(() => 0.5 - Math.random()).join(' • ') + ' •';
+    }, 6000);
+
+    const wifiStatus = document.getElementById('wifi-status');
+    const opinionFilter = document.getElementById('opinion-filter');
+    opinionFilter.addEventListener('change', () => {
+      wifiStatus.textContent = opinionFilter.checked ? 'Connected' : 'Limited';
+    });
+
+    const hazardText = document.getElementById('hazard-text');
+    const hazardBars = document.querySelectorAll('#hazard-chart .bar');
+    setInterval(() => {
+      let sum = 0;
+      hazardBars.forEach(bar => {
+        const h = Math.floor(30 + Math.random() * 60);
+        sum += h;
+        bar.style.setProperty('--h', h + '%');
+      });
+      const avg = Math.round(sum / hazardBars.length);
+      hazardText.textContent = avg > 65 ? 'Risk Class: ORANGE-3' : avg > 50 ? 'Risk Class: ORANGE-2' : 'Risk Class: ORANGE-1';
+    }, 5000);
+
+    const requestStatus = document.getElementById('request-status');
+    const submitRequest = document.getElementById('submit-request');
+    submitRequest.addEventListener('click', () => {
+      const slots = Math.max(0, Math.floor(Math.random() * 3));
+      requestStatus.textContent = 'Queue open for ' + slots + ' slots.';
+    });
+
+    const ledger = document.getElementById('ledger');
+    const ledgerItems = [
+      'Ink shipment inspected and approved.',
+      'Retraction filed for headline: “Thimble shortage.”',
+      'Staff dance certified for access.',
+      'Miniature bench replaced.',
+      'New magnifier issued to council.',
+      'Courier boots resized by 1mm.'
+    ];
+    setInterval(() => {
+      const item = document.createElement('li');
+      item.textContent = ledgerItems[Math.floor(Math.random() * ledgerItems.length)];
+      ledger.insertBefore(item, ledger.firstChild);
+      if (ledger.children.length > 6) {
+        ledger.removeChild(ledger.lastChild);
+      }
+    }, 7000);
+
+    lucide.createIcons();
+
+    gsap.from('.card', {
+      y: 20,
+      opacity: 0,
+      duration: 0.6,
+      stagger: 0.05,
+      ease: 'power2.out'
+    });
+  </script>
+</body>
+</html>

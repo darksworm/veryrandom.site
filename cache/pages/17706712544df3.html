@@ -1,0 +1,1571 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>HYLLÅ Foundation — Community Pawn Exchange</title>
+<link rel="stylesheet" href="/assets/css/fonts.css">
+<script defer src="/assets/js/alpine.min.js"></script>
+<script src="/assets/js/gsap.min.js"></script>
+<script src="/assets/js/lucide.min.js"></script>
+<style>
+:root {
+  --ocean-1: #020c1b;
+  --ocean-2: #0a1628;
+  --ocean-3: #0d2137;
+  --ocean-4: #112d4e;
+  --bio-1: #00ffc8;
+  --bio-2: #00e5ff;
+  --bio-3: #64ffda;
+  --bio-4: #0affab;
+  --vapor-1: #ff6ec7;
+  --vapor-2: #c77dff;
+  --vapor-3: #7b2ff7;
+  --white: #e8f4f8;
+  --white-bright: #ffffff;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+html { scroll-behavior: smooth; }
+
+body {
+  background: var(--ocean-1);
+  color: var(--white);
+  font-family: 'Space Grotesk', sans-serif;
+  overflow-x: hidden;
+  min-height: 100vh;
+}
+
+/* ===== CSS ART: BIOLUMINESCENT GRID BACKGROUND ===== */
+body::before {
+  content: '';
+  position: fixed;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  background:
+    radial-gradient(ellipse 600px 400px at 20% 30%, rgba(0,255,200,0.06) 0%, transparent 70%),
+    radial-gradient(ellipse 400px 600px at 80% 60%, rgba(0,229,255,0.05) 0%, transparent 70%),
+    radial-gradient(ellipse 300px 300px at 50% 80%, rgba(199,125,255,0.04) 0%, transparent 70%),
+    repeating-linear-gradient(0deg, transparent, transparent 99px, rgba(0,255,200,0.03) 99px, rgba(0,255,200,0.03) 100px),
+    repeating-linear-gradient(90deg, transparent, transparent 99px, rgba(0,229,255,0.03) 99px, rgba(0,229,255,0.03) 100px);
+  z-index: 0;
+  pointer-events: none;
+}
+
+/* ===== NAV ===== */
+nav {
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1rem 2rem;
+  background: linear-gradient(180deg, rgba(2,12,27,0.95) 0%, rgba(2,12,27,0.7) 100%);
+  backdrop-filter: blur(20px);
+  border-bottom: 1px solid rgba(0,255,200,0.1);
+}
+
+.nav-logo {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: var(--bio-1);
+  text-decoration: none;
+  letter-spacing: 0.1em;
+  text-shadow: 0 0 20px rgba(0,255,200,0.4);
+}
+
+.nav-links {
+  display: flex;
+  gap: 2rem;
+  list-style: none;
+  align-items: center;
+}
+
+.nav-links a {
+  color: var(--white);
+  text-decoration: none;
+  font-size: 0.85rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  transition: color 0.3s, text-shadow 0.3s;
+  position: relative;
+}
+
+.nav-links a:hover {
+  color: var(--bio-1);
+  text-shadow: 0 0 12px rgba(0,255,200,0.5);
+}
+
+.nav-links a::after {
+  content: '';
+  position: absolute;
+  bottom: -4px;
+  left: 0;
+  width: 0;
+  height: 1px;
+  background: var(--bio-1);
+  box-shadow: 0 0 8px var(--bio-1);
+  transition: width 0.3s;
+}
+
+.nav-links a:hover::after { width: 100%; }
+
+.donate-btn {
+  background: linear-gradient(135deg, var(--bio-1), var(--bio-2));
+  color: var(--ocean-1) !important;
+  padding: 0.5rem 1.2rem;
+  border-radius: 4px;
+  font-weight: 700;
+  text-shadow: none !important;
+  transition: transform 0.3s, box-shadow 0.3s !important;
+  box-shadow: 0 0 20px rgba(0,255,200,0.2);
+}
+
+.donate-btn:hover {
+  transform: scale(1.05);
+  box-shadow: 0 0 30px rgba(0,255,200,0.4) !important;
+}
+
+.donate-btn::after { display: none !important; }
+
+/* ===== HERO — CSS ART SHELF SCULPTURE ===== */
+.hero {
+  position: relative;
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  padding: 6rem 2rem 4rem;
+  overflow: hidden;
+}
+
+/* Giant geometric shelf - CSS art */
+.shelf-sculpture {
+  position: absolute;
+  right: -5%;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 55vw;
+  height: 80vh;
+  max-width: 700px;
+  max-height: 700px;
+}
+
+.shelf-unit {
+  position: absolute;
+  border: 2px solid rgba(0,255,200,0.15);
+  background: linear-gradient(135deg, rgba(0,255,200,0.03), rgba(0,229,255,0.02));
+  transition: all 0.6s cubic-bezier(0.23, 1, 0.32, 1);
+}
+
+.shelf-unit:hover {
+  border-color: rgba(0,255,200,0.5);
+  background: linear-gradient(135deg, rgba(0,255,200,0.1), rgba(0,229,255,0.08));
+  box-shadow: 0 0 40px rgba(0,255,200,0.15), inset 0 0 30px rgba(0,255,200,0.05);
+}
+
+.s1 { top: 0; left: 10%; width: 45%; height: 30%; clip-path: polygon(5% 0%, 100% 0%, 95% 100%, 0% 100%); }
+.s2 { top: 25%; left: 0; width: 55%; height: 35%; clip-path: polygon(0% 0%, 98% 5%, 100% 100%, 3% 95%); }
+.s3 { top: 55%; left: 15%; width: 50%; height: 30%; clip-path: polygon(2% 0%, 100% 3%, 97% 100%, 0% 97%); }
+.s4 { top: 15%; left: 55%; width: 40%; height: 45%; clip-path: polygon(10% 0%, 100% 0%, 90% 100%, 0% 100%); border-color: rgba(199,125,255,0.15); }
+.s4:hover { border-color: rgba(199,125,255,0.5); box-shadow: 0 0 40px rgba(199,125,255,0.15); }
+.s5 { top: 60%; left: 50%; width: 45%; height: 35%; clip-path: polygon(5% 5%, 100% 0%, 95% 95%, 0% 100%); }
+
+/* Items on shelves - CSS shapes */
+.shelf-item {
+  position: absolute;
+  transition: all 0.5s cubic-bezier(0.23, 1, 0.32, 1);
+}
+
+.item-ring {
+  width: 40px; height: 40px;
+  border: 3px solid var(--vapor-1);
+  border-radius: 50%;
+  top: 12%; left: 25%;
+  box-shadow: 0 0 15px rgba(255,110,199,0.3), inset 0 0 10px rgba(255,110,199,0.1);
+  animation: float 6s ease-in-out infinite;
+}
+
+.item-diamond {
+  width: 30px; height: 30px;
+  background: linear-gradient(135deg, var(--bio-1), var(--bio-3));
+  top: 35%; left: 15%;
+  transform: rotate(45deg);
+  box-shadow: 0 0 20px rgba(0,255,200,0.3);
+  animation: float 5s ease-in-out infinite 1s;
+}
+
+.item-guitar {
+  width: 20px; height: 55px;
+  border: 2px solid var(--bio-2);
+  border-radius: 0 0 10px 10px;
+  top: 42%; left: 65%;
+  box-shadow: 0 0 12px rgba(0,229,255,0.3);
+  animation: float 7s ease-in-out infinite 0.5s;
+}
+
+.item-guitar::before {
+  content: '';
+  position: absolute;
+  top: -15px; left: 50%;
+  transform: translateX(-50%);
+  width: 14px; height: 14px;
+  border: 2px solid var(--bio-2);
+  border-radius: 50%;
+}
+
+.item-vase {
+  width: 25px; height: 40px;
+  background: linear-gradient(180deg, var(--vapor-2), var(--vapor-3));
+  clip-path: polygon(30% 0%, 70% 0%, 100% 100%, 0% 100%);
+  top: 68%; left: 30%;
+  box-shadow: 0 0 15px rgba(199,125,255,0.3);
+  animation: float 5.5s ease-in-out infinite 2s;
+}
+
+.item-watch {
+  width: 28px; height: 28px;
+  border: 2px solid var(--bio-1);
+  border-radius: 50%;
+  top: 72%; left: 70%;
+  animation: float 6.5s ease-in-out infinite 1.5s;
+}
+
+.item-watch::before {
+  content: '';
+  position: absolute;
+  top: 50%; left: 50%;
+  width: 8px; height: 2px;
+  background: var(--bio-1);
+  transform-origin: left center;
+  animation: spin-slow 8s linear infinite;
+}
+
+.item-watch::after {
+  content: '';
+  position: absolute;
+  top: 50%; left: 50%;
+  width: 5px; height: 2px;
+  background: var(--vapor-1);
+  transform-origin: left center;
+  animation: spin-slow 60s linear infinite;
+}
+
+/* Cat sleeping on document - CSS art */
+.cat-on-doc {
+  position: absolute;
+  top: 45%; left: 35%;
+  z-index: 5;
+}
+
+.document-css {
+  width: 60px; height: 75px;
+  background: linear-gradient(180deg, rgba(232,244,248,0.9), rgba(232,244,248,0.7));
+  border-radius: 2px;
+  box-shadow: 0 2px 15px rgba(0,0,0,0.3);
+  position: relative;
+}
+
+.document-css::before {
+  content: '';
+  position: absolute;
+  top: 8px; left: 8px; right: 8px;
+  height: 2px;
+  background: rgba(2,12,27,0.2);
+  box-shadow: 0 6px 0 rgba(2,12,27,0.15), 0 12px 0 rgba(2,12,27,0.15), 0 18px 0 rgba(2,12,27,0.1), 0 24px 0 rgba(2,12,27,0.1);
+}
+
+.cat-body {
+  position: absolute;
+  bottom: 15px; left: 50%;
+  transform: translateX(-50%);
+  width: 50px; height: 22px;
+  background: linear-gradient(135deg, #555, #444);
+  border-radius: 50% 50% 45% 45%;
+  z-index: 2;
+}
+
+.cat-body::before {
+  content: '';
+  position: absolute;
+  left: 5px; top: -8px;
+  width: 16px; height: 16px;
+  background: #555;
+  border-radius: 50% 50% 30% 70%;
+}
+
+.cat-ear-l, .cat-ear-r {
+  position: absolute;
+  width: 0; height: 0;
+  border-left: 5px solid transparent;
+  border-right: 5px solid transparent;
+  border-bottom: 9px solid #555;
+  z-index: 3;
+}
+
+.cat-ear-l { left: 6px; top: -20px; transform: rotate(-15deg); }
+.cat-ear-r { left: 18px; top: -22px; transform: rotate(15deg); }
+
+.cat-tail {
+  position: absolute;
+  right: -8px; bottom: 20px;
+  width: 30px; height: 8px;
+  background: #555;
+  border-radius: 4px 8px 8px 4px;
+  transform: rotate(-15deg);
+  animation: tail-wag 3s ease-in-out infinite;
+}
+
+@keyframes tail-wag {
+  0%, 100% { transform: rotate(-15deg); }
+  50% { transform: rotate(5deg); }
+}
+
+.zzz {
+  position: absolute;
+  top: -30px; right: -10px;
+  font-size: 0.7rem;
+  color: var(--bio-3);
+  opacity: 0;
+  animation: zzz-float 3s ease-in-out infinite;
+  font-family: 'Playfair Display', serif;
+  font-style: italic;
+}
+
+.zzz:nth-child(2) { animation-delay: 1s; right: -5px; top: -20px; font-size: 0.5rem; }
+.zzz:nth-child(3) { animation-delay: 2s; right: -15px; top: -35px; font-size: 0.55rem; }
+
+@keyframes zzz-float {
+  0% { opacity: 0; transform: translateY(5px); }
+  30% { opacity: 0.8; }
+  100% { opacity: 0; transform: translateY(-15px) translateX(5px); }
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-8px); }
+}
+
+@keyframes spin-slow {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+.hero-content {
+  position: relative;
+  z-index: 10;
+  max-width: 500px;
+}
+
+.hero-tag {
+  font-size: 0.7rem;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: var(--bio-2);
+  margin-bottom: 1rem;
+  text-shadow: 0 0 10px rgba(0,229,255,0.3);
+}
+
+.hero h1 {
+  font-family: 'Playfair Display', serif;
+  font-size: clamp(2.5rem, 6vw, 4.5rem);
+  line-height: 1.05;
+  margin-bottom: 1.5rem;
+  background: linear-gradient(135deg, var(--white-bright), var(--bio-3));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.hero p {
+  font-size: 1rem;
+  color: rgba(232,244,248,0.8);
+  line-height: 1.6;
+  max-width: 400px;
+  margin-bottom: 2rem;
+}
+
+.hero-cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.8rem 2rem;
+  background: transparent;
+  border: 1px solid var(--bio-1);
+  color: var(--bio-1);
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 0.85rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  text-decoration: none;
+  cursor: pointer;
+  transition: all 0.4s;
+  position: relative;
+  overflow: hidden;
+}
+
+.hero-cta::before {
+  content: '';
+  position: absolute;
+  top: 0; left: -100%;
+  width: 100%; height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(0,255,200,0.1), transparent);
+  transition: left 0.5s;
+}
+
+.hero-cta:hover::before { left: 100%; }
+
+.hero-cta:hover {
+  background: rgba(0,255,200,0.1);
+  box-shadow: 0 0 30px rgba(0,255,200,0.2);
+}
+
+/* ===== MISSION — OVERLAPPING ASYMMETRIC ===== */
+.mission {
+  position: relative;
+  padding: 6rem 2rem;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0;
+  min-height: 80vh;
+  align-items: center;
+}
+
+.mission-art {
+  position: relative;
+  height: 400px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* CSS art: morphing blob */
+.bio-blob {
+  width: 250px;
+  height: 250px;
+  background: radial-gradient(circle at 30% 30%, var(--bio-1), var(--bio-2), var(--vapor-3));
+  border-radius: 60% 40% 55% 45% / 50% 60% 40% 50%;
+  opacity: 0.3;
+  animation: morph 12s ease-in-out infinite;
+  filter: blur(30px);
+  position: absolute;
+}
+
+.bio-blob-2 {
+  width: 180px;
+  height: 180px;
+  background: radial-gradient(circle at 70% 70%, var(--vapor-1), var(--vapor-2), var(--bio-2));
+  border-radius: 40% 60% 45% 55% / 60% 40% 55% 45%;
+  opacity: 0.25;
+  animation: morph 10s ease-in-out infinite reverse;
+  filter: blur(25px);
+  position: absolute;
+  top: 30%; left: 30%;
+}
+
+@keyframes morph {
+  0%, 100% { border-radius: 60% 40% 55% 45% / 50% 60% 40% 50%; transform: rotate(0deg) scale(1); }
+  25% { border-radius: 45% 55% 40% 60% / 60% 45% 55% 40%; transform: rotate(5deg) scale(1.05); }
+  50% { border-radius: 55% 45% 60% 40% / 40% 55% 45% 60%; transform: rotate(-5deg) scale(0.95); }
+  75% { border-radius: 40% 60% 50% 50% / 55% 40% 60% 45%; transform: rotate(3deg) scale(1.02); }
+}
+
+/* Geometric KALLAX shape overlay */
+.kallax-grid {
+  position: absolute;
+  width: 200px;
+  height: 200px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  grid-template-rows: 1fr 1fr;
+  gap: 4px;
+  z-index: 2;
+}
+
+.kallax-cell {
+  border: 1px solid rgba(0,255,200,0.3);
+  background: rgba(0,255,200,0.02);
+  transition: all 0.5s;
+  cursor: pointer;
+}
+
+.kallax-cell:hover {
+  background: rgba(0,255,200,0.15);
+  border-color: var(--bio-1);
+  box-shadow: inset 0 0 25px rgba(0,255,200,0.1), 0 0 20px rgba(0,255,200,0.15);
+}
+
+.mission-text {
+  padding: 2rem 3rem;
+  position: relative;
+}
+
+.mission-text::before {
+  content: '';
+  position: absolute;
+  left: 0; top: 10%; bottom: 10%;
+  width: 1px;
+  background: linear-gradient(180deg, transparent, var(--bio-1), transparent);
+}
+
+.section-label {
+  font-size: 0.65rem;
+  letter-spacing: 0.35em;
+  text-transform: uppercase;
+  color: var(--vapor-2);
+  margin-bottom: 1rem;
+}
+
+.mission-text h2 {
+  font-family: 'Playfair Display', serif;
+  font-size: 2rem;
+  margin-bottom: 1.5rem;
+  color: var(--white-bright);
+}
+
+.mission-text p {
+  color: rgba(232,244,248,0.75);
+  line-height: 1.8;
+  font-size: 0.95rem;
+}
+
+/* ===== IMPACT COUNTERS — CSS ART CIRCLES ===== */
+.impact {
+  padding: 5rem 2rem;
+  position: relative;
+}
+
+.impact-grid {
+  display: flex;
+  justify-content: center;
+  gap: 4rem;
+  flex-wrap: wrap;
+}
+
+.impact-item {
+  text-align: center;
+  position: relative;
+  cursor: pointer;
+}
+
+.impact-ring {
+  width: 140px;
+  height: 140px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  position: relative;
+  margin: 0 auto 1rem;
+  transition: all 0.6s;
+}
+
+.impact-ring::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  border: 2px solid transparent;
+  background: linear-gradient(135deg, var(--bio-1), var(--vapor-2)) border-box;
+  -webkit-mask: linear-gradient(#fff 0 0) padding-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+}
+
+.impact-ring::after {
+  content: '';
+  position: absolute;
+  inset: 8px;
+  border-radius: 50%;
+  border: 1px solid rgba(0,255,200,0.15);
+}
+
+.impact-item:hover .impact-ring {
+  transform: scale(1.1);
+  box-shadow: 0 0 40px rgba(0,255,200,0.2);
+}
+
+.impact-item:hover .impact-ring::before {
+  box-shadow: 0 0 20px rgba(0,255,200,0.3);
+}
+
+.impact-num {
+  font-family: 'Playfair Display', serif;
+  font-size: 2rem;
+  color: var(--white-bright);
+  font-weight: 700;
+}
+
+.impact-label {
+  font-size: 0.65rem;
+  text-transform: uppercase;
+  letter-spacing: 0.15em;
+  color: var(--bio-3);
+  margin-top: 0.5rem;
+}
+
+/* ===== SERVICES — OVERLAPPING CARDS ===== */
+.services {
+  padding: 5rem 2rem 6rem;
+  position: relative;
+}
+
+.services h2 {
+  font-family: 'Playfair Display', serif;
+  font-size: 2.5rem;
+  text-align: center;
+  margin-bottom: 3rem;
+  color: var(--white-bright);
+}
+
+.services-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1.5rem;
+  max-width: 1000px;
+  margin: 0 auto;
+  position: relative;
+}
+
+.service-card {
+  background: linear-gradient(145deg, rgba(13,33,55,0.8), rgba(10,22,40,0.9));
+  border: 1px solid rgba(0,255,200,0.08);
+  padding: 2.5rem 2rem;
+  position: relative;
+  overflow: hidden;
+  transition: all 0.5s cubic-bezier(0.23, 1, 0.32, 1);
+  cursor: pointer;
+}
+
+.service-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0;
+  width: 100%; height: 3px;
+  background: linear-gradient(90deg, var(--bio-1), var(--vapor-2));
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 0.5s;
+}
+
+.service-card:hover::before { transform: scaleX(1); }
+
+.service-card::after {
+  content: '';
+  position: absolute;
+  bottom: -50%; right: -50%;
+  width: 100%; height: 100%;
+  background: radial-gradient(circle, rgba(0,255,200,0.05), transparent 70%);
+  transition: all 0.5s;
+  opacity: 0;
+}
+
+.service-card:hover::after { opacity: 1; bottom: -30%; right: -30%; }
+
+.service-card:hover {
+  border-color: rgba(0,255,200,0.2);
+  transform: translateY(-5px);
+  box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+}
+
+.service-card:nth-child(2) { transform: translateY(2rem); }
+.service-card:nth-child(2):hover { transform: translateY(calc(2rem - 5px)); }
+
+.service-icon {
+  width: 48px;
+  height: 48px;
+  margin-bottom: 1.5rem;
+  position: relative;
+}
+
+.icon-shape {
+  width: 100%;
+  height: 100%;
+  position: relative;
+}
+
+/* CSS-drawn icons */
+.icon-pawn .icon-shape {
+  border: 2px solid var(--bio-1);
+  clip-path: polygon(20% 0%, 80% 0%, 100% 100%, 0% 100%);
+  background: linear-gradient(180deg, rgba(0,255,200,0.15), transparent);
+}
+
+.icon-appraise .icon-shape {
+  border: 2px solid var(--vapor-2);
+  border-radius: 50%;
+  background: radial-gradient(circle at 30% 30%, rgba(199,125,255,0.2), transparent);
+}
+
+.icon-appraise .icon-shape::after {
+  content: '';
+  position: absolute;
+  bottom: -8px; right: -8px;
+  width: 16px; height: 3px;
+  background: var(--vapor-2);
+  transform: rotate(45deg);
+}
+
+.icon-community .icon-shape {
+  background: transparent;
+  display: flex;
+  gap: 3px;
+  align-items: flex-end;
+}
+
+.icon-community .icon-shape::before {
+  content: '';
+  width: 14px; height: 35px;
+  border: 2px solid var(--bio-2);
+  border-radius: 2px;
+}
+
+.icon-community .icon-shape::after {
+  content: '';
+  width: 14px; height: 25px;
+  border: 2px solid var(--bio-2);
+  border-radius: 2px;
+}
+
+.service-title {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.2rem;
+  color: var(--white-bright);
+  margin-bottom: 0.8rem;
+}
+
+.service-desc {
+  font-size: 0.85rem;
+  color: rgba(232,244,248,0.7);
+  line-height: 1.7;
+}
+
+/* ===== WIFI NOTICE — subtle corner card ===== */
+.wifi-notice {
+  position: relative;
+  max-width: 500px;
+  margin: 0 auto 0 5%;
+  padding: 2rem;
+  background: linear-gradient(135deg, rgba(13,33,55,0.6), rgba(17,45,78,0.4));
+  border: 1px solid rgba(199,125,255,0.15);
+  overflow: hidden;
+}
+
+.wifi-notice::before {
+  content: '';
+  position: absolute;
+  top: -50%; left: -50%;
+  width: 200%; height: 200%;
+  background: conic-gradient(from 0deg, transparent 0%, rgba(199,125,255,0.05) 10%, transparent 20%);
+  animation: spin-slow 20s linear infinite;
+}
+
+.wifi-notice h3 {
+  font-family: 'Playfair Display', serif;
+  font-size: 1rem;
+  color: var(--vapor-2);
+  margin-bottom: 0.5rem;
+  position: relative;
+}
+
+.wifi-notice p {
+  font-size: 0.8rem;
+  color: rgba(232,244,248,0.7);
+  line-height: 1.6;
+  position: relative;
+}
+
+/* ===== TESTIMONIALS — staggered layout ===== */
+.testimonials {
+  padding: 6rem 2rem;
+  position: relative;
+}
+
+.testimonials h2 {
+  font-family: 'Playfair Display', serif;
+  font-size: 2rem;
+  text-align: right;
+  margin-bottom: 3rem;
+  margin-right: 10%;
+  color: var(--white-bright);
+}
+
+.testimonial-stack {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2rem;
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+.testimonial {
+  padding: 2rem;
+  position: relative;
+  border-left: 2px solid rgba(0,255,200,0.15);
+  transition: border-color 0.4s;
+}
+
+.testimonial:hover { border-left-color: var(--bio-1); }
+
+.testimonial:nth-child(even) { transform: translateY(3rem); }
+
+.testimonial-text {
+  font-family: 'Crimson Pro', serif;
+  font-size: 1rem;
+  font-style: italic;
+  color: rgba(232,244,248,0.8);
+  line-height: 1.7;
+  margin-bottom: 1rem;
+}
+
+.testimonial-author {
+  font-size: 0.75rem;
+  color: var(--bio-3);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+/* ===== VOLUNTEER — interactive dance floor ===== */
+.volunteer {
+  padding: 5rem 2rem;
+  text-align: center;
+  position: relative;
+}
+
+.volunteer h2 {
+  font-family: 'Playfair Display', serif;
+  font-size: 2.5rem;
+  margin-bottom: 1rem;
+  color: var(--white-bright);
+}
+
+.volunteer > p {
+  color: rgba(232,244,248,0.7);
+  max-width: 500px;
+  margin: 0 auto 3rem;
+  font-size: 0.9rem;
+  line-height: 1.7;
+}
+
+.dance-floor {
+  display: grid;
+  grid-template-columns: repeat(8, 1fr);
+  gap: 4px;
+  max-width: 500px;
+  margin: 0 auto 3rem;
+}
+
+.dance-tile {
+  aspect-ratio: 1;
+  background: rgba(0,255,200,0.03);
+  border: 1px solid rgba(0,255,200,0.08);
+  transition: all 0.3s;
+  cursor: pointer;
+  position: relative;
+}
+
+.dance-tile:hover {
+  background: rgba(0,255,200,0.2);
+  border-color: var(--bio-1);
+  box-shadow: 0 0 20px rgba(0,255,200,0.2);
+  transform: scale(1.05);
+}
+
+.dance-tile.lit-1 { background: rgba(0,255,200,0.25); box-shadow: 0 0 15px rgba(0,255,200,0.3); }
+.dance-tile.lit-2 { background: rgba(199,125,255,0.25); box-shadow: 0 0 15px rgba(199,125,255,0.3); border-color: rgba(199,125,255,0.4); }
+.dance-tile.lit-3 { background: rgba(255,110,199,0.2); box-shadow: 0 0 15px rgba(255,110,199,0.3); border-color: rgba(255,110,199,0.4); }
+
+.volunteer-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.8rem 2.5rem;
+  background: linear-gradient(135deg, var(--vapor-2), var(--vapor-3));
+  color: var(--white-bright);
+  border: none;
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 0.85rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: all 0.4s;
+  box-shadow: 0 0 25px rgba(199,125,255,0.2);
+}
+
+.volunteer-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 5px 30px rgba(199,125,255,0.35);
+}
+
+/* ===== FAQ ===== */
+.faq {
+  padding: 5rem 2rem;
+  max-width: 700px;
+  margin: 0 auto;
+}
+
+.faq h2 {
+  font-family: 'Playfair Display', serif;
+  font-size: 2rem;
+  margin-bottom: 2.5rem;
+  color: var(--white-bright);
+}
+
+.faq-item {
+  border-bottom: 1px solid rgba(0,255,200,0.08);
+  padding: 1.2rem 0;
+  cursor: pointer;
+}
+
+.faq-q {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.95rem;
+  color: var(--white);
+  transition: color 0.3s;
+}
+
+.faq-q:hover { color: var(--bio-1); }
+
+.faq-arrow {
+  font-size: 0.7rem;
+  transition: transform 0.3s;
+  color: var(--bio-1);
+}
+
+.faq-a {
+  overflow: hidden;
+  max-height: 0;
+  transition: max-height 0.4s ease, padding 0.3s;
+  font-size: 0.85rem;
+  color: rgba(232,244,248,0.65);
+  line-height: 1.7;
+}
+
+.faq-a.open {
+  max-height: 200px;
+  padding-top: 0.8rem;
+}
+
+.faq-arrow.open { transform: rotate(180deg); }
+
+/* ===== DONATE SECTION ===== */
+.donate-section {
+  padding: 5rem 2rem;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+}
+
+.donate-section::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse 80% 60% at 50% 50%, rgba(0,255,200,0.06), transparent);
+}
+
+.donate-section h2 {
+  font-family: 'Playfair Display', serif;
+  font-size: 2.5rem;
+  margin-bottom: 1rem;
+  color: var(--white-bright);
+  position: relative;
+}
+
+.donate-section > p {
+  color: rgba(232,244,248,0.7);
+  max-width: 450px;
+  margin: 0 auto 2.5rem;
+  font-size: 0.9rem;
+  line-height: 1.7;
+  position: relative;
+}
+
+.donate-tiers {
+  display: flex;
+  gap: 1.5rem;
+  justify-content: center;
+  flex-wrap: wrap;
+  position: relative;
+}
+
+.tier {
+  background: linear-gradient(165deg, rgba(13,33,55,0.8), rgba(10,22,40,0.95));
+  border: 1px solid rgba(0,255,200,0.1);
+  padding: 2.5rem 2rem;
+  min-width: 200px;
+  transition: all 0.5s;
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+}
+
+.tier::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, rgba(0,255,200,0.05), transparent);
+  opacity: 0;
+  transition: opacity 0.4s;
+}
+
+.tier:hover::after { opacity: 1; }
+
+.tier:hover {
+  border-color: rgba(0,255,200,0.3);
+  transform: translateY(-5px);
+  box-shadow: 0 10px 40px rgba(0,0,0,0.3), 0 0 20px rgba(0,255,200,0.1);
+}
+
+.tier-amount {
+  font-family: 'Playfair Display', serif;
+  font-size: 2rem;
+  color: var(--bio-1);
+  margin-bottom: 0.5rem;
+}
+
+.tier-name {
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.2em;
+  color: var(--vapor-2);
+  margin-bottom: 1rem;
+}
+
+.tier-desc {
+  font-size: 0.8rem;
+  color: rgba(232,244,248,0.65);
+  line-height: 1.6;
+}
+
+/* ===== FOOTER ===== */
+footer {
+  padding: 3rem 2rem;
+  border-top: 1px solid rgba(0,255,200,0.08);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+footer .foot-brand {
+  font-family: 'Playfair Display', serif;
+  font-size: 1rem;
+  color: var(--bio-1);
+}
+
+footer .foot-links {
+  display: flex;
+  gap: 1.5rem;
+}
+
+footer .foot-links a {
+  color: rgba(232,244,248,0.5);
+  text-decoration: none;
+  font-size: 0.75rem;
+  transition: color 0.3s;
+}
+
+footer .foot-links a:hover { color: var(--bio-1); }
+
+footer .foot-note {
+  font-size: 0.65rem;
+  color: rgba(232,244,248,0.35);
+  width: 100%;
+  text-align: center;
+  margin-top: 1rem;
+}
+
+/* ===== FLOATING PARTICLES — pure CSS ===== */
+.particles {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  overflow: hidden;
+}
+
+.particle {
+  position: absolute;
+  width: 3px;
+  height: 3px;
+  background: var(--bio-1);
+  border-radius: 50%;
+  opacity: 0;
+  animation: particle-drift 15s linear infinite;
+}
+
+.particle:nth-child(1) { left: 10%; animation-delay: 0s; animation-duration: 18s; }
+.particle:nth-child(2) { left: 25%; animation-delay: 3s; animation-duration: 14s; background: var(--vapor-2); }
+.particle:nth-child(3) { left: 40%; animation-delay: 6s; animation-duration: 20s; }
+.particle:nth-child(4) { left: 60%; animation-delay: 2s; animation-duration: 16s; background: var(--bio-2); }
+.particle:nth-child(5) { left: 75%; animation-delay: 8s; animation-duration: 13s; }
+.particle:nth-child(6) { left: 90%; animation-delay: 4s; animation-duration: 17s; background: var(--vapor-1); }
+.particle:nth-child(7) { left: 50%; animation-delay: 10s; animation-duration: 19s; }
+.particle:nth-child(8) { left: 15%; animation-delay: 7s; animation-duration: 15s; background: var(--bio-3); }
+
+@keyframes particle-drift {
+  0% { transform: translateY(100vh) scale(0); opacity: 0; }
+  10% { opacity: 0.6; }
+  90% { opacity: 0.6; }
+  100% { transform: translateY(-10vh) scale(1); opacity: 0; }
+}
+
+/* ===== RESPONSIVE ===== */
+@media (max-width: 768px) {
+  .nav-links { display: none; }
+
+  .shelf-sculpture { width: 80vw; right: -20%; opacity: 0.5; }
+
+  .mission { grid-template-columns: 1fr; }
+
+  .services-grid { grid-template-columns: 1fr; }
+  .service-card:nth-child(2) { transform: none; }
+  .service-card:nth-child(2):hover { transform: translateY(-5px); }
+
+  .testimonial-stack { grid-template-columns: 1fr; }
+  .testimonial:nth-child(even) { transform: none; }
+
+  .dance-floor { grid-template-columns: repeat(6, 1fr); }
+
+  .donate-tiers { flex-direction: column; align-items: center; }
+
+  .impact-grid { gap: 2rem; }
+}
+
+/* ===== INTERACTIVE GLOW CURSOR TRAIL ===== */
+.glow-cursor {
+  position: fixed;
+  width: 200px;
+  height: 200px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(0,255,200,0.06) 0%, transparent 70%);
+  pointer-events: none;
+  z-index: 1;
+  transform: translate(-50%, -50%);
+  transition: opacity 0.3s;
+}
+
+/* Category tag on document */
+.doc-stamp {
+  position: absolute;
+  bottom: 5px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 0.35rem;
+  color: rgba(255,0,0,0.6);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  font-family: 'IBM Plex Mono', monospace;
+}
+</style>
+</head>
+<body>
+
+<!-- Particles -->
+<div class="particles">
+  <div class="particle"></div>
+  <div class="particle"></div>
+  <div class="particle"></div>
+  <div class="particle"></div>
+  <div class="particle"></div>
+  <div class="particle"></div>
+  <div class="particle"></div>
+  <div class="particle"></div>
+</div>
+
+<!-- Glow cursor -->
+<div class="glow-cursor" id="glowCursor"></div>
+
+<!-- Nav -->
+<nav>
+  <a href="#" class="nav-logo">HYLLÅ</a>
+  <ul class="nav-links">
+    <li><a href="#mission">Mission</a></li>
+    <li><a href="#services">Programs</a></li>
+    <li><a href="#impact">Impact</a></li>
+    <li><a href="#volunteer">Volunteer</a></li>
+    <li><a href="#faq">FAQ</a></li>
+    <li><a href="#donate" class="donate-btn">Donate</a></li>
+  </ul>
+</nav>
+
+<!-- Hero -->
+<section class="hero">
+  <div class="hero-content">
+    <div class="hero-tag">501(c)(3) Community Pawn Exchange</div>
+    <h1>Every Item Deserves a&nbsp;Shelf</h1>
+    <p>We believe pre-loved possessions carry stories worth preserving. The Hyllå Foundation provides free appraisals and equitable exchange services to underserved communities.</p>
+    <a href="#services" class="hero-cta">
+      <span>Explore Our Programs</span>
+      <span>&rarr;</span>
+    </a>
+  </div>
+
+  <div class="shelf-sculpture">
+    <div class="shelf-unit s1"></div>
+    <div class="shelf-unit s2"></div>
+    <div class="shelf-unit s3"></div>
+    <div class="shelf-unit s4"></div>
+    <div class="shelf-unit s5"></div>
+
+    <div class="shelf-item item-ring"></div>
+    <div class="shelf-item item-diamond"></div>
+    <div class="shelf-item item-guitar"></div>
+    <div class="shelf-item item-vase"></div>
+    <div class="shelf-item item-watch"></div>
+
+    <div class="cat-on-doc">
+      <div class="document-css">
+        <span class="doc-stamp">TAX EXEMPT</span>
+      </div>
+      <div class="cat-body">
+        <div class="cat-ear-l"></div>
+        <div class="cat-ear-r"></div>
+      </div>
+      <div class="cat-tail"></div>
+      <span class="zzz">z</span>
+      <span class="zzz">z</span>
+      <span class="zzz">z</span>
+    </div>
+  </div>
+</section>
+
+<!-- Mission -->
+<section class="mission" id="mission">
+  <div class="mission-art">
+    <div class="bio-blob"></div>
+    <div class="bio-blob-2"></div>
+    <div class="kallax-grid">
+      <div class="kallax-cell"></div>
+      <div class="kallax-cell"></div>
+      <div class="kallax-cell"></div>
+      <div class="kallax-cell"></div>
+    </div>
+  </div>
+  <div class="mission-text">
+    <div class="section-label">Our Mission</div>
+    <h2>Flat-Pack Equity for All</h2>
+    <p>Founded in 2019 in a warehouse district that nobody wanted, the Hyllå Foundation has since facilitated over 14,000 community exchanges. We operate on a simple principle: your grandmother's brooch and your neighbor's guitar amplifier both carry irreplaceable value. Our trained appraisal specialists — all volunteers — provide judgment-free evaluations and connect items with new stewards who will cherish them.</p>
+    <p style="margin-top: 1rem;">Please note: our 501(c)(3) documentation is temporarily inaccessible. Our office cat, Chairman Meow, is currently asleep on it. We appreciate your patience.</p>
+  </div>
+</section>
+
+<!-- Impact -->
+<section class="impact" id="impact">
+  <div class="impact-grid" x-data="{ items: false, families: false, vol: false, lbs: false }" x-init="setTimeout(() => { items = true; families = true; vol = true; lbs = true }, 300)">
+    <div class="impact-item">
+      <div class="impact-ring">
+        <div class="impact-num" x-text="items ? '14,208' : '0'">0</div>
+      </div>
+      <div class="impact-label">Items Exchanged</div>
+    </div>
+    <div class="impact-item">
+      <div class="impact-ring">
+        <div class="impact-num" x-text="families ? '3,841' : '0'">0</div>
+      </div>
+      <div class="impact-label">Families Served</div>
+    </div>
+    <div class="impact-item">
+      <div class="impact-ring">
+        <div class="impact-num" x-text="vol ? '612' : '0'">0</div>
+      </div>
+      <div class="impact-label">Active Volunteers</div>
+    </div>
+    <div class="impact-item">
+      <div class="impact-ring">
+        <div class="impact-num" x-text="lbs ? '9.2T' : '0'">0</div>
+      </div>
+      <div class="impact-label">Waste Diverted</div>
+    </div>
+  </div>
+</section>
+
+<!-- Services -->
+<section class="services" id="services">
+  <h2>Our Programs</h2>
+  <div class="services-grid">
+    <div class="service-card">
+      <div class="service-icon icon-pawn"><div class="icon-shape"></div></div>
+      <div class="service-title">Community Exchange</div>
+      <div class="service-desc">Bring in items you no longer need and receive credits toward things you do. No cash changes hands — just stories, and occasionally a guitar pick from 1987.</div>
+    </div>
+    <div class="service-card">
+      <div class="service-icon icon-appraise"><div class="icon-shape"></div></div>
+      <div class="service-title">Free Appraisals</div>
+      <div class="service-desc">Our certified volunteers assess sentimental and material value using our proprietary Shelf-Worth Index™. Results delivered within 48 hours, barring feline interference with paperwork.</div>
+    </div>
+    <div class="service-card">
+      <div class="service-icon icon-community"><div class="icon-shape"></div></div>
+      <div class="service-title">Assembly Workshops</div>
+      <div class="service-desc">Weekly workshops teaching communities to build, repair, and reimagine furniture and household items. Allen wrench provided. Leftover parts are a feature, not a bug.</div>
+    </div>
+  </div>
+</section>
+
+<!-- WiFi Notice -->
+<div class="wifi-notice">
+  <h3>Visitor WiFi</h3>
+  <p>Network: <strong style="color: var(--white-bright);">HYLLÅ-GUEST</strong><br>
+  Password: Please see any volunteer for a brief demonstration. The current password is a physical gesture (the Macarena, arms only, half-speed). This is a security measure we feel very strongly about.</p>
+</div>
+
+<!-- Testimonials -->
+<section class="testimonials" id="testimonials">
+  <h2>Community Voices</h2>
+  <div class="testimonial-stack">
+    <div class="testimonial">
+      <div class="testimonial-text">"I brought in my late father's pocket watch and left with a deep sense of peace and a very nice Dutch oven. The shelf — I mean the staff — treated both items with such reverence."</div>
+      <div class="testimonial-author">Maria K., Portland</div>
+    </div>
+    <div class="testimonial">
+      <div class="testimonial-text">"Fair warning: it took me three visits to get my appraisal results because there was always a cat sleeping on them. But when I finally saw the Shelf-Worth assessment, it was genuinely thoughtful."</div>
+      <div class="testimonial-author">Doug T., Seattle</div>
+    </div>
+    <div class="testimonial">
+      <div class="testimonial-text">"The WiFi password situation is intense but honestly kind of beautiful? My daughter and I learned it together and it became our little thing. We do it at home now."</div>
+      <div class="testimonial-author">Jun P., Sacramento</div>
+    </div>
+    <div class="testimonial">
+      <div class="testimonial-text">"As someone who has worked with many nonprofits, I can say that Hyllå's organizational structure is surprisingly sturdy. Load-bearing, even. They really hold things up."</div>
+      <div class="testimonial-author">Anika R., Denver</div>
+    </div>
+  </div>
+</section>
+
+<!-- Volunteer / Dance Floor -->
+<section class="volunteer" id="volunteer">
+  <h2>Join Our Assembly</h2>
+  <p>We are always looking for compassionate individuals who believe in the dignity of every possession. No experience necessary — just steady hands and an open heart. Dance skills are a plus but not required (except for IT support).</p>
+
+  <div class="dance-floor" id="danceFloor"></div>
+
+  <button class="volunteer-btn" onclick="document.getElementById('donate').scrollIntoView({behavior:'smooth'})">
+    Apply to Volunteer
+  </button>
+</section>
+
+<!-- FAQ -->
+<section class="faq" id="faq" x-data="{ open: null }">
+  <h2>Frequently Asked</h2>
+
+  <div class="faq-item" @click="open = open === 1 ? null : 1">
+    <div class="faq-q">
+      <span>Is this really a 501(c)(3)?</span>
+      <span class="faq-arrow" :class="{ 'open': open === 1 }">&#9660;</span>
+    </div>
+    <div class="faq-a" :class="{ 'open': open === 1 }">Yes. Our documentation is in order, though physically accessing it requires relocating Chairman Meow, which we have found to be logistically challenging. We are happy to provide our EIN verbally.</div>
+  </div>
+
+  <div class="faq-item" @click="open = open === 2 ? null : 2">
+    <div class="faq-q">
+      <span>What items do you accept?</span>
+      <span class="faq-arrow" :class="{ 'open': open === 2 }">&#9660;</span>
+    </div>
+    <div class="faq-a" :class="{ 'open': open === 2 }">Almost anything that can sit on, lean against, or be placed within a shelving unit. We do not accept live animals (we have enough with Chairman Meow), hazardous materials, or items wider than 30 centimeters — nothing personal, it's a load-bearing constraint.</div>
+  </div>
+
+  <div class="faq-item" @click="open = open === 3 ? null : 3">
+    <div class="faq-q">
+      <span>Why is the WiFi password a dance move?</span>
+      <span class="faq-arrow" :class="{ 'open': open === 3 }">&#9660;</span>
+    </div>
+    <div class="faq-a" :class="{ 'open': open === 3 }">Our board of directors believes that community is built through shared physical experience. After extensive research (a 45-minute meeting), we determined that the Macarena optimally balances memorability with security. The password changes monthly to a new choreography.</div>
+  </div>
+
+  <div class="faq-item" @click="open = open === 4 ? null : 4">
+    <div class="faq-q">
+      <span>Can I adopt Chairman Meow?</span>
+      <span class="faq-arrow" :class="{ 'open': open === 4 }">&#9660;</span>
+    </div>
+    <div class="faq-a" :class="{ 'open': open === 4 }">Chairman Meow is not available for adoption. He is a permanent board member with veto power over all documentation. His position is protected under our bylaws, Section 4, Paragraph 3 — which, unfortunately, he is also sleeping on.</div>
+  </div>
+
+  <div class="faq-item" @click="open = open === 5 ? null : 5">
+    <div class="faq-q">
+      <span>Who founded the Hyllå Foundation?</span>
+      <span class="faq-arrow" :class="{ 'open': open === 5 }">&#9660;</span>
+    </div>
+    <div class="faq-a" :class="{ 'open': open === 5 }">The foundation was established in 2019 by a collective of community organizers who shared a vision of equitable exchange. Our executive director prefers to remain structurally supportive rather than personally prominent. They describe themselves as "load-bearing."</div>
+  </div>
+</section>
+
+<!-- Donate -->
+<section class="donate-section" id="donate">
+  <h2>Support Our Shelves</h2>
+  <p>Every dollar helps us keep the exchange running, the appraisals free, and Chairman Meow in the premium kibble he insists upon.</p>
+  <div class="donate-tiers">
+    <div class="tier">
+      <div class="tier-amount">$10</div>
+      <div class="tier-name">The Peg</div>
+      <div class="tier-desc">Covers one free appraisal for a community member in need.</div>
+    </div>
+    <div class="tier">
+      <div class="tier-amount">$50</div>
+      <div class="tier-name">The Bracket</div>
+      <div class="tier-desc">Funds a full Assembly Workshop including materials and Allen wrenches.</div>
+    </div>
+    <div class="tier">
+      <div class="tier-amount">$200</div>
+      <div class="tier-name">The Load-Bearer</div>
+      <div class="tier-desc">Sustains exchange operations for one week. Includes a handwritten thank-you (once Chairman Meow vacates the stationery).</div>
+    </div>
+  </div>
+</section>
+
+<!-- Footer -->
+<footer>
+  <span class="foot-brand">HYLLÅ Foundation</span>
+  <div class="foot-links">
+    <a href="#">Privacy</a>
+    <a href="#">Financials</a>
+    <a href="#">Press</a>
+    <a href="#">Contact</a>
+  </div>
+  <div class="foot-note">&copy; 2024 Hyllå Foundation. 501(c)(3) EIN: 84-2091773. All items appraised at fair shelf value. Chairman Meow makes no warranties, express or implied.</div>
+</footer>
+
+<script>
+(function() {
+  // Glow cursor follow
+  var glow = document.getElementById('glowCursor');
+  var mouseX = -300, mouseY = -300;
+
+  document.addEventListener('mousemove', function(e) {
+    mouseX = e.clientX;
+    mouseY = e.clientY;
+  });
+
+  function updateGlow() {
+    glow.style.left = mouseX + 'px';
+    glow.style.top = mouseY + 'px';
+    requestAnimationFrame(updateGlow);
+  }
+  updateGlow();
+
+  // Dance floor grid
+  var floor = document.getElementById('danceFloor');
+  var tileCount = 64;
+  for (var i = 0; i < tileCount; i++) {
+    var tile = document.createElement('div');
+    tile.className = 'dance-tile';
+    tile.dataset.index = i;
+    floor.appendChild(tile);
+  }
+
+  // Dance floor lighting animation
+  var tiles = floor.querySelectorAll('.dance-tile');
+  var litClasses = ['lit-1', 'lit-2', 'lit-3'];
+
+  function lightRandom() {
+    var count = 3 + Math.floor(Math.random() * 5);
+    for (var j = 0; j < count; j++) {
+      var idx = Math.floor(Math.random() * tiles.length);
+      var cls = litClasses[Math.floor(Math.random() * litClasses.length)];
+      tiles[idx].classList.add(cls);
+      (function(t, c) {
+        setTimeout(function() {
+          t.classList.remove(c);
+        }, 600 + Math.random() * 800);
+      })(tiles[idx], cls);
+    }
+  }
+
+  setInterval(lightRandom, 400);
+
+  // Tile hover ripple
+  floor.addEventListener('mouseover', function(e) {
+    if (e.target.classList.contains('dance-tile')) {
+      var idx = parseInt(e.target.dataset.index);
+      var neighbors = [idx - 1, idx + 1, idx - 8, idx + 8, idx - 9, idx + 9, idx - 7, idx + 7];
+      var cls = litClasses[Math.floor(Math.random() * litClasses.length)];
+      e.target.classList.add(cls);
+      setTimeout(function() { e.target.classList.remove(cls); }, 500);
+      neighbors.forEach(function(n) {
+        if (n >= 0 && n < tileCount && tiles[n]) {
+          var nc = litClasses[Math.floor(Math.random() * litClasses.length)];
+          setTimeout(function() {
+            tiles[n].classList.add(nc);
+            setTimeout(function() { tiles[n].classList.remove(nc); }, 400);
+          }, 100);
+        }
+      });
+    }
+  });
+
+  // GSAP entrance animations
+  gsap.from('.hero-content', { opacity: 0, x: -40, duration: 1.2, delay: 0.3, ease: 'power3.out' });
+  gsap.from('.shelf-sculpture', { opacity: 0, x: 60, duration: 1.5, delay: 0.5, ease: 'power3.out' });
+
+  gsap.from('.shelf-unit', {
+    opacity: 0,
+    scale: 0.8,
+    stagger: 0.15,
+    duration: 0.8,
+    delay: 0.8,
+    ease: 'back.out(1.5)'
+  });
+
+  gsap.from('.shelf-item', {
+    opacity: 0,
+    y: 20,
+    stagger: 0.1,
+    duration: 0.6,
+    delay: 1.4,
+    ease: 'power2.out'
+  });
+
+  gsap.from('.cat-on-doc', { opacity: 0, scale: 0.5, duration: 0.8, delay: 1.8, ease: 'back.out(2)' });
+
+  // Intersection observer for scroll animations
+  var observerOptions = { threshold: 0.2, rootMargin: '0px 0px -50px 0px' };
+
+  var observer = new IntersectionObserver(function(entries) {
+    entries.forEach(function(entry) {
+      if (entry.isIntersecting) {
+        var el = entry.target;
+
+        if (el.classList.contains('mission')) {
+          gsap.from(el.querySelector('.mission-art'), { opacity: 0, x: -40, duration: 1, ease: 'power3.out' });
+          gsap.from(el.querySelector('.mission-text'), { opacity: 0, x: 40, duration: 1, delay: 0.2, ease: 'power3.out' });
+        }
+
+        if (el.classList.contains('impact')) {
+          gsap.from(el.querySelectorAll('.impact-item'), { opacity: 0, y: 30, stagger: 0.15, duration: 0.8, ease: 'power3.out' });
+        }
+
+        if (el.classList.contains('services')) {
+          gsap.from(el.querySelectorAll('.service-card'), { opacity: 0, y: 40, stagger: 0.2, duration: 0.8, ease: 'power3.out' });
+        }
+
+        if (el.classList.contains('testimonials')) {
+          gsap.from(el.querySelectorAll('.testimonial'), { opacity: 0, x: -20, stagger: 0.15, duration: 0.7, ease: 'power3.out' });
+        }
+
+        if (el.classList.contains('donate-section')) {
+          gsap.from(el.querySelectorAll('.tier'), { opacity: 0, y: 30, stagger: 0.15, duration: 0.8, ease: 'back.out(1.5)' });
+        }
+
+        observer.unobserve(el);
+      }
+    });
+  }, observerOptions);
+
+  document.querySelectorAll('.mission, .impact, .services, .testimonials, .donate-section').forEach(function(el) {
+    observer.observe(el);
+  });
+
+  // Initialize lucide icons
+  if (typeof lucide !== 'undefined') {
+    lucide.createIcons();
+  }
+})();
+</script>
+</body>
+</html>

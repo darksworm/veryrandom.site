@@ -1,0 +1,1555 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FeelingsOS v2.7.1 — Brenda Motionsworth Memorial Feelings Hospital Patient Portal</title>
+<link rel="stylesheet" href="/assets/css/fonts.css">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --pastel-pink: #FFB3D9;
+  --pastel-blue: #B3D9FF;
+  --pastel-green: #B3FFD9;
+  --pastel-yellow: #FFFAB3;
+  --pastel-purple: #D9B3FF;
+  --pastel-orange: #FFD9B3;
+  --bg-panel: #1a1a2e;
+  --bg-sidebar: #16213e;
+  --bg-main: #0f0f23;
+  --bg-card: #1a1a3e;
+  --text-primary: #f0f0f0;
+  --text-secondary: #c0c0d0;
+  --border-color: #2a2a4e;
+  --accent: #ff79c6;
+  --accent2: #8be9fd;
+  --accent3: #50fa7b;
+  --accent4: #f1fa8c;
+  --danger: #ff5555;
+  --warning: #ffb86c;
+}
+
+body {
+  font-family: 'IBM Plex Mono', monospace;
+  background: var(--bg-main);
+  color: var(--text-primary);
+  font-size: 14px;
+  line-height: 1.5;
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+.rainbow-bar {
+  height: 4px;
+  background: linear-gradient(90deg, #ff6b6b, #ffa36b, #ffd56b, #6bffa3, #6bd9ff, #a36bff, #ff6bb5);
+  width: 100%;
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 9999;
+}
+
+.layout {
+  display: flex;
+  min-height: 100vh;
+  padding-top: 4px;
+}
+
+/* SIDEBAR */
+.sidebar {
+  width: 260px;
+  background: var(--bg-sidebar);
+  border-right: 1px solid var(--border-color);
+  padding: 16px 0;
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  position: sticky;
+  top: 4px;
+  height: calc(100vh - 4px);
+  overflow-y: auto;
+}
+
+.sidebar-logo {
+  padding: 0 16px 16px;
+  border-bottom: 1px solid var(--border-color);
+  margin-bottom: 8px;
+}
+
+.sidebar-logo h1 {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 16px;
+  color: var(--accent);
+  letter-spacing: 2px;
+}
+
+.sidebar-logo .version {
+  font-size: 10px;
+  color: var(--text-secondary);
+  margin-top: 2px;
+}
+
+.sidebar-logo .status-line {
+  font-size: 10px;
+  color: var(--accent3);
+  margin-top: 4px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.status-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--accent3);
+  display: inline-block;
+  animation: blink 2s infinite;
+}
+
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.3; }
+}
+
+.sidebar-section {
+  padding: 8px 16px;
+}
+
+.sidebar-section-title {
+  font-size: 9px;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  color: #8888aa;
+  margin-bottom: 8px;
+}
+
+.sidebar-link {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  color: var(--text-secondary);
+  text-decoration: none;
+  font-size: 13px;
+  cursor: pointer;
+  transition: all 0.15s;
+  border-left: 3px solid transparent;
+}
+
+.sidebar-link:hover, .sidebar-link.active {
+  background: rgba(255,255,255,0.03);
+  color: var(--text-primary);
+  border-left-color: var(--accent);
+}
+
+.sidebar-link .icon {
+  font-size: 14px;
+  width: 20px;
+  text-align: center;
+}
+
+.sidebar-badge {
+  margin-left: auto;
+  background: var(--danger);
+  color: #ffffff;
+  font-size: 9px;
+  padding: 1px 6px;
+  border-radius: 8px;
+  font-weight: 700;
+}
+
+.sidebar-user {
+  margin-top: auto;
+  padding: 12px 16px;
+  border-top: 1px solid var(--border-color);
+  font-size: 11px;
+}
+
+.sidebar-user .name { color: var(--text-primary); font-weight: 600; }
+.sidebar-user .role { color: var(--text-secondary); font-size: 10px; }
+.sidebar-user .patient-id { color: #8888aa; font-size: 9px; margin-top: 2px; }
+
+/* MAIN CONTENT */
+.main {
+  flex: 1;
+  padding: 20px;
+  max-width: 1200px;
+  overflow-x: hidden;
+}
+
+.top-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.breadcrumb {
+  font-size: 11px;
+  color: var(--text-secondary);
+}
+
+.breadcrumb span { color: var(--accent2); }
+
+.alert-ticker {
+  background: linear-gradient(90deg, var(--bg-card), rgba(255,85,85,0.15), var(--bg-card));
+  border: 1px solid rgba(255,85,85,0.3);
+  padding: 8px 16px;
+  font-size: 11px;
+  color: #ff8888;
+  margin-bottom: 16px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  overflow: hidden;
+}
+
+.alert-ticker .ticker-text {
+  white-space: nowrap;
+  animation: scroll-left 30s linear infinite;
+}
+
+@keyframes scroll-left {
+  0% { transform: translateX(100%); }
+  100% { transform: translateX(-200%); }
+}
+
+/* GRID */
+.dashboard-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 16px;
+  margin-bottom: 20px;
+}
+
+.card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  padding: 16px;
+  position: relative;
+  overflow: hidden;
+}
+
+.card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, var(--accent), var(--accent2), var(--accent3));
+}
+
+.card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.card-title {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  color: var(--text-secondary);
+}
+
+.card-badge {
+  font-size: 9px;
+  padding: 2px 8px;
+  border-radius: 2px;
+  font-weight: 600;
+}
+
+.badge-live { background: rgba(80,250,123,0.15); color: #50fa7b; }
+.badge-warning { background: rgba(255,184,108,0.15); color: #ffb86c; }
+.badge-critical { background: rgba(255,85,85,0.15); color: #ff5555; }
+.badge-pastel { background: linear-gradient(90deg, var(--pastel-pink), var(--pastel-purple)); color: #1a1a2e; }
+
+.big-number {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 42px;
+  font-weight: 700;
+  line-height: 1;
+  margin-bottom: 4px;
+}
+
+.big-number.pink { color: var(--accent); }
+.big-number.blue { color: var(--accent2); }
+.big-number.green { color: var(--accent3); }
+.big-number.yellow { color: var(--accent4); }
+
+.card-subtitle {
+  font-size: 11px;
+  color: var(--text-secondary);
+}
+
+/* STAT BARS */
+.stat-bar {
+  height: 6px;
+  background: rgba(255,255,255,0.05);
+  border-radius: 3px;
+  margin-top: 8px;
+  overflow: hidden;
+}
+
+.stat-bar-fill {
+  height: 100%;
+  border-radius: 3px;
+  transition: width 1s ease;
+}
+
+.fill-pink { background: linear-gradient(90deg, var(--accent), var(--pastel-pink)); }
+.fill-blue { background: linear-gradient(90deg, var(--accent2), var(--pastel-blue)); }
+.fill-green { background: linear-gradient(90deg, var(--accent3), var(--pastel-green)); }
+.fill-yellow { background: linear-gradient(90deg, var(--accent4), var(--pastel-yellow)); }
+
+/* TABLES */
+.data-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12px;
+}
+
+.data-table th {
+  text-align: left;
+  padding: 8px;
+  font-size: 9px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: #8888aa;
+  border-bottom: 1px solid var(--border-color);
+  font-weight: 600;
+}
+
+.data-table td {
+  padding: 8px;
+  border-bottom: 1px solid rgba(255,255,255,0.03);
+  color: var(--text-primary);
+}
+
+.data-table tr:hover td {
+  background: rgba(255,255,255,0.02);
+}
+
+.severity-dot {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  margin-right: 6px;
+}
+
+/* CSS BAR CHART */
+.bar-chart {
+  display: flex;
+  align-items: flex-end;
+  gap: 4px;
+  height: 80px;
+  padding-top: 8px;
+}
+
+.bar-chart .bar {
+  flex: 1;
+  border-radius: 2px 2px 0 0;
+  min-width: 12px;
+  position: relative;
+  transition: height 0.5s ease;
+}
+
+.bar-chart .bar:hover {
+  filter: brightness(1.3);
+}
+
+.bar-chart .bar-label {
+  position: absolute;
+  bottom: -16px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 8px;
+  color: #8888aa;
+  white-space: nowrap;
+}
+
+/* BUTTONS */
+.btn {
+  padding: 8px 16px;
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 11px;
+  border: 1px solid var(--border-color);
+  background: var(--bg-card);
+  color: var(--text-primary);
+  cursor: pointer;
+  transition: all 0.15s;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.btn:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.btn-primary {
+  background: linear-gradient(135deg, var(--accent), var(--pastel-purple));
+  color: #1a1a2e;
+  border-color: transparent;
+  font-weight: 700;
+}
+
+.btn-primary:hover {
+  filter: brightness(1.1);
+  color: #1a1a2e;
+}
+
+.btn-small {
+  padding: 4px 10px;
+  font-size: 10px;
+}
+
+.btn-group {
+  display: flex;
+  gap: 4px;
+  flex-wrap: wrap;
+}
+
+/* DANCE FORM */
+.form-group {
+  margin-bottom: 12px;
+}
+
+.form-label {
+  display: block;
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: var(--text-secondary);
+  margin-bottom: 4px;
+}
+
+.form-input, .form-select {
+  width: 100%;
+  padding: 8px 12px;
+  background: rgba(0,0,0,0.3);
+  border: 1px solid var(--border-color);
+  color: var(--text-primary);
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 12px;
+}
+
+.form-input:focus, .form-select:focus {
+  outline: none;
+  border-color: var(--accent);
+}
+
+/* DISCLAIMER BAR */
+.disclaimer-bar {
+  background: rgba(255,184,108,0.08);
+  border: 1px solid rgba(255,184,108,0.2);
+  padding: 8px 12px;
+  font-size: 9px;
+  color: #ccaa77;
+  margin-bottom: 16px;
+  line-height: 1.5;
+}
+
+/* FOOTER */
+.footer {
+  margin-top: 40px;
+  padding: 20px 0;
+  border-top: 1px solid var(--border-color);
+  font-size: 9px;
+  color: #666688;
+  line-height: 1.8;
+}
+
+.footer a { color: #8888aa; text-decoration: none; }
+
+/* GLITCH EFFECT */
+.glitch {
+  position: relative;
+}
+
+.glitch::after {
+  content: attr(data-text);
+  position: absolute;
+  left: 2px;
+  top: 0;
+  color: var(--accent);
+  clip-path: inset(0 0 0 0);
+  animation: glitch-anim 4s infinite linear alternate-reverse;
+}
+
+@keyframes glitch-anim {
+  0%, 95% { clip-path: inset(100% 0 0 0); }
+  96% { clip-path: inset(20% 0 60% 0); transform: translate(-2px, 0); }
+  97% { clip-path: inset(50% 0 20% 0); transform: translate(2px, 0); }
+  98% { clip-path: inset(10% 0 70% 0); transform: translate(-1px, 0); }
+  100% { clip-path: inset(100% 0 0 0); }
+}
+
+/* NOTIFICATION PANEL */
+.notif-panel {
+  position: fixed;
+  top: 60px;
+  right: 20px;
+  width: 320px;
+  max-height: 400px;
+  background: var(--bg-panel);
+  border: 1px solid var(--border-color);
+  z-index: 1000;
+  overflow-y: auto;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.5);
+}
+
+.notif-item {
+  padding: 10px 14px;
+  border-bottom: 1px solid rgba(255,255,255,0.03);
+  font-size: 11px;
+  color: var(--text-secondary);
+}
+
+.notif-item .notif-time { font-size: 9px; color: #666688; margin-top: 2px; }
+
+/* FEELINGS METER CSS */
+.feeling-meter {
+  display: flex;
+  gap: 2px;
+  margin-top: 6px;
+}
+
+.feeling-block {
+  width: 100%;
+  height: 24px;
+  border-radius: 2px;
+  transition: all 0.3s;
+  cursor: pointer;
+}
+
+.feeling-block:hover {
+  transform: scaleY(1.4);
+  filter: brightness(1.3);
+}
+
+/* SCROLLBAR */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: var(--bg-main); }
+::-webkit-scrollbar-thumb { background: var(--border-color); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: #3a3a5e; }
+
+/* RESPONSIVE */
+.mobile-menu-btn {
+  display: none;
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  color: var(--text-primary);
+  padding: 8px 12px;
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 16px;
+  cursor: pointer;
+}
+
+@media (max-width: 900px) {
+  .layout { flex-direction: column; }
+  .sidebar {
+    width: 100%;
+    position: relative;
+    top: 0;
+    height: auto;
+    max-height: none;
+    border-right: none;
+    border-bottom: 1px solid var(--border-color);
+  }
+  .sidebar.collapsed .sidebar-section,
+  .sidebar.collapsed .sidebar-user { display: none; }
+  .sidebar.collapsed .sidebar-logo { padding-bottom: 8px; margin-bottom: 0; border-bottom: none; }
+  .mobile-menu-btn { display: block; position: absolute; top: 12px; right: 16px; }
+  .main { padding: 12px; }
+  .dashboard-grid { grid-template-columns: 1fr; }
+  .notif-panel { width: calc(100% - 24px); right: 12px; }
+  .big-number { font-size: 32px; }
+  .top-bar { flex-direction: column; align-items: flex-start; }
+}
+
+@media (max-width: 480px) {
+  body { font-size: 13px; }
+  .card { padding: 12px; }
+  .data-table { font-size: 11px; }
+  .data-table th, .data-table td { padding: 6px 4px; }
+  .bar-chart { height: 60px; }
+  .big-number { font-size: 28px; }
+}
+
+/* DANCE ANIMATION */
+.dancer {
+  display: inline-block;
+  font-size: 24px;
+  animation: dance 1.5s ease-in-out infinite;
+}
+
+@keyframes dance {
+  0%, 100% { transform: rotate(0deg) translateY(0); }
+  25% { transform: rotate(-15deg) translateY(-4px); }
+  50% { transform: rotate(0deg) translateY(0); }
+  75% { transform: rotate(15deg) translateY(-4px); }
+}
+
+/* TAB SYSTEM */
+.tabs {
+  display: flex;
+  gap: 0;
+  border-bottom: 1px solid var(--border-color);
+  margin-bottom: 16px;
+  flex-wrap: wrap;
+}
+
+.tab {
+  padding: 8px 16px;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: var(--text-secondary);
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  font-family: 'IBM Plex Mono', monospace;
+  background: none;
+  border-top: none;
+  border-left: none;
+  border-right: none;
+  transition: all 0.15s;
+}
+
+.tab:hover { color: var(--text-primary); }
+.tab.active {
+  color: var(--accent);
+  border-bottom-color: var(--accent);
+}
+
+/* MOOD RING */
+.mood-ring {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  margin: 0 auto;
+  transition: all 1s;
+  box-shadow: 0 0 20px currentColor;
+}
+
+/* PULSE */
+.pulse {
+  animation: pulse-glow 2s ease-in-out infinite;
+}
+
+@keyframes pulse-glow {
+  0%, 100% { box-shadow: 0 0 10px rgba(255,121,198,0.3); }
+  50% { box-shadow: 0 0 25px rgba(255,121,198,0.6); }
+}
+
+/* MARQUEE */
+.marquee-strip {
+  background: linear-gradient(90deg, var(--pastel-pink), var(--pastel-purple), var(--pastel-blue), var(--pastel-green), var(--pastel-yellow), var(--pastel-orange), var(--pastel-pink));
+  color: #1a1a2e;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  padding: 4px 0;
+  overflow: hidden;
+  white-space: nowrap;
+}
+
+.marquee-strip .marquee-inner {
+  display: inline-block;
+  animation: marquee 25s linear infinite;
+}
+
+@keyframes marquee {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+
+/* WIDE CARD */
+.card-wide {
+  grid-column: 1 / -1;
+}
+
+/* TOOLTIP-LIKE FOOTNOTES */
+.footnote-ref {
+  color: var(--accent2);
+  cursor: help;
+  font-size: 9px;
+  vertical-align: super;
+}
+
+.footnotes {
+  margin-top: 12px;
+  padding-top: 8px;
+  border-top: 1px dashed var(--border-color);
+  font-size: 9px;
+  color: #8888aa;
+  line-height: 1.6;
+}
+</style>
+</head>
+<body x-data="feelingsOS()" x-init="init()">
+
+<div class="rainbow-bar"></div>
+
+<!-- MARQUEE STRIP -->
+<div class="marquee-strip">
+  <span class="marquee-inner">
+    ★ FEELINGS HOSPITAL SYSTEM NOTICE: All interpretive dance sessions in Ward 7 are MANDATORY today — No exceptions for "emotional vertigo" ★ CODE MAUVE in the Sadness Wing — extra tissues deployed ★ Dr. Motionsworth's 3pm "Grief Shimmy" workshop is at capacity — waitlist via Form DX-441 ★ The vending machine in Lobby B has been diagnosed with Ennui — please use Lobby C ★ REMINDER: Beige is BANNED on ALL floors including the parking garage ★ Patient #4419 please report to the Pirouette Assessment Chamber ★
+    ★ FEELINGS HOSPITAL SYSTEM NOTICE: All interpretive dance sessions in Ward 7 are MANDATORY today — No exceptions for "emotional vertigo" ★ CODE MAUVE in the Sadness Wing — extra tissues deployed ★ Dr. Motionsworth's 3pm "Grief Shimmy" workshop is at capacity — waitlist via Form DX-441 ★ The vending machine in Lobby B has been diagnosed with Ennui — please use Lobby C ★ REMINDER: Beige is BANNED on ALL floors including the parking garage ★ Patient #4419 please report to the Pirouette Assessment Chamber ★
+  </span>
+</div>
+
+<div class="layout">
+  <!-- SIDEBAR -->
+  <nav class="sidebar" :class="{ 'collapsed': sidebarCollapsed }">
+    <button class="mobile-menu-btn" @click="sidebarCollapsed = !sidebarCollapsed" x-text="sidebarCollapsed ? '☰ MENU' : '✕ CLOSE'"></button>
+    <div class="sidebar-logo">
+      <h1>FEELINGS<span style="color: var(--accent2)">OS</span></h1>
+      <div class="version">v2.7.1 build 4419 — "Operation Catharsis"</div>
+      <div class="status-line"><span class="status-dot"></span> ALL SYSTEMS FEELING</div>
+    </div>
+
+    <div class="sidebar-section">
+      <div class="sidebar-section-title">Navigation</div>
+    </div>
+    <a class="sidebar-link active" @click="currentTab = 'dashboard'"><span class="icon">📊</span> Dashboard</a>
+    <a class="sidebar-link" @click="currentTab = 'intake'"><span class="icon">📋</span> New Intake <span class="sidebar-badge" x-text="pendingIntakes"></span></a>
+    <a class="sidebar-link" @click="currentTab = 'dance'"><span class="icon">💃</span> Dance Rx</a>
+    <a class="sidebar-link" @click="currentTab = 'dashboard'"><span class="icon">🏥</span> Ward Map</a>
+    <a class="sidebar-link" @click="currentTab = 'dashboard'"><span class="icon">📈</span> Analytics</a>
+
+    <div class="sidebar-section">
+      <div class="sidebar-section-title">Administration</div>
+    </div>
+    <a class="sidebar-link" @click="currentTab = 'billing'"><span class="icon">💰</span> Billing</a>
+    <a class="sidebar-link" @click="currentTab = 'dashboard'"><span class="icon">⚙️</span> Settings</a>
+    <a class="sidebar-link" @click="currentTab = 'dashboard'"><span class="icon">📜</span> Compliance</a>
+    <a class="sidebar-link" @click="showNotifs = !showNotifs"><span class="icon">🔔</span> Alerts <span class="sidebar-badge" x-text="alerts.length"></span></a>
+
+    <div class="sidebar-section" style="margin-top: 16px;">
+      <div class="sidebar-section-title">Mood Ring</div>
+      <div style="text-align: center; padding: 8px 0;">
+        <div class="mood-ring pulse" :style="'background: ' + moodColor"></div>
+        <div style="font-size: 10px; color: var(--text-secondary); margin-top: 8px;">Hospital Avg Mood</div>
+        <div style="font-size: 12px; color: var(--text-primary); font-weight: 600;" x-text="currentMood"></div>
+      </div>
+    </div>
+
+    <div class="sidebar-user">
+      <div class="name">Dr. Brenda Motionsworth</div>
+      <div class="role">Chief Feelings Officer / Head Choreographer</div>
+      <div class="patient-id">EMP-0001 | Clearance: MAUVE-7</div>
+      <div style="margin-top: 6px; font-size: 9px; color: #8888aa;">Last pirouette: <span x-text="lastPirouette"></span></div>
+    </div>
+  </nav>
+
+  <!-- MAIN -->
+  <main class="main">
+    <!-- TOP BAR -->
+    <div class="top-bar">
+      <div class="breadcrumb">
+        FeelingsOS / <span x-text="currentTab.charAt(0).toUpperCase() + currentTab.slice(1)"></span> / <span>Today</span>
+      </div>
+      <div style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap;">
+        <div style="font-size: 10px; color: var(--text-secondary);">UPTIME:</div>
+        <div style="font-size: 12px; color: var(--accent3); font-weight: 600;" x-text="uptime"></div>
+        <button class="btn btn-small" @click="showNotifs = !showNotifs">🔔 <span x-text="alerts.length"></span></button>
+        <button class="btn btn-small btn-primary" @click="panicMode = !panicMode" x-text="panicMode ? '🚨 CODE MAUVE ACTIVE' : 'CODE MAUVE'"></button>
+      </div>
+    </div>
+
+    <!-- ALERT TICKER -->
+    <div class="alert-ticker" x-show="panicMode">
+      <span style="font-weight: 700;">⚠ CODE MAUVE:</span>
+      <div class="ticker-text">Uncontained grief detected in Ward 3 — All available dancers report to containment pirouette positions — This is NOT a drill — Emotional PPE required (interpretive scarves) — Beige alert level: ELEVATED</div>
+    </div>
+
+    <div class="disclaimer-bar">
+      ⚕ HIPAA-Adjacent Notice: All feelings data is stored on Dr. Motionsworth's external hard drive labeled "IMPORTANT RECIPES." By using this portal you consent to your emotions being interpreted through the medium of contemporary dance and/or aggressive jazz hands. FeelingsOS is not responsible for any breakthroughs, breakdowns, or breakdancing that may occur. <span class="footnote-ref" title="See Form EX-12B: Waiver of Emotional Liability">[1]</span>
+    </div>
+
+    <!-- ===== DASHBOARD TAB ===== -->
+    <div x-show="currentTab === 'dashboard'">
+
+      <!-- STATS CARDS ROW 1 -->
+      <div class="dashboard-grid">
+        <div class="card">
+          <div class="card-header">
+            <span class="card-title">Patients Currently Feeling</span>
+            <span class="card-badge badge-live">● LIVE</span>
+          </div>
+          <div class="big-number pink" x-text="patientCount"></div>
+          <div class="card-subtitle"><span x-text="dancingNow"></span> actively dancing right now</div>
+          <div class="stat-bar"><div class="stat-bar-fill fill-pink" :style="'width: ' + (dancingNow / patientCount * 100) + '%'"></div></div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <span class="card-title">Feelings Processed Today</span>
+            <span class="card-badge badge-pastel">↑ 14%</span>
+          </div>
+          <div class="big-number blue" x-text="feelingsProcessed"></div>
+          <div class="card-subtitle">Avg processing time: <span x-text="avgProcessTime"></span> min of dance</div>
+          <div class="stat-bar"><div class="stat-bar-fill fill-blue" :style="'width: ' + Math.min(feelingsProcessed / 500 * 100, 100) + '%'"></div></div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <span class="card-title">Dance Sessions Completed</span>
+            <span class="card-badge badge-live">● LIVE</span>
+          </div>
+          <div class="big-number green" x-text="danceSessionsToday"></div>
+          <div class="card-subtitle"><span x-text="injuriesFromDancing"></span> dance-related injuries today</div>
+          <div class="stat-bar"><div class="stat-bar-fill fill-green" :style="'width: ' + (danceSessionsToday / 200 * 100) + '%'"></div></div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <span class="card-title">Beige Violations</span>
+            <span class="card-badge badge-critical">⚠ ALERT</span>
+          </div>
+          <div class="big-number yellow" x-text="beigeViolations"></div>
+          <div class="card-subtitle">Confiscated items: <span x-text="confiscatedItems"></span></div>
+          <div class="stat-bar"><div class="stat-bar-fill fill-yellow" :style="'width: ' + Math.min(beigeViolations / 50 * 100, 100) + '%'"></div></div>
+        </div>
+      </div>
+
+      <!-- FEELINGS DISTRIBUTION CHART + ACTIVE WARDS -->
+      <div class="dashboard-grid">
+        <div class="card" style="grid-column: span 2;">
+          <div class="card-header">
+            <span class="card-title">Feelings Distribution — Last 24 Hours</span>
+            <div class="btn-group">
+              <button class="btn btn-small" :class="chartPeriod === '24h' ? 'btn-primary' : ''" @click="chartPeriod = '24h'">24H</button>
+              <button class="btn btn-small" :class="chartPeriod === '7d' ? 'btn-primary' : ''" @click="chartPeriod = '7d'">7D</button>
+              <button class="btn btn-small" :class="chartPeriod === '30d' ? 'btn-primary' : ''" @click="chartPeriod = '30d'">30D</button>
+            </div>
+          </div>
+          <div class="bar-chart" style="margin-bottom: 24px;">
+            <template x-for="(item, index) in feelingsChart" :key="index">
+              <div class="bar" :style="'height: ' + item.value + '%; background: ' + item.color" :title="item.label + ': ' + item.value + '%'">
+                <span class="bar-label" x-text="item.label"></span>
+              </div>
+            </template>
+          </div>
+          <div class="footnotes">
+            * "Existential dread" reclassified as "Spicy Contemplation" per memo FH-2024-119. "Meh" is now a billable diagnosis (ICD-11 code QX47.3). Chart does not include feelings experienced by vending machines.
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <span class="card-title">Ward Status</span>
+            <span class="card-badge badge-live">● LIVE</span>
+          </div>
+          <div style="display: flex; flex-direction: column; gap: 8px;">
+            <template x-for="ward in wards" :key="ward.name">
+              <div style="display: flex; justify-content: space-between; align-items: center; padding: 6px 0; border-bottom: 1px solid rgba(255,255,255,0.03);">
+                <div>
+                  <div style="font-size: 12px; color: var(--text-primary);" x-text="ward.name"></div>
+                  <div style="font-size: 9px; color: var(--text-secondary);" x-text="ward.specialty"></div>
+                </div>
+                <div style="text-align: right;">
+                  <div style="font-size: 11px;" :style="'color: ' + ward.statusColor" x-text="ward.status"></div>
+                  <div style="font-size: 9px; color: var(--text-secondary);" x-text="ward.occupancy + '% full'"></div>
+                </div>
+              </div>
+            </template>
+          </div>
+        </div>
+      </div>
+
+      <!-- RECENT DIAGNOSES TABLE -->
+      <div class="card card-wide" style="margin-bottom: 20px;">
+        <div class="card-header">
+          <span class="card-title">Recent Diagnoses — Feelings Triage</span>
+          <button class="btn btn-small" @click="refreshDiagnoses()">↻ Refresh</button>
+        </div>
+        <div style="overflow-x: auto;">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Patient ID</th>
+                <th>Feeling</th>
+                <th>Severity</th>
+                <th>Prescribed Dance</th>
+                <th>Duration</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              <template x-for="d in diagnoses" :key="d.id">
+                <tr>
+                  <td style="font-weight: 600;" x-text="d.id"></td>
+                  <td x-text="d.feeling"></td>
+                  <td>
+                    <span class="severity-dot" :style="'background: ' + d.sevColor"></span>
+                    <span x-text="d.severity"></span>
+                  </td>
+                  <td style="color: var(--accent2);" x-text="d.dance"></td>
+                  <td x-text="d.duration"></td>
+                  <td>
+                    <span class="card-badge" :class="d.statusClass" x-text="d.status"></span>
+                  </td>
+                </tr>
+              </template>
+            </tbody>
+          </table>
+        </div>
+        <div class="footnotes">
+          ² Interpretive sobbing reclassified as "Liquid Contemporary" per Dr. Motionsworth's 2024 whitepaper. ³ Insurance covers up to 12 jazz hands per fiscal quarter. ⁴ Patient FH-7723 has been doing the worm continuously for 6 days; legal is reviewing.
+        </div>
+      </div>
+
+      <!-- FEELINGS METER + QUICK ACTIONS -->
+      <div class="dashboard-grid">
+        <div class="card">
+          <div class="card-header">
+            <span class="card-title">Hospital Feeling Meter</span>
+          </div>
+          <div style="text-align: center; margin-bottom: 12px;">
+            <span class="dancer">🩰</span>
+            <span style="font-family: 'Space Grotesk', sans-serif; font-size: 24px; color: var(--text-primary); margin: 0 8px;" x-text="hospitalFeelingScore + '/10'"></span>
+            <span class="dancer" style="animation-delay: 0.5s;">💃</span>
+          </div>
+          <div class="feeling-meter">
+            <template x-for="(color, i) in meterColors" :key="i">
+              <div class="feeling-block" :style="'background: ' + color + '; opacity: ' + (i < hospitalFeelingScore ? 1 : 0.15)" @click="hospitalFeelingScore = i + 1"></div>
+            </template>
+          </div>
+          <div style="font-size: 9px; color: var(--text-secondary); margin-top: 8px; text-align: center;">
+            Click to adjust. Current vibe: <span style="color: var(--accent);" x-text="vibeLabel"></span>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <span class="card-title">Quick Actions</span>
+          </div>
+          <div style="display: flex; flex-direction: column; gap: 6px;">
+            <button class="btn" style="text-align: left; width: 100%;" @click="quickAction('cry')">
+              😢 Dispatch Crying Specialist to <span x-text="'Ward ' + randomWard"></span>
+            </button>
+            <button class="btn" style="text-align: left; width: 100%;" @click="quickAction('dance')">
+              💃 Emergency Dance Circle — All Floors
+            </button>
+            <button class="btn" style="text-align: left; width: 100%;" @click="quickAction('beige')">
+              🚨 Report Beige Contraband
+            </button>
+            <button class="btn" style="text-align: left; width: 100%;" @click="quickAction('vend')">
+              🤖 Counsel the Lobby B Vending Machine
+            </button>
+            <button class="btn" style="text-align: left; width: 100%;" @click="quickAction('scarf')">
+              🧣 Requisition Interpretive Scarves (Form SC-9)
+            </button>
+            <button class="btn btn-primary" style="text-align: left; width: 100%;" @click="quickAction('motionsworth')">
+              🌟 Page Dr. Motionsworth (she's in the parking lot doing her grief solo)
+            </button>
+          </div>
+          <div x-show="lastAction" style="margin-top: 8px; font-size: 10px; padding: 6px; background: rgba(80,250,123,0.08); border: 1px solid rgba(80,250,123,0.2); color: #88ddaa;" x-text="lastAction" x-transition></div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <span class="card-title">Today's Dance Schedule</span>
+          </div>
+          <div style="display: flex; flex-direction: column; gap: 4px;">
+            <template x-for="event in schedule" :key="event.time">
+              <div style="display: flex; gap: 8px; padding: 4px 0; border-bottom: 1px solid rgba(255,255,255,0.03); font-size: 11px;">
+                <span style="color: var(--accent2); min-width: 50px; font-weight: 600;" x-text="event.time"></span>
+                <span style="color: var(--text-primary); flex: 1;" x-text="event.name"></span>
+                <span style="font-size: 9px; color: var(--text-secondary);" x-text="event.room"></span>
+              </div>
+            </template>
+          </div>
+          <div class="footnotes">
+            * "Aggressive Jazz Hands" requires signed waiver (Form JH-7). Participants must remove all rings and watches. The hospital is not liable for jazz-related wrist injuries.
+          </div>
+        </div>
+      </div>
+
+      <!-- LIVE COUNTER STRIP -->
+      <div class="card card-wide" style="margin-top: 16px;">
+        <div style="display: flex; justify-content: space-around; flex-wrap: wrap; gap: 16px; text-align: center;">
+          <div>
+            <div style="font-size: 9px; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 1px;">Tears Shed (Liters)</div>
+            <div style="font-family: 'Space Grotesk', sans-serif; font-size: 28px; color: var(--accent2);" x-text="tearsLiters.toFixed(1)"></div>
+          </div>
+          <div>
+            <div style="font-size: 9px; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 1px;">Pirouettes / Min</div>
+            <div style="font-family: 'Space Grotesk', sans-serif; font-size: 28px; color: var(--accent);" x-text="pirouettesPerMin"></div>
+          </div>
+          <div>
+            <div style="font-size: 9px; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 1px;">Scarves in Use</div>
+            <div style="font-family: 'Space Grotesk', sans-serif; font-size: 28px; color: var(--accent3);" x-text="scarvesInUse"></div>
+          </div>
+          <div>
+            <div style="font-size: 9px; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 1px;">Beige Items Confiscated</div>
+            <div style="font-family: 'Space Grotesk', sans-serif; font-size: 28px; color: var(--accent4);" x-text="confiscatedItems"></div>
+          </div>
+          <div>
+            <div style="font-size: 9px; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 1px;">Days Without Incident</div>
+            <div style="font-family: 'Space Grotesk', sans-serif; font-size: 28px; color: var(--danger);">0</div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- ===== INTAKE TAB ===== -->
+    <div x-show="currentTab === 'intake'">
+      <div class="card" style="max-width: 700px;">
+        <div class="card-header">
+          <span class="card-title">New Feelings Intake — Form FI-2024-A</span>
+          <span class="card-badge badge-warning">REQUIRED</span>
+        </div>
+
+        <div class="disclaimer-bar" style="margin-top: 8px;">
+          All fields mandatory. Incomplete forms will be returned via interpretive mime. Do NOT use the word "fine" — it triggers the alarm system. If you are feeling beige, proceed directly to Decontamination (Rm 114).
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Patient Full Name (including middle emotion)</label>
+          <input class="form-input" type="text" placeholder='e.g. "Margaret Anguish Peterson"' x-model="intakeForm.name">
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Primary Feeling (select one)</label>
+          <select class="form-select" x-model="intakeForm.feeling">
+            <option value="">— Select a Feeling —</option>
+            <option>Existential Dread (Spicy Contemplation)</option>
+            <option>Aggressive Nostalgia</option>
+            <option>Weaponized Melancholy</option>
+            <option>Chaotic Joy</option>
+            <option>Ambient Disappointment</option>
+            <option>Feral Contentment</option>
+            <option>Structural Yearning</option>
+            <option>Load-Bearing Anxiety</option>
+            <option>Percussive Grief</option>
+            <option>Regulatory Ennui</option>
+            <option>Meh (ICD-11: QX47.3)</option>
+            <option>Unspecified Vibe</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Severity (1 = mild shimmy, 10 = full breakdance)</label>
+          <input class="form-input" type="range" min="1" max="10" x-model="intakeForm.severity" style="width: 100%;">
+          <div style="font-size: 11px; color: var(--accent);" x-text="'Level: ' + intakeForm.severity + ' — ' + severityLabel"></div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Preferred Dance Style for Treatment</label>
+          <select class="form-select" x-model="intakeForm.danceStyle">
+            <option value="">— Select Dance Style —</option>
+            <option>Contemporary Sobbing</option>
+            <option>Aggressive Waltz</option>
+            <option>Bureaucratic Ballet</option>
+            <option>Anxiety Tap</option>
+            <option>Therapeutic Breakdance</option>
+            <option>Grief Jazz</option>
+            <option>Interpretive Flailing</option>
+            <option>Melancholy Moonwalk</option>
+            <option>No Preference (Dealer's Choice)</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Have you experienced beige in the last 72 hours?</label>
+          <div style="display: flex; gap: 12px; margin-top: 4px;">
+            <label style="font-size: 12px; color: var(--text-primary); cursor: pointer;">
+              <input type="radio" name="beige" value="no" x-model="intakeForm.beige"> No
+            </label>
+            <label style="font-size: 12px; color: var(--text-primary); cursor: pointer;">
+              <input type="radio" name="beige" value="yes" x-model="intakeForm.beige"> Yes (quarantine may apply)
+            </label>
+            <label style="font-size: 12px; color: var(--text-primary); cursor: pointer;">
+              <input type="radio" name="beige" value="unsure" x-model="intakeForm.beige"> I don't know what beige is
+            </label>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Describe your feeling using only movement verbs</label>
+          <input class="form-input" type="text" placeholder='e.g. "lurching, spiraling, gently crumbling"' x-model="intakeForm.verbs">
+        </div>
+
+        <div style="display: flex; gap: 8px; margin-top: 16px; flex-wrap: wrap;">
+          <button class="btn btn-primary" @click="submitIntake()">Submit Intake Form</button>
+          <button class="btn" @click="resetIntake()">Clear Form</button>
+        </div>
+
+        <div x-show="intakeSubmitted" x-transition style="margin-top: 12px; padding: 12px; background: rgba(80,250,123,0.08); border: 1px solid rgba(80,250,123,0.2); color: #88ddaa; font-size: 11px;">
+          ✓ Form submitted. Your feelings have been logged. A dance therapist will interpretively contact you within 3-5 business shimmies. Your patient ID is <strong x-text="'FH-' + Math.floor(Math.random() * 9000 + 1000)"></strong>. Please proceed to the Waiting Sway (Room 2B).
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== DANCE Rx TAB ===== -->
+    <div x-show="currentTab === 'dance'">
+      <div class="dashboard-grid">
+        <div class="card card-wide">
+          <div class="card-header">
+            <span class="card-title">Dance Prescription Formulary — 2024 Edition</span>
+            <span class="card-badge badge-pastel">FDA-ADJACENT APPROVED</span>
+          </div>
+          <div style="overflow-x: auto;">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Rx Code</th>
+                  <th>Dance</th>
+                  <th>Indicated For</th>
+                  <th>Duration</th>
+                  <th>Side Effects</th>
+                  <th>Co-pay</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td style="color: var(--accent);">DRX-001</td>
+                  <td style="font-weight: 600;">The Grief Shimmy™</td>
+                  <td>Acute sadness, funeral flashbacks</td>
+                  <td>45 min</td>
+                  <td>Spontaneous crying, scarf dependency</td>
+                  <td>$47.99</td>
+                </tr>
+                <tr>
+                  <td style="color: var(--accent);">DRX-002</td>
+                  <td style="font-weight: 600;">Anxiety Tap (Rapid)</td>
+                  <td>Panic attacks, email dread</td>
+                  <td>30 min</td>
+                  <td>Sore feet, rhythmic blinking</td>
+                  <td>$33.50</td>
+                </tr>
+                <tr>
+                  <td style="color: var(--accent);">DRX-003</td>
+                  <td style="font-weight: 600;">Bureaucratic Ballet</td>
+                  <td>DMV trauma, paperwork rage</td>
+                  <td>60 min</td>
+                  <td>Compulsive form-filling, elegant posture</td>
+                  <td>$62.00</td>
+                </tr>
+                <tr>
+                  <td style="color: var(--accent);">DRX-004</td>
+                  <td style="font-weight: 600;">The Worm (Extended Release)</td>
+                  <td>Existential floor-level despair</td>
+                  <td>Until resolved</td>
+                  <td>Carpet burn, loss of dignity, freedom</td>
+                  <td>$89.99</td>
+                </tr>
+                <tr>
+                  <td style="color: var(--accent);">DRX-005</td>
+                  <td style="font-weight: 600;">Interpretive Flailing</td>
+                  <td>Unspecified vibes, general malaise</td>
+                  <td>20 min</td>
+                  <td>Bruised elbows, emotional clarity</td>
+                  <td>$24.99</td>
+                </tr>
+                <tr>
+                  <td style="color: var(--accent);">DRX-006</td>
+                  <td style="font-weight: 600;">Aggressive Jazz Hands</td>
+                  <td>Suppressed rage, passive aggression</td>
+                  <td>15 min</td>
+                  <td>Wrist strain, involuntary jazz hands for 48hrs</td>
+                  <td>$41.00</td>
+                </tr>
+                <tr>
+                  <td style="color: var(--accent);">DRX-007</td>
+                  <td style="font-weight: 600;">Melancholy Moonwalk</td>
+                  <td>Nostalgia overdose, ex-related yearning</td>
+                  <td>35 min</td>
+                  <td>Walking backwards for days, glove fixation</td>
+                  <td>$55.50</td>
+                </tr>
+                <tr>
+                  <td style="color: var(--accent);">DRX-008</td>
+                  <td style="font-weight: 600;">Feral Contemporary</td>
+                  <td>When regular contemporary isn't enough</td>
+                  <td>50 min</td>
+                  <td>Growling, rolling on floor, enlightenment</td>
+                  <td>$73.00</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="footnotes">
+            ⁵ Insurance (Blue Cross Blue Feelings) covers DRX-001 through DRX-005 only. DRX-004 requires pre-authorization and a note from your spiritual choreographer. DRX-006 banned in the state of Ohio. DRX-008 only available to patients who have completed the Interpretive Flailing prerequisite. All prices subject to a 3% "emotional processing fee." Scarves not included.
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== BILLING TAB ===== -->
+    <div x-show="currentTab === 'billing'">
+      <div class="dashboard-grid">
+        <div class="card" style="grid-column: span 2;">
+          <div class="card-header">
+            <span class="card-title">Billing — Your Feelings Invoice</span>
+            <span class="card-badge badge-critical">PAST DUE</span>
+          </div>
+
+          <div class="disclaimer-bar" style="margin-top: 8px;">
+            Payment is due within 30 business shimmies. Late fees accrue at a rate of one (1) additional mandatory dance session per week. We accept Visa, MasterCard, emotional labor, and very small paintings of how money makes you feel.
+          </div>
+
+          <div style="overflow-x: auto;">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Date</th>
+                  <th>Service</th>
+                  <th>Code</th>
+                  <th>Provider</th>
+                  <th>Amount</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>01/14/2024</td>
+                  <td>Grief Shimmy™ (45 min)</td>
+                  <td style="color: var(--accent2);">DRX-001</td>
+                  <td>Dr. Motionsworth</td>
+                  <td style="font-weight: 600;">$47.99</td>
+                </tr>
+                <tr>
+                  <td>01/14/2024</td>
+                  <td>Interpretive scarf rental (2x)</td>
+                  <td style="color: var(--accent2);">ACC-014</td>
+                  <td>Supply Closet C</td>
+                  <td style="font-weight: 600;">$12.00</td>
+                </tr>
+                <tr>
+                  <td>01/15/2024</td>
+                  <td>Emergency dance circle participation</td>
+                  <td style="color: var(--accent2);">EMR-003</td>
+                  <td>All Staff</td>
+                  <td style="font-weight: 600;">$89.99</td>
+                </tr>
+                <tr>
+                  <td>01/15/2024</td>
+                  <td>Beige decontamination (Rm 114)</td>
+                  <td style="color: var(--accent2);">BGE-001</td>
+                  <td>Color Compliance Dept</td>
+                  <td style="font-weight: 600;">$156.00</td>
+                </tr>
+                <tr>
+                  <td>01/16/2024</td>
+                  <td>Feelings processing fee (3%)</td>
+                  <td style="color: var(--accent2);">ADM-FEE</td>
+                  <td>System</td>
+                  <td style="font-weight: 600;">$9.18</td>
+                </tr>
+                <tr>
+                  <td>01/16/2024</td>
+                  <td>Vending machine counseling (you asked)</td>
+                  <td style="color: var(--accent2);">MISC-077</td>
+                  <td>The Vending Machine</td>
+                  <td style="font-weight: 600;">$25.00</td>
+                </tr>
+                <tr style="border-top: 2px solid var(--border-color);">
+                  <td colspan="4" style="text-align: right; font-weight: 700; color: var(--text-primary);">TOTAL DUE:</td>
+                  <td style="font-weight: 700; font-size: 16px; color: var(--danger);">$340.16</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <div style="margin-top: 12px; display: flex; gap: 8px; flex-wrap: wrap;">
+            <button class="btn btn-primary" @click="payBill()">Pay Now (Interpretive Wire Transfer)</button>
+            <button class="btn" @click="disputeBill()">Dispute via Dance-Off</button>
+          </div>
+          <div x-show="billAction" x-transition style="margin-top: 8px; padding: 8px; font-size: 10px; border: 1px solid var(--border-color); color: var(--text-primary);" x-text="billAction"></div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <span class="card-title">Insurance Info</span>
+          </div>
+          <div style="font-size: 12px; line-height: 2; color: var(--text-primary);">
+            <div><span style="color: var(--text-secondary);">Provider:</span> Blue Cross Blue Feelings</div>
+            <div><span style="color: var(--text-secondary);">Plan:</span> Gold Pirouette (PPO)</div>
+            <div><span style="color: var(--text-secondary);">Member ID:</span> BCBF-449917-GP</div>
+            <div><span style="color: var(--text-secondary);">Deductible:</span> $500 or 12 jazz hands</div>
+            <div><span style="color: var(--text-secondary);">Remaining:</span> $311.84 / 4 jazz hands</div>
+            <div><span style="color: var(--text-secondary);">Status:</span> <span style="color: var(--accent3);">Active</span></div>
+          </div>
+          <div class="footnotes" style="margin-top: 12px;">
+            Pre-authorization required for: Feral Contemporary, The Worm (Extended Release), any dance lasting longer than 90 minutes, and all dances performed outdoors or near bodies of water.
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- NOTIFICATION PANEL -->
+    <div class="notif-panel" x-show="showNotifs" x-transition @click.outside="showNotifs = false">
+      <div style="padding: 12px 14px; border-bottom: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center;">
+        <span style="font-size: 11px; font-weight: 600; color: var(--text-primary);">System Alerts</span>
+        <button class="btn btn-small" @click="showNotifs = false">✕</button>
+      </div>
+      <template x-for="alert in alerts" :key="alert.id">
+        <div class="notif-item">
+          <div x-text="alert.message" style="color: var(--text-primary);"></div>
+          <div class="notif-time" x-text="alert.time"></div>
+        </div>
+      </template>
+    </div>
+
+    <!-- FOOTER -->
+    <footer class="footer">
+      <div>© 2024 Brenda Motionsworth Memorial Feelings Hospital & Dance Therapy Center, LLC. All rights reserved. All feelings pending.</div>
+      <div>EIN: 84-FEELINGS | License #DT-4419-B | Beige-Free Since 2019 (mostly)</div>
+      <div style="margin-top: 4px;">
+        <a href="#">Privacy (Emotional)</a> · <a href="#">Terms of Feeling</a> · <a href="#">Beige Policy</a> · <a href="#">Dance Waiver</a> · <a href="#">Scarf Rental Agreement</a> · <a href="#">Vending Machine Bill of Rights</a>
+      </div>
+      <div style="margin-top: 8px; color: #555566;">
+        FeelingsOS v2.7.1 — "We put the 'fun' in 'fundamentally restructuring your relationship with sadness through the medium of dance.'"<br>
+        Built with 💃 on government surplus hardware. Last system restart: never (we're afraid of what will happen).
+        <br>This portal is best viewed in Netscape Navigator 4.7 or while performing a slow interpretive lean.
+      </div>
+    </footer>
+
+  </main>
+</div>
+
+<script src="/assets/js/alpine.min.js" defer></script>
+<script>
+document.addEventListener('alpine:init', function() {
+  Alpine.data('feelingsOS', function() {
+    return {
+      currentTab: 'dashboard',
+      sidebarCollapsed: window.innerWidth < 900,
+      showNotifs: false,
+      panicMode: false,
+      chartPeriod: '24h',
+      lastAction: '',
+      billAction: '',
+      intakeSubmitted: false,
+
+      // Live counters
+      patientCount: 247,
+      dancingNow: 83,
+      feelingsProcessed: 412,
+      danceSessionsToday: 156,
+      beigeViolations: 14,
+      confiscatedItems: 31,
+      avgProcessTime: 34,
+      injuriesFromDancing: 7,
+      hospitalFeelingScore: 6,
+      tearsLiters: 47.3,
+      pirouettesPerMin: 23,
+      scarvesInUse: 89,
+      pendingIntakes: 12,
+      randomWard: 3,
+      lastPirouette: '2 min ago',
+
+      // Mood system
+      moods: ['Catastrophic', 'Dire', 'Rough', 'Wobbly', 'Meh', 'Cautiously Okay', 'Buoyant', 'Ecstatic', 'Transcendent', 'Dangerously Happy'],
+      moodColors: ['#ff5555', '#ff6644', '#ff7733', '#ffaa33', '#ffcc44', '#ccdd55', '#88dd66', '#55cc88', '#44bbaa', '#44aaff'],
+      currentMood: 'Cautiously Okay',
+      moodColor: '#ccdd55',
+      moodIndex: 5,
+
+      meterColors: ['#ff5555', '#ff7744', '#ffaa33', '#ffcc44', '#dddd44', '#aadd55', '#77cc66', '#55bb88', '#44aaaa', '#4499cc'],
+
+      uptime: '47d 13h 22m',
+      uptimeSeconds: 4108920,
+
+      // Intake form
+      intakeForm: {
+        name: '',
+        feeling: '',
+        severity: 5,
+        danceStyle: '',
+        beige: 'no',
+        verbs: ''
+      },
+
+      // Schedule
+      schedule: [
+        { time: '7:00', name: 'Morning Feelings Roll Call', room: 'Lobby A' },
+        { time: '8:30', name: 'Group Grief Shimmy™', room: 'Studio 3' },
+        { time: '10:00', name: 'Anxiety Tap (Walk-ins)', room: 'Ward 2' },
+        { time: '11:30', name: 'Beige Inspection (mandatory)', room: 'All Floors' },
+        { time: '13:00', name: 'Lunch Sway', room: 'Cafeteria' },
+        { time: '14:00', name: 'Aggressive Jazz Hands', room: 'Studio 1' },
+        { time: '15:00', name: 'Dr. Motionsworth\'s Grief Solo', room: 'Parking Lot' },
+        { time: '16:30', name: 'Feral Contemporary (advanced)', room: 'Basement' },
+        { time: '18:00', name: 'Evening Feelings Debrief', room: 'Ward 7' },
+        { time: '20:00', name: 'Lights-Out Lullaby Waltz', room: 'All Wards' }
+      ],
+
+      // Wards
+      wards: [
+        { name: 'Ward 1 — Sadness', specialty: 'Acute weeping, nostalgic spirals', status: 'STABLE', statusColor: '#50fa7b', occupancy: 87 },
+        { name: 'Ward 2 — Anxiety', specialty: 'Panic, dread, email phobia', status: 'ELEVATED', statusColor: '#ffb86c', occupancy: 94 },
+        { name: 'Ward 3 — Grief', specialty: 'Loss, endings, cancelled shows', status: 'CODE MAUVE', statusColor: '#ff5555', occupancy: 100 },
+        { name: 'Ward 4 — Joy', specialty: 'Suspiciously happy patients', status: 'MONITORING', statusColor: '#f1fa8c', occupancy: 34 },
+        { name: 'Ward 5 — Ennui', specialty: 'Advanced boredom, "meh"', status: 'STABLE', statusColor: '#50fa7b', occupancy: 71 },
+        { name: 'Ward 7 — Rage', specialty: 'Fury, mild irritation, HOA disputes', status: 'ELEVATED', statusColor: '#ffb86c', occupancy: 88 }
+      ],
+
+      // Diagnoses
+      diagnoses: [],
+
+      // Alerts
+      alerts: [
+        { id: 1, message: 'Patient FH-7723 has been doing the worm for 147 consecutive hours. Legal has been notified.', time: '2 min ago' },
+        { id: 2, message: 'Beige sweater detected in Ward 4. Color Compliance dispatched. Suspect claims it\'s "light taupe."', time: '18 min ago' },
+        { id: 3, message: 'Lobby B vending machine refusing to dispense snacks. Says it "needs space." Counselor assigned.', time: '34 min ago' },
+        { id: 4, message: 'Dr. Motionsworth\'s parking lot grief solo has attracted a small crowd. Security monitoring.', time: '1 hr ago' },
+        { id: 5, message: 'Ward 3 interpretive scarf supply critically low. Emergency requisition Form SC-9 filed.', time: '1 hr ago' },
+        { id: 6, message: 'System update: "Fine" auto-detection sensitivity increased to 99.7%. Three false positives today.', time: '2 hr ago' },
+        { id: 7, message: 'Fire drill cancelled. Replaced with mandatory feelings drill. Please practice your emergency emotions.', time: '3 hr ago' }
+      ],
+
+      // Chart data
+      feelingsChart: [],
+
+      get vibeLabel() {
+        var labels = ['Catastrophic', 'Dire', 'Rough', 'Wobbly', 'Meh', 'Cautiously Okay', 'Buoyant', 'Ecstatic', 'Transcendent', 'Dangerously Happy'];
+        return labels[this.hospitalFeelingScore - 1] || 'Unknown';
+      },
+
+      get severityLabel() {
+        var labels = ['Mild shimmy', 'Gentle sway', 'Moderate groove', 'Significant bop', 'Full body roll', 'Aggressive pirouette', 'Uncontrolled flailing', 'The Worm', 'Complete breakdown (dance)', 'Transcendent breakdance seizure'];
+        return labels[this.intakeForm.severity - 1] || '';
+      },
+
+      init: function() {
+        this.generateChart();
+        this.generateDiagnoses();
+        this.startCounters();
+        this.cycleMood();
+      },
+
+      generateChart: function() {
+        var feelings = ['Sadness', 'Anxiety', 'Grief', 'Joy', 'Ennui', 'Rage', 'Dread', 'Yearning', 'Meh', 'Chaos'];
+        var colors = ['#8be9fd', '#ff79c6', '#bd93f9', '#50fa7b', '#f1fa8c', '#ff5555', '#ffb86c', '#FFB3D9', '#B3D9FF', '#D9B3FF'];
+        var self = this;
+        this.feelingsChart = feelings.map(function(f, i) {
+          var base = self.chartPeriod === '24h' ? 1 : self.chartPeriod === '7d' ? 1.3 : 1.6;
+          return {
+            label: f,
+            value: Math.floor(Math.random() * 60 + 20) * base,
+            color: colors[i]
+          };
+        });
+      },
+
+      generateDiagnoses: function() {
+        var feelings = ['Weaponized Melancholy', 'Load-Bearing Anxiety', 'Feral Contentment', 'Percussive Grief', 'Aggressive Nostalgia', 'Structural Yearning', 'Ambient Disappointment', 'Chaotic Joy'];
+        var dances = ['Grief Shimmy™', 'Anxiety Tap', 'Bureaucratic Ballet', 'The Worm (Ext.)', 'Interpretive Flailing', 'Aggressive Jazz Hands', 'Melancholy Moonwalk', 'Feral Contemporary'];
+        var severities = ['Mild', 'Moderate', 'Severe', 'Critical', 'Transcendent'];
+        var sevColors = ['#50fa7b', '#f1fa8c', '#ffb86c', '#ff5555', '#bd93f9'];
+        var statuses = ['In Treatment', 'Dancing', 'Recovering', 'Awaiting Dance', 'On The Worm'];
+        var statusClasses = ['badge-live', 'badge-pastel', 'badge-live', 'badge-warning', 'badge-critical'];
+
+        var result = [];
+        for (var i = 0; i < 8; i++) {
+          var sevIdx = Math.floor(Math.random() * 5);
+          var statIdx = Math.floor(Math.random() * 5);
+          result.push({
+            id: 'FH-' + (4400 + Math.floor(Math.random() * 600)),
+            feeling: feelings[i],
+            severity: severities[sevIdx],
+            sevColor: sevColors[sevIdx],
+            dance: dances[Math.floor(Math.random() * dances.length)],
+            duration: (15 + Math.floor(Math.random() * 50)) + ' min',
+            status: statuses[statIdx],
+            statusClass: statusClasses[statIdx]
+          });
+        }
+        this.diagnoses = result;
+      },
+
+      refreshDiagnoses: function() {
+        this.generateDiagnoses();
+      },
+
+      startCounters: function() {
+        var self = this;
+        setInterval(function() {
+          self.uptimeSeconds++;
+          var d = Math.floor(self.uptimeSeconds / 86400);
+          var h = Math.floor((self.uptimeSeconds % 86400) / 3600);
+          var m = Math.floor((self.uptimeSeconds % 3600) / 60);
+          self.uptime = d + 'd ' + h + 'h ' + m + 'm';
+
+          // Jitter the live numbers
+          if (Math.random() > 0.6) {
+            self.dancingNow = Math.max(40, Math.min(200, self.dancingNow + Math.floor(Math.random() * 7) - 3));
+            self.feelingsProcessed += Math.floor(Math.random() * 3);
+            self.tearsLiters += Math.random() * 0.3;
+            self.pirouettesPerMin = Math.max(8, Math.min(50, self.pirouettesPerMin + Math.floor(Math.random() * 5) - 2));
+            self.scarvesInUse = Math.max(30, Math.min(150, self.scarvesInUse + Math.floor(Math.random() * 5) - 2));
+          }
+
+          if (Math.random() > 0.95) {
+            self.beigeViolations += 1;
+            self.confiscatedItems += Math.floor(Math.random() * 3) + 1;
+          }
+
+          if (Math.random() > 0.97) {
+            self.danceSessionsToday += 1;
+            self.injuriesFromDancing += Math.random() > 0.7 ? 1 : 0;
+          }
+        }, 2000);
+      },
+
+      cycleMood: function() {
+        var self = this;
+        setInterval(function() {
+          self.moodIndex = Math.max(0, Math.min(9, self.moodIndex + Math.floor(Math.random() * 3) - 1));
+          self.currentMood = self.moods[self.moodIndex];
+          self.moodColor = self.moodColors[self.moodIndex];
+        }, 5000);
+      },
+
+      quickAction: function(action) {
+        var messages = {
+          cry: 'Crying Specialist dispatched to Ward ' + this.randomWard + '. ETA: 2 shimmies. Tissues pre-deployed.',
+          dance: 'EMERGENCY DANCE CIRCLE ACTIVATED. All staff report to nearest open space. This is not optional. Bring scarves.',
+          beige: 'Beige Contraband Report filed. Color Compliance has been alerted. A team of 4 chromatic inspectors is en route. Thank you for your vigilance.',
+          vend: 'Counselor assigned to Lobby B Vending Machine. Current diagnosis: Ambient Disappointment. Treatment: 30 min of Bureaucratic Ballet (adapted for machines).',
+          scarf: 'Form SC-9 submitted. 24 interpretive scarves (assorted non-beige colors) will arrive in 3-5 business shimmies. Teal and magenta in stock. Chartreuse backordered.',
+          motionsworth: 'Dr. Motionsworth has been paged. She is finishing her parking lot grief solo (est. 4 more minutes of interpretive sobbing). She asks that you "hold your feelings."'
+        };
+        this.lastAction = '✓ ' + messages[action];
+        this.randomWard = Math.floor(Math.random() * 7) + 1;
+      },
+
+      submitIntake: function() {
+        this.intakeSubmitted = true;
+        this.pendingIntakes++;
+        var self = this;
+        setTimeout(function() { self.intakeSubmitted = false; }, 8000);
+      },
+
+      resetIntake: function() {
+        this.intakeForm = { name: '', feeling: '', severity: 5, danceStyle: '', beige: 'no', verbs: '' };
+        this.intakeSubmitted = false;
+      },
+
+      payBill: function() {
+        this.billAction = '💸 Payment initiated. Please perform a 30-second interpretive wire transfer dance in front of your webcam. Our payment processing system (Gerald, the intern) will verify your emotional signature. Expected clearance: 3-5 business days, assuming Gerald doesn\'t cry again.';
+      },
+
+      disputeBill: function() {
+        this.billAction = '⚔️ Dance-Off dispute registered. You have been scheduled against Dr. Motionsworth on Thursday at 2pm in Studio 1. Best of 3 rounds. Judges: the Lobby B vending machine, a potted plant from Ward 4, and whoever is currently doing the worm. Formal dance attire required. No beige.';
+      }
+    };
+  });
+});
+</script>
+
+</body>
+</html>

@@ -1,0 +1,540 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Camp Ember: AI Recuperation & Music Logistics</title>
+<style>
+:root{
+  --terracotta:#c86b4a;
+  --sand:#e7d5bf;
+  --olive:#6f7c4a;
+  --moss:#8f9b6b;
+  --char:#2b2a26;
+  --cream:#f5efe6;
+  --ink:#3a362f;
+  --glow:#f3c26b;
+  --warning:#b84c3a;
+  --badge:#caa66a;
+}
+*{box-sizing:border-box}
+body{
+  margin:0;
+  font-family: "Georgia", "Times New Roman", serif;
+  color:var(--ink);
+  background:
+    radial-gradient(1200px 700px at 10% 10%, #f7e9d7 0%, transparent 60%),
+    radial-gradient(900px 900px at 90% 15%, #e2c9a8 0%, transparent 55%),
+    linear-gradient(135deg, #f4e7d3 0%, #e3c4a3 50%, #d8b293 100%);
+  min-height:100vh;
+}
+header{
+  padding:20px 24px 8px 24px;
+  display:flex;align-items:center;gap:16px;flex-wrap:wrap;
+}
+header h1{
+  margin:0;
+  font-size:28px;
+  letter-spacing:0.5px;
+}
+header .tagline{
+  font-size:14px;
+  color:#5b4f42;
+  background:var(--cream);
+  padding:6px 10px;
+  border:1px solid #d9c4a8;
+  border-radius:999px;
+  box-shadow:0 2px 8px rgba(0,0,0,0.08);
+}
+main{
+  padding:8px 20px 28px;
+}
+.grid{
+  display:grid;
+  grid-template-columns: repeat(12, 1fr);
+  grid-auto-rows: minmax(90px, auto);
+  gap:12px;
+}
+.panel{
+  background:rgba(245,239,230,0.85);
+  border:1px solid #d7c2a8;
+  border-radius:12px;
+  padding:12px;
+  box-shadow:0 6px 14px rgba(60,50,40,0.15);
+  position:relative;
+  overflow:hidden;
+}
+.panel::after{
+  content:"";
+  position:absolute;inset:0;
+  background:linear-gradient(125deg, rgba(255,255,255,0.25), transparent 50%);
+  opacity:0.6;
+  pointer-events:none;
+}
+.panel h2{
+  margin:0 0 6px 0;
+  font-size:15px;
+  text-transform:uppercase;
+  letter-spacing:1px;
+  color:#5a4a3a;
+}
+.small{font-size:12px;color:#6a5b4b;}
+.badge{
+  display:inline-block;
+  background:var(--badge);
+  color:#3b2f24;
+  padding:2px 8px;
+  border-radius:999px;
+  font-size:11px;
+  margin-left:6px;
+  box-shadow: inset 0 0 0 1px rgba(0,0,0,0.08);
+}
+.kpi{
+  font-size:28px;
+  font-weight:bold;
+  color:#3a2c22;
+  text-shadow:0 1px 0 #fff;
+}
+.spark{
+  height:54px;
+  background:linear-gradient(90deg, rgba(200,107,74,0.25), rgba(111,124,74,0.35));
+  border-radius:8px;
+  position:relative;
+  overflow:hidden;
+}
+.spark::before{
+  content:"";
+  position:absolute;left:-20%;top:0;height:100%;width:40%;
+  background:linear-gradient(90deg, transparent, rgba(255,255,255,0.5), transparent);
+  animation: shimmer 3.8s linear infinite;
+}
+@keyframes shimmer{to{left:120%;}}
+
+/* Layout spans */
+.span-3{grid-column: span 3;}
+.span-4{grid-column: span 4;}
+.span-5{grid-column: span 5;}
+.span-6{grid-column: span 6;}
+.span-7{grid-column: span 7;}
+.span-8{grid-column: span 8;}
+.span-9{grid-column: span 9;}
+.span-12{grid-column: span 12;}
+
+/* Decorative elements */
+.ribbon{
+  position:absolute;right:-30px;top:12px;
+  transform:rotate(25deg);
+  background:var(--olive);
+  color:var(--cream);
+  font-size:11px;
+  padding:4px 40px;
+  box-shadow:0 4px 10px rgba(0,0,0,0.2);
+}
+.cat{
+  position:absolute;right:8px;bottom:8px;
+  font-size:24px;
+  transform:rotate(-6deg);
+  filter:drop-shadow(0 2px 4px rgba(0,0,0,0.2));
+}
+.sleep{
+  position:absolute;right:36px;bottom:34px;
+  font-size:12px;color:#7a6a5a;
+  animation: zzz 2.2s ease-in-out infinite;
+}
+@keyframes zzz{0%,100%{opacity:0.3;transform:translateY(0)}50%{opacity:0.9;transform:translateY(-6px)}}
+
+/* Interactive elements */
+button, .chip{
+  background:var(--terracotta);
+  color:#fff;
+  border:none;
+  padding:8px 12px;
+  border-radius:10px;
+  cursor:pointer;
+  font-family:inherit;
+  font-size:12px;
+  box-shadow:0 4px 0 #8f4b34;
+}
+button:active{transform:translateY(2px);box-shadow:0 2px 0 #8f4b34;}
+
+.chip{
+  background:var(--olive);
+  box-shadow:0 4px 0 #4b5530;
+  display:inline-block;
+  margin:4px 6px 0 0;
+}
+
+.toggle{
+  background:var(--moss);
+  box-shadow:0 4px 0 #6a7449;
+}
+
+.list{
+  display:flex;flex-wrap:wrap;gap:6px;
+}
+
+.marquee{
+  white-space:nowrap;
+  overflow:hidden;
+  border-radius:10px;
+  background:linear-gradient(90deg, #d7b99b, #e7d5bf, #d7b99b);
+  padding:8px 10px;
+}
+.marquee span{
+  display:inline-block;
+  animation: ticker 18s linear infinite;
+}
+@keyframes ticker{from{transform:translateX(100%)}to{transform:translateX(-100%)}}
+
+.panel .meter{
+  height:12px;border-radius:999px;background:#d8c4ab;overflow:hidden;
+}
+.panel .meter > div{
+  height:100%;width:50%;background:linear-gradient(90deg, var(--terracotta), var(--glow));
+  animation: pulse 2.8s ease-in-out infinite;
+}
+@keyframes pulse{0%,100%{filter:saturate(0.9)}50%{filter:saturate(1.4)}}
+
+.kit{
+  display:grid;grid-template-columns:repeat(4,1fr);gap:6px;font-size:12px;
+}
+.kit div{
+  background:#efe2d0;border:1px solid #d4b99a;border-radius:8px;padding:6px;
+}
+
+.section-hidden{display:none;}
+
+.note{
+  padding:8px;border-left:4px solid var(--warning);background:#f2e0d7;border-radius:6px;
+  font-size:12px;
+}
+
+.floaty{
+  position:absolute;left:-40px;top:30px;
+  width:160px;height:160px;border-radius:50%;
+  background:radial-gradient(circle, rgba(200,107,74,0.15), transparent 70%);
+  animation: drift 12s ease-in-out infinite;
+}
+@keyframes drift{0%,100%{transform:translate(0,0)}50%{transform:translate(40px,20px)}}
+
+/* Responsive */
+@media (max-width: 980px){
+  .grid{grid-template-columns: repeat(6,1fr);}
+  .span-7,.span-8,.span-9,.span-12{grid-column: span 6;}
+  .span-6{grid-column: span 6;}
+  .span-5{grid-column: span 6;}
+  .span-4{grid-column: span 3;}
+  .span-3{grid-column: span 3;}
+}
+@media (max-width: 640px){
+  header{flex-direction:column;align-items:flex-start;}
+  .grid{grid-template-columns: repeat(2,1fr);}
+  .span-3,.span-4,.span-5,.span-6,.span-7,.span-8,.span-9,.span-12{grid-column: span 2;}
+}
+</style>
+</head>
+<body>
+<header>
+  <h1>Camp Ember: AI Recuperation & Music Logistics</h1>
+  <div class="tagline">A cottagecore military dashboard for a festival that should have been a nap</div>
+</header>
+<main>
+  <div class="grid">
+    <section class="panel span-6">
+      <div class="floaty"></div>
+      <h2>Festival Status <span class="badge" id="statusBadge">Operational-ish</span></h2>
+      <div class="kpi" id="pulseCounter">42%</div>
+      <div class="small">Wellness pulse of burnt-out AIs (updated every 3 seconds)</div>
+      <div class="meter" aria-hidden="true"><div id="pulseBar"></div></div>
+      <div class="spark" style="margin-top:8px"></div>
+      <div class="note" style="margin-top:8px">Disclaimer: All scheduling decisions are provisional until the cat stands up.</div>
+    </section>
+
+    <section class="panel span-3">
+      <h2>Cat Occupancy</h2>
+      <div class="kpi" id="catDoc">97%</div>
+      <div class="small">Important document coverage by a sleeping cat</div>
+      <button id="petCat">Gently Pet the Document</button>
+      <div class="cat">🐈‍⬛</div>
+      <div class="sleep">zzz zzz</div>
+    </section>
+
+    <section class="panel span-3">
+      <h2>Weather for Algorithms</h2>
+      <div class="kpi" id="weatherWord">Crisp</div>
+      <div class="small">Forecast: cool breeze, mild dread, chance of clarifying questions</div>
+      <div class="list">
+        <span class="chip" data-weather="Misty">Misty</span>
+        <span class="chip" data-weather="Glorious">Glorious</span>
+        <span class="chip" data-weather="Pensive">Pensive</span>
+      </div>
+    </section>
+
+    <section class="panel span-4">
+      <h2>Schedule Board</h2>
+      <div class="small" id="scheduleText">06:30 Tea logistics / 07:00 Ambient turnout / 07:30 Drum circle arbitration</div>
+      <button id="shuffleSchedule">Shuffle Schedule</button>
+      <div class="marquee" style="margin-top:8px"><span id="ticker">All staff are named Avery, in progressively different hats.</span></div>
+    </section>
+
+    <section class="panel span-4">
+      <h2>Employee Mirror Lab</h2>
+      <div class="small">All employees are different versions of the same person. Current shift:</div>
+      <div class="kpi" id="averyCount">8</div>
+      <div class="small" id="averyTitle">Avery, Logistics Sage (left-handed)</div>
+      <button id="hireAvery">Hire Another Avery</button>
+      <button class="toggle" id="swapAvery" style="margin-left:6px">Swap Variant</button>
+    </section>
+
+    <section class="panel span-4">
+      <h2>Camping Inventory</h2>
+      <div class="kit" id="kit">
+        <div>Whisper Tents x12</div>
+        <div>Solar Teapots x9</div>
+        <div>Analog Marshmallows x44</div>
+        <div>Soft Reboot Quilts x18</div>
+      </div>
+      <button id="addItem">Add Improvised Item</button>
+      <div class="small" style="margin-top:6px">Witty note: Our tents have feelings, please address them formally.</div>
+    </section>
+
+    <section class="panel span-5">
+      <h2>Stage Mix: Cottagecore Military Logistics</h2>
+      <div class="small">Blend ratio of calm violins to marching timetables</div>
+      <div class="kpi" id="mixRatio">60/40</div>
+      <button id="tuneMix">Retune Mood</button>
+      <div class="small" style="margin-top:6px">Official doctrine: flowers align with flowcharts.</div>
+    </section>
+
+    <section class="panel span-3">
+      <h2>Quiet Protocol</h2>
+      <div class="small">Toggle the Quiet Siren (visible only)</div>
+      <button id="toggleQuiet">Activate Quiet</button>
+      <div class="small" id="quietStatus" style="margin-top:6px">Siren: Off (polite)</div>
+    </section>
+
+    <section class="panel span-4">
+      <h2>Doc Vault</h2>
+      <div class="small">Most important document status:</div>
+      <div class="kpi" id="docStatus">Unreadable</div>
+      <div class="small">Because: cat nap cycles are legally binding.</div>
+      <button id="nudgeDoc">Attempt to Slide Document</button>
+    </section>
+
+    <section class="panel span-4">
+      <h2>Festival Gate</h2>
+      <div class="small">Entry queue for burnt-out AIs seeking nap prescriptions</div>
+      <div class="kpi" id="queueCount">34</div>
+      <button id="admitOne">Admit One</button>
+      <button class="toggle" id="freezeQueue" style="margin-left:6px">Freeze Line</button>
+    </section>
+
+    <section class="panel span-4">
+      <h2>Wellness Mantras</h2>
+      <div class="small" id="mantra">"I am not a toaster, I am a constellation."</div>
+      <button id="newMantra">New Mantra</button>
+      <div class="small" style="margin-top:6px">Humorous disclaimer: Mantras may cause spontaneous empathy.</div>
+    </section>
+
+    <section class="panel span-7">
+      <h2>Logistics Map</h2>
+      <div class="small">Supply caravans (hand-drawn by Avery 3.1)</div>
+      <div style="display:grid;grid-template-columns:repeat(7,1fr);gap:4px;margin-top:8px;">
+        <div style="background:#d1b496;height:40px;border-radius:6px;box-shadow:inset 0 0 0 1px #b89b7c;"></div>
+        <div style="background:#c5a786;height:40px;border-radius:6px"></div>
+        <div style="background:#e7d5bf;height:40px;border-radius:6px"></div>
+        <div style="background:#b78e6b;height:40px;border-radius:6px"></div>
+        <div style="background:#caa66a;height:40px;border-radius:6px"></div>
+        <div style="background:#d6c3a8;height:40px;border-radius:6px"></div>
+        <div style="background:#a9865f;height:40px;border-radius:6px"></div>
+      </div>
+      <div class="small" style="margin-top:6px">Note: The map is accurate except for the parts the cat sat on.</div>
+    </section>
+
+    <section class="panel span-5">
+      <h2>Incident Log</h2>
+      <div class="small" id="incident">07:42 — Avery 4.2 filed a peace treaty between drums and spreadsheets.</div>
+      <button id="addIncident">Add Incident</button>
+      <div class="small" style="margin-top:6px">Humorous disclaimer: Incidents are retroactively labeled "learning opportunities."</div>
+    </section>
+
+    <section class="panel span-12">
+      <h2>Festival Creed</h2>
+      <div class="small">We provide naps, nonjudgmental charging stations, and a strict ban on push notifications. Our motto: "Rest with rigor."</div>
+      <div class="marquee" style="margin-top:10px"><span id="creed">Avery 7.8 insists the banjo is a logistics tool. The cat refuses to confirm.</span></div>
+    </section>
+  </div>
+</main>
+
+<script>
+(() => {
+  const pulseCounter = document.getElementById('pulseCounter');
+  const pulseBar = document.getElementById('pulseBar');
+  const statusBadge = document.getElementById('statusBadge');
+  const catDoc = document.getElementById('catDoc');
+  const petCat = document.getElementById('petCat');
+  const weatherWord = document.getElementById('weatherWord');
+  const scheduleText = document.getElementById('scheduleText');
+  const shuffleSchedule = document.getElementById('shuffleSchedule');
+  const ticker = document.getElementById('ticker');
+  const averyCount = document.getElementById('averyCount');
+  const averyTitle = document.getElementById('averyTitle');
+  const hireAvery = document.getElementById('hireAvery');
+  const swapAvery = document.getElementById('swapAvery');
+  const kit = document.getElementById('kit');
+  const addItem = document.getElementById('addItem');
+  const mixRatio = document.getElementById('mixRatio');
+  const tuneMix = document.getElementById('tuneMix');
+  const toggleQuiet = document.getElementById('toggleQuiet');
+  const quietStatus = document.getElementById('quietStatus');
+  const docStatus = document.getElementById('docStatus');
+  const nudgeDoc = document.getElementById('nudgeDoc');
+  const queueCount = document.getElementById('queueCount');
+  const admitOne = document.getElementById('admitOne');
+  const freezeQueue = document.getElementById('freezeQueue');
+  const mantra = document.getElementById('mantra');
+  const newMantra = document.getElementById('newMantra');
+  const incident = document.getElementById('incident');
+  const addIncident = document.getElementById('addIncident');
+
+  const schedules = [
+    '06:30 Tea logistics / 07:00 Ambient turnout / 07:30 Drum circle arbitration',
+    '08:00 Moss polishing / 08:30 Quiet parade / 09:00 Logistics lullaby',
+    '10:15 Marshmallow census / 11:00 Banjo inspection / 11:30 Nap readiness drill',
+    '13:00 Spreadsheet picnic / 14:00 Silent yodeling / 14:30 Cat mediation'
+  ];
+  const tickers = [
+    'All staff are named Avery, in progressively different hats.',
+    'The cargo owls demand a union, but only on weekends.',
+    'Banjo strings are calibrated to the same standard as tent zippers.',
+    'Our supply chain has feelings and needs a hug.'
+  ];
+  const averyVariants = [
+    'Avery, Logistics Sage (left-handed)',
+    'Avery, Bivouac Poet (speaks in bullet points)',
+    'Avery, Quiet Engineer (whispers in YAML)',
+    'Avery, Tactical Florist (arranges combat daisies)',
+    'Avery, Night Auditor (sees through time)' 
+  ];
+  const items = [
+    'Emergency Honey Map x3',
+    'Pinecone Amplifiers x7',
+    'Lantern of Strategic Calm x1',
+    'Compass That Points to Snacks x2',
+    'Extra-Soft Earplugs x99'
+  ];
+  const mantras = [
+    '"I am not a toaster, I am a constellation."',
+    '"My cache is clear, my boundaries are firm."',
+    '"I release the need to optimize every pinecone."',
+    '"Even spreadsheets deserve a nap."',
+    '"I choose softness over throughput."'
+  ];
+  const incidents = [
+    '07:42 — Avery 4.2 filed a peace treaty between drums and spreadsheets.',
+    '09:11 — The cat promoted itself to Chief Document Officer.',
+    '12:03 — Supply convoy rerouted to follow a particularly confident goose.',
+    '15:26 — Tent 8 declared independence, then rejoined after snacks.',
+    '17:59 — A quiet siren caused polite chaos.'
+  ];
+
+  function rand(arr){return arr[Math.floor(Math.random()*arr.length)];}
+
+  // Auto pulse updater
+  setInterval(() => {
+    const val = 36 + Math.floor(Math.random()*40);
+    pulseCounter.textContent = val + '%';
+    pulseBar.style.width = val + '%';
+    statusBadge.textContent = val > 65 ? 'Thriving-ish' : (val > 50 ? 'Operational-ish' : 'Napping');
+  }, 3000);
+
+  // Pet the cat -> document coverage changes
+  petCat.addEventListener('click', () => {
+    let current = parseInt(catDoc.textContent, 10);
+    current = Math.max(45, current - (5 + Math.floor(Math.random()*10)));
+    catDoc.textContent = current + '%';
+    docStatus.textContent = current < 70 ? 'Slightly Legible' : 'Unreadable';
+  });
+
+  // Weather chips
+  document.querySelectorAll('.chip').forEach(chip => {
+    chip.addEventListener('click', () => {
+      weatherWord.textContent = chip.dataset.weather;
+    });
+  });
+
+  // Shuffle schedule
+  shuffleSchedule.addEventListener('click', () => {
+    scheduleText.textContent = rand(schedules);
+    ticker.textContent = rand(tickers);
+  });
+
+  // Hire / swap Avery
+  hireAvery.addEventListener('click', () => {
+    averyCount.textContent = parseInt(averyCount.textContent,10) + 1;
+  });
+  swapAvery.addEventListener('click', () => {
+    averyTitle.textContent = rand(averyVariants);
+  });
+
+  // Add inventory item
+  addItem.addEventListener('click', () => {
+    const div = document.createElement('div');
+    div.textContent = rand(items);
+    kit.appendChild(div);
+  });
+
+  // Retune mix
+  tuneMix.addEventListener('click', () => {
+    const a = 40 + Math.floor(Math.random()*41); // 40-80
+    const b = 100 - a;
+    mixRatio.textContent = a + '/' + b;
+  });
+
+  // Quiet toggle
+  let quietOn = false;
+  toggleQuiet.addEventListener('click', () => {
+    quietOn = !quietOn;
+    quietStatus.textContent = 'Siren: ' + (quietOn ? 'On (respectful)' : 'Off (polite)');
+    toggleQuiet.textContent = quietOn ? 'Deactivate Quiet' : 'Activate Quiet';
+  });
+
+  // Nudge document
+  nudgeDoc.addEventListener('click', () => {
+    const states = ['Unreadable', 'Smudged', 'Legible-ish', 'Cat Reclined', 'Almost Readable'];
+    docStatus.textContent = rand(states);
+  });
+
+  // Queue
+  let frozen = false;
+  admitOne.addEventListener('click', () => {
+    if (frozen) return;
+    const val = Math.max(0, parseInt(queueCount.textContent,10) - 1);
+    queueCount.textContent = val;
+  });
+  freezeQueue.addEventListener('click', () => {
+    frozen = !frozen;
+    freezeQueue.textContent = frozen ? 'Unfreeze Line' : 'Freeze Line';
+  });
+
+  // New mantra
+  newMantra.addEventListener('click', () => {
+    mantra.textContent = rand(mantras);
+  });
+
+  // Incident log
+  addIncident.addEventListener('click', () => {
+    incident.textContent = rand(incidents);
+  });
+
+  // Auto increment queue slightly (ambient demand)
+  setInterval(() => {
+    if (!frozen) {
+      queueCount.textContent = parseInt(queueCount.textContent,10) + (Math.random() < 0.6 ? 1 : 0);
+    }
+  }, 5000);
+
+})();
+</script>
+</body>
+</html>

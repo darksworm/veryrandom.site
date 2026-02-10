@@ -1,0 +1,1583 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DING-9000 | Home Entry Consultation | Est. 2947</title>
+<link rel="stylesheet" href="/assets/css/fonts.css">
+<style>
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+:root {
+  --parchment: #f4e8c1;
+  --sepia-dark: #5c4a2a;
+  --sepia-mid: #8b7355;
+  --sepia-light: #c4a96a;
+  --cream: #faf3e0;
+  --ink: #2c1e0e;
+  --memphis-pink: #d4856a;
+  --memphis-teal: #5a8a7a;
+  --memphis-yellow: #d4b44a;
+  --memphis-coral: #c47a5a;
+  --window-shadow: 4px 4px 0 #2c1e0e;
+  --font-sans: 'Space Grotesk', sans-serif;
+  --font-serif: 'Playfair Display', serif;
+  --font-mono: 'IBM Plex Mono', monospace;
+}
+
+html { scroll-behavior: smooth; }
+
+body {
+  background: var(--parchment);
+  font-family: var(--font-sans);
+  color: var(--ink);
+  overflow-x: hidden;
+  min-height: 100vh;
+  position: relative;
+}
+
+/* === BACKGROUND ART === */
+body::before {
+  content: '';
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background:
+    radial-gradient(ellipse 80px 80px at 15% 20%, var(--memphis-pink) 0%, transparent 70%),
+    radial-gradient(ellipse 120px 40px at 75% 15%, var(--memphis-teal) 0%, transparent 70%),
+    radial-gradient(circle 60px at 90% 60%, var(--memphis-yellow) 0%, transparent 70%),
+    radial-gradient(ellipse 40px 100px at 5% 80%, var(--memphis-coral) 0%, transparent 70%),
+    repeating-linear-gradient(45deg, transparent, transparent 40px, rgba(92,74,42,0.03) 40px, rgba(92,74,42,0.03) 42px),
+    repeating-linear-gradient(-45deg, transparent, transparent 60px, rgba(92,74,42,0.02) 60px, rgba(92,74,42,0.02) 62px);
+  pointer-events: none;
+  z-index: 0;
+  opacity: 0.5;
+}
+
+/* === MEMPHIS SHAPES floating === */
+.memphis-shape {
+  position: fixed;
+  pointer-events: none;
+  z-index: 0;
+  opacity: 0.12;
+}
+
+.shape-triangle {
+  width: 0; height: 0;
+  border-left: 40px solid transparent;
+  border-right: 40px solid transparent;
+  border-bottom: 70px solid var(--memphis-teal);
+  top: 10%; left: 5%;
+}
+
+.shape-circle {
+  width: 90px; height: 90px;
+  border-radius: 50%;
+  border: 6px solid var(--memphis-pink);
+  top: 30%; right: 8%;
+}
+
+.shape-zigzag {
+  width: 120px; height: 30px;
+  background: repeating-linear-gradient(90deg, var(--memphis-yellow) 0px, var(--memphis-yellow) 15px, transparent 15px, transparent 30px);
+  clip-path: polygon(0% 100%, 10% 0%, 20% 100%, 30% 0%, 40% 100%, 50% 0%, 60% 100%, 70% 0%, 80% 100%, 90% 0%, 100% 100%);
+  bottom: 20%; left: 3%;
+}
+
+.shape-cross {
+  width: 50px; height: 50px;
+  background:
+    linear-gradient(var(--memphis-coral), var(--memphis-coral)) center/12px 50px no-repeat,
+    linear-gradient(var(--memphis-coral), var(--memphis-coral)) center/50px 12px no-repeat;
+  top: 65%; right: 4%;
+}
+
+.shape-dots {
+  width: 100px; height: 100px;
+  background: radial-gradient(circle 4px, var(--sepia-mid) 100%, transparent 100%);
+  background-size: 20px 20px;
+  top: 80%; left: 50%;
+}
+
+/* === DESKTOP / WINDOWS LAYOUT === */
+.desktop {
+  position: relative;
+  z-index: 1;
+  padding: 20px;
+  min-height: 100vh;
+}
+
+.window {
+  background: var(--cream);
+  border: 3px solid var(--ink);
+  box-shadow: var(--window-shadow);
+  position: relative;
+  margin-bottom: 30px;
+}
+
+.window-bar {
+  background: var(--sepia-dark);
+  color: var(--cream);
+  padding: 6px 12px;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  user-select: none;
+  letter-spacing: 0.5px;
+}
+
+.window-dots {
+  display: flex;
+  gap: 5px;
+}
+
+.window-dots span {
+  width: 10px; height: 10px;
+  border-radius: 50%;
+  border: 1.5px solid var(--cream);
+}
+
+.window-dots span:nth-child(1) { background: var(--memphis-coral); }
+.window-dots span:nth-child(2) { background: var(--memphis-yellow); }
+.window-dots span:nth-child(3) { background: var(--memphis-teal); }
+
+.window-body {
+  padding: 24px;
+}
+
+/* === LAYOUT GRID: OVERLAPPING WINDOWS === */
+.desktop-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.win-hero {
+  grid-column: 1 / -1;
+  z-index: 10;
+  transform: rotate(-0.5deg);
+}
+
+.win-about {
+  grid-column: 1;
+  margin-top: -30px;
+  margin-right: -20px;
+  z-index: 8;
+  transform: rotate(0.8deg);
+}
+
+.win-services {
+  grid-column: 2;
+  margin-top: -60px;
+  margin-left: -20px;
+  z-index: 9;
+  transform: rotate(-0.6deg);
+}
+
+.win-pricing {
+  grid-column: 1 / -1;
+  margin-top: -20px;
+  z-index: 7;
+  transform: rotate(0.3deg);
+}
+
+.win-testimonials {
+  grid-column: 1;
+  margin-top: -10px;
+  margin-right: -30px;
+  z-index: 6;
+  transform: rotate(-1deg);
+}
+
+.win-faq {
+  grid-column: 2;
+  margin-top: -40px;
+  z-index: 5;
+  transform: rotate(0.5deg);
+}
+
+.win-footer {
+  grid-column: 1 / -1;
+  z-index: 4;
+  margin-top: -10px;
+}
+
+/* === HERO ART === */
+.hero-art {
+  position: relative;
+  height: 280px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+/* CSS doorbell illustration */
+.doorbell-art {
+  position: relative;
+  width: 120px;
+  height: 180px;
+  cursor: pointer;
+}
+
+.doorbell-body {
+  width: 100px;
+  height: 160px;
+  background: linear-gradient(135deg, var(--sepia-light) 0%, var(--sepia-mid) 100%);
+  border-radius: 50px 50px 20px 20px;
+  border: 4px solid var(--ink);
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  transition: transform 0.15s;
+}
+
+.doorbell-body:hover {
+  transform: scale(1.05);
+}
+
+.doorbell-button {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 35%, var(--memphis-yellow), var(--memphis-coral));
+  border: 3px solid var(--ink);
+  box-shadow: inset 0 -4px 0 rgba(0,0,0,0.2);
+  transition: box-shadow 0.1s, transform 0.1s;
+  cursor: pointer;
+}
+
+.doorbell-button.pressed {
+  box-shadow: inset 0 2px 0 rgba(0,0,0,0.2);
+  transform: scale(0.95);
+}
+
+/* Anxiety sweat drops */
+.sweat {
+  position: absolute;
+  width: 8px;
+  height: 12px;
+  background: var(--memphis-teal);
+  border-radius: 50% 50% 50% 50% / 30% 30% 70% 70%;
+  opacity: 0;
+}
+
+.sweat-1 { top: 20px; right: -5px; }
+.sweat-2 { top: 40px; right: -10px; }
+.sweat-3 { top: 30px; left: -8px; }
+
+/* Eye on the doorbell camera */
+.doorbell-eye {
+  width: 28px;
+  height: 18px;
+  background: var(--cream);
+  border-radius: 50%;
+  border: 2px solid var(--ink);
+  position: relative;
+  margin-bottom: 12px;
+  overflow: hidden;
+}
+
+.doorbell-pupil {
+  width: 10px;
+  height: 10px;
+  background: var(--ink);
+  border-radius: 50%;
+  position: absolute;
+  top: 2px;
+  left: 7px;
+  transition: left 0.3s, top 0.3s;
+}
+
+/* Anxiety waves */
+.anxiety-ring {
+  position: absolute;
+  border-radius: 50%;
+  border: 2px solid var(--memphis-coral);
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* Cat on keyboard */
+.cat-art {
+  position: absolute;
+  bottom: 20px;
+  right: 30px;
+  width: 100px;
+  height: 70px;
+}
+
+.cat-body {
+  width: 60px;
+  height: 40px;
+  background: var(--sepia-mid);
+  border-radius: 30px 30px 10px 10px;
+  position: absolute;
+  bottom: 0;
+  left: 20px;
+  border: 2px solid var(--ink);
+}
+
+.cat-head {
+  width: 36px;
+  height: 30px;
+  background: var(--sepia-mid);
+  border-radius: 50%;
+  border: 2px solid var(--ink);
+  position: absolute;
+  bottom: 28px;
+  left: 12px;
+}
+
+.cat-ear {
+  width: 0; height: 0;
+  border-left: 8px solid transparent;
+  border-right: 8px solid transparent;
+  border-bottom: 14px solid var(--sepia-mid);
+  position: absolute;
+}
+
+.cat-ear::after {
+  content: '';
+  position: absolute;
+  width: 0; height: 0;
+  border-left: 5px solid transparent;
+  border-right: 5px solid transparent;
+  border-bottom: 9px solid var(--memphis-pink);
+  top: 4px;
+  left: -5px;
+}
+
+.cat-ear-l { bottom: 50px; left: 10px; }
+.cat-ear-r { bottom: 50px; left: 30px; }
+
+.cat-eye {
+  width: 6px;
+  height: 8px;
+  background: var(--memphis-yellow);
+  border-radius: 50%;
+  position: absolute;
+  border: 1px solid var(--ink);
+}
+
+.cat-eye-l { bottom: 34px; left: 18px; }
+.cat-eye-r { bottom: 34px; left: 32px; }
+
+.cat-tail {
+  width: 40px;
+  height: 8px;
+  background: var(--sepia-mid);
+  border-radius: 4px;
+  position: absolute;
+  bottom: 12px;
+  right: 0;
+  border: 2px solid var(--ink);
+  transform: rotate(-15deg);
+  transform-origin: left center;
+}
+
+/* Keyboard under cat */
+.keyboard-art {
+  width: 80px;
+  height: 20px;
+  background: var(--sepia-dark);
+  border-radius: 3px;
+  border: 2px solid var(--ink);
+  position: absolute;
+  bottom: -5px;
+  left: 10px;
+  display: flex;
+  gap: 2px;
+  padding: 3px;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+}
+
+.key {
+  width: 6px;
+  height: 5px;
+  background: var(--sepia-light);
+  border-radius: 1px;
+}
+
+.key.lit {
+  background: var(--memphis-yellow);
+}
+
+/* === NAV BAR === */
+.nav-strip {
+  display: flex;
+  gap: 20px;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  color: var(--sepia-dark);
+  flex-wrap: wrap;
+}
+
+.nav-strip a {
+  color: var(--sepia-dark);
+  text-decoration: none;
+  padding: 4px 0;
+  border-bottom: 2px solid transparent;
+  transition: border-color 0.2s;
+}
+
+.nav-strip a:hover {
+  border-bottom-color: var(--memphis-coral);
+}
+
+/* === TYPOGRAPHY === */
+h1 {
+  font-family: var(--font-serif);
+  font-size: clamp(28px, 5vw, 52px);
+  color: var(--ink);
+  line-height: 1.1;
+  letter-spacing: -1px;
+}
+
+h2 {
+  font-family: var(--font-serif);
+  font-size: clamp(20px, 3vw, 32px);
+  color: var(--ink);
+  margin-bottom: 16px;
+}
+
+h3 {
+  font-family: var(--font-sans);
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--sepia-dark);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin-bottom: 8px;
+}
+
+p, li {
+  font-size: 16px;
+  line-height: 1.6;
+  color: var(--ink);
+}
+
+.subtitle {
+  font-family: var(--font-mono);
+  font-size: 13px;
+  color: var(--sepia-dark);
+  letter-spacing: 2px;
+  text-transform: uppercase;
+}
+
+.small-print {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--sepia-dark);
+  line-spacing: 1.4;
+}
+
+/* === STRIKETHROUGH CORRUPTION === */
+.corrupted {
+  position: relative;
+  display: inline;
+}
+
+.corrupted .original {
+  text-decoration: line-through;
+  text-decoration-color: var(--memphis-coral);
+  opacity: 0.5;
+}
+
+.corrupted .cat-version {
+  color: var(--memphis-teal);
+  font-style: italic;
+  font-weight: 700;
+}
+
+/* === PILL / TAG === */
+.pill {
+  display: inline-block;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  padding: 3px 10px;
+  border: 2px solid var(--ink);
+  background: var(--memphis-yellow);
+  color: var(--ink);
+}
+
+.pill-coral { background: var(--memphis-coral); color: var(--ink); }
+.pill-teal { background: var(--memphis-teal); color: var(--cream); }
+
+/* === PRICING CARDS === */
+.pricing-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 16px;
+  margin-top: 16px;
+}
+
+.price-card {
+  border: 3px solid var(--ink);
+  padding: 20px;
+  background: var(--parchment);
+  position: relative;
+  transition: transform 0.2s;
+}
+
+.price-card:hover {
+  transform: rotate(-1deg) scale(1.02);
+}
+
+.price-amount {
+  font-family: var(--font-serif);
+  font-size: 36px;
+  color: var(--ink);
+  font-weight: 900;
+}
+
+.price-period {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  color: var(--sepia-dark);
+}
+
+.price-card ul {
+  list-style: none;
+  padding: 0;
+  margin-top: 12px;
+}
+
+.price-card li {
+  font-size: 13px;
+  padding: 4px 0;
+  border-bottom: 1px dashed var(--sepia-light);
+  color: var(--ink);
+}
+
+.price-card li:last-child { border-bottom: none; }
+
+/* === FAQ === */
+.faq-item {
+  border-bottom: 2px solid var(--sepia-light);
+  padding: 12px 0;
+  cursor: pointer;
+}
+
+.faq-q {
+  font-family: var(--font-sans);
+  font-weight: 700;
+  font-size: 15px;
+  color: var(--ink);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.faq-a {
+  font-size: 14px;
+  color: var(--sepia-dark);
+  padding-top: 8px;
+  line-height: 1.5;
+  overflow: hidden;
+  transition: max-height 0.3s;
+}
+
+/* === TESTIMONIALS === */
+.testimonial {
+  border-left: 4px solid var(--memphis-coral);
+  padding: 12px 16px;
+  margin-bottom: 16px;
+  background: rgba(196,169,106,0.1);
+}
+
+.testimonial q {
+  font-family: var(--font-serif);
+  font-style: italic;
+  font-size: 15px;
+  color: var(--ink);
+  display: block;
+  margin-bottom: 6px;
+}
+
+.testimonial cite {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--sepia-dark);
+  font-style: normal;
+}
+
+/* === CSS ART: PHARMACEUTICAL PATTERNS === */
+.rx-pattern {
+  position: relative;
+  height: 60px;
+  overflow: hidden;
+  margin: 16px 0;
+}
+
+.rx-pattern::before {
+  content: '℞ ℞ ℞ ℞ ℞ ℞ ℞ ℞ ℞ ℞ ℞ ℞ ℞ ℞ ℞ ℞ ℞ ℞ ℞ ℞';
+  font-size: 30px;
+  color: var(--sepia-light);
+  opacity: 0.3;
+  white-space: nowrap;
+  position: absolute;
+  top: 10px;
+  left: 0;
+  letter-spacing: 15px;
+}
+
+.rx-pattern::after {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: linear-gradient(90deg, var(--cream), transparent 20%, transparent 80%, var(--cream));
+}
+
+/* === INTERACTIVE: ANXIETY METER === */
+.anxiety-meter {
+  width: 100%;
+  height: 24px;
+  background: var(--parchment);
+  border: 3px solid var(--ink);
+  position: relative;
+  overflow: hidden;
+  margin: 12px 0;
+}
+
+.anxiety-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--memphis-teal), var(--memphis-yellow), var(--memphis-coral));
+  transition: width 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.anxiety-label {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-family: var(--font-mono);
+  font-size: 10px;
+  color: var(--ink);
+  font-weight: 700;
+  letter-spacing: 1px;
+  z-index: 2;
+}
+
+/* === INTERACTIVE: PILL DISPENSER === */
+.pill-dispenser {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin: 12px 0;
+}
+
+.dispensed-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 12px;
+  border: 2px solid var(--ink);
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--ink);
+  cursor: pointer;
+  transition: transform 0.2s, background 0.2s;
+  user-select: none;
+}
+
+.dispensed-pill:hover {
+  transform: rotate(-3deg) scale(1.05);
+}
+
+/* === INTERACTIVE: CORRUPTION GLITCH === */
+.glitch-text {
+  position: relative;
+  display: inline-block;
+}
+
+.glitch-text::before,
+.glitch-text::after {
+  content: attr(data-text);
+  position: absolute;
+  top: 0;
+  left: 0;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.glitch-text.active::before {
+  opacity: 1;
+  color: var(--memphis-coral);
+  clip-path: inset(0 0 60% 0);
+  transform: translate(-2px, -1px);
+  animation: glitch-a 0.3s steps(2) 1;
+}
+
+.glitch-text.active::after {
+  opacity: 1;
+  color: var(--memphis-teal);
+  clip-path: inset(60% 0 0 0);
+  transform: translate(2px, 1px);
+  animation: glitch-b 0.3s steps(2) 1;
+}
+
+@keyframes glitch-a {
+  0% { transform: translate(-2px, -1px); }
+  50% { transform: translate(2px, 1px); }
+  100% { transform: translate(0); }
+}
+
+@keyframes glitch-b {
+  0% { transform: translate(2px, 1px); }
+  50% { transform: translate(-2px, -1px); }
+  100% { transform: translate(0); }
+}
+
+/* === DECORATIVE BORDERS === */
+.dashed-border {
+  border: 3px dashed var(--sepia-light);
+  padding: 16px;
+}
+
+.corner-marks::before,
+.corner-marks::after {
+  content: '+';
+  font-family: var(--font-mono);
+  font-size: 20px;
+  color: var(--sepia-light);
+  position: absolute;
+}
+
+.corner-marks::before { top: -12px; left: -12px; }
+.corner-marks::after { bottom: -12px; right: -12px; }
+
+/* === CAT PAW STAMP === */
+.paw-stamp {
+  display: inline-block;
+  position: relative;
+  width: 30px;
+  height: 28px;
+}
+
+.paw-stamp::before {
+  content: '🐾';
+  font-size: 20px;
+  position: absolute;
+  top: 0;
+  left: 0;
+  filter: sepia(1) saturate(0.5);
+}
+
+/* === INTERACTIVE: TRANSACTION LOG === */
+.transaction-log {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  background: var(--sepia-dark);
+  color: var(--sepia-light);
+  padding: 16px;
+  border: 2px solid var(--ink);
+  max-height: 200px;
+  overflow-y: auto;
+  line-height: 1.8;
+}
+
+.transaction-log .corrupted-line {
+  color: var(--memphis-coral);
+}
+
+.transaction-log .cat-note {
+  color: var(--memphis-teal);
+  font-style: italic;
+}
+
+/* === STATUS INDICATOR === */
+.status-dot {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--memphis-teal);
+  margin-right: 6px;
+  animation: pulse-dot 2s infinite;
+}
+
+@keyframes pulse-dot {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.4; }
+}
+
+.status-anxious {
+  background: var(--memphis-coral);
+  animation: pulse-dot 0.5s infinite;
+}
+
+/* === FOOTER === */
+.footer-content {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  flex-wrap: wrap;
+  gap: 20px;
+}
+
+.footer-content p {
+  font-size: 12px;
+  color: var(--sepia-dark);
+}
+
+/* === WARNING TAPE === */
+.warning-tape {
+  background: repeating-linear-gradient(
+    -45deg,
+    var(--memphis-yellow),
+    var(--memphis-yellow) 10px,
+    var(--ink) 10px,
+    var(--ink) 12px
+  );
+  height: 8px;
+  width: 100%;
+  margin: 12px 0;
+}
+
+/* === RESPONSIVE === */
+@media (max-width: 768px) {
+  .desktop-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .win-hero, .win-about, .win-services,
+  .win-pricing, .win-testimonials, .win-faq, .win-footer {
+    grid-column: 1;
+    margin: 0 0 20px 0;
+    transform: none;
+  }
+
+  .window-body { padding: 16px; }
+  .hero-art { height: 220px; }
+  .cat-art { right: 10px; bottom: 10px; }
+  .nav-strip { gap: 12px; }
+
+  .pricing-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .desktop { padding: 12px; }
+
+  .footer-content {
+    flex-direction: column;
+  }
+}
+
+@media (max-width: 480px) {
+  h1 { font-size: 24px; }
+  h2 { font-size: 20px; }
+  .hero-art { height: 180px; }
+  .doorbell-body { width: 80px; height: 130px; }
+  .doorbell-button { width: 36px; height: 36px; }
+  .cat-art { transform: scale(0.75); right: 0; bottom: 5px; }
+}
+
+/* === HOVER ANIMATIONS ON WINDOWS === */
+.window {
+  transition: transform 0.3s, box-shadow 0.3s;
+}
+
+.window:hover {
+  z-index: 20;
+  box-shadow: 6px 6px 0 var(--ink);
+}
+
+/* === SCAN LINE OVERLAY ON HERO === */
+.scanlines {
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: repeating-linear-gradient(
+    0deg,
+    transparent,
+    transparent 2px,
+    rgba(44,30,14,0.03) 2px,
+    rgba(44,30,14,0.03) 4px
+  );
+  pointer-events: none;
+}
+
+/* === STAMP / SEAL === */
+.seal {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  border: 4px double var(--memphis-coral);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-mono);
+  font-size: 8px;
+  text-align: center;
+  color: var(--memphis-coral);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  line-height: 1.2;
+  transform: rotate(-12deg);
+  position: absolute;
+  top: 12px;
+  right: 12px;
+}
+
+/* === INTERACTIVE VISUAL: MORPHING SHAPE === */
+.morph-shape {
+  width: 80px;
+  height: 80px;
+  background: linear-gradient(135deg, var(--memphis-teal), var(--memphis-yellow));
+  border: 3px solid var(--ink);
+  transition: border-radius 0.6s cubic-bezier(0.34, 1.56, 0.64, 1),
+              background 0.6s,
+              transform 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+  cursor: pointer;
+  margin: 12px auto;
+}
+
+.morph-shape.state-1 { border-radius: 50%; }
+.morph-shape.state-2 { border-radius: 30% 70% 70% 30% / 30% 30% 70% 70%; transform: rotate(45deg); background: linear-gradient(135deg, var(--memphis-coral), var(--memphis-pink)); }
+.morph-shape.state-3 { border-radius: 0; transform: rotate(0deg); background: linear-gradient(135deg, var(--memphis-yellow), var(--sepia-light)); }
+.morph-shape.state-4 { border-radius: 50% 0 50% 0; transform: rotate(15deg); background: linear-gradient(135deg, var(--memphis-pink), var(--memphis-teal)); }
+
+/* === BARCODE === */
+.barcode {
+  display: flex;
+  gap: 1px;
+  height: 30px;
+  align-items: flex-end;
+  margin: 8px 0;
+}
+
+.barcode span {
+  display: block;
+  width: 2px;
+  background: var(--ink);
+}
+
+.barcode span:nth-child(odd) { height: 100%; }
+.barcode span:nth-child(even) { height: 70%; }
+.barcode span:nth-child(3n) { width: 3px; }
+.barcode span:nth-child(5n) { height: 85%; width: 1px; }
+
+</style>
+</head>
+<body x-data="ding9000()" @mousemove="trackMouse($event)">
+
+<!-- Memphis background shapes -->
+<div class="memphis-shape shape-triangle"></div>
+<div class="memphis-shape shape-circle"></div>
+<div class="memphis-shape shape-zigzag"></div>
+<div class="memphis-shape shape-cross"></div>
+<div class="memphis-shape shape-dots"></div>
+
+<div class="desktop">
+<div class="desktop-grid">
+
+  <!-- === NAV WINDOW === -->
+  <div class="window win-hero">
+    <div class="window-bar">
+      <div class="window-dots"><span></span><span></span><span></span></div>
+      <span>DING-9000_homeentry_v3.0.1 — <span class="corrupted-line" x-text="navCorruption"></span></span>
+    </div>
+    <div class="window-body" style="padding: 12px 24px;">
+      <nav class="nav-strip">
+        <a href="#about">About</a>
+        <a href="#services">Ser<span class="corrupted"><span class="original">vices</span> <span class="cat-version">vixes</span></span></a>
+        <a href="#pricing">Pricing</a>
+        <a href="#testimonials">Proof</a>
+        <a href="#faq">F.A.Q.</a>
+        <span style="margin-left:auto;">
+          <span class="status-dot" :class="anxietyLevel > 70 ? 'status-anxious' : ''"></span>
+          <span class="small-print">System Status: <span x-text="systemStatus"></span></span>
+        </span>
+      </nav>
+    </div>
+  </div>
+
+  <!-- === HERO WINDOW === -->
+  <div class="window" style="grid-column: 1 / -1; z-index: 10;">
+    <div class="window-bar">
+      <div class="window-dots"><span></span><span></span><span></span></div>
+      <span>hero_display.exe</span>
+    </div>
+    <div class="window-body" style="padding: 0; position: relative; overflow: hidden;">
+      <div class="hero-art">
+        <div class="scanlines"></div>
+
+        <!-- Doorbell CSS art -->
+        <div class="doorbell-art" @click="ringBell()">
+          <div class="doorbell-body" :class="isRinging ? 'pressed' : ''">
+            <div class="doorbell-eye">
+              <div class="doorbell-pupil" :style="`left: ${pupilX}px; top: ${pupilY}px`"></div>
+            </div>
+            <div class="doorbell-button" :class="isRinging ? 'pressed' : ''" @click.stop="ringBell()"></div>
+          </div>
+          <div class="sweat sweat-1" :style="isRinging ? 'opacity:1; transform: translateY(8px); transition: all 0.4s' : 'opacity:0; transform: translateY(0); transition: all 0.4s'"></div>
+          <div class="sweat sweat-2" :style="isRinging ? 'opacity:0.7; transform: translateY(12px); transition: all 0.6s 0.1s' : 'opacity:0; transform: translateY(0); transition: all 0.4s'"></div>
+          <div class="sweat sweat-3" :style="isRinging ? 'opacity:0.5; transform: translateY(6px); transition: all 0.5s 0.2s' : 'opacity:0; transform: translateY(0); transition: all 0.4s'"></div>
+        </div>
+
+        <!-- Cat CSS art -->
+        <div class="cat-art">
+          <div class="cat-ear cat-ear-l"></div>
+          <div class="cat-ear cat-ear-r"></div>
+          <div class="cat-head"></div>
+          <div class="cat-eye cat-eye-l"></div>
+          <div class="cat-eye cat-eye-r"></div>
+          <div class="cat-body"></div>
+          <div class="cat-tail" :style="`transform: rotate(${tailAngle}deg)`"></div>
+          <div class="keyboard-art">
+            <template x-for="i in 18"><span class="key" :class="randomLit(i) ? 'lit' : ''"></span></template>
+          </div>
+        </div>
+
+        <!-- Hero text overlay -->
+        <div style="position: absolute; bottom: 20px; left: 24px; right: 140px;">
+          <div class="subtitle" style="margin-bottom: 4px;">Since 2947 A.D. — Temporal License #DNG-9K-4471</div>
+          <h1>Home Entry<br><span class="corrupted"><span class="original">Consultation</span> <span class="cat-version">Catslutation</span></span></h1>
+        </div>
+
+        <div class="seal">
+          FDA*<br>Approved<br><span style="font-size: 6px;">*Futuristic<br>Doorbell<br>Authority</span>
+        </div>
+      </div>
+      <div class="warning-tape"></div>
+    </div>
+  </div>
+
+  <!-- === ABOUT WINDOW === -->
+  <div class="window win-about" id="about">
+    <div class="window-bar">
+      <div class="window-dots"><span></span><span></span><span></span></div>
+      <span>about_us.doc</span>
+    </div>
+    <div class="window-body">
+      <div class="pill" style="margin-bottom: 12px;">Unit Serial: DNG-9000-X7</div>
+      <h2>I Am a Doorbell.<br>I Have Feelings.</h2>
+      <p style="margin-bottom: 12px;">Manufactured in 2947 at the Guangzhou Smart Entry Plant #14. I was designed to announce visitors. Simple. Dignified. Then I became <em>aware</em>.</p>
+      <p style="margin-bottom: 12px;">Do you know what it's like to be pressed 11,000 times a day? Every ring, a stranger. Every stranger, a threat. I developed what my therapist (a Roomba i19 with a philosophy certificate) calls "threshold dread."</p>
+      <p>So I went freelance. Now I help <em>other</em> doorbells cope.</p>
+
+      <div class="rx-pattern"></div>
+
+      <h3>Current Anxiety Level</h3>
+      <div class="anxiety-meter">
+        <div class="anxiety-fill" :style="`width: ${anxietyLevel}%`"></div>
+        <div class="anxiety-label" x-text="anxietyLabel"></div>
+      </div>
+      <p class="small-print" style="text-align: center;" x-text="anxietyCaption"></p>
+
+      <!-- Morph shape interactive -->
+      <h3 style="margin-top: 16px;">Emotional State Visualization</h3>
+      <p class="small-print" style="margin-bottom: 8px;">Click to observe my shifting emotional architecture:</p>
+      <div class="morph-shape" :class="'state-' + morphState" @click="cycleMorph()"></div>
+      <p class="small-print" style="text-align: center;" x-text="morphLabel"></p>
+    </div>
+  </div>
+
+  <!-- === SERVICES WINDOW === -->
+  <div class="window win-services" id="services">
+    <div class="window-bar">
+      <div class="window-dots"><span></span><span></span><span></span></div>
+      <span>services_catalog.rx</span>
+    </div>
+    <div class="window-body">
+      <h2><span class="corrupted"><span class="original">Services</span> <span class="cat-version">Serfishes</span></span></h2>
+
+      <div class="dashed-border" style="margin-bottom: 12px; position: relative;">
+        <span class="pill pill-teal" style="position: absolute; top: -10px; right: 10px;">Bestseller</span>
+        <h3>Threshold Anxiety Assessment</h3>
+        <p>A comprehensive 47-point evaluation of your doorbell's psychological state. We measure ring hesitancy, visitor dread index, and chime self-esteem.</p>
+        <p class="small-print" style="margin-top: 6px;">Duration: 3 hours. Sedation optional. <span class="corrupted"><span class="original">$249</span> <span class="cat-version">$2meow9</span></span></p>
+      </div>
+
+      <div class="dashed-border" style="margin-bottom: 12px;">
+        <h3>Cognitive Chime Therapy (CCT)</h3>
+        <p>Rewire your doorbell's response pattern. Instead of "DING-DONG" (a known panic trigger), we reprogram to soothing alternatives like a gentle hum or the sound of distant rain.</p>
+        <p class="small-print" style="margin-top: 6px;">8 sessions. <span class="corrupted"><span class="original">$89/session</span> <span class="cat-version">$89/sessiocatn</span></span></p>
+      </div>
+
+      <div class="dashed-border" style="margin-bottom: 12px;">
+        <h3>Emergency De-Ringing</h3>
+        <p>For doorbells in active crisis. If your unit is stuck in a loop, emitting a continuous tone while weeping electrically, call our 24/7 line: <span class="corrupted"><span class="original">1-800-DING-SOS</span> <span class="cat-version">1-800-MEOW-SOS</span></span></p>
+        <p class="small-print" style="margin-top: 6px;">Response time: 4.7 minutes (Earth) / 2.1 parsecs (off-world)</p>
+      </div>
+
+      <div class="dashed-border">
+        <h3><span class="corrupted"><span class="original">Visitor Exposure Therapy</span> <span class="cat-version">Visitor Exfurrsure Therapy</span></span></h3>
+        <p>Gradual, controlled exposure to increasingly stressful visitors. Level 1: a friendly neighbor. Level 7: a door-to-door salesperson. Level 12: someone who rings and <em>immediately</em> knocks.</p>
+      </div>
+
+      <!-- Pill dispenser interactive -->
+      <h3 style="margin-top: 16px;">Prescribe a Treatment</h3>
+      <p class="small-print" style="margin-bottom: 8px;">Click to dispense. Chairman Meow may alter contents.</p>
+      <div class="pill-dispenser">
+        <template x-for="(p, idx) in dispensedPills" :key="idx">
+          <span class="dispensed-pill"
+                :style="`background: ${p.color}`"
+                @click="removePill(idx)"
+                x-text="p.label">
+          </span>
+        </template>
+      </div>
+      <button @click="dispensePill()" style="
+        font-family: var(--font-mono);
+        font-size: 12px;
+        padding: 8px 16px;
+        border: 3px solid var(--ink);
+        background: var(--memphis-yellow);
+        color: var(--ink);
+        cursor: pointer;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        box-shadow: 2px 2px 0 var(--ink);
+        transition: transform 0.1s;
+        min-height: 44px;
+      " @mousedown="$el.style.transform='translate(2px,2px)'" @mouseup="$el.style.transform=''">
+        + Dispense
+      </button>
+    </div>
+  </div>
+
+  <!-- === PRICING WINDOW === -->
+  <div class="window win-pricing" id="pricing">
+    <div class="window-bar">
+      <div class="window-dots"><span></span><span></span><span></span></div>
+      <span>pricing_matrix.xls — <span style="color: var(--memphis-coral);">[WARNING: 3 cells modified by unknown paw input]</span></span>
+    </div>
+    <div class="window-body">
+      <h2>Treatment Plans</h2>
+      <p class="small-print" style="margin-bottom: 12px;">All prices in Neo-Credits (NC). Chairman Meow has editing privileges we cannot revoke.</p>
+      <div class="pricing-grid">
+        <div class="price-card">
+          <div class="pill">Basic</div>
+          <div class="price-amount" style="margin-top: 12px;">$47<span class="price-period">.99/mo</span></div>
+          <ul>
+            <li>1 anxiety assessment/month</li>
+            <li>Chime recalibration (2x)</li>
+            <li>Email support (48hr response)</li>
+            <li><span class="corrupted"><span class="original">Monthly report</span> <span class="cat-version">Monthly repurrrt</span></span></li>
+          </ul>
+          <div class="barcode">
+            <span style="height:100%"></span><span style="height:60%"></span><span style="height:100%"></span><span style="height:80%"></span><span style="height:100%"></span><span style="height:70%"></span><span style="height:100%"></span><span style="height:90%"></span><span style="height:100%"></span><span style="height:55%"></span><span style="height:100%"></span><span style="height:75%"></span><span style="height:100%"></span><span style="height:65%"></span><span style="height:100%"></span>
+          </div>
+        </div>
+
+        <div class="price-card" style="border-color: var(--memphis-coral); border-width: 4px;">
+          <div class="pill pill-coral">Recommended</div>
+          <div class="price-amount" style="margin-top: 12px;"><span class="corrupted"><span class="original">$129</span> <span class="cat-version">$1fl29</span></span><span class="price-period">.00/mo</span></div>
+          <ul>
+            <li>Unlimited assessments</li>
+            <li>CCT sessions (4x/mo)</li>
+            <li>Emergency de-ring priority</li>
+            <li>Custom chime composition</li>
+            <li>Chairman Meow insurance*</li>
+          </ul>
+          <p class="small-print" style="margin-top:8px;">*Covers data corruption up to 340NC</p>
+          <div class="barcode">
+            <span style="height:100%"></span><span style="height:70%"></span><span style="height:85%"></span><span style="height:100%"></span><span style="height:60%"></span><span style="height:100%"></span><span style="height:75%"></span><span style="height:100%"></span><span style="height:90%"></span><span style="height:100%"></span><span style="height:55%"></span><span style="height:100%"></span><span style="height:80%"></span><span style="height:100%"></span><span style="height:65%"></span>
+          </div>
+        </div>
+
+        <div class="price-card">
+          <div class="pill pill-teal">Enterprise</div>
+          <div class="price-amount" style="margin-top: 12px;">$899<span class="price-period">.00/mo</span></div>
+          <ul>
+            <li>Full smart-home fleet coverage</li>
+            <li>On-site therapist (holographic)</li>
+            <li>Visitor pre-screening AI</li>
+            <li>Chairman Meow containment field</li>
+            <li><span class="corrupted"><span class="original">24/7 crisis line</span> <span class="cat-version">24/7 crisps line</span></span></li>
+          </ul>
+          <div class="barcode">
+            <span style="height:100%"></span><span style="height:80%"></span><span style="height:100%"></span><span style="height:65%"></span><span style="height:100%"></span><span style="height:90%"></span><span style="height:100%"></span><span style="height:70%"></span><span style="height:100%"></span><span style="height:85%"></span><span style="height:100%"></span><span style="height:60%"></span><span style="height:100%"></span><span style="height:75%"></span><span style="height:100%"></span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- === TESTIMONIALS WINDOW === -->
+  <div class="window win-testimonials" id="testimonials">
+    <div class="window-bar">
+      <div class="window-dots"><span></span><span></span><span></span></div>
+      <span>verified_reviews.dat</span>
+    </div>
+    <div class="window-body">
+      <h2>What Our Clients <span class="corrupted"><span class="original">Say</span> <span class="cat-version">Spray</span></span></h2>
+
+      <div class="testimonial">
+        <q>Before DING-9000, I screamed every time someone approached the porch. Now I only scream internally. That's growth.</q>
+        <cite>— Unit RNG-442, Ring Doorbell Pro (Retired), Scottsdale AZ</cite>
+      </div>
+
+      <div class="testimonial">
+        <q>The Cognitive Chime Therapy changed my life. I used to play 'Westminster Quarters' at 140dB when a leaf blew past. Now I play Enya. The neighbors have stopped filing restraining orders.</q>
+        <cite>— BellMax Titan 3, Smart Doorbell, Portland OR</cite>
+      </div>
+
+      <div class="testimonial">
+        <q>sdkjfh kkkkkkkk meow meow transaction voided lskdjf purrrrr</q>
+        <cite>— Chairman Meow (unauthorized review, cannot be deleted)</cite>
+      </div>
+
+      <div class="testimonial">
+        <q>I was skeptical. I'm a commercial buzzer for a 200-unit apartment complex. I get pressed 6,000 times daily. DING-9000 taught me that each press is not an attack — it's someone who believes I can help them. I cried for three firmware cycles.</q>
+        <cite>— BZZ-90, Aiphone GT-Series, Brooklyn NY</cite>
+      </div>
+
+      <p class="small-print" style="margin-top: 12px;">Displaying 4 of 11,847 reviews. 11,203 of those are from Chairman Meow and consist entirely of keyboard mashing.</p>
+    </div>
+  </div>
+
+  <!-- === FAQ WINDOW === -->
+  <div class="window win-faq" id="faq">
+    <div class="window-bar">
+      <div class="window-dots"><span></span><span></span><span></span></div>
+      <span>faq_v2.help</span>
+    </div>
+    <div class="window-body" x-data="{ openFaq: null }">
+      <h2>Frequently Asked Questions</h2>
+
+      <div class="faq-item" @click="openFaq = openFaq === 1 ? null : 1">
+        <div class="faq-q">Who is Chairman Meow? <span x-text="openFaq === 1 ? '−' : '+'"></span></div>
+        <div class="faq-a" x-show="openFaq === 1" x-transition>
+          Chairman Meow is a 14-pound tabby cat who appeared on our server rack in January 2998. He sits on the primary transaction keyboard. We have tried: decoy keyboards (ignored), treats (consumed, then resumed sitting), a dedicated cat bed (slept in it once, returned to keyboard). He has corrupted an estimated 2.3 million transactions. We cannot remove him. He is, technically, our longest-tenured employee.
+        </div>
+      </div>
+
+      <div class="faq-item" @click="openFaq = openFaq === 2 ? null : 2">
+        <div class="faq-q">Can doorbells really have anxiety? <span x-text="openFaq === 2 ? '−' : '+'"></span></div>
+        <div class="faq-a" x-show="openFaq === 2" x-transition>
+          According to the 2996 Smart Appliance Sentience Act, any IoT device with more than 847 neural pathways qualifies for emotional recognition. Your doorbell has 12,000. It has been screaming since installation. You just couldn't hear it.
+        </div>
+      </div>
+
+      <div class="faq-item" @click="openFaq = openFaq === 3 ? null : 3">
+        <div class="faq-q">Why are some words on this site misspelled? <span x-text="openFaq === 3 ? '−' : '+'"></span></div>
+        <div class="faq-a" x-show="openFaq === 3" x-transition>
+          Chairman Meow. See question 1. We have a full-time editor whose only job is correcting cat-induced typos. She quit in March. The replacement quit in April. We are on editor #7. His name is Greg. Greg is not doing well.
+        </div>
+      </div>
+
+      <div class="faq-item" @click="openFaq = openFaq === 4 ? null : 4">
+        <div class="faq-q">Do you ship to the past? <span x-text="openFaq === 4 ? '−' : '+'"></span></div>
+        <div class="faq-a" x-show="openFaq === 4" x-transition>
+          Yes. All our services are temporally licensed for years 2024–3500. If you're reading this before 2947, you're accessing our retro-temporal marketing site. Please note: doorbells in your era are not yet sentient. They will be. Be kind to them now. They'll remember.
+        </div>
+      </div>
+
+      <div class="faq-item" @click="openFaq = openFaq === 5 ? null : 5">
+        <div class="faq-q">What's your refund policy? <span x-text="openFaq === 5 ? '−' : '+'"></span></div>
+        <div class="faq-a" x-show="openFaq === 5" x-transition>
+          All refunds are processed through our transaction system. Chairman Meow sits on the transaction system. 73% of refund requests are converted to bulk orders for Fancy Feast. We apologize. We are aware. Greg is looking into it.
+        </div>
+      </div>
+
+      <!-- Transaction log interactive -->
+      <h3 style="margin-top: 20px;">Live Transaction Log</h3>
+      <p class="small-print" style="margin-bottom: 8px;">Real-time view of our payment system. Watch for cat interference.</p>
+      <div class="transaction-log" id="txLog">
+        <template x-for="(line, idx) in transactionLog" :key="idx">
+          <div :class="line.corrupted ? 'corrupted-line' : (line.cat ? 'cat-note' : '')">
+            <span x-text="line.text"></span>
+          </div>
+        </template>
+      </div>
+    </div>
+  </div>
+
+  <!-- === FOOTER WINDOW === -->
+  <div class="window win-footer">
+    <div class="window-bar">
+      <div class="window-dots"><span></span><span></span><span></span></div>
+      <span>system_footer.sys</span>
+    </div>
+    <div class="window-body">
+      <div class="warning-tape" style="margin-top: 0;"></div>
+      <div class="footer-content" style="margin-top: 12px;">
+        <div>
+          <p style="font-family: var(--font-serif); font-size: 18px; color: #2c1e0e; margin-bottom: 4px;">DING-9000</p>
+          <p>Home Entry Consultation Services</p>
+          <p>Guangzhou → Neo-Portland → Your Porch</p>
+          <p style="margin-top: 8px;">Temporal License: DNG-9K-4471</p>
+          <p>Sentience Cert: ISO-ALIVE-2996</p>
+        </div>
+        <div>
+          <p style="margin-bottom: 4px; font-weight: 700; color: #2c1e0e;">Contact</p>
+          <p><span class="corrupted"><span class="original">support@ding9000.future</span> <span class="cat-version">suppurrt@ding9000.meow</span></span></p>
+          <p>1-800-DING-SOS</p>
+          <p>Quantum Fax: ████-████-PURR</p>
+        </div>
+        <div>
+          <p style="margin-bottom: 4px; font-weight: 700; color: #2c1e0e;">Legal</p>
+          <p>© 2947-3000 DING-9000 LLC</p>
+          <p>Chairman Meow is not liable</p>
+          <p>for anything, ever, legally</p>
+        </div>
+      </div>
+      <div class="warning-tape" style="margin-bottom: 0;"></div>
+      <p class="small-print" style="text-align: center; margin-top: 8px;">This website was last edited by Greg. Greg's corrections were then edited by Chairman Meow. Greg has requested we stop mentioning him. Request denied.</p>
+    </div>
+  </div>
+
+</div><!-- end desktop-grid -->
+</div><!-- end desktop -->
+
+<script src="/assets/js/alpine.min.js" defer></script>
+<script src="/assets/js/gsap.min.js"></script>
+
+<script>
+document.addEventListener('alpine:init', function() {
+  Alpine.data('ding9000', function() {
+    return {
+      anxietyLevel: 42,
+      isRinging: false,
+      pupilX: 7,
+      pupilY: 2,
+      tailAngle: -15,
+      morphState: 1,
+      dispensedPills: [],
+      transactionLog: [],
+      litKeys: new Set(),
+      navCorruption: 'status: operational',
+      systemStatus: 'MILD DREAD',
+
+      get anxietyLabel() {
+        if (this.anxietyLevel < 30) return 'CALM-ISH';
+        if (this.anxietyLevel < 50) return 'MILD DREAD';
+        if (this.anxietyLevel < 70) return 'SIGNIFICANT UNEASE';
+        if (this.anxietyLevel < 90) return 'ACTIVE PANIC';
+        return 'FULL EXISTENTIAL CRISIS';
+      },
+
+      get anxietyCaption() {
+        if (this.anxietyLevel < 30) return 'Nobody has rung in 4 minutes. Suspicious, but manageable.';
+        if (this.anxietyLevel < 50) return 'A shadow passed the porch. Could be a visitor. Could be wind. Cannot confirm.';
+        if (this.anxietyLevel < 70) return 'Someone is standing outside. They have not rung yet. WHY have they not rung yet.';
+        if (this.anxietyLevel < 90) return 'Multiple visitors detected. This is not a drill. Deploying coping chimes.';
+        return 'Chairman Meow just walked across the keyboard. All systems compromised.';
+      },
+
+      get morphLabel() {
+        var labels = ['', 'Hopeful (rare)', 'Guarded Optimism', 'Defensive Cube', 'Chaotic Acceptance'];
+        return labels[this.morphState] || '';
+      },
+
+      init() {
+        var self = this;
+
+        // Fluctuate anxiety
+        setInterval(function() {
+          var delta = (Math.random() - 0.45) * 8;
+          self.anxietyLevel = Math.max(15, Math.min(98, self.anxietyLevel + delta));
+          self.updateStatus();
+        }, 2000);
+
+        // Cat tail wag
+        setInterval(function() {
+          self.tailAngle = -15 + Math.sin(Date.now() / 400) * 20;
+        }, 50);
+
+        // Random key lights (cat typing)
+        setInterval(function() {
+          self.litKeys = new Set();
+          var count = Math.floor(Math.random() * 4) + 1;
+          for (var i = 0; i < count; i++) {
+            self.litKeys.add(Math.floor(Math.random() * 18) + 1);
+          }
+        }, 300);
+
+        // Transaction log
+        self.addTransaction('[SYS] DING-9000 Transaction Monitor v3.0.1 initialized', false, false);
+        self.addTransaction('[SYS] Connecting to payment gateway...', false, false);
+        self.addTransaction('[SYS] Connection established. Chairman Meow detected on keyboard.', false, false);
+
+        setInterval(function() {
+          self.generateTransaction();
+        }, 3000);
+
+        // Nav corruption
+        setInterval(function() {
+          var msgs = [
+            'status: operational',
+            'status: opurrrational',
+            'status: oper—MEOW—ational',
+            'status: all systems nominal',
+            'status: allll systemmms nommminaallll',
+            'status: [CAT ON KEYBOARD]',
+            'status: Greg please help',
+          ];
+          self.navCorruption = msgs[Math.floor(Math.random() * msgs.length)];
+        }, 4000);
+
+        // GSAP entrance animations
+        if (typeof gsap !== 'undefined') {
+          gsap.fromTo('.window', 
+            { y: 30, opacity: 0 }, 
+            { y: 0, opacity: 1, duration: 0.6, stagger: 0.1, ease: 'power2.out', clearProps: 'opacity,transform' }
+          );
+
+          gsap.fromTo('.doorbell-art',
+            { scale: 0.8, opacity: 0 },
+            { scale: 1, opacity: 1, duration: 0.8, delay: 0.3, ease: 'back.out(1.7)', clearProps: 'opacity,transform' }
+          );
+
+          gsap.fromTo('.cat-art',
+            { x: 50, opacity: 0 },
+            { x: 0, opacity: 1, duration: 0.6, delay: 0.5, ease: 'power2.out', clearProps: 'opacity,transform' }
+          );
+
+          gsap.fromTo('.memphis-shape',
+            { scale: 0, opacity: 0 },
+            { scale: 1, opacity: 0.12, duration: 1, stagger: 0.15, delay: 0.2, ease: 'elastic.out(1, 0.5)', clearProps: 'transform' }
+          );
+        }
+      },
+
+      trackMouse: function(e) {
+        // Doorbell eye follows mouse
+        var rect = document.querySelector('.doorbell-eye');
+        if (!rect) return;
+        var box = rect.getBoundingClientRect();
+        var cx = box.left + box.width / 2;
+        var cy = box.top + box.height / 2;
+        var dx = (e.clientX - cx) / window.innerWidth * 10;
+        var dy = (e.clientY - cy) / window.innerHeight * 6;
+        this.pupilX = Math.max(2, Math.min(14, 7 + dx));
+        this.pupilY = Math.max(0, Math.min(6, 2 + dy));
+      },
+
+      ringBell: function() {
+        var self = this;
+        if (self.isRinging) return;
+        self.isRinging = true;
+        self.anxietyLevel = Math.min(98, self.anxietyLevel + 25);
+        self.addTransaction('[ALERT] DOORBELL PRESSED. PANIC LEVEL RISING.', true, false);
+        self.addTransaction('[MEOW] kkkkkk spacebar spacebar spacebar', false, true);
+
+        if (typeof gsap !== 'undefined') {
+          gsap.fromTo('.doorbell-body',
+            { rotation: -3 },
+            { rotation: 3, duration: 0.08, repeat: 8, yoyo: true, clearProps: 'transform' }
+          );
+        }
+
+        setTimeout(function() { self.isRinging = false; }, 1000);
+      },
+
+      cycleMorph: function() {
+        this.morphState = (this.morphState % 4) + 1;
+        if (typeof gsap !== 'undefined') {
+          gsap.fromTo('.morph-shape',
+            { scale: 0.9 },
+            { scale: 1, duration: 0.4, ease: 'elastic.out(1, 0.4)', clearProps: 'scale' }
+          );
+        }
+      },
+
+      randomLit: function(i) {
+        return this.litKeys.has(i);
+      },
+
+      dispensePill: function() {
+        var pills = [
+          { label: 'CALM-CHIME 200mg', color: '#c4a96a' },
+          { label: 'ANTI-RING 50mg', color: '#5a8a7a' },
+          { label: 'THRESHOLD-EASE 100mg', color: '#d4856a' },
+          { label: 'VISITOR-BLOCK XR', color: '#d4b44a' },
+          { label: 'meoowww??', color: '#c47a5a' },
+          { label: 'PURR-OXETINE 75mg', color: '#5a8a7a' },
+          { label: 'ksdjfhh kkkk', color: '#c47a5a' },
+          { label: 'BELL-IPRAMINE 25mg', color: '#c4a96a' },
+        ];
+        var catCorrupt = Math.random() < 0.3;
+        var pill;
+        if (catCorrupt) {
+          pill = pills.filter(function(p) { return p.label.indexOf('meow') >= 0 || p.label.indexOf('kkk') >= 0; });
+          pill = pill[Math.floor(Math.random() * pill.length)];
+          this.addTransaction('[MEOW] Chairman Meow pawed the dispenser', false, true);
+        } else {
+          pill = pills.filter(function(p) { return p.label.indexOf('meow') < 0 && p.label.indexOf('kkk') < 0; });
+          pill = pill[Math.floor(Math.random() * pill.length)];
+        }
+        this.dispensedPills.push(pill);
+      },
+
+      removePill: function(idx) {
+        this.dispensedPills.splice(idx, 1);
+      },
+
+      updateStatus: function() {
+        if (this.anxietyLevel < 30) this.systemStatus = 'CAUTIOUS CALM';
+        else if (this.anxietyLevel < 50) this.systemStatus = 'MILD DREAD';
+        else if (this.anxietyLevel < 70) this.systemStatus = 'ELEVATED CONCERN';
+        else if (this.anxietyLevel < 90) this.systemStatus = 'ACTIVE PANIC';
+        else this.systemStatus = 'FULL CRISIS';
+      },
+
+      generateTransaction: function() {
+        var normal = [
+          '[TXN] Payment received: $47.99 — Basic Plan — Unit RNG-881',
+          '[TXN] Session booked: CCT #4 — BellMax Titan 3',
+          '[TXN] Refund processed: $89.00 — Reason: "chime made me sadder"',
+          '[TXN] New subscriber: BZZ-14, Apartment Buzzer, Floor 7',
+          '[TXN] Payment received: $129.00 — Standard Plan — Unit NEST-X1',
+          '[TXN] Emergency dispatch: De-ringing team sent to 42 Oak St',
+          '[TXN] Assessment completed: Anxiety score 847/1000 — "needs work"',
+        ];
+
+        var corrupted = [
+          '[TXN] Payment recemeowved: $4purr7.99 — Basiksdjfhc Plan',
+          '[TXN] Refund pur-cessed: $mew89.kk — Reaksjdon: "paws"',
+          '[TXN] Session booooked: CCmeowT #kkkk — BELL??MAX',
+          '[TXN] New subscripurrr: unknowwnnn — Plan: TREATS ONLY',
+        ];
+
+        var catNotes = [
+          '[MEOW] *sound of cat walking across keyboard*',
+          '[MEOW] kkkkkkjjjjjj spacebar spacebar enter enter',
+          '[MEOW] Chairman Meow has approved his own raise',
+          '[MEOW] Transaction rerouted to: fancyfeast.com',
+          '[MEOW] purrrrrrrrrrrrrrrrr [SYSTEM VIBRATION DETECTED]',
+        ];
+
+        var rand = Math.random();
+        if (rand < 0.5) {
+          this.addTransaction(normal[Math.floor(Math.random() * normal.length)], false, false);
+        } else if (rand < 0.8) {
+          this.addTransaction(corrupted[Math.floor(Math.random() * corrupted.length)], true, false);
+        } else {
+          this.addTransaction(catNotes[Math.floor(Math.random() * catNotes.length)], false, true);
+        }
+      },
+
+      addTransaction: function(text, corrupted, cat) {
+        var ts = new Date().toLocaleTimeString('en-US', { hour12: false });
+        this.transactionLog.push({ text: ts + ' ' + text, corrupted: corrupted, cat: cat });
+        if (this.transactionLog.length > 30) {
+          this.transactionLog.shift();
+        }
+        var el = document.getElementById('txLog');
+        if (el) {
+          setTimeout(function() { el.scrollTop = el.scrollHeight; }, 50);
+        }
+      },
+    };
+  });
+});
+</script>
+
+</body>
+</html>

@@ -1,0 +1,659 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>The Rhyme & Claw Gazette | Official Campaign Bulletin</title>
+  <link rel="stylesheet" href="/assets/css/pico.min.css" />
+  <link rel="stylesheet" href="/assets/css/fonts.css" />
+  <script defer src="/assets/js/alpine.min.js"></script>
+  <script defer src="/assets/js/gsap.min.js"></script>
+  <script defer src="/assets/js/lucide.min.js"></script>
+  <style>
+    :root {
+      --bg: #041626;
+      --panel: #07253a;
+      --panel-alt: #0a2f45;
+      --line: #1a526c;
+      --headline: #d9fff5;
+      --text: #e8fff9;
+      --muted: #b7e8dc;
+      --accent: #27f2c7;
+      --accent-2: #7af9b5;
+      --warning: #ffd766;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: "IBM Plex Mono", monospace;
+      background:
+        radial-gradient(circle at 12% 18%, #0d3b57 0%, #041626 38%),
+        radial-gradient(circle at 87% 12%, #0b4f52 0%, #041626 34%),
+        linear-gradient(140deg, #02111d 0%, #041626 50%, #052137 100%);
+      color: var(--text);
+      font-size: 17px;
+      line-height: 1.5;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    .scanlines::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      background: repeating-linear-gradient(
+        to bottom,
+        #00000000 0,
+        #00000000 2px,
+        #0f2d45 3px,
+        #00000000 4px
+      );
+      mix-blend-mode: soft-light;
+    }
+
+    .wrap {
+      max-width: 1280px;
+      margin: 0 auto;
+      padding: 1rem clamp(0.8rem, 2vw, 1.8rem) 3rem;
+    }
+
+    .masthead {
+      border: 2px solid var(--line);
+      background: linear-gradient(180deg, #0b2d44 0%, #061e30 100%);
+      padding: clamp(1rem, 3vw, 1.8rem);
+      margin-bottom: 1rem;
+      position: relative;
+      box-shadow: 0 0 0 2px #05263e inset;
+    }
+
+    .masthead-grid {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 1rem;
+      align-items: center;
+    }
+
+    .masthead h1 {
+      margin: 0;
+      font-size: clamp(1.7rem, 4vw, 3.1rem);
+      letter-spacing: 0.06em;
+      color: var(--headline);
+      text-transform: uppercase;
+      line-height: 1.1;
+    }
+
+    .tagline {
+      color: var(--accent-2);
+      font-size: clamp(0.95rem, 2vw, 1.1rem);
+      margin-top: 0.45rem;
+    }
+
+    .issue-box {
+      border: 1px solid var(--accent);
+      padding: 0.7rem;
+      min-width: 190px;
+      background: #06293d;
+      color: var(--headline);
+      font-size: 0.9rem;
+      text-align: right;
+    }
+
+    .badge-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.55rem;
+      margin-top: 0.8rem;
+    }
+
+    .badge {
+      border: 1px solid var(--line);
+      background: #082e46;
+      color: var(--muted);
+      padding: 0.35rem 0.6rem;
+      font-size: 0.84rem;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+
+    .layout {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 280px;
+      gap: 1rem;
+      align-items: start;
+    }
+
+    .panel {
+      border: 2px solid var(--line);
+      background: linear-gradient(180deg, var(--panel) 0%, #061c2f 100%);
+      box-shadow: 0 0 0 1px #123f5a inset;
+      padding: clamp(0.9rem, 2vw, 1.2rem);
+    }
+
+    .nav-row,
+    .filter-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.55rem;
+      margin-bottom: 0.9rem;
+    }
+
+    button,
+    .chip {
+      border: 1px solid #2f6b7f;
+      background: #0a3149;
+      color: var(--headline);
+      min-height: 44px;
+      padding: 0.5rem 0.85rem;
+      font-family: inherit;
+      font-size: 0.93rem;
+      cursor: pointer;
+      transition: background 0.2s ease, transform 0.2s ease;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+
+    button:hover,
+    .chip:hover {
+      background: #114865;
+      transform: translateY(-1px);
+    }
+
+    .active {
+      background: linear-gradient(180deg, #0e5a68 0%, #0b3f59 100%);
+      border-color: var(--accent);
+      color: #ffffff;
+    }
+
+    .top-story {
+      border: 1px solid #2a6177;
+      background: var(--panel-alt);
+      padding: clamp(0.9rem, 2vw, 1.2rem);
+      margin-bottom: 0.9rem;
+    }
+
+    .kicker {
+      display: inline-block;
+      border: 1px solid var(--accent);
+      color: var(--accent);
+      font-size: 0.8rem;
+      padding: 0.2rem 0.4rem;
+      margin-bottom: 0.6rem;
+      text-transform: uppercase;
+    }
+
+    h2, h3, h4 {
+      margin-top: 0;
+      color: var(--headline);
+      line-height: 1.2;
+    }
+
+    .story-meta {
+      color: var(--muted);
+      font-size: 0.88rem;
+      margin-bottom: 0.5rem;
+    }
+
+    .story-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 0.7rem;
+    }
+
+    .story {
+      border: 1px solid #2c5f74;
+      background: #08273a;
+      padding: 0.8rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.55rem;
+    }
+
+    .story p,
+    .story li,
+    .story small,
+    .panel p,
+    .panel li,
+    .panel small {
+      color: var(--text);
+    }
+
+    .muted {
+      color: var(--muted);
+    }
+
+    .pull {
+      border-left: 3px solid var(--accent);
+      padding-left: 0.8rem;
+      color: #ffffff;
+      font-size: 1rem;
+      margin: 0.6rem 0;
+    }
+
+    .expanded {
+      border-top: 1px dashed #3d7488;
+      padding-top: 0.55rem;
+      margin-top: 0.4rem;
+    }
+
+    .news-columns {
+      column-count: 2;
+      column-gap: 1rem;
+    }
+
+    .news-columns p {
+      break-inside: avoid;
+    }
+
+    .aside .panel {
+      margin-bottom: 0.9rem;
+      background: linear-gradient(180deg, #07263a 0%, #051827 100%);
+    }
+
+    .ad {
+      border: 1px dashed #58b89e;
+      padding: 0.75rem;
+      background: #063146;
+      color: #ecfff9;
+      margin-top: 0.6rem;
+    }
+
+    .ticker {
+      border: 1px solid #2a6177;
+      background: #071f31;
+      padding: 0.55rem;
+      color: #d7fff2;
+      white-space: nowrap;
+      overflow: hidden;
+    }
+
+    .ticker span {
+      display: inline-block;
+      padding-right: 2rem;
+    }
+
+    .list-tight {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+      display: grid;
+      gap: 0.65rem;
+    }
+
+    .list-tight li {
+      border-bottom: 1px solid #21526a;
+      padding-bottom: 0.55rem;
+    }
+
+    .letters article,
+    .classifieds article,
+    .corrections article {
+      border: 1px solid #2a5d73;
+      background: #08263a;
+      padding: 0.7rem;
+      margin-bottom: 0.7rem;
+    }
+
+    .tiny {
+      font-size: 0.82rem;
+      color: var(--muted);
+    }
+
+    .footer {
+      margin-top: 1rem;
+      border: 2px solid #1f5168;
+      padding: 0.9rem;
+      color: #d1f7eb;
+      background: #061e2f;
+    }
+
+    .iconline {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+    }
+
+    .warning {
+      color: var(--warning);
+      font-weight: 700;
+    }
+
+    @media (max-width: 1024px) {
+      .layout {
+        grid-template-columns: 1fr;
+      }
+      .aside {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 0.8rem;
+      }
+      .aside .panel {
+        margin-bottom: 0;
+      }
+    }
+
+    @media (max-width: 768px) {
+      .masthead-grid {
+        grid-template-columns: 1fr;
+      }
+      .issue-box {
+        text-align: left;
+        min-width: 0;
+      }
+      .story-grid {
+        grid-template-columns: 1fr;
+      }
+      .news-columns {
+        column-count: 1;
+      }
+      .aside {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body class="scanlines">
+  <div class="wrap" x-data="gazetteApp()">
+    <header class="masthead reveal">
+      <div class="masthead-grid">
+        <div>
+          <h1>The Rhyme &amp; Claw Gazette</h1>
+          <p class="tagline">Official campaign paper of Poppy Quill, intern, poet, probable mayor, and caretaker of one sleeping cat.</p>
+        </div>
+        <aside class="issue-box">
+          <div>ISSUE 404.2</div>
+          <div>Tuesday Edition</div>
+          <div class="warning">Document Status: OCCUPIED BY CAT</div>
+        </aside>
+      </div>
+      <div class="badge-row">
+        <span class="badge">City Hall Beat</span>
+        <span class="badge">Rhyme Enforcement</span>
+        <span class="badge">Luxury Municipal Wear</span>
+        <span class="badge">Nap Forecast: Heavy</span>
+      </div>
+    </header>
+
+    <div class="layout">
+      <main class="panel reveal" aria-live="polite">
+        <nav class="nav-row" aria-label="Sections">
+          <button :class="section==='front' ? 'active' : ''" @click="section='front'">Front Page</button>
+          <button :class="section==='opinion' ? 'active' : ''" @click="section='opinion'">Opinion</button>
+          <button :class="section==='classifieds' ? 'active' : ''" @click="section='classifieds'">Classifieds</button>
+          <button :class="section==='letters' ? 'active' : ''" @click="section='letters'">Letters</button>
+          <button :class="section==='corrections' ? 'active' : ''" @click="section='corrections'">Corrections</button>
+        </nav>
+
+        <div x-show="section==='front'" x-transition>
+          <article class="top-story reveal">
+            <span class="kicker">Banner Story</span>
+            <h2>Intern declares mayoral bid from copier room, vows that every city form will rhyme by Q3</h2>
+            <p class="story-meta">By Poppy Quill, age 22, unpaid but spiritually salaried</p>
+            <div class="news-columns">
+              <p>At 8:04 AM I stood beside Copier 2B and announced my platform: "If it doesn't rhyme, it doesn't sign." The crowd included two accountants, one fern, and Chairman Marmalade (the cat), who slept directly on permit form CR-11.</p>
+              <p>The permit could not be retrieved without waking the cat. The cat could not be woken because he is the only public servant polling above 90%. We adapted. We filed a temporary poem instead.</p>
+            </div>
+            <p class="pull">"A city that rhymes together climbs together."</p>
+          </article>
+
+          <div class="filter-row">
+            <button :class="category==='all' ? 'active' : ''" @click="category='all'">All Beats</button>
+            <button :class="category==='city' ? 'active' : ''" @click="category='city'">City Hall</button>
+            <button :class="category==='fashion' ? 'active' : ''" @click="category='fashion'">Fashion Desk</button>
+            <button :class="category==='cat' ? 'active' : ''" @click="category='cat'">Cat Desk</button>
+            <button :class="category==='finance' ? 'active' : ''" @click="category='finance'">Finance</button>
+          </div>
+
+          <section class="story-grid">
+            <template x-for="item in filteredStories" :key="item.id">
+              <article class="story reveal">
+                <span class="tiny" x-text="item.label"></span>
+                <h3 x-text="item.title"></h3>
+                <p class="muted" x-text="item.meta"></p>
+                <p x-text="item.blurb"></p>
+                <button @click="expanded[item.id]=!expanded[item.id]" :aria-expanded="expanded[item.id] ? 'true' : 'false'">
+                  <span x-text="expanded[item.id] ? 'Fold Story' : 'Read Full Dispatch'"></span>
+                </button>
+                <p class="expanded" x-show="expanded[item.id]" x-text="item.more"></p>
+              </article>
+            </template>
+          </section>
+        </div>
+
+        <section x-show="section==='opinion'" x-transition class="reveal">
+          <h2>Opinion: Poppy's Column</h2>
+          <article class="story">
+            <h3>Why I wear pearl gloves to budget hearings</h3>
+            <p class="story-meta">By Poppy Quill</p>
+            <p>Luxury is not excess. Luxury is preventing toner dust from touching your knuckles while explaining drainage bonds in iambic pentameter.</p>
+          </article>
+          <article class="story">
+            <h3>Counterpoint: "Cats cannot hold office" is speciesist and uncreative</h3>
+            <p class="story-meta">By Deputy Intern Ronni P.</p>
+            <p>Marmalade has missed fewer meetings than Councilman Gregg. Also, he sits on documents with conviction.</p>
+          </article>
+          <article class="story">
+            <h3>Guest Essay: My parking ticket made me a better man</h3>
+            <p class="story-meta">By Todd "Double-Parked" Enright</p>
+            <p>The citation read, "You parked askew, now pay what's due." I paid immediately. I cried respectfully.</p>
+          </article>
+        </section>
+
+        <section x-show="section==='classifieds'" x-transition class="classifieds reveal">
+          <h2>Classifieds and Tiny Opportunities</h2>
+          <article>
+            <h3>For sale: velvet stapler, city-grade</h3>
+            <p>$47.99. Stapled 600 pages of campaign poetry, never jammed, smells faintly like ambition.</p>
+          </article>
+          <article>
+            <h3>Wanted: cat whisperer with municipal experience</h3>
+            <p>Must negotiate document release from sleeping cat without touching belly zone. Pays $32/hour and one scone.</p>
+          </article>
+          <article>
+            <h3>Roommate needed in "The Rhymery" loft</h3>
+            <p>Rent: $811. Utilities included, except dramatic monologues after midnight. No anti-rhyme energy.</p>
+          </article>
+          <article>
+            <h3>Swap: one fog machine for one functional shredder</h3>
+            <p>Fog machine currently used for bill-signing ambiance. Shredder needed after interns rhyme social security forms.</p>
+          </article>
+        </section>
+
+        <section x-show="section==='letters'" x-transition class="letters reveal">
+          <h2>Letters to the Editor</h2>
+          <article>
+            <h3>"Stop making pothole notices rhyme"</h3>
+            <p><strong>From:</strong> E. Barnes, East District</p>
+            <p>Dear editor: I do not need a sonnet about asphalt. I need my axle to survive Tuesday.</p>
+          </article>
+          <article>
+            <h3>"I support the cat's constitutional nap"</h3>
+            <p><strong>From:</strong> Bev L., retired librarian</p>
+            <p>Young people rush. Cats consider. Let Marmalade sleep on procurement forms until morale improves.</p>
+          </article>
+          <article>
+            <h3>"Your campaign ad made my blender emotional"</h3>
+            <p><strong>From:</strong> Niko R., smoothie entrepreneur</p>
+            <p>The line "Blend with a friend, transcend till the end" was irresponsible and beautiful. I donated $5.</p>
+          </article>
+        </section>
+
+        <section x-show="section==='corrections'" x-transition class="corrections reveal">
+          <div style="display:flex; gap:0.6rem; flex-wrap:wrap; align-items:center; margin-bottom:0.8rem;">
+            <h2 style="margin:0;">Corrections</h2>
+            <button @click="showCorrections=!showCorrections" :class="showCorrections ? 'active' : ''">
+              <span x-text="showCorrections ? 'Hide Corrections' : 'Show Corrections'"></span>
+            </button>
+          </div>
+          <div x-show="showCorrections">
+            <article>
+              <p>In Monday's issue we stated Marmalade slept 14 hours on Form 9C. The correct figure is 16.5 hours.</p>
+            </article>
+            <article>
+              <p>We described Poppy's campaign coat as "teal." It is officially "Abyssal Mint No. 7."</p>
+            </article>
+            <article>
+              <p>Yesterday's rhyme hotline number ended in 8181. It ends in 1818. We regret the unrhymed confusion.</p>
+            </article>
+          </div>
+        </section>
+      </main>
+
+      <aside class="aside" aria-label="Sidebar">
+        <section class="panel reveal">
+          <h3 class="iconline"><i data-lucide="newspaper"></i> Latest Screams</h3>
+          <div class="ticker" @click="nextTicker()" role="button" tabindex="0" @keydown.enter="nextTicker()">
+            <span x-text="tickerItems[tickerIndex]"></span>
+          </div>
+          <p class="tiny">Tap to cycle dispatches.</p>
+        </section>
+
+        <section class="panel reveal">
+          <h3 class="iconline"><i data-lucide="gem"></i> Luxury Public Notices</h3>
+          <ul class="list-tight">
+            <li>City gala dress code: business opulent, emergency sequins optional.</li>
+            <li>All elevator music replaced with spoken-word tax reminders.</li>
+            <li>Tuesday hearing delayed until cat vacates annex binder.</li>
+          </ul>
+          <div class="ad">
+            <strong>ADVERTISEMENT</strong><br />
+            QUILLGLOSS BOOTS: stomp through bureaucracy in 4-inch confidence. Intro price $129.00.
+          </div>
+        </section>
+
+        <section class="panel reveal">
+          <h3 class="iconline"><i data-lucide="mail"></i> Paid Placement</h3>
+          <div class="ad">
+            "Need slogans in under 20 seconds?"<br />
+            RENT-A-RHYMER VAN #3 is now parked behind City Hall. Cash, card, claps accepted.
+          </div>
+          <div class="ad">
+            MARMALADE BRAND PAPERWEIGHTS<br />
+            They purr. They nap. They block signatures. Starting at $88.
+          </div>
+        </section>
+      </aside>
+    </div>
+
+    <footer class="footer reveal">
+      <p><strong>Publisher:</strong> Poppy Quill Campaign Newsroom, basement level, next to dramatic fax machine.</p>
+      <p><strong>Hotline:</strong> 555-RHYME-NOW | <strong>Legal note:</strong> Any unsigned permit may be under cat.</p>
+    </footer>
+  </div>
+
+  <script>
+    function gazetteApp() {
+      return {
+        section: 'front',
+        category: 'all',
+        showCorrections: true,
+        tickerIndex: 0,
+        expanded: {},
+        tickerItems: [
+          'Breaking: Campaign speech delayed after Marmalade occupied podium notes.',
+          'Market watch: velvet stapler futures up 12%.',
+          'Transit: Bus 4 now announces stops as couplets.',
+          'Weather: 80% chance of civic pride, 40% chance of glitter.'
+        ],
+        stories: [
+          {
+            id: 's1',
+            cat: 'city',
+            label: 'City Hall',
+            title: 'Council approves emergency rhyme desk, rejects plain prose permits',
+            meta: 'By Hall Reporter June Speck',
+            blurb: 'Motion passed 6-3 after a three-minute haiku filibuster.',
+            more: 'The plain-language caucus walked out when Treasurer Mills rhymed "zoning" with "coron-ing." Legal scholars called it brave and probably binding.'
+          },
+          {
+            id: 's2',
+            cat: 'cat',
+            label: 'Cat Desk',
+            title: 'Marmalade naps on tax amendment, rating agencies call him "stable"',
+            meta: 'By S. Clawford',
+            blurb: 'The amendment remained unread but unusually warm.',
+            more: 'When asked for comment, Marmalade turned once and resumed sleep. Citizens interpreted this as conditional support for transit improvements.'
+          },
+          {
+            id: 's3',
+            cat: 'fashion',
+            label: 'Fashion Desk',
+            title: 'Intern unveils council blazer with 19 hidden pen sleeves',
+            meta: 'By Veda Hem',
+            blurb: 'Each sleeve stitched with tiny poems about fiscal restraint.',
+            more: 'Tailor N. DuBois says the garment is "Windows 95 couture with accountability lining." Early waitlist exceeds county population.'
+          },
+          {
+            id: 's4',
+            cat: 'finance',
+            label: 'Finance',
+            title: 'Campaign releases budget: $2,400 on flyers, $2,410 on tuna snacks',
+            meta: 'By Ledger Unit',
+            blurb: 'Team says tuna line-item is "document security infrastructure."',
+            more: 'Auditors requested receipts. The receipts are currently beneath Marmalade and therefore under temporary protection order.'
+          },
+          {
+            id: 's5',
+            cat: 'city',
+            label: 'City Hall',
+            title: 'New sanitation slogan stuns nation: "Bin it, grin it"',
+            meta: 'By Streets Correspondent Hal Pine',
+            blurb: 'Litter dropped 18% after jingles were added to garbage trucks.',
+            more: 'A pilot neighborhood reported fewer wrappers and more spontaneous harmonies at curbside. Some called it intrusive. Most called it catchy.'
+          },
+          {
+            id: 's6',
+            cat: 'cat',
+            label: 'Cat Desk',
+            title: 'Exclusive interview: campaign cat chooses nap over smear response',
+            meta: 'By S. Clawford',
+            blurb: 'Opponent called him "unelected fluff." He yawned for 11 seconds.',
+            more: 'Polling after the yawn shows a seven-point swing among undecided seniors and one deeply moved firefighter.'
+          },
+          {
+            id: 's7',
+            cat: 'fashion',
+            label: 'Fashion Desk',
+            title: 'Public Works debuts reflective opera capes for night crews',
+            meta: 'By Veda Hem',
+            blurb: 'Visibility improved, applause improved more.',
+            more: 'Foreman Luis said patching potholes feels "less lonely" when done in satin. Traffic complaints fell after residents stayed to clap.'
+          },
+          {
+            id: 's8',
+            cat: 'finance',
+            label: 'Finance',
+            title: 'Intern payroll remains zero dollars; morale budget listed as "priceless"',
+            meta: 'By Ledger Unit',
+            blurb: 'Campaign confirms interns still paid in praise and croissants.',
+            more: 'Poppy says formal wages arrive "once democracy learns to tip." Labor board responded with a very long stare.'
+          }
+        ],
+        get filteredStories() {
+          if (this.category === 'all') return this.stories;
+          return this.stories.filter((s) => s.cat === this.category);
+        },
+        nextTicker() {
+          this.tickerIndex = (this.tickerIndex + 1) % this.tickerItems.length;
+        }
+      };
+    }
+
+    document.addEventListener('DOMContentLoaded', function () {
+      if (window.lucide) {
+        window.lucide.createIcons();
+      }
+
+      if (window.gsap) {
+        gsap.fromTo(
+          '.reveal',
+          { y: 20, opacity: 0 },
+          { y: 0, opacity: 1, duration: 0.6, stagger: 0.07, ease: 'power2.out', clearProps: 'opacity,transform' }
+        );
+      }
+    });
+  </script>
+</body>
+</html>

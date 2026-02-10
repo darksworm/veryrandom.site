@@ -1,0 +1,832 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>The Moving Favor Bank Relief League</title>
+  <link rel="stylesheet" href="/assets/css/pico.min.css" />
+  <link rel="stylesheet" href="/assets/css/fonts.css" />
+  <style>
+    :root {
+      --acid: #c7ff00;
+      --warning: #ffe100;
+      --hazard: #ff6b00;
+      --night: #0a0f00;
+      --panel: #121800;
+      --panel-2: #1d2305;
+      --line: #394500;
+      --text: #f4ffe0;
+      --text-dark: #111111;
+      --safe: #90ff2f;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html,
+    body {
+      margin: 0;
+      width: 100%;
+      min-height: 100%;
+      overflow-x: hidden;
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 16px;
+      color: var(--text);
+      background:
+        radial-gradient(circle at 20% 15%, #2f3600 0%, #111500 45%, #090d00 100%),
+        linear-gradient(135deg, #0a0f00 0%, #141a00 100%);
+    }
+
+    body {
+      line-height: 1.45;
+      background-attachment: fixed;
+    }
+
+    .noise {
+      background-image:
+        repeating-linear-gradient(0deg, #00000000 0 2px, #1d2500 2px 3px),
+        repeating-linear-gradient(90deg, #00000000 0 2px, #1c2200 2px 3px);
+    }
+
+    main {
+      height: 100svh;
+      overflow-y: auto;
+      scroll-snap-type: y mandatory;
+      scrollbar-color: var(--acid) #141800;
+    }
+
+    section {
+      min-height: 100svh;
+      scroll-snap-align: start;
+      padding: clamp(1rem, 3vw, 2.2rem);
+      border-bottom: 2px solid var(--line);
+      display: grid;
+      align-content: start;
+      gap: 1rem;
+      position: relative;
+    }
+
+    .topbar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.75rem;
+      justify-content: space-between;
+      align-items: center;
+      background: #101500;
+      border: 2px solid var(--acid);
+      padding: 0.8rem;
+    }
+
+    .brand {
+      font-family: 'IBM Plex Mono', monospace;
+      letter-spacing: 0.04em;
+      font-size: clamp(0.9rem, 2vw, 1rem);
+      color: var(--acid);
+      margin: 0;
+    }
+
+    .nav-actions {
+      display: flex;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+    }
+
+    button,
+    .btn {
+      min-height: 44px;
+      border-radius: 0;
+      border: 2px solid var(--acid);
+      background: #101600;
+      color: var(--text);
+      font-weight: 700;
+      padding: 0.55rem 0.85rem;
+      text-transform: uppercase;
+      letter-spacing: 0.03em;
+      cursor: pointer;
+    }
+
+    button:hover,
+    .btn:hover {
+      background: #202a00;
+    }
+
+    .danger {
+      border-color: var(--hazard);
+      background: #2a1300;
+      color: #fff4e8;
+    }
+
+    .highlight {
+      border-color: var(--warning);
+      background: #2a2700;
+      color: #fffde6;
+    }
+
+    h1,
+    h2,
+    h3,
+    h4 {
+      margin: 0;
+      line-height: 1.1;
+      text-transform: uppercase;
+      letter-spacing: 0.03em;
+      color: #f9ffdf;
+    }
+
+    h1 {
+      font-size: clamp(1.8rem, 6vw, 4rem);
+      max-width: 16ch;
+    }
+
+    h2 {
+      font-size: clamp(1.45rem, 4vw, 2.7rem);
+    }
+
+    p,
+    li,
+    small,
+    td,
+    th,
+    label,
+    a,
+    summary {
+      color: var(--text);
+      font-size: clamp(1rem, 1.2vw, 1.05rem);
+    }
+
+    .kicker {
+      font-family: 'IBM Plex Mono', monospace;
+      color: var(--warning);
+      font-size: 0.9rem;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      margin: 0;
+    }
+
+    .grid {
+      display: grid;
+      gap: 0.85rem;
+      grid-template-columns: repeat(12, minmax(0, 1fr));
+    }
+
+    .panel {
+      background: linear-gradient(135deg, #141b00, #111700);
+      border: 2px solid var(--line);
+      padding: 1rem;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .panel::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      border: 1px dashed #4f5f00;
+      mix-blend-mode: screen;
+    }
+
+    .span-3 { grid-column: span 3; }
+    .span-4 { grid-column: span 4; }
+    .span-5 { grid-column: span 5; }
+    .span-6 { grid-column: span 6; }
+    .span-7 { grid-column: span 7; }
+    .span-8 { grid-column: span 8; }
+    .span-12 { grid-column: span 12; }
+
+    .hero-copy {
+      font-size: clamp(1.05rem, 1.8vw, 1.25rem);
+      max-width: 60ch;
+    }
+
+    .stack {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.55rem;
+    }
+
+    .stat {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: clamp(1.35rem, 4vw, 2.2rem);
+      color: var(--acid);
+      margin: 0.2rem 0;
+    }
+
+    .label {
+      font-size: 0.8rem;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: #edf6bd;
+      margin: 0;
+    }
+
+    .ticker {
+      border: 2px solid var(--warning);
+      background: #2b2900;
+      padding: 0.6rem;
+      font-family: 'IBM Plex Mono', monospace;
+      color: #fffadc;
+      min-height: 44px;
+    }
+
+    .bar-wrap {
+      display: grid;
+      gap: 0.6rem;
+    }
+
+    .bar-row {
+      display: grid;
+      grid-template-columns: 10ch 1fr 6ch;
+      gap: 0.4rem;
+      align-items: center;
+    }
+
+    .track {
+      height: 1rem;
+      border: 1px solid #748500;
+      background: #0f1300;
+      overflow: hidden;
+    }
+
+    .fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--acid), var(--hazard));
+      transition: width 0.4s ease;
+    }
+
+    .toggle {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.55rem;
+      border: 2px solid var(--warning);
+      background: #292300;
+      padding: 0.4rem 0.7rem;
+      min-height: 44px;
+      color: #fffadc;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .dot {
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+      background: var(--hazard);
+      border: 1px solid #fff3e9;
+    }
+
+    .dot.on {
+      background: var(--safe);
+    }
+
+    .amount-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(110px, 1fr));
+      gap: 0.55rem;
+    }
+
+    .amount-btn.active {
+      background: var(--acid);
+      color: var(--text-dark);
+      border-color: #ebff98;
+    }
+
+    .fineprint {
+      font-size: 0.82rem;
+      color: #f2f8c9;
+    }
+
+    .table-shell {
+      overflow-x: auto;
+      border: 2px solid var(--line);
+    }
+
+    table {
+      width: 100%;
+      min-width: 640px;
+      border-collapse: collapse;
+      margin: 0;
+    }
+
+    th,
+    td {
+      border-bottom: 1px solid #596700;
+      padding: 0.55rem;
+      text-align: left;
+      white-space: nowrap;
+    }
+
+    th {
+      background: #2c3400;
+      color: #fffede;
+    }
+
+    tr:nth-child(even) td {
+      background: #141b00;
+    }
+
+    details {
+      border: 2px solid #5c6900;
+      padding: 0.7rem;
+      background: #101500;
+    }
+
+    summary {
+      cursor: pointer;
+      font-weight: 700;
+    }
+
+    .testimonial {
+      border: 2px solid var(--warning);
+      background: #2a2600;
+      padding: 0.8rem;
+    }
+
+    .glitch-word {
+      display: inline-block;
+      transform: skew(-7deg);
+      color: var(--acid);
+      background: #202a00;
+      border: 1px solid #849700;
+      padding: 0.1rem 0.3rem;
+      font-family: 'IBM Plex Mono', monospace;
+    }
+
+    .upright .tilt {
+      transform: rotate(0deg);
+    }
+
+    .tilt {
+      transform: rotate(180deg);
+      transition: transform 0.35s ease;
+    }
+
+    .foot {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 0.85rem;
+      color: #eaf4bd;
+      border-top: 2px solid var(--line);
+      padding-top: 0.8rem;
+    }
+
+    a {
+      color: #faffb8;
+      text-decoration-thickness: 2px;
+    }
+
+    @media (max-width: 980px) {
+      .span-3,
+      .span-4,
+      .span-5,
+      .span-6,
+      .span-7,
+      .span-8 {
+        grid-column: span 12;
+      }
+
+      h1 {
+        max-width: 100%;
+      }
+
+      .bar-row {
+        grid-template-columns: 8ch 1fr 5ch;
+      }
+    }
+
+    @media (max-width: 560px) {
+      section {
+        padding: 0.8rem;
+      }
+
+      .topbar {
+        padding: 0.6rem;
+      }
+
+      button,
+      .btn,
+      .toggle {
+        width: 100%;
+      }
+
+      .nav-actions {
+        width: 100%;
+      }
+    }
+  </style>
+</head>
+<body class="noise" x-data="siteState()" :class="{ upright: orientationUpright }" x-init="init()">
+  <main>
+    <section>
+      <div class="topbar panel">
+        <p class="brand">FMBRL.GOV.ORG // FAVOR MARKET & BUILDING RELOCATION LEAGUE</p>
+        <div class="nav-actions">
+          <button x-on:click="toggleOrientation()"><i data-lucide="flip-vertical"></i> Flip HQ Orientation</button>
+          <button class="highlight" x-on:click="logFavor()"><i data-lucide="handshake"></i> Log New Favor</button>
+          <button class="danger" x-on:click="cycleHazard()"><i data-lucide="siren"></i> Panic Drill</button>
+        </div>
+      </div>
+
+      <div class="grid">
+        <article class="panel span-8">
+          <p class="kicker">Message from Founder Marlowe Quince, Former Escalator Inspector (1998-2011)</p>
+          <h1>We trade favors on live television so nobody has to owe their uncle forever.</h1>
+          <p class="hero-copy">
+            I started this nonprofit after my apartment building drifted six blocks during a pledge drive and accidentally solved 412 neighborhood feuds. Now we host <span class="glitch-word">Favor Arena Live</span>: contestants repay kindness, donors fund emergency "owe-you" settlements, and our headquarters relocates weekly to avoid emotional stagnation. If the building stops moving, I hear elevators whisper.
+          </p>
+          <div class="stack">
+            <button x-on:click="selectedTab='mission'">Mission Statement</button>
+            <button x-on:click="selectedTab='volunteer'">Volunteer Calls</button>
+            <button x-on:click="selectedTab='donate'">Donate Now</button>
+          </div>
+          <div class="panel tilt" style="margin-top: 0.8rem; border-color: #92a900;">
+            <template x-if="selectedTab === 'mission'">
+              <p><strong>Mission:</strong> Convert awkward social debt into accountable public service before Thanksgiving gets weird.</p>
+            </template>
+            <template x-if="selectedTab === 'volunteer'">
+              <p><strong>Volunteer:</strong> We need Clipboards, Stair Spotters, and someone calm enough to explain game rules to mayors.</p>
+            </template>
+            <template x-if="selectedTab === 'donate'">
+              <p><strong>Donate:</strong> Every dollar stabilizes one spinning floor tile and one fragile friendship.</p>
+            </template>
+          </div>
+        </article>
+
+        <article class="panel span-4">
+          <h3>Live Pulse</h3>
+          <p class="label">Clock Until Next Building Shuffle</p>
+          <p class="stat" x-text="countdownLabel"></p>
+          <p class="label">Current Hazard Notice</p>
+          <p class="stat" style="color: #ffb078;" x-text="hazardName"></p>
+          <p class="fineprint">Federal note: "moving stairs are still stairs." We disagree politely.</p>
+          <div class="ticker" x-text="tickerText"></div>
+        </article>
+
+        <article class="panel span-3">
+          <p class="label">Favors Cleared Today</p>
+          <p class="stat" x-text="formatNumber(favorsToday)"></p>
+        </article>
+        <article class="panel span-3">
+          <p class="label">Floors Relocated This Quarter</p>
+          <p class="stat" x-text="formatNumber(floorsMoved)"></p>
+        </article>
+        <article class="panel span-3">
+          <p class="label">Contestants Emotionally Debriefed</p>
+          <p class="stat" x-text="formatNumber(contestantsHelped)"></p>
+        </article>
+        <article class="panel span-3">
+          <p class="label">Volunteers Wearing Helmets Correctly</p>
+          <p class="stat" x-text="helmetRate + '%' "></p>
+        </article>
+      </div>
+    </section>
+
+    <section>
+      <h2>Operations Dashboard: Tuesday Drift Edition</h2>
+      <div class="grid">
+        <article class="panel span-7">
+          <h3>Favor Flow by District</h3>
+          <div class="bar-wrap" style="margin-top: 0.8rem;">
+            <template x-for="row in districts" :key="row.name">
+              <div class="bar-row">
+                <span class="label" x-text="row.name"></span>
+                <div class="track"><div class="fill" :style="`width:${row.value}%`"></div></div>
+                <strong x-text="row.value + '%'" style="color:#f6ffd4;"></strong>
+              </div>
+            </template>
+          </div>
+          <button style="margin-top: 0.8rem;" x-on:click="shuffleDistricts()"><i data-lucide="bar-chart-3"></i> Recalculate District Panic</button>
+          <p class="fineprint">Methodology: one spreadsheet, two interns, and a vibes subpoena.</p>
+        </article>
+
+        <article class="panel span-5">
+          <h3>Complaint Console</h3>
+          <p>Press this when a contestant says, "I only borrowed your kayak for six years."</p>
+          <button class="danger" x-on:click="nextComplaint()"><i data-lucide="message-square-warning"></i> Generate Official Response</button>
+          <p class="panel" style="margin-top:0.75rem; border-color:#a84800;" x-text="complaintReply"></p>
+          <label class="toggle" x-on:click="broadcastMode = !broadcastMode" style="margin-top:0.5rem;">
+            <span class="dot" :class="broadcastMode ? 'on' : ''"></span>
+            <span x-text="broadcastMode ? 'Broadcast Mode: LIVE' : 'Broadcast Mode: Cautious' "></span>
+          </label>
+        </article>
+
+        <article class="panel span-12">
+          <h3>Nonprofit Integrity Ledger</h3>
+          <div class="table-shell" style="margin-top:0.7rem;">
+            <table>
+              <thead>
+                <tr>
+                  <th>Program</th>
+                  <th>Budget</th>
+                  <th>Result</th>
+                  <th>Public Benefit</th>
+                  <th>Note</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>Favor Arena Legal Aid</td>
+                  <td>$184,200</td>
+                  <td>2,114 IOUs retired</td>
+                  <td>Lowered passive-aggressive holiday texts by 31%</td>
+                  <td>Still fighting one uncle in court.</td>
+                </tr>
+                <tr>
+                  <td>Mobile Stairway Choir</td>
+                  <td>$47,990</td>
+                  <td>89 morale interventions</td>
+                  <td>Volunteers climb calmly while harmonizing</td>
+                  <td>Tenor section refuses hard hats.</td>
+                </tr>
+                <tr>
+                  <td>Tuesday Building Tow Fund</td>
+                  <td>$302,410</td>
+                  <td>54 controlled relocations</td>
+                  <td>Brought services to seven debt-heavy blocks</td>
+                  <td>One relocation interrupted a wedding.</td>
+                </tr>
+                <tr>
+                  <td>Post-Game Hug Arbitration</td>
+                  <td>$29,400</td>
+                  <td>912 disputes resolved</td>
+                  <td>Reduced "you never called me back" claims</td>
+                  <td>Hug lengths now federally suggested.</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <section>
+      <h2>Donate, Volunteer, Keep The Building Moving</h2>
+      <div class="grid">
+        <article class="panel span-6">
+          <h3>Donation Console</h3>
+          <p>I personally review every donation and whisper "steady now" to the west wing.</p>
+          <div class="amount-grid" style="margin-top:0.5rem;">
+            <template x-for="amt in donationOptions" :key="amt">
+              <button class="amount-btn" :class="selectedDonation === amt ? 'active' : ''" x-on:click="selectedDonation = amt" x-text="'$' + amt.toFixed(2)"></button>
+            </template>
+          </div>
+          <label class="toggle" style="margin-top:0.75rem;" x-on:click="monthly = !monthly">
+            <span class="dot" :class="monthly ? 'on' : ''"></span>
+            <span x-text="monthly ? 'Monthly donor mode' : 'One-time rescue gift' "></span>
+          </label>
+          <p class="panel" style="margin-top:0.75rem; border-color:#a0b500;" x-text="impactLine()"></p>
+          <button class="highlight" x-on:click="fakeDonate()"><i data-lucide="heart-handshake"></i> Confirm Donation</button>
+          <p class="fineprint" x-text="donationReceipt"></p>
+        </article>
+
+        <article class="panel span-6">
+          <h3>Volunteer Openings</h3>
+          <div class="stack" style="margin-top:0.5rem;">
+            <button :class="volunteerFilter==='all' ? 'highlight' : ''" x-on:click="volunteerFilter='all'">All</button>
+            <button :class="volunteerFilter==='field' ? 'highlight' : ''" x-on:click="volunteerFilter='field'">Field</button>
+            <button :class="volunteerFilter==='studio' ? 'highlight' : ''" x-on:click="volunteerFilter='studio'">Studio</button>
+            <button :class="volunteerFilter==='safety' ? 'highlight' : ''" x-on:click="volunteerFilter='safety'">Safety</button>
+          </div>
+          <div class="table-shell" style="margin-top:0.75rem;">
+            <table>
+              <thead>
+                <tr>
+                  <th>Role</th>
+                  <th>Shift</th>
+                  <th>Perk</th>
+                </tr>
+              </thead>
+              <tbody>
+                <template x-for="job in filteredJobs()" :key="job.role + job.shift">
+                  <tr>
+                    <td x-text="job.role"></td>
+                    <td x-text="job.shift"></td>
+                    <td x-text="job.perk"></td>
+                  </tr>
+                </template>
+              </tbody>
+            </table>
+          </div>
+          <p class="fineprint">All volunteers receive one reflective vest and two diplomatic phrases for family arguments.</p>
+        </article>
+
+        <article class="panel span-12">
+          <h3>Testimonials From Totally Regular Citizens</h3>
+          <div class="grid" style="margin-top:0.5rem;">
+            <div class="testimonial span-4">
+              <strong>Sharon P., Bakersfield</strong>
+              <p>"They paid off my cousin's 14-year lawnmower debt on live TV. We now wave at each other without flinching."</p>
+            </div>
+            <div class="testimonial span-4">
+              <strong>Lt. Emery Wu, Stair Safety Unit</strong>
+              <p>"I came to issue citations. I stayed to host episode 5: 'Who Owes Grandma A Ride?'"</p>
+            </div>
+            <div class="testimonial span-4">
+              <strong>Roman, age 12</strong>
+              <p>"I donated $7.00 and they let me press the Building Drift Horn. Best civics class ever."</p>
+            </div>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <section>
+      <h2>Questions Before You Panic</h2>
+      <div class="grid">
+        <article class="panel span-8">
+          <details open>
+            <summary>Why is the headquarters upside down right now?</summary>
+            <p>Tonight's episode theme is "Perspective." Also the sponsor donated rotational rigging we cannot return.</p>
+          </details>
+          <details>
+            <summary>Are donations tax-deductible?</summary>
+            <p>Yes. Our EIN is valid, our receipts are immediate, and our accountant has stopped sighing out loud.</p>
+          </details>
+          <details>
+            <summary>Can I submit a favor dispute?</summary>
+            <p>Yes. Include names, timeline, and whether the disputed casserole dish still exists.</p>
+          </details>
+          <details>
+            <summary>What if the building drifts into my street?</summary>
+            <p>Wave one orange flag and one green flag. We will deploy tea, apology forms, and a reroute choir.</p>
+          </details>
+        </article>
+
+        <article class="panel span-4">
+          <h3>Mission Meter</h3>
+          <p class="label">Neighborhood Calm Index</p>
+          <p class="stat" x-text="calmIndex + '/100'"></p>
+          <button x-on:click="boostCalm()"><i data-lucide="sparkles"></i> Run Kindness Drill</button>
+          <p class="label" style="margin-top:0.7rem;">Marlowe's recurring thought:</p>
+          <p class="panel tilt" style="border-color:#93a800;">If the building stops moving, the grudges catch up.</p>
+        </article>
+      </div>
+
+      <footer class="foot">
+        <p>
+          THE MOVING FAVOR BANK RELIEF LEAGUE is a registered nonprofit. 88% of donations support programs, 9% supports transport fuel, 3% buys emergency clipboards. <a href="#">Annual report PDF pending printer alignment.</a>
+        </p>
+        <p>
+          Contact: Docking Lot C, wherever the building currently is. Hotline: (555) 011-IOU2.
+        </p>
+      </footer>
+    </section>
+  </main>
+
+  <script src="/assets/js/alpine.min.js" defer></script>
+  <script src="/assets/js/gsap.min.js" defer></script>
+  <script src="/assets/js/lucide.min.js" defer></script>
+  <script>
+    function siteState() {
+      return {
+        selectedTab: 'mission',
+        orientationUpright: false,
+        favorsToday: 48217,
+        floorsMoved: 54,
+        contestantsHelped: 911,
+        helmetRate: 72,
+        calmIndex: 64,
+        hazardLevel: 2,
+        countdown: 1065,
+        tickerIndex: 0,
+        tickerItems: [
+          'District 4 settled a seven-year "borrowed ladder" case in 22 minutes.',
+          'Tonight 8PM: Episode 19 "The casserole pan arbitration finals."',
+          'Volunteer spot open: Hydraulic choir conductor, reflective baton provided.',
+          'Donor milestone reached: 3,000 monthly supporters keeping the east stair stable.'
+        ],
+        districts: [
+          { name: 'North', value: 78 },
+          { name: 'East', value: 66 },
+          { name: 'South', value: 83 },
+          { name: 'West', value: 58 },
+          { name: 'Harbor', value: 72 }
+        ],
+        complaints: [
+          'Official response: "Returning a borrowed truck with glitter is not \\"clean.\\" Mediation starts at 3:10 PM."',
+          'Official response: "Yes, \\"I forgot\\" is a feeling. It is not a repayment plan."',
+          'Official response: "Your nephew cannot settle debt with cryptocurrency named after his dog."',
+          'Official response: "We reviewed the casserole footage. That dish was not \\"accidentally adopted.\\""'
+        ],
+        complaintIndex: 0,
+        donationOptions: [19.00, 47.99, 88.00, 177.00],
+        selectedDonation: 47.99,
+        monthly: true,
+        donationReceipt: 'No donation recorded yet. The west wing is watching hopefully.',
+        broadcastMode: true,
+        volunteerFilter: 'all',
+        jobs: [
+          { type: 'field', role: 'Stairwell Spotter', shift: 'Tue 6:00-10:00', perk: 'Helmet decals + radio' },
+          { type: 'studio', role: 'Confession Booth Host', shift: 'Wed 18:00-22:00', perk: 'On-air credit' },
+          { type: 'safety', role: 'Hazard Tape Librarian', shift: 'Fri 9:00-13:00', perk: 'Premium tape cutter' },
+          { type: 'field', role: 'Favor Ledger Runner', shift: 'Sat 12:00-17:00', perk: 'Clipboards, plural' },
+          { type: 'studio', role: 'Audience Calm Coach', shift: 'Thu 16:00-20:00', perk: 'Whistle + tea' }
+        ],
+        init() {
+          const self = this;
+          this.tick();
+          setInterval(function () {
+            self.tick();
+          }, 1000);
+
+          document.addEventListener('alpine:initialized', function () {
+            if (window.lucide) {
+              lucide.createIcons();
+            }
+          });
+
+          window.addEventListener('load', function () {
+            if (window.gsap) {
+              gsap.fromTo('.panel',
+                { y: 24, opacity: 0.95 },
+                { y: 0, opacity: 1, duration: 0.6, stagger: 0.04, clearProps: 'opacity,transform' }
+              );
+            }
+            if (window.lucide) {
+              lucide.createIcons();
+            }
+          });
+        },
+        get countdownLabel() {
+          const min = Math.floor(this.countdown / 60).toString().padStart(2, '0');
+          const sec = Math.floor(this.countdown % 60).toString().padStart(2, '0');
+          return min + ':' + sec;
+        },
+        get tickerText() {
+          return this.tickerItems[this.tickerIndex];
+        },
+        get hazardName() {
+          return ['Steady', 'Wobbly', 'Orange Concerning', 'Sirens & Pep Talks'][this.hazardLevel];
+        },
+        tick() {
+          this.countdown = this.countdown <= 0 ? 1080 : this.countdown - 1;
+          this.favorsToday += Math.floor(Math.random() * 4);
+          this.contestantsHelped += Math.random() > 0.94 ? 1 : 0;
+          this.helmetRate = Math.min(99, Math.max(67, this.helmetRate + (Math.random() > 0.5 ? 1 : -1)));
+          if (Math.random() > 0.84) {
+            this.tickerIndex = (this.tickerIndex + 1) % this.tickerItems.length;
+          }
+        },
+        formatNumber(value) {
+          return new Intl.NumberFormat('en-US').format(value);
+        },
+        toggleOrientation() {
+          this.orientationUpright = !this.orientationUpright;
+        },
+        logFavor() {
+          this.favorsToday += 11;
+          this.calmIndex = Math.min(100, this.calmIndex + 1);
+          this.tickerItems.unshift('New favor logged: "dog-sitting debt" closed in 7 minutes.');
+          this.tickerItems = this.tickerItems.slice(0, 6);
+          this.tickerIndex = 0;
+        },
+        cycleHazard() {
+          this.hazardLevel = (this.hazardLevel + 1) % 4;
+          this.calmIndex = Math.max(35, this.calmIndex - 2);
+        },
+        shuffleDistricts() {
+          this.districts = this.districts.map(function (d) {
+            const delta = Math.floor(Math.random() * 21) - 10;
+            const next = Math.max(42, Math.min(96, d.value + delta));
+            return { name: d.name, value: next };
+          });
+        },
+        nextComplaint() {
+          this.complaintIndex = (this.complaintIndex + 1) % this.complaints.length;
+        },
+        get complaintReply() {
+          return this.complaints[this.complaintIndex];
+        },
+        impactLine() {
+          const cycles = this.monthly ? 'monthly' : 'one-time';
+          if (this.selectedDonation === 19.00) {
+            return '$19.00 ' + cycles + ': funds one mediator and three apology envelopes.';
+          }
+          if (this.selectedDonation === 47.99) {
+            return '$47.99 ' + cycles + ': stabilizes two drifting corridors during live taping.';
+          }
+          if (this.selectedDonation === 88.00) {
+            return '$88.00 ' + cycles + ': clears a high-drama family IOU before dessert.';
+          }
+          return '$177.00 ' + cycles + ': sponsors a full episode plus post-game reconciliation snacks.';
+        },
+        fakeDonate() {
+          const mode = this.monthly ? 'monthly' : 'one-time';
+          this.donationReceipt = 'Receipt #' + Math.floor(Math.random() * 90000 + 10000) + ': $' + this.selectedDonation.toFixed(2) + ' ' + mode + ' confirmed. Marlowe nodded twice.';
+          this.calmIndex = Math.min(100, this.calmIndex + 3);
+        },
+        filteredJobs() {
+          if (this.volunteerFilter === 'all') {
+            return this.jobs;
+          }
+          return this.jobs.filter((job) => job.type === this.volunteerFilter);
+        },
+        boostCalm() {
+          this.calmIndex = Math.min(100, this.calmIndex + 5);
+          this.floorsMoved += 1;
+        }
+      };
+    }
+  </script>
+</body>
+</html>

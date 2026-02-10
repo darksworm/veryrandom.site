@@ -1,0 +1,1031 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Parrot HR Game Show: Gravity Optional Full Moon Edition</title>
+<style>
+  :root {
+    --white: #fdfefe;
+    --ink: #0b1a12;
+    --green: #2ecc71;
+    --green-dark: #1f9d55;
+    --green-glow: #5dff9a;
+    --paper: #f7fff9;
+    --line: #d2efe0;
+    --shadow: rgba(6, 30, 18, 0.2);
+    --psy1: #eafff2;
+    --psy2: #d8ffea;
+    --psy3: #f1fff7;
+    --warn: #c7ffdd;
+  }
+
+  * { box-sizing: border-box; }
+  html, body { height: 100%; }
+  body {
+    margin: 0;
+    font-family: "Times New Roman", Times, serif;
+    color: var(--ink);
+    background:
+      radial-gradient(1200px 600px at 20% -10%, var(--psy2), transparent 60%),
+      radial-gradient(900px 500px at 110% 20%, var(--psy3), transparent 70%),
+      linear-gradient(180deg, var(--white), var(--paper));
+    overflow-x: hidden;
+  }
+
+  .page {
+    position: relative;
+    max-width: 1280px;
+    margin: 0 auto;
+    padding: 24px 26px 60px;
+  }
+
+  .masthead {
+    position: relative;
+    padding: 16px 20px 8px;
+    border: 3px solid var(--green);
+    background: linear-gradient(180deg, #ffffff, #f4fff8);
+    box-shadow: 0 8px 0 var(--green-dark), 0 16px 30px var(--shadow);
+    overflow: hidden;
+  }
+  .masthead:before {
+    content: "";
+    position: absolute;
+    inset: -30% -10% auto -10%;
+    height: 140px;
+    background: repeating-linear-gradient(
+      90deg,
+      rgba(46, 204, 113, 0.18) 0 6px,
+      rgba(46, 204, 113, 0) 6px 12px
+    );
+    transform: rotate(-1deg);
+    opacity: 0.7;
+  }
+  .masthead h1 {
+    margin: 0;
+    font-size: 42px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+  }
+  .masthead .sub {
+    font-size: 15px;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    color: var(--green-dark);
+  }
+
+  .ticker {
+    margin-top: 8px;
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 8px;
+    align-items: center;
+    font-size: 13px;
+  }
+  .ticker .pill {
+    padding: 6px 10px;
+    background: var(--green);
+    color: #fff;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    font-weight: bold;
+    box-shadow: 0 2px 0 var(--green-dark);
+  }
+
+  .columns {
+    margin-top: 16px;
+    column-count: 3;
+    column-gap: 22px;
+  }
+
+  .panel {
+    break-inside: avoid;
+    border: 2px solid var(--line);
+    background: #fff;
+    box-shadow: 0 6px 0 var(--green-dark), 0 16px 30px var(--shadow);
+    padding: 14px 16px;
+    margin: 0 0 18px;
+    position: relative;
+  }
+  .panel:after {
+    content: "";
+    position: absolute;
+    right: -8px;
+    top: 12px;
+    width: 12px;
+    height: 12px;
+    background: var(--green);
+    transform: rotate(45deg);
+    box-shadow: 2px 2px 0 var(--green-dark);
+  }
+
+  .headline {
+    font-size: 20px;
+    margin: 0 0 6px;
+    text-transform: uppercase;
+  }
+  .dek { font-size: 13px; color: #1b4a31; margin: 0 0 10px; }
+
+  .badge {
+    display: inline-block;
+    font-size: 11px;
+    padding: 3px 8px;
+    border: 1px solid var(--green-dark);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    background: var(--warn);
+  }
+
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0,1fr));
+    gap: 8px;
+  }
+
+  .kpi {
+    border: 1px dashed var(--green);
+    padding: 8px;
+    background: #f9fffb;
+    font-size: 12px;
+  }
+  .kpi .value { font-size: 18px; font-weight: bold; }
+
+  .chart {
+    height: 140px;
+    display: grid;
+    align-items: end;
+    grid-template-columns: repeat(12, 1fr);
+    gap: 4px;
+    background: linear-gradient(180deg, #ffffff 0%, #f1fff7 100%);
+    padding: 8px;
+    border: 1px solid var(--line);
+  }
+  .bar {
+    background: linear-gradient(180deg, var(--green-glow), var(--green));
+    box-shadow: inset 0 -4px 0 var(--green-dark);
+    transform-origin: bottom;
+    transition: transform 0.5s ease;
+  }
+
+  .gameboard {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0,1fr));
+    gap: 8px;
+  }
+  .tile {
+    border: 2px solid var(--green);
+    min-height: 70px;
+    padding: 8px;
+    background: #fafffc;
+    position: relative;
+  }
+  .tile span {
+    display: block;
+    font-weight: bold;
+    font-size: 12px;
+  }
+
+  .controls button {
+    border: 2px solid var(--green-dark);
+    background: var(--green);
+    color: #fff;
+    padding: 6px 10px;
+    margin: 2px 4px 2px 0;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    font-weight: bold;
+    cursor: pointer;
+    box-shadow: 0 2px 0 var(--green-dark);
+    transition: transform 0.1s ease;
+  }
+  .controls button:active { transform: translateY(2px); box-shadow: none; }
+
+  .log {
+    border: 1px solid var(--line);
+    background: #fbfffd;
+    padding: 8px;
+    height: 130px;
+    overflow: auto;
+    font-size: 12px;
+  }
+
+  .marquee {
+    overflow: hidden;
+    white-space: nowrap;
+    border-top: 2px solid var(--green);
+    border-bottom: 2px solid var(--green);
+    background: #f6fffa;
+    padding: 6px 0;
+    margin: 16px 0;
+    position: relative;
+  }
+  .marquee span {
+    display: inline-block;
+    padding-left: 100%;
+    animation: scroll 24s linear infinite;
+  }
+  @keyframes scroll {
+    0% { transform: translateX(0); }
+    100% { transform: translateX(-100%); }
+  }
+
+  .floaty {
+    position: absolute;
+    right: 30px;
+    top: 150px;
+    width: 140px;
+    background: #fff;
+    border: 2px solid var(--green);
+    padding: 10px;
+    transform: rotate(2deg);
+    box-shadow: 0 6px 0 var(--green-dark), 0 12px 20px var(--shadow);
+    animation: bob 5s ease-in-out infinite;
+  }
+  @keyframes bob { 0%,100% { transform: translateY(0) rotate(2deg);} 50% { transform: translateY(-12px) rotate(-2deg);} }
+
+  .gravity {
+    position: fixed;
+    right: 18px;
+    bottom: 18px;
+    background: #fff;
+    border: 2px solid var(--green);
+    padding: 10px 12px;
+    z-index: 10;
+    box-shadow: 0 6px 0 var(--green-dark), 0 12px 20px var(--shadow);
+  }
+
+  .orb {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    background: radial-gradient(circle at 35% 35%, #fff, var(--green-glow), var(--green));
+    box-shadow: 0 0 20px var(--green-glow);
+    margin: 6px auto 10px;
+    position: relative;
+    animation: spin 10s linear infinite;
+  }
+  .orb:after {
+    content: "FULL MOON";
+    position: absolute;
+    inset: auto 10px 12px 10px;
+    font-size: 10px;
+    text-align: center;
+    border-top: 1px dashed var(--green-dark);
+    padding-top: 4px;
+  }
+  @keyframes spin { to { transform: rotate(360deg);} }
+
+  .footnotes {
+    border-top: 3px double var(--green);
+    padding-top: 12px;
+    font-size: 12px;
+    color: #244d3a;
+  }
+
+  .highlight {
+    background: linear-gradient(90deg, #fff, #e9fff1, #fff);
+    padding: 2px 4px;
+    border-bottom: 1px dashed var(--green);
+  }
+
+  .hidden { display: none; }
+
+  .stamp {
+    position: absolute;
+    left: -10px;
+    top: -12px;
+    font-size: 10px;
+    text-transform: uppercase;
+    background: var(--green);
+    color: #fff;
+    padding: 4px 6px;
+    transform: rotate(-6deg);
+    box-shadow: 0 2px 0 var(--green-dark);
+  }
+
+  .newspaper-title {
+    font-size: 24px;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    border-bottom: 2px solid var(--green);
+    padding-bottom: 6px;
+    margin-bottom: 8px;
+  }
+
+  .table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 12px;
+  }
+  .table th, .table td {
+    border: 1px solid var(--line);
+    padding: 4px 6px;
+    text-align: left;
+  }
+  .table th {
+    background: #f2fff7;
+  }
+
+  .tagcloud span {
+    display: inline-block;
+    margin: 2px 4px;
+    padding: 2px 6px;
+    border: 1px solid var(--green);
+    background: #fafffc;
+    font-size: 11px;
+  }
+
+  .editorial {
+    font-style: italic;
+    border-left: 3px solid var(--green);
+    padding-left: 8px;
+  }
+
+  .pulse {
+    animation: pulse 1.6s ease-in-out infinite;
+  }
+  @keyframes pulse {
+    0%,100% { transform: scale(1); }
+    50% { transform: scale(1.03); }
+  }
+
+  .splatter {
+    position: absolute;
+    inset: -40px auto auto -40px;
+    width: 120px;
+    height: 120px;
+    background: radial-gradient(circle, rgba(46,204,113,0.4) 0 30%, transparent 31%);
+    transform: rotate(12deg);
+    opacity: 0.6;
+  }
+
+  @media (max-width: 980px) {
+    .columns { column-count: 2; }
+    .gameboard { grid-template-columns: repeat(2, 1fr); }
+  }
+  @media (max-width: 640px) {
+    .columns { column-count: 1; }
+    .floaty { position: static; margin: 12px 0; }
+  }
+</style>
+</head>
+<body>
+  <div class="page">
+    <header class="masthead">
+      <div class="splatter"></div>
+      <div class="stamp">Certified by the Department of Optional Physics</div>
+      <h1>Parrot HR Game Show Gazette</h1>
+      <div class="sub">Psychedelic 1970s Tax Preparation • Full Moon Gravity • Employee Auditions Live</div>
+      <div class="ticker">
+        <div>Breaking: Gravity is in a <span class="highlight">trial period</span> and only clocks in during full moons. Please submit forms in triplicate.</div>
+        <div class="pill" id="moonPhase">Full Moon Status: Pending</div>
+      </div>
+    </header>
+
+    <div class="floaty">
+      <div class="orb" id="orb"></div>
+      <div style="font-size:12px; text-align:center;">Tonight’s lunar payroll is <span id="lunarPay">$7,770</span></div>
+      <div style="font-size:11px; text-align:center; margin-top:6px;">Disclaimer: birds receive bonuses in peanuts, not currency.</div>
+    </div>
+
+    <div class="marquee"><span id="marqueeText">LIVE: Polly the HR Parrot is hosting the show. Gravity activated for 43 minutes. Please keep feet on the floor or politely drift.</span></div>
+
+    <section class="columns">
+      <article class="panel">
+        <h2 class="headline">Today’s Show: "Who Wants To Be a Feathered Auditor?"</h2>
+        <p class="dek">A game show where contestants negotiate their benefits while floating gently above a tax ledger. It’s a competitive workplace, but the workplace is a chandelier.</p>
+        <div class="badge">Live Studio: Aviary 4B</div>
+        <p>Witty copy #1: <span class="highlight">"The only thing rising faster than salaries is the furniture."</span></p>
+        <p>Witty copy #2: <span class="highlight">"Our HR parrot speaks fluent policy and occasional pirate."</span></p>
+        <p class="editorial">Editorial note: “When gravity is optional, office chairs become life choices.”</p>
+        <div class="controls">
+          <button id="toggleBackstage">Toggle Backstage Notes</button>
+          <button id="randomQuote">Shuffle Quote</button>
+        </div>
+        <div id="backstage" class="hidden">
+          <p>Backstage whisper: The confetti is 93% recycled tax forms. Please do not audit the confetti.</p>
+        </div>
+        <p id="quote">Quote of the minute: “Your benefits include a parachute, but it’s mostly for dramatic effect.”</p>
+      </article>
+
+      <article class="panel">
+        <h2 class="headline">Gravity Meter &amp; Bureaucracy Dashboard</h2>
+        <div class="grid">
+          <div class="kpi">
+            <div>Gravity Compliance</div>
+            <div class="value" id="gravityCompliance">82%</div>
+            <div>Memo: use approved footwear.</div>
+          </div>
+          <div class="kpi">
+            <div>Paperwork Velocity</div>
+            <div class="value" id="paperVelocity">3.4x</div>
+            <div>Assumes mild turbulence.</div>
+          </div>
+          <div class="kpi">
+            <div>Parrot HR Mood</div>
+            <div class="value" id="hrMood">Whistles</div>
+            <div>Subject to snack supply.</div>
+          </div>
+          <div class="kpi">
+            <div>Contestant Float Index</div>
+            <div class="value" id="floatIndex">14.2</div>
+            <div>Measuring in feathers.</div>
+          </div>
+        </div>
+        <div class="controls">
+          <button id="recalcKpi">Recalculate KPIs</button>
+          <button id="togglePulse">Toggle Pulse</button>
+        </div>
+        <p>Witty copy #3: <span class="highlight">"Please file your taxes in mid-air for faster processing."</span></p>
+      </article>
+
+      <article class="panel">
+        <h2 class="headline">Feathered Leaderboard</h2>
+        <table class="table" id="leaderboard">
+          <thead>
+            <tr><th>Contestant</th><th>Role</th><th>Score</th><th>Float</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>Polly Q. Squawk</td><td>HR Host</td><td>88</td><td>On brand</td></tr>
+            <tr><td>Clive Ledger</td><td>Tax Wizard</td><td>77</td><td>Orbiting</td></tr>
+            <tr><td>Beakman</td><td>Contestant</td><td>71</td><td>Drifting</td></tr>
+            <tr><td>Maude Budget</td><td>Contestant</td><td>68</td><td>Hovering</td></tr>
+          </tbody>
+        </table>
+        <div class="controls">
+          <button id="addContestant">Add Contestant</button>
+          <button id="boostScores">Boost Scores</button>
+        </div>
+        <p>Witty copy #4: <span class="highlight">"The tie-breaker is always a tax riddle."</span></p>
+      </article>
+
+      <article class="panel">
+        <h2 class="headline">Lunar Expenses &amp; Tax Deductions</h2>
+        <div class="chart" id="taxChart">
+          <div class="bar" style="height:40%"></div>
+          <div class="bar" style="height:55%"></div>
+          <div class="bar" style="height:30%"></div>
+          <div class="bar" style="height:68%"></div>
+          <div class="bar" style="height:22%"></div>
+          <div class="bar" style="height:72%"></div>
+          <div class="bar" style="height:46%"></div>
+          <div class="bar" style="height:90%"></div>
+          <div class="bar" style="height:61%"></div>
+          <div class="bar" style="height:35%"></div>
+          <div class="bar" style="height:80%"></div>
+          <div class="bar" style="height:52%"></div>
+        </div>
+        <div class="controls">
+          <button id="shuffleChart">Shuffle Chart</button>
+          <button id="invertChart">Invert Chart</button>
+        </div>
+        <p>Witty copy #5: <span class="highlight">"All deductions must be filed under ‘celestial overhead’."</span></p>
+      </article>
+
+      <article class="panel">
+        <h2 class="headline">Game Show Floors: Optional Gravity Tiles</h2>
+        <div class="gameboard" id="gameboard">
+          <div class="tile"><span>Tile A</span>Suspiciously sticky.</div>
+          <div class="tile"><span>Tile B</span>Accepts forms in triplicate.</div>
+          <div class="tile"><span>Tile C</span>Offers float coupons.</div>
+          <div class="tile"><span>Tile D</span>Has a small windbreak.</div>
+          <div class="tile"><span>Tile E</span>Vibes of 1976.</div>
+          <div class="tile"><span>Tile F</span>Gravity on loan.</div>
+          <div class="tile"><span>Tile G</span>Tax-efficient hover.</div>
+          <div class="tile"><span>Tile H</span>Parrot approved.</div>
+        </div>
+        <div class="controls">
+          <button id="shuffleTiles">Shuffle Tiles</button>
+          <button id="sparkleTiles">Sparkle Tiles</button>
+        </div>
+        <p>Witty copy #6: <span class="highlight">"Step lightly. It’s not the floor; it’s the agreement."</span></p>
+      </article>
+
+      <article class="panel">
+        <h2 class="headline">Auditor’s Live Log</h2>
+        <div class="log" id="liveLog"></div>
+        <div class="controls">
+          <button id="addLog">Add Log Entry</button>
+          <button id="clearLog">Clear Log</button>
+        </div>
+        <p>Witty copy #7: <span class="highlight">"The auditor does not float. The auditor simply declines to fall."</span></p>
+      </article>
+
+      <article class="panel">
+        <h2 class="headline">HR Policies, But Make It Psychedelic</h2>
+        <div class="tagcloud" id="policyTags">
+          <span>Feather Equity</span><span>Zero-G PTO</span><span>Chirp Compliance</span>
+          <span>Orbit Breaks</span><span>Moon Meal Vouchers</span><span>Budget Breeze</span>
+          <span>Parrot Mediation</span><span>Tax Drum Circle</span><span>Hover Harassment</span>
+          <span>Hammock Standards</span><span>Ledger Lullabies</span><span>Gravity Pause</span>
+        </div>
+        <div class="controls">
+          <button id="addTag">Add Policy Tag</button>
+          <button id="colorizeTags">Colorize Tags</button>
+        </div>
+        <p>Witty copy #8: <span class="highlight">"Every grievance must be sung at least once."</span></p>
+      </article>
+
+      <article class="panel">
+        <h2 class="headline">Lunar Payroll Table</h2>
+        <div class="newspaper-title">Parrot HR Fiscal Ledger</div>
+        <table class="table" id="payrollTable">
+          <thead>
+            <tr><th>Department</th><th>Base</th><th>Moon Bonus</th><th>Notes</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>Chirp Compliance</td><td>$4,200</td><td>$800</td><td>Gravity optional</td></tr>
+            <tr><td>Hover Benefits</td><td>$3,900</td><td>$1,050</td><td>Includes hammock</td></tr>
+            <tr><td>Tax Rhythm</td><td>$5,100</td><td>$1,200</td><td>Drum circle</td></tr>
+            <tr><td>Audit Pirates</td><td>$4,800</td><td>$1,500</td><td>Arrr clauses</td></tr>
+          </tbody>
+        </table>
+        <div class="controls">
+          <button id="addPayrollRow">Add Payroll Row</button>
+          <button id="inflateBonus">Inflate Bonus</button>
+        </div>
+        <p>Witty copy #9: <span class="highlight">"Our payroll is a poem, just with more commas."</span></p>
+      </article>
+
+      <article class="panel">
+        <h2 class="headline">Contestant Application Booster</h2>
+        <p>Drop a name; the parrot prints a flamboyant title and assigns a hover rating. Because it’s HR, and HR is drama.</p>
+        <div class="controls">
+          <input id="applicantName" placeholder="Name of hopeful" style="padding:6px; border:1px solid var(--line); width:65%;" />
+          <button id="submitApplicant">Submit</button>
+        </div>
+        <div id="applicantResult" style="margin-top:8px; font-size:13px;">Awaiting applicant.</div>
+        <p>Witty copy #10: <span class="highlight">"Your resume should include your moon phase."</span></p>
+      </article>
+
+      <article class="panel">
+        <h2 class="headline">Gravity Optional? Vote Now</h2>
+        <div class="grid">
+          <div class="kpi">
+            <div>YES</div>
+            <div class="value" id="voteYes">120</div>
+          </div>
+          <div class="kpi">
+            <div>NO</div>
+            <div class="value" id="voteNo">17</div>
+          </div>
+          <div class="kpi">
+            <div>LOUD SHRUG</div>
+            <div class="value" id="voteShrug">33</div>
+          </div>
+          <div class="kpi">
+            <div>PERHAPS</div>
+            <div class="value" id="votePerhaps">44</div>
+          </div>
+        </div>
+        <div class="controls">
+          <button id="voteYesBtn">Vote YES</button>
+          <button id="voteNoBtn">Vote NO</button>
+          <button id="voteShrugBtn">Vote SHRUG</button>
+          <button id="votePerhapsBtn">Vote PERHAPS</button>
+        </div>
+        <p>Witty copy #11: <span class="highlight">"Democracy floats, too."</span></p>
+      </article>
+
+      <article class="panel">
+        <h2 class="headline">Parrot HR Whimsy Meter</h2>
+        <div style="display:grid; grid-template-columns: 1fr auto; gap:10px; align-items:center;">
+          <input type="range" id="whimsyRange" min="0" max="100" value="65" style="width:100%;" />
+          <div class="badge" id="whimsyValue">65%</div>
+        </div>
+        <p id="whimsyText">Whimsy stabilized at a tax-compliant level.</p>
+        <div class="controls">
+          <button id="randomWhimsy">Randomize Whimsy</button>
+        </div>
+        <p>Witty copy #12: <span class="highlight">"Too much whimsy triggers a compulsory nap."</span></p>
+      </article>
+
+      <article class="panel">
+        <h2 class="headline">Celestial Times &amp; Office Weather</h2>
+        <div class="grid">
+          <div class="kpi"><div>Gravity Window</div><div class="value" id="gravityWindow">00:43:00</div><div>Countdown to drift.</div></div>
+          <div class="kpi"><div>Floating Forecast</div><div class="value" id="floatForecast">Mild</div><div>Swirl index 2</div></div>
+          <div class="kpi"><div>Invoice Aurora</div><div class="value" id="aurora">Visible</div><div>Ledger glow</div></div>
+          <div class="kpi"><div>Moon Phase</div><div class="value" id="phase">Waxing HR</div><div>Phase 8</div></div>
+        </div>
+        <div class="controls">
+          <button id="toggleGravity">Toggle Gravity</button>
+          <button id="refreshForecast">Refresh Forecast</button>
+        </div>
+        <p>Witty copy #13: <span class="highlight">"Forecast includes a 40% chance of paper tornadoes."</span></p>
+      </article>
+
+      <article class="panel">
+        <h2 class="headline">Compliance Confessional</h2>
+        <p>Submit a confession to the parrot tribunal. It will be judged by the drum circle.</p>
+        <div class="controls">
+          <input id="confessionInput" placeholder="Type your confession" style="padding:6px; border:1px solid var(--line); width:65%;" />
+          <button id="submitConfession">Confess</button>
+        </div>
+        <div id="confessionList" class="log" style="height:100px;"></div>
+        <p>Witty copy #14: <span class="highlight">"Confessions are confidential unless rhyming."</span></p>
+      </article>
+
+      <article class="panel">
+        <h2 class="headline">Bureaucratic Bingo</h2>
+        <div class="gameboard" id="bingo">
+          <div class="tile">Form 77B</div>
+          <div class="tile">Floating Stapler</div>
+          <div class="tile">Auditor’s Riddle</div>
+          <div class="tile">Snack Break</div>
+          <div class="tile">Moon Stamp</div>
+          <div class="tile">Whistle Clause</div>
+          <div class="tile">Ledger Waltz</div>
+          <div class="tile">Gravity Glitch</div>
+        </div>
+        <div class="controls">
+          <button id="markBingo">Mark Random Square</button>
+          <button id="resetBingo">Reset Bingo</button>
+        </div>
+        <p>Witty copy #15: <span class="highlight">"Bingo cards are legally binding in two dimensions."</span></p>
+      </article>
+
+      <article class="panel">
+        <h2 class="headline">Micro-Drama: The Complaint Desk</h2>
+        <p id="complaintText">"My chair floated away and filed a complaint on my behalf."</p>
+        <div class="controls">
+          <button id="nextComplaint">Next Complaint</button>
+          <button id="applaudComplaint">Applaud</button>
+        </div>
+        <p>Witty copy #16: <span class="highlight">"Complaints are reviewed by the jury of parrots."</span></p>
+      </article>
+
+      <article class="panel">
+        <h2 class="headline">The Great Ledger Raffle</h2>
+        <p>Spin the raffle wheel to earn decorative stamps and mild prestige.</p>
+        <div class="controls">
+          <button id="spinRaffle">Spin Raffle</button>
+          <button id="resetRaffle">Reset Prizes</button>
+        </div>
+        <div id="raffleResult" class="badge">Awaiting spin.</div>
+        <div id="raffleList" class="tagcloud" style="margin-top:8px;"></div>
+        <p>Witty copy #17: <span class="highlight">"All raffles are audited by parrots with tiny hats."</span></p>
+      </article>
+
+      <article class="panel">
+        <h2 class="headline">Optional Gravity FAQ</h2>
+        <p>Q: Is gravity mandatory? A: Only during full moons and whenever the HR parrot is watching.</p>
+        <p>Q: Can I file taxes upside down? A: Yes, but the ink must be certified.</p>
+        <p>Q: How do I get promoted? A: Bring snacks and a strong sense of orbit.</p>
+        <p>Witty copy #18: <span class="highlight">"Remember: payroll is eternal; gravity is seasonal."</span></p>
+      </article>
+
+      <article class="panel">
+        <h2 class="headline">Department of Overheard Phrases</h2>
+        <ul>
+          <li>Witty copy #19: “Heard in the hallway: ‘My spreadsheet just levitated.’”</li>
+          <li>Witty copy #20: “The parrot asked for a quarterly squawk.”</li>
+          <li>Witty copy #21: “Our benefits package includes a small personal cloud.”</li>
+          <li>Witty copy #22: “Tax season smells like fresh feathers.”</li>
+          <li>Witty copy #23: “If you can’t find the exit, try floating upward.”</li>
+        </ul>
+      </article>
+
+      <article class="panel">
+        <h2 class="headline">The Parrot’s Tiny Footnotes</h2>
+        <p>Footnote A: Paperwork filed during full moon may glow faintly.</p>
+        <p>Footnote B: All audition songs are considered legal documents.</p>
+        <p>Footnote C: This gazette is 100% recyclable, 50% accurate.</p>
+        <p>Witty copy #24: <span class="highlight">"If lost, follow the nearest tax drum circle."</span></p>
+      </article>
+    </section>
+
+    <section class="footnotes">
+      <p>Disclaimer: This publication is produced by a committee of parrots, spreadsheets, and the full moon. Any resemblance to a responsible HR department is purely coincidental and legally adorable.</p>
+      <p>Legal note: Gravity optionality may vary by lunar temperament. Please consult your local ornithologist.</p>
+      <p>Emergency clause: In case of sudden normal physics, hold onto the nearest ledger and say something motivational.</p>
+    </section>
+  </div>
+
+  <div class="gravity">
+    <div style="font-weight:bold;">Gravity Switchboard</div>
+    <div id="gravityState">State: OFF (unless full moon)</div>
+    <div class="controls" style="margin-top:6px;">
+      <button id="forceGravity">Force ON</button>
+      <button id="releaseGravity">Release</button>
+    </div>
+  </div>
+
+<script>
+  const qs = (s) => document.querySelector(s);
+  const qsa = (s) => Array.from(document.querySelectorAll(s));
+
+  const quotes = [
+    "Your benefits include a parachute, but it’s mostly for dramatic effect.",
+    "All forms must be stapled with a feather.",
+    "If you feel lightheaded, you are probably complying.",
+    "Our HR parrot audits smiles, not just numbers.",
+    "Please keep your arms and spreadsheets inside the atmosphere.",
+    "Clerical errors are now called 'mystical breezes'.",
+    "Payroll is punctual; gravity is improv.",
+    "Tax season is just moon season with extra ink."
+  ];
+
+  const complaints = [
+    "My chair floated away and filed a complaint on my behalf.",
+    "The stapler refuses to recognize my authority.",
+    "My tax forms are circling the light fixture.",
+    "HR asked me to submit my dreams in triplicate.",
+    "The parrot promoted my shadow."
+  ];
+
+  const rafflePrizes = [
+    "Golden Feather Stamp",
+    "Orbit Voucher",
+    "Tax Drum Solo",
+    "Floating Desk Trophy",
+    "Complimentary Hammock",
+    "Certified Gravity Pause",
+    "Parrot Autograph",
+    "Celestial Filing Clip"
+  ];
+
+  let gravityOn = false;
+  let gravitySeconds = 43 * 60;
+  let raffleCount = 0;
+
+  const updateMoonPhase = () => {
+    const phase = (new Date().getMinutes() % 2 === 0) ? "Full Moon" : "Almost Full";
+    qs('#moonPhase').textContent = `Full Moon Status: ${phase}`;
+  };
+
+  const updateCountdown = () => {
+    if (gravityOn && gravitySeconds > 0) gravitySeconds--;
+    const m = String(Math.floor(gravitySeconds / 60)).padStart(2, '0');
+    const s = String(gravitySeconds % 60).padStart(2, '0');
+    qs('#gravityWindow').textContent = `00:${m}:${s}`;
+    if (gravitySeconds === 0) {
+      gravityOn = false;
+      qs('#gravityState').textContent = "State: OFF (unless full moon)";
+    }
+  };
+
+  const log = (msg) => {
+    const el = qs('#liveLog');
+    const line = document.createElement('div');
+    const t = new Date().toLocaleTimeString();
+    line.textContent = `[${t}] ${msg}`;
+    el.prepend(line);
+  };
+
+  // Backstage toggle
+  qs('#toggleBackstage').addEventListener('click', () => {
+    qs('#backstage').classList.toggle('hidden');
+  });
+
+  // Quote shuffle
+  qs('#randomQuote').addEventListener('click', () => {
+    const q = quotes[Math.floor(Math.random() * quotes.length)];
+    qs('#quote').textContent = `Quote of the minute: “${q}”`;
+  });
+
+  // KPI recalc
+  qs('#recalcKpi').addEventListener('click', () => {
+    qs('#gravityCompliance').textContent = `${70 + Math.floor(Math.random() * 30)}%`;
+    qs('#paperVelocity').textContent = `${(2 + Math.random() * 3).toFixed(1)}x`;
+    const moods = ["Whistles", "Nibbling", "Judging", "Singing", "Budgeting"];
+    qs('#hrMood').textContent = moods[Math.floor(Math.random() * moods.length)];
+    qs('#floatIndex').textContent = (10 + Math.random() * 10).toFixed(1);
+  });
+
+  // Pulse toggle
+  qs('#togglePulse').addEventListener('click', () => {
+    qsa('.kpi').forEach(k => k.classList.toggle('pulse'));
+  });
+
+  // Add contestant
+  qs('#addContestant').addEventListener('click', () => {
+    const names = ["Gloria Float", "Nimbus Tax", "Quilliam", "Budgetta", "Orbit Joe", "Sage Ledger"];
+    const roles = ["Contestant", "Runner-up", "Wildcard", "Intern"];
+    const floats = ["Hovering", "Drifting", "Orbiting", "Levitating"]; 
+    const tr = document.createElement('tr');
+    tr.innerHTML = `<td>${names[Math.floor(Math.random()*names.length)]}</td><td>${roles[Math.floor(Math.random()*roles.length)]}</td><td>${60 + Math.floor(Math.random()*35)}</td><td>${floats[Math.floor(Math.random()*floats.length)]}</td>`;
+    qs('#leaderboard tbody').appendChild(tr);
+  });
+
+  // Boost scores
+  qs('#boostScores').addEventListener('click', () => {
+    qsa('#leaderboard tbody tr').forEach(tr => {
+      const td = tr.children[2];
+      const val = parseInt(td.textContent, 10) || 0;
+      td.textContent = val + 3;
+    });
+  });
+
+  // Shuffle chart
+  qs('#shuffleChart').addEventListener('click', () => {
+    qsa('#taxChart .bar').forEach(b => {
+      const h = 20 + Math.random() * 80;
+      b.style.height = h + '%';
+      b.style.transform = `scaleY(${0.7 + Math.random() * 0.6})`;
+    });
+  });
+
+  // Invert chart
+  let chartInverted = false;
+  qs('#invertChart').addEventListener('click', () => {
+    chartInverted = !chartInverted;
+    qsa('#taxChart .bar').forEach(b => {
+      b.style.transform = chartInverted ? 'scaleY(-1)' : 'scaleY(1)';
+    });
+  });
+
+  // Shuffle tiles
+  qs('#shuffleTiles').addEventListener('click', () => {
+    const gb = qs('#gameboard');
+    const tiles = qsa('#gameboard .tile');
+    tiles.sort(() => Math.random() - 0.5).forEach(t => gb.appendChild(t));
+  });
+
+  // Sparkle tiles
+  qs('#sparkleTiles').addEventListener('click', () => {
+    qsa('#gameboard .tile').forEach(t => {
+      t.style.background = `linear-gradient(135deg, #fff, ${Math.random()>0.5 ? '#eafff2' : '#f1fff7'})`;
+      t.style.transform = `rotate(${(Math.random() * 6 - 3).toFixed(1)}deg)`;
+    });
+  });
+
+  // Live log
+  qs('#addLog').addEventListener('click', () => {
+    const msgs = [
+      "Polly approved a budget with a wink.",
+      "Contestant floated into the tax bracket.",
+      "Gravity clocked in late, again.",
+      "The drum circle resolved a dispute.",
+      "A ledger attempted to migrate."
+    ];
+    log(msgs[Math.floor(Math.random() * msgs.length)]);
+  });
+  qs('#clearLog').addEventListener('click', () => {
+    qs('#liveLog').textContent = '';
+  });
+
+  // Add tag
+  qs('#addTag').addEventListener('click', () => {
+    const tags = ["PTO Eclipse", "Feather Arbitration", "Budget Breeze", "Ledger Chill", "Orbit Snacks", "Audit Samba"];
+    const span = document.createElement('span');
+    span.textContent = tags[Math.floor(Math.random() * tags.length)];
+    qs('#policyTags').appendChild(span);
+  });
+
+  // Colorize tags
+  qs('#colorizeTags').addEventListener('click', () => {
+    qsa('#policyTags span').forEach(s => {
+      s.style.background = `hsl(140, 70%, ${60 + Math.random() * 30}%)`;
+      s.style.color = '#0b1a12';
+    });
+  });
+
+  // Add payroll row
+  qs('#addPayrollRow').addEventListener('click', () => {
+    const depts = ["Moon Snacks", "Hover Ops", "Chirp Security", "Tax Theater", "Nimbus Support"];
+    const base = 3500 + Math.floor(Math.random() * 2500);
+    const bonus = 600 + Math.floor(Math.random() * 1200);
+    const notes = ["Floating bonus", "Includes hammock", "Ledger stipend", "Parrot approved"]; 
+    const tr = document.createElement('tr');
+    tr.innerHTML = `<td>${depts[Math.floor(Math.random()*depts.length)]}</td><td>$${base}</td><td>$${bonus}</td><td>${notes[Math.floor(Math.random()*notes.length)]}</td>`;
+    qs('#payrollTable tbody').appendChild(tr);
+  });
+
+  // Inflate bonus
+  qs('#inflateBonus').addEventListener('click', () => {
+    qsa('#payrollTable tbody tr').forEach(tr => {
+      const td = tr.children[2];
+      const val = parseInt(td.textContent.replace(/[^0-9]/g, ''), 10) || 0;
+      td.textContent = `$${val + 150}`;
+    });
+  });
+
+  // Applicant
+  qs('#submitApplicant').addEventListener('click', () => {
+    const name = qs('#applicantName').value.trim() || "Anonymous Comet";
+    const titles = ["Senior Feather Wrangler", "Deputy of Hover Compliance", "Ledger Shaman", "Tax Choreographer"];
+    const rating = (Math.random() * 10).toFixed(1);
+    qs('#applicantResult').textContent = `${name} appointed as ${titles[Math.floor(Math.random()*titles.length)]} with hover rating ${rating}.`;
+  });
+
+  // Votes
+  const bump = (id) => {
+    const el = qs(id);
+    el.textContent = parseInt(el.textContent, 10) + 1;
+  };
+  qs('#voteYesBtn').addEventListener('click', () => bump('#voteYes'));
+  qs('#voteNoBtn').addEventListener('click', () => bump('#voteNo'));
+  qs('#voteShrugBtn').addEventListener('click', () => bump('#voteShrug'));
+  qs('#votePerhapsBtn').addEventListener('click', () => bump('#votePerhaps'));
+
+  // Whimsy
+  qs('#whimsyRange').addEventListener('input', (e) => {
+    const v = e.target.value;
+    qs('#whimsyValue').textContent = v + '%';
+    qs('#whimsyText').textContent = v > 80 ? "Whimsy critical. Initiate hammock protocol." : v < 30 ? "Whimsy low. Deploy confetti." : "Whimsy stabilized at a tax-compliant level.";
+  });
+  qs('#randomWhimsy').addEventListener('click', () => {
+    const v = Math.floor(Math.random() * 101);
+    qs('#whimsyRange').value = v;
+    qs('#whimsyRange').dispatchEvent(new Event('input'));
+  });
+
+  // Forecast
+  qs('#toggleGravity').addEventListener('click', () => {
+    gravityOn = !gravityOn;
+    qs('#gravityState').textContent = gravityOn ? "State: ON (full moon acknowledged)" : "State: OFF (unless full moon)";
+  });
+  qs('#refreshForecast').addEventListener('click', () => {
+    const options = ["Mild", "Wavy", "Spirited", "Turbulent", "Velvet"]; 
+    qs('#floatForecast').textContent = options[Math.floor(Math.random()*options.length)];
+    qs('#aurora').textContent = Math.random() > 0.5 ? "Visible" : "Subtle";
+    const phases = ["Waxing HR", "Full Compliance", "Quarterly Moon", "Gibbous Payroll"]; 
+    qs('#phase').textContent = phases[Math.floor(Math.random()*phases.length)];
+  });
+
+  // Confessions
+  qs('#submitConfession').addEventListener('click', () => {
+    const text = qs('#confessionInput').value.trim();
+    if (!text) return;
+    const div = document.createElement('div');
+    div.textContent = `“${text}” — judged by the drum circle.`;
+    qs('#confessionList').prepend(div);
+    qs('#confessionInput').value = '';
+  });
+
+  // Bingo
+  qs('#markBingo').addEventListener('click', () => {
+    const tiles = qsa('#bingo .tile');
+    const t = tiles[Math.floor(Math.random()*tiles.length)];
+    t.style.background = '#e9fff1';
+    t.style.borderColor = '#1f9d55';
+    t.style.boxShadow = 'inset 0 0 0 2px #1f9d55';
+  });
+  qs('#resetBingo').addEventListener('click', () => {
+    qsa('#bingo .tile').forEach(t => {
+      t.style.background = '#fafffc';
+      t.style.borderColor = '#2ecc71';
+      t.style.boxShadow = 'none';
+    });
+  });
+
+  // Complaints
+  let complaintIndex = 0;
+  qs('#nextComplaint').addEventListener('click', () => {
+    complaintIndex = (complaintIndex + 1) % complaints.length;
+    qs('#complaintText').textContent = `“${complaints[complaintIndex]}”`;
+  });
+  qs('#applaudComplaint').addEventListener('click', () => {
+    qs('#complaintText').textContent += " 👏";
+  });
+
+  // Raffle
+  qs('#spinRaffle').addEventListener('click', () => {
+    const prize = rafflePrizes[Math.floor(Math.random()*rafflePrizes.length)];
+    raffleCount++;
+    qs('#raffleResult').textContent = `Prize #${raffleCount}: ${prize}`;
+    const span = document.createElement('span');
+    span.textContent = prize;
+    qs('#raffleList').appendChild(span);
+  });
+  qs('#resetRaffle').addEventListener('click', () => {
+    raffleCount = 0;
+    qs('#raffleResult').textContent = "Awaiting spin.";
+    qs('#raffleList').textContent = '';
+  });
+
+  // Gravity switchboard
+  qs('#forceGravity').addEventListener('click', () => {
+    gravityOn = true;
+    gravitySeconds = 43 * 60;
+    qs('#gravityState').textContent = "State: ON (full moon acknowledged)";
+  });
+  qs('#releaseGravity').addEventListener('click', () => {
+    gravityOn = false;
+    qs('#gravityState').textContent = "State: OFF (unless full moon)";
+  });
+
+  // Auto updates
+  setInterval(updateCountdown, 1000);
+  setInterval(() => {
+    updateMoonPhase();
+    const pay = 7000 + Math.floor(Math.random() * 1200);
+    qs('#lunarPay').textContent = `$${pay.toLocaleString()}`;
+    const phrases = [
+      "LIVE: Polly the HR Parrot is hosting the show.",
+      "LIVE: Gravity activated for 43 minutes.",
+      "LIVE: Contestant floats into a bonus round.",
+      "LIVE: Tax ledger performs a jazz solo.",
+      "LIVE: Parrot announces a surprise audit."
+    ];
+    qs('#marqueeText').textContent = phrases[Math.floor(Math.random() * phrases.length)] + " Please keep feet on the floor or politely drift.";
+  }, 6000);
+
+  // Seed log
+  log("Show opened with a ceremonial stapling.");
+  log("Gravity granted a temporary extension.");
+  updateMoonPhase();
+</script>
+</body>
+</html>

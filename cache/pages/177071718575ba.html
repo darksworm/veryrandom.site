@@ -1,0 +1,620 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>The Pawline Gazette | Saint Purrnard Orbit</title>
+  <link rel="stylesheet" href="/assets/css/pico.min.css" />
+  <link rel="stylesheet" href="/assets/css/fonts.css" />
+  <style>
+    :root {
+      --bg: #f8fffb;
+      --paper: #ffffff;
+      --ink: #121212;
+      --muted: #3f4a44;
+      --line: #b9d7c6;
+      --accent: #0f7a4d;
+      --accent-2: #1f9c66;
+      --deep: #0c3d2a;
+      --shadow: #d8ebe1;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html,
+    body {
+      margin: 0;
+      padding: 0;
+      background: radial-gradient(circle at 15% 10%, #ecfff4 0%, var(--bg) 45%, #f5fff9 100%);
+      color: var(--ink);
+      font-family: 'Crimson Pro', serif;
+      font-size: 16px;
+      line-height: 1.5;
+      overflow-x: hidden;
+    }
+
+    h1,
+    h2,
+    h3,
+    h4,
+    .brand,
+    button,
+    .kicker,
+    nav a,
+    .price,
+    .tag {
+      font-family: 'Space Grotesk', sans-serif;
+      letter-spacing: 0.01em;
+    }
+
+    .site {
+      width: min(1400px, 100% - 2rem);
+      margin: 1rem auto 3rem;
+      display: grid;
+      gap: 1rem;
+    }
+
+    .paper {
+      background: var(--paper);
+      border: 2px solid var(--line);
+      box-shadow: 0 12px 24px var(--shadow);
+    }
+
+    .masthead {
+      padding: 1rem;
+      display: grid;
+      gap: 0.8rem;
+      position: relative;
+      overflow: hidden;
+      background: linear-gradient(135deg, #ffffff 0%, #f0fff6 100%);
+    }
+
+    .paw-stripe {
+      display: flex;
+      gap: 0.5rem;
+      color: var(--accent);
+      flex-wrap: wrap;
+      font-size: 0.9rem;
+    }
+
+    .brandline {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 0.7rem;
+    }
+
+    .brand {
+      font-size: clamp(1.8rem, 4vw, 3.5rem);
+      margin: 0;
+      color: var(--deep);
+      line-height: 1;
+    }
+
+    .subtitle {
+      margin: 0;
+      color: var(--muted);
+      font-size: clamp(1rem, 1.8vw, 1.2rem);
+    }
+
+    .byline {
+      margin: 0;
+      color: #264333;
+      font-size: 0.98rem;
+      border-left: 3px solid var(--accent);
+      padding-left: 0.7rem;
+    }
+
+    .actions,
+    .filters,
+    .toggles {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+    }
+
+    .chip,
+    .btn {
+      border: 2px solid var(--accent);
+      background: #ffffff;
+      color: var(--deep);
+      min-height: 44px;
+      padding: 0.45rem 0.8rem;
+      border-radius: 999px;
+      font-size: 0.95rem;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+    }
+
+    .chip[aria-pressed='true'],
+    .btn[aria-pressed='true'],
+    .chip.active,
+    .btn.active {
+      background: var(--accent);
+      color: #ffffff;
+    }
+
+    .layout {
+      display: grid;
+      grid-template-columns: repeat(12, minmax(0, 1fr));
+      gap: 1rem;
+      align-items: start;
+    }
+
+    .lead {
+      grid-column: span 8;
+      padding: 1rem;
+      position: relative;
+      z-index: 2;
+    }
+
+    .lead h2 {
+      font-size: clamp(1.5rem, 3vw, 2.4rem);
+      margin: 0 0 0.35rem;
+      line-height: 1.15;
+    }
+
+    .lead p {
+      margin: 0.3rem 0;
+      color: #1d1d1d;
+    }
+
+    .kicker {
+      color: var(--accent);
+      text-transform: uppercase;
+      font-size: 0.82rem;
+      margin-bottom: 0.4rem;
+    }
+
+    .pull {
+      border-left: 4px solid var(--accent-2);
+      padding-left: 0.8rem;
+      color: #173728;
+      font-style: italic;
+      margin: 0.9rem 0;
+      font-size: 1.12rem;
+    }
+
+    .side-rail {
+      grid-column: span 4;
+      padding: 1rem;
+      display: grid;
+      gap: 0.8rem;
+      margin-top: 1.4rem;
+      z-index: 3;
+    }
+
+    .brief,
+    .ad,
+    .panel,
+    .card,
+    .letter,
+    .correction {
+      border: 1.5px solid var(--line);
+      padding: 0.8rem;
+      background: #fcfffd;
+    }
+
+    .brief h3,
+    .ad h3,
+    .panel h3,
+    .card h3,
+    .letter h4,
+    .correction h4 {
+      margin: 0 0 0.25rem;
+      font-size: 1.08rem;
+      color: var(--deep);
+    }
+
+    .brief p,
+    .ad p,
+    .panel p,
+    .card p,
+    .letter p,
+    .correction p,
+    li,
+    small,
+    a,
+    label {
+      color: #1f2a24;
+    }
+
+    .overlap {
+      margin-top: -0.8rem;
+      transform: translateX(0.7rem);
+    }
+
+    .ticker {
+      grid-column: 1 / -1;
+      padding: 0.75rem 1rem;
+      display: flex;
+      gap: 0.9rem;
+      flex-wrap: wrap;
+      border-left: 6px solid var(--accent);
+      background: #f0fff6;
+      color: #163524;
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 0.95rem;
+    }
+
+    .content {
+      grid-column: span 8;
+      display: grid;
+      gap: 0.8rem;
+      padding: 1rem;
+    }
+
+    .content-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 0.8rem;
+    }
+
+    .tag {
+      display: inline-block;
+      font-size: 0.74rem;
+      text-transform: uppercase;
+      border: 1px solid var(--accent);
+      color: var(--accent);
+      padding: 0.15rem 0.45rem;
+      border-radius: 999px;
+      margin-bottom: 0.35rem;
+    }
+
+    .meta {
+      font-size: 0.86rem;
+      color: #274538;
+      margin: 0;
+    }
+
+    .readmore {
+      border: 1.5px solid var(--accent);
+      background: #ffffff;
+      color: var(--deep);
+      min-height: 44px;
+      padding: 0.35rem 0.7rem;
+      margin-top: 0.45rem;
+    }
+
+    .right-stack {
+      grid-column: span 4;
+      display: grid;
+      gap: 0.8rem;
+      padding: 1rem;
+    }
+
+    .columns {
+      columns: 2;
+      gap: 1rem;
+    }
+
+    .columns li {
+      break-inside: avoid;
+      margin-bottom: 0.7rem;
+      border-bottom: 1px dashed var(--line);
+      padding-bottom: 0.5rem;
+    }
+
+    .quote {
+      font-size: 1.2rem;
+      color: #113824;
+      border-top: 2px solid var(--line);
+      border-bottom: 2px solid var(--line);
+      padding: 0.7rem 0;
+      margin: 0.5rem 0;
+      font-style: italic;
+    }
+
+    .footer {
+      padding: 1rem;
+      display: grid;
+      gap: 0.6rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .footer small {
+      color: #2e463a;
+    }
+
+    .jazz-mode {
+      background: radial-gradient(circle at 80% 0%, #e6fff1 0%, #f7fffb 40%, #edfff5 100%);
+    }
+
+    .jazz-mode .paper {
+      border-color: #87c9aa;
+      box-shadow: 0 14px 26px #cce7d9;
+    }
+
+    .jazz-mode .ad {
+      background: linear-gradient(120deg, #f6fffa 0%, #eefff6 100%);
+    }
+
+    a {
+      text-decoration-thickness: 2px;
+    }
+
+    @media (max-width: 1024px) {
+      .lead,
+      .side-rail,
+      .content,
+      .right-stack {
+        grid-column: 1 / -1;
+      }
+
+      .overlap {
+        margin-top: 0;
+        transform: none;
+      }
+    }
+
+    @media (max-width: 768px) {
+      .site {
+        width: min(100% - 1rem, 1400px);
+      }
+
+      .content-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .columns {
+        columns: 1;
+      }
+
+      .brandline {
+        align-items: flex-start;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="site" x-data="newsroom()" :class="{'jazz-mode': jazzMode}">
+    <header class="masthead paper reveal">
+      <div class="paw-stripe">
+        <span><i data-lucide="paw-print"></i> Saint Purrnard Orbit Edition</span>
+        <span><i data-lucide="wifi"></i> Monastery Router Blessed at 06:12</span>
+        <span><i data-lucide="music-2"></i> Jazz Band in Session: 24/7</span>
+      </div>
+      <div class="brandline">
+        <div>
+          <h1 class="brand">THE PAWLINE GAZETTE</h1>
+          <p class="subtitle">Official tourism ledger of the Cloistered Catwalk Colony</p>
+        </div>
+        <p class="byline">I am Brother Mewsif, your editor, game-show host, and reluctant accountant. If a cat changes your invoice, I print the correction in ink and humility.</p>
+      </div>
+      <div class="actions">
+        <button class="btn" :aria-pressed="jazzMode" @click="jazzMode=!jazzMode"><i data-lucide="disc-3"></i> Jazz Layout</button>
+        <button class="btn" :aria-pressed="showCorrections" @click="showCorrections=!showCorrections"><i data-lucide="receipt"></i> Show Corrections</button>
+        <button class="btn" :aria-pressed="showClassifieds" @click="showClassifieds=!showClassifieds"><i data-lucide="newspaper"></i> Show Classifieds</button>
+      </div>
+    </header>
+
+    <main class="layout">
+      <article class="lead paper reveal">
+        <p class="kicker">Front Page | Tourism and Transactions</p>
+        <h2>Grand Prize Ferry to Moon Deck Delayed After Chairman Cat Purchased 400 Thermal Sardines</h2>
+        <p>At 05:44, Chairman Cat Biscuit sat on keyboard row F1-F6, converting six visitor tickets into a seafood hedge position. I rang the monastery bell, accepted responsibility, and offered all affected tourists a complimentary "Forgiveness & Finger Foods" walking pass.</p>
+        <p class="pull">"If the cat enters your pin, it is no longer your pin. It belongs to destiny."</p>
+        <p>Tonight's game show segment, <strong>Who Wants To Be Reimbursed?</strong>, will settle claims live with witness signatures from the alto sax section.</p>
+      </article>
+
+      <aside class="side-rail paper overlap reveal">
+        <section class="brief">
+          <h3>Dock Weather</h3>
+          <p>Clinical white skies, mild ion breeze, and 12% chance of falling feather toy from Upper Deck C.</p>
+        </section>
+        <section class="brief">
+          <h3>Transit Note</h3>
+          <p>Tram Line 2 now accepts exact fare or one firm ear scratch for station cats.</p>
+        </section>
+        <section class="ad">
+          <h3>Advertisement</h3>
+          <p><strong>WhiskerShield Insurance</strong> covers accidental purchases made by paws, tails, and dramatic leaps. Plans from $47.99/month.</p>
+        </section>
+      </aside>
+
+      <div class="ticker paper reveal">
+        <span><strong>Live Odds:</strong> 3:1 your dinner bill becomes tuna futures.</span>
+        <span><strong>Tourist Satisfaction:</strong> 94% said "strange, yet organized."</span>
+        <span><strong>Keyboard Patrol:</strong> 1 monk, 2 interns, 9 cats.</span>
+      </div>
+
+      <section class="content paper reveal" aria-label="Article feed">
+        <div class="filters" role="tablist" aria-label="Filter stories">
+          <button class="chip" :class="{active:filter==='all'}" @click="filter='all'" :aria-pressed="filter==='all'">All</button>
+          <button class="chip" :class="{active:filter==='news'}" @click="filter='news'" :aria-pressed="filter==='news'">News</button>
+          <button class="chip" :class="{active:filter==='opinion'}" @click="filter='opinion'" :aria-pressed="filter==='opinion'">Opinion</button>
+          <button class="chip" :class="{active:filter==='culture'}" @click="filter='culture'" :aria-pressed="filter==='culture'">Culture</button>
+          <button class="chip" :class="{active:filter==='letters'}" @click="filter='letters'" :aria-pressed="filter==='letters'">Letters</button>
+        </div>
+
+        <div class="content-grid">
+          <template x-for="article in articles.filter(a => filter==='all' || a.category===filter)" :key="article.id">
+            <article class="card">
+              <span class="tag" x-text="article.category"></span>
+              <h3 x-text="article.title"></h3>
+              <p x-text="article.blurb"></p>
+              <p class="meta" x-text="article.meta"></p>
+              <button class="readmore" @click="openId = openId === article.id ? null : article.id" :aria-expanded="openId===article.id">Expand</button>
+              <p x-show="openId===article.id" x-text="article.full"></p>
+            </article>
+          </template>
+        </div>
+      </section>
+
+      <aside class="right-stack">
+        <section class="panel paper reveal" x-show="showCorrections" x-transition>
+          <h3>Corrections Desk</h3>
+          <div class="correction">
+            <h4>Issue 188 Correction #1</h4>
+            <p>Yesterday we reported that jazz drummer Lila Pounce is "five cats tall." She is in fact "four cats plus hat."</p>
+          </div>
+          <div class="correction">
+            <h4>Issue 188 Correction #2</h4>
+            <p>Visitor tax is 6%. It becomes 9% only if Chairman Cat submits the return personally.</p>
+          </div>
+          <div class="correction">
+            <h4>Issue 188 Correction #3</h4>
+            <p>The phrase "all-you-can-pat" buffet excludes the head archivist. Please stop patting him.</p>
+          </div>
+        </section>
+
+        <section class="panel paper reveal" x-show="showClassifieds" x-transition>
+          <h3>Classifieds</h3>
+          <ul class="columns">
+            <li><strong>Lost:</strong> One ceremonial laser pointer. Last seen near Gate 7 chanting softly.</li>
+            <li><strong>For Sale:</strong> Art Deco litter dome, mint condition, gravity-tested, $312.</li>
+            <li><strong>Roommate Wanted:</strong> Must enjoy bebop, silent prayer, and 03:00 zoomies.</li>
+            <li><strong>Services:</strong> Invoice translation from Cat Keysmash to legal prose, $19/page.</li>
+            <li><strong>Trade:</strong> Two moon cabbages for one decent docking coupon.</li>
+            <li><strong>Wanted:</strong> Backup keyboard with claw-resistant enter key.</li>
+          </ul>
+        </section>
+
+        <section class="panel paper reveal">
+          <h3>Letters to Brother Mewsif</h3>
+          <div class="letter">
+            <h4>"Your cat billed me twice."</h4>
+            <p>Dear Brother, both charges are visible on my statement and one is labeled "dramatic flourish." Please explain. - Irene, Deck B</p>
+          </div>
+          <div class="letter">
+            <h4>"Best honeymoon ever."</h4>
+            <p>We came for architecture, stayed for improvised sax apologies. Five stars. - Dax & Jo, Venus Transfer</p>
+          </div>
+          <div class="letter">
+            <h4>"Please publish my cat's poem."</h4>
+            <p>Mrrp / mrrp / tuna / cosmos. Thank you for your consideration. - Anonymous</p>
+          </div>
+        </section>
+
+        <section class="ad paper reveal">
+          <h3>Margin Ad: Paw & Order Legal Group</h3>
+          <p>Were you charged for "premium napping rights" you never requested? Call 1-800-MEOW-LAW. We litigate with velvet gloves.</p>
+        </section>
+      </aside>
+    </main>
+
+    <footer class="footer paper reveal">
+      <p class="quote">"I did not choose journalism. A cat settled on my keyboard and sent my resignation to accounting." - Brother Mewsif</p>
+      <small>Printed daily at Saint Purrnard Orbit, where every tourism package includes one jazz standard and one reasonable refund attempt.</small>
+      <small>Contact: Desk 3, Monastery Router Annex. Office hours: after morning chant, before evening bass solo.</small>
+    </footer>
+  </div>
+
+  <script defer src="/assets/js/alpine.min.js"></script>
+  <script defer src="/assets/js/gsap.min.js"></script>
+  <script defer src="/assets/js/lucide.min.js"></script>
+  <script>
+    function newsroom() {
+      return {
+        filter: 'all',
+        openId: null,
+        jazzMode: false,
+        showCorrections: true,
+        showClassifieds: true,
+        articles: [
+          {
+            id: 1,
+            category: 'news',
+            title: 'Customs Cat Detects Contraband Yarn, Demands Statement Necklace',
+            blurb: 'Security paused for six minutes while officials debated whether sequins count as evidence.',
+            meta: 'By Cargo Desk | 07:10',
+            full: 'The seized yarn has been returned after proving it was ceremonial. The necklace remains in active purring custody.'
+          },
+          {
+            id: 2,
+            category: 'opinion',
+            title: 'Opinion: Stop Asking If The Jazz Band Ever Sleeps',
+            blurb: 'They rotate shifts and drink celery tonic. Respect the craft.',
+            meta: 'By Mewsif | Op-Ed',
+            full: 'A colony without live rhythm is only a parking lot with oxygen. Let the horns speak.'
+          },
+          {
+            id: 3,
+            category: 'culture',
+            title: 'Review: New Art Deco Litter Atrium Is "Spiritual" and "Slightly Damp"',
+            blurb: 'Architects achieved transcendence with brushed steel arches and one irresponsible fountain.',
+            meta: 'By Culture Bureau | 09:22',
+            full: 'Visitors praised the symmetry, the acoustics, and the plaque that reads: "Do Not Interpret Steam as a Sign."'
+          },
+          {
+            id: 4,
+            category: 'letters',
+            title: 'Letter: My toddler now files expense reports in meows',
+            blurb: 'A practical parenting guide is requested by at least eleven families.',
+            meta: 'From Deck D Parent Circle',
+            full: 'The education board recommends bilingual forms: Standard Common and Advanced Cat Panic.'
+          },
+          {
+            id: 5,
+            category: 'news',
+            title: 'Game Show Audit Night Adds Lightning Round For Refund Appeals',
+            blurb: 'Contestants answer tax trivia while dodging confetti and legal jargon.',
+            meta: 'By Finance Ring | 10:03',
+            full: 'Winners leave with receipts and closure. Losers leave with drink vouchers and a brass ensemble escort.'
+          },
+          {
+            id: 6,
+            category: 'culture',
+            title: 'Profile: Alto Sax Hero "Nina Nine-Lives" Never Misses A Reimbursement',
+            blurb: 'Her solo cues the exact moment checks are signed.',
+            meta: 'By Stage Door | 11:18',
+            full: 'Nina says she plays in B-flat because "A minor sounds like unresolved paperwork."'
+          },
+          {
+            id: 7,
+            category: 'opinion',
+            title: 'Opinion: Cat Puns Are Not Optional, They Are Municipal Code',
+            blurb: 'Section 14 clearly states all public notices require at least one clawful pun.',
+            meta: 'By Civic Desk',
+            full: 'The code was written during a heatwave and remains surprisingly enforceable.'
+          },
+          {
+            id: 8,
+            category: 'news',
+            title: 'Dock 4 Introduces Quiet Hour For Introvert Kittens And Nervous Tourists',
+            blurb: 'Whispers only, soft cymbals, no surprise laser pointer events.',
+            meta: 'By Transit Clerk | 12:40',
+            full: 'Bookings sold out in six minutes, mostly to accountants recovering from yesterday.'
+          },
+          {
+            id: 9,
+            category: 'letters',
+            title: 'Letter: Why does your gift shop sell incense and cat helmets?',
+            blurb: 'Because safety and mysticism finally agreed on retail strategy.',
+            meta: 'From Curious Visitor #552',
+            full: 'The medium helmet now comes in brushed chrome with embroidered paw crest.'
+          },
+          {
+            id: 10,
+            category: 'culture',
+            title: 'Food Notes: Tuna Mille-Feuille Is Back, Still Legally Complicated',
+            blurb: 'Eight layers of pastry and a waiver.',
+            meta: 'By Galley Desk',
+            full: 'Chef Rue insists all diners sign the phrase: "I accept flakes as emotional weather."'
+          }
+        ]
+      };
+    }
+
+    document.addEventListener('DOMContentLoaded', function () {
+      if (window.lucide && typeof window.lucide.createIcons === 'function') {
+        window.lucide.createIcons();
+      }
+
+      if (window.gsap) {
+        const reveals = document.querySelectorAll('.reveal');
+        window.gsap.fromTo(
+          reveals,
+          { y: 20, opacity: 0 },
+          { y: 0, opacity: 1, duration: 0.65, stagger: 0.08, ease: 'power2.out', clearProps: 'opacity,transform' }
+        );
+      }
+    });
+  </script>
+</body>
+</html>

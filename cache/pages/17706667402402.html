@@ -1,0 +1,860 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Velvet Trapline Club</title>
+  <link rel="stylesheet" href="/assets/css/pico.min.css" />
+  <link rel="stylesheet" href="/assets/css/fonts.css" />
+  <style>
+    :root {
+      --pink: #ff1ea8;
+      --blue: #1273ff;
+      --lime: #a8ff1a;
+      --ink: #050505;
+      --paper: #fffdf7;
+      --panel: #fefefe;
+      --deep: #001a44;
+      --warn: #ffd700;
+    }
+
+    * { box-sizing: border-box; }
+
+    html, body {
+      margin: 0;
+      padding: 0;
+      font-family: 'Space Grotesk', sans-serif;
+      color: var(--ink);
+      background: linear-gradient(135deg, var(--pink) 0%, var(--blue) 45%, var(--lime) 100%);
+      scroll-snap-type: y mandatory;
+      overflow-y: auto;
+    }
+
+    body {
+      background-attachment: fixed;
+    }
+
+    ::selection {
+      background: #000;
+      color: #fff;
+    }
+
+    input::placeholder, textarea::placeholder {
+      color: #111;
+      opacity: 1;
+    }
+
+    .slide {
+      min-height: 100vh;
+      padding: 1rem;
+      scroll-snap-align: start;
+      display: grid;
+      align-items: stretch;
+    }
+
+    .frame {
+      border: 4px solid #000;
+      background: var(--panel);
+      box-shadow: 8px 8px 0 #000;
+      padding: 1rem;
+      display: grid;
+      grid-template-rows: auto 1fr auto;
+      gap: 1rem;
+    }
+
+    .bevel {
+      border: 3px solid #000;
+      border-top-color: #fff;
+      border-left-color: #fff;
+      border-right-color: #444;
+      border-bottom-color: #444;
+      background: #fff;
+      padding: 0.75rem;
+    }
+
+    .topbar {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: center;
+      gap: 0.75rem;
+      background: linear-gradient(90deg, #ff57bd, #44a0ff, #b6ff2f);
+      color: #000;
+      border: 3px solid #000;
+      padding: 0.5rem;
+      box-shadow: 4px 4px 0 #000;
+    }
+
+    .brand {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 1rem;
+      font-weight: 700;
+      letter-spacing: 0.03em;
+      text-transform: uppercase;
+    }
+
+    .marquee {
+      overflow: hidden;
+      border: 2px solid #000;
+      background: #fff;
+      padding: 0.4rem;
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 0.85rem;
+      color: #000;
+      white-space: nowrap;
+    }
+
+    .marquee-track {
+      display: inline-block;
+      padding-left: 100%;
+      animation: drift 20s linear infinite;
+    }
+
+    @keyframes drift {
+      from { transform: translateX(0); }
+      to { transform: translateX(-100%); }
+    }
+
+    .grid {
+      display: grid;
+      gap: 0.8rem;
+      grid-template-columns: repeat(12, minmax(0, 1fr));
+    }
+
+    .col-12 { grid-column: span 12; }
+    .col-8 { grid-column: span 8; }
+    .col-6 { grid-column: span 6; }
+    .col-4 { grid-column: span 4; }
+    .col-3 { grid-column: span 3; }
+
+    .hero-title {
+      margin: 0;
+      font-size: clamp(2rem, 4vw, 4rem);
+      line-height: 0.9;
+      text-transform: uppercase;
+      text-shadow: 3px 3px 0 #fff, 6px 6px 0 #000;
+      color: #000;
+    }
+
+    .tagline {
+      margin: 0;
+      font-size: 1.05rem;
+      font-weight: 700;
+      color: #000;
+    }
+
+    .tiny {
+      font-size: 0.78rem;
+      color: #000;
+      font-family: 'IBM Plex Mono', monospace;
+    }
+
+    .pillrow {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+    }
+
+    .pill {
+      border: 2px solid #000;
+      background: #fff;
+      color: #000;
+      font-weight: 700;
+      padding: 0.35rem 0.65rem;
+      cursor: pointer;
+    }
+
+    .pill.active {
+      background: var(--lime);
+    }
+
+    .button95 {
+      border: 3px solid #000;
+      border-top-color: #fff;
+      border-left-color: #fff;
+      border-right-color: #444;
+      border-bottom-color: #444;
+      background: linear-gradient(180deg, #ffffff, #d9d9d9);
+      color: #000;
+      font-weight: 700;
+      cursor: pointer;
+      padding: 0.5rem 0.75rem;
+    }
+
+    .button95:active {
+      border-top-color: #444;
+      border-left-color: #444;
+      border-right-color: #fff;
+      border-bottom-color: #fff;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.84rem;
+      background: #fff;
+      color: #000;
+    }
+
+    th, td {
+      border: 2px solid #000;
+      padding: 0.45rem;
+      text-align: left;
+      vertical-align: top;
+    }
+
+    th {
+      background: #d8ff80;
+      color: #000;
+    }
+
+    .kpi {
+      padding: 0.7rem;
+      background: #fff;
+      border: 3px solid #000;
+      box-shadow: 4px 4px 0 #000;
+      min-height: 98px;
+    }
+
+    .kpi h3 {
+      margin: 0;
+      font-size: 0.8rem;
+      font-family: 'IBM Plex Mono', monospace;
+      text-transform: uppercase;
+      color: #000;
+    }
+
+    .kpi strong {
+      display: block;
+      margin-top: 0.25rem;
+      font-size: 1.45rem;
+      line-height: 1;
+      color: #000;
+    }
+
+    .dark-zone {
+      background: linear-gradient(160deg, #00153b, #003891);
+      color: #fff;
+    }
+
+    .dark-zone .frame,
+    .dark-zone .bevel,
+    .dark-zone table,
+    .dark-zone .kpi,
+    .dark-zone .marquee,
+    .dark-zone .pill,
+    .dark-zone .button95 {
+      color: #fff;
+      background: #03235a;
+      border-color: #fff;
+      box-shadow: none;
+    }
+
+    .dark-zone th,
+    .dark-zone td {
+      border-color: #fff;
+    }
+
+    .dark-zone th {
+      background: #0d4fb5;
+      color: #fff;
+    }
+
+    .dark-zone .topbar {
+      color: #fff;
+      border-color: #fff;
+      box-shadow: 4px 4px 0 #fff;
+      background: linear-gradient(90deg, #ff43b7, #2786ff, #6cff34);
+    }
+
+    .dark-zone .hero-title,
+    .dark-zone .tagline,
+    .dark-zone .tiny,
+    .dark-zone p,
+    .dark-zone h1,
+    .dark-zone h2,
+    .dark-zone h3,
+    .dark-zone label,
+    .dark-zone span {
+      color: #fff;
+      text-shadow: none;
+    }
+
+    .meter {
+      height: 14px;
+      width: 100%;
+      border: 2px solid #000;
+      background: #fff;
+      overflow: hidden;
+    }
+
+    .meter > span {
+      display: block;
+      height: 100%;
+      background: linear-gradient(90deg, #ff1ea8, #1273ff, #a8ff1a);
+      transition: width 0.3s ease;
+    }
+
+    .chart {
+      display: flex;
+      align-items: end;
+      gap: 0.35rem;
+      height: 120px;
+      border: 2px solid #000;
+      padding: 0.4rem;
+      background: #fff;
+    }
+
+    .bar {
+      flex: 1;
+      min-width: 18px;
+      background: linear-gradient(180deg, #1273ff, #ff1ea8);
+      border: 1px solid #000;
+      transition: height 0.3s ease;
+    }
+
+    .dark-zone .chart {
+      background: #03235a;
+      border-color: #fff;
+    }
+
+    .dark-zone .bar {
+      border-color: #fff;
+      background: linear-gradient(180deg, #6ec7ff, #ff8bda);
+    }
+
+    .catalog {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+      gap: 0.55rem;
+    }
+
+    .card {
+      border: 2px solid #000;
+      background: #fff;
+      padding: 0.6rem;
+      color: #000;
+      min-height: 140px;
+    }
+
+    .card h4 {
+      margin: 0 0 0.4rem 0;
+      font-size: 0.95rem;
+    }
+
+    .note {
+      border: 2px dashed #000;
+      padding: 0.5rem;
+      background: #fffce1;
+      color: #000;
+      font-size: 0.78rem;
+      font-family: 'IBM Plex Mono', monospace;
+    }
+
+    .switch {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      border: 2px solid #000;
+      background: #fff;
+      padding: 0.3rem 0.5rem;
+      color: #000;
+      font-weight: 700;
+    }
+
+    .footerline {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      gap: 0.6rem;
+      border-top: 3px solid #000;
+      padding-top: 0.6rem;
+      color: #000;
+      font-size: 0.78rem;
+      font-family: 'IBM Plex Mono', monospace;
+    }
+
+    .riddle-box {
+      border: 3px solid #000;
+      padding: 0.7rem;
+      background: #fff;
+      color: #000;
+      font-weight: 700;
+      min-height: 72px;
+    }
+
+    .inline {
+      display: flex;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+
+    nav a {
+      color: #000;
+      text-decoration: none;
+      font-weight: 700;
+      border: 2px solid #000;
+      padding: 0.25rem 0.45rem;
+      background: #fff;
+    }
+
+    nav a:hover {
+      background: var(--lime);
+    }
+
+    @media (max-width: 960px) {
+      .col-8, .col-6, .col-4, .col-3 { grid-column: span 12; }
+      .frame { grid-template-rows: auto auto auto; }
+    }
+  </style>
+</head>
+<body x-data="pipeApp" x-init="init()">
+  <section class="slide">
+    <div class="frame">
+      <div class="topbar">
+        <div class="brand">Velvet Trapline Club :: Subscription Plumbing Maison</div>
+        <nav class="inline">
+          <a href="#plans">Plans</a>
+          <a href="#dispatch">Dispatch Board</a>
+          <a href="#ledger">Cat Ledger</a>
+          <a href="#faq">FAQ</a>
+        </nav>
+      </div>
+
+      <div class="grid">
+        <div class="col-8 bevel panel">
+          <p class="tiny">EST. 1995 / REACTIVATED EACH MONDAY AFTER WE REMEMBER</p>
+          <h1 class="hero-title">Riddle-First Plumbing Membership</h1>
+          <p class="tagline">Private pipe care for homes with elegant taste, uncertain memory, and active cats.</p>
+          <div class="marquee" aria-label="service updates">
+            <div class="marquee-track" x-text="ticker"></div>
+          </div>
+          <div class="pillrow" style="margin-top:0.6rem;">
+            <button class="pill" :class="plan==='Velvet' ? 'active' : ''" @click="selectPlan('Velvet')">Velvet</button>
+            <button class="pill" :class="plan==='Chrome' ? 'active' : ''" @click="selectPlan('Chrome')">Chrome</button>
+            <button class="pill" :class="plan==='Cathedral' ? 'active' : ''" @click="selectPlan('Cathedral')">Cathedral</button>
+            <button class="pill" @click="nextRiddle()">New Dispatch Riddle</button>
+          </div>
+          <div class="riddle-box" style="margin-top:0.6rem;">
+            <span x-text="currentRiddle"></span>
+          </div>
+          <p class="tiny" style="margin-top:0.5rem;">Footnote 1: Dispatch accepts answers in whispers, chalk, or stamped envelopes.</p>
+        </div>
+
+        <div class="col-4">
+          <div class="kpi">
+            <h3>Selected Plan</h3>
+            <strong x-text="plan"></strong>
+            <span class="tiny">Monthly: <span x-text="'$' + plans[plan].price"></span></span>
+          </div>
+          <div class="kpi" style="margin-top:0.6rem;">
+            <h3>Memory Window</h3>
+            <strong><span x-text="memorySeconds"></span>s</strong>
+            <button class="button95" style="margin-top:0.4rem; width:100%;" @click="resetMemory()">Refresh Household Memory</button>
+          </div>
+          <div class="kpi" style="margin-top:0.6rem;">
+            <h3>Cat Impact Index</h3>
+            <strong x-text="catMode ? 'HIGH' : 'CONTROLLED'"></strong>
+            <label class="switch" style="margin-top:0.35rem;">
+              <input type="checkbox" x-model="catMode" @change="recalc()" />
+              <span>Enable Shelf-Turbulence Mode</span>
+            </label>
+          </div>
+        </div>
+
+        <div class="col-12 bevel">
+          <div class="grid">
+            <div class="col-3 kpi">
+              <h3>Leaks Resolved Today</h3>
+              <strong x-text="leaksToday"></strong>
+            </div>
+            <div class="col-3 kpi">
+              <h3>Active Households</h3>
+              <strong x-text="subscribers"></strong>
+            </div>
+            <div class="col-3 kpi">
+              <h3>Broken Shelf Objects</h3>
+              <strong x-text="objectsDown"></strong>
+            </div>
+            <div class="col-3 kpi">
+              <h3>Riddle Accuracy</h3>
+              <strong><span x-text="riddleAccuracy"></span>%</strong>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="footerline">
+        <span>Licensed, bonded, and politely mysterious.</span>
+        <span>Service corridor: towers, lofts, manor kitchens, dramatic powder rooms.</span>
+      </div>
+    </div>
+  </section>
+
+  <section class="slide dark-zone" id="dispatch">
+    <div class="frame">
+      <div class="topbar">
+        <div class="brand">Dispatch Console</div>
+        <div class="inline tiny">
+          <span><i data-lucide="clock-3"></i> Next van release in <strong x-text="releaseTimer"></strong> min</span>
+        </div>
+      </div>
+
+      <div class="grid">
+        <div class="col-6 bevel">
+          <h2 style="margin-top:0;">Pressure Theatre</h2>
+          <label for="pressure">Mansion line pressure: <strong><span x-text="pressure"></span> psi</strong></label>
+          <input id="pressure" type="range" min="20" max="120" x-model.number="pressure" @input="recalc()" />
+          <div class="meter" style="margin:0.5rem 0 0.6rem 0;"><span :style="'width:' + pressurePercent + '%' "></span></div>
+          <div class="chart" aria-label="weekly pressure profile">
+            <template x-for="h in chartHeights" :key="h.i">
+              <div class="bar" :style="'height:' + h.v + '%'" :title="h.label"></div>
+            </template>
+          </div>
+          <p class="tiny" style="margin-top:0.45rem;">Footnote 2: Chart includes Sunday, storms, and spontaneous bowl refills caused by cats.</p>
+        </div>
+
+        <div class="col-6 bevel" id="plans">
+          <h2 style="margin-top:0;">Membership Matrix</h2>
+          <table>
+            <thead>
+              <tr>
+                <th>Tier</th>
+                <th>Monthly</th>
+                <th>Included</th>
+                <th>Riddle Priority</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Velvet</td>
+                <td>$79</td>
+                <td>2 visits, 1 memory reset, shelf sweep</td>
+                <td>Standard</td>
+              </tr>
+              <tr>
+                <td>Chrome</td>
+                <td>$149</td>
+                <td>4 visits, night dispatch, faucet styling</td>
+                <td>Expedited</td>
+              </tr>
+              <tr>
+                <td>Cathedral</td>
+                <td>$299</td>
+                <td>Unlimited visits, heirloom fixture handling</td>
+                <td>Immediate</td>
+              </tr>
+            </tbody>
+          </table>
+          <div class="inline" style="margin-top:0.55rem;">
+            <button class="button95" @click="subscribers += 3; leaksToday += 1; recalc();">Enroll 3 Households</button>
+            <button class="button95" @click="objectsDown += (catMode ? 6 : 2); recalc();">Log Shelf Event</button>
+          </div>
+        </div>
+
+        <div class="col-12 bevel">
+          <h2 style="margin-top:0;">Real-Time Incident Ledger</h2>
+          <table>
+            <thead>
+              <tr>
+                <th>Time</th>
+                <th>District</th>
+                <th>Report</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              <template x-for="row in log" :key="row.id">
+                <tr>
+                  <td x-text="row.time"></td>
+                  <td x-text="row.district"></td>
+                  <td x-text="row.issue"></td>
+                  <td x-text="row.status"></td>
+                </tr>
+              </template>
+            </tbody>
+          </table>
+          <div class="inline" style="margin-top:0.5rem;">
+            <button class="button95" @click="addIncident()">Add Incoming Ticket</button>
+            <button class="button95" @click="log = log.slice(0,4)">Archive Extras</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="footerline" style="border-top-color:#fff; color:#fff;">
+        <span>Dispatch windows rotate by lunar valve schedule.</span>
+        <span>Footnote 3: We do not discuss the vase incident unless billing requires.</span>
+      </div>
+    </div>
+  </section>
+
+  <section class="slide" id="ledger">
+    <div class="frame">
+      <div class="topbar">
+        <div class="brand">Household Elegance + Cat Management</div>
+        <div class="tiny">Last elegant shelf audit: <span x-text="auditStamp"></span></div>
+      </div>
+
+      <div class="grid">
+        <div class="col-4 bevel">
+          <h2 style="margin-top:0;">Client Testimonials</h2>
+          <blockquote class="bevel" style="margin:0; min-height:150px; background:#fff8ff; color:#000;">
+            <p style="margin:0; font-weight:700;" x-text="testimonials[testimonialIndex].quote"></p>
+            <footer class="tiny" style="margin-top:0.5rem;" x-text="testimonials[testimonialIndex].name"></footer>
+          </blockquote>
+          <div class="inline" style="margin-top:0.5rem;">
+            <button class="button95" @click="prevTestimonial()">Prev</button>
+            <button class="button95" @click="nextTestimonial()">Next</button>
+          </div>
+          <p class="tiny" style="margin-top:0.5rem;">Footnote 4: Quotes verified by doormen and one retired opera conductor.</p>
+        </div>
+
+        <div class="col-8 bevel">
+          <h2 style="margin-top:0;">Boutique Add-Ons</h2>
+          <div class="catalog">
+            <article class="card">
+              <h4><i data-lucide="sparkles"></i> Chandelier Drip Veil</h4>
+              <p>$39 / month protective canopy for dramatic ceilings.</p>
+              <button class="button95" @click="revenue += 39">Add</button>
+            </article>
+            <article class="card">
+              <h4><i data-lucide="cat"></i> Shelf Decoy Program</h4>
+              <p>$24 / month sacrificial objects approved by decorators.</p>
+              <button class="button95" @click="revenue += 24; objectsDown -= objectsDown > 0 ? 1 : 0">Add</button>
+            </article>
+            <article class="card">
+              <h4><i data-lucide="brain-circuit"></i> Forgetfulness Concierge</h4>
+              <p>$56 / month printed reminders with embossed seals.</p>
+              <button class="button95" @click="revenue += 56">Add</button>
+            </article>
+            <article class="card">
+              <h4><i data-lucide="droplets"></i> Faucet Couture Polish</h4>
+              <p>$18 / month mirror finish for brass and chrome.</p>
+              <button class="button95" @click="revenue += 18">Add</button>
+            </article>
+          </div>
+          <div class="grid" style="margin-top:0.65rem;">
+            <div class="col-6 note">Current add-on revenue this session: <strong>$<span x-text="revenue"></span></strong></div>
+            <div class="col-6 note">Immediate disclaimer: cats are not billed directly, regardless of culpability.</div>
+          </div>
+        </div>
+
+        <div class="col-12 bevel" id="faq">
+          <h2 style="margin-top:0;">Service Questions</h2>
+          <table>
+            <thead>
+              <tr>
+                <th>Question</th>
+                <th>Answer</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Do technicians really communicate in riddles?</td>
+                <td>Yes. Clear, short riddles. One clue per valve.</td>
+              </tr>
+              <tr>
+                <td>Can I pause my membership if I forget it exists?</td>
+                <td>Yes. We honor memory lapses logged within 48 hours of recollection.</td>
+              </tr>
+              <tr>
+                <td>What if my cat knocks over the pressure monitor?</td>
+                <td>Upload the incident code from your hallway card. Replacement ships same day.</td>
+              </tr>
+              <tr>
+                <td>Is there after-hours support?</td>
+                <td>Chrome and Cathedral tiers include moonlit dispatch routing.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="footerline">
+        <span>Velvet Trapline Club, 11th Floor Service Atelier, Metropolitan Utility Arcade.</span>
+        <span>Regulatory note: all pipes are treated with respect and appropriate dramatic lighting.</span>
+      </div>
+    </div>
+  </section>
+
+  <script defer src="/assets/js/alpine.min.js"></script>
+  <script src="/assets/js/gsap.min.js"></script>
+  <script src="/assets/js/lucide.min.js"></script>
+  <script>
+    document.addEventListener('alpine:init', () => {
+      Alpine.data('pipeApp', () => ({
+        plan: 'Velvet',
+        plans: {
+          Velvet: { price: 79 },
+          Chrome: { price: 149 },
+          Cathedral: { price: 299 }
+        },
+        catMode: true,
+        leaksToday: 48,
+        subscribers: 132,
+        objectsDown: 23,
+        riddleAccuracy: 91,
+        memorySeconds: 52,
+        releaseTimer: 14,
+        pressure: 62,
+        revenue: 0,
+        ticker: 'TONIGHT: WEST ATRIUM PIPE POLISH WINDOW OPEN 19:30 | NEW SHELF DECOY CATALOG ISSUED | RIDDLE HOTLINE RESPONSE UNDER 4 MINUTES | ',
+        riddleIndex: 0,
+        auditStamp: '',
+        chartHeights: [
+          { i: 1, label: 'Mon', v: 55 },
+          { i: 2, label: 'Tue', v: 68 },
+          { i: 3, label: 'Wed', v: 48 },
+          { i: 4, label: 'Thu', v: 72 },
+          { i: 5, label: 'Fri', v: 64 },
+          { i: 6, label: 'Sat', v: 83 },
+          { i: 7, label: 'Sun', v: 58 }
+        ],
+        riddles: [
+          'I run yet I walk not. I sing yet I breathe not. Name me, and your sink runs clear.',
+          'I hold storms in my silver throat. Turn me left for mercy, right for proof.',
+          'The loudest drip is the one behind velvet walls. Find the hush, save the tile.',
+          'Where bowls refill without command, a whiskered monarch has passed.'
+        ],
+        testimonials: [
+          { name: 'Marina K., Penthouse Resident', quote: 'They repaired three hidden leaks before I found my reading glasses. The riddle was tasteful.' },
+          { name: 'Jules A., Gallery Director', quote: 'Our cat launched a crystal pear. Dispatch arrived in nine minutes and wrapped the valve in linen.' },
+          { name: 'Chairman P. Lovett, Crescent Towers', quote: 'Membership billing is exact, and their faucet polish reflects my tie knot perfectly.' }
+        ],
+        testimonialIndex: 0,
+        log: [
+          { id: 1, time: '08:12', district: 'North Arcade', issue: 'Guest bath echo-drip behind mirror panel', status: 'Riddle sent' },
+          { id: 2, time: '09:03', district: 'Riverfront Lofts', issue: 'Cat-triggered glass cascade near pantry sink', status: 'Crew dispatched' },
+          { id: 3, time: '09:58', district: 'Opera Hill', issue: 'Remembered subscription, forgot door code', status: 'Concierge assisting' },
+          { id: 4, time: '10:21', district: 'Cobalt Residences', issue: 'Pressure spike during espresso cycle', status: 'Stabilized' }
+        ],
+
+        get currentRiddle() {
+          return this.riddles[this.riddleIndex];
+        },
+
+        get pressurePercent() {
+          return Math.round(((this.pressure - 20) / 100) * 100);
+        },
+
+        init() {
+          this.refreshAuditStamp();
+          this.recalc();
+
+          setInterval(() => {
+            this.memorySeconds = this.memorySeconds > 0 ? this.memorySeconds - 1 : 52;
+            this.releaseTimer = this.releaseTimer > 0 ? this.releaseTimer - 1 : 14;
+
+            if (this.catMode && Math.random() > 0.62) {
+              this.objectsDown += 1;
+            }
+            if (Math.random() > 0.55) {
+              this.leaksToday += 1;
+            }
+
+            this.riddleAccuracy = Math.max(72, Math.min(99, this.riddleAccuracy + (Math.random() > 0.5 ? 1 : -1)));
+          }, 1000);
+
+          setInterval(() => {
+            this.ticker = this.ticker.slice(1) + this.ticker.charAt(0);
+          }, 160);
+
+          setInterval(() => {
+            this.nextTestimonial();
+          }, 7000);
+
+          setInterval(() => {
+            this.addIncident(true);
+          }, 9000);
+        },
+
+        selectPlan(name) {
+          this.plan = name;
+          this.recalc();
+        },
+
+        nextRiddle() {
+          this.riddleIndex = (this.riddleIndex + 1) % this.riddles.length;
+        },
+
+        prevTestimonial() {
+          this.testimonialIndex = (this.testimonialIndex - 1 + this.testimonials.length) % this.testimonials.length;
+        },
+
+        nextTestimonial() {
+          this.testimonialIndex = (this.testimonialIndex + 1) % this.testimonials.length;
+        },
+
+        addIncident(auto = false) {
+          const issues = [
+            'Vanity drain humming in B-flat major',
+            'Hallway umbrella stand mistaken for overflow sensor',
+            'Marble bar sink forgets to stop flowing after tea',
+            'Porcelain bowl refill loop at midnight',
+            'Sconce reflection reveals hidden pipe tremor'
+          ];
+          const districts = ['Gilded Row', 'Canal Quarter', 'Neon Heights', 'Old Conservatory', 'Azure Blocks'];
+          const statuses = ['Queued', 'Riddle sent', 'Crew dispatched', 'Awaiting keyholder'];
+          const t = new Date();
+          const time = `${String(t.getHours()).padStart(2, '0')}:${String(t.getMinutes()).padStart(2, '0')}`;
+
+          this.log.unshift({
+            id: Date.now() + Math.floor(Math.random() * 1000),
+            time,
+            district: districts[Math.floor(Math.random() * districts.length)],
+            issue: issues[Math.floor(Math.random() * issues.length)],
+            status: statuses[Math.floor(Math.random() * statuses.length)]
+          });
+
+          this.log = this.log.slice(0, 8);
+          if (!auto) {
+            this.leaksToday += 1;
+            this.objectsDown += this.catMode ? 1 : 0;
+          }
+        },
+
+        refreshAuditStamp() {
+          const d = new Date();
+          const mm = String(d.getMonth() + 1).padStart(2, '0');
+          const dd = String(d.getDate()).padStart(2, '0');
+          const yy = d.getFullYear();
+          const hh = String(d.getHours()).padStart(2, '0');
+          const mi = String(d.getMinutes()).padStart(2, '0');
+          this.auditStamp = `${yy}-${mm}-${dd} ${hh}:${mi}`;
+        },
+
+        resetMemory() {
+          this.memorySeconds = 52;
+          this.riddleAccuracy = Math.min(99, this.riddleAccuracy + 2);
+        },
+
+        recalc() {
+          const base = this.plan === 'Velvet' ? 88 : this.plan === 'Chrome' ? 92 : 96;
+          const catPenalty = this.catMode ? -6 : 1;
+          const pressureEffect = this.pressure > 95 ? -4 : this.pressure < 40 ? -5 : 2;
+          this.riddleAccuracy = Math.max(72, Math.min(99, base + catPenalty + pressureEffect));
+
+          const seed = Math.round(this.pressure / 2);
+          this.chartHeights = this.chartHeights.map((item, idx) => {
+            const shift = ((idx * 7 + seed) % 25) - 12;
+            const next = Math.max(24, Math.min(96, item.v + shift / 3));
+            return { i: item.i, label: item.label, v: Math.round(next) };
+          });
+        }
+      }));
+    });
+
+    window.addEventListener('DOMContentLoaded', () => {
+      if (window.lucide && typeof window.lucide.createIcons === 'function') {
+        window.lucide.createIcons();
+      }
+
+      if (window.gsap) {
+        gsap.from('.frame', { duration: 0.8, y: 26, opacity: 0, stagger: 0.12, ease: 'power2.out' });
+        gsap.from('.kpi', { duration: 0.6, scale: 0.93, opacity: 0, stagger: 0.05, delay: 0.2, ease: 'back.out(1.2)' });
+      }
+    });
+  </script>
+</body>
+</html>

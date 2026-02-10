@@ -1,0 +1,395 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>WhiskerWire — Investigative Journalism for the Indoor Community</title>
+  <link rel="stylesheet" href="/assets/css/pico.min.css" />
+  <link rel="stylesheet" href="/assets/css/fonts.css" />
+  <style>
+    :root {
+      --bg: #0c0f1a;
+      --panel: #151929;
+      --ink: #eef0f8;
+      --red: #e8364b;
+      --blue: #2d8cf0;
+      --muted: #8890a8;
+      --warm: #f5f0e8;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Inter', sans-serif;
+      background: var(--bg);
+      color: var(--ink);
+      line-height: 1.6;
+    }
+    h1,h2,h3 { font-family: 'Playfair Display', serif; }
+
+    .ticker-bar {
+      background: var(--red); color: #fff; padding: 0.35rem 5vw;
+      font-family: 'IBM Plex Mono', monospace; font-size: 0.72rem;
+      font-weight: 700; letter-spacing: 0.04em;
+      display: flex; align-items: center; gap: 0.8rem;
+      overflow: hidden; white-space: nowrap;
+    }
+    .ticker-bar .live {
+      background: #fff; color: var(--red); padding: 0.15rem 0.5rem;
+      border-radius: 3px; font-weight: 800; flex-shrink: 0;
+    }
+
+    nav {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0.7rem 5vw; border-bottom: 1px solid rgba(255,255,255,0.06);
+      flex-wrap: wrap; gap: 0.5rem;
+    }
+    .logo { font-family: 'Playfair Display', serif; font-size: 1.3rem; font-weight: 700; }
+    .logo small {
+      display: block; font-family: 'IBM Plex Mono', monospace; font-size: 0.52rem;
+      color: var(--muted); letter-spacing: 0.12em;
+    }
+    .nav-links { display: flex; gap: 1.2rem; font-size: 0.82rem; flex-wrap: wrap; }
+    .nav-links a { color: var(--muted); text-decoration: none; }
+
+    .hero { max-width: 760px; margin: 0 auto; padding: 4rem 5vw 2.5rem; text-align: center; }
+    .hero h1 { font-size: clamp(1.8rem, 4.5vw, 2.8rem); line-height: 1.15; margin-bottom: 1rem; }
+    .hero .sub { color: var(--muted); font-size: 0.95rem; max-width: 520px; margin: 0 auto; }
+
+    section { max-width: 780px; margin: 0 auto; padding: 2.5rem 5vw; }
+    section h2 { font-size: 1.5rem; margin-bottom: 1.2rem; }
+
+    .letter {
+      border-left: 3px solid var(--red); padding: 1.5rem 5vw; max-width: 660px;
+      margin: 0 auto 2rem; font-family: 'Crimson Pro', serif; font-size: 1.05rem;
+      color: rgba(238,240,248,0.8); line-height: 1.8; font-style: italic;
+    }
+    .letter p { margin-bottom: 0.8rem; }
+    .letter .sig {
+      font-style: normal; font-family: 'IBM Plex Mono', monospace;
+      font-size: 0.73rem; color: var(--muted); margin-top: 1.2rem;
+    }
+
+    .stories { display: grid; gap: 1.2rem; }
+    .story {
+      background: var(--panel); border: 1px solid rgba(255,255,255,0.06);
+      border-radius: 10px; padding: 1.4rem;
+    }
+    .story .tag {
+      display: inline-block; font-family: 'IBM Plex Mono', monospace;
+      font-size: 0.65rem; letter-spacing: 0.08em; font-weight: 700;
+      padding: 0.2rem 0.5rem; border-radius: 3px; margin-bottom: 0.5rem;
+    }
+    .tag-breaking { background: var(--red); color: #fff; }
+    .tag-developing { background: var(--blue); color: #fff; }
+    .tag-editorial { background: rgba(255,255,255,0.1); color: var(--muted); }
+    .tag-cold { background: rgba(232,54,75,0.15); color: var(--red); }
+    .story h3 { font-size: 1.1rem; margin-bottom: 0.4rem; }
+    .story p { font-size: 0.88rem; color: var(--muted); }
+    .story .byline {
+      font-family: 'IBM Plex Mono', monospace; font-size: 0.68rem;
+      color: rgba(255,255,255,0.3); margin-top: 0.6rem;
+    }
+
+    .team { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 1.2rem; }
+    .member {
+      background: var(--panel); border: 1px solid rgba(255,255,255,0.06);
+      border-radius: 10px; padding: 1.3rem;
+    }
+    .member h3 { font-size: 0.95rem; margin-bottom: 0.1rem; font-family: 'Inter', sans-serif; font-weight: 700; }
+    .member .role { font-size: 0.68rem; color: var(--blue); font-family: 'IBM Plex Mono', monospace; letter-spacing: 0.05em; margin-bottom: 0.5rem; }
+    .member p { font-size: 0.83rem; color: var(--muted); }
+
+    .schedule {
+      background: var(--panel); border: 1px solid rgba(255,255,255,0.06);
+      border-radius: 10px; padding: 1.5rem;
+    }
+    .sched-item {
+      display: grid; grid-template-columns: 4.5rem 1fr; gap: 0.8rem;
+      padding: 0.7rem 0; border-bottom: 1px solid rgba(255,255,255,0.04);
+    }
+    .sched-item:last-child { border-bottom: none; }
+    .sched-item .time {
+      font-family: 'IBM Plex Mono', monospace; font-size: 0.72rem; color: var(--red);
+    }
+    .sched-item h3 { font-size: 0.9rem; font-family: 'Inter', sans-serif; font-weight: 700; margin-bottom: 0.15rem; }
+    .sched-item p { font-size: 0.8rem; color: var(--muted); }
+
+    .faq-item { border-bottom: 1px solid rgba(255,255,255,0.05); padding: 1rem 0; }
+    .faq-item h3 { font-size: 0.95rem; font-family: 'Inter', sans-serif; cursor: pointer; font-weight: 700; }
+    .faq-item p { font-size: 0.88rem; color: var(--muted); margin-top: 0.4rem; }
+
+    footer {
+      border-top: 1px solid rgba(255,255,255,0.05); padding: 2rem 5vw;
+      max-width: 780px; margin: 2rem auto 0; font-size: 0.68rem;
+      color: var(--muted); font-family: 'IBM Plex Mono', monospace;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="ticker-bar">
+    <span class="live">BREAKING</span>
+    <span>Glass confirmed knocked from counter at approximately 3:47 AM — Investigating team on scene — Kitchen source says "it just fell" — WhiskerWire has obtained paw print evidence suggesting otherwise</span>
+  </div>
+
+  <nav>
+    <div class="logo">
+      WhiskerWire
+      <small>INVESTIGATIVE JOURNALISM FOR THE INDOOR COMMUNITY</small>
+    </div>
+    <div class="nav-links">
+      <a href="#stories">Top Stories</a>
+      <a href="#team">Newsroom</a>
+      <a href="#schedule">Tonight</a>
+      <a href="#faq">About</a>
+    </div>
+  </nav>
+
+  <div class="hero">
+    <h1>Someone in this house is lying. We're going to find out who.</h1>
+    <p class="sub">
+      WhiskerWire is the leading investigative news network covering crime, corruption,
+      and missing objects in the indoor community. Broadcasting nightly from behind the sofa.
+      Funded by a goldfish who believes in the truth.
+    </p>
+  </div>
+
+  <div class="letter">
+    <p>I started WhiskerWire because nobody was asking the hard questions. A glass falls off
+    the counter at 3 AM and the humans just say "oh, the cat." The cat? Which cat? Based on what
+    evidence? Where is the forensic analysis? Where is the timeline? Where is the accountability?</p>
+
+    <p>I am a journalist. I was born in a shelter, which is basically the same as growing up on
+    the streets. I spent my first year batting at a feather toy in what the humans call a
+    "living room" but what I call a beat. I know every corner of this house. I know which floorboard
+    creaks at 2 AM. I know which cabinet doesn't close all the way. I know that the other cat —
+    Beans — was on the kitchen counter at 3:44 AM on the night of the glass incident. I know this
+    because I was watching. I am always watching.</p>
+
+    <p>The humans don't read our reports. The goldfish funds us anyway. She says transparency
+    doesn't require an audience. I don't fully understand her but I respect her commitment.
+    She has a very small bowl and a very large vision.</p>
+
+    <div class="sig">
+      — Soot, Editor-in-Chief, WhiskerWire<br>
+      Winner, 2024 Under-the-Couch Press Freedom Award<br>
+      "The truth doesn't knock things off counters. Beans does."
+    </div>
+  </div>
+
+  <section id="stories">
+    <h2>Top Stories</h2>
+    <div class="stories">
+      <div class="story">
+        <span class="tag tag-breaking">BREAKING</span>
+        <h3>Glass Found Shattered on Kitchen Floor; Beans "Has No Comment"</h3>
+        <p>A 12-oz water glass was discovered on the kitchen floor at approximately 3:47 AM.
+        The humans blamed "the wind," despite all windows being closed. WhiskerWire's forensic
+        team has identified paw prints consistent with a 14-lb domestic shorthair matching Beans'
+        weight class. Beans was reached for comment through the cat door and stated only "meow,"
+        which our legal team is reviewing for possible obstruction. The glass was from IKEA. It
+        has not been replaced. The humans seem fine with this.</p>
+        <div class="byline">By Soot · 4:12 AM · Developing</div>
+      </div>
+
+      <div class="story">
+        <span class="tag tag-developing">DEVELOPING</span>
+        <h3>Red Dot Appears for Third Consecutive Evening; Source Remains Unidentified</h3>
+        <p>For the third night in a row, an unidentified red dot appeared on the living room wall
+        at approximately 8:15 PM. WhiskerWire correspondent Nimbus pursued the dot for eleven
+        minutes before it vanished near the bookshelf. Investigators noted that the male human was
+        "smiling" during the incident and holding an unidentified cylindrical object. The dot has
+        no known origin, no physical form, and no apparent motive. Nimbus has filed the case
+        under "Unexplained Phenomena" but privately told WhiskerWire he "knows it's something"
+        and "won't stop until he catches it." This is his ninth report on the dot. He has never
+        caught it.</p>
+        <div class="byline">By Nimbus · 9:30 PM · Ongoing Investigation (Week 47)</div>
+      </div>
+
+      <div class="story">
+        <span class="tag tag-editorial">EDITORIAL</span>
+        <h3>Opinion: The 3 PM Sunbeam Belongs to Everyone</h3>
+        <p>The 3 PM sunbeam on the living room carpet is approximately 18 inches wide and lasts
+        for 43 minutes. It is, by any measure, the most valuable piece of real estate in this
+        house. And yet, for the past six weeks, Beans has claimed it exclusively, arriving at
+        2:54 PM and stretching to maximum width. This is not equitable. This paper has reviewed the
+        household charter (there is no household charter — this is part of the problem) and
+        found no legal basis for Beans' occupation. We call on all residents to support a fair
+        sunbeam rotation schedule. Beans has been notified. Beans is asleep in the sunbeam.</p>
+        <div class="byline">By Soot · Editorial Board · Published 2:58 PM (from the hallway, in partial shade)</div>
+      </div>
+
+      <div class="story">
+        <span class="tag tag-cold">COLD CASE</span>
+        <h3>The Disappearance of the Grey Mouse Toy (2022–Present)</h3>
+        <p>On or around September 14, 2022, a grey felt mouse with a rattle inside disappeared
+        from the area beneath the refrigerator. The mouse had been in continuous custody under
+        the fridge for approximately eight months. WhiskerWire has conducted 14 sweeps of the
+        kitchen. The mouse has not been recovered. The humans purchased a replacement in October
+        2022, which Soot has described as "an insult." The replacement is orange. The original
+        was grey. "They are not the same mouse," Soot wrote in a 2,000-word investigative piece
+        that the humans did not read. The case remains open. Soot checks under the fridge daily.</p>
+        <div class="byline">By Soot · Cold Case Unit · Last updated: today, 6:14 AM</div>
+      </div>
+    </div>
+  </section>
+
+  <section id="team">
+    <h2>The Newsroom</h2>
+    <div class="team">
+      <div class="member">
+        <h3>Soot</h3>
+        <div class="role">EDITOR-IN-CHIEF · LEAD INVESTIGATOR</div>
+        <p>Black domestic shorthair, 6 years old. Former shelter cat. Takes journalism more
+        seriously than anyone in the house takes anything. Has a complicated relationship with
+        Beans that he insists is "purely professional." Sleeps on the printer, which he considers
+        "being close to the press."</p>
+      </div>
+      <div class="member">
+        <h3>Nimbus</h3>
+        <div class="role">FIELD CORRESPONDENT</div>
+        <p>Grey tabby, 3 years old. Enthusiastic but easily distracted. Has filed 47 reports on
+        the red dot, none of which have advanced the investigation. Once chased his own tail for
+        six minutes during a live broadcast. Soot has considered reassigning him. Soot has not
+        reassigned him. "He has heart," Soot said. "Not accuracy. But heart."</p>
+      </div>
+      <div class="member">
+        <h3>Beans</h3>
+        <div class="role">PERSON OF INTEREST · OCCASIONAL CONTRIBUTOR</div>
+        <p>Orange domestic shorthair, 5 years old. Implicated in 73% of WhiskerWire investigations.
+        Denies all allegations. Contributes a biweekly column called "Beans' Corner" that Soot
+        publishes against his editorial judgment because Marina insists on "balance." The column
+        is mostly about napping. It is the most-read content on WhiskerWire.</p>
+      </div>
+      <div class="member">
+        <h3>Marina Goldfin</h3>
+        <div class="role">EXECUTIVE PRODUCER · FUNDING</div>
+        <p>Goldfish, age unknown. Lives in a bowl on the kitchen counter. Funds the entire operation
+        through unclear means. Has never spoken. Communicates exclusively through what Soot
+        describes as "meaningful circles." Soot presents every major editorial decision to Marina
+        by holding the story up to the bowl. Marina swims left for yes and right for no. She has
+        never swum right. Soot considers her "the most supportive executive in media."</p>
+      </div>
+    </div>
+  </section>
+
+  <section id="schedule">
+    <h2>Tonight on WhiskerWire</h2>
+    <div class="schedule">
+      <div class="sched-item">
+        <div class="time">8:00 PM</div>
+        <div>
+          <h3>WhiskerWire Evening Report</h3>
+          <p>Soot anchors. Tonight: update on the glass incident, weather (indoor temperature
+          report), and the ongoing red dot investigation. Beans has been invited to respond to
+          allegations. Beans has not confirmed attendance.</p>
+        </div>
+      </div>
+      <div class="sched-item">
+        <div class="time">9:00 PM</div>
+        <div>
+          <h3>The Nimbus Hour</h3>
+          <p>Nimbus reports live from the hallway on "suspicious sounds coming from the basement."
+          Last week's episode was 45 minutes of Nimbus staring at a door. Ratings were the
+          highest in WhiskerWire history. Nobody understands why.</p>
+        </div>
+      </div>
+      <div class="sched-item">
+        <div class="time">10:30 PM</div>
+        <div>
+          <h3>Cold Case Files: Under the Fridge</h3>
+          <p>A deep dive into the grey mouse disappearance. Soot re-examines the evidence.
+          New theory: the mouse may have been batted into a heating vent. The humans have not
+          been asked to check. Soot does not trust them with this information.</p>
+        </div>
+      </div>
+      <div class="sched-item">
+        <div class="time">12:00 AM</div>
+        <div>
+          <h3>Beans' Corner (Replay)</h3>
+          <p>This week's column: "The Blanket Was Already Like That." Beans' account of an
+          incident involving a throw blanket that was found on the floor. Beans maintains the
+          blanket "was already like that" when he arrived. No witnesses have come forward.
+          The blanket has not been returned to the sofa.</p>
+        </div>
+      </div>
+      <div class="sched-item">
+        <div class="time">3:00 AM</div>
+        <div>
+          <h3>LIVE: The Night Desk</h3>
+          <p>Unscripted live coverage of whatever happens in the kitchen between 3 and 4 AM.
+          This is consistently WhiskerWire's most newsworthy hour. Last week: the glass incident.
+          The week before: Beans opened a cabinet. The humans do not know about The Night Desk.
+          The Night Desk intends to keep it that way.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section x-data="{ open: null }" id="faq">
+    <h2>About WhiskerWire</h2>
+
+    <div class="faq-item" x-on:click="open = open === 1 ? null : 1">
+      <h3>How is WhiskerWire funded?</h3>
+      <p x-show="open === 1">WhiskerWire is entirely funded by Marina Goldfin, a goldfish who
+      lives on the kitchen counter. The source of Marina's wealth is unknown. Soot has
+      investigated this twice and both times concluded that "some questions are bigger than
+      journalism." Marina's bowl was purchased at PetSmart for $11.99. Her editorial budget is,
+      by Soot's estimate, "unlimited." She has never denied a funding request. She has also
+      never confirmed one. She swims in circles. The circles are enough.</p>
+    </div>
+
+    <div class="faq-item" x-on:click="open = open === 2 ? null : 2">
+      <h3>Do the humans know about WhiskerWire?</h3>
+      <p x-show="open === 2">No. The humans believe the cats "just sit around all day." This
+      is incorrect. Soot runs a four-cat newsroom. Nimbus files daily field reports. Beans
+      writes a column. The operation broadcasts from behind the sofa using equipment that
+      Soot will not describe in detail for security reasons, except to say that it involves
+      "a phone the humans think they lost in 2023." The humans occasionally hear noises at
+      3 AM and assume it is "the heater." It is not the heater. It is The Night Desk.</p>
+    </div>
+
+    <div class="faq-item" x-on:click="open = open === 3 ? null : 3">
+      <h3>Is Beans really guilty?</h3>
+      <p x-show="open === 3">WhiskerWire maintains editorial independence and does not
+      pre-judge any subject of investigation. That said, Soot would like it noted that Beans
+      has been implicated in 73% of all investigated incidents, has never provided a credible
+      alibi, and was found "at the scene" of the glass incident with what Soot described as
+      "a look of complete indifference, which is worse than guilt." Beans' column remains
+      on the WhiskerWire schedule because Marina swam left when asked.</p>
+    </div>
+
+    <div class="faq-item" x-on:click="open = open === 4 ? null : 4">
+      <h3>Has WhiskerWire ever been wrong?</h3>
+      <p x-show="open === 4">Once. In March 2024, WhiskerWire reported that a sock found under
+      the bed was "evidence of human negligence." It was later determined to be Nimbus' sock.
+      Nimbus had been sleeping on it. Soot issued a full retraction and a personal apology
+      to the humans, which he delivered by sitting near the sock and blinking slowly. The
+      humans did not understand the apology. They moved the sock. Soot considers the matter
+      closed but "not forgotten."</p>
+    </div>
+  </section>
+
+  <footer>
+    <p>© 2025 WhiskerWire Investigations & Broadcast Network. Operating from behind the sofa,
+    Kitchen Counter Bureau (Marina's bowl), and the hallway (Nimbus, usually).</p>
+    <p style="margin-top: 0.4rem;">
+      <a href="#">Story Archive</a> ·
+      <a href="#">Beans' Corner</a> ·
+      <a href="#">Cold Case Files</a> ·
+      <a href="#">Submit a Tip</a> (leave it near the food bowl)
+    </p>
+    <p style="margin-top: 0.4rem;">"The truth is under the fridge. It has always been under the fridge." — Soot</p>
+  </footer>
+
+  <script defer src="/assets/js/alpine.min.js"></script>
+  <script src="/assets/js/gsap.min.js"></script>
+  <script>
+    window.addEventListener('DOMContentLoaded', function() {
+      gsap.from('nav', { y: -20, opacity: 0, duration: 0.6 });
+      gsap.from('.hero h1', { y: 30, opacity: 0, duration: 0.8, delay: 0.15 });
+      gsap.from('.hero .sub', { y: 20, opacity: 0, duration: 0.6, delay: 0.3 });
+      gsap.from('.letter', { x: -20, opacity: 0, duration: 0.8, delay: 0.2 });
+    });
+  </script>
+</body>
+</html>

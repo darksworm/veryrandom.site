@@ -1,0 +1,340 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Finch Institute for Post-Floss Recovery</title>
+    <link rel="stylesheet" href="/assets/css/pico.min.css">
+    <link rel="stylesheet" href="/assets/css/fonts.css">
+    <style>
+        :root {
+            --bg-color: #100c1f;
+            --primary-glow: #00f0ff;
+            --secondary-glow: #ff00ff;
+            --text-color: #e0e0e0;
+            --text-muted: #9a97a8;
+            --card-bg: rgba(22, 17, 40, 0.7);
+            --card-border: #3a3052;
+            --font-heading: 'Playfair Display', serif;
+            --font-body: 'Crimson Pro', serif;
+            --font-mono: 'IBM Plex Mono', monospace;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            font-family: var(--font-body);
+            font-size: 18px;
+            line-height: 1.7;
+            overflow-x: hidden;
+        }
+
+        /* Override Pico defaults */
+        h1, h2, h3, h4, h5, h6 {
+            font-family: var(--font-heading);
+            color: var(--text-color);
+            font-weight: 700;
+        }
+        p {
+            color: var(--text-color);
+            margin-bottom: 1rem;
+        }
+        a {
+            color: var(--primary-glow);
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+        a:hover {
+            color: var(--secondary-glow);
+        }
+        .container {
+            max-width: 1200px;
+            padding: 0 2rem;
+        }
+
+        /* Hero Section */
+        .hero {
+            min-height: 80vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            position: relative;
+            padding: 4rem 2rem;
+        }
+
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 400px;
+            height: 400px;
+            background: radial-gradient(circle, var(--secondary-glow) 0%, rgba(255,0,255,0) 60%);
+            transform: translate(-50%, -50%);
+            filter: blur(120px);
+            opacity: 0.2;
+            animation: pulse 12s infinite alternate;
+        }
+         .hero::after {
+            content: '';
+            position: absolute;
+            top: 55%;
+            left: 45%;
+            width: 300px;
+            height: 300px;
+            background: radial-gradient(circle, var(--primary-glow) 0%, rgba(0,240,255,0) 70%);
+            transform: translate(-50%, -50%);
+            filter: blur(100px);
+            opacity: 0.3;
+            animation: pulse 15s infinite alternate-reverse;
+        }
+
+        @keyframes pulse {
+            from { opacity: 0.15; transform: translate(-50%, -50%) scale(0.8); }
+            to { opacity: 0.35; transform: translate(-48%, -52%) scale(1.2); }
+        }
+
+        .hero h1 {
+            font-size: clamp(2.5rem, 6vw, 4.5rem);
+            line-height: 1.1;
+            margin-bottom: 0.5rem;
+            text-shadow: 0 0 15px rgba(255, 0, 255, 0.3);
+            position: relative;
+            z-index: 2;
+        }
+
+        .hero p {
+            font-family: var(--font-body);
+            font-style: italic;
+            font-size: clamp(1.1rem, 2.5vw, 1.5rem);
+            color: var(--text-muted);
+            max-width: 60ch;
+            position: relative;
+            z-index: 2;
+        }
+        
+        /* Masonry Grid */
+        .treatment-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 2rem;
+            padding: 4rem 0;
+        }
+
+        .card {
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 8px;
+            padding: 2rem;
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            transition: transform 0.4s ease, box-shadow 0.4s ease;
+            opacity: 0; /* For GSAP */
+            break-inside: avoid;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2), 0 0 20px var(--primary-glow), 0 0 5px var(--secondary-glow) inset;
+            border-color: var(--primary-glow);
+        }
+
+        .card h3 {
+            font-size: 1.75rem;
+            margin-bottom: 1rem;
+            color: var(--text-color);
+        }
+
+        .card .meta {
+            font-family: var(--font-mono);
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            color: var(--secondary-glow);
+            letter-spacing: 1px;
+            margin-bottom: 1.5rem;
+            display: block;
+        }
+        
+        .card .testimonial-author {
+            font-family: var(--font-body);
+            font-style: italic;
+            text-align: right;
+            margin-top: 1rem;
+            color: var(--text-muted);
+        }
+
+        .card-button {
+            font-family: var(--font-mono);
+            background-color: transparent;
+            border: 1px solid var(--primary-glow);
+            color: var(--primary-glow);
+            padding: 0.75rem 1.5rem;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            margin-top: 1.5rem;
+        }
+        .card-button:hover {
+            background-color: var(--primary-glow);
+            color: var(--bg-color);
+            box-shadow: 0 0 20px var(--primary-glow);
+        }
+        
+        .card i[data-lucide] {
+            position: absolute;
+            top: 1.5rem;
+            right: 1.5rem;
+            color: var(--card-border);
+            transition: all 0.4s ease;
+        }
+        
+        .card:hover i[data-lucide] {
+            color: var(--secondary-glow);
+            transform: rotate(-15deg) scale(1.1);
+        }
+
+        /* Footer */
+        .site-footer {
+            text-align: center;
+            padding: 4rem 2rem 2rem;
+            font-size: 0.9rem;
+            color: var(--text-muted);
+            font-family: var(--font-mono);
+        }
+        
+        @media (max-width: 768px) {
+            body { font-size: 16px; }
+            .hero { min-height: 60vh; padding: 2rem 1rem; }
+            .container { padding: 0 1rem; }
+            .treatment-grid { grid-template-columns: 1fr; }
+        }
+        
+    </style>
+</head>
+<body x-data>
+
+    <main class="container">
+        
+        <header class="hero">
+            <h1>The Finch Institute for Post-Floss Recovery</h1>
+            <p>"Have you been... flossing? It is not too late to reclaim what has been wrested from your very soul."</p>
+        </header>
+
+        <section class="treatment-grid">
+            
+            <article class="card">
+                <i data-lucide="waveform"></i>
+                <h3>Gingival Aetheric Harmonization</h3>
+                <span class="meta">Duration: 3 Minutes</span>
+                <p>Utilizes a proprietary sequence of 432Hz sine waves to soothe the microscopic lacerations in your gingival lacework, preventing the leakage of vital humours.</p>
+                <button class="card-button" @click="alert('Harmonization protocol initiated. Please remain still.')">Initiate</button>
+            </article>
+
+            <article class="card">
+                <i data-lucide="gem"></i>
+                <h3>The Enamel Resonance Protocol</h3>
+                <span class="meta">Price: $99.95</span>
+                <p>A focused chromatherapy session counteracting 'nylon friction trauma'. This bathes your enamel sentinels in a violet light spectrum, restoring their natural resonant frequency.</p>
+                 <button class="card-button">Recalibrate</button>
+            </article>
+
+            <article class="card">
+                <i data-lucide="quote"></i>
+                <h3>Testimonial</h3>
+                <p>"Before Dr. Finch, my days were a blur of post-floss shame and a profound sense of inner emptiness. Now, my vital humours are robust, and I no longer fear breakfast."</p>
+                <p class="testimonial-author">&mdash;Barnaby P. (Haberdasher)</p>
+            </article>
+
+            <article class="card">
+                <i data-lucide="cloud-off"></i>
+                <h3>Sub-Lingual Miasma Cleanse</h3>
+                <span class="meta">Advisory: Tingling Sensation</span>
+                <p>Addresses the noxious vapour cloud that accumulates post-flossing. This module projects a counter-sigil of pure energy to disperse the negative psychic residue.</p>
+                 <button class="card-button">Cleanse Aura</button>
+            </article>
+            
+            <article class="card">
+                 <i data-lucide="dollar-sign"></i>
+                <h3>The "Why?" Module</h3>
+                 <span class="meta">Follow the money</span>
+                <p>Why does 'Big Floss' promote this daily act of self-mutilation? Each spool is a psychic anchor, tethering your soul to their quarterly earnings reports. We offer the key.</p>
+            </article>
+
+            <article class="card" x-data="{ open: false }">
+                 <i data-lucide="ear-off"></i>
+                <h3>Menthol Trauma De-Coupling</h3>
+                <span class="meta">7-Day Audio Course</span>
+                <p>An intensive audio regimen for victims of aggressive mint-waxed varieties. Helps your subconscious disassociate the scent of mint with the act of self-harm.</p>
+                <button class="card-button" @click="open = !open" x-text="open ? 'Close Details' : 'Requires Headset'">Requires Headset</button>
+                <div x-show="open" x-transition>
+                    <p style="margin-top: 1rem; font-size: 0.9em; color: var(--text-muted);">Please use only high-fidelity, over-ear headphones. In-ear "bud" devices may project the de-coupling frequencies directly into the brain stem, with unforeseeable consequences.</p>
+                </div>
+            </article>
+            
+            <article class="card">
+                <i data-lucide="help-circle"></i>
+                <h3>Frequently Asked Queries</h3>
+                <div x-data="{ active: 'q1' }">
+                    <h5 @click="active = 'q1'" :style="active === 'q1' ? 'color: var(--primary-glow)' : ''" style="cursor:pointer;">Q: Is this real?</h5>
+                    <p x-show="active === 'q1'">A: The damage is real. The recovery is, therefore, necessary. To question the method is to remain ensnared by the symptom.</p>
+                    
+                    <h5 @click="active = 'q2'" :style="active === 'q2' ? 'color: var(--primary-glow)' : ''" style="cursor:pointer; margin-top:1rem;">Q: What of my dentist?</h5>
+                    <p x-show="active === 'q2'">A: Your 'dentist' is a well-meaning but misguided practitioner, trained only in the physical realm. We operate on the aetheric plane.</p>
+                </div>
+            </article>
+
+        </section>
+
+    </main>
+
+    <footer class="site-footer">
+        <p>The Finch Institute is not responsible for psychic re-integration failure, spontaneous levitation, or an overwhelming sense of existential clarity.</p>
+        <p>Est. 1888, re-digitized 2024.</p>
+    </footer>
+
+    <script src="/assets/js/alpine.min.js" defer></script>
+    <script src="/assets/js/gsap.min.js"></script>
+    <script src="/assets/js/lucide.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            try {
+                lucide.createIcons();
+
+                gsap.fromTo('.card', 
+                    { y: 40, opacity: 0 }, 
+                    { 
+                        y: 0, 
+                        opacity: 1, 
+                        duration: 0.8, 
+                        stagger: 0.1,
+                        ease: 'power3.out',
+                        clearProps: 'opacity,transform' 
+                    }
+                );
+                
+                gsap.fromTo('.hero h1, .hero p',
+                    { y: 20, opacity: 0 },
+                    {
+                        y: 0,
+                        opacity: 1,
+                        duration: 1.2,
+                        stagger: 0.2,
+                        ease: 'power3.out',
+                        delay: 0.2,
+                        clearProps: 'opacity,transform'
+                    }
+                );
+
+            } catch (error) {
+                console.error("Initialization Error:", error);
+            }
+        });
+    </script>
+</body>
+</html>

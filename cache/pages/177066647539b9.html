@@ -1,0 +1,479 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Home | Marrowfield Bathhouse Revue Logistics</title>
+  <link rel="stylesheet" href="/assets/css/pico.min.css" />
+  <link rel="stylesheet" href="/assets/css/fonts.css" />
+  <script defer src="/assets/js/alpine.min.js"></script>
+  <script src="/assets/js/gsap.min.js"></script>
+  <script src="/assets/js/lucide.min.js"></script>
+  <style>
+    :root {
+      --paper: #efe1c6;
+      --paper-deep: #dcc39a;
+      --ink: #24180f;
+      --ink-soft: #3a291c;
+      --wood: #6c4b2f;
+      --field: #8d7454;
+      --night: #1f1610;
+      --light: #fff7e8;
+      --line: #5f4732;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html,
+    body {
+      margin: 0;
+      height: 100%;
+      background: var(--paper);
+      color: var(--ink);
+      font-family: "Crimson Pro", serif;
+      scroll-behavior: smooth;
+    }
+
+    body {
+      scroll-snap-type: y mandatory;
+      overflow-y: auto;
+      background-image:
+        radial-gradient(circle at 10% 10%, #f8eed8 0%, transparent 55%),
+        radial-gradient(circle at 90% 80%, #e3ccaa 0%, transparent 50%),
+        linear-gradient(140deg, #f2e5cb 0%, #e4cba3 40%, #d6bc93 100%);
+    }
+
+    .slide {
+      min-height: 100vh;
+      scroll-snap-align: start;
+      display: grid;
+      align-items: center;
+      padding: clamp(1.25rem, 3vw, 3rem);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .grain {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      background-image: repeating-linear-gradient(
+        0deg,
+        rgba(70, 48, 29, 0.05) 0px,
+        rgba(70, 48, 29, 0.05) 1px,
+        transparent 1px,
+        transparent 3px
+      );
+      mix-blend-mode: multiply;
+    }
+
+    .frame {
+      width: min(980px, 100%);
+      margin: 0 auto;
+      border: 1.5px solid var(--line);
+      padding: clamp(1rem, 3vw, 2.5rem);
+      background: rgba(250, 241, 223, 0.92);
+      box-shadow: 0 14px 40px rgba(36, 24, 15, 0.18);
+    }
+
+    .dark {
+      background: linear-gradient(165deg, #2f2116 0%, #1f1610 100%);
+      color: var(--light);
+    }
+
+    .dark .frame {
+      background: rgba(39, 28, 20, 0.93);
+      border-color: #d5b990;
+      color: var(--light);
+      box-shadow: 0 16px 40px rgba(0, 0, 0, 0.45);
+    }
+
+    .topbar {
+      display: flex;
+      justify-content: space-between;
+      gap: 1rem;
+      align-items: center;
+      margin-bottom: 2rem;
+      border-bottom: 1px solid var(--line);
+      padding-bottom: 0.75rem;
+    }
+
+    .brand {
+      font-family: "Space Grotesk", sans-serif;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      font-size: 0.95rem;
+      color: inherit;
+    }
+
+    .navlinks {
+      display: flex;
+      gap: 1.1rem;
+      flex-wrap: wrap;
+      font-family: "Space Grotesk", sans-serif;
+      font-size: 0.82rem;
+      text-transform: uppercase;
+    }
+
+    a {
+      color: inherit;
+      text-decoration-color: currentColor;
+      text-underline-offset: 0.2em;
+    }
+
+    h1,
+    h2,
+    h3,
+    p,
+    li,
+    small,
+    label,
+    summary,
+    strong {
+      color: inherit;
+    }
+
+    h1 {
+      font-size: clamp(2rem, 6vw, 5.2rem);
+      line-height: 0.96;
+      margin: 0 0 1rem;
+      max-width: 12ch;
+    }
+
+    h2 {
+      font-size: clamp(1.6rem, 4vw, 3rem);
+      margin: 0 0 1rem;
+      line-height: 1.05;
+    }
+
+    .lede {
+      font-size: clamp(1.05rem, 2vw, 1.4rem);
+      max-width: 55ch;
+      line-height: 1.5;
+      margin-bottom: 1.3rem;
+    }
+
+    .sig {
+      font-family: "Space Grotesk", sans-serif;
+      font-size: 0.8rem;
+      text-transform: uppercase;
+      letter-spacing: 0.09em;
+      color: inherit;
+    }
+
+    .columns {
+      display: grid;
+      grid-template-columns: repeat(12, minmax(0, 1fr));
+      gap: 1rem;
+    }
+
+    .copy {
+      grid-column: span 7;
+    }
+
+    .panel {
+      grid-column: span 5;
+      border: 1px solid var(--line);
+      padding: 1rem;
+      background: rgba(255, 248, 234, 0.9);
+      transition: transform 900ms ease, background-color 900ms ease;
+    }
+
+    .panel:hover {
+      transform: translateY(-4px);
+      background: #fff2dc;
+    }
+
+    .dark .panel {
+      background: rgba(62, 42, 28, 0.9);
+      border-color: #ccb08b;
+    }
+
+    .dark .panel:hover {
+      background: rgba(78, 54, 36, 0.95);
+    }
+
+    .ledger {
+      font-family: "Space Grotesk", sans-serif;
+      font-size: 0.8rem;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      line-height: 1.7;
+    }
+
+    .cards {
+      display: grid;
+      gap: 1rem;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      margin-top: 1rem;
+    }
+
+    .card {
+      border: 1px solid var(--line);
+      padding: 1rem;
+      background: rgba(249, 238, 217, 0.95);
+      min-height: 180px;
+    }
+
+    .dark .card {
+      background: rgba(57, 40, 27, 0.93);
+      border-color: #ccb08b;
+    }
+
+    .price {
+      font-size: 2rem;
+      line-height: 1;
+      margin: 0.35rem 0 0.55rem;
+    }
+
+    .button-row {
+      display: flex;
+      gap: 0.7rem;
+      flex-wrap: wrap;
+      margin-top: 1rem;
+    }
+
+    button,
+    .btn {
+      background: var(--ink);
+      color: var(--light);
+      border: 1px solid var(--ink);
+      padding: 0.6rem 1rem;
+      font-family: "Space Grotesk", sans-serif;
+      font-size: 0.82rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      cursor: pointer;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.45rem;
+    }
+
+    .dark button,
+    .dark .btn {
+      background: #eed8b4;
+      color: #1f1610;
+      border-color: #eed8b4;
+    }
+
+    .btn.secondary {
+      background: transparent;
+      color: inherit;
+    }
+
+    .fade-note {
+      border-left: 2px solid currentColor;
+      padding-left: 0.85rem;
+      margin-top: 0.8rem;
+      transition: opacity 1000ms ease;
+    }
+
+    [x-cloak] {
+      display: none !important;
+    }
+
+    .faq-item {
+      border-top: 1px solid currentColor;
+      padding: 0.85rem 0;
+    }
+
+    .quote {
+      font-size: clamp(1.2rem, 2.4vw, 2rem);
+      line-height: 1.25;
+      margin: 0;
+    }
+
+    .lift {
+      animation: bob 9s ease-in-out infinite;
+    }
+
+    @keyframes bob {
+      0% { transform: translateY(0); }
+      50% { transform: translateY(-10px); }
+      100% { transform: translateY(0); }
+    }
+
+    footer {
+      font-family: "Space Grotesk", sans-serif;
+      text-transform: uppercase;
+      font-size: 0.76rem;
+      letter-spacing: 0.08em;
+      display: flex;
+      justify-content: space-between;
+      gap: 0.75rem;
+      flex-wrap: wrap;
+      margin-top: 2rem;
+      border-top: 1px solid currentColor;
+      padding-top: 0.75rem;
+    }
+
+    @media (max-width: 860px) {
+      .copy,
+      .panel {
+        grid-column: 1 / -1;
+      }
+
+      .topbar {
+        align-items: flex-start;
+        flex-direction: column;
+      }
+    }
+  </style>
+</head>
+<body>
+  <section class="slide" id="entry">
+    <div class="grain"></div>
+    <div class="frame">
+      <header class="topbar">
+        <div class="brand">Marrowfield Bathhouse Revue Logistics</div>
+        <nav class="navlinks" aria-label="Main">
+          <a href="#routes">Routes</a>
+          <a href="#rates">Rates</a>
+          <a href="#assurance">Assurance</a>
+          <a href="#book">Book a Night</a>
+        </nav>
+      </header>
+
+      <h1 class="lift">Town Talent, Field Cake, Commanded From The Tub</h1>
+      <p class="lede">Our marshal-father keeps the ledger dry, the sponge whistles at dusk, and every performer leaves with ribboned spongecake packed for transit. Revue staging, icing discipline, and suburban deployment under one warm enamel roof.</p>
+      <p class="sig">Operating Since 1987 | District 4 Cul-de-sac Performance Corridor</p>
+      <div class="button-row">
+        <a class="btn" href="#book"><i data-lucide="calendar-check"></i> Reserve A Slot</a>
+        <a class="btn secondary" href="#routes"><i data-lucide="map"></i> View Movement Chart</a>
+      </div>
+    </div>
+  </section>
+
+  <section class="slide dark" id="routes" x-data="{ reveal:false }">
+    <div class="grain"></div>
+    <div class="frame">
+      <h2>Evening Movement Chart</h2>
+      <div class="columns">
+        <article class="copy">
+          <p class="lede">A horn at nineteen hundred. Porch lights blink in sequence. Choir trios, baton acts, and jump-rope duets report to the tiled edge while bakery couriers lace layers with cardamom cream. Dispatch begins when the water line reaches the brass notch.</p>
+          <div class="ledger">
+            <div>18:40 - curtain pins inspected</div>
+            <div>19:00 - first ladle salute</div>
+            <div>19:20 - cake convoy exits washroom bay</div>
+            <div>20:05 - medals and torte allotment</div>
+          </div>
+
+          <div class="button-row">
+            <button type="button" x-on:click="reveal = !reveal">
+              <i data-lucide="bell-ring"></i>
+              Ring Galley Bell
+            </button>
+          </div>
+
+          <p class="fade-note" x-show="reveal" x-cloak>
+            Tonight's reserve wagon carries almond sponge, pear jam, and two extra ribbons for first-time soloists.
+          </p>
+        </article>
+
+        <aside class="panel" aria-label="Command notice">
+          <p class="sig">Tubside Command Notice</p>
+          <p>All acts are marshaled by a seated quartermaster from Bath Unit No. 3. Towels remain folded by rank. No confetti below drain grade.</p>
+          <p><strong>Weather adaptation:</strong> If drizzle begins, stage is relocated to the garage lintel, cakes remain under wax cloth.</p>
+        </aside>
+      </div>
+    </div>
+  </section>
+
+  <section class="slide" id="rates">
+    <div class="grain"></div>
+    <div class="frame">
+      <h2>Program Rates</h2>
+      <p class="lede">Simple tariffs, household scale. Every package includes venue marshalling, scorekeeping, and ceremonial cake dispatch.</p>
+      <div class="cards">
+        <article class="card">
+          <p class="sig">Lantern Tier</p>
+          <p class="price">$68</p>
+          <p>One-hour neighborhood showcase. Two judges, one field cake, six performers max.</p>
+        </article>
+        <article class="card">
+          <p class="sig">Parade Tier</p>
+          <p class="price">$144</p>
+          <p>Two-hour revue with medal table, brass whistle cues, and layered sponge for twelve.</p>
+        </article>
+        <article class="card">
+          <p class="sig">Regimental Tier</p>
+          <p class="price">$286</p>
+          <p>Full-evening command set. Lighting map, marshaling runner, triple cake reserve.</p>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <section class="slide dark" id="assurance">
+    <div class="grain"></div>
+    <div class="frame">
+      <h2>Household Assurance</h2>
+      <div class="cards">
+        <article class="card">
+          <p class="quote">"He judged our sonorous spoon duet from the bath and never once lost tempo. The victoria sponge arrived still warm."</p>
+          <p class="sig">- A. Hallowell, Birch Fence Lane</p>
+        </article>
+        <article class="card">
+          <p class="quote">"Clipboards dry, medals polished, frosting level by the minute. The cul-de-sac stood at attention."</p>
+          <p class="sig">- Juniper Neighborhood Council</p>
+        </article>
+        <article class="card">
+          <p class="quote">"Practical, gentle, absolute command. Our shy pianist took first ribbon and two slices for the road."</p>
+          <p class="sig">- K. Moreno, North Marrowfield PTA</p>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <section class="slide" id="book" x-data="{ open: 0 }">
+    <div class="grain"></div>
+    <div class="frame">
+      <h2>Bookings & Field Questions</h2>
+      <p class="lede">Dispatch office hours are quiet and exact. Leave your preferred Friday and expected performer count. We return calls before kettle whistle.</p>
+
+      <div class="faq-item">
+        <button type="button" class="btn secondary" x-on:click="open = open === 1 ? 0 : 1">Do you provide cakes for food sensitivities?</button>
+        <p x-show="open === 1" x-cloak>Yes. Oat and citrus sponge, egg-light options, and fully labeled transit boxes are available on all tiers.</p>
+      </div>
+      <div class="faq-item">
+        <button type="button" class="btn secondary" x-on:click="open = open === 2 ? 0 : 2">Can we host on a driveway instead of a lawn?</button>
+        <p x-show="open === 2" x-cloak>Yes. We mark a chalk parade lane and move judging table placement to maintain clean sight lines.</p>
+      </div>
+      <div class="faq-item">
+        <button type="button" class="btn secondary" x-on:click="open = open === 3 ? 0 : 3">How far does the bathhouse command travel?</button>
+        <p x-show="open === 3" x-cloak>Up to 18 miles from Marrowfield Circle. Beyond that, convoy fee is applied per mile.</p>
+      </div>
+
+      <footer>
+        <span>Ledger Line: (555) 019-8840</span>
+        <span>Dispatch Mail: bookings@marrowfieldrevue.local</span>
+        <span>Bath Unit No. 3, Marrowfield</span>
+      </footer>
+    </div>
+  </section>
+
+  <script>
+    (function () {
+      if (window.lucide && typeof window.lucide.createIcons === 'function') {
+        window.lucide.createIcons();
+      }
+
+      if (window.gsap) {
+        gsap.utils.toArray('.frame').forEach(function (frame, idx) {
+          gsap.from(frame, {
+            opacity: 0,
+            y: 26,
+            duration: 1.1,
+            ease: 'power2.out',
+            delay: idx * 0.06
+          });
+        });
+      }
+    })();
+  </script>
+</body>
+</html>

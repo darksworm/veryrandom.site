@@ -1,0 +1,563 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>The Drifting Mug Gazette | Therapy, Espresso, Structural Migration</title>
+  <link rel="stylesheet" href="/assets/css/pico.min.css" />
+  <link rel="stylesheet" href="/assets/css/fonts.css" />
+  <script defer src="/assets/js/alpine.min.js"></script>
+  <script defer src="/assets/js/lucide.min.js"></script>
+  <script defer src="/assets/js/gsap.min.js"></script>
+  <style>
+    :root {
+      --coral: #ff7f6a;
+      --gold: #f4c95d;
+      --purple: #7b5fb5;
+      --deep-blue: #1f2a68;
+      --paper: #fffdf7;
+      --ink: #1d2340;
+      --sub-ink: #3f4668;
+      --line: #c9c2b2;
+      --window: #f9f3ff;
+      --mint: #dff5ea;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html,
+    body {
+      margin: 0;
+      padding: 0;
+      overflow-x: hidden;
+      background: linear-gradient(135deg, #ffe3d8 0%, #ffeec7 42%, #e5d8ff 70%, #d7e2ff 100%);
+      color: var(--ink);
+      font-family: "Space Grotesk", sans-serif;
+      font-size: 16px;
+      line-height: 1.5;
+    }
+
+    body {
+      min-height: 100vh;
+    }
+
+    .wrap {
+      width: min(1200px, 94vw);
+      margin: 1rem auto 3rem;
+      display: grid;
+      gap: 1rem;
+    }
+
+    .window {
+      background: var(--paper);
+      border: 2px solid var(--deep-blue);
+      border-radius: 14px;
+      box-shadow: 0 10px 0 #c6b9e5;
+      overflow: hidden;
+    }
+
+    .window-head {
+      background: linear-gradient(90deg, #ffd6cc 0%, #fdecbf 48%, #e5dcff 100%);
+      border-bottom: 2px solid var(--deep-blue);
+      padding: 0.6rem 0.9rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.5rem;
+      font-weight: 700;
+      color: #1d2340;
+    }
+
+    .dots {
+      display: flex;
+      gap: 0.3rem;
+    }
+
+    .dots span {
+      width: 10px;
+      height: 10px;
+      border-radius: 999px;
+      border: 1px solid #1d2340;
+    }
+
+    .dots span:nth-child(1) { background: #ff8c7b; }
+    .dots span:nth-child(2) { background: #f4c95d; }
+    .dots span:nth-child(3) { background: #8dd9b5; }
+
+    .masthead {
+      padding: 1.25rem;
+      display: grid;
+      gap: 0.9rem;
+      background: repeating-linear-gradient(
+        90deg,
+        #fffdf7,
+        #fffdf7 18px,
+        #fff9ef 18px,
+        #fff9ef 36px
+      );
+    }
+
+    h1,
+    h2,
+    h3,
+    h4,
+    p,
+    small,
+    li,
+    blockquote,
+    label,
+    button,
+    a,
+    input,
+    select {
+      color: var(--ink);
+    }
+
+    h1 {
+      margin: 0;
+      font-family: "Crimson Pro", serif;
+      font-size: clamp(2rem, 5vw, 4rem);
+      line-height: 0.95;
+      letter-spacing: -0.02em;
+    }
+
+    .subhead {
+      color: var(--sub-ink);
+      font-size: 1.05rem;
+      margin: 0;
+    }
+
+    .meta-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.7rem;
+      align-items: center;
+      font-size: 0.95rem;
+      color: #353d63;
+    }
+
+    .badge {
+      border: 1px solid var(--deep-blue);
+      background: var(--mint);
+      border-radius: 999px;
+      padding: 0.2rem 0.65rem;
+      font-weight: 700;
+      color: #1d2340;
+    }
+
+    .controls {
+      padding: 1rem;
+      display: grid;
+      gap: 0.9rem;
+      border-top: 2px solid var(--deep-blue);
+      background: #f5f8ff;
+    }
+
+    .control-group {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.6rem;
+      align-items: center;
+    }
+
+    .control-group strong {
+      min-width: 90px;
+      color: #273164;
+      font-size: 0.95rem;
+    }
+
+    .pill {
+      border: 2px solid #32407c;
+      background: #ffffff;
+      color: #1d2340;
+      border-radius: 999px;
+      padding: 0.4rem 0.8rem;
+      min-height: 44px;
+      font-size: 0.92rem;
+      cursor: pointer;
+      font-weight: 700;
+      line-height: 1;
+    }
+
+    .pill.active {
+      background: #32407c;
+      color: #ffffff;
+    }
+
+    .toggle {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.4rem 0.8rem;
+      border: 2px solid #32407c;
+      border-radius: 12px;
+      background: #ffffff;
+      min-height: 44px;
+      color: #1d2340;
+      font-weight: 700;
+    }
+
+    .newsroom {
+      display: grid;
+      gap: 1rem;
+      grid-template-columns: 1fr;
+    }
+
+    .paper-grid {
+      padding: 1rem;
+      display: grid;
+      gap: 1rem;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      align-items: start;
+    }
+
+    .paper-grid.scatter .card:nth-child(3n) { transform: rotate(-1deg) translateY(-8px); }
+    .paper-grid.scatter .card:nth-child(4n) { transform: rotate(1.2deg) translateY(6px); }
+    .paper-grid.scatter .card:nth-child(5n) { transform: rotate(-0.8deg) translateY(-12px); }
+
+    .card {
+      border: 2px solid #2f3b75;
+      background: #fffdf7;
+      border-radius: 10px;
+      padding: 0.9rem;
+      box-shadow: 0 6px 0 #d0c8eb;
+      transition: transform 0.2s ease;
+    }
+
+    .card h3 {
+      margin: 0.2rem 0 0.35rem;
+      font-size: 1.2rem;
+      line-height: 1.2;
+      font-family: "Crimson Pro", serif;
+    }
+
+    .kicker {
+      display: inline-block;
+      margin-bottom: 0.25rem;
+      font-size: 0.75rem;
+      font-weight: 800;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: #2b376d;
+      background: #e6efff;
+      border: 1px solid #2b376d;
+      border-radius: 999px;
+      padding: 0.12rem 0.48rem;
+    }
+
+    .deck {
+      margin: 0;
+      color: #2f3559;
+      font-size: 0.97rem;
+    }
+
+    .byline {
+      margin-top: 0.55rem;
+      font-size: 0.85rem;
+      color: #3f4668;
+      font-weight: 700;
+    }
+
+    .expand {
+      margin-top: 0.6rem;
+      border: 2px solid #273164;
+      background: #ffffff;
+      color: #1d2340;
+      border-radius: 8px;
+      min-height: 44px;
+      padding: 0.4rem 0.65rem;
+      font-weight: 700;
+      width: 100%;
+    }
+
+    .detail {
+      margin-top: 0.55rem;
+      border-top: 1px dashed #7d85ad;
+      padding-top: 0.55rem;
+      color: #2b3155;
+      font-size: 0.96rem;
+    }
+
+    .aside-grid {
+      padding: 1rem;
+      display: grid;
+      gap: 1rem;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    }
+
+    .ad,
+    .pull,
+    .rates {
+      border: 2px solid #2f3b75;
+      border-radius: 10px;
+      padding: 0.9rem;
+      background: #fffdf7;
+      box-shadow: 0 6px 0 #d0c8eb;
+    }
+
+    .ad h4,
+    .pull h4,
+    .rates h4 {
+      margin: 0 0 0.45rem;
+      color: #1f2a68;
+    }
+
+    .ad p,
+    .pull p,
+    .rates p,
+    .rates li {
+      margin: 0.2rem 0;
+      color: #2d345d;
+    }
+
+    blockquote {
+      margin: 0.5rem 0;
+      padding: 0.6rem;
+      border-left: 4px solid #7b5fb5;
+      background: #f7f3ff;
+      font-family: "Crimson Pro", serif;
+      font-size: 1.2rem;
+      color: #1d2340;
+    }
+
+    footer {
+      padding: 1rem;
+      border-top: 2px solid var(--deep-blue);
+      background: #eff3ff;
+      color: #273164;
+      font-size: 0.94rem;
+    }
+
+    .small-note {
+      color: #3f4668;
+      font-size: 0.86rem;
+    }
+
+    @media (min-width: 768px) {
+      .newsroom {
+        grid-template-columns: 2fr 1fr;
+      }
+
+      .window.bump-left {
+        margin-left: -0.4rem;
+      }
+
+      .window.bump-right {
+        margin-right: -0.4rem;
+      }
+    }
+
+    @media (min-width: 1100px) {
+      .wrap {
+        margin-top: 1.5rem;
+      }
+
+      .window.bump-left {
+        margin-left: -1rem;
+      }
+
+      .window.bump-right {
+        margin-right: -1rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="wrap" x-data="gazetteApp">
+    <section class="window headline-window">
+      <div class="window-head">
+        <span>Morning Edition • Building Approx. 14th & Elm (for now)</span>
+        <div class="dots" aria-hidden="true"><span></span><span></span><span></span></div>
+      </div>
+      <div class="masthead">
+        <p class="badge">THERAPY + ESPRESSO + EARTHQUAKE-FREE PHILOSOPHY*</p>
+        <h1>THE DRIFTING MUG GAZETTE</h1>
+        <p class="subhead">By Mara Bean, founder, barista philosopher, and the only clinician licensed for moving buildings and emotionally ambitious cats.</p>
+        <div class="meta-row">
+          <span><i data-lucide="newspaper"></i> Vol. 12, Issue 38</span>
+          <span><i data-lucide="map-pin"></i> Current address posted every hour on our voicemail</span>
+          <span><i data-lucide="clock-3"></i> Open 7:11 AM until the staircase changes opinion</span>
+        </div>
+      </div>
+      <div class="controls">
+        <div class="control-group" role="toolbar" aria-label="Section filter">
+          <strong>Section</strong>
+          <button class="pill" :class="{'active': activeSection==='all'}" @click="activeSection='all'">All Desks</button>
+          <button class="pill" :class="{'active': activeSection==='front'}" @click="activeSection='front'">Front Page</button>
+          <button class="pill" :class="{'active': activeSection==='opinion'}" @click="activeSection='opinion'">Opinion</button>
+          <button class="pill" :class="{'active': activeSection==='letters'}" @click="activeSection='letters'">Letters</button>
+          <button class="pill" :class="{'active': activeSection==='classifieds'}" @click="activeSection='classifieds'">Classifieds</button>
+          <button class="pill" :class="{'active': activeSection==='corrections'}" @click="activeSection='corrections'">Corrections</button>
+        </div>
+
+        <div class="control-group" role="toolbar" aria-label="Topic filter">
+          <strong>Topic</strong>
+          <button class="pill" :class="{'active': activeTag==='all'}" @click="activeTag='all'">Everything</button>
+          <button class="pill" :class="{'active': activeTag==='cats'}" @click="activeTag='cats'">Cat Incidents</button>
+          <button class="pill" :class="{'active': activeTag==='therapy'}" @click="activeTag='therapy'">Therapy</button>
+          <button class="pill" :class="{'active': activeTag==='coffee'}" @click="activeTag='coffee'">Coffee</button>
+          <button class="pill" :class="{'active': activeTag==='building'}" @click="activeTag='building'">Building Drift</button>
+        </div>
+
+        <div class="control-group">
+          <label class="toggle">
+            <input type="checkbox" x-model="urgentOnly" />
+            Show only shelf emergencies
+          </label>
+          <button class="pill" :class="{'active': scatter}" @click="scatter = !scatter" aria-pressed="false">
+            <span x-text="scatter ? 'Scatter Layout: ON' : 'Scatter Layout: OFF'"></span>
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <section class="newsroom">
+      <article class="window bump-left">
+        <div class="window-head">
+          <span>News Desk</span>
+          <div class="dots" aria-hidden="true"><span></span><span></span><span></span></div>
+        </div>
+        <div class="paper-grid" :class="scatter ? 'scatter' : ''">
+          <template x-for="piece in filteredPieces()" :key="piece.id">
+            <article class="card story-card" :data-tag="piece.tag">
+              <span class="kicker" x-text="piece.label"></span>
+              <h3 x-text="piece.title"></h3>
+              <p class="deck" x-text="piece.deck"></p>
+              <p class="byline" x-text="piece.byline"></p>
+              <button class="expand" @click="openId = openId === piece.id ? null : piece.id" :aria-expanded="openId === piece.id">
+                <span x-text="openId === piece.id ? 'Fold article' : 'Read spill'"></span>
+              </button>
+              <p class="detail" x-show="openId === piece.id" x-text="piece.detail"></p>
+            </article>
+          </template>
+        </div>
+      </article>
+
+      <aside class="window bump-right">
+        <div class="window-head">
+          <span>Margins, Ads, and Regrets</span>
+          <div class="dots" aria-hidden="true"><span></span><span></span><span></span></div>
+        </div>
+        <div class="aside-grid">
+          <section class="pull">
+            <h4>Pull Quote</h4>
+            <blockquote>"If your cappuccino foams into a question mark, your subconscious is online."</blockquote>
+            <p class="small-note">Mara Bean, between sessions 3 and 4. Session 2 bit her.</p>
+          </section>
+
+          <section class="rates">
+            <h4>Session Rates</h4>
+            <ul>
+              <li>15 min "Panic Macchiato" - $27</li>
+              <li>50 min "Existential Latte" - $94</li>
+              <li>90 min "Joint Custody w/ Inner Child" - $141</li>
+              <li>Shelf Recovery add-on - $19 per shattered mug</li>
+            </ul>
+            <p class="small-note">Sliding scale available if you can carry three saucers while being judged by a cat.</p>
+          </section>
+
+          <section class="ad">
+            <h4>Ad: Mindful Bubble Wrap</h4>
+            <p>Now scented with bergamot and accountability.</p>
+            <p>Wrap your ceramics before Chairperson Pickles wraps your confidence.</p>
+            <p><strong>Code:</strong> STAYONTHESHELF for 8% off and one prayer.</p>
+          </section>
+
+          <section class="ad">
+            <h4>Public Notice</h4>
+            <p><strong>Tonight:</strong> Building migration drill at 8:05 PM.</p>
+            <p>Bring closed-toe shoes, emotional boundaries, and your own spoon.</p>
+          </section>
+        </div>
+      </aside>
+    </section>
+
+    <section class="window">
+      <div class="window-head">
+        <span>Letters to Mara</span>
+        <div class="dots" aria-hidden="true"><span></span><span></span><span></span></div>
+      </div>
+      <div class="paper-grid">
+        <article class="card">
+          <span class="kicker">LETTER</span>
+          <h3>"My therapist says I project onto your espresso machine."</h3>
+          <p class="deck">Dear Mara, is it normal to apologize to a grinder before speaking to my father?</p>
+          <p class="byline">Riley P., Unit B (wherever Unit B currently is)</p>
+        </article>
+        <article class="card">
+          <span class="kicker">REPLY</span>
+          <h3>"Absolutely. The grinder listens."</h3>
+          <p class="deck">Your father may arrive emotionally someday. The grinder already did.</p>
+          <p class="byline">Mara Bean, still calibrating your boundaries and burr size</p>
+        </article>
+        <article class="card">
+          <span class="kicker">CORRECTION OF A CORRECTION</span>
+          <h3>Wednesday's cat was not "feral."</h3>
+          <p class="deck">He is in leadership, has tenure, and demands the title Shelf Operations Director.</p>
+          <p class="byline">Filed by our legal intern, age 19, covered in glitter</p>
+        </article>
+      </div>
+      <footer>
+        The Drifting Mug Gazette is printed hourly because our address changes hourly. If this issue arrives damp, that was either rain or catharsis.
+      </footer>
+    </section>
+  </main>
+
+  <script>
+    document.addEventListener('alpine:init', () => {
+      Alpine.data('gazetteApp', () => ({
+        activeSection: 'all',
+        activeTag: 'all',
+        urgentOnly: false,
+        scatter: true,
+        openId: null,
+        pieces: [
+          { id: 1, section: 'front', tag: 'building', urgent: false, label: 'Front Page', title: 'Our Building Moved Three Blocks Before Lunch', deck: 'Reception insists this counts as "walk-in traffic."', byline: 'By Mara Bean', detail: 'At 11:40 AM the foundation drifted northeast, politely avoiding a dentist office and one very confused food truck.' },
+          { id: 2, section: 'front', tag: 'cats', urgent: true, label: 'Breaking', title: 'Cat Council Topples 27 Mugs, Calls It Minimalism', deck: 'Chairperson Pickles says shelves are "a colonial structure."', byline: 'City Desk, under table', detail: 'The council issued a six-point manifesto including one demand: wider windowsills and emotional fish treats.' },
+          { id: 3, section: 'front', tag: 'therapy', urgent: false, label: 'Front Page', title: 'New Intake Form Adds Question: "Are You Stable If The Room Is Not?"', deck: 'Clients report relief at finally being asked the right thing.', byline: 'By Mara Bean', detail: 'Checkbox options are: yes, no, and "define stable while the staircase rotates."' },
+          { id: 4, section: 'opinion', tag: 'coffee', urgent: false, label: 'Opinion', title: 'Op-Ed: Decaf Is Not Healing, It Is Avoidance', deck: 'You deserve full feelings and full caffeine.', byline: 'Mara Bean, LCSW, BM (Barista Master)', detail: 'I will not diagnose you for ordering decaf. I will gently ask who taught you to fear joy.' },
+          { id: 5, section: 'opinion', tag: 'cats', urgent: true, label: 'Opinion', title: 'In Defense of Shelf Gravity (A Minority Position)', deck: 'Every object yearns for a horizontal future.', byline: 'Guest columnist: Janitor Luis', detail: 'I sweep because I care. I also sweep because Pickles maintains eye contact while knocking mugs down one by one.' },
+          { id: 6, section: 'letters', tag: 'therapy', urgent: false, label: 'Letter', title: 'Letter: "I cried into a cortado and now I owe you $6.50"', deck: 'Can I expense this as growth?', byline: 'Signed, "Mature-ish"', detail: 'Yes. Please label it under professional development and bring exact change next time.' },
+          { id: 7, section: 'letters', tag: 'building', urgent: false, label: 'Letter', title: 'Letter: "Do I book by time zone or by curb location?"', deck: 'Your map pin keeps sighing and moving.', byline: 'Tasha K., long-term client', detail: 'Book by voicemail code. This week we are under the mural with the motivational otter.' },
+          { id: 8, section: 'classifieds', tag: 'cats', urgent: true, label: 'Classified', title: 'Wanted: Ceramic engineer to design anti-cat mug', deck: 'Budget: $43 and one stale biscotti.', byline: 'Posted by Mara', detail: 'Prototype must survive impact, contempt, and medium-height tabby launch velocity.' },
+          { id: 9, section: 'classifieds', tag: 'building', urgent: false, label: 'Classified', title: 'For Rent: Conference room that appears Tuesdays only', deck: 'Excellent acoustics, terrible commitment.', byline: 'Building Management (mysterious)', detail: 'Includes eight chairs, one fern, and a door that opens into last Thursday.' },
+          { id: 10, section: 'classifieds', tag: 'coffee', urgent: false, label: 'Classified', title: 'Trade Offer: Single-origin beans for emotional resilience', deck: 'No lowball offers. I know what I have.', byline: 'Local roaster with boundaries', detail: 'Will accept barter in cash, hand trucks, or three honest compliments about my roast profile.' },
+          { id: 11, section: 'corrections', tag: 'cats', urgent: false, label: 'Correction', title: 'Correction: Mr. Nibbles is not an intern', deck: 'He is senior leadership with a claw-based management style.', byline: 'Standards Desk', detail: 'We regret calling him "helpful" in print. He has requested the term "inevitable."' },
+          { id: 12, section: 'corrections', tag: 'building', urgent: false, label: 'Correction', title: 'Yesterday we said the building moved west. It moved spiritually west.', deck: 'Physically it moved south-southwest.', byline: 'Corrections Team', detail: 'Compass now stored in a locked box after multiple incidents involving metaphor.' },
+          { id: 13, section: 'front', tag: 'coffee', urgent: false, label: 'Feature', title: 'Review: The "Boundary Mocha" Tastes Like Saying No Politely', deck: 'Notes of cocoa, confidence, and deeply necessary silence.', byline: 'Food Critic Ezra N.', detail: 'Pairs well with journals, cancellation emails, and finally muting the family group chat.' },
+          { id: 14, section: 'opinion', tag: 'therapy', urgent: false, label: 'Advice', title: 'Ask Mara: "Is it codependency if my mug misses me?"', deck: 'Only if it texts after midnight.', byline: 'Mara Bean', detail: 'Attachment is healthy. Panic-buying six backup mugs because one chipped is a separate worksheet.' },
+          { id: 15, section: 'letters', tag: 'cats', urgent: true, label: 'Letter', title: 'Letter: "Your cat stared into me and I forgave my ex"', deck: 'Is this covered by insurance?', byline: 'Anonymous but transformed', detail: 'Not yet. We are filing under alternative therapies and eye-contact miracles.' },
+          { id: 16, section: 'front', tag: 'building', urgent: true, label: 'Alert', title: 'Staircase Now Enters Through Pantry Door', deck: 'Please do not call this a flaw. Call it opportunity.', byline: 'Facilities and Mythology', detail: 'Use handrail at own risk. It currently believes in improvisation.' },
+          { id: 17, section: 'classifieds', tag: 'therapy', urgent: false, label: 'Classified', title: 'Now Hiring: Part-time Listener for Plants in Waiting Room', deck: 'Must validate fern concerns without over-identifying.', byline: 'HR (Mara, wearing a tie)', detail: 'Benefits include espresso stipend and conflict mediation with a basil plant named Marco.' },
+          { id: 18, section: 'corrections', tag: 'coffee', urgent: false, label: 'Correction', title: 'Correction: "Latte art" swan was actually a startled otter', deck: 'The barista has apologized to all birds.', byline: 'Visual Desk', detail: 'We have updated our style guide: no species claims before foam settles.' }
+        ],
+        filteredPieces() {
+          return this.pieces.filter((piece) => {
+            const matchesSection = this.activeSection === 'all' || piece.section === this.activeSection;
+            const matchesTag = this.activeTag === 'all' || piece.tag === this.activeTag;
+            const matchesUrgent = this.urgentOnly ? piece.urgent : true;
+            return matchesSection && matchesTag && matchesUrgent;
+          });
+        }
+      }));
+    });
+
+    document.addEventListener('DOMContentLoaded', () => {
+      if (window.lucide && typeof window.lucide.createIcons === 'function') {
+        window.lucide.createIcons();
+      }
+
+      if (window.gsap) {
+        const items = document.querySelectorAll('.window');
+        window.gsap.fromTo(
+          items,
+          { y: 18, opacity: 0 },
+          { y: 0, opacity: 1, duration: 0.65, stagger: 0.08, ease: 'power2.out', clearProps: 'opacity,transform' }
+        );
+      }
+    });
+  </script>
+</body>
+</html>

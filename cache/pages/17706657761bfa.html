@@ -1,0 +1,723 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Levelfield Coalition</title>
+  <link rel="stylesheet" href="/assets/css/pico.min.css" />
+  <link rel="stylesheet" href="/assets/css/fonts.css" />
+  <style>
+    :root {
+      --bg-0: #140028;
+      --bg-1: #22003f;
+      --bg-2: #090014;
+      --magenta: #ff1fbf;
+      --cyan: #28f0ff;
+      --chrome: #d8e6ff;
+      --ink: #0b0613;
+      --paper: #f9fbff;
+      --panel: #1a0934;
+      --edge: #9df8ff;
+      --glow: 0 0 0.8rem rgba(40, 240, 255, 0.45), 0 0 2rem rgba(255, 31, 191, 0.25);
+      --ramp-tilt: -18deg;
+      --pulse: 1;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: 'Space Grotesk', sans-serif;
+      color: var(--paper);
+      background:
+        radial-gradient(1200px 700px at 10% -5%, rgba(40, 240, 255, 0.15), transparent 60%),
+        radial-gradient(1000px 700px at 90% 10%, rgba(255, 31, 191, 0.18), transparent 55%),
+        linear-gradient(145deg, var(--bg-0), var(--bg-1) 45%, var(--bg-2));
+      overflow-x: hidden;
+    }
+
+    .scan {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      background: repeating-linear-gradient(
+        to bottom,
+        rgba(255, 255, 255, 0.04) 0px,
+        rgba(255, 255, 255, 0.04) 1px,
+        transparent 2px,
+        transparent 4px
+      );
+      mix-blend-mode: soft-light;
+      opacity: 0.3;
+      z-index: 0;
+    }
+
+    .site {
+      position: relative;
+      z-index: 1;
+      width: min(1200px, 95vw);
+      margin: 0 auto;
+      padding: 1.4rem 1rem 4rem;
+    }
+
+    nav {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      align-items: center;
+      gap: 1rem;
+      padding: 0.9rem 1.2rem;
+      background: rgba(10, 2, 21, 0.7);
+      border: 1px solid rgba(157, 248, 255, 0.45);
+      box-shadow: var(--glow);
+      backdrop-filter: blur(6px);
+    }
+
+    .logo {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.65rem;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      color: #ffffff;
+    }
+
+    .logo-badge {
+      width: 1.7rem;
+      height: 1.7rem;
+      border: 2px solid var(--cyan);
+      background: linear-gradient(135deg, rgba(255, 31, 191, 0.45), rgba(40, 240, 255, 0.2));
+      clip-path: polygon(10% 88%, 90% 88%, 70% 15%, 30% 15%);
+      box-shadow: 0 0 1rem rgba(40, 240, 255, 0.7);
+    }
+
+    .nav-links {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+      gap: 0.7rem;
+    }
+
+    .nav-links a {
+      color: #ffffff;
+      font-size: 0.82rem;
+      border: 1px solid rgba(216, 230, 255, 0.45);
+      padding: 0.35rem 0.6rem;
+      text-decoration: none;
+      background: rgba(29, 8, 56, 0.9);
+    }
+
+    .hero-grid {
+      display: grid;
+      grid-template-columns: 1.35fr 1fr;
+      gap: 1rem;
+      margin-top: 1.1rem;
+      align-items: stretch;
+    }
+
+    .hero-copy {
+      background: linear-gradient(160deg, rgba(19, 5, 41, 0.95), rgba(42, 7, 66, 0.9));
+      border: 1px solid rgba(255, 31, 191, 0.5);
+      padding: 1.3rem;
+      position: relative;
+      overflow: hidden;
+      box-shadow: var(--glow);
+    }
+
+    .hero-copy::before {
+      content: "";
+      position: absolute;
+      width: 19rem;
+      height: 19rem;
+      top: -10rem;
+      right: -9rem;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(40, 240, 255, 0.4), rgba(40, 240, 255, 0));
+    }
+
+    .eyebrow {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 0.74rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: #ffffff;
+      margin-bottom: 0.55rem;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: clamp(2.1rem, 5vw, 4rem);
+      line-height: 0.92;
+      max-width: 12ch;
+      color: #ffffff;
+      text-wrap: balance;
+    }
+
+    .lede {
+      margin: 1rem 0 1.2rem;
+      max-width: 46ch;
+      color: #ffffff;
+      font-size: 1rem;
+    }
+
+    .hero-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.55rem;
+      align-items: center;
+    }
+
+    .btn-solid,
+    .btn-ghost {
+      border: 1px solid var(--edge);
+      color: #ffffff;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      font-size: 0.76rem;
+      padding: 0.6rem 0.86rem;
+      background: rgba(18, 10, 35, 0.9);
+      cursor: pointer;
+    }
+
+    .btn-solid {
+      background: linear-gradient(110deg, var(--magenta), #d94df5);
+      border-color: #ffd8ff;
+      color: #0c0014;
+      box-shadow: 0 0 1rem rgba(255, 31, 191, 0.45);
+    }
+
+    .btn-solid:hover,
+    .btn-ghost:hover {
+      transform: translateY(-1px);
+    }
+
+    .hero-art {
+      position: relative;
+      min-height: 21rem;
+      border: 1px solid rgba(40, 240, 255, 0.6);
+      background:
+        linear-gradient(145deg, rgba(12, 4, 30, 0.85), rgba(25, 5, 50, 0.95)),
+        repeating-linear-gradient(130deg, rgba(216, 230, 255, 0.08) 0 8px, transparent 8px 16px);
+      overflow: hidden;
+      box-shadow: var(--glow);
+    }
+
+    .hero-art .ring {
+      position: absolute;
+      border: 2px solid rgba(40, 240, 255, 0.85);
+      border-radius: 50%;
+      filter: drop-shadow(0 0 0.7rem rgba(40, 240, 255, 0.5));
+    }
+
+    .ring.r1 { width: 11rem; height: 11rem; top: 2rem; left: 1.2rem; }
+    .ring.r2 { width: 16rem; height: 16rem; top: 0.4rem; left: 4rem; border-color: rgba(255, 31, 191, 0.75); }
+    .ring.r3 { width: 7rem; height: 7rem; bottom: 1rem; right: 1rem; }
+
+    .stair-stack {
+      position: absolute;
+      right: -0.5rem;
+      bottom: 0.8rem;
+      width: 70%;
+      height: 70%;
+      transform: skewX(-14deg);
+    }
+
+    .step {
+      position: absolute;
+      right: 0;
+      height: 2.05rem;
+      border: 1px solid rgba(216, 230, 255, 0.7);
+      background: linear-gradient(90deg, rgba(216, 230, 255, 0.3), rgba(216, 230, 255, 0.04));
+      box-shadow: inset 0 0 0.6rem rgba(255, 255, 255, 0.15);
+    }
+
+    .step.s1 { width: 34%; bottom: 0; }
+    .step.s2 { width: 48%; bottom: 2.2rem; }
+    .step.s3 { width: 62%; bottom: 4.4rem; }
+    .step.s4 { width: 76%; bottom: 6.6rem; }
+
+    .ramp {
+      position: absolute;
+      left: 2rem;
+      bottom: 2.9rem;
+      width: 61%;
+      height: 1rem;
+      transform-origin: left center;
+      transform: rotate(var(--ramp-tilt));
+      background: linear-gradient(90deg, rgba(40, 240, 255, 0.95), rgba(255, 31, 191, 0.85));
+      box-shadow: 0 0 calc(1rem * var(--pulse)) rgba(40, 240, 255, 0.9);
+      border-radius: 999px;
+    }
+
+    .pulse-dot {
+      position: absolute;
+      left: calc(2rem + 57%);
+      bottom: 2.9rem;
+      width: 0.95rem;
+      height: 0.95rem;
+      border-radius: 50%;
+      background: #ffffff;
+      box-shadow: 0 0 calc(1.5rem * var(--pulse)) rgba(255, 255, 255, 0.95);
+      transform: translate(-50%, -50%);
+    }
+
+    .mode-strip {
+      margin-top: -1.3rem;
+      margin-left: 8%;
+      width: fit-content;
+      display: flex;
+      gap: 0.45rem;
+      padding: 0.4rem;
+      background: rgba(14, 4, 29, 0.95);
+      border: 1px solid rgba(216, 230, 255, 0.6);
+      position: relative;
+      z-index: 3;
+    }
+
+    .mode-strip button {
+      margin: 0;
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 0.72rem;
+      color: #ffffff;
+      background: #120922;
+      border: 1px solid rgba(216, 230, 255, 0.5);
+      padding: 0.42rem 0.62rem;
+      cursor: pointer;
+    }
+
+    .mode-strip button.active {
+      background: linear-gradient(110deg, rgba(255, 31, 191, 0.95), rgba(40, 240, 255, 0.95));
+      color: #06030d;
+      border-color: #ffffff;
+    }
+
+    .collage {
+      margin-top: 1.5rem;
+      display: grid;
+      grid-template-columns: 1fr 1fr 0.9fr;
+      gap: 1rem;
+      align-items: start;
+    }
+
+    .tile {
+      position: relative;
+      border: 1px solid rgba(216, 230, 255, 0.58);
+      padding: 1rem;
+      background: rgba(20, 7, 40, 0.9);
+      overflow: hidden;
+      box-shadow: 0 0 1.2rem rgba(0, 0, 0, 0.25);
+    }
+
+    .tile h2,
+    .tile h3,
+    .tile p,
+    .tile li,
+    .tile label,
+    .tile strong,
+    .tile small {
+      color: #ffffff;
+    }
+
+    .tile h2 {
+      font-size: 1.15rem;
+      margin: 0 0 0.6rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .tilt {
+      transform: translateY(-0.6rem) rotate(-1.5deg);
+      z-index: 2;
+    }
+
+    .offset {
+      transform: translateY(1rem) rotate(1.2deg);
+    }
+
+    .audit-card {
+      min-height: 16.5rem;
+    }
+
+    .audit-card::before {
+      content: "";
+      position: absolute;
+      inset: 1rem;
+      border: 1px dashed rgba(40, 240, 255, 0.7);
+      pointer-events: none;
+    }
+
+    .stat {
+      margin: 0.8rem 0;
+      padding: 0.6rem;
+      border-left: 3px solid var(--magenta);
+      background: rgba(9, 2, 18, 0.8);
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 0.86rem;
+    }
+
+    .pricing-card {
+      min-height: 16.5rem;
+      background: linear-gradient(160deg, rgba(255, 255, 255, 0.95), rgba(216, 230, 255, 0.9));
+      border-color: rgba(12, 3, 26, 0.9);
+      color: #0b0613;
+    }
+
+    .pricing-card h2,
+    .pricing-card p,
+    .pricing-card li,
+    .pricing-card strong,
+    .pricing-card small,
+    .pricing-card label {
+      color: #0b0613;
+    }
+
+    .pricing-card ul {
+      padding-left: 1rem;
+      margin: 0.5rem 0 1rem;
+    }
+
+    .price {
+      font-size: 2rem;
+      font-weight: 700;
+      line-height: 1;
+      margin: 0.2rem 0 0.5rem;
+    }
+
+    .interactive-card {
+      min-height: 18rem;
+    }
+
+    .angle-wrap {
+      margin-top: 0.7rem;
+    }
+
+    .angle-wrap input[type="range"] {
+      width: 100%;
+      accent-color: #28f0ff;
+    }
+
+    .signal {
+      margin-top: 0.75rem;
+      width: 100%;
+    }
+
+    .quote-list {
+      margin-top: 1rem;
+      display: grid;
+      gap: 0.75rem;
+    }
+
+    blockquote {
+      margin: 0;
+      padding: 0.8rem;
+      border-left: 3px solid var(--cyan);
+      background: rgba(9, 2, 18, 0.78);
+      color: #ffffff;
+      font-size: 0.9rem;
+    }
+
+    blockquote footer {
+      margin-top: 0.35rem;
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 0.75rem;
+      color: #ffffff;
+    }
+
+    .faq {
+      margin-top: 1rem;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+    }
+
+    details {
+      border: 1px solid rgba(216, 230, 255, 0.5);
+      background: rgba(20, 7, 40, 0.88);
+      padding: 0.75rem;
+    }
+
+    summary {
+      font-weight: 700;
+      color: #ffffff;
+      cursor: pointer;
+    }
+
+    details p {
+      margin: 0.65rem 0 0;
+      color: #ffffff;
+    }
+
+    .spark {
+      position: absolute;
+      width: 3.2rem;
+      height: 3.2rem;
+      border: 1px solid rgba(255, 255, 255, 0.7);
+      clip-path: polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%);
+      background: linear-gradient(135deg, rgba(255, 31, 191, 0.75), rgba(40, 240, 255, 0.65));
+      transition: transform 450ms ease, filter 450ms ease;
+    }
+
+    .spark.a { top: -1.2rem; right: -0.6rem; }
+    .spark.b { bottom: -1.1rem; left: -0.8rem; }
+
+    .tile:hover .spark {
+      transform: rotate(45deg) scale(1.2);
+      filter: saturate(1.3) brightness(1.2);
+    }
+
+    footer {
+      margin-top: 2rem;
+      padding: 1rem;
+      border: 1px solid rgba(216, 230, 255, 0.45);
+      background: rgba(10, 2, 20, 0.88);
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      gap: 0.6rem;
+      color: #ffffff;
+      font-size: 0.82rem;
+    }
+
+    .foot-links {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.65rem;
+    }
+
+    .foot-links a {
+      color: #ffffff;
+      text-decoration: none;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.8);
+    }
+
+    [data-mode="march"] {
+      --bg-0: #0f0623;
+      --bg-1: #2d004d;
+      --bg-2: #050010;
+      --pulse: 1.15;
+    }
+
+    [data-mode="ceremony"] {
+      --bg-0: #240028;
+      --bg-1: #3c0058;
+      --bg-2: #0f001a;
+      --pulse: 1;
+    }
+
+    [data-mode="night"] {
+      --bg-0: #050018;
+      --bg-1: #170033;
+      --bg-2: #00000c;
+      --pulse: 1.35;
+    }
+
+    @media (max-width: 980px) {
+      .hero-grid,
+      .collage,
+      .faq {
+        grid-template-columns: 1fr;
+      }
+
+      .mode-strip {
+        margin-left: 0;
+      }
+
+      .tilt,
+      .offset {
+        transform: none;
+      }
+    }
+  </style>
+</head>
+<body x-data="siteState()" :data-mode="mode">
+  <div class="scan" aria-hidden="true"></div>
+  <div class="site">
+    <nav>
+      <div class="logo"><span class="logo-badge" aria-hidden="true"></span>Levelfield Coalition</div>
+      <div class="nav-links" aria-label="Main navigation">
+        <a href="#campaigns">Campaigns</a>
+        <a href="#audits">Venue Audits</a>
+        <a href="#partners">Partners</a>
+        <a href="#dues">Dues</a>
+      </div>
+    </nav>
+
+    <section class="hero-grid" aria-labelledby="headline">
+      <article class="hero-copy">
+        <p class="eyebrow">National Access Nonprofit</p>
+        <h1 id="headline">Retire stairs. Build continuous cities.</h1>
+        <p class="lede">We organize architects, wedding venues, schools, and municipal boards around one principle: movement should never require climbing.</p>
+        <div class="hero-actions">
+          <button class="btn-solid" type="button">Join Advocacy Desk</button>
+          <button class="btn-ghost" type="button">Download Venue Standard</button>
+          <span class="eyebrow" style="margin:0;">EIN 84-6619247</span>
+        </div>
+      </article>
+
+      <aside class="hero-art" id="artboard" aria-label="Accessibility visualization">
+        <div class="ring r1"></div>
+        <div class="ring r2"></div>
+        <div class="ring r3"></div>
+        <div class="stair-stack" aria-hidden="true">
+          <div class="step s4"></div>
+          <div class="step s3"></div>
+          <div class="step s2"></div>
+          <div class="step s1"></div>
+        </div>
+        <div class="ramp" id="ramp"></div>
+        <div class="pulse-dot" id="pulseDot"></div>
+      </aside>
+    </section>
+
+    <div class="mode-strip" role="tablist" aria-label="Lighting mode">
+      <button type="button" :class="{active: mode==='ceremony'}" @click="mode='ceremony'">Ceremony</button>
+      <button type="button" :class="{active: mode==='march'}" @click="mode='march'">March</button>
+      <button type="button" :class="{active: mode==='night'}" @click="mode='night'">Night Ops</button>
+    </div>
+
+    <section class="collage" id="campaigns">
+      <article class="tile audit-card tilt" id="audits">
+        <span class="spark a" aria-hidden="true"></span>
+        <h2>Live Audit Feed</h2>
+        <p>Certified inspectors currently reviewing transit hubs, ceremony halls, and civic offices.</p>
+        <p class="stat"><strong>412</strong> structural barriers flagged this quarter.</p>
+        <p class="stat"><strong>89</strong> full ramp retrofits approved in committee vote.</p>
+        <p class="stat"><strong>14</strong> venue directors enrolled in our emergency redesign sprint.</p>
+      </article>
+
+      <article class="tile pricing-card offset" id="dues">
+        <span class="spark b" aria-hidden="true"></span>
+        <h2>Partner Dues</h2>
+        <p>Annual organizational memberships fund legal support and blueprint grants.</p>
+        <p class="price">$1,200 <small>/ year</small></p>
+        <ul>
+          <li>Two site audits and public scorecard listing</li>
+          <li>Ribbon-safe ceremony entrance layout kit</li>
+          <li>District hearing representation</li>
+        </ul>
+        <button class="btn-solid" type="button">Request Intake Call</button>
+      </article>
+
+      <article class="tile interactive-card" id="partners">
+        <h2>Visual Lab</h2>
+        <p>Adjust ramp pitch and broadcast a public signal to partner districts.</p>
+        <label for="tilt">Ramp angle: <strong><span x-text="angle + '°'"></span></strong></label>
+        <div class="angle-wrap">
+          <input id="tilt" type="range" min="-28" max="-6" x-model="angle" @input="setAngle" />
+        </div>
+        <button class="btn-ghost signal" id="signalBtn" type="button">
+          <i data-lucide="radio-tower"></i> Activate Signal Pattern
+        </button>
+        <div class="quote-list">
+          <blockquote>
+            "Our wedding pavilion became fully continuous in six weeks. Guest flow doubled."
+            <footer>Venue Director, North Harbor Conservatory</footer>
+          </blockquote>
+          <blockquote>
+            "The Coalition's legal memo moved our city board from delay to funding."
+            <footer>Transit Planner, Eastline Borough</footer>
+          </blockquote>
+        </div>
+      </article>
+    </section>
+
+    <section class="faq">
+      <details>
+        <summary>Do you work with historic buildings?</summary>
+        <p>Yes. We prioritize reversible interventions and code-compliant circulation paths before permanent structural replacement.</p>
+      </details>
+      <details>
+        <summary>Can our venue be listed as stair-free?</summary>
+        <p>Listings are granted after walkthrough verification and six-month maintenance checks by independent auditors.</p>
+      </details>
+    </section>
+
+    <footer>
+      <div>Levelfield Coalition, 52 Meridian Row, Newark, NJ 07102</div>
+      <div class="foot-links">
+        <a href="#">Policy Desk</a>
+        <a href="#">Press Room</a>
+        <a href="#">Volunteer Legal Team</a>
+      </div>
+    </footer>
+  </div>
+
+  <script src="/assets/js/alpine.min.js" defer></script>
+  <script src="/assets/js/gsap.min.js"></script>
+  <script src="/assets/js/lucide.min.js"></script>
+  <script>
+    function siteState() {
+      return {
+        mode: 'ceremony',
+        angle: -18,
+        setAngle() {
+          document.documentElement.style.setProperty('--ramp-tilt', this.angle + 'deg');
+        }
+      };
+    }
+
+    window.addEventListener('DOMContentLoaded', function () {
+      if (window.lucide && typeof window.lucide.createIcons === 'function') {
+        window.lucide.createIcons();
+      }
+
+      if (window.gsap) {
+        gsap.from('nav, .hero-copy, .hero-art, .mode-strip', {
+          y: 20,
+          opacity: 0,
+          duration: 0.8,
+          ease: 'power2.out',
+          stagger: 0.08
+        });
+
+        const rings = document.querySelectorAll('.ring');
+        gsap.to(rings, {
+          rotate: 360,
+          duration: 16,
+          repeat: -1,
+          ease: 'none',
+          transformOrigin: '50% 50%'
+        });
+
+        const signalBtn = document.getElementById('signalBtn');
+        const artboard = document.getElementById('artboard');
+        const pulseDot = document.getElementById('pulseDot');
+
+        if (signalBtn && artboard && pulseDot) {
+          signalBtn.addEventListener('click', function () {
+            const tl = gsap.timeline();
+            tl.to('.step', {
+              x: -22,
+              duration: 0.2,
+              stagger: 0.04,
+              ease: 'power1.out'
+            })
+            .to('.step', {
+              x: 0,
+              duration: 0.3,
+              stagger: 0.04,
+              ease: 'bounce.out'
+            })
+            .to(pulseDot, {
+              scale: 1.75,
+              duration: 0.22,
+              yoyo: true,
+              repeat: 3,
+              ease: 'power1.inOut'
+            }, 0)
+            .to(artboard, {
+              filter: 'hue-rotate(28deg) saturate(1.2)',
+              duration: 0.35,
+              yoyo: true,
+              repeat: 1,
+              ease: 'power1.inOut'
+            }, 0);
+          });
+        }
+      }
+    });
+  </script>
+</body>
+</html>

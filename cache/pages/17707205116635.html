@@ -1,0 +1,783 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>MnemoAir Public Library Flight Console</title>
+  <link rel="stylesheet" href="/assets/css/pico.min.css" />
+  <link rel="stylesheet" href="/assets/css/fonts.css" />
+  <style>
+    :root {
+      --bg: #090912;
+      --panel: #121228;
+      --panel-2: #1a1a36;
+      --line: #2f2f62;
+      --pink: #ff2ea6;
+      --blue: #1da7ff;
+      --lime: #b8ff2c;
+      --text: #ffffff;
+      --text-soft: #d9dcff;
+      --text-muted: #b9c0ff;
+      --danger: #ff5d5d;
+      --ok: #63ff8d;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html,
+    body {
+      margin: 0;
+      min-height: 100%;
+      overflow-x: hidden;
+      background:
+        radial-gradient(circle at 12% 8%, #1b2d66 0%, #090912 35%),
+        radial-gradient(circle at 85% 14%, #4f126f 0%, #090912 45%),
+        linear-gradient(145deg, #090912 0%, #0b1024 100%);
+      color: var(--text);
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 16px;
+      line-height: 1.45;
+    }
+
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      background-image:
+        linear-gradient(to right, #14143a 1px, transparent 1px),
+        linear-gradient(to bottom, #14143a 1px, transparent 1px);
+      background-size: 28px 28px;
+      z-index: 0;
+    }
+
+    .app {
+      position: relative;
+      z-index: 1;
+      width: min(1400px, 100% - 1.2rem);
+      margin: 0.6rem auto;
+      display: grid;
+      grid-template-columns: 300px 1fr;
+      gap: 0.8rem;
+    }
+
+    .sidebar,
+    .panel {
+      background: linear-gradient(160deg, #121228 0%, #1a1a36 100%);
+      border: 2px solid var(--line);
+      border-radius: 16px;
+      box-shadow: 0 0 0 1px #0c0c1a, 0 10px 24px #000000;
+    }
+
+    .sidebar {
+      padding: 1rem;
+      display: grid;
+      gap: 0.8rem;
+      align-content: start;
+    }
+
+    .brand {
+      background: #0d1029;
+      border: 2px solid #36408c;
+      border-radius: 14px;
+      padding: 0.9rem;
+    }
+
+    .brand h1 {
+      margin: 0;
+      font-size: clamp(1.1rem, 2.8vw, 1.6rem);
+      color: var(--lime);
+      letter-spacing: 0.02em;
+    }
+
+    .brand p {
+      margin: 0.4rem 0 0;
+      color: var(--text-soft);
+      font-size: 0.95rem;
+    }
+
+    .chip-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.45rem;
+    }
+
+    .chip {
+      border: 1px solid #3a4db1;
+      background: #12184a;
+      color: #ffffff;
+      border-radius: 999px;
+      padding: 0.3rem 0.6rem;
+      font-size: 0.8rem;
+      font-family: 'IBM Plex Mono', monospace;
+    }
+
+    .nav-list {
+      display: grid;
+      gap: 0.45rem;
+    }
+
+    .nav-btn {
+      width: 100%;
+      min-height: 44px;
+      border: 1px solid #3848a0;
+      background: #0f1338;
+      color: #ffffff;
+      border-radius: 10px;
+      text-align: left;
+      font-weight: 700;
+      padding: 0.55rem 0.7rem;
+      cursor: pointer;
+    }
+
+    .nav-btn:hover,
+    .nav-btn.active {
+      background: #1f2965;
+      border-color: var(--blue);
+    }
+
+    i[data-lucide] {
+      width: 16px;
+      height: 16px;
+      stroke-width: 2.25;
+      vertical-align: -2px;
+      margin-right: 0.38rem;
+      color: #ffffff;
+    }
+
+    .tiny {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 0.8rem;
+      color: var(--text-muted);
+    }
+
+    .main {
+      display: grid;
+      gap: 0.8rem;
+      align-content: start;
+    }
+
+    .panel {
+      padding: 0.9rem;
+    }
+
+    .hero {
+      display: grid;
+      gap: 0.7rem;
+      background:
+        linear-gradient(115deg, #161638 0%, #10204b 54%, #26123e 100%);
+      border-color: #4255b8;
+    }
+
+    .title-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 0.6rem;
+    }
+
+    h2,
+    h3,
+    h4,
+    p,
+    small,
+    label,
+    th,
+    td,
+    li,
+    a,
+    summary {
+      color: #ffffff;
+    }
+
+    .hero h2 {
+      margin: 0;
+      font-size: clamp(1.35rem, 3vw, 2.1rem);
+      color: #ffffff;
+    }
+
+    .hero p {
+      margin: 0;
+      color: #e5e9ff;
+      max-width: 70ch;
+    }
+
+    .btn-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+    }
+
+    .cta,
+    .alt {
+      min-height: 44px;
+      border-radius: 10px;
+      border: 0;
+      padding: 0.55rem 0.95rem;
+      font-weight: 800;
+      cursor: pointer;
+    }
+
+    .cta {
+      background: var(--pink);
+      color: #ffffff;
+    }
+
+    .alt {
+      background: var(--lime);
+      color: #0a0a13;
+    }
+
+    .grid-3 {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 0.7rem;
+    }
+
+    .stat {
+      background: #0f1336;
+      border: 1px solid #3848a1;
+      border-radius: 12px;
+      padding: 0.75rem;
+      display: grid;
+      gap: 0.35rem;
+    }
+
+    .stat strong {
+      font-size: clamp(1.1rem, 2.2vw, 1.6rem);
+      color: var(--lime);
+      font-family: 'IBM Plex Mono', monospace;
+    }
+
+    .wide-grid {
+      display: grid;
+      grid-template-columns: 1.6fr 1fr;
+      gap: 0.7rem;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.92rem;
+    }
+
+    th,
+    td {
+      border-bottom: 1px solid #303769;
+      padding: 0.5rem;
+      text-align: left;
+      color: #ffffff;
+    }
+
+    th {
+      color: #cfd6ff;
+      font-size: 0.8rem;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+
+    .pill {
+      border-radius: 999px;
+      padding: 0.2rem 0.55rem;
+      font-size: 0.75rem;
+      font-family: 'IBM Plex Mono', monospace;
+      display: inline-block;
+      border: 1px solid #4354b8;
+      color: #ffffff;
+    }
+
+    .pill.ok { background: #1a4e34; border-color: #3dc269; }
+    .pill.warn { background: #5a4510; border-color: #ffd15d; }
+    .pill.bad { background: #631b28; border-color: #ff6f8f; }
+
+    .tide-buttons,
+    .toggle-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      margin-bottom: 0.65rem;
+    }
+
+    .small-btn {
+      min-height: 44px;
+      border-radius: 10px;
+      border: 1px solid #4052bf;
+      background: #141a46;
+      color: #ffffff;
+      font-weight: 700;
+      padding: 0.45rem 0.75rem;
+      cursor: pointer;
+    }
+
+    .small-btn.active {
+      border-color: var(--lime);
+      background: #23335d;
+      color: #ffffff;
+    }
+
+    .menu-card {
+      border: 1px solid #3b4bab;
+      background: #10173f;
+      border-radius: 12px;
+      padding: 0.7rem;
+      margin-top: 0.6rem;
+    }
+
+    .menu-card ul {
+      margin: 0.4rem 0 0;
+      padding-left: 1.1rem;
+      color: #ffffff;
+    }
+
+    .bars {
+      margin-top: 0.7rem;
+      display: grid;
+      gap: 0.35rem;
+    }
+
+    .bar {
+      height: 18px;
+      border-radius: 5px;
+      background: #0c1033;
+      border: 1px solid #31439c;
+      overflow: hidden;
+    }
+
+    .bar > span {
+      display: block;
+      height: 100%;
+      background: linear-gradient(90deg, var(--blue), var(--pink));
+    }
+
+    .quote {
+      border: 1px dashed #5c71e2;
+      border-radius: 12px;
+      padding: 0.75rem;
+      background: #10163d;
+      color: #ffffff;
+      min-height: 96px;
+    }
+
+    .mono {
+      font-family: 'IBM Plex Mono', monospace;
+      color: #dfe4ff;
+    }
+
+    input[type='range'] {
+      width: 100%;
+      min-height: 44px;
+    }
+
+    .price-box {
+      margin-top: 0.55rem;
+      border: 1px solid #3f50b8;
+      border-radius: 10px;
+      padding: 0.65rem;
+      background: #10163d;
+    }
+
+    details {
+      border: 1px solid #33459f;
+      border-radius: 10px;
+      padding: 0.65rem;
+      background: #10163d;
+    }
+
+    details + details {
+      margin-top: 0.5rem;
+    }
+
+    summary {
+      cursor: pointer;
+      font-weight: 800;
+      color: #ffffff;
+    }
+
+    .footer-note {
+      font-size: 0.82rem;
+      color: #ced5ff;
+      border-top: 1px solid #2d3c8a;
+      padding-top: 0.55rem;
+      margin-top: 0.45rem;
+    }
+
+    .alert-line {
+      color: #ffffff;
+      border: 1px solid #795f1f;
+      background: #3d2f0e;
+      border-radius: 10px;
+      padding: 0.5rem 0.65rem;
+      font-weight: 700;
+    }
+
+    @media (max-width: 1024px) {
+      .app {
+        grid-template-columns: 1fr;
+      }
+
+      .sidebar {
+        order: 2;
+      }
+
+      .main {
+        order: 1;
+      }
+    }
+
+    @media (max-width: 768px) {
+      .grid-3,
+      .wide-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .panel,
+      .sidebar {
+        padding: 0.75rem;
+      }
+
+      table {
+        font-size: 0.87rem;
+      }
+    }
+  </style>
+</head>
+<body x-data="skyportApp">
+  <div class="app">
+    <aside class="sidebar panel-card">
+      <section class="brand">
+        <h1>MnemoAir Library Terminal</h1>
+        <p>
+          I am Captain Miso Whiskers, founder, lead pilot, and public librarian by court order.
+          If I forget your name mid-flight, that is operational weather.
+        </p>
+      </section>
+
+      <div class="chip-row">
+        <span class="chip">Fleet: 7 cats + 1 intern</span>
+        <span class="chip">Podcast: <span x-text="podcastPlays"></span> plays</span>
+        <span class="chip">Clock: <span x-text="clock"></span></span>
+      </div>
+
+      <nav class="nav-list" aria-label="Control sections">
+        <button class="nav-btn" :class="{active: tab==='ops'}" @click="tab='ops'"><i data-lucide="tower-control"></i>Ops Desk</button>
+        <button class="nav-btn" :class="{active: tab==='menu'}" @click="tab='menu'"><i data-lucide="waves"></i>Tide Menu Lab</button>
+        <button class="nav-btn" :class="{active: tab==='pod'}" @click="tab='pod'"><i data-lucide="mic-2"></i>Podcast Booth</button>
+        <button class="nav-btn" :class="{active: tab==='fare'}" @click="tab='fare'"><i data-lucide="receipt"></i>Fare Calculator</button>
+        <button class="nav-btn" :class="{active: tab==='faq'}" @click="tab='faq'"><i data-lucide="circle-help"></i>Passenger Panic FAQ</button>
+      </nav>
+
+      <div class="panel" style="margin: 0;">
+        <h4 style="margin:0 0 0.35rem; color:#b8ff2c;">Excuse Printer</h4>
+        <p class="tiny" style="margin:0 0 0.4rem;">When delays happen, I require poetry.</p>
+        <button class="small-btn" @click="newExcuse">Print New Excuse</button>
+        <p class="mono" style="margin:0.55rem 0 0;" x-text="excuse"></p>
+      </div>
+
+      <p class="tiny">Footnote 14: All memory wipes are reversible with sardine broth and two witnesses.</p>
+    </aside>
+
+    <main class="main">
+      <section class="panel hero">
+        <div class="title-row">
+          <h2>Night Flights. Lost Memories. Tidal Brunch.</h2>
+          <span class="pill ok">Now Boarding: <span x-text="selectedPort.name"></span></span>
+        </div>
+        <p>
+          I started MnemoAir after forgetting my own birthday 19 years in a row and accidentally serving breakfast at midnight.
+          We now run flights plus a podcast where I interview passengers I just met, every single week, again.
+        </p>
+        <div class="btn-row">
+          <button class="cta" @click="booked++">Reserve Seat #<span x-text="booked + 200"></span></button>
+          <button class="alt" @click="toggleRemember">Memory Insurance: <span x-text="rememberMode ? 'ON' : 'OFF'"></span></button>
+        </div>
+      </section>
+
+      <section class="grid-3">
+        <article class="stat panel">
+          <small class="tiny">Total Forgettings Today</small>
+          <strong x-text="amnesiaCount"></strong>
+          <small>Goal is under 80. We are energetic, not compliant.</small>
+        </article>
+        <article class="stat panel">
+          <small class="tiny">Minutes Until High Tide Menu</small>
+          <strong x-text="minutesToTide"></strong>
+          <small>At zero, clam pancakes replace all crackers.</small>
+        </article>
+        <article class="stat panel">
+          <small class="tiny">Library Silence Violations</small>
+          <strong x-text="noiseTickets"></strong>
+          <small>I host a podcast in aisle C. I accept consequences.</small>
+        </article>
+      </section>
+
+      <section class="wide-grid" x-show="tab==='ops' || tab==='menu' || tab==='pod' || tab==='fare' || tab==='faq'">
+        <article class="panel" x-show="tab==='ops' || tab==='menu'">
+          <div class="title-row">
+            <h3 style="margin:0;">Departure Ledger</h3>
+            <div class="tide-buttons">
+              <button class="small-btn" :class="{active: selectedPort.code==='BK'}" @click="setPort('BK')">Blackwater</button>
+              <button class="small-btn" :class="{active: selectedPort.code==='SL'}" @click="setPort('SL')">Saltwick</button>
+              <button class="small-btn" :class="{active: selectedPort.code==='ML'}" @click="setPort('ML')">Moonlit</button>
+            </div>
+          </div>
+          <table>
+            <thead>
+              <tr>
+                <th>Flight</th>
+                <th>Gate</th>
+                <th>Status</th>
+                <th>Snack Cart</th>
+              </tr>
+            </thead>
+            <tbody>
+              <template x-for="row in flightRows" :key="row.flight">
+                <tr>
+                  <td x-text="row.flight"></td>
+                  <td x-text="row.gate"></td>
+                  <td><span class="pill" :class="row.level" x-text="row.status"></span></td>
+                  <td x-text="row.snack"></td>
+                </tr>
+              </template>
+            </tbody>
+          </table>
+          <p class="footer-note">Captain note: if your boarding pass says "Cat C," it means comfort plus very mild chaos.</p>
+        </article>
+
+        <article class="panel" x-show="tab==='menu' || tab==='ops'">
+          <h3 style="margin:0 0 0.5rem;">Tide Menu Control</h3>
+          <div class="tide-buttons">
+            <button class="small-btn" :class="{active: tide==='low'}" @click="tide='low'">Low Tide</button>
+            <button class="small-btn" :class="{active: tide==='mid'}" @click="tide='mid'">Mid Tide</button>
+            <button class="small-btn" :class="{active: tide==='high'}" @click="tide='high'">High Tide</button>
+          </div>
+          <div class="menu-card">
+            <strong x-text="menuTitle"></strong>
+            <ul>
+              <template x-for="item in menuItems" :key="item">
+                <li x-text="item"></li>
+              </template>
+            </ul>
+          </div>
+          <div class="bars">
+            <div class="bar"><span :style="`width:${saltLevel}%`"></span></div>
+            <small class="tiny">Salt Index: <span x-text="saltLevel"></span>%</small>
+            <div class="bar"><span :style="`width:${memoryRisk}%`"></span></div>
+            <small class="tiny">Memory Slippage Risk: <span x-text="memoryRisk"></span>%</small>
+          </div>
+        </article>
+      </section>
+
+      <section class="wide-grid" x-show="tab==='pod' || tab==='fare'">
+        <article class="panel" x-show="tab==='pod'">
+          <h3 style="margin:0 0 0.45rem;">Podcast Booth: "Who Are You Again?"</h3>
+          <p style="margin:0 0 0.6rem; color:#e2e8ff;">Episode <span class="mono" x-text="episode"></span> live from the periodicals aisle.</p>
+          <div class="btn-row">
+            <button class="cta" @click="playEpisode">Play 30 Seconds</button>
+            <button class="small-btn" @click="episode++">Skip to Next Guest</button>
+          </div>
+          <p class="alert-line" style="margin-top:0.65rem;" x-text="podcastLine"></p>
+
+          <div class="quote" style="margin-top:0.65rem;">
+            <strong>Listener voicemail:</strong>
+            <p style="margin:0.35rem 0 0;" x-text="quotes[quoteIndex]"></p>
+            <button class="small-btn" style="margin-top:0.6rem;" @click="quoteIndex = (quoteIndex + 1) % quotes.length">Next voicemail</button>
+          </div>
+        </article>
+
+        <article class="panel" x-show="tab==='fare'">
+          <h3 style="margin:0 0 0.45rem;">Fare Calculator</h3>
+          <label for="seats">Seats needed: <span class="mono" x-text="seats"></span></label>
+          <input id="seats" type="range" min="1" max="9" x-model.number="seats" />
+
+          <div class="toggle-row">
+            <button class="small-btn" :class="{active: luggage==='light'}" @click="luggage='light'">Carry-on Fish</button>
+            <button class="small-btn" :class="{active: luggage==='heavy'}" @click="luggage='heavy'">Emotional Trunk</button>
+          </div>
+
+          <div class="price-box">
+            <p style="margin:0;">Base Fare: <span class="mono">$<span x-text="baseFare"></span></span></p>
+            <p style="margin:0.3rem 0 0;">Memory Insurance: <span class="mono">$<span x-text="rememberMode ? 47 : 0"></span></span></p>
+            <p style="margin:0.3rem 0 0;">Total: <span class="mono">$<span x-text="totalFare"></span></span></p>
+          </div>
+          <p class="tiny" style="margin-top:0.55rem;">No refunds if you forget why you traveled. Credits issued as bookmarks.</p>
+        </article>
+      </section>
+
+      <section class="panel" x-show="tab==='faq' || tab==='ops'">
+        <h3 style="margin:0 0 0.5rem;">Passenger Panic FAQ</h3>
+        <details open>
+          <summary>Why does your gate number keep changing?</summary>
+          <p>The gate stays still. I rename it when I feel growth. Gate 4 is currently "Gate Autumn".</p>
+        </details>
+        <details>
+          <summary>What is Tide-Based Dining exactly?</summary>
+          <p>As the moon pulls the water, the menu evolves. At high tide, all omelets become seafood opinions.</p>
+        </details>
+        <details>
+          <summary>Who approved podcast recording during boarding?</summary>
+          <p>My parole officer signed page two. The signature is a paw print with intent.</p>
+        </details>
+        <details>
+          <summary>Can I request a pilot who remembers my name?</summary>
+          <p>Yes. Add "Name Anchor" for $12. I repeat your name before takeoff and during beverage service.</p>
+        </details>
+      </section>
+
+      <section class="panel">
+        <div class="title-row">
+          <h4 style="margin:0; color:#ff95cf;">Operational Disclaimers</h4>
+          <span class="tiny">Registry #MN-0047-CAT</span>
+        </div>
+        <p class="tiny" style="margin:0.45rem 0 0;">
+          MnemoAir is a legally recognized airline, a semi-quiet podcast collective, and a temporary public library annex.
+          By boarding, you consent to sea-salt air, occasional identity confusion, and one sincere apology from me personally.
+        </p>
+      </section>
+    </main>
+  </div>
+
+  <script defer src="/assets/js/alpine.min.js"></script>
+  <script src="/assets/js/gsap.min.js"></script>
+  <script src="/assets/js/lucide.min.js"></script>
+  <script>
+    document.addEventListener('alpine:init', () => {
+      Alpine.data('skyportApp', () => ({
+        tab: 'ops',
+        tide: 'mid',
+        booked: 0,
+        rememberMode: true,
+        amnesiaCount: 62,
+        minutesToTide: 38,
+        noiseTickets: 14,
+        podcastPlays: 1942,
+        episode: 27,
+        seats: 2,
+        luggage: 'light',
+        quoteIndex: 0,
+        clock: '--:--:--',
+        excuse: 'Delay reason: first officer got distracted by his own tail reflection.',
+        podcastLine: 'Now playing: "Sir, I already interviewed you at Gate Autumn."',
+        quotes: [
+          '"I boarded in May and landed emotionally in August. Five stars." - Nora D., historian',
+          '"The pilot forgot me, then remembered with tears. Powerful customer care." - Glen P., crab accountant',
+          '"I came for travel, stayed for the glossary of fish-based metaphors." - Rev. Linda, commuter',
+          '"Episode 12 asked my name nine times. I felt seen every single time." - Mel, regular'
+        ],
+        ports: {
+          BK: {
+            code: 'BK',
+            name: 'Blackwater Stack',
+            flights: [
+              { flight: 'MN-17', gate: 'Autumn', status: 'Boarding', level: 'ok', snack: 'Anchovy biscotti' },
+              { flight: 'MN-30', gate: 'C-2', status: 'Memory check', level: 'warn', snack: 'Brine popcorn' },
+              { flight: 'MN-45', gate: 'Atlas', status: 'Delayed', level: 'bad', snack: 'Mystery chowder' }
+            ]
+          },
+          SL: {
+            code: 'SL',
+            name: 'Saltwick Loop',
+            flights: [
+              { flight: 'MN-08', gate: 'Harbor', status: 'Boarding', level: 'ok', snack: 'Pickled waffles' },
+              { flight: 'MN-52', gate: 'Map Room', status: 'Fog hold', level: 'warn', snack: 'Kelp jerky' },
+              { flight: 'MN-71', gate: 'C-9', status: 'Delayed', level: 'bad', snack: 'Tuna nougat' }
+            ]
+          },
+          ML: {
+            code: 'ML',
+            name: 'Moonlit Annex',
+            flights: [
+              { flight: 'MN-12', gate: 'Lantern', status: 'Boarding', level: 'ok', snack: 'Sardine tart' },
+              { flight: 'MN-33', gate: 'Aisle F', status: 'Name reset', level: 'warn', snack: 'Sea-salt flan' },
+              { flight: 'MN-99', gate: 'C-1', status: 'Delayed', level: 'bad', snack: 'Octopus scone' }
+            ]
+          }
+        },
+        selectedPortCode: 'BK',
+        get selectedPort() {
+          return this.ports[this.selectedPortCode];
+        },
+        get flightRows() {
+          return this.selectedPort.flights;
+        },
+        get menuTitle() {
+          if (this.tide === 'low') return 'Low Tide Menu ($11.40)';
+          if (this.tide === 'high') return 'High Tide Menu ($19.80)';
+          return 'Mid Tide Menu ($15.20)';
+        },
+        get menuItems() {
+          if (this.tide === 'low') return ['Dry Dock Donut', 'Mild Sea Tea', 'Two apologetic olives'];
+          if (this.tide === 'high') return ['Clam pancake tower', 'Wave-battered cod bites', 'Moon-pulled lemon pie'];
+          return ['Brackish ramen', 'Harbor hash', 'Tidal mint gelato'];
+        },
+        get saltLevel() {
+          return this.tide === 'low' ? 41 : this.tide === 'mid' ? 63 : 88;
+        },
+        get memoryRisk() {
+          const base = this.tide === 'low' ? 24 : this.tide === 'mid' ? 47 : 73;
+          return this.rememberMode ? Math.max(base - 16, 8) : base;
+        },
+        get baseFare() {
+          const seatCost = this.seats * 39;
+          const bagCost = this.luggage === 'heavy' ? 31 : 9;
+          return seatCost + bagCost;
+        },
+        get totalFare() {
+          return this.baseFare + (this.rememberMode ? 47 : 0);
+        },
+        setPort(code) {
+          this.selectedPortCode = code;
+          this.noiseTickets = (this.noiseTickets + 1) % 22;
+        },
+        toggleRemember() {
+          this.rememberMode = !this.rememberMode;
+        },
+        playEpisode() {
+          this.podcastPlays += Math.floor(Math.random() * 11) + 3;
+          const lines = [
+            'Now playing: "Did we already discuss your favorite tide?"',
+            'Now playing: "Breaking: I forgot where I parked the airplane."',
+            'Now playing: "Special guest: the same guest from six minutes ago."'
+          ];
+          this.podcastLine = lines[Math.floor(Math.random() * lines.length)];
+        },
+        newExcuse() {
+          const excuses = [
+            'Delay reason: co-pilot insisted on alphabetizing emergency fish.',
+            'Delay reason: runway occupied by a book club arguing about gulls.',
+            'Delay reason: I announced final boarding in my sleep voice.',
+            'Delay reason: moonlight caused unanimous introspection among crew.'
+          ];
+          this.excuse = excuses[Math.floor(Math.random() * excuses.length)];
+        },
+        tick() {
+          const now = new Date();
+          this.clock = now.toLocaleTimeString('en-US', { hour12: false });
+          this.minutesToTide = ((59 - now.getMinutes()) + (now.getSeconds() > 0 ? 0 : 1));
+          if (Math.random() > 0.62) this.amnesiaCount += 1;
+          if (Math.random() > 0.8) this.noiseTickets += 1;
+        },
+        init() {
+          this.tick();
+          setInterval(() => this.tick(), 1000);
+        }
+      }));
+    });
+
+    document.addEventListener('DOMContentLoaded', () => {
+      if (window.lucide && typeof window.lucide.createIcons === 'function') {
+        window.lucide.createIcons();
+      }
+
+      if (window.gsap) {
+        gsap.fromTo('.panel',
+          { y: 20, scale: 0.99 },
+          { y: 0, scale: 1, duration: 0.55, stagger: 0.05, ease: 'power2.out', clearProps: 'transform' }
+        );
+      }
+    });
+  </script>
+</body>
+</html>

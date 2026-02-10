@@ -1,0 +1,705 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Abyssal Ledger Group</title>
+  <link rel="stylesheet" href="/assets/css/pico.min.css" />
+  <link rel="stylesheet" href="/assets/css/fonts.css" />
+  <style>
+    :root {
+      --ocean-0: #04172f;
+      --ocean-1: #062748;
+      --ocean-2: #0b3d68;
+      --bio-0: #00bfa5;
+      --bio-1: #65ffd8;
+      --bio-2: #cafff4;
+      --ink: #eaf8ff;
+      --ink-strong: #ffffff;
+      --paper-dark: #08213d;
+      --paper-mid: #0f3458;
+      --paper-light: #e7fffa;
+      --paper-text: #041a2f;
+      --line: #5cebcf;
+      --glow: 0 0 0.75rem rgba(101, 255, 216, 0.35), 0 0 2rem rgba(101, 255, 216, 0.2);
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: 'Space Grotesk', sans-serif;
+      color: var(--ink);
+      background:
+        radial-gradient(circle at 12% 8%, rgba(101, 255, 216, 0.18), transparent 22%),
+        radial-gradient(circle at 84% 0%, rgba(0, 191, 165, 0.24), transparent 28%),
+        conic-gradient(from 150deg at 70% 40%, #021226, #09335c, #021226 70%),
+        linear-gradient(155deg, var(--ocean-0), var(--ocean-2));
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      background-image:
+        linear-gradient(rgba(202, 255, 244, 0.08) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(202, 255, 244, 0.06) 1px, transparent 1px);
+      background-size: 32px 32px, 32px 32px;
+      mix-blend-mode: screen;
+      opacity: 0.35;
+    }
+
+    header {
+      padding: 1.25rem clamp(1rem, 3vw, 2rem) 0.6rem;
+      border-bottom: 1px solid rgba(101, 255, 216, 0.45);
+      background: linear-gradient(120deg, rgba(4, 23, 47, 0.95), rgba(11, 61, 104, 0.84));
+      position: relative;
+      z-index: 1;
+    }
+
+    .masthead {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 1rem;
+      align-items: end;
+    }
+
+    .brandline {
+      font-size: clamp(1.35rem, 3vw, 2.4rem);
+      line-height: 1;
+      margin: 0;
+      color: var(--ink-strong);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      text-shadow: var(--glow);
+    }
+
+    .subline {
+      margin: 0.35rem 0 0;
+      color: var(--bio-2);
+      font-size: 0.92rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    nav ul {
+      display: flex;
+      gap: 0.8rem;
+      list-style: none;
+      margin: 0;
+      padding: 0;
+      flex-wrap: wrap;
+      justify-content: end;
+    }
+
+    nav a {
+      color: var(--ink-strong);
+      text-decoration: none;
+      border: 1px solid rgba(101, 255, 216, 0.65);
+      border-radius: 999px;
+      padding: 0.35rem 0.8rem;
+      font-size: 0.8rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      background: rgba(0, 191, 165, 0.12);
+    }
+
+    nav a:hover {
+      background: rgba(101, 255, 216, 0.25);
+      box-shadow: var(--glow);
+    }
+
+    .ticker {
+      margin-top: 0.8rem;
+      border-top: 1px solid rgba(101, 255, 216, 0.35);
+      border-bottom: 1px solid rgba(101, 255, 216, 0.35);
+      padding: 0.45rem 0;
+      overflow: hidden;
+      white-space: nowrap;
+      color: var(--bio-2);
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 0.82rem;
+      letter-spacing: 0.05em;
+    }
+
+    .ticker span {
+      display: inline-block;
+      padding-left: 100%;
+      animation: ticker 18s linear infinite;
+    }
+
+    @keyframes ticker {
+      to { transform: translateX(-100%); }
+    }
+
+    main {
+      padding: clamp(1rem, 2.4vw, 2rem);
+      position: relative;
+      z-index: 1;
+    }
+
+    .news-columns {
+      column-count: 3;
+      column-gap: 1rem;
+    }
+
+    @media (max-width: 1000px) {
+      .news-columns { column-count: 2; }
+      .masthead { grid-template-columns: 1fr; }
+      nav ul { justify-content: start; }
+    }
+
+    @media (max-width: 680px) {
+      .news-columns { column-count: 1; }
+    }
+
+    .panel {
+      break-inside: avoid;
+      margin-bottom: 1rem;
+      border: 1px solid rgba(101, 255, 216, 0.5);
+      background: linear-gradient(155deg, rgba(8, 33, 61, 0.95), rgba(15, 52, 88, 0.92));
+      border-radius: 0.85rem;
+      padding: 1rem;
+      box-shadow: 0 0.85rem 2rem rgba(0, 0, 0, 0.3);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .panel::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      background: linear-gradient(120deg, transparent, rgba(101, 255, 216, 0.08), transparent 70%);
+      transform: translateX(-75%);
+      transition: transform 0.8s ease;
+    }
+
+    .panel:hover::before { transform: translateX(100%); }
+
+    .kicker {
+      margin: 0 0 0.4rem;
+      color: var(--bio-1);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      font-size: 0.76rem;
+    }
+
+    h1, h2, h3, p, li, small, dt, dd, button { color: var(--ink-strong); }
+
+    h1, h2, h3 {
+      margin-top: 0;
+      line-height: 1.1;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+
+    .hero-title {
+      font-size: clamp(1.5rem, 2.6vw, 2.4rem);
+      margin-bottom: 0.7rem;
+      text-shadow: var(--glow);
+    }
+
+    .split {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 0.6rem;
+      align-items: center;
+    }
+
+    .badge {
+      border: 1px solid var(--bio-1);
+      color: var(--bio-2);
+      padding: 0.22rem 0.58rem;
+      border-radius: 999px;
+      font-size: 0.74rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      background: rgba(0, 191, 165, 0.2);
+    }
+
+    .map {
+      margin-top: 0.9rem;
+      height: 220px;
+      border-radius: 0.8rem;
+      border: 1px solid rgba(101, 255, 216, 0.5);
+      background:
+        radial-gradient(circle at 20% 30%, rgba(101, 255, 216, 0.45), transparent 30%),
+        radial-gradient(circle at 68% 58%, rgba(0, 191, 165, 0.45), transparent 34%),
+        linear-gradient(140deg, #022543, #063965 50%, #03223f);
+      position: relative;
+      overflow: hidden;
+      transition: transform 0.5s ease, filter 0.5s ease;
+    }
+
+    .map:hover {
+      transform: scale(1.03) rotate(-1deg);
+      filter: saturate(1.22);
+    }
+
+    .map::before,
+    .map::after {
+      content: "";
+      position: absolute;
+      inset: auto;
+    }
+
+    .map::before {
+      width: 65%;
+      height: 62%;
+      top: 10%;
+      left: 8%;
+      border: 2px solid rgba(202, 255, 244, 0.65);
+      clip-path: polygon(10% 5%, 78% 0, 100% 35%, 88% 100%, 20% 88%, 0 45%);
+      box-shadow: var(--glow);
+    }
+
+    .map::after {
+      width: 40%;
+      height: 42%;
+      right: 10%;
+      bottom: 8%;
+      border: 2px dashed rgba(202, 255, 244, 0.8);
+      clip-path: polygon(50% 0, 100% 32%, 82% 100%, 18% 100%, 0 32%);
+      transform-origin: center;
+      animation: pulse 5s ease-in-out infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { transform: scale(1) rotate(0deg); }
+      50% { transform: scale(1.08) rotate(6deg); }
+    }
+
+    .ops-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 0.65rem;
+      margin-top: 0.8rem;
+    }
+
+    .ops-card {
+      border: 1px solid rgba(101, 255, 216, 0.52);
+      border-radius: 0.7rem;
+      padding: 0.65rem;
+      background: rgba(0, 191, 165, 0.1);
+      transition: transform 0.35s ease, background 0.35s ease;
+    }
+
+    .ops-card:hover {
+      transform: translateY(-4px) rotate(-1deg);
+      background: rgba(101, 255, 216, 0.22);
+    }
+
+    .ops-card i {
+      width: 1rem;
+      height: 1rem;
+      vertical-align: text-bottom;
+      margin-right: 0.4rem;
+      color: var(--bio-2);
+    }
+
+    .catalog {
+      display: grid;
+      gap: 0.7rem;
+      margin-top: 0.9rem;
+    }
+
+    .tier {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 0.4rem;
+      align-items: center;
+      border: 1px solid rgba(101, 255, 216, 0.52);
+      border-radius: 0.78rem;
+      padding: 0.65rem;
+      background: linear-gradient(130deg, rgba(0, 191, 165, 0.16), rgba(6, 39, 72, 0.7));
+      transition: border-radius 0.35s ease, transform 0.35s ease, box-shadow 0.35s ease;
+    }
+
+    .tier:hover {
+      border-radius: 2rem 0.75rem 2rem 0.75rem;
+      transform: skewX(-3deg);
+      box-shadow: var(--glow);
+    }
+
+    .cost {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 1.02rem;
+      color: var(--bio-2);
+      white-space: nowrap;
+    }
+
+    .board-wrap {
+      margin-top: 0.7rem;
+      border: 1px solid rgba(101, 255, 216, 0.56);
+      border-radius: 0.85rem;
+      padding: 0.65rem;
+      background: linear-gradient(160deg, #04213c, #063157);
+      overflow: hidden;
+    }
+
+    .board {
+      position: relative;
+      min-height: 230px;
+      border-radius: 0.65rem;
+      background:
+        repeating-linear-gradient(90deg, rgba(202, 255, 244, 0.1) 0 1px, transparent 1px 28px),
+        repeating-linear-gradient(rgba(202, 255, 244, 0.1) 0 1px, transparent 1px 28px),
+        linear-gradient(140deg, #0a3a63, #052846);
+    }
+
+    .alphabet {
+      position: absolute;
+      inset: 1rem;
+      display: grid;
+      grid-template-columns: repeat(6, 1fr);
+      gap: 0.4rem;
+      pointer-events: none;
+    }
+
+    .alphabet span {
+      border: 1px solid rgba(202, 255, 244, 0.55);
+      border-radius: 0.45rem;
+      display: grid;
+      place-items: center;
+      color: #f5fffd;
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 0.82rem;
+      background: rgba(0, 191, 165, 0.08);
+    }
+
+    .planchette {
+      width: 64px;
+      height: 64px;
+      border-radius: 58% 42% 64% 36% / 44% 52% 48% 56%;
+      border: 2px solid #d7fff5;
+      background: radial-gradient(circle at 35% 30%, #d7fff5, #74ffd8 45%, #0f4f75 100%);
+      box-shadow: 0 0 1rem rgba(101, 255, 216, 0.45);
+      position: absolute;
+      left: calc(var(--mx, 0.5) * (100% - 64px));
+      top: calc(var(--my, 0.5) * (100% - 64px));
+      transition: left 0.18s linear, top 0.18s linear, transform 0.35s ease;
+      pointer-events: none;
+    }
+
+    .board.seance .planchette {
+      animation: orbit 2.2s ease-in-out infinite alternate;
+    }
+
+    @keyframes orbit {
+      from { transform: rotate(-11deg) scale(1); }
+      to { transform: rotate(9deg) scale(1.08); }
+    }
+
+    .control-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.6rem;
+      margin-top: 0.75rem;
+    }
+
+    button,
+    .button {
+      margin: 0;
+      border: 1px solid var(--bio-1);
+      background: #0b4068;
+      color: #ffffff;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      font-size: 0.78rem;
+      padding: 0.52rem 0.85rem;
+    }
+
+    button:hover,
+    .button:hover {
+      background: #11608f;
+      box-shadow: var(--glow);
+    }
+
+    .quote {
+      background: var(--paper-light);
+      color: var(--paper-text);
+      border-color: #2aa987;
+    }
+
+    .quote p,
+    .quote small,
+    .quote h3 {
+      color: var(--paper-text);
+    }
+
+    .columns-two {
+      columns: 2;
+      column-gap: 0.85rem;
+    }
+
+    .columns-two p {
+      break-inside: avoid;
+      margin-top: 0;
+    }
+
+    @media (max-width: 760px) {
+      .columns-two { columns: 1; }
+    }
+
+    .stamp {
+      margin-top: 0.75rem;
+      display: inline-block;
+      border: 2px solid #b2ffe8;
+      padding: 0.35rem 0.6rem;
+      border-radius: 0.4rem;
+      color: #ffffff;
+      font-family: 'IBM Plex Mono', monospace;
+      transform: rotate(-7deg) scale(0.9);
+      opacity: 0.5;
+    }
+
+    .stamp.live {
+      opacity: 1;
+      box-shadow: var(--glow);
+    }
+
+    .flip-zone {
+      transition: transform 0.7s cubic-bezier(.2,.75,.3,1);
+      transform-origin: center;
+    }
+
+    .flipped .flip-zone {
+      transform: rotate(180deg);
+    }
+
+    footer {
+      padding: 1rem clamp(1rem, 2vw, 2rem) 1.5rem;
+      border-top: 1px solid rgba(101, 255, 216, 0.45);
+      color: var(--bio-2);
+      font-size: 0.82rem;
+      background: rgba(4, 23, 47, 0.85);
+    }
+
+    .footer-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 0.8rem;
+    }
+
+    .footer-grid p,
+    .footer-grid a,
+    .footer-grid strong {
+      color: #e9fffa;
+      margin: 0.2rem 0;
+    }
+
+    .footer-grid a { text-decoration: none; }
+
+    @media (max-width: 760px) {
+      .footer-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="masthead">
+      <div>
+        <p class="brandline">Abyssal Ledger Group</p>
+        <p class="subline">Feline Critique Directorate • Idol Transit Bureau • Inversion Logistics</p>
+      </div>
+      <nav aria-label="Primary">
+        <ul>
+          <li><a href="#manifest">Manifest</a></li>
+          <li><a href="#rotations">Rotations</a></li>
+          <li><a href="#rates">Rates</a></li>
+          <li><a href="#complaints">Complaints</a></li>
+        </ul>
+      </nav>
+    </div>
+    <div class="ticker" aria-label="Service bulletin">
+      <span>Transit update 06:41 UTC-8 • Ceiling-stage boarding active • Critic table 7 inspected • Complaints channel open by board session • No terrestrial delays reported</span>
+    </div>
+  </header>
+
+  <main>
+    <div class="news-columns">
+      <section class="panel" id="manifest">
+        <p class="kicker">Operations Brief</p>
+        <div class="split">
+          <h1 class="hero-title">Midnight Routes for Dining Review and Vocal Deployment</h1>
+          <span class="badge">Live Docket</span>
+        </div>
+        <p>We coordinate overnight venue inspections, synchronized choreography arrivals, and gravity-inverted service windows across 14 harbor districts.</p>
+        <div class="map flip-zone" aria-hidden="true"></div>
+        <div class="ops-grid">
+          <div class="ops-card"><i data-lucide="fish"></i>Critic table scoring</div>
+          <div class="ops-card"><i data-lucide="music-4"></i>Stage door rotation</div>
+          <div class="ops-card"><i data-lucide="ship-wheel"></i>Tidebound routing</div>
+          <div class="ops-card"><i data-lucide="scan-eye"></i>Ceiling clearance check</div>
+        </div>
+      </section>
+
+      <section class="panel" id="rates">
+        <p class="kicker">Contract Ledger</p>
+        <h2>Monthly Programs</h2>
+        <div class="catalog">
+          <article class="tier">
+            <div>
+              <strong>Harbor Debut Pack</strong>
+              <p>Two venue audits, one inverted showcase, same-night report filing.</p>
+            </div>
+            <span class="cost">$4,200/mo</span>
+          </article>
+          <article class="tier">
+            <div>
+              <strong>Silver Whisker Retainer</strong>
+              <p>Weekly critic rounds plus rehearsal dock management and menu alignment.</p>
+            </div>
+            <span class="cost">$8,900/mo</span>
+          </article>
+          <article class="tier">
+            <div>
+              <strong>Cathedral Ceiling Circuit</strong>
+              <p>Full regional routing, six-member formation control, nightly complaint sessions.</p>
+            </div>
+            <span class="cost">$16,400/mo</span>
+          </article>
+        </div>
+      </section>
+
+      <section class="panel quote">
+        <p class="kicker">Client Notes</p>
+        <h3>Verified Statements</h3>
+        <p>“Our reservation surge started the first week the review cat arrived. The boys hit every downbeat while suspended over the dessert pass.”</p>
+        <small>Port Saffron House, Executive Host</small>
+        <hr />
+        <p>“Complaint response time dropped from three days to thirteen minutes once we moved to board-led escalation.”</p>
+        <small>North Dock Amphitheater, Venue Compliance</small>
+      </section>
+
+      <section class="panel" id="rotations">
+        <p class="kicker">Rotation Schedule</p>
+        <h2>Current Placement Window</h2>
+        <div class="columns-two">
+          <p><strong>District Delta:</strong> Critic circuit at 19:00, rehearsal check at 20:40, upside dining activation at 22:00.</p>
+          <p><strong>District Basin:</strong> Twin-room tasting survey, harmonics pass, corridor signature run.</p>
+          <p><strong>District Glassline:</strong> Stairwell chorus dispatch with ceiling service only.</p>
+          <p><strong>District Jetty:</strong> Fourth-floor banquet report, midnight encore filing, route reset.</p>
+        </div>
+        <div class="control-row">
+          <button id="flipOps" type="button">Flip Operational View</button>
+          <button id="stampBtn" type="button">Apply Audit Seal</button>
+        </div>
+        <span class="stamp" id="stamp">LEDGER VERIFIED</span>
+      </section>
+
+      <section class="panel" id="complaints">
+        <p class="kicker">Resolution Desk</p>
+        <h2>Ouija Complaint Channel</h2>
+        <p>Place your case number before session start. The board directs triage lane, team assignment, and callback hour.</p>
+        <div class="board-wrap">
+          <div class="board" id="board" aria-label="Complaint board">
+            <div class="alphabet" aria-hidden="true">
+              <span>A</span><span>B</span><span>C</span><span>D</span><span>E</span><span>F</span>
+              <span>G</span><span>H</span><span>I</span><span>J</span><span>K</span><span>L</span>
+              <span>M</span><span>N</span><span>O</span><span>P</span><span>Q</span><span>R</span>
+              <span>S</span><span>T</span><span>U</span><span>V</span><span>W</span><span>X</span>
+              <span>Y</span><span>Z</span><span>1</span><span>2</span><span>3</span><span>4</span>
+              <span>5</span><span>6</span><span>7</span><span>8</span><span>9</span><span>0</span>
+            </div>
+            <div class="planchette" aria-hidden="true"></div>
+          </div>
+        </div>
+        <div class="control-row">
+          <button id="seanceBtn" type="button">Start Session</button>
+          <a href="#" class="button" role="button">Request Callback Slot</a>
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <footer>
+    <div class="footer-grid">
+      <div>
+        <strong>Dispatch Office</strong>
+        <p>Pier 11, Lower Tide Registry</p>
+        <p>Open nightly 18:00-03:00</p>
+      </div>
+      <div>
+        <strong>Regulatory</strong>
+        <p>Licensed Culinary Critique Unit 48-C</p>
+        <p>Entertainment Transit Authority Permit 22-9A</p>
+      </div>
+      <div>
+        <strong>Contact</strong>
+        <p><a href="mailto:routes@abyssalledger.example">routes@abyssalledger.example</a></p>
+        <p><a href="tel:+18005550119">+1 (800) 555-0119</a></p>
+      </div>
+    </div>
+  </footer>
+
+  <script src="/assets/js/gsap.min.js"></script>
+  <script src="/assets/js/lucide.min.js"></script>
+  <script>
+    (function () {
+      if (window.lucide && typeof window.lucide.createIcons === 'function') {
+        window.lucide.createIcons();
+      }
+
+      const body = document.body;
+      const flipButton = document.getElementById('flipOps');
+      const stampBtn = document.getElementById('stampBtn');
+      const stamp = document.getElementById('stamp');
+      const board = document.getElementById('board');
+      const seanceBtn = document.getElementById('seanceBtn');
+
+      if (flipButton) {
+        flipButton.addEventListener('click', function () {
+          body.classList.toggle('flipped');
+          if (window.gsap) {
+            gsap.fromTo('.flip-zone', { scale: 0.96 }, { scale: 1, duration: 0.45, ease: 'power2.out' });
+          }
+        });
+      }
+
+      if (stampBtn && stamp) {
+        stampBtn.addEventListener('click', function () {
+          stamp.classList.add('live');
+          if (window.gsap) {
+            gsap.fromTo(
+              stamp,
+              { rotate: -20, scale: 0.4, opacity: 0 },
+              { rotate: -7, scale: 1, opacity: 1, duration: 0.55, ease: 'back.out(1.7)' }
+            );
+          }
+        });
+      }
+
+      if (board) {
+        board.addEventListener('pointermove', function (event) {
+          const rect = board.getBoundingClientRect();
+          const x = (event.clientX - rect.left) / rect.width;
+          const y = (event.clientY - rect.top) / rect.height;
+          board.style.setProperty('--mx', String(Math.max(0, Math.min(1, x))));
+          board.style.setProperty('--my', String(Math.max(0, Math.min(1, y))));
+        });
+      }
+
+      if (seanceBtn && board) {
+        seanceBtn.addEventListener('click', function () {
+          board.classList.toggle('seance');
+          seanceBtn.textContent = board.classList.contains('seance') ? 'End Session' : 'Start Session';
+          if (window.gsap) {
+            gsap.to(board, {
+              boxShadow: board.classList.contains('seance')
+                ? '0 0 1.2rem rgba(101,255,216,0.55), 0 0 3rem rgba(101,255,216,0.25)'
+                : 'none',
+              duration: 0.4,
+              ease: 'power1.out'
+            });
+          }
+        });
+      }
+    })();
+  </script>
+</body>
+</html>

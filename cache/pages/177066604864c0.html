@@ -1,0 +1,736 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Strata & Ledger LLP | Aggregate Reclassification Counsel</title>
+  <link rel="stylesheet" href="/assets/css/pico.min.css" />
+  <link rel="stylesheet" href="/assets/css/fonts.css" />
+  <style>
+    :root {
+      --bg-deep: #17022b;
+      --bg-dark: #250047;
+      --magenta: #ff2e9a;
+      --cyan: #32f0ff;
+      --chrome: #ecf3ff;
+      --ink: #090014;
+      --paper: #fff8e8;
+      --lime: #d8ff45;
+      --text: #f8f7ff;
+      --text-dark: #120019;
+      --card: rgba(18, 0, 40, 0.86);
+      --border: rgba(236, 243, 255, 0.45);
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: 'Space Grotesk', sans-serif;
+      color: var(--text);
+      background:
+        radial-gradient(circle at 15% 20%, rgba(255, 46, 154, 0.35), transparent 35%),
+        radial-gradient(circle at 80% 10%, rgba(50, 240, 255, 0.35), transparent 42%),
+        linear-gradient(130deg, var(--bg-deep), #110021 50%, #21003d 100%);
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    body.mode-audit {
+      --magenta: #ff6b00;
+      --cyan: #f7ff4b;
+      background:
+        radial-gradient(circle at 15% 20%, rgba(255, 107, 0, 0.35), transparent 35%),
+        radial-gradient(circle at 80% 10%, rgba(247, 255, 75, 0.35), transparent 42%),
+        linear-gradient(130deg, #240015, #1a0d00 52%, #2a1400 100%);
+    }
+
+    body.mode-trial {
+      --magenta: #ff2e9a;
+      --cyan: #32f0ff;
+      background:
+        radial-gradient(circle at 10% 40%, rgba(50, 240, 255, 0.35), transparent 35%),
+        radial-gradient(circle at 85% 22%, rgba(255, 46, 154, 0.35), transparent 42%),
+        linear-gradient(130deg, #100017, #14002e 48%, #020a2a 100%);
+    }
+
+    .site-shell {
+      width: min(1200px, 95vw);
+      margin: 1.2rem auto 0;
+      position: relative;
+      z-index: 1;
+    }
+
+    .topbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 1rem;
+      padding: 0.6rem 1rem;
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      background: linear-gradient(90deg, rgba(37, 0, 71, 0.85), rgba(11, 0, 25, 0.85));
+      backdrop-filter: blur(8px);
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 0.55rem;
+      color: var(--text);
+      font-weight: 700;
+      letter-spacing: 0.02em;
+      font-size: 0.95rem;
+    }
+
+    .brand i { color: var(--cyan); }
+
+    .nav-links {
+      display: flex;
+      gap: 0.4rem;
+      flex-wrap: wrap;
+    }
+
+    .chip {
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.08);
+      color: var(--text);
+      padding: 0.35rem 0.85rem;
+      font-size: 0.8rem;
+      text-decoration: none;
+      font-weight: 600;
+    }
+
+    .chip:hover {
+      color: #ffffff;
+      background: linear-gradient(120deg, var(--magenta), var(--cyan));
+      border-color: transparent;
+    }
+
+    .split {
+      margin-top: 1rem;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      border: 1px solid var(--border);
+      border-radius: 26px;
+      overflow: hidden;
+      min-height: 76vh;
+    }
+
+    .pane {
+      padding: clamp(1rem, 2vw, 2rem);
+      position: relative;
+      isolation: isolate;
+    }
+
+    .left-pane {
+      background:
+        linear-gradient(150deg, rgba(255, 255, 255, 0.03), rgba(255, 255, 255, 0.01)),
+        linear-gradient(180deg, rgba(255, 46, 154, 0.16), rgba(50, 240, 255, 0.12));
+      border-right: 1px solid rgba(236, 243, 255, 0.28);
+    }
+
+    .left-pane::before {
+      content: "";
+      position: absolute;
+      inset: 10% -8% 20% 35%;
+      background: conic-gradient(from 180deg, var(--magenta), transparent 35%, var(--cyan), transparent 70%, var(--magenta));
+      filter: blur(40px);
+      opacity: 0.5;
+      z-index: -1;
+      animation: cloudSpin 12s linear infinite;
+    }
+
+    .right-pane {
+      background: linear-gradient(180deg, rgba(10, 0, 21, 0.82), rgba(20, 0, 36, 0.94));
+    }
+
+    .eyebrow {
+      font-family: 'IBM Plex Mono', monospace;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      font-size: 0.75rem;
+      color: #ffffff;
+      margin-bottom: 0.6rem;
+      font-weight: 700;
+    }
+
+    h1 {
+      color: #ffffff;
+      font-size: clamp(1.8rem, 3vw, 3.2rem);
+      line-height: 1.02;
+      margin: 0 0 0.9rem;
+      max-width: 14ch;
+      text-wrap: balance;
+    }
+
+    .lede {
+      color: #ffffff;
+      max-width: 44ch;
+      margin-bottom: 1rem;
+      font-size: 1rem;
+    }
+
+    .mode-switch {
+      display: flex;
+      gap: 0.45rem;
+      flex-wrap: wrap;
+      margin-bottom: 1.1rem;
+    }
+
+    .mode-switch button {
+      margin: 0;
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      color: #ffffff;
+      background: rgba(255, 255, 255, 0.08);
+      font-size: 0.78rem;
+      padding: 0.35rem 0.8rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .mode-switch button.active {
+      background: linear-gradient(120deg, var(--magenta), var(--cyan));
+      color: #140022;
+      border-color: transparent;
+    }
+
+    .totem {
+      --spin: 0deg;
+      position: relative;
+      width: min(430px, 100%);
+      aspect-ratio: 1 / 1;
+      margin-top: 1.2rem;
+      border-radius: 24px;
+      background: linear-gradient(145deg, rgba(255,255,255,0.08), rgba(255,255,255,0.01));
+      border: 1px solid rgba(236, 243, 255, 0.4);
+      overflow: hidden;
+      cursor: pointer;
+    }
+
+    .totem::before,
+    .totem::after {
+      content: "";
+      position: absolute;
+      inset: 8%;
+      border-radius: 20px;
+      transition: transform 0.5s ease, clip-path 0.5s ease;
+    }
+
+    .totem::before {
+      background:
+        repeating-linear-gradient(90deg, rgba(255,255,255,0.14) 0 9px, transparent 9px 18px),
+        radial-gradient(circle at 68% 30%, var(--cyan), transparent 38%),
+        radial-gradient(circle at 24% 74%, var(--magenta), transparent 34%);
+      clip-path: polygon(8% 16%, 84% 4%, 100% 44%, 74% 96%, 18% 90%, 2% 54%);
+      transform: rotate(calc(var(--spin) + 6deg));
+    }
+
+    .totem::after {
+      inset: 16%;
+      border: 2px solid rgba(255, 255, 255, 0.8);
+      background: linear-gradient(120deg, rgba(17,0,30,0.7), rgba(17,0,30,0.25));
+      clip-path: polygon(50% 0%, 89% 17%, 100% 61%, 76% 100%, 20% 100%, 0% 57%, 11% 16%);
+      transform: rotate(calc(var(--spin) - 8deg));
+    }
+
+    .totem:hover::before {
+      clip-path: polygon(0% 34%, 30% 0%, 100% 18%, 94% 75%, 54% 100%, 8% 86%);
+      transform: rotate(calc(var(--spin) - 10deg)) scale(1.05);
+    }
+
+    .totem:hover::after {
+      clip-path: polygon(20% 0%, 100% 13%, 92% 83%, 37% 100%, 0% 71%, 7% 19%);
+      transform: rotate(calc(var(--spin) + 9deg)) scale(0.98);
+    }
+
+    .orbit {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+    }
+
+    .ring {
+      position: absolute;
+      border-radius: 50%;
+      border: 1.2px dashed rgba(255, 255, 255, 0.76);
+      mix-blend-mode: screen;
+      animation: orbit 14s linear infinite;
+    }
+
+    .ring.one { width: 78%; height: 78%; top: 11%; left: 11%; }
+    .ring.two { width: 48%; height: 48%; top: 26%; left: 26%; animation-duration: 9s; animation-direction: reverse; }
+    .ring.three { width: 62%; height: 62%; top: 19%; left: 19%; animation-duration: 18s; }
+
+    .firm-points {
+      margin-top: 1rem;
+      display: grid;
+      gap: 0.55rem;
+      padding: 0;
+      list-style: none;
+    }
+
+    .firm-points li {
+      color: #ffffff;
+      background: rgba(255,255,255,0.1);
+      border: 1px solid rgba(255,255,255,0.35);
+      border-radius: 12px;
+      padding: 0.5rem 0.65rem;
+      font-size: 0.9rem;
+      font-weight: 600;
+    }
+
+    .right-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 0.85rem;
+    }
+
+    .panel {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      padding: 0.9rem;
+    }
+
+    .panel h2,
+    .panel h3 {
+      margin: 0 0 0.6rem;
+      color: #ffffff;
+      font-size: 1rem;
+    }
+
+    .matrix {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 0.55rem;
+    }
+
+    .case-card {
+      position: relative;
+      min-height: 96px;
+      border-radius: 14px;
+      border: 1px solid rgba(255,255,255,0.35);
+      background: linear-gradient(155deg, rgba(255,255,255,0.12), rgba(255,255,255,0.02));
+      padding: 0.7rem;
+      color: #ffffff;
+      overflow: hidden;
+      transition: transform 0.35s ease, box-shadow 0.35s ease;
+    }
+
+    .case-card::after {
+      content: "";
+      position: absolute;
+      width: 80px;
+      height: 80px;
+      border-radius: 50%;
+      right: -22px;
+      bottom: -28px;
+      background: radial-gradient(circle at 35% 35%, var(--cyan), var(--magenta));
+      opacity: 0.86;
+      transition: transform 0.4s ease;
+    }
+
+    .case-card:hover {
+      transform: translateY(-3px) rotate(-0.8deg);
+      box-shadow: 0 10px 20px rgba(0, 0, 0, 0.38);
+    }
+
+    .case-card:hover::after {
+      transform: scale(1.35) translate(-8px, -8px);
+    }
+
+    .case-card .kicker {
+      display: block;
+      font-family: 'IBM Plex Mono', monospace;
+      color: #ffffff;
+      font-size: 0.68rem;
+      letter-spacing: 0.07em;
+      margin-bottom: 0.25rem;
+      text-transform: uppercase;
+      font-weight: 700;
+    }
+
+    .case-card p {
+      margin: 0;
+      font-size: 0.83rem;
+      color: #ffffff;
+      max-width: 17ch;
+      font-weight: 600;
+      line-height: 1.2;
+    }
+
+    .range-wrap label,
+    .range-wrap output,
+    .range-wrap p,
+    .faq details summary,
+    .faq p,
+    .pricing td,
+    .pricing th,
+    .tiny {
+      color: #ffffff;
+    }
+
+    .range-wrap input[type='range'] {
+      width: 100%;
+      margin: 0.45rem 0;
+      accent-color: var(--magenta);
+    }
+
+    .calc {
+      margin-top: 0.6rem;
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 0.5rem;
+      align-items: center;
+      border: 1px solid rgba(255,255,255,0.35);
+      border-radius: 12px;
+      padding: 0.55rem 0.7rem;
+      background: rgba(255,255,255,0.08);
+    }
+
+    .calc strong {
+      color: #ffffff;
+      font-size: 1.1rem;
+    }
+
+    .pricing {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.82rem;
+    }
+
+    .pricing th,
+    .pricing td {
+      border-bottom: 1px solid rgba(255,255,255,0.3);
+      text-align: left;
+      padding: 0.4rem 0.2rem;
+      font-weight: 600;
+    }
+
+    .pricing th { font-size: 0.75rem; letter-spacing: 0.07em; text-transform: uppercase; }
+
+    .badge {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 0.68rem;
+      border: 1px solid rgba(255,255,255,0.45);
+      border-radius: 999px;
+      padding: 0.2rem 0.55rem;
+      color: #ffffff;
+      background: rgba(255,255,255,0.11);
+    }
+
+    .testimonials {
+      display: grid;
+      gap: 0.5rem;
+    }
+
+    blockquote {
+      margin: 0;
+      border-left: 4px solid var(--cyan);
+      background: rgba(255,255,255,0.09);
+      border-radius: 12px;
+      padding: 0.65rem 0.75rem;
+    }
+
+    blockquote p,
+    blockquote footer {
+      color: #ffffff;
+      margin: 0;
+      font-size: 0.82rem;
+      font-weight: 600;
+    }
+
+    blockquote footer {
+      margin-top: 0.4rem;
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 0.72rem;
+    }
+
+    .faq details {
+      background: rgba(255,255,255,0.09);
+      border: 1px solid rgba(255,255,255,0.35);
+      border-radius: 12px;
+      padding: 0.55rem 0.65rem;
+      margin-bottom: 0.45rem;
+    }
+
+    .faq summary {
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .faq p {
+      margin: 0.5rem 0 0;
+      font-size: 0.83rem;
+      font-weight: 600;
+    }
+
+    .footer-strip {
+      margin: 1rem 0 0;
+      padding: 0.8rem 1rem;
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      background: linear-gradient(90deg, rgba(37,0,71,0.9), rgba(11,0,25,0.9));
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.7rem;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .footer-strip small {
+      color: #ffffff;
+      font-weight: 700;
+    }
+
+    .scene-controls {
+      display: flex;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+      margin-top: 0.6rem;
+    }
+
+    .scene-controls button {
+      margin: 0;
+      border-radius: 999px;
+      border: 1px solid rgba(255,255,255,0.5);
+      padding: 0.35rem 0.75rem;
+      background: rgba(255,255,255,0.1);
+      color: #ffffff;
+      font-size: 0.73rem;
+      font-weight: 700;
+    }
+
+    .scene-controls button:hover { background: rgba(255,255,255,0.2); }
+
+    .corner-safe {
+      height: 120px;
+      pointer-events: none;
+    }
+
+    @keyframes orbit {
+      to { transform: rotate(360deg); }
+    }
+
+    @keyframes cloudSpin {
+      to { transform: rotate(360deg); }
+    }
+
+    @media (max-width: 960px) {
+      .split { grid-template-columns: 1fr; }
+      .left-pane { border-right: none; border-bottom: 1px solid rgba(236, 243, 255, 0.28); }
+      .matrix { grid-template-columns: 1fr; }
+      .footer-strip { justify-content: flex-start; }
+    }
+  </style>
+</head>
+<body x-data="site()" :class="`mode-${mode}`">
+  <div class="site-shell">
+    <header class="topbar">
+      <div class="brand"><i data-lucide="scale"></i>Strata &amp; Ledger LLP</div>
+      <nav class="nav-links" aria-label="Primary">
+        <a class="chip" href="#matters">Matters</a>
+        <a class="chip" href="#retainers">Retainers</a>
+        <a class="chip" href="#results">Results</a>
+        <a class="chip" href="#faq">FAQ</a>
+      </nav>
+    </header>
+
+    <main class="split">
+      <section class="pane left-pane" aria-labelledby="intro-title">
+        <p class="eyebrow">Aggregate Litigation Division</p>
+        <h1 id="intro-title">Precision counsel for reclassification, grading, and truckload liability.</h1>
+        <p class="lede">From quarry-exit disputes to municipal load standards, we represent producers, carriers, and procurement teams in every forum where material identity determines value.</p>
+
+        <div class="mode-switch" role="tablist" aria-label="Context mode">
+          <button :class="{active: mode === 'trial'}" @click="setMode('trial')">Trial Prep</button>
+          <button :class="{active: mode === 'audit'}" @click="setMode('audit')">Audit Desk</button>
+          <button @click="spinTotem()">Rotate Exhibit</button>
+        </div>
+
+        <div class="totem" id="totem" @click="spinTotem()" :style="`--spin:${spin}deg`" aria-label="Interactive exhibit panel">
+          <div class="orbit" aria-hidden="true">
+            <div class="ring one"></div>
+            <div class="ring two"></div>
+            <div class="ring three"></div>
+          </div>
+        </div>
+
+        <ul class="firm-points" aria-label="Firm highlights">
+          <li>97.4% favorable settlement ratio in grade-density claims</li>
+          <li>Licensed counsel across 14 states with rapid filing teams</li>
+          <li>Dual-track tax and transport compliance representation</li>
+        </ul>
+      </section>
+
+      <section class="pane right-pane">
+        <div class="right-grid">
+          <article class="panel" id="matters">
+            <h2>Current Matter Board</h2>
+            <div class="matrix">
+              <div class="case-card">
+                <span class="kicker">State Review</span>
+                <p>Aggregate Value Appeal against county taxation multiplier</p>
+              </div>
+              <div class="case-card">
+                <span class="kicker">Carrier Defense</span>
+                <p>Weight-to-grade dispute for 82-haul municipal contract</p>
+              </div>
+              <div class="case-card">
+                <span class="kicker">Commercial</span>
+                <p>Supplier indemnity hearing tied to screening variance</p>
+              </div>
+              <div class="case-card">
+                <span class="kicker">Federal Docket</span>
+                <p>Cross-border declaration challenge on refined bulk loads</p>
+              </div>
+            </div>
+            <div class="scene-controls">
+              <button @click="shuffleCards()">Shuffle Docket View</button>
+              <button @click="nextQuote()">Cycle Client Record</button>
+            </div>
+          </article>
+
+          <article class="panel range-wrap" id="retainers">
+            <h3>Retainer Estimator</h3>
+            <label for="loads">Monthly Loads Under Review: <output x-text="loads"></output></label>
+            <input id="loads" type="range" min="20" max="600" step="10" x-model.number="loads" @input="calc()" />
+            <p class="tiny">Use this planning figure for initial counsel allocation and hearing preparation cycles.</p>
+            <div class="calc">
+              <span class="badge" x-text="tierLabel"></span>
+              <strong x-text="`$${retainer.toLocaleString()}`"></strong>
+            </div>
+          </article>
+
+          <article class="panel" id="results">
+            <h3>Recent Client Statements</h3>
+            <div class="testimonials">
+              <blockquote>
+                <p x-text="quotes[quoteIndex].text"></p>
+                <footer x-text="quotes[quoteIndex].by"></footer>
+              </blockquote>
+              <table class="pricing" aria-label="Fee schedule">
+                <thead>
+                  <tr><th>Service</th><th>Rate</th></tr>
+                </thead>
+                <tbody>
+                  <tr><td>Pre-filing analysis</td><td>$2,100 flat</td></tr>
+                  <tr><td>Regulatory hearing day</td><td>$1,950 / day</td></tr>
+                  <tr><td>Emergency injunction response</td><td>$4,400 flat</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </article>
+
+          <article class="panel faq" id="faq">
+            <h3>FAQ</h3>
+            <details>
+              <summary>Do you take contingency matters?</summary>
+              <p>Yes. Contingency is available for producer-side valuation and municipal overcharge actions after dossier review.</p>
+            </details>
+            <details>
+              <summary>How quickly can filing begin?</summary>
+              <p>Standard filing begins within 4 business days. Injunctive matters are triaged same day until 19:00 local time.</p>
+            </details>
+            <details>
+              <summary>Is tax counsel integrated with trial teams?</summary>
+              <p>Every matter receives synchronized tax and transport counsel from intake through final order.</p>
+            </details>
+          </article>
+        </div>
+      </section>
+    </main>
+
+    <footer class="footer-strip">
+      <small>Strata &amp; Ledger LLP • 440 Quarry Exchange, Suite 700 • Denver, CO</small>
+      <small>Intake: (303) 555-0189 • filings@strataledger.example</small>
+    </footer>
+
+    <div class="corner-safe" aria-hidden="true"></div>
+  </div>
+
+  <script src="/assets/js/alpine.min.js" defer></script>
+  <script src="/assets/js/gsap.min.js"></script>
+  <script src="/assets/js/lucide.min.js"></script>
+  <script>
+    function site() {
+      return {
+        mode: 'trial',
+        spin: 0,
+        loads: 180,
+        retainer: 0,
+        tierLabel: 'STRUCTURAL REVIEW',
+        quoteIndex: 0,
+        quotes: [
+          {
+            text: 'Their injunction filing stabilized our regional contract inside one week and reversed a severe valuation penalty.',
+            by: 'Director, Highline Aggregate Group'
+          },
+          {
+            text: 'Our carrier exposure dropped immediately after intake. The hearing packet was exact and fully court-ready.',
+            by: 'Operations Lead, Mesa Bulk Transport'
+          },
+          {
+            text: 'They coordinated tax and trial strategy in one calendar and recovered six figures in disputed charges.',
+            by: 'CFO, Granite Vale Materials'
+          }
+        ],
+        setMode(next) {
+          this.mode = next;
+        },
+        spinTotem() {
+          this.spin += 36;
+          if (window.gsap) {
+            gsap.fromTo('#totem', { scale: 0.98 }, { scale: 1, duration: 0.35, ease: 'power2.out' });
+          }
+        },
+        calc() {
+          const base = 2400;
+          this.retainer = Math.round(base + this.loads * 28);
+          if (this.loads < 160) this.tierLabel = 'STRUCTURAL REVIEW';
+          else if (this.loads < 360) this.tierLabel = 'ACTIVE LITIGATION';
+          else this.tierLabel = 'ENTERPRISE DEFENSE';
+        },
+        nextQuote() {
+          this.quoteIndex = (this.quoteIndex + 1) % this.quotes.length;
+          if (window.gsap) {
+            gsap.fromTo('blockquote', { opacity: 0.4, y: 8 }, { opacity: 1, y: 0, duration: 0.35, ease: 'power1.out' });
+          }
+        },
+        shuffleCards() {
+          const cards = document.querySelectorAll('.case-card');
+          cards.forEach((card, i) => {
+            const rot = (Math.random() * 6 - 3).toFixed(2);
+            const y = (Math.random() * 8 - 4).toFixed(2);
+            card.style.transform = `translateY(${y}px) rotate(${rot}deg)`;
+            card.style.transitionDelay = `${i * 30}ms`;
+          });
+          if (window.gsap) {
+            gsap.fromTo('.case-card', { opacity: 0.6 }, { opacity: 1, duration: 0.45, stagger: 0.05 });
+          }
+        },
+        init() {
+          this.calc();
+          if (window.gsap) {
+            gsap.from('.topbar, .pane, .footer-strip', {
+              y: 18,
+              opacity: 0,
+              duration: 0.65,
+              stagger: 0.08,
+              ease: 'power2.out'
+            });
+          }
+        }
+      };
+    }
+
+    document.addEventListener('DOMContentLoaded', function () {
+      if (window.lucide) lucide.createIcons();
+    });
+  </script>
+</body>
+</html>

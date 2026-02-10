@@ -1,0 +1,666 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Mossbound Parish Systems</title>
+  <link rel="stylesheet" href="/assets/css/pico.min.css" />
+  <link rel="stylesheet" href="/assets/css/fonts.css" />
+  <style>
+    :root {
+      --pink: #ff2ea6;
+      --blue: #00a6ff;
+      --lime: #b5ff2e;
+      --ink: #0b1020;
+      --paper: #f7fff5;
+      --deep: #051d2e;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: 'Space Grotesk', sans-serif;
+      color: var(--ink);
+      background:
+        radial-gradient(circle at 10% 8%, #ffe0f5 0, #ffe0f5 22%, transparent 22%),
+        radial-gradient(circle at 88% 12%, #cbffdc 0, #cbffdc 20%, transparent 20%),
+        linear-gradient(160deg, #faffea 0%, #e9fff8 48%, #eef3ff 100%);
+      min-height: 100vh;
+    }
+
+    main {
+      width: min(1300px, 96vw);
+      margin: 0 auto;
+      padding: 1rem 0 4rem;
+      display: grid;
+      gap: 1.2rem;
+      grid-template-columns: repeat(12, 1fr);
+    }
+
+    .slab {
+      border: 2px solid #000;
+      border-radius: 20px;
+      box-shadow: 8px 8px 0 #000;
+      padding: 1rem;
+      background: #fff;
+      overflow: hidden;
+    }
+
+    .topbar {
+      grid-column: 1 / -1;
+      background: linear-gradient(90deg, var(--pink), var(--blue), var(--lime));
+      color: #000;
+      padding: 0.7rem 1rem;
+      border: 2px solid #000;
+      border-radius: 16px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 0.8rem;
+      font-size: 0.92rem;
+      font-weight: 700;
+    }
+
+    nav a {
+      color: #000;
+      text-decoration: none;
+      border: 2px solid #000;
+      background: #fff;
+      padding: 0.2rem 0.6rem;
+      border-radius: 999px;
+      margin-right: 0.4rem;
+      display: inline-block;
+      font-size: 0.85rem;
+    }
+
+    nav a:hover { background: var(--lime); }
+
+    .hero {
+      grid-column: 1 / 9;
+      background: #041623;
+      color: #fff;
+      position: relative;
+    }
+
+    .hero h1 {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: clamp(2rem, 4vw, 3.2rem);
+      line-height: 1;
+      margin-bottom: 0.7rem;
+      text-transform: uppercase;
+      letter-spacing: 0.03em;
+    }
+
+    .mono {
+      font-family: 'IBM Plex Mono', monospace;
+    }
+
+    .ticker {
+      background: #fff;
+      color: #000;
+      border: 2px solid #000;
+      border-radius: 14px;
+      padding: 0.6rem;
+      font-size: 0.86rem;
+      font-weight: 700;
+      margin-top: 0.8rem;
+    }
+
+    .hero-badge {
+      position: absolute;
+      right: 1rem;
+      top: 1rem;
+      background: var(--lime);
+      color: #000;
+      border: 2px solid #000;
+      border-radius: 14px;
+      padding: 0.45rem 0.6rem;
+      font-size: 0.78rem;
+      font-weight: 800;
+      max-width: 220px;
+    }
+
+    .ops {
+      grid-column: 9 / -1;
+      background: #fff44c;
+      color: #000;
+    }
+
+    .kpis {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 0.6rem;
+      margin-top: 0.7rem;
+    }
+
+    .kpi {
+      border: 2px solid #000;
+      border-radius: 14px;
+      padding: 0.5rem;
+      background: #fff;
+    }
+
+    .kpi strong {
+      font-size: 1.35rem;
+      display: block;
+    }
+
+    .dept {
+      grid-column: 1 / 6;
+      margin-top: -1.4rem;
+      background: #fff;
+      transform: rotate(-1deg);
+    }
+
+    .dept-buttons {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.45rem;
+      margin-bottom: 0.7rem;
+    }
+
+    .dept-buttons button {
+      margin: 0;
+      border: 2px solid #000;
+      background: #fff;
+      color: #000;
+      font-weight: 700;
+      padding: 0.4rem 0.55rem;
+    }
+
+    .dept-buttons button.active,
+    .dept-buttons button:hover { background: var(--blue); color: #000; }
+
+    .dashboard {
+      grid-column: 6 / -1;
+      background: #0e0030;
+      color: #fff;
+      margin-top: -0.2rem;
+      transform: rotate(1deg);
+    }
+
+    .bar {
+      height: 24px;
+      background: #fff;
+      border: 2px solid #000;
+      border-radius: 999px;
+      overflow: hidden;
+      margin-bottom: 0.5rem;
+    }
+
+    .bar > span {
+      display: block;
+      height: 100%;
+      background: linear-gradient(90deg, var(--pink), var(--blue), var(--lime));
+    }
+
+    .panel-grid {
+      grid-column: 1 / -1;
+      display: grid;
+      grid-template-columns: repeat(12, minmax(0, 1fr));
+      gap: 1rem;
+      align-items: start;
+    }
+
+    .pricing { grid-column: 1 / 5; background: #e9ffea; color: #000; }
+    .queue { grid-column: 5 / 9; background: #fff; color: #000; }
+    .cats { grid-column: 9 / -1; background: #ffd6ef; color: #000; }
+
+    .price-cards {
+      display: grid;
+      gap: 0.6rem;
+    }
+
+    .price {
+      border: 2px solid #000;
+      border-radius: 14px;
+      background: #fff;
+      padding: 0.75rem;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.84rem;
+      background: #fff;
+      color: #000;
+    }
+
+    th, td {
+      border: 2px solid #000;
+      padding: 0.35rem;
+      text-align: left;
+      color: #000;
+      background: #fff;
+    }
+
+    .faq {
+      grid-column: 1 / 8;
+      background: #e2f0ff;
+      color: #000;
+    }
+
+    .legal {
+      grid-column: 8 / -1;
+      background: #f6ffe8;
+      color: #000;
+    }
+
+    .faq-item {
+      border: 2px solid #000;
+      border-radius: 12px;
+      background: #fff;
+      margin-bottom: 0.6rem;
+      overflow: hidden;
+    }
+
+    .faq-q {
+      width: 100%;
+      border: 0;
+      border-bottom: 2px solid #000;
+      background: var(--lime);
+      color: #000;
+      text-align: left;
+      padding: 0.65rem;
+      font-weight: 800;
+      cursor: pointer;
+    }
+
+    .faq-a {
+      padding: 0.65rem;
+      color: #000;
+      background: #fff;
+    }
+
+    .small-note {
+      font-size: 0.75rem;
+      color: #000;
+      line-height: 1.35;
+    }
+
+    .icon-chip {
+      border: 2px solid #000;
+      border-radius: 999px;
+      padding: 0.2rem 0.45rem;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      background: #fff;
+      color: #000;
+      font-weight: 700;
+      font-size: 0.8rem;
+      margin: 0.2rem 0.2rem 0.2rem 0;
+    }
+
+    input, select, textarea {
+      background: #fff !important;
+      color: #000 !important;
+      border: 2px solid #000 !important;
+    }
+
+    button {
+      border: 2px solid #000;
+      background: var(--blue);
+      color: #000;
+      font-weight: 800;
+    }
+
+    button.secondary {
+      background: var(--pink);
+      color: #000;
+    }
+
+    footer {
+      grid-column: 1 / -1;
+      border: 2px solid #000;
+      border-radius: 14px;
+      background: #001726;
+      color: #fff;
+      padding: 0.9rem;
+      display: flex;
+      justify-content: space-between;
+      gap: 1rem;
+      flex-wrap: wrap;
+    }
+
+    footer a { color: #fff; }
+
+    @media (max-width: 900px) {
+      .hero, .ops, .dept, .dashboard,
+      .pricing, .queue, .cats, .faq, .legal { grid-column: 1 / -1; transform: none; margin-top: 0; }
+      .hero-badge { position: static; margin-bottom: 0.6rem; }
+      .panel-grid { grid-template-columns: 1fr; }
+      main { display: block; }
+      .slab, .topbar, footer { margin-bottom: 1rem; }
+    }
+  </style>
+</head>
+<body>
+  <main x-data="appData()" x-init="init()">
+    <div class="topbar reveal">
+      <div>
+        <strong>Mossbound Parish Systems</strong>
+        <span class="mono"> | municipal software for spiritual logistics</span>
+      </div>
+      <nav>
+        <a href="#services">Services</a>
+        <a href="#board">Board Console</a>
+        <a href="#pricing">Licensing</a>
+        <a href="#assurance">Assurance</a>
+      </nav>
+      <div class="mono">Liturgical uptime: <strong x-text="uptime.toFixed(2) + '%'">99.42%</strong></div>
+    </div>
+
+    <section class="slab hero reveal" id="services">
+      <div class="hero-badge mono">Cat impact protocol: <span x-text="catStrikes"></span> shelf events this quarter</div>
+      <h1>Parish-grade startup infrastructure for teams that operate in living moss.</h1>
+      <p>
+        We provide intake systems, ritual scheduling engines, and compliance-grade shelf anchoring for founders,
+        monasteries, and regional procurement offices. Every workflow includes feline interruption tolerance by default.
+      </p>
+      <div>
+        <span class="icon-chip"><i data-lucide="sprout"></i> Bio-surface compatible</span>
+        <span class="icon-chip"><i data-lucide="building-2"></i> Public-sector billing</span>
+        <span class="icon-chip"><i data-lucide="cat"></i> Cat-ready inventories</span>
+      </div>
+      <div class="ticker mono">
+        Live office bulletin: <span x-text="tickerItems[tickerIndex]"></span>
+      </div>
+    </section>
+
+    <section class="slab ops reveal" id="board">
+      <h3>Board Console</h3>
+      <p class="mono">Current office time: <strong x-text="clock"></strong></p>
+      <div class="kpis">
+        <div class="kpi"><span>Open petitions</span><strong x-text="openPetitions"></strong></div>
+        <div class="kpi"><span>Queue drift</span><strong x-text="queueDrift + ' min'"></strong></div>
+        <div class="kpi"><span>Shelf integrity</span><strong x-text="shelfIntegrity + '%'">91%</strong></div>
+        <div class="kpi"><span>Moss humidity</span><strong x-text="mossLevel + '%'">64%</strong></div>
+      </div>
+      <div class="grid" style="margin-top: .8rem;">
+        <button @click="ringBell()">Ring Procession Bell</button>
+        <button class="secondary" @click="simulateDrop()">Log Cat Shelf Event</button>
+      </div>
+      <p class="small-note">Every bell cycle creates one blessing token and recalculates corridor staffing forecasts.</p>
+    </section>
+
+    <section class="slab dept reveal">
+      <h3>Department Routing</h3>
+      <div class="dept-buttons">
+        <button :class="{active: activeDept==='intake'}" @click="activeDept='intake'">Intake Liturgy</button>
+        <button :class="{active: activeDept==='supply'}" @click="activeDept='supply'">Supply & Moss</button>
+        <button :class="{active: activeDept==='feline'}" @click="activeDept='feline'">Feline Governance</button>
+        <button :class="{active: activeDept==='audit'}" @click="activeDept='audit'">Inconvenience Audit</button>
+      </div>
+
+      <article x-show="activeDept==='intake'">
+        <p><strong>Intake Liturgy:</strong> Average onboarding now <span x-text="queueDrift"></span> minutes. New clients receive a stamped inconvenience index and a moss-safe keyboard sleeve.</p>
+      </article>
+      <article x-show="activeDept==='supply'">
+        <p><strong>Supply & Moss:</strong> Humidity target can be adjusted live to match archival parchment stability.</p>
+        <label for="mossRange" class="mono">Humidity regulator</label>
+        <input id="mossRange" type="range" min="30" max="95" x-model.number="mossLevel" />
+      </article>
+      <article x-show="activeDept==='feline'">
+        <p><strong>Feline Governance:</strong> Risk posture is <span x-text="catStrikes > 25 ? 'escalated' : 'managed'"></span>. Decoy goblets deployed: <span x-text="decoyGoblets"></span>.</p>
+        <button @click="decoyGoblets++">Deploy Decoy Goblet</button>
+      </article>
+      <article x-show="activeDept==='audit'">
+        <p><strong>Inconvenience Audit:</strong> Policy chapter in force:</p>
+        <blockquote class="mono" x-text="policyChapters[policyIndex]"></blockquote>
+        <button @click="cyclePolicy()">Cycle Policy Chapter</button>
+      </article>
+    </section>
+
+    <section class="slab dashboard reveal">
+      <h3>Realtime Process Health</h3>
+      <p class="mono">Session runtime: <span x-text="secondsOpen"></span>s</p>
+      <label>Procession throughput</label>
+      <div class="bar"><span :style="'width:' + procession + '%'" aria-hidden="true"></span></div>
+      <label>Cat diversion success</label>
+      <div class="bar"><span :style="'width:' + diversion + '%'" aria-hidden="true"></span></div>
+      <label>Moss adhesion index</label>
+      <div class="bar"><span :style="'width:' + adhesion + '%'" aria-hidden="true"></span></div>
+
+      <table>
+        <thead>
+          <tr><th>System</th><th>Status</th><th>Drift</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Chapel CRM</td><td>Stable</td><td x-text="(100 - shelfIntegrity) + ' pts'"></td></tr>
+          <tr><td>Shelf Anchoring</td><td x-text="catStrikes > 20 ? 'Heightened' : 'Nominal'"></td><td x-text="catStrikes + ' events'"></td></tr>
+          <tr><td>Moss Compliance</td><td>Passing</td><td x-text="mossLevel + '% humidity'"></td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section class="panel-grid" id="pricing">
+      <article class="slab pricing reveal">
+        <h3>Licensing</h3>
+        <label>
+          <input type="checkbox" x-model="annual" />
+          Bill annually (includes ceremonial stapler care)
+        </label>
+        <div class="price-cards">
+          <div class="price">
+            <strong>Vestibule</strong>
+            <div class="mono" x-text="annual ? '$490/mo billed yearly' : '$620/mo'"></div>
+            <small>2 chapels, 1 startup team, standard moss mats</small>
+          </div>
+          <div class="price">
+            <strong>Nave Operations</strong>
+            <div class="mono" x-text="annual ? '$1,140/mo billed yearly' : '$1,390/mo'"></div>
+            <small>Cross-parish routing, feline analytics, papertrail exports</small>
+          </div>
+          <div class="price">
+            <strong>Cathedral Enterprise</strong>
+            <div class="mono" x-text="annual ? '$2,480/mo billed yearly' : '$2,950/mo'"></div>
+            <small>Unlimited cloisters, failover bells, executive moss arbitration</small>
+          </div>
+        </div>
+        <p class="small-note">All plans include one annual shelf blessing and two emergency sponge teams.</p>
+      </article>
+
+      <article class="slab queue reveal">
+        <h3>Ticket Registry</h3>
+        <form @submit.prevent="addTicket()">
+          <label for="ticketInput" class="mono">Open a service ticket</label>
+          <input id="ticketInput" x-model="newTicket" placeholder="e.g. aisle C prayer kiosk squeaks" required />
+          <button type="submit">Submit</button>
+        </form>
+
+        <table style="margin-top: .8rem;">
+          <thead>
+            <tr><th>ID</th><th>Issue</th><th>Owner</th><th>Action</th></tr>
+          </thead>
+          <tbody>
+            <template x-for="(item, idx) in tickets" :key="item.id">
+              <tr>
+                <td x-text="item.id"></td>
+                <td x-text="item.title"></td>
+                <td x-text="item.owner"></td>
+                <td><button @click="resolveTicket(idx)">Resolve</button></td>
+              </tr>
+            </template>
+          </tbody>
+        </table>
+      </article>
+
+      <article class="slab cats reveal">
+        <h3>Feline Interference Ledger</h3>
+        <p>Quarter-to-date shelf interactions are tracked for insurance and liturgical pacing.</p>
+        <table>
+          <thead>
+            <tr><th>Zone</th><th>Events</th><th>Last Object</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>North Annex</td><td x-text="Math.max(3, Math.floor(catStrikes*0.28))"></td><td>Notary bell</td></tr>
+            <tr><td>Foyer Bay</td><td x-text="Math.max(2, Math.floor(catStrikes*0.34))"></td><td>Copper ladle</td></tr>
+            <tr><td>Server Alcove</td><td x-text="Math.max(1, Math.floor(catStrikes*0.18))"></td><td>Mouse adapter</td></tr>
+            <tr><td>Procession Desk</td><td x-text="Math.max(2, Math.floor(catStrikes*0.20))"></td><td>Invoice tray</td></tr>
+          </tbody>
+        </table>
+        <p class="small-note">Incidents are not categorized as errors unless parchment integrity drops below 82%.</p>
+      </article>
+    </section>
+
+    <section class="slab faq reveal" id="assurance">
+      <h3>Assurance & Questions</h3>
+
+      <div class="faq-item">
+        <button class="faq-q" @click="faq= faq===1 ? 0 : 1">Do you integrate with existing startup tooling?</button>
+        <div class="faq-a" x-show="faq===1">Yes. We support migration from spreadsheets, legacy parish binders, and unsupported "temporary" sticky-note programs.</div>
+      </div>
+
+      <div class="faq-item">
+        <button class="faq-q" @click="faq= faq===2 ? 0 : 2">Can moss growth be throttled during investor week?</button>
+        <div class="faq-a" x-show="faq===2">The Growth Moderation API lets you set humidity windows by room and by board meeting risk appetite.</div>
+      </div>
+
+      <div class="faq-item">
+        <button class="faq-q" @click="faq= faq===3 ? 0 : 3">What is your SLA for knocked-over objects?</button>
+        <div class="faq-a" x-show="faq===3">Priority objects are upright within 4 business minutes. Bronze-tier lanterns are restored next procession cycle.</div>
+      </div>
+    </section>
+
+    <aside class="slab legal reveal">
+      <h3>Service Notices</h3>
+      <ul>
+        <li><strong>Notice 04-B:</strong> All keyboards remain valid when 40% moss-covered, provided key travel exceeds 1.2mm.</li>
+        <li><strong>Notice 09-F:</strong> Bells rung more than 7 times per hour may trigger celebratory overstaffing.</li>
+        <li><strong>Notice 11-C:</strong> Mild inconveniences are recognized as productive friction under municipal guidance.</li>
+      </ul>
+      <p class="small-note mono">Footnote A: Measured inconveniences are tax-deductible in approved districts.</p>
+      <p class="small-note mono">Footnote B: Cat ownership does not constitute force majeure if shelves lack railings.</p>
+      <p class="small-note mono">Footnote C: Billing disputes may be submitted in triplicate or by ceremonial stamp.</p>
+    </aside>
+
+    <footer class="reveal">
+      <div>
+        <strong>Mossbound Parish Systems</strong><br />
+        14 Cloister Loop, Suite C, Logistics Quarter
+      </div>
+      <div class="mono">
+        Compliance Desk: +1 (555) 014-2206<br />
+        Contracts: covenant@mossbound.systems
+      </div>
+      <div class="mono">
+        Last corridor sweep: <span x-text="clock"></span><br />
+        Current blessing tokens: <span x-text="blessings"></span>
+      </div>
+    </footer>
+  </main>
+
+  <script src="/assets/js/alpine.min.js" defer></script>
+  <script src="/assets/js/gsap.min.js" defer></script>
+  <script src="/assets/js/lucide.min.js" defer></script>
+  <script>
+    function appData() {
+      return {
+        activeDept: 'intake',
+        annual: false,
+        faq: 0,
+        clock: '--:--:--',
+        uptime: 99.42,
+        mossLevel: 64,
+        shelfIntegrity: 91,
+        openPetitions: 37,
+        queueDrift: 8,
+        blessings: 128,
+        catStrikes: 19,
+        decoyGoblets: 6,
+        secondsOpen: 0,
+        procession: 76,
+        diversion: 68,
+        adhesion: 83,
+        policyIndex: 0,
+        tickerIndex: 0,
+        newTicket: '',
+        policyChapters: [
+          'Chapter IV: Doors must open on first pull, second pull, or apologetic third pull.',
+          'Chapter VII: Every shelf must host one sacrificial decoy object before noon.',
+          'Chapter XII: Moss shall be trimmed only after witness signatures are obtained.'
+        ],
+        tickerItems: [
+          'Aisle B conveyor blessed and now 11% quieter.',
+          'Procurement approved eight anti-slide felt pads.',
+          'Cat committee accepted revised vase distancing standard.',
+          'South transept startup pod reached 300 invoices without a spill.'
+        ],
+        tickets: [
+          { id: 'MP-218', title: 'north shelf rail squeaks', owner: 'A. Flores' },
+          { id: 'MP-219', title: 'altar printer jams on carbon forms', owner: 'R. Chen' },
+          { id: 'MP-220', title: 'moss mat extends into cable trench', owner: 'D. Owens' }
+        ],
+        init() {
+          this.updateClock();
+          setInterval(() => {
+            this.secondsOpen += 1;
+            this.updateClock();
+            this.tickNumbers();
+          }, 1000);
+          setInterval(() => {
+            this.tickerIndex = (this.tickerIndex + 1) % this.tickerItems.length;
+          }, 3000);
+
+          document.addEventListener('DOMContentLoaded', () => {
+            if (window.lucide) window.lucide.createIcons();
+          });
+          if (window.lucide) window.lucide.createIcons();
+
+          if (window.gsap) {
+            gsap.from('.reveal', {
+              y: 18,
+              opacity: 0,
+              duration: 0.55,
+              stagger: 0.05,
+              ease: 'power2.out'
+            });
+          }
+        },
+        updateClock() {
+          this.clock = new Date().toLocaleTimeString();
+        },
+        tickNumbers() {
+          this.openPetitions = Math.max(8, this.openPetitions + (Math.random() > 0.56 ? 1 : -1));
+          this.queueDrift = Math.max(2, Math.min(18, this.queueDrift + (Math.random() > 0.5 ? 1 : -1)));
+          this.uptime = Math.max(97.8, Math.min(99.98, this.uptime + (Math.random() - 0.5) * 0.02));
+          this.procession = Math.max(45, Math.min(98, this.procession + (Math.random() > 0.5 ? 1 : -1)));
+          this.diversion = Math.max(30, Math.min(95, this.diversion + (Math.random() > 0.5 ? 1 : -1)));
+          this.adhesion = Math.max(50, Math.min(99, Math.round((this.mossLevel * 0.7 + this.shelfIntegrity * 0.3))));
+        },
+        ringBell() {
+          this.blessings += 1;
+          this.openPetitions += 1;
+        },
+        simulateDrop() {
+          this.catStrikes += 1;
+          this.shelfIntegrity = Math.max(70, this.shelfIntegrity - 1);
+        },
+        cyclePolicy() {
+          this.policyIndex = (this.policyIndex + 1) % this.policyChapters.length;
+        },
+        addTicket() {
+          const title = this.newTicket.trim();
+          if (!title) return;
+          const idNum = 221 + this.tickets.length;
+          const owners = ['M. Patel', 'E. Rossi', 'J. Kim', 'S. Ortega'];
+          this.tickets.unshift({
+            id: 'MP-' + idNum,
+            title,
+            owner: owners[Math.floor(Math.random() * owners.length)]
+          });
+          this.newTicket = '';
+          this.openPetitions += 1;
+        },
+        resolveTicket(idx) {
+          this.tickets.splice(idx, 1);
+          this.openPetitions = Math.max(0, this.openPetitions - 1);
+        }
+      }
+    }
+  </script>
+</body>
+</html>

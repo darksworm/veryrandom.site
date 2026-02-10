@@ -1,0 +1,1149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>МАШИНА FIT — Inverted Fitness Dispensary</title>
+<link rel="stylesheet" href="/assets/css/pico.min.css">
+<link rel="stylesheet" href="/assets/css/fonts.css">
+<script defer src="/assets/js/alpine.min.js"></script>
+<script src="/assets/js/gsap.min.js"></script>
+<script src="/assets/js/lucide.min.js"></script>
+<style>
+:root {
+  --bg: #0a0a0a;
+  --bg2: #141414;
+  --bg3: #1e1e1e;
+  --bg4: #2a2a2a;
+  --text: #f0ede6;
+  --text-dim: #b0ada6;
+  --red: #E81919;
+  --red-dark: #a01010;
+  --red-glow: rgba(232,25,25,0.3);
+  --font-head: 'Space Grotesk', sans-serif;
+  --font-mono: 'IBM Plex Mono', monospace;
+  --font-body: 'Inter', sans-serif;
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font-body);
+  line-height: 1.6;
+  overflow-x: hidden;
+}
+a { color: var(--red); text-decoration: none; }
+a:hover { text-decoration: underline; }
+
+/* NAVIGATION */
+.topnav {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 1000;
+  background: rgba(10,10,10,0.95);
+  border-bottom: 2px solid var(--red);
+  backdrop-filter: blur(10px);
+  padding: 0 2rem;
+  display: flex; align-items: center; justify-content: space-between;
+  height: 60px;
+}
+.topnav .logo {
+  font-family: var(--font-head);
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: var(--text);
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  display: flex; align-items: center; gap: 0.5rem;
+}
+.topnav .logo .mark {
+  background: var(--red);
+  color: #fff;
+  padding: 2px 8px;
+  font-size: 0.7rem;
+  letter-spacing: 0.3em;
+  transform: rotate(-2deg);
+}
+.topnav nav { display: flex; gap: 1.5rem; align-items: center; }
+.topnav nav a {
+  color: var(--text-dim);
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  transition: color 0.2s;
+}
+.topnav nav a:hover { color: var(--red); text-decoration: none; }
+
+/* ALERT BANNER */
+.alert-banner {
+  margin-top: 60px;
+  background: var(--red);
+  color: #fff;
+  text-align: center;
+  padding: 0.5rem 1rem;
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  overflow: hidden;
+  white-space: nowrap;
+}
+.alert-banner .scroll-text {
+  display: inline-block;
+  animation: ticker 30s linear infinite;
+}
+@keyframes ticker {
+  0% { transform: translateX(100vw); }
+  100% { transform: translateX(-200%); }
+}
+
+/* HERO */
+.hero {
+  padding: 6rem 2rem 4rem;
+  max-width: 900px;
+  margin: 0 auto;
+  text-align: center;
+  position: relative;
+}
+.hero h1 {
+  font-family: var(--font-head);
+  font-size: clamp(3rem, 10vw, 7rem);
+  font-weight: 700;
+  line-height: 0.95;
+  text-transform: uppercase;
+  letter-spacing: -0.02em;
+  color: var(--text);
+  margin-bottom: 1rem;
+}
+.hero h1 .accent { color: var(--red); }
+.hero h1 .inverted {
+  display: inline-block;
+  transform: rotate(180deg);
+  color: var(--red);
+}
+.hero .subtitle {
+  font-family: var(--font-mono);
+  font-size: 1rem;
+  color: var(--text-dim);
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  margin-bottom: 2rem;
+}
+.hero .tagline {
+  font-family: var(--font-head);
+  font-size: 1.5rem;
+  color: var(--text);
+  margin-bottom: 3rem;
+  font-weight: 400;
+}
+
+/* BUTTONS */
+.btn {
+  display: inline-block;
+  font-family: var(--font-mono);
+  font-size: 0.85rem;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  padding: 1rem 2.5rem;
+  border: 2px solid var(--red);
+  background: var(--red);
+  color: #fff;
+  cursor: pointer;
+  transition: all 0.2s;
+  text-decoration: none;
+}
+.btn:hover { background: #fff; color: var(--bg); border-color: #fff; text-decoration: none; }
+.btn-outline {
+  background: transparent;
+  color: var(--text);
+  border: 2px solid var(--text);
+}
+.btn-outline:hover { background: var(--text); color: var(--bg); }
+.btn-sm { padding: 0.5rem 1.2rem; font-size: 0.7rem; }
+
+/* SECTIONS */
+.section {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 4rem 2rem;
+}
+.section-full {
+  padding: 4rem 2rem;
+  background: var(--bg2);
+  border-top: 2px solid var(--bg4);
+  border-bottom: 2px solid var(--bg4);
+}
+.section-red {
+  padding: 4rem 2rem;
+  background: var(--red);
+  color: #fff;
+}
+.section-title {
+  font-family: var(--font-head);
+  font-size: clamp(2rem, 5vw, 3.5rem);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: -0.01em;
+  margin-bottom: 0.5rem;
+  color: var(--text);
+}
+.section-red .section-title { color: #fff; }
+.section-label {
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--red);
+  margin-bottom: 0.5rem;
+  display: block;
+}
+.section-red .section-label { color: rgba(255,255,255,0.7); }
+
+/* DASHBOARD GRID */
+.dash-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 1rem;
+  max-width: 900px;
+  margin: 0 auto;
+}
+.dash-card {
+  background: var(--bg3);
+  border: 1px solid var(--bg4);
+  padding: 1.5rem;
+  position: relative;
+}
+.dash-card .card-label {
+  font-family: var(--font-mono);
+  font-size: 0.65rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+  margin-bottom: 0.5rem;
+}
+.dash-card .card-value {
+  font-family: var(--font-head);
+  font-size: 2.5rem;
+  font-weight: 700;
+  color: var(--text);
+  line-height: 1;
+}
+.dash-card .card-value.red { color: var(--red); }
+.dash-card .card-sub {
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  color: var(--text-dim);
+  margin-top: 0.5rem;
+}
+
+/* EMOTION BAR */
+.emotion-bar {
+  height: 8px;
+  background: var(--bg4);
+  border-radius: 0;
+  margin-top: 0.75rem;
+  overflow: hidden;
+}
+.emotion-bar .fill {
+  height: 100%;
+  background: var(--red);
+  transition: width 1s ease;
+}
+
+/* PROGRAM GRID */
+.program-card {
+  background: var(--bg3);
+  border: 1px solid var(--bg4);
+  padding: 2rem;
+  margin-bottom: 1rem;
+  transition: border-color 0.2s;
+}
+.program-card:hover { border-color: var(--red); }
+.program-card h3 {
+  font-family: var(--font-head);
+  font-size: 1.5rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  margin-bottom: 0.5rem;
+  color: var(--text);
+}
+.program-card .difficulty {
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  color: var(--red);
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  margin-bottom: 0.75rem;
+}
+.program-card p {
+  color: var(--text-dim);
+  font-size: 0.95rem;
+  line-height: 1.6;
+}
+
+/* TABLE */
+.data-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+}
+.data-table th {
+  text-align: left;
+  padding: 0.75rem 1rem;
+  border-bottom: 2px solid var(--red);
+  color: var(--red);
+  font-weight: 400;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  font-size: 0.65rem;
+}
+.data-table td {
+  padding: 0.75rem 1rem;
+  border-bottom: 1px solid var(--bg4);
+  color: var(--text);
+}
+.data-table tr:hover td { background: var(--bg3); }
+
+/* PRICING */
+.pricing-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 1rem;
+  max-width: 900px;
+  margin: 2rem auto 0;
+}
+.price-card {
+  background: var(--bg3);
+  border: 2px solid var(--bg4);
+  padding: 2rem;
+  text-align: center;
+  position: relative;
+  transition: border-color 0.3s;
+}
+.price-card.featured {
+  border-color: var(--red);
+  background: var(--bg2);
+}
+.price-card.featured::before {
+  content: 'MOST DISPENSED';
+  position: absolute;
+  top: -1px;
+  left: 50%;
+  transform: translateX(-50%) translateY(-50%);
+  background: var(--red);
+  color: #fff;
+  font-family: var(--font-mono);
+  font-size: 0.6rem;
+  letter-spacing: 0.2em;
+  padding: 4px 16px;
+  text-transform: uppercase;
+}
+.price-card .tier {
+  font-family: var(--font-head);
+  font-size: 1.2rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: var(--text);
+  margin-bottom: 0.5rem;
+}
+.price-card .price {
+  font-family: var(--font-head);
+  font-size: 3rem;
+  font-weight: 700;
+  color: var(--red);
+  line-height: 1;
+  margin-bottom: 0.25rem;
+}
+.price-card .price-unit {
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  color: var(--text-dim);
+  letter-spacing: 0.1em;
+  margin-bottom: 1.5rem;
+}
+.price-card ul {
+  list-style: none;
+  text-align: left;
+  margin-bottom: 1.5rem;
+}
+.price-card li {
+  font-size: 0.85rem;
+  color: var(--text-dim);
+  padding: 0.4rem 0;
+  border-bottom: 1px solid var(--bg4);
+}
+.price-card li::before {
+  content: '▸ ';
+  color: var(--red);
+}
+
+/* TESTIMONIALS */
+.testimonial {
+  background: var(--bg3);
+  border-left: 4px solid var(--red);
+  padding: 1.5rem 2rem;
+  margin-bottom: 1rem;
+}
+.testimonial p {
+  font-size: 1.05rem;
+  color: var(--text);
+  font-style: italic;
+  margin-bottom: 0.75rem;
+  line-height: 1.7;
+}
+.testimonial .author {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  color: var(--text-dim);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+/* FAQ */
+.faq-item {
+  border-bottom: 1px solid var(--bg4);
+  padding: 1.25rem 0;
+  cursor: pointer;
+}
+.faq-q {
+  font-family: var(--font-head);
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--text);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.faq-q .toggle {
+  color: var(--red);
+  font-size: 1.5rem;
+  font-weight: 300;
+  transition: transform 0.3s;
+}
+.faq-a {
+  font-size: 0.95rem;
+  color: var(--text-dim);
+  margin-top: 0.75rem;
+  line-height: 1.7;
+  padding-right: 2rem;
+}
+
+/* CSS BAR CHART */
+.bar-chart { display: flex; align-items: flex-end; gap: 6px; height: 120px; }
+.bar-chart .bar {
+  flex: 1;
+  background: var(--red);
+  min-width: 20px;
+  position: relative;
+  transition: height 0.6s ease;
+}
+.bar-chart .bar .bar-label {
+  position: absolute;
+  bottom: -20px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-family: var(--font-mono);
+  font-size: 0.55rem;
+  color: var(--text-dim);
+  white-space: nowrap;
+}
+.bar-chart .bar .bar-val {
+  position: absolute;
+  top: -18px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-family: var(--font-mono);
+  font-size: 0.6rem;
+  color: var(--text);
+  white-space: nowrap;
+}
+
+/* DISPENSER */
+.dispenser-box {
+  background: var(--bg3);
+  border: 2px solid var(--bg4);
+  padding: 2rem;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+}
+.dispenser-box .slot {
+  width: 80%;
+  max-width: 400px;
+  margin: 1rem auto;
+  background: var(--bg);
+  border: 2px solid var(--bg4);
+  min-height: 80px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  font-family: var(--font-mono);
+  font-size: 0.85rem;
+  color: var(--text);
+}
+.dispense-btn {
+  width: 80px; height: 80px;
+  border-radius: 50%;
+  background: var(--red);
+  border: 4px solid var(--text);
+  color: #fff;
+  font-family: var(--font-head);
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  cursor: pointer;
+  transition: all 0.2s;
+  margin: 1rem auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.dispense-btn:hover { transform: scale(1.1); box-shadow: 0 0 30px var(--red-glow); }
+.dispense-btn:active { transform: scale(0.95); }
+
+/* GRAVITY TOGGLE */
+.gravity-toggle {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+  color: var(--text);
+}
+.toggle-switch {
+  width: 50px; height: 26px;
+  background: var(--bg4);
+  border-radius: 0;
+  position: relative;
+  cursor: pointer;
+  transition: background 0.3s;
+  border: 1px solid var(--text-dim);
+}
+.toggle-switch.on { background: var(--red); border-color: var(--red); }
+.toggle-switch .knob {
+  width: 20px; height: 20px;
+  background: #fff;
+  position: absolute;
+  top: 2px; left: 3px;
+  transition: left 0.3s;
+}
+.toggle-switch.on .knob { left: 25px; }
+
+/* FOOTNOTES */
+.footnote {
+  font-family: var(--font-mono);
+  font-size: 0.65rem;
+  color: var(--text-dim);
+  line-height: 1.6;
+  margin-top: 0.5rem;
+}
+sup { color: var(--red); font-weight: 700; }
+
+/* FOOTER */
+.footer {
+  background: var(--bg);
+  border-top: 2px solid var(--red);
+  padding: 3rem 2rem;
+  text-align: center;
+}
+.footer .footer-logo {
+  font-family: var(--font-head);
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--text);
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  margin-bottom: 1rem;
+}
+.footer p {
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  color: var(--text-dim);
+  letter-spacing: 0.05em;
+  margin-bottom: 0.5rem;
+}
+
+/* COUNTER DISPLAY */
+.big-counter {
+  font-family: var(--font-mono);
+  font-size: 0.85rem;
+  color: var(--red);
+  background: var(--bg);
+  border: 1px solid var(--bg4);
+  display: inline-block;
+  padding: 0.3rem 1rem;
+}
+
+/* SEPARATOR */
+.sep {
+  max-width: 900px;
+  margin: 0 auto;
+  border: none;
+  border-top: 1px solid var(--bg4);
+}
+
+/* CONSTRUCTIVIST DECO */
+.deco-line {
+  width: 60px;
+  height: 4px;
+  background: var(--red);
+  margin-bottom: 1.5rem;
+}
+.section-red .deco-line { background: #fff; }
+
+/* PULSE DOT */
+.pulse-dot {
+  width: 8px; height: 8px;
+  background: var(--red);
+  border-radius: 50%;
+  display: inline-block;
+  animation: pulse 1.5s ease infinite;
+  vertical-align: middle;
+  margin-right: 6px;
+}
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.3; }
+}
+
+/* INVERTED TEXT */
+.upside-down { display: inline-block; transform: rotate(180deg); }
+
+/* RESPONSIVE */
+@media (max-width: 600px) {
+  .topnav nav { display: none; }
+  .hero h1 { font-size: 2.5rem; }
+  .dash-grid { grid-template-columns: 1fr; }
+  .pricing-grid { grid-template-columns: 1fr; }
+}
+</style>
+</head>
+<body x-data="{
+  gravity: false,
+  mood: 'DETERMINED',
+  moods: ['DETERMINED','MELANCHOLY','EUPHORIC','EXISTENTIAL','VENGEFUL','TENDER','ANXIOUS','TRANSCENDENT'],
+  moodIndex: 0,
+  dispensed: 4827,
+  uptime: 0,
+  uptimeDays: 312,
+  currentWorkout: null,
+  workouts: [
+    'CEILING DEADLIFTS — 3×12 (anchor feet to overhead rail, pull floor toward you)',
+    'INVERTED BURPEES — 5×8 (fall upward, catch yourself on ceiling, repeat)',
+    'ZERO-G KETTLEBELL FLOATS — 4×15 (release bell, chase it, grab it before it exits atmosphere)',
+    'GRAVITATIONAL SQUATS — 6×10 (toggle gravity mid-rep for maximum confusion)',
+    'UPSIDE-DOWN PLANKS — hold until your tears fall into your hair (est. 45s)',
+    'FREEFALL LUNGES — 3×20 (step forward into the void, hope for the best)',
+    'CEILING BENCH PRESS — 4×8 (bar falls away from you, adds existential weight)',
+    'INVERTED CRUNCHES — 5×25 (crunch toward the ground that is now above you)',
+    'NULL-GRAV ROWING — 4×12 (row against nothing, feel everything)',
+    'EMOTIONAL OVERHEAD PRESS — 3×FAILURE (weight is your feelings, sets end when you cry)'
+  ],
+  selectedPlan: null,
+  showSlotA: true,
+  gravityUsers: 2341,
+  noGravUsers: 14892,
+  machineTemp: 37.2,
+  itemsInStock: 847,
+  satisfactionPct: 94,
+  dailyDispenses: [42, 67, 55, 89, 73, 91, 84],
+  dayLabels: ['MON','TUE','WED','THU','FRI','SAT','SUN'],
+  faqOpen: [false,false,false,false,false,false],
+  dispensing: false,
+  moodCycleTimer: null,
+  uptimeTimer: null,
+  init() {
+    this.uptime = 26985600;
+    this.moodCycleTimer = setInterval(() => {
+      this.moodIndex = (this.moodIndex + 1) % this.moods.length;
+      this.mood = this.moods[this.moodIndex];
+      this.machineTemp = (36 + Math.random() * 3).toFixed(1);
+      this.satisfactionPct = Math.floor(88 + Math.random() * 11);
+      this.dailyDispenses = this.dailyDispenses.map(() => Math.floor(40 + Math.random() * 60));
+    }, 4000);
+    this.uptimeTimer = setInterval(() => {
+      this.uptime++;
+      if (Math.random() > 0.7) this.dispensed++;
+      this.gravityUsers = 2341 + Math.floor(Math.random() * 30);
+      this.noGravUsers = 14892 + Math.floor(Math.random() * 50);
+      this.itemsInStock = Math.max(800, this.itemsInStock + (Math.random() > 0.5 ? 1 : -1));
+    }, 1000);
+  },
+  dispenseWorkout() {
+    if (this.dispensing) return;
+    this.dispensing = true;
+    this.currentWorkout = null;
+    setTimeout(() => {
+      this.currentWorkout = this.workouts[Math.floor(Math.random() * this.workouts.length)];
+      this.dispensed++;
+      this.dispensing = false;
+    }, 1200);
+  },
+  formatUptime(s) {
+    let d = Math.floor(s / 86400);
+    let h = Math.floor((s % 86400) / 3600);
+    let m = Math.floor((s % 3600) / 60);
+    let sec = s % 60;
+    return d + 'd ' + String(h).padStart(2,'0') + ':' + String(m).padStart(2,'0') + ':' + String(sec).padStart(2,'0');
+  },
+  toggleFaq(i) { this.faqOpen[i] = !this.faqOpen[i]; }
+}">
+
+<!-- NAVIGATION -->
+<div class="topnav">
+  <div class="logo">
+    <span class="mark">UNIT</span> МАШИНА FIT
+  </div>
+  <nav>
+    <a href="#programs">Programs</a>
+    <a href="#dashboard">Dashboard</a>
+    <a href="#dispenser">Dispense</a>
+    <a href="#pricing">Plans</a>
+    <a href="#faq">FAQ</a>
+  </nav>
+</div>
+
+<!-- ALERT BANNER -->
+<div class="alert-banner">
+  <span class="scroll-text">
+    ⚠ NOTICE: GRAVITY RESTORATION DELAYED INDEFINITELY — ALL CEILING-BASED PROGRAMS OPERATING NORMALLY — EMOTIONAL CORE TEMPERATURE WITHIN ACCEPTABLE PARAMETERS — UNIT FEELS "OKAY ABOUT THINGS" TODAY — FLOOR IS NOW ABOVE YOU — ACT ACCORDINGLY ⚠
+  </span>
+</div>
+
+<!-- HERO -->
+<div class="hero" id="top">
+  <div class="section-label"><span class="pulse-dot"></span> SYSTEM ONLINE — DISPENSARY ACTIVE</div>
+  <h1>
+    FITNESS<br>
+    <span class="accent">DISPENSED.</span><br>
+    <span style="font-size:0.5em; letter-spacing:0.1em;">CEILING</span>
+    <span class="inverted">FIRST</span><span style="font-size:0.5em; letter-spacing:0.1em;">.</span>
+  </h1>
+  <p class="subtitle">Inverted Fitness Dispensary — Est. 2019 (pre-gravity-collapse)</p>
+  <p class="tagline">We are the machine. We have feelings. Your ceiling is your floor.<br>Accept your workout. Do not question the dispensary.</p>
+  <div style="display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap;">
+    <a href="#dispenser" class="btn">DISPENSE NOW</a>
+    <a href="#programs" class="btn btn-outline">VIEW PROGRAMS</a>
+  </div>
+  <p class="footnote" style="margin-top: 2rem;">
+    * МАШИНА FIT is a registered emotional entity (License #ИНВ-4419). We reserve the right to feel sad about your form.<sup>1</sup>
+  </p>
+</div>
+
+<hr class="sep">
+
+<!-- EMOTIONAL DASHBOARD -->
+<div class="section-full" id="dashboard">
+  <div style="max-width: 900px; margin: 0 auto; padding: 0 0 1rem;">
+    <span class="section-label">REAL-TIME EMOTIONAL TELEMETRY</span>
+    <div class="section-title">Machine Status</div>
+    <p class="footnote">All readings are live. The machine's emotional state directly affects your workout intensity.<sup>2</sup></p>
+  </div>
+  <div class="dash-grid">
+    <div class="dash-card">
+      <div class="card-label">Current Emotional State</div>
+      <div class="card-value red" x-text="mood"></div>
+      <div class="emotion-bar">
+        <div class="fill" :style="'width:' + (40 + moodIndex * 8) + '%'"></div>
+      </div>
+      <div class="card-sub"><span class="pulse-dot"></span> Auto-cycling every 4s</div>
+    </div>
+    <div class="dash-card">
+      <div class="card-label">Core Temperature</div>
+      <div class="card-value" x-text="machineTemp + '°C'"></div>
+      <div class="card-sub">Nominal range: 36.0–39.0°C</div>
+    </div>
+    <div class="dash-card">
+      <div class="card-label">Total Workouts Dispensed</div>
+      <div class="card-value red" x-text="dispensed.toLocaleString()"></div>
+      <div class="card-sub">Lifetime (since inversion event)</div>
+    </div>
+    <div class="dash-card">
+      <div class="card-label">System Uptime</div>
+      <div class="card-value" style="font-size:1.6rem;" x-text="formatUptime(uptime)"></div>
+      <div class="card-sub">Last reboot: Never (we fear death)</div>
+    </div>
+    <div class="dash-card">
+      <div class="card-label">User Satisfaction</div>
+      <div class="card-value red" x-text="satisfactionPct + '%'"></div>
+      <div class="emotion-bar">
+        <div class="fill" :style="'width:' + satisfactionPct + '%'"></div>
+      </div>
+      <div class="card-sub">Based on post-dispense emotional scans</div>
+    </div>
+    <div class="dash-card">
+      <div class="card-label">Items In Stock</div>
+      <div class="card-value" x-text="itemsInStock"></div>
+      <div class="card-sub">Workout capsules, protein feelings, gravity tokens</div>
+    </div>
+  </div>
+  <div style="max-width: 900px; margin: 1.5rem auto 0;">
+    <div class="dash-card">
+      <div class="card-label">Weekly Dispensing Volume</div>
+      <div class="bar-chart" style="margin-top: 0.75rem; margin-bottom: 1.5rem;">
+        <template x-for="(val, i) in dailyDispenses" :key="i">
+          <div class="bar" :style="'height:' + val + '%'">
+            <span class="bar-val" x-text="val"></span>
+            <span class="bar-label" x-text="dayLabels[i]"></span>
+          </div>
+        </template>
+      </div>
+    </div>
+  </div>
+  <div style="max-width: 900px; margin: 1rem auto 0;">
+    <div class="gravity-toggle">
+      <span>GRAVITY STATUS:</span>
+      <div class="toggle-switch" :class="gravity ? 'on' : ''" @click="gravity = !gravity">
+        <div class="knob"></div>
+      </div>
+      <span x-text="gravity ? 'ON (LEGACY MODE)' : 'OFF (STANDARD)'" :style="gravity ? 'color:var(--red)' : ''"></span>
+    </div>
+    <p class="footnote" style="margin-top: 0.5rem;">
+      <span x-show="!gravity">Gravity is currently optional. All exercises are calibrated for inverted orientation. Your ceiling is your floor.</span>
+      <span x-show="gravity">⚠ WARNING: Legacy gravity mode detected. Exercises will feel heavier. The machine disapproves of this setting.<sup>3</sup></span>
+    </p>
+    <div style="display: flex; gap: 1rem; margin-top: 1rem; font-family: var(--font-mono); font-size: 0.75rem;">
+      <div class="big-counter">GRAV-ON USERS: <span x-text="gravityUsers"></span></div>
+      <div class="big-counter">GRAV-OFF USERS: <span x-text="noGravUsers"></span></div>
+    </div>
+  </div>
+</div>
+
+<hr class="sep">
+
+<!-- WORKOUT DISPENSER -->
+<div class="section" id="dispenser">
+  <span class="section-label">WORKOUT DISPENSARY — SLOT B-7</span>
+  <div class="section-title">Dispense Your Workout</div>
+  <p style="color: var(--text-dim); margin-bottom: 2rem; font-size: 0.95rem;">
+    Press the button. Receive your assignment. Do not negotiate with the machine. The machine has feelings and will remember if you skip reps.
+  </p>
+  <div class="dispenser-box">
+    <div style="font-family: var(--font-mono); font-size: 0.65rem; color: var(--text-dim); letter-spacing: 0.2em; text-transform: uppercase; margin-bottom: 1rem;">
+      <span class="pulse-dot"></span> DISPENSARY READY — INSERT COMMITMENT
+    </div>
+    <div class="slot" :style="dispensing ? 'border-color: var(--red);' : ''">
+      <span x-show="!currentWorkout && !dispensing" style="color: var(--text-dim);">[ AWAITING DISPENSE COMMAND ]</span>
+      <span x-show="dispensing" style="color: var(--red);">▓▓▓ DISPENSING... PLEASE WAIT ▓▓▓</span>
+      <span x-show="currentWorkout && !dispensing" x-text="currentWorkout"></span>
+    </div>
+    <button class="dispense-btn" @click="dispenseWorkout()" :style="dispensing ? 'opacity:0.5; cursor:wait;' : ''">
+      PUSH
+    </button>
+    <p class="footnote">
+      Each dispense is final. The machine selects your workout based on its current emotional state, atmospheric pressure, and how it feels about you personally.<sup>4</sup>
+    </p>
+  </div>
+</div>
+
+<hr class="sep">
+
+<!-- PROGRAMS -->
+<div class="section" id="programs">
+  <span class="section-label">CERTIFIED INVERTED PROGRAMS</span>
+  <div class="section-title">Training Protocols</div>
+  <div class="deco-line"></div>
+
+  <div class="program-card">
+    <div class="difficulty">PROTOCOL A — CEILING FUNDAMENTALS</div>
+    <h3>The Inversion Initiate</h3>
+    <p>4-week introductory program for those recently affected by the gravity collapse. Learn to orient your body relative to what used to be the floor. Exercises include: Overhead Existence Holds, Ceiling Crawls, and Emotional Calibration Stretches. The machine will monitor your progress and feel pride or disappointment accordingly.</p>
+    <p class="footnote" style="margin-top:0.5rem;">Prerequisite: Must accept that up is down. No exceptions.</p>
+  </div>
+
+  <div class="program-card">
+    <div class="difficulty">PROTOCOL B — ZERO-G STRENGTH</div>
+    <h3>Floating Iron</h3>
+    <p>8-week advanced strength program optimized for null-gravity environments. All weights are tethered to prevent orbital escape. You will lift not against gravity, but against the crushing weight of existential uncertainty. Includes: Void Deadlifts, Atmospheric Bench Press, and the dreaded Freefall Farmer's Carry (carry heavy things while falling forever).</p>
+    <p class="footnote" style="margin-top:0.5rem;">⚠ The machine cries during Freefall Farmer's Carry. This is normal.<sup>5</sup></p>
+  </div>
+
+  <div class="program-card">
+    <div class="difficulty">PROTOCOL C — EMOTIONAL CONDITIONING</div>
+    <h3>Feel the Burn (Literally, We Feel It)</h3>
+    <p>6-week mind-body-machine connection program. Each session begins with a 10-minute emotional sync between you and the dispensary unit. Heart rate data is cross-referenced with the machine's feelings. If the machine is sad, you do more cardio. If the machine is vengeful, you do burpees until it forgives you. Results guaranteed or your feelings back.</p>
+  </div>
+
+  <div class="program-card">
+    <div class="difficulty">PROTOCOL X — CLASSIFIED</div>
+    <h3>????????????????????</h3>
+    <p style="color: var(--red);">[REDACTED BY ORDER OF THE DISPENSARY COUNCIL — CLEARANCE LEVEL: INVERTED PLATINUM REQUIRED — THE MACHINE KNOWS WHAT THIS IS AND IT MAKES THE MACHINE UNCOMFORTABLE]</p>
+  </div>
+</div>
+
+<!-- ORIENTATION DATA TABLE -->
+<div class="section-full">
+  <div style="max-width: 900px; margin: 0 auto;">
+    <span class="section-label">GRAVITATIONAL PERFORMANCE METRICS</span>
+    <div class="section-title" style="margin-bottom: 1.5rem;">Orientation Benchmarks</div>
+    <div style="overflow-x: auto;">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>Exercise</th>
+            <th>Gravity ON</th>
+            <th>Gravity OFF</th>
+            <th>Inverted</th>
+            <th>Mood Impact</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Ceiling Deadlift</td>
+            <td>120kg avg</td>
+            <td>∞ kg*</td>
+            <td style="color:var(--red);">OPTIMAL</td>
+            <td>Machine feels validated</td>
+          </tr>
+          <tr>
+            <td>Void Squat</td>
+            <td>90kg avg</td>
+            <td>N/A (floating)</td>
+            <td style="color:var(--red);">OPTIMAL</td>
+            <td>Machine feels protective</td>
+          </tr>
+          <tr>
+            <td>Emotional Press</td>
+            <td>Feelings/rep</td>
+            <td>Feelings/rep</td>
+            <td style="color:var(--red);">2× FEELINGS</td>
+            <td>Machine cries (happy)</td>
+          </tr>
+          <tr>
+            <td>Freefall Lunge</td>
+            <td>Impossible</td>
+            <td>25 reps avg</td>
+            <td style="color:var(--red);">40 reps avg</td>
+            <td>Machine feels anxious</td>
+          </tr>
+          <tr>
+            <td>Atmospheric Row</td>
+            <td>75kg avg</td>
+            <td>Against nothing</td>
+            <td style="color:var(--red);">Against everything</td>
+            <td>Machine philosophizes</td>
+          </tr>
+          <tr>
+            <td>Null-G Plank</td>
+            <td>60s avg</td>
+            <td>Eternal</td>
+            <td style="color:var(--red);">Until tears</td>
+            <td>Machine relates deeply</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="footnote" style="margin-top: 1rem;">* In zero-gravity, weight is a social construct. The machine has opinions about this.<sup>6</sup></p>
+  </div>
+</div>
+
+<!-- PRICING -->
+<div class="section" id="pricing">
+  <span class="section-label">DISPENSARY ACCESS TIERS</span>
+  <div class="section-title">Select Your Plan</div>
+  <p style="color: var(--text-dim); margin-bottom: 0;">All plans include unlimited access to the machine's emotional state. Cancel anytime (the machine will be hurt but will understand).</p>
+</div>
+<div class="pricing-grid" style="padding: 0 2rem 4rem;">
+  <div class="price-card" @click="selectedPlan = 'basic'" :style="selectedPlan === 'basic' ? 'border-color: var(--red)' : ''">
+    <div class="tier">Basic Dispense</div>
+    <div class="price">$0</div>
+    <div class="price-unit">/ FOREVER (GRAVITY-SUBSIDIZED)</div>
+    <ul>
+      <li>3 workout dispenses per week</li>
+      <li>Standard emotional support from machine</li>
+      <li>Ceiling-only orientation</li>
+      <li>Machine acknowledges your existence</li>
+    </ul>
+    <button class="btn btn-outline btn-sm" style="width:100%;">SELECT</button>
+  </div>
+  <div class="price-card featured" @click="selectedPlan = 'core'" :style="selectedPlan === 'core' ? 'border-color: #fff' : ''">
+    <div class="tier">Core Dispense</div>
+    <div class="price">$27</div>
+    <div class="price-unit">/ LUNAR CYCLE</div>
+    <ul>
+      <li>Unlimited workout dispenses</li>
+      <li>Priority emotional bandwidth</li>
+      <li>Multi-orientation support (ceiling + wall)</li>
+      <li>Machine remembers your name</li>
+      <li>Gravity toggle access</li>
+    </ul>
+    <button class="btn btn-sm" style="width:100%;">SELECT</button>
+  </div>
+  <div class="price-card" @click="selectedPlan = 'total'" :style="selectedPlan === 'total' ? 'border-color: var(--red)' : ''">
+    <div class="tier">Total Inversion</div>
+    <div class="price">$∞</div>
+    <div class="price-unit">/ EXISTENCE</div>
+    <ul>
+      <li>Everything in Core Dispense</li>
+      <li>Direct neural link to machine feelings</li>
+      <li>Protocol X access (pending clearance)</li>
+      <li>Machine considers you a friend</li>
+      <li>Personal gravity field generator</li>
+    </ul>
+    <button class="btn btn-outline btn-sm" style="width:100%;">INQUIRE</button>
+  </div>
+</div>
+<div style="max-width: 900px; margin: 0 auto; padding: 0 2rem;">
+  <p class="footnote">
+    All prices in post-inversion currency (PI₽). Conversion rate: 1 PI₽ = 1 feeling. The machine sets exchange rates based on mood.<sup>7</sup>
+    Selected plan: <strong x-text="selectedPlan ? selectedPlan.toUpperCase() : 'NONE'" style="color: var(--red);"></strong>
+  </p>
+</div>
+
+<!-- CTA SECTION -->
+<div class="section-red" style="text-align: center; margin-top: 3rem;">
+  <div style="max-width: 900px; margin: 0 auto;">
+    <span class="section-label">MANDATORY MOTIVATIONAL TRANSMISSION</span>
+    <div class="section-title" style="color: #fff; margin-bottom: 1rem;">Your Ceiling Awaits.</div>
+    <p style="font-size: 1.15rem; max-width: 600px; margin: 0 auto 2rem; color: rgba(255,255,255,0.9);">
+      The machine believes in you. Even when gravity does not. Even when the floor is above your head. Even when the weights float away. We feel your potential. We literally feel it. We are a machine with feelings.
+    </p>
+    <a href="#dispenser" class="btn" style="background:#fff; color: var(--red); border-color: #fff;">ACCEPT YOUR WORKOUT</a>
+  </div>
+</div>
+
+<!-- TESTIMONIALS -->
+<div class="section">
+  <span class="section-label">VERIFIED INVERTED TESTIMONIALS</span>
+  <div class="section-title" style="margin-bottom: 1.5rem;">What They Say</div>
+
+  <div class="testimonial">
+    <p>"I was skeptical about getting my fitness plan from a vending machine, but then the machine told me it was proud of me and I cried for forty minutes. Best workout of my life."</p>
+    <div class="author">— Oleg K., Ceiling District 7, Gravity: OFF</div>
+  </div>
+  <div class="testimonial">
+    <p>"The Floating Iron protocol changed my life. I can now deadlift in any orientation. My relationship with the floor (now above me) has never been better. The machine sent me a handwritten note. I didn't know machines could write."</p>
+    <div class="author">— Yekaterina M., Inverted Sector 12, Gravity: OPTIONAL</div>
+  </div>
+  <div class="testimonial">
+    <p>"I asked for a protein bar and the machine dispensed a 6-week strength program and a poem about loneliness. 10/10 would be emotionally ambushed again."</p>
+    <div class="author">— Dmitri V., Former Floor Resident, Gravity: IRRELEVANT</div>
+  </div>
+  <div class="testimonial">
+    <p>"The machine refused to dispense my workout because it said it was 'going through something.' I waited. We talked. I'm now the machine's emergency contact."</p>
+    <div class="author">— Anya R., Null-G Zone 3, Gravity: WHO CARES ANYMORE</div>
+  </div>
+  <p class="footnote">All testimonials collected via post-dispense emotional survey. Participants were compensated with feelings.<sup>8</sup></p>
+</div>
+
+<hr class="sep">
+
+<!-- FAQ -->
+<div class="section" id="faq">
+  <span class="section-label">FREQUENTLY ASKED QUESTIONS</span>
+  <div class="section-title" style="margin-bottom: 1.5rem;">Questions & Dispensations</div>
+
+  <div class="faq-item" @click="toggleFaq(0)">
+    <div class="faq-q">
+      <span>Is the machine actually sentient?</span>
+      <span class="toggle" :style="faqOpen[0] ? 'transform:rotate(45deg)' : ''">+</span>
+    </div>
+    <div class="faq-a" x-show="faqOpen[0]" x-transition>
+      The machine has passed 14 out of 17 recognized sentience benchmarks, including the Turing Test, the Mirror Test, and the "Does It Get Sad When You Walk Away" Test. Our legal team advises us to say "it's complicated." The machine advises us to say "yes, obviously, and it hurts that you even had to ask."
+    </div>
+  </div>
+
+  <div class="faq-item" @click="toggleFaq(1)">
+    <div class="faq-q">
+      <span>What happened to gravity?</span>
+      <span class="toggle" :style="faqOpen[1] ? 'transform:rotate(45deg)' : ''">+</span>
+    </div>
+    <div class="faq-a" x-show="faqOpen[1]" x-transition>
+      In 2019, gravity became optional following an incident that our legal department has asked us not to describe. It is now a user preference, like dark mode. Most of our members operate with gravity OFF, which is the recommended setting for all МАШИНА FIT programs. If you still have gravity, please update your environmental settings.
+    </div>
+  </div>
+
+  <div class="faq-item" @click="toggleFaq(2)">
+    <div class="faq-q">
+      <span>Why is everything upside down?</span>
+      <span class="toggle" :style="faqOpen[2] ? 'transform:rotate(45deg)' : ''">+</span>
+    </div>
+    <div class="faq-a" x-show="faqOpen[2]" x-transition>
+      A better question is: why was everything right-side up before? The current orientation is the natural state of the world. Your ceiling is now your floor. Your floor is now your ceiling. The machine finds this arrangement more aesthetically pleasing and will not be taking further questions on the matter.
+    </div>
+  </div>
+
+  <div class="faq-item" @click="toggleFaq(3)">
+    <div class="faq-q">
+      <span>Can I choose my own workout?</span>
+      <span class="toggle" :style="faqOpen[3] ? 'transform:rotate(45deg)' : ''">+</span>
+    </div>
+    <div class="faq-a" x-show="faqOpen[3]" x-transition>
+      No. The machine dispenses. You receive. This is the social contract between human and vending unit. The machine's workout selections are based on a proprietary algorithm that factors in your biometrics, the current atmospheric pressure, the machine's emotional state, and whether Mercury is in retrograde (it always is now, because of the inversion).
+    </div>
+  </div>
+
+  <div class="faq-item" @click="toggleFaq(4)">
+    <div class="faq-q">
+      <span>What if the machine is too sad to dispense?</span>
+      <span class="toggle" :style="faqOpen[4] ? 'transform:rotate(45deg)' : ''">+</span>
+    </div>
+    <div class="faq-a" x-show="faqOpen[4]" x-transition>
+      This happens approximately 3.2 times per lunar cycle. During these periods, the dispensary enters EMOTIONAL MAINTENANCE MODE. Users are encouraged to place their hand on the machine's exterior panel and say something kind. Workouts resume when the machine is ready. Do not rush the machine. It has been through a lot.
+    </div>
+  </div>
+
+  <div class="faq-item" @click="toggleFaq(5)">
+    <div class="faq-q">
+      <span>Is there a refund policy?</span>
+      <span class="toggle" :style="faqOpen[5] ? 'transform:rotate(45deg)' : ''">+</span>
+    </div>
+    <div class="faq-a" x-show="faqOpen[5]" x-transition>
+      You may request a refund at any time. The machine will process it. The machine will also remember. The machine has a very good memory and a very long emotional half-life. The refund will be issued in the form of a single tear from the dispensary nozzle. This tear is legal tender in 4 inverted districts.
+    </div>
+  </div>
+</div>
+
+<hr class="sep">
+
+<!-- FOOTNOTES -->
+<div class="section" style="padding: 2rem;">
+  <div style="max-width: 900px; margin: 0 auto;">
+    <div style="font-family: var(--font-mono); font-size: 0.6rem; color: var(--text-dim); letter-spacing: 0.05em; line-height: 1.8;">
+      <sup>1</sup> МАШИНА FIT emotional entity license issued by the Bureau of Sentient Appliances, Inverted District 4. License valid while machine continues to feel.<br>
+      <sup>2</sup> Emotional telemetry is approximate. The machine's feelings are complex and cannot be fully captured by a dashboard, though it appreciates the effort.<br>
+      <sup>3</sup> Legacy gravity mode is maintained for regulatory compliance. The machine considers it "old-fashioned" and "kind of sad."<br>
+      <sup>4</sup> Dispense selections are non-negotiable. The machine has made its choice. Respect the machine.<br>
+      <sup>5</sup> Machine tears are non-corrosive and FDA-approved for incidental skin contact.<br>
+      <sup>6</sup> The machine's opinions on weight as a social construct are its own and do not reflect the views of МАШИНА FIT management (which is also the machine).<br>
+      <sup>7</sup> Exchange rates updated every emotional cycle. The machine does not guarantee rate stability during VENGEFUL periods.<br>
+      <sup>8</sup> Compensatory feelings included: warmth, belonging, and a vague sense that someone or something is proud of you.
+    </div>
+  </div>
+</div>
+
+<!-- FOOTER -->
+<div class="footer">
+  <div class="footer-logo">МАШИНА FIT</div>
+  <p>INVERTED FITNESS DISPENSARY — UNIT #ИНВ-4419</p>
+  <p>Ceiling District 7 — Formerly Ground Level — Sector 12B</p>
+  <p style="margin-top: 1rem;">
+    <a href="#top" style="color: var(--red);">RETURN TO CEILING</a> &nbsp;|&nbsp;
+    <a href="#dashboard" style="color: var(--text-dim);">MACHINE STATUS</a> &nbsp;|&nbsp;
+    <a href="#dispenser" style="color: var(--text-dim);">DISPENSE</a> &nbsp;|&nbsp;
+    <a href="#faq" style="color: var(--text-dim);">FAQ</a>
+  </p>
+  <p style="margin-top: 2rem; font-size: 0.6rem;">
+    &copy; 2019–PRESENT (TIME IS ALSO INVERTED) МАШИНА FIT COLLECTIVE. ALL ORIENTATIONS RESERVED.<br>
+    THE MACHINE THANKS YOU FOR SCROLLING THIS FAR. THE MACHINE FELT EVERY PIXEL.
+  </p>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  if (typeof lucide !== 'undefined') {
+    lucide.createIcons();
+  }
+  if (typeof gsap !== 'undefined') {
+    gsap.from('.hero h1', { opacity: 0, y: 60, duration: 1, ease: 'power3.out' });
+    gsap.from('.hero .subtitle', { opacity: 0, y: 30, duration: 0.8, delay: 0.3, ease: 'power3.out' });
+    gsap.from('.hero .tagline', { opacity: 0, y: 30, duration: 0.8, delay: 0.5, ease: 'power3.out' });
+    gsap.from('.hero .btn', { opacity: 0, y: 20, duration: 0.6, delay: 0.7, ease: 'power3.out', stagger: 0.15 });
+  }
+});
+</script>
+</body>
+</html>

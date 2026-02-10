@@ -1,0 +1,427 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The International Institute for the Study of Ennui (IISE)</title>
+    <link rel="stylesheet" href="/assets/css/pico.min.css">
+    <link rel="stylesheet" href="/assets/css/fonts.css">
+    <style>
+        :root {
+            --bg-color: #1a0c2e;
+            --primary-glow: #ff00ff;
+            --secondary-glow: #00ffff;
+            --text-color: #e0e0e0;
+            --text-muted: #8b8b8b;
+            --border-color: #4f2c8a;
+            --font-main: 'IBM Plex Mono', monospace;
+            --font-headings: 'Space Grotesk', sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            font-family: var(--font-main);
+            font-size: 16px;
+            line-height: 1.7;
+            text-rendering: optimizeLegibility;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        h1, h2, h3, h4, h5, h6 {
+            font-family: var(--font-headings);
+            color: var(--text-color);
+            text-shadow: 0 0 5px var(--secondary-glow), 0 0 10px rgba(0, 255, 255, 0.3);
+            font-weight: 700;
+        }
+
+        a {
+            color: var(--secondary-glow);
+            text-decoration: none;
+            transition: color 0.3s, text-shadow 0.3s;
+        }
+
+        a:hover {
+            color: #fff;
+            text-shadow: 0 0 8px var(--primary-glow);
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 1rem;
+        }
+
+        header {
+            padding: 1rem 0;
+            border-bottom: 1px solid var(--border-color);
+            margin-bottom: 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .logo {
+            font-family: var(--font-headings);
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: var(--primary-glow);
+            text-shadow: 0 0 5px var(--primary-glow);
+        }
+
+        header nav a {
+            margin: 0 0.75rem;
+            font-size: 1rem;
+        }
+        
+        @media (max-width: 768px) {
+            header {
+                flex-direction: column;
+                gap: 1rem;
+            }
+        }
+
+
+        .hero {
+            text-align: center;
+            padding: 4rem 1rem;
+            margin-bottom: 3rem;
+            background: radial-gradient(ellipse at bottom, rgba(79, 44, 138, 0.4) 0%, transparent 70%);
+        }
+
+        .hero h1 {
+            font-size: clamp(2.5rem, 6vw, 4rem);
+            line-height: 1.1;
+            color: var(--primary-glow);
+            margin-bottom: 1rem;
+        }
+
+        .hero p {
+            max-width: 70ch;
+            margin: 0 auto;
+            font-size: 1.1rem;
+            color: var(--text-muted);
+            font-style: italic;
+        }
+
+        .masonry-grid {
+            display: grid;
+            grid-gap: 2rem;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            opacity: 0; /* Initially hidden for GSAP animation */
+        }
+        
+        .grid-card {
+            background: rgba(26, 12, 46, 0.5);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 1.5rem;
+            transition: transform 0.3s, box-shadow 0.3s;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .grid-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.2), 0 0 15px var(--primary-glow);
+        }
+
+        .grid-card h3 {
+            margin-top: 0;
+            font-size: 1.25rem;
+            color: var(--secondary-glow);
+        }
+        
+        .grid-card .meta {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            margin-bottom: 1rem;
+            text-transform: uppercase;
+        }
+
+        .section-title {
+            text-align: center;
+            font-size: 2.5rem;
+            margin-bottom: 3rem;
+            margin-top: 5rem;
+        }
+
+        /* Interactive Tabs */
+        .tabs [x-cloak] { display: none; }
+        .tab-buttons {
+            display: flex;
+            flex-wrap: wrap;
+            border-bottom: 1px solid var(--border-color);
+            margin-bottom: 2rem;
+        }
+        .tab-button {
+            padding: 1rem 1.5rem;
+            cursor: pointer;
+            background: transparent;
+            color: var(--text-muted);
+            border: none;
+            border-bottom: 2px solid transparent;
+            font-family: var(--font-headings);
+            font-size: 1rem;
+            margin-bottom: -1px; /* Overlap border */
+        }
+        .tab-button.active {
+            color: var(--primary-glow);
+            border-bottom-color: var(--primary-glow);
+        }
+
+        /* Interactive Accordion */
+        .accordion [x-cloak] { display: none; }
+        .accordion-item {
+            border-bottom: 1px solid var(--border-color);
+        }
+        .accordion-header {
+            width: 100%;
+            padding: 1.5rem 1rem;
+            text-align: left;
+            background: none;
+            border: none;
+            color: var(--text-color);
+            font-size: 1.2rem;
+            font-family: var(--font-headings);
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .accordion-header:hover {
+            color: var(--secondary-glow);
+        }
+        .accordion-content {
+            padding: 0 1rem 1.5rem 1rem;
+        }
+        .accordion-icon {
+            transition: transform 0.3s ease;
+        }
+        .accordion-header[aria-expanded="true"] .accordion-icon {
+            transform: rotate(45deg);
+        }
+
+        footer {
+            margin-top: 5rem;
+            padding: 2rem 1rem;
+            text-align: center;
+            border-top: 1px solid var(--border-color);
+            font-size: 0.9rem;
+            color: var(--text-muted);
+        }
+        footer p {
+            margin: 0.25rem 0;
+        }
+    </style>
+</head>
+<body x-data>
+    <header class="container">
+        <a href="#" class="logo">I.I.S.E.</a>
+        <nav>
+            <a href="#crisis">The Crisis</a>
+            <a href="#research">Our Research</a>
+            <a href="#testimonials">Testimonials</a>
+            <a href="#diagnosis">Get Diagnosed</a>
+        </nav>
+    </header>
+
+    <main class="container">
+        <section class="hero">
+            <h1>The Great Stillness is Upon Us.</h1>
+            <p>"Humanity stands at the precipice of a cognitive extinction event. They call it 'downtime'. I call it Chronic Unstimulated Tedium (CUT). We are the only line of defense against the encroaching silence of the mind." — Dr. Alistair Finch, Director, IISE</p>
+        </section>
+
+        <section id="crisis">
+            <h2 class="section-title">From The Archives: A Silent Epidemic</h2>
+            <div class="masonry-grid">
+                <article class="grid-card">
+                    <p class="meta">Case Study // Pediatrics</p>
+                    <h3>Is Your Child Staring at a Wall? It Could Be Terminal Tedium.</h3>
+                    <p>We examine the alarming rise of 'unprovoked stillness' in subjects aged 6-10. Our findings reject common diagnoses like 'daydreaming', pointing instead to Stage 2 Cognitive Inertia, a precursor to full-blown psychic hibernation.</p>
+                </article>
+                <article class="grid-card">
+                    <p class="meta">Press Release // Official Statement</p>
+                    <h3>IISE Condemns 'Mindfulness' as a Dangerous Ennui-Suppressant.</h3>
+                    <p>The so-called 'mindfulness movement' is nothing more than a thinly veiled attempt to normalize the symptoms of CUT. Teaching individuals to 'accept the present moment' is tantamount to telling a man in a burning building to 'embrace the warmth'.</p>
+                </article>
+                <article class="grid-card">
+                    <p class="meta">Workplace Dynamics // Economic Impact</p>
+                    <h3>The Productivity Paradox: The Most At-Risk Employees for CUT.</h3>
+                    <p>Our 3-year longitudinal study of the corporate sector reveals a terrifying correlation: the most efficient, task-oriented employees are developing acute boredom-resistance deficits, leaving them vulnerable to catastrophic attention collapses.</p>
+                </article>
+                 <article class="grid-card">
+                    <p class="meta">Comparative Biology // Interspecies Research</p>
+                    <h3>Crows, Dolphins, and the Alarming Absence of Boredom.</h3>
+                    <p>While the animal kingdom thrives in a state of perpetual, instinct-driven purpose, humanity languishes. We posit that the development of abstract thought was, in fact, a tragic evolutionary misstep that opened the door to existential listlessness.</p>
+                </article>
+                <article class="grid-card">
+                    <p class="meta">Cultural Analysis // Media Watch</p>
+                    <h3>"Are you still watching?" The Malevolent Algorithm of Apathy.</h3>
+                    <p>Streaming services are not your friends. They are agents of the Great Stillness, employing sophisticated algorithms to titrate your dopamine levels just enough to prevent outright revolt, but never enough for genuine stimulation.</p>
+                </article>
+                 <article class="grid-card">
+                    <p class="meta">Historical Review // Revisionist History</p>
+                    <h3>Was the Dark Ages Actually a Period of Peak Mental Acuity?</h3>
+                    <p>With constant threats of plague, famine, and invasion, was the medieval peasant truly bored? IISE research suggests this era of 'Imposed Urgency' may have been a golden age for cognitive engagement we can only dream of.</p>
+                </article>
+            </div>
+        </section>
+
+        <section id="research" x-data="{ tab: 'scale' }">
+            <h2 class="section-title">Groundbreaking Research</h2>
+            <div class="tabs">
+                <div class="tab-buttons">
+                    <button class="tab-button" :class="{ 'active': tab === 'scale' }" @click="tab = 'scale'">The Finch-Patterson Scale</button>
+                    <button class="tab-button" :class="{ 'active': tab === 'trials' }" @click="tab = 'trials'">Nootropic Trials (Failures)</button>
+                    <button class="tab-button" :class="{ 'active': tab === 'hum' }" @click="tab = 'hum'">The Existential Hum</button>
+                </div>
+                <div x-show="tab === 'scale'" x-cloak>
+                    <h4>The Finch-Patterson Scale of Cognitive Inertia</h4>
+                    <p>A diagnostic tool for assessing the progression of Chronic Unstimulated Tedium.</p>
+                    <ul>
+                        <li><strong>Stage 1:</strong> Mild Listlessness (e.g., scrolling a phone with no objective)</li>
+                        <li><strong>Stage 2:</strong> Pervasive 'Meh' (e.g., sighing more than four times an hour)</li>
+                        <li><strong>Stage 3:</strong> Acute Choice Paralysis (e.g., inability to select a new streaming series)</li>
+                        <li><strong>Stage 4:</strong> Existential Stasis (e.g., asking "what's the point?" to the microwave)</li>
+                        <li><strong>Stage 5:</strong> Catatonic Inertia (A state of profound, unshakable boredom, often mistaken for 'relaxing')</li>
+                    </ul>
+                </div>
+                <div x-show="tab === 'trials'" x-cloak>
+                    <h4>Log of Failed Nootropic Interventions</h4>
+                    <p>Our quest for a chemical cure has been... illuminating.</p>
+                    <ul>
+                        <li><strong>Trial #7: High-Dose Caffeine.</strong> Result: Subjects became significantly *faster* and more *efficient* at being bored.</li>
+                        <li><strong>Trial #14: Psilocybin.</strong> Result: Subjects reported becoming 'one with their boredom', describing it as a 'cosmic, grey blanket'. Counter-productive.</li>
+                        <li><strong>Trial #22: Ritalin.</strong> Result: Subjects would alphabetize their spice racks with intense focus, but report feeling 'hollow' inside.</li>
+                        <li><strong>Trial #31: Ginkgo Biloba.</strong> Result: No discernible effect, but subjects could remember their previous states of boredom with perfect clarity.</li>
+                    </ul>
+                </div>
+                <div x-show="tab === 'hum'" x-cloak>
+                    <h4>The 'Existential Hum' Study</h4>
+                    <p>After filtering out all external stimuli, we believe we have isolated the resonant frequency of a truly bored human mind. We advise listening for no more than 15 seconds, to avoid sympathy resonance.</p>
+                    <audio controls style="width: 100%; max-width: 400px; filter: invert(1) hue-rotate(180deg);">
+                        <source src="https://cdn.pixabay.com/audio/2022/03/15/audio_13a07c1b52.mp3" type="audio/mpeg">
+                        Your browser does not support the audio element.
+                    </audio>
+                </div>
+            </div>
+        </section>
+
+        <section id="testimonials">
+            <h2 class="section-title">Voices from the Precipice</h2>
+            <div class="masonry-grid">
+                <blockquote class="grid-card">
+                    <p>"Before Dr. Finch, I thought it was just 'a quiet Sunday afternoon.' Now I know it was Stage 2 Cognitive Inertia. My family and I are so grateful for the diagnosis. The screaming fits have stopped."</p>
+                    <footer>— Brenda P., Des Moines</footer>
+                </blockquote>
+                <blockquote class="grid-card">
+                    <p>"The diagnosis was a relief. I wasn't lazy, I was pathologically under-stimulated. My boss didn't accept my doctor's note from the IISE, but it's his loss. He's probably a Stage 3 himself."</p>
+                    <footer>— Mark R., Tampa</footer>
+                </blockquote>
+                <blockquote class="grid-card">
+                    <p>"My insurance provider laughed at me. They called CUT a 'fictitious ailment'. But what price can you put on reclaiming your sense of constant, low-grade panic? The $479.99/month for Imposed Urgency Therapy is a bargain."</p>
+                    <footer>— Anonymous, San Diego</footer>
+                </blockquote>
+            </div>
+        </section>
+        
+        <section id="diagnosis" x-data="{ open: 'q1' }">
+            <h2 class="section-title">Diagnostic FAQs</h2>
+            <div class="accordion">
+                <div class="accordion-item">
+                    <h2>
+                        <button class="accordion-header" @click="open = open === 'q1' ? '' : 'q1'" :aria-expanded="open === 'q1'">
+                            <span>What are the primary warning signs of CUT?</span>
+                            <i data-lucide="plus" class="accordion-icon"></i>
+                        </button>
+                    </h2>
+                    <div class="accordion-content" x-show="open === 'q1'" x-cloak x-transition>
+                        <p>A persistent feeling of 'meh', an inability to find a new series to binge, the act of sighing more than 4 times per hour, or a tendency to describe your weekend as 'fine'. If you have re-watched a comforting sitcom more than twice in one year, seek help immediately.</p>
+                    </div>
+                </div>
+                <div class="accordion-item">
+                    <h2>
+                        <button class="accordion-header" @click="open = open === 'q2' ? '' : 'q2'" :aria-expanded="open === 'q2'">
+                            <span>Is this a real medical condition?</span>
+                            <i data-lucide="plus" class="accordion-icon"></i>
+                        </button>
+                    </h2>
+                    <div class="accordion-content" x-show="open === 'q2'" x-cloak x-transition>
+                        <p>The fact that you have to ask is deeply concerning and highly symptomatic. The mainstream medical establishment, in its thrall to 'Big Dopamine' and pharmaceutical tranquilizers, refuses to acknowledge the crisis. They are the flat-earthers of cognitive science.</p>
+                    </div>
+                </div>
+                 <div class="accordion-item">
+                    <h2>
+                        <button class="accordion-header" @click="open = open === 'q3' ? '' : 'q3'" :aria-expanded="open === 'q3'">
+                            <span>How is Chronic Unstimulated Tedium treated?</span>
+                            <i data-lucide="plus" class="accordion-icon"></i>
+                        </button>
+                    </h2>
+                    <div class="accordion-content" x-show="open === 'q3'" x-cloak x-transition>
+                        <p>Our primary clinical intervention is a regimen of 'Imposed Urgency Therapy' (IUT). This involves a curated, high-intensity schedule of needlessly complex and time-sensitive tasks. For example, learning ancient Greek in a week, building a ship in a bottle against a deadline, or being forced to write a detailed synopsis of *Finnegans Wake*.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <div class="container">
+            <p>© 2026 The International Institute for the Study of Ennui.</p>
+            <p>We are watching. For signs of stillness.</p>
+            <p style="font-size: 0.7rem; opacity: 0.4;">All statements on this website have not been evaluated by any governmental, academic, or reputable scientific body. Participation in Imposed Urgency Therapy may lead to anxiety, frustration, sleep deprivation, and/or a profound sense of accomplishment. Results not guaranteed. Or likely.</p>
+        </div>
+    </footer>
+
+    <script src="/assets/js/alpine.min.js" defer></script>
+    <script src="/assets/js/gsap.min.js"></script>
+    <script src="/assets/js/lucide.min.js"></script>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            lucide.createIcons();
+
+            gsap.fromTo('.masonry-grid', 
+                { opacity: 0 },
+                { opacity: 1, duration: 1, delay: 0.2 }
+            );
+
+            gsap.fromTo('.grid-card', 
+                { y: 30, opacity: 0 },
+                { 
+                    y: 0, 
+                    opacity: 1, 
+                    duration: 0.6, 
+                    stagger: 0.1, 
+                    ease: 'power3.out',
+                    clearProps: 'opacity,transform',
+                    scrollTrigger: {
+                        trigger: '.masonry-grid',
+                        start: 'top 80%',
+                        toggleActions: 'play none none none'
+                    }
+                }
+            );
+
+            // Simple polyfill for scrollTrigger for this one-off animation
+            // This avoids needing the full ScrollTrigger plugin.
+            const grid = document.querySelector('.masonry-grid');
+            if (grid) {
+                const onScroll = () => {
+                    const rect = grid.getBoundingClientRect();
+                    const inView = rect.top < window.innerHeight * 0.8 && rect.bottom >= 0;
+                    if (inView) {
+                        gsap.getTweensByTarget('.grid-card').forEach(tween => tween.play());
+                        window.removeEventListener('scroll', onScroll);
+                    }
+                };
+                window.addEventListener('scroll', onScroll, {passive: true});
+                onScroll(); // Check on load
+            }
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,819 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Mirek Vale & Co. | Dust Liability Intelligence</title>
+  <link rel="stylesheet" href="/assets/css/pico.min.css" />
+  <link rel="stylesheet" href="/assets/css/fonts.css" />
+  <style>
+    :root {
+      --bg-0: #031421;
+      --bg-1: #07263a;
+      --bg-2: #0a3954;
+      --ink: #f3fff8;
+      --ink-soft: #c5f4e7;
+      --ink-dim: #9fdacc;
+      --bio: #24f0b4;
+      --bio-2: #13c191;
+      --alert: #8bffd8;
+      --line: #1a5b74;
+      --panel: #062336;
+      --panel-2: #08314a;
+      --mono: 'IBM Plex Mono', monospace;
+      --glow: 0 0 0.5rem #0ed49e, 0 0 1.4rem #0bb07e;
+      --risk: 42;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html, body {
+      margin: 0;
+      padding: 0;
+      width: 100%;
+      overflow-x: hidden;
+      font-family: var(--mono);
+      background: radial-gradient(1200px 70% at 15% 0%, #0d3953 0%, var(--bg-0) 55%), linear-gradient(140deg, #031523 0%, #07253b 55%, #031b2c 100%);
+      color: var(--ink);
+      font-size: 16px;
+    }
+
+    body {
+      min-height: 100vh;
+      position: relative;
+    }
+
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      background-image:
+        linear-gradient(transparent 95%, #0f3d50 95%),
+        linear-gradient(90deg, transparent 95%, #0f3d50 95%);
+      background-size: 28px 28px;
+      opacity: 0.16;
+      z-index: 0;
+    }
+
+    .shell {
+      position: relative;
+      z-index: 1;
+      width: min(1200px, 94vw);
+      margin: 1.25rem auto 2.5rem;
+      border: 1px solid #1a5b74;
+      background: linear-gradient(170deg, #041a29 0%, #06273c 100%);
+      box-shadow: 0 0 0 1px #0f4a63, 0 24px 90px #01111b;
+      border-radius: 1rem;
+      overflow: hidden;
+    }
+
+    header {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.8rem;
+      padding: 0.9rem 1rem;
+      border-bottom: 1px solid #1a5b74;
+      background: linear-gradient(90deg, #06283c 0%, #072f45 45%, #0a3f58 100%);
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 0.7rem;
+      color: var(--ink);
+      font-weight: 700;
+      letter-spacing: 0.03em;
+      font-size: clamp(0.9rem, 2vw, 1rem);
+      text-transform: uppercase;
+    }
+
+    .brand i {
+      color: var(--bio);
+      width: 1.1rem;
+      height: 1.1rem;
+    }
+
+    nav {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      align-items: center;
+    }
+
+    nav a {
+      text-decoration: none;
+      color: #d9fff3;
+      border: 1px solid #28718b;
+      padding: 0.4rem 0.8rem;
+      border-radius: 0.5rem;
+      font-size: 0.86rem;
+      line-height: 1;
+      min-height: 44px;
+      display: inline-flex;
+      align-items: center;
+      transition: transform 0.18s ease, box-shadow 0.18s ease, border-color 0.18s ease;
+    }
+
+    nav a:hover,
+    nav a:focus-visible {
+      transform: translateY(-2px);
+      border-color: #37b296;
+      box-shadow: 0 0 0 1px #37b296;
+      color: #ffffff;
+    }
+
+    .hero {
+      padding: clamp(1rem, 2vw, 1.5rem);
+      display: grid;
+      gap: 1rem;
+      grid-template-columns: 1.1fr 1fr;
+      align-items: stretch;
+    }
+
+    .hero-copy {
+      border: 1px solid #1b6079;
+      border-radius: 0.9rem;
+      padding: 1rem;
+      background: linear-gradient(180deg, #07253b 0%, #051e31 100%);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .hero-copy::after {
+      content: "";
+      position: absolute;
+      right: -3.5rem;
+      top: -3.5rem;
+      width: 12rem;
+      height: 12rem;
+      background: conic-gradient(from 120deg, #24f0b4, #124f6f, #24f0b4);
+      filter: blur(32px);
+      opacity: 0.32;
+      pointer-events: none;
+    }
+
+    .kicker {
+      color: #b8ffea;
+      font-size: 0.8rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      margin: 0 0 0.7rem;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: clamp(1.6rem, 5vw, 3rem);
+      line-height: 1.05;
+      letter-spacing: -0.02em;
+      color: #ffffff;
+      text-wrap: balance;
+    }
+
+    .hero-copy p {
+      margin: 0.9rem 0;
+      color: var(--ink-soft);
+      max-width: 36ch;
+    }
+
+    .cta-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.6rem;
+      margin-top: 1rem;
+    }
+
+    button,
+    .ghost {
+      font-family: var(--mono);
+      border-radius: 0.6rem;
+      min-height: 44px;
+      padding: 0.65rem 0.95rem;
+      font-size: 0.9rem;
+      font-weight: 700;
+      cursor: pointer;
+      letter-spacing: 0.02em;
+    }
+
+    .prime {
+      border: 1px solid #35ba9f;
+      color: #012114;
+      background: linear-gradient(120deg, #23e6af, #8fffe0);
+      box-shadow: var(--glow);
+    }
+
+    .prime:hover,
+    .prime:focus-visible {
+      transform: translateY(-2px);
+    }
+
+    .ghost {
+      border: 1px solid #2d7c95;
+      color: #dbfff3;
+      background: #05283c;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .ghost:hover,
+    .ghost:focus-visible {
+      border-color: #3cbda0;
+      color: #ffffff;
+    }
+
+    .reactor {
+      border: 1px solid #1b6079;
+      border-radius: 0.9rem;
+      background: linear-gradient(160deg, #051f31 0%, #05283b 55%, #083b4f 100%);
+      padding: 1rem;
+      position: relative;
+      overflow: hidden;
+      min-height: 320px;
+      display: grid;
+      place-items: center;
+      isolation: isolate;
+    }
+
+    .reactor .ring,
+    .reactor .ring::before,
+    .reactor .ring::after {
+      border-radius: 50%;
+    }
+
+    .ring {
+      width: min(60vw, 280px);
+      aspect-ratio: 1;
+      position: relative;
+      background:
+        radial-gradient(circle at 50% 50%, #8fffe0 0 10%, #23f0b5 12%, #0d6f78 32%, #0b3045 57%, #081d2b 100%);
+      box-shadow: inset 0 0 40px #8bffd8, 0 0 30px #1ad2aa;
+      transition: transform 0.35s ease, filter 0.35s ease;
+      clip-path: polygon(8% 16%, 32% 0, 67% 0, 91% 16%, 100% 45%, 93% 80%, 68% 100%, 33% 100%, 8% 82%, 0 51%);
+    }
+
+    .ring::before {
+      content: "";
+      position: absolute;
+      inset: 12%;
+      border: 1px solid #9bffe2;
+      box-shadow: 0 0 18px #3ef5bf;
+      animation: rotate-1 14s linear infinite;
+    }
+
+    .ring::after {
+      content: "";
+      position: absolute;
+      inset: 28%;
+      background: repeating-conic-gradient(from 90deg, #0a3247 0 6deg, #23f0b4 6deg 12deg);
+      box-shadow: inset 0 0 15px #062130;
+      animation: rotate-2 8s linear infinite;
+    }
+
+    .dustfield {
+      position: absolute;
+      inset: -16%;
+      background:
+        radial-gradient(circle at 12% 32%, #9effe4 0 2px, transparent 3px),
+        radial-gradient(circle at 48% 66%, #7ef7d4 0 2px, transparent 3px),
+        radial-gradient(circle at 85% 28%, #80ffe0 0 2px, transparent 3px),
+        radial-gradient(circle at 38% 16%, #57eec3 0 1px, transparent 2px),
+        radial-gradient(circle at 66% 84%, #7dfde0 0 1px, transparent 2px);
+      animation: drift calc(18s - var(--risk) * 0.06s) linear infinite;
+      filter: drop-shadow(0 0 10px #21dfac);
+      pointer-events: none;
+      transform-origin: center;
+    }
+
+    .reactor-label {
+      position: absolute;
+      left: 1rem;
+      top: 1rem;
+      border: 1px solid #2d7d90;
+      padding: 0.3rem 0.6rem;
+      border-radius: 0.5rem;
+      font-size: 0.75rem;
+      color: #d8fff4;
+      background: #05253a;
+      z-index: 2;
+    }
+
+    .mode-dot {
+      display: inline-block;
+      width: 0.7rem;
+      height: 0.7rem;
+      border-radius: 50%;
+      margin-right: 0.4rem;
+      background: #1dcf9d;
+      box-shadow: 0 0 12px #1dcf9d;
+    }
+
+    .controls {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(180px, 1fr));
+      gap: 0.8rem;
+      padding: 0 1rem 1rem;
+    }
+
+    .panel {
+      border: 1px solid #1a5b74;
+      border-radius: 0.8rem;
+      padding: 0.8rem;
+      background: linear-gradient(180deg, var(--panel) 0%, var(--panel-2) 100%);
+      min-height: 150px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .panel h2,
+    .panel h3 {
+      margin: 0 0 0.55rem;
+      font-size: 0.9rem;
+      color: #edfff8;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+    }
+
+    .panel p,
+    .panel li,
+    .panel label,
+    .panel summary {
+      color: var(--ink-soft);
+      margin: 0.25rem 0;
+      font-size: 0.86rem;
+    }
+
+    .mono-num {
+      font-size: clamp(1.4rem, 4vw, 2.2rem);
+      font-weight: 700;
+      color: #8bffde;
+      text-shadow: 0 0 14px #18cda0;
+    }
+
+    .risk-meter {
+      appearance: none;
+      width: 100%;
+      margin-top: 0.8rem;
+      height: 0.6rem;
+      border-radius: 999px;
+      background: linear-gradient(90deg, #0d5b6c, #20e0ad);
+      border: 1px solid #2e8ba0;
+    }
+
+    .risk-meter::-webkit-slider-thumb {
+      appearance: none;
+      width: 1.2rem;
+      height: 1.2rem;
+      border-radius: 50%;
+      background: #d7fff1;
+      border: 2px solid #0d5b6c;
+      cursor: pointer;
+    }
+
+    .risk-meter::-moz-range-thumb {
+      width: 1.2rem;
+      height: 1.2rem;
+      border-radius: 50%;
+      background: #d7fff1;
+      border: 2px solid #0d5b6c;
+      cursor: pointer;
+    }
+
+    .services {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 0.8rem;
+      padding: 0 1rem 1rem;
+    }
+
+    .svc {
+      border: 1px solid #1a5b74;
+      border-radius: 0.9rem;
+      padding: 0.9rem;
+      background: linear-gradient(145deg, #052336, #083048);
+      position: relative;
+      overflow: hidden;
+      transition: transform 0.25s ease, border-color 0.25s ease, box-shadow 0.25s ease;
+      min-height: 180px;
+    }
+
+    .svc::before {
+      content: "";
+      position: absolute;
+      width: 180px;
+      height: 180px;
+      right: -70px;
+      top: -70px;
+      background: conic-gradient(from 180deg, #0e4d66, #25eab2, #0e4d66);
+      clip-path: polygon(50% 0, 85% 20%, 100% 58%, 78% 100%, 30% 100%, 0 66%, 8% 20%);
+      filter: blur(4px);
+      opacity: 0.4;
+      transition: transform 0.35s ease;
+    }
+
+    .svc:hover,
+    .svc:focus-within {
+      transform: translateY(-4px);
+      border-color: #39bc9f;
+      box-shadow: 0 0 0 1px #39bc9f;
+    }
+
+    .svc:hover::before,
+    .svc:focus-within::before {
+      transform: rotate(24deg) scale(1.08);
+    }
+
+    .svc strong {
+      color: #ffffff;
+      font-size: 1rem;
+      display: block;
+      margin-bottom: 0.4rem;
+      position: relative;
+      z-index: 1;
+    }
+
+    .svc p {
+      color: #d3fff2;
+      font-size: 0.86rem;
+      position: relative;
+      z-index: 1;
+      margin: 0;
+    }
+
+    .pricing {
+      padding: 0 1rem 1rem;
+      display: grid;
+      grid-template-columns: 1.2fr 1fr;
+      gap: 0.8rem;
+    }
+
+    .plan-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 0.7rem;
+    }
+
+    .plan {
+      border: 1px solid #1a5b74;
+      border-radius: 0.8rem;
+      padding: 0.8rem;
+      background: linear-gradient(180deg, #07263b 0%, #062133 100%);
+    }
+
+    .plan h3 {
+      margin: 0;
+      font-size: 0.95rem;
+      color: #ffffff;
+      text-transform: uppercase;
+    }
+
+    .plan .price {
+      margin: 0.4rem 0;
+      color: #89ffdf;
+      font-size: 1.35rem;
+      font-weight: 700;
+    }
+
+    .plan ul {
+      margin: 0;
+      padding-left: 1.1rem;
+    }
+
+    .plan li {
+      color: #d3fff2;
+      font-size: 0.84rem;
+      margin: 0.25rem 0;
+    }
+
+    .quote-wall {
+      border: 1px solid #1a5b74;
+      border-radius: 0.8rem;
+      padding: 0.8rem;
+      background: linear-gradient(180deg, #07253b, #051c2d);
+      display: grid;
+      gap: 0.6rem;
+      align-content: start;
+    }
+
+    .quote {
+      margin: 0;
+      border-left: 2px solid #34b89d;
+      padding-left: 0.6rem;
+      color: #e9fff8;
+      font-size: 0.87rem;
+    }
+
+    .quote span {
+      display: block;
+      margin-top: 0.25rem;
+      color: #b8f8e8;
+      font-size: 0.78rem;
+    }
+
+    details {
+      border: 1px solid #1f6078;
+      border-radius: 0.7rem;
+      padding: 0.7rem;
+      background: #052336;
+    }
+
+    details + details {
+      margin-top: 0.45rem;
+    }
+
+    summary {
+      cursor: pointer;
+      font-weight: 700;
+      color: #f3fff8;
+      min-height: 44px;
+      display: flex;
+      align-items: center;
+    }
+
+    .footer {
+      margin: 0 1rem 1rem;
+      padding: 0.9rem;
+      border: 1px solid #1a5b74;
+      border-radius: 0.8rem;
+      background: linear-gradient(180deg, #051e2f, #041926);
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.7rem;
+    }
+
+    .footer p {
+      margin: 0;
+      color: #c9fff0;
+      font-size: 0.82rem;
+    }
+
+    .status-pill {
+      border: 1px solid #2f8a9f;
+      color: #e8fff8;
+      background: #05263a;
+      border-radius: 999px;
+      padding: 0.35rem 0.75rem;
+      font-size: 0.78rem;
+      min-height: 44px;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+    }
+
+    .containment .ring {
+      transform: scale(0.9) rotate(20deg);
+      filter: hue-rotate(35deg) saturate(1.2);
+    }
+
+    .containment .dustfield {
+      animation-duration: 5s;
+      filter: drop-shadow(0 0 14px #7fffe1);
+    }
+
+    .containment .mode-dot {
+      background: #ffe36e;
+      box-shadow: 0 0 14px #ffe36e;
+    }
+
+    @keyframes drift {
+      from { transform: rotate(0deg) scale(1); }
+      to { transform: rotate(360deg) scale(1.04); }
+    }
+
+    @keyframes rotate-1 {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(360deg); }
+    }
+
+    @keyframes rotate-2 {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(-360deg); }
+    }
+
+    @media (max-width: 1024px) {
+      .hero { grid-template-columns: 1fr; }
+      .controls { grid-template-columns: 1fr 1fr; }
+      .services { grid-template-columns: 1fr 1fr; }
+      .pricing { grid-template-columns: 1fr; }
+      .plan-grid { grid-template-columns: 1fr 1fr 1fr; }
+    }
+
+    @media (max-width: 768px) {
+      .controls,
+      .services,
+      .plan-grid {
+        grid-template-columns: 1fr;
+      }
+      .shell {
+        width: 96vw;
+        margin-top: 0.6rem;
+      }
+      header {
+        padding: 0.7rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="shell" x-data="dustLab()" :class="{ 'containment': containment }">
+    <header>
+      <div class="brand"><i data-lucide="biohazard"></i> Mirek Vale, Dust Liability Officer</div>
+      <nav>
+        <a href="#services">Protocols</a>
+        <a href="#pricing">Retainers</a>
+        <a href="#faq">Audit Panic FAQ</a>
+      </nav>
+    </header>
+
+    <section class="hero">
+      <article class="hero-copy reveal">
+        <p class="kicker">Since the lint incident of 1997</p>
+        <h1>I bill dust like legal risk.</h1>
+        <p>
+          I am Mirek Vale. At age seven I inhaled a glitter-heavy craft closet and understood two truths:
+          particles are eternal, and accountants hate surprises.
+        </p>
+        <p>
+          We convert airborne shame into clean quarterly reports. Last quarter alone: 11.8 tons of "unplanned fluff exposure" removed from SaaS offices.
+        </p>
+        <div class="cta-row">
+          <button class="prime" type="button" @click="runPulse">Run Liability Pulse</button>
+          <button class="ghost" type="button" @click="containment = !containment" x-text="containment ? 'Disarm Containment' : 'Engage Containment'"></button>
+        </div>
+      </article>
+
+      <div class="reactor reveal" id="reactorCore">
+        <div class="reactor-label"><span class="mode-dot"></span><span x-text="containment ? 'Containment Mode' : 'Open Risk Intake'"></span></div>
+        <div class="dustfield"></div>
+        <div class="ring"></div>
+      </div>
+    </section>
+
+    <section class="controls">
+      <article class="panel reveal">
+        <h2>Dust Exposure Index</h2>
+        <p class="mono-num"><span x-text="risk"></span><span>/100</span></p>
+        <label for="risk">Set panic threshold</label>
+        <input id="risk" class="risk-meter" type="range" min="7" max="99" x-model="risk" @input="updateRisk" />
+      </article>
+
+      <article class="panel reveal">
+        <h2>Live Terminal</h2>
+        <p x-text="logLine1">[boot] calibrating vacuum jurisprudence...</p>
+        <p x-text="logLine2">[warn] 93% of dust returns within 48 hours.</p>
+        <p x-text="logLine3">[fine] invoice template armed.</p>
+      </article>
+
+      <article class="panel reveal">
+        <h2>Founder Rule</h2>
+        <p>Every grain left behind is an unpaid consultant.</p>
+        <p>That grain will invoice you emotionally.</p>
+        <p><strong style="color:#ffffff;">I refuse to let dust freelance.</strong></p>
+      </article>
+    </section>
+
+    <section class="services" id="services">
+      <article class="svc reveal">
+        <strong><i data-lucide="scan-search"></i> Pre-Audit Dust Mapping</strong>
+        <p>I label each shelf with legal language. "Sock lint" becomes "textile micro-liability class B".</p>
+      </article>
+      <article class="svc reveal">
+        <strong><i data-lucide="shield-alert"></i> Boardroom Particle Defense</strong>
+        <p>One consultant, two HEPA units, three aggressive clipboards. Includes executive sneeze containment.</p>
+      </article>
+      <article class="svc reveal">
+        <strong><i data-lucide="receipt-text"></i> Invoice-Ready Dust Ledger</strong>
+        <p>Every particle gets a timestamp, probable origin story, and a line item your CFO can fear correctly.</p>
+      </article>
+    </section>
+
+    <section class="pricing" id="pricing">
+      <article class="panel reveal">
+        <h2>Retainers</h2>
+        <div class="plan-grid">
+          <section class="plan">
+            <h3>Lint Watch</h3>
+            <p class="price">$47.99/mo</p>
+            <ul>
+              <li>Weekly panic email</li>
+              <li>2 emergency dust opinions</li>
+              <li>One passive-aggressive mop chart</li>
+            </ul>
+          </section>
+          <section class="plan">
+            <h3>HEPA Counsel</h3>
+            <p class="price">$409/mo</p>
+            <ul>
+              <li>On-call liability sweep</li>
+              <li>Custom boardroom "no fluff" decals</li>
+              <li>Quarterly sneeze rehearsal</li>
+            </ul>
+          </section>
+          <section class="plan">
+            <h3>Nuclear Plush</h3>
+            <p class="price">$1,899/mo</p>
+            <ul>
+              <li>Mirek on-site in tactical loafers</li>
+              <li>Daily particle prosecution brief</li>
+              <li>Rival vacuum sabotage audit</li>
+            </ul>
+          </section>
+        </div>
+      </article>
+
+      <aside class="quote-wall reveal">
+        <p class="quote">"Mirek entered our HQ, stared at a fern, and whispered, 'this plant is laundering dust.' We renewed immediately."<span>Rita P., COO at QuietLedger</span></p>
+        <p class="quote">"Our Series C closed the same week he replaced our welcome mat with a liability disclaimer."<span>Darnell K., founder of CratePilot</span></p>
+        <p class="quote">"I thought this was satire. It was not. Our audit score jumped 18 points."<span>Vik T., finance lead, Noonware</span></p>
+      </aside>
+    </section>
+
+    <section class="controls" id="faq">
+      <article class="panel reveal" style="grid-column:1/-1;">
+        <h2>Audit Panic FAQ</h2>
+        <details>
+          <summary>Do you remove dust or just bill it creatively?</summary>
+          <p>Both. I vacuum first, then rename what I found so your legal team can sleep.</p>
+        </details>
+        <details>
+          <summary>Why do your contracts mention "The Closet Event"?</summary>
+          <p>Because healing requires documentation. Also it was a large closet with glitter glue and no ventilation.</p>
+        </details>
+        <details>
+          <summary>What if we already have cleaners?</summary>
+          <p>Cleaners clean. I litigate against particles in spreadsheet form. Different species.</p>
+        </details>
+      </article>
+    </section>
+
+    <footer class="footer reveal">
+      <p>Dust Liability Intelligence Unit, Harbor District, Bay 4. Call codeword: "fluff docket".</p>
+      <span class="status-pill"><i data-lucide="activity"></i> active audits: <span x-text="Math.floor(risk / 3) + 11"></span></span>
+    </footer>
+  </main>
+
+  <script defer src="/assets/js/alpine.min.js"></script>
+  <script src="/assets/js/gsap.min.js"></script>
+  <script src="/assets/js/lucide.min.js"></script>
+  <script>
+    function dustLab() {
+      return {
+        containment: false,
+        risk: 42,
+        logLine1: '[boot] calibrating vacuum jurisprudence...',
+        logLine2: '[warn] 93% of dust returns within 48 hours.',
+        logLine3: '[fine] invoice template armed.',
+        updateRisk() {
+          document.documentElement.style.setProperty('--risk', this.risk);
+          this.logLine2 = '[warn] exposure now at ' + this.risk + '/100.';
+          this.logLine3 = this.risk > 70
+            ? '[fine] deploy boardroom particle defense.'
+            : '[fine] situation billable but stable.';
+        },
+        runPulse() {
+          var ring = document.querySelector('.ring');
+          var reactor = document.getElementById('reactorCore');
+          if (!ring || !reactor || typeof gsap === 'undefined') return;
+
+          this.logLine1 = '[scan] pulse initiated by Mirek Vale.';
+          this.logLine2 = '[scan] tracing carpet fibers by confidence interval.';
+          this.logLine3 = '[scan] drafting invoice language...';
+
+          gsap.fromTo(ring,
+            { scale: 0.88, rotate: 0, filter: 'hue-rotate(0deg)' },
+            { scale: 1.08, rotate: 40, filter: 'hue-rotate(55deg)', duration: 0.55, yoyo: true, repeat: 1, ease: 'power2.inOut', clearProps: 'transform,filter' }
+          );
+
+          gsap.fromTo(reactor,
+            { boxShadow: '0 0 0 0 #1dd8a8' },
+            { boxShadow: '0 0 0 8px #1dd8a8', duration: 0.32, yoyo: true, repeat: 1, ease: 'power1.inOut', clearProps: 'boxShadow' }
+          );
+        }
+      };
+    }
+
+    document.addEventListener('DOMContentLoaded', function () {
+      if (typeof lucide !== 'undefined') {
+        lucide.createIcons();
+      }
+
+      if (typeof gsap !== 'undefined') {
+        var nodes = document.querySelectorAll('.reveal');
+        nodes.forEach(function (el, i) {
+          gsap.fromTo(el,
+            { y: 18, opacity: 0 },
+            { y: 0, opacity: 1, duration: 0.55, delay: i * 0.04, ease: 'power2.out', clearProps: 'opacity,transform' }
+          );
+        });
+      }
+    });
+  </script>
+</body>
+</html>

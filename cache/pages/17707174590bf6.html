@@ -1,0 +1,503 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>TideCycle Memory Laundry</title>
+  <link rel="stylesheet" href="/assets/css/pico.min.css" />
+  <link rel="stylesheet" href="/assets/css/fonts.css" />
+  <style>
+    :root {
+      --bg: #f5faf6;
+      --panel: #ffffff;
+      --ink: #102019;
+      --ink-soft: #2f4338;
+      --line: #c9ddd0;
+      --accent: #0e8a57;
+      --accent-deep: #07683f;
+      --glow: #dff5e7;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html,
+    body {
+      margin: 0;
+      min-height: 100%;
+      background: radial-gradient(circle at 85% 15%, var(--glow) 0%, var(--bg) 38%, #f1f7f3 100%);
+      color: var(--ink);
+      font-family: 'Space Grotesk', 'Inter', sans-serif;
+      font-size: 16px;
+      overflow-x: hidden;
+    }
+
+    body {
+      line-height: 1.55;
+    }
+
+    .shell {
+      display: grid;
+      grid-template-columns: 300px 1fr;
+      min-height: 100vh;
+    }
+
+    .sidebar {
+      border-right: 1px solid var(--line);
+      background: #f8fcf9;
+      padding: clamp(1.1rem, 2.5vw, 2rem);
+      display: flex;
+      flex-direction: column;
+      gap: 1.2rem;
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      width: fit-content;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      padding: 0.35rem 0.8rem;
+      font-size: 0.79rem;
+      letter-spacing: 0.07em;
+      text-transform: uppercase;
+      color: var(--ink-soft);
+      background: #ffffff;
+    }
+
+    .brand {
+      margin: 0;
+      font-size: clamp(1.5rem, 2.2vw, 2.1rem);
+      line-height: 1.1;
+      letter-spacing: -0.02em;
+      color: var(--ink);
+    }
+
+    .founder {
+      margin: 0;
+      color: var(--ink-soft);
+      font-size: 0.94rem;
+      max-width: 28ch;
+    }
+
+    .menu {
+      display: grid;
+      gap: 0.45rem;
+      margin-top: 0.4rem;
+    }
+
+    .menu a {
+      text-decoration: none;
+      color: var(--ink);
+      border: 1px solid transparent;
+      border-radius: 12px;
+      padding: 0.6rem 0.75rem;
+      min-height: 44px;
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      transition: background-color 1.2s ease, border-color 1.2s ease, transform 1.2s ease;
+    }
+
+    .menu a:hover,
+    .menu a:focus-visible {
+      background: #ecf8f0;
+      border-color: var(--line);
+      transform: translateX(3px);
+    }
+
+    .tiny {
+      font-size: 0.8rem;
+      color: #3e5648;
+      margin-top: auto;
+      border-top: 1px solid var(--line);
+      padding-top: 1rem;
+    }
+
+    main {
+      padding: clamp(1.1rem, 3vw, 2.4rem);
+      display: grid;
+      gap: 1.1rem;
+      align-content: start;
+    }
+
+    .card {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      padding: clamp(1rem, 2.6vw, 2.1rem);
+      box-shadow: 0 12px 45px #d6e8dc;
+    }
+
+    .hero h2 {
+      margin-top: 0;
+      margin-bottom: 0.8rem;
+      font-size: clamp(2rem, 6vw, 4rem);
+      line-height: 0.98;
+      letter-spacing: -0.03em;
+      max-width: 12ch;
+      color: #0b1d14;
+    }
+
+    .hero p {
+      margin: 0;
+      max-width: 52ch;
+      color: #294438;
+      font-size: clamp(1rem, 2vw, 1.16rem);
+    }
+
+    .pulse-line {
+      margin-top: 1.1rem;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.6rem;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      padding: 0.38rem 0.85rem;
+      color: #2f4f40;
+      font-size: 0.87rem;
+      background: #fbfffc;
+      animation: breathe 8s ease-in-out infinite;
+    }
+
+    @keyframes breathe {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-2px); }
+    }
+
+    .ops-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 1rem;
+    }
+
+    .ops-grid article {
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 1rem;
+      background: #fcfffd;
+    }
+
+    .ops-grid h3,
+    .plans h3,
+    .voices h3,
+    .faq h3 {
+      margin-top: 0;
+      margin-bottom: 0.4rem;
+      font-size: 1.05rem;
+      color: #10281c;
+    }
+
+    .ops-grid p,
+    .plans p,
+    .voices p,
+    .faq p,
+    .faq summary {
+      color: #315243;
+      margin: 0;
+    }
+
+    .plans {
+      display: grid;
+      gap: 0.8rem;
+    }
+
+    .plan-list {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 0.8rem;
+    }
+
+    .plan {
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 1rem;
+      background: #f8fdf9;
+      transition: transform 1.1s ease, box-shadow 1.1s ease;
+    }
+
+    .plan:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 10px 30px #dcefe2;
+    }
+
+    .price {
+      font-size: 1.65rem;
+      margin: 0.3rem 0;
+      color: #0f5536;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+    }
+
+    .voices blockquote {
+      margin: 0;
+      border-left: 3px solid #7eb89a;
+      padding-left: 0.8rem;
+      color: #214336;
+      font-family: 'Crimson Pro', serif;
+      font-size: 1.06rem;
+    }
+
+    .voice-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+    }
+
+    .faq details {
+      border-top: 1px solid var(--line);
+      padding: 0.78rem 0;
+    }
+
+    .faq details:first-of-type {
+      border-top: 0;
+      padding-top: 0;
+    }
+
+    .faq summary {
+      cursor: pointer;
+      min-height: 44px;
+      display: flex;
+      align-items: center;
+      font-weight: 600;
+      color: #1a392d;
+    }
+
+    .ritual {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.7rem;
+      align-items: center;
+      margin-top: 1rem;
+    }
+
+    button {
+      background: var(--accent);
+      border: 1px solid var(--accent);
+      color: #ffffff;
+      border-radius: 999px;
+      min-height: 44px;
+      padding: 0.55rem 1rem;
+      font-weight: 600;
+    }
+
+    button:hover,
+    button:focus-visible {
+      background: var(--accent-deep);
+      border-color: var(--accent-deep);
+    }
+
+    #ritualStatus {
+      color: #255240;
+      font-size: 0.95rem;
+      margin: 0;
+    }
+
+    .rewind .hero h2 {
+      color: #0f603d;
+    }
+
+    .rewind .card {
+      box-shadow: 0 12px 45px #cae8d5;
+    }
+
+    footer {
+      color: #355847;
+      font-size: 0.9rem;
+      padding: 0.3rem 0 0.7rem;
+    }
+
+    @media (max-width: 980px) {
+      .shell {
+        grid-template-columns: 1fr;
+      }
+
+      .sidebar {
+        border-right: 0;
+        border-bottom: 1px solid var(--line);
+      }
+
+      .menu {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      .plan-list {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (max-width: 700px) {
+      .ops-grid,
+      .voice-grid,
+      .menu {
+        grid-template-columns: 1fr;
+      }
+
+      .hero h2 {
+        max-width: 100%;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="shell">
+    <aside class="sidebar reveal">
+      <span class="badge"><i data-lucide="waves"></i> Tide-Locked Since 2013</span>
+      <h1 class="brand">TideCycle<br />Memory Laundry</h1>
+      <p class="founder">
+        I am Mara Kline. Former marina seamstress. Current stain surgeon for thoughts you regret.
+      </p>
+      <nav class="menu" aria-label="Main">
+        <a href="#menu"><i data-lucide="clipboard-list"></i> Tonight's Tide Menu</a>
+        <a href="#plans"><i data-lucide="badge-dollar-sign"></i> Subscriptions</a>
+        <a href="#voices"><i data-lucide="message-circle-heart"></i> Client Notes</a>
+        <a href="#faq"><i data-lucide="help-circle"></i> Questions</a>
+      </nav>
+      <p class="tiny">
+        Tuesdays run backward. If you submit a memory on Tuesday, it arrives folded into Monday with a mint.
+      </p>
+    </aside>
+
+    <main>
+      <section class="card hero reveal" id="menu">
+        <h2>Hand me your worst Tuesday. I can press it flat.</h2>
+        <p>
+          We wash one memory per cycle in tide-matched solvent. Menu changes when the moon moves. Nothing is deleted.
+          We only remove the itch.
+        </p>
+        <div class="pulse-line"><i data-lucide="moon-star"></i> High tide special: "That thing you said in 2019"</div>
+        <div class="ritual">
+          <button id="rewindBtn" type="button">Run Tuesday in Reverse</button>
+          <p id="ritualStatus">Protocol idle. Clocks facing forward.</p>
+        </div>
+      </section>
+
+      <section class="card ops-grid reveal" aria-label="Services">
+        <article>
+          <h3>Cold Wash: Social Mistakes</h3>
+          <p>
+            For accidental "you too, love you" moments. Includes lint trap report and one dignity packet.
+          </p>
+        </article>
+        <article>
+          <h3>Steam Press: Ex Encounters</h3>
+          <p>
+            Turns sharp edges into museum glass. Side effect: sudden interest in pottery and practical shoes.
+          </p>
+        </article>
+        <article>
+          <h3>Salt Rinse: Family Group Chats</h3>
+          <p>
+            Removes political residue without harming your aunt's lemon bar recipe.
+          </p>
+        </article>
+        <article>
+          <h3>Emergency Spin: Public Speaking</h3>
+          <p>
+            For weddings, pitches, and funerals where you said "synergy" out loud. 12-minute turnaround.
+          </p>
+        </article>
+      </section>
+
+      <section class="card plans reveal" id="plans">
+        <h3>Monthly Plans</h3>
+        <p>Pick by how often your past bites your ankle.</p>
+        <div class="plan-list">
+          <article class="plan">
+            <h3>Rinse</h3>
+            <p class="price">$47.99/mo</p>
+            <p>2 memory cycles, tide alerts, and one emergency Tuesday rollback per quarter.</p>
+          </article>
+          <article class="plan">
+            <h3>Delicate</h3>
+            <p class="price">$89.50/mo</p>
+            <p>5 cycles, priority moon windows, plus "scent of closure" add-on at cost.</p>
+          </article>
+          <article class="plan">
+            <h3>Industrial</h3>
+            <p class="price">$161.00/mo</p>
+            <p>Unlimited cycles. I call you directly when I sense a Thursday forming inside Tuesday.</p>
+          </article>
+        </div>
+      </section>
+
+      <section class="card voices reveal" id="voices">
+        <h3>Client Notes Left On My Counter</h3>
+        <div class="voice-grid">
+          <blockquote>
+            "Mara removed my memory of waving at someone who wasn't waving at me. I can grocery shop again."
+            <br />- Dorian L., ferry accountant
+          </blockquote>
+          <blockquote>
+            "I bought Industrial after my seventh best-man speech. She returned my confidence and my cufflinks."
+            <br />- Neal P., recurring groom's friend
+          </blockquote>
+        </div>
+      </section>
+
+      <section class="card faq reveal" id="faq">
+        <h3>Questions I Hear While Folding Time</h3>
+        <details>
+          <summary>Is this legal?</summary>
+          <p>
+            In 23 states, yes. In 9 states, spiritually yes. In the rest, we call it "textile-adjacent emotional care."
+          </p>
+        </details>
+        <details>
+          <summary>Will I forget people I love?</summary>
+          <p>
+            No. Love is protein. We remove only the sauce.
+          </p>
+        </details>
+        <details>
+          <summary>Why does Tuesday move backwards?</summary>
+          <p>
+            A leak in Bay 3 met a lunar pull in 2016. I patched the wall and kept the miracle.
+          </p>
+        </details>
+      </section>
+
+      <footer>
+        TideCycle Memory Laundry, Pier 11 Annex. Open late, closed during eclipses and landlord inspections.
+      </footer>
+    </main>
+  </div>
+
+  <script src="/assets/js/gsap.min.js"></script>
+  <script src="/assets/js/lucide.min.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      if (window.lucide && typeof window.lucide.createIcons === 'function') {
+        window.lucide.createIcons();
+      }
+
+      var revealEls = document.querySelectorAll('.reveal');
+      revealEls.forEach(function (el, idx) {
+        if (window.gsap) {
+          gsap.fromTo(
+            el,
+            { y: 24, opacity: 0 },
+            { y: 0, opacity: 1, duration: 1.1, delay: idx * 0.12, ease: 'power2.out', clearProps: 'opacity,transform' }
+          );
+        }
+      });
+
+      var btn = document.getElementById('rewindBtn');
+      var status = document.getElementById('ritualStatus');
+      var rewound = false;
+
+      if (btn && status) {
+        btn.addEventListener('click', function () {
+          rewound = !rewound;
+          document.body.classList.toggle('rewind', rewound);
+          status.textContent = rewound
+            ? 'Protocol active. Tuesday now exits through Monday.'
+            : 'Protocol idle. Clocks facing forward.';
+        });
+      }
+    });
+  </script>
+</body>
+</html>

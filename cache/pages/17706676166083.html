@@ -1,0 +1,537 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>BRINE/LOGIC Systems</title>
+  <link rel="stylesheet" href="/assets/css/pico.min.css" />
+  <link rel="stylesheet" href="/assets/css/fonts.css" />
+  <style>
+    :root {
+      --deep-blue: #0d1b63;
+      --purple: #5a2ca0;
+      --coral: #ff5f6d;
+      --gold: #f7b538;
+      --ink: #050814;
+      --paper: #fff5e8;
+      --light: #f7f9ff;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      background:
+        radial-gradient(circle at 10% 10%, #ff5f6d 0%, transparent 35%),
+        radial-gradient(circle at 90% 20%, #f7b538 0%, transparent 35%),
+        radial-gradient(circle at 40% 80%, #6e35b6 0%, transparent 40%),
+        linear-gradient(170deg, #0b1651 0%, #090f2d 100%);
+      color: var(--light);
+      font-family: 'Space Grotesk', sans-serif;
+      min-height: 100vh;
+      line-height: 1.15;
+    }
+
+    main {
+      width: min(980px, 94vw);
+      margin: 1.25rem auto 2rem;
+      display: grid;
+      gap: 1rem;
+    }
+
+    .slab {
+      border: 3px solid #111;
+      background: rgba(13, 27, 99, 0.95);
+      box-shadow: 8px 8px 0 #000;
+      padding: 1rem;
+    }
+
+    .light {
+      background: var(--paper);
+      color: #0c0f17;
+      border-color: #0c0f17;
+    }
+
+    .gold {
+      background: var(--gold);
+      color: #111;
+      border-color: #111;
+    }
+
+    .coral {
+      background: var(--coral);
+      color: #12070a;
+      border-color: #12070a;
+    }
+
+    .purple {
+      background: var(--purple);
+      color: #fff;
+      border-color: #fff;
+    }
+
+    nav {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.75rem;
+    }
+
+    nav ul {
+      display: flex;
+      flex-wrap: wrap;
+      list-style: none;
+      padding: 0;
+      margin: 0;
+      gap: 0.45rem;
+    }
+
+    nav a,
+    button,
+    [role="button"] {
+      border: 2px solid currentColor;
+      background: transparent;
+      color: inherit;
+      text-decoration: none;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      padding: 0.45rem 0.65rem;
+      border-radius: 0;
+      cursor: pointer;
+    }
+
+    button:hover,
+    nav a:hover,
+    [role="button"]:hover {
+      transform: translate(-2px, -2px);
+      box-shadow: 4px 4px 0 #000;
+    }
+
+    h1, h2, h3, h4, .mega {
+      margin: 0;
+      font-family: 'Playfair Display', serif;
+      text-transform: uppercase;
+      line-height: 0.95;
+    }
+
+    h1 { font-size: clamp(2.8rem, 11vw, 7.8rem); }
+    h2 { font-size: clamp(1.8rem, 6.2vw, 4rem); }
+    h3 { font-size: clamp(1.2rem, 4vw, 2rem); }
+    .mega { font-size: clamp(2.2rem, 9.3vw, 6rem); }
+
+    .tiny {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 0.8rem;
+      line-height: 1.35;
+      font-weight: 700;
+      text-transform: uppercase;
+    }
+
+    .grid-2 {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 1rem;
+    }
+
+    .panels {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+      gap: 0.7rem;
+    }
+
+    .ticker {
+      overflow: hidden;
+      white-space: nowrap;
+      border-top: 2px solid #000;
+      border-bottom: 2px solid #000;
+      padding: 0.4rem 0;
+    }
+
+    .ticker-track {
+      display: inline-block;
+      min-width: 100%;
+      animation: drift 16s linear infinite;
+      font-weight: 900;
+      color: #0a0d14;
+    }
+
+    @keyframes drift {
+      from { transform: translateX(0); }
+      to { transform: translateX(-50%); }
+    }
+
+    .chart {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 0.4rem;
+      align-items: end;
+      height: 190px;
+      border: 2px solid #111;
+      padding: 0.4rem;
+      background: #fff;
+    }
+
+    .bar {
+      border: 2px solid #111;
+      background: linear-gradient(180deg, #ff5f6d 0%, #5a2ca0 100%);
+      min-height: 10%;
+      transition: height 240ms ease;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 0.78rem;
+      background: #fff;
+      color: #111;
+    }
+
+    th, td {
+      border: 2px solid #111;
+      padding: 0.35rem;
+      text-align: left;
+      font-weight: 700;
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      border: 2px solid #111;
+      padding: 0.2rem 0.4rem;
+      background: #fff;
+      color: #111;
+      font-family: 'IBM Plex Mono', monospace;
+      font-weight: 700;
+      font-size: 0.75rem;
+    }
+
+    .hero-copy p,
+    p,
+    li,
+    label,
+    small,
+    summary,
+    input,
+    select {
+      color: inherit;
+      opacity: 1;
+      font-weight: 700;
+    }
+
+    input[type="range"],
+    input[type="text"] {
+      width: 100%;
+      margin: 0.35rem 0;
+      border: 2px solid currentColor;
+      background: #fff;
+      color: #111;
+      padding: 0.3rem;
+      border-radius: 0;
+    }
+
+    .price {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(1.9rem, 5vw, 3.2rem);
+      font-weight: 900;
+    }
+
+    .footnotes {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 0.72rem;
+      line-height: 1.35;
+      border-top: 2px dashed #111;
+      padding-top: 0.5rem;
+      margin-top: 0.8rem;
+    }
+
+    .accordion-item {
+      border: 2px solid #111;
+      margin-bottom: 0.45rem;
+      background: #fff;
+      color: #111;
+      padding: 0.45rem;
+    }
+
+    .accordion-item summary {
+      cursor: pointer;
+      font-weight: 900;
+    }
+
+    .kpi {
+      background: #fff;
+      color: #111;
+      border: 2px solid #111;
+      padding: 0.5rem;
+    }
+
+    .muted-block {
+      background: #111;
+      color: #fff;
+      border: 2px solid #fff;
+      padding: 0.6rem;
+    }
+
+    .pulse {
+      animation: pulse 1.8s ease-in-out infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.03); }
+    }
+
+    @media (min-width: 820px) {
+      .grid-2 { grid-template-columns: 1.15fr 0.85fr; }
+    }
+  </style>
+</head>
+<body>
+  <main x-data="controlRoom()">
+    <section class="slab gold" id="top">
+      <nav>
+        <div class="tiny"><strong>BRINE/LOGIC SYSTEMS</strong> :: CONTINUOUS JAZZ INFRASTRUCTURE</div>
+        <ul>
+          <li><a href="#ops">Ops</a></li>
+          <li><a href="#pricing">Plans</a></li>
+          <li><a href="#proof">Proof</a></li>
+          <li><a href="#faq">Policy</a></li>
+        </ul>
+      </nav>
+    </section>
+
+    <section class="slab coral hero-copy" id="ops">
+      <div class="badge"><i data-lucide="waves"></i> LIVE SINCE 03:17 UTC</div>
+      <h1>Memory-Lite Thinking for Heavy Water Decisions</h1>
+      <p class="tiny">We design startup-grade product direction, compliance rhythm, and board-level intuition for aquatic teams that prioritize velocity over recollection.</p>
+      <div class="panels" style="margin-top:0.8rem">
+        <div class="kpi">
+          <div class="tiny">Current Tempo</div>
+          <div class="mega" x-text="tempo + ' BPM'"></div>
+        </div>
+        <div class="kpi">
+          <div class="tiny">Forgetting Rate</div>
+          <div class="mega" x-text="forgetRate + '%'"></div>
+        </div>
+        <div class="kpi">
+          <div class="tiny">Viable Pivots</div>
+          <div class="mega" x-text="pivots"></div>
+        </div>
+      </div>
+      <div class="footnotes">Footnote A: Service windows are synced to trumpet solos. Footnote B: All strategic notes self-expire every 11 minutes by design.</div>
+    </section>
+
+    <section class="slab light ticker" aria-label="live tape">
+      <div class="ticker-track" :style="`animation-duration:${tickerSpeed}s`">
+        QBR REHEARSAL COMPLETE • STAGE LATENCY 11MS • SEAWEED INDEX +4.9% • MEMORY CACHE REFILLED • ACOUSTIC RISK LOW • BOARDROOM TUBA VERIFIED • QBR REHEARSAL COMPLETE • STAGE LATENCY 11MS • SEAWEED INDEX +4.9% • MEMORY CACHE REFILLED • ACOUSTIC RISK LOW • BOARDROOM TUBA VERIFIED •
+      </div>
+    </section>
+
+    <section class="grid-2">
+      <article class="slab purple pulse">
+        <h2>Operator Console</h2>
+        <p class="tiny">Direct manipulation layer for live cognition management.</p>
+
+        <label for="tempo">Band Tempo Governor</label>
+        <input id="tempo" type="range" min="78" max="202" x-model="tempo" @input="retune()" />
+
+        <label for="name">Shift Alias</label>
+        <input id="name" type="text" x-model="alias" placeholder="Enter alias" />
+
+        <div class="panels">
+          <button @click="memorySafe = !memorySafe" x-text="memorySafe ? 'Memory Lock: ON' : 'Memory Lock: OFF'"></button>
+          <button @click="spawnInsight()">Generate Insight Packet</button>
+          <button @click="pivots++">Approve Emergency Pivot</button>
+          <button @click="forgetRate = Math.max(4, forgetRate - 3)">Reduce Forgetting</button>
+        </div>
+
+        <p class="muted-block" style="margin-top:0.65rem">
+          Active Packet: <strong x-text="packet"></strong><br />
+          Duty Name: <strong x-text="alias || 'UNASSIGNED' "></strong><br />
+          Next Synchronization in: <strong x-text="syncClock + 's'"></strong>
+        </p>
+      </article>
+
+      <article class="slab light">
+        <h3>Signal Compression Forecast</h3>
+        <div class="chart" role="img" aria-label="compression levels over seven blocks">
+          <template x-for="(h, i) in bars" :key="i">
+            <div class="bar" :style="`height:${h}%`" :title="'Block ' + (i + 1) + ': ' + h + '%'" @click="bars[i]=Math.min(100, bars[i]+8)"></div>
+          </template>
+        </div>
+        <div class="panels" style="margin-top:0.6rem">
+          <button @click="shuffleBars()">Recompute Graph</button>
+          <button @click="bars = bars.map(v => Math.max(12, v-12))">Drain Volatility</button>
+        </div>
+      </article>
+    </section>
+
+    <section class="slab gold" id="pricing">
+      <h2>Program Tiers</h2>
+      <div class="tiny">Billing unit: one rehearsal cycle. Taxes include reeds, brass polish, and emergency whiteboards.</div>
+      <div class="panels" style="margin-top:0.7rem">
+        <button @click="annual=false">Monthly Terms</button>
+        <button @click="annual=true">Annual Terms</button>
+      </div>
+      <div class="grid-2" style="margin-top:0.75rem">
+        <div class="slab light">
+          <h3>Dockside Starter</h3>
+          <div class="price" x-text="annual ? '$390' : '$39'"></div>
+          <p class="tiny" x-text="annual ? 'per month billed yearly' : 'per month'"></p>
+          <ul>
+            <li>3 Decision currents</li>
+            <li>12 memory checkpoints</li>
+            <li>Baseline saxophone continuity</li>
+          </ul>
+        </div>
+        <div class="slab coral">
+          <h3>Abyss Enterprise</h3>
+          <div class="price" x-text="annual ? '$1490' : '$149'"></div>
+          <p class="tiny" x-text="annual ? 'per month billed yearly' : 'per month'"></p>
+          <ul>
+            <li>Unlimited strategic loops</li>
+            <li>Executive trumpet redundancy</li>
+            <li>Priority amnesia recovery desk</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <section class="slab light" id="proof">
+      <h2>Operational Ledger</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>Tank</th>
+            <th>Product Line</th>
+            <th>Recall Window</th>
+            <th>Band Section</th>
+            <th>Margin</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td>North Glass</td><td>Compliance Beacons</td><td>08:40</td><td>Brass</td><td>41%</td></tr>
+          <tr><td>Pelagic Lab</td><td>Prototype Currents</td><td>05:15</td><td>Piano</td><td>52%</td></tr>
+          <tr><td>Harbor Annex</td><td>Customer Echo Desk</td><td>11:05</td><td>Bass</td><td>33%</td></tr>
+          <tr><td>Delta Pod</td><td>Policy Linting</td><td>07:22</td><td>Drums</td><td>47%</td></tr>
+        </tbody>
+      </table>
+      <div class="panels" style="margin-top:0.65rem">
+        <div class="badge"><i data-lucide="clock-3"></i> UTC <span x-text="clock"></span></div>
+        <div class="badge"><i data-lucide="activity"></i> LIVE QUERIES <span x-text="queries"></span></div>
+        <div class="badge"><i data-lucide="fish"></i> THINKERS ONLINE <span x-text="thinkers"></span></div>
+      </div>
+    </section>
+
+    <section class="slab purple">
+      <h2>Client Statements</h2>
+      <p class="tiny" x-text="testimonial"></p>
+      <button @click="rotateTestimonial()">Load Another Statement</button>
+      <div class="footnotes">Filed with Internal Harmony Board, signatures archived in waterproof ink.</div>
+    </section>
+
+    <section class="slab light" id="faq">
+      <h2>Policy + Questions</h2>
+      <details class="accordion-item" open>
+        <summary>Do you provide 24/7 live accompaniment?</summary>
+        <p>Yes. Performance continuity is contractual, including holidays, audits, and merger talks.</p>
+      </details>
+      <details class="accordion-item">
+        <summary>How do you protect strategic memory?</summary>
+        <p>We rotate summaries through laminated cue cards every cycle and enforce timed recall drills.</p>
+      </details>
+      <details class="accordion-item">
+        <summary>Can teams self-host the rehearsal core?</summary>
+        <p>Enterprise clients can deploy private stages with mirrored notation and isolated rhythm buses.</p>
+      </details>
+      <details class="accordion-item">
+        <summary>What if we need instant clarity before board calls?</summary>
+        <p>Trigger the red clarinet protocol in your console for a five-minute executive recap.</p>
+      </details>
+    </section>
+
+    <footer class="slab gold tiny">
+      <div>BRINE/LOGIC SYSTEMS · Basin 4, Exchange Wharf · Compliance ref: JAZZ-ALWAYS-1</div>
+      <div style="margin-top:0.35rem">Legal notice: Outcomes vary by salinity, tempo variance, and executive hydration.</div>
+      <div style="margin-top:0.35rem"><a href="#top">Return to Surface</a></div>
+    </footer>
+  </main>
+
+  <script defer src="/assets/js/alpine.min.js"></script>
+  <script src="/assets/js/gsap.min.js"></script>
+  <script src="/assets/js/lucide.min.js"></script>
+  <script>
+    function controlRoom() {
+      return {
+        tempo: 126,
+        tickerSpeed: 16,
+        forgetRate: 37,
+        pivots: 19,
+        memorySafe: true,
+        alias: '',
+        packet: 'INITIALIZING',
+        annual: false,
+        syncClock: 44,
+        queries: 908,
+        thinkers: 64,
+        bars: [48, 62, 33, 74, 59, 41, 68],
+        clock: '--:--:--',
+        testimonials: [
+          '"Our launch cadence finally matched our horn section. Churn dropped in two tides." — Marina, COO, Delta Pod Foods',
+          '"The executive recap cards saved a financing round and a wedding anniversary." — Ilan, Founder, FoamGrid',
+          '"I forgot the old process and revenue went up immediately." — Petra, Ops Lead, Tideframe',
+          '"Their rehearsal-backed forecasting is the only dashboard our board trusts." — Noor, Chair, North Glass Transport'
+        ],
+        testimonial: '"Our launch cadence finally matched our horn section. Churn dropped in two tides." — Marina, COO, Delta Pod Foods',
+        retune() {
+          this.tickerSpeed = Math.max(6, Math.round(28 - this.tempo / 8));
+          this.forgetRate = Math.min(94, Math.max(4, Math.round(66 - this.tempo / 2)));
+        },
+        shuffleBars() {
+          this.bars = this.bars.map(() => Math.floor(18 + Math.random() * 78));
+        },
+        spawnInsight() {
+          var bank = [
+            'CLARINET RISK OFFSET READY',
+            'BOARD BRIEF AUTO-COMPILED',
+            'MARKET WALTZ DETECTED',
+            'RECALL INDEX STABILIZED',
+            'PIVOT ROUTE CONFIRMED'
+          ];
+          this.packet = bank[Math.floor(Math.random() * bank.length)];
+        },
+        rotateTestimonial() {
+          this.testimonial = this.testimonials[Math.floor(Math.random() * this.testimonials.length)];
+        },
+        tick() {
+          var now = new Date();
+          this.clock = now.toLocaleTimeString('en-US', { hour12: false });
+          this.syncClock = this.syncClock <= 0 ? 44 : this.syncClock - 1;
+          this.queries += Math.floor(Math.random() * 4);
+          this.thinkers += Math.random() > 0.8 ? 1 : 0;
+          if (this.thinkers > 99) this.thinkers = 61;
+          if (Math.random() > 0.75) this.bars[Math.floor(Math.random() * this.bars.length)] = Math.floor(20 + Math.random() * 76);
+        },
+        init() {
+          this.retune();
+          this.tick();
+          setInterval(() => this.tick(), 1000);
+          gsap.from('main > section, main > footer, main > article', {
+            y: 28,
+            opacity: 0,
+            duration: 0.65,
+            stagger: 0.08,
+            ease: 'power2.out'
+          });
+          if (window.lucide && window.lucide.createIcons) {
+            window.lucide.createIcons();
+          }
+        }
+      };
+    }
+  </script>
+</body>
+</html>

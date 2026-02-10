@@ -1,0 +1,715 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>The Whisker Ledger | Hygro-Corporate Bulletin</title>
+  <link rel="stylesheet" href="/assets/css/pico.min.css" />
+  <link rel="stylesheet" href="/assets/css/fonts.css" />
+  <script defer src="/assets/js/alpine.min.js"></script>
+  <script defer src="/assets/js/lucide.min.js"></script>
+  <script defer src="/assets/js/gsap.min.js"></script>
+  <style>
+    :root {
+      --ink: #0a0a0a;
+      --paper: #f6f1e8;
+      --night: #111111;
+      --line: #000000;
+      --accent: #ff1a3d;
+      --cream: #fffaf0;
+    }
+
+    * { box-sizing: border-box; }
+
+    html, body {
+      margin: 0;
+      padding: 0;
+      background: var(--paper);
+      color: var(--ink);
+      font-family: 'Space Grotesk', sans-serif;
+      scroll-snap-type: y mandatory;
+      scroll-behavior: smooth;
+    }
+
+    h1, h2, h3, h4 {
+      font-family: 'Crimson Pro', serif;
+      letter-spacing: 0.01em;
+      margin-top: 0;
+      color: inherit;
+    }
+
+    p, li, small, strong, em, label, summary, input, button, select, option {
+      color: inherit;
+    }
+
+    .slide {
+      min-height: 100vh;
+      scroll-snap-align: start;
+      border-top: 4px double var(--line);
+      padding: clamp(1rem, 2vw, 2rem);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .ornament {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      background-image:
+        radial-gradient(circle at 10% 10%, rgba(255,26,61,0.12) 0, rgba(255,26,61,0) 22%),
+        radial-gradient(circle at 88% 18%, rgba(255,26,61,0.1) 0, rgba(255,26,61,0) 19%),
+        linear-gradient(to right, rgba(0,0,0,0.07) 1px, transparent 1px),
+        linear-gradient(to bottom, rgba(0,0,0,0.07) 1px, transparent 1px);
+      background-size: auto, auto, 24px 24px, 24px 24px;
+    }
+
+    .night {
+      background: var(--night);
+      color: #ffffff;
+      border-color: #ffffff;
+    }
+
+    .night .ad,
+    .night .card,
+    .night .strip,
+    .night .paper-box {
+      background: #1a1a1a;
+      border-color: #ffffff;
+      color: #ffffff;
+    }
+
+    .masthead {
+      border: 4px double currentColor;
+      padding: 1rem;
+      display: grid;
+      gap: 0.8rem;
+      position: relative;
+      z-index: 2;
+      background: rgba(246,241,232,0.94);
+    }
+
+    .night .masthead { background: rgba(17,17,17,0.94); }
+
+    .topline {
+      display: flex;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 0.5rem 1rem;
+      border-bottom: 2px solid currentColor;
+      padding-bottom: 0.4rem;
+      font-weight: 700;
+      font-size: 0.84rem;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+    }
+
+    .brand {
+      display: grid;
+      grid-template-columns: auto 1fr auto;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    .brand h1 {
+      font-size: clamp(2rem, 6vw, 5rem);
+      margin: 0;
+      line-height: 0.9;
+      text-transform: uppercase;
+      text-wrap: balance;
+    }
+
+    .tag {
+      font-size: 0.9rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.07em;
+      padding: 0.3rem 0.55rem;
+      border: 2px solid var(--accent);
+      color: var(--accent);
+      background: #ffffff;
+    }
+
+    .night .tag {
+      background: #0f0f0f;
+      color: var(--accent);
+    }
+
+    .navrow {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      margin-top: 0.3rem;
+    }
+
+    .pill {
+      border: 2px solid currentColor;
+      background: transparent;
+      color: inherit;
+      padding: 0.35rem 0.7rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      font-size: 0.78rem;
+      cursor: pointer;
+    }
+
+    .pill[aria-current="true"], .pill:hover {
+      background: var(--accent);
+      border-color: var(--accent);
+      color: #ffffff;
+    }
+
+    .grid-hero {
+      display: grid;
+      grid-template-columns: minmax(0, 1.7fr) minmax(0, 1fr);
+      gap: 1rem;
+      margin-top: 1rem;
+      position: relative;
+      z-index: 2;
+    }
+
+    .lead {
+      border: 3px solid currentColor;
+      padding: 1rem;
+      background: var(--cream);
+    }
+
+    .night .lead { background: #151515; }
+
+    .lead h2 {
+      font-size: clamp(1.6rem, 3.5vw, 3.1rem);
+      line-height: 1;
+      margin-bottom: 0.6rem;
+    }
+
+    .kicker {
+      text-transform: uppercase;
+      font-size: 0.75rem;
+      letter-spacing: 0.08em;
+      font-weight: 800;
+      color: var(--accent);
+      margin-bottom: 0.35rem;
+    }
+
+    .meta {
+      font-size: 0.82rem;
+      font-weight: 700;
+      border-top: 2px solid currentColor;
+      margin-top: 0.8rem;
+      padding-top: 0.45rem;
+    }
+
+    .side-stack { display: grid; gap: 1rem; }
+
+    .card, .ad, .paper-box, .strip {
+      border: 2px solid currentColor;
+      padding: 0.8rem;
+      background: #ffffff;
+    }
+
+    .ad {
+      font-size: 0.94rem;
+      line-height: 1.35;
+      text-transform: uppercase;
+      font-weight: 800;
+    }
+
+    .ad strong {
+      display: block;
+      font-size: 1.3rem;
+      color: var(--accent);
+      line-height: 1;
+      margin: 0.35rem 0;
+    }
+
+    .news-grid {
+      margin-top: 1rem;
+      display: grid;
+      grid-template-columns: repeat(12, minmax(0, 1fr));
+      gap: 1rem;
+      position: relative;
+      z-index: 2;
+    }
+
+    .column {
+      grid-column: span 4;
+      border: 2px solid currentColor;
+      background: #ffffff;
+      padding: 0.9rem;
+    }
+
+    .night .column { background: #171717; }
+
+    .column h3 {
+      font-size: 1.35rem;
+      border-bottom: 2px solid currentColor;
+      padding-bottom: 0.4rem;
+      margin-bottom: 0.7rem;
+    }
+
+    .column article {
+      margin-bottom: 0.9rem;
+      padding-bottom: 0.9rem;
+      border-bottom: 1px solid currentColor;
+    }
+
+    .column article:last-child {
+      margin-bottom: 0;
+      border-bottom: 0;
+      padding-bottom: 0;
+    }
+
+    .quote {
+      border-left: 6px solid var(--accent);
+      padding-left: 0.75rem;
+      font-family: 'Crimson Pro', serif;
+      font-size: 1.28rem;
+      line-height: 1.2;
+      margin: 1rem 0;
+    }
+
+    .filter-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      margin-bottom: 0.8rem;
+      position: relative;
+      z-index: 2;
+    }
+
+    .paper-list {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 0.8rem;
+      position: relative;
+      z-index: 2;
+    }
+
+    .paper-item {
+      border: 2px solid currentColor;
+      background: #ffffff;
+      padding: 0.8rem;
+    }
+
+    .night .paper-item { background: #181818; }
+
+    .paper-item h4 {
+      font-size: 1.2rem;
+      margin-bottom: 0.3rem;
+      line-height: 1.1;
+    }
+
+    .badge {
+      display: inline-block;
+      border: 1px solid currentColor;
+      font-size: 0.7rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      padding: 0.14rem 0.4rem;
+      margin-bottom: 0.45rem;
+      background: var(--accent);
+      color: #ffffff;
+    }
+
+    .byline {
+      font-size: 0.78rem;
+      font-weight: 700;
+      margin-bottom: 0.5rem;
+      text-transform: uppercase;
+    }
+
+    .expand {
+      margin-top: 0.45rem;
+      border: 2px solid currentColor;
+      background: transparent;
+      color: inherit;
+      font-weight: 700;
+      padding: 0.25rem 0.5rem;
+      cursor: pointer;
+    }
+
+    .expand:hover { background: var(--accent); color: #fff; border-color: var(--accent); }
+
+    .pricing {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 0.8rem;
+      margin-top: 1rem;
+      position: relative;
+      z-index: 2;
+    }
+
+    .price-card {
+      border: 3px solid currentColor;
+      background: #ffffff;
+      padding: 1rem;
+    }
+
+    .night .price-card { background: #171717; }
+
+    .price {
+      font-family: 'Crimson Pro', serif;
+      font-size: 2.1rem;
+      line-height: 1;
+      margin: 0.4rem 0;
+      color: var(--accent);
+      font-weight: 800;
+    }
+
+    .faq {
+      columns: 2 19rem;
+      column-gap: 1rem;
+      position: relative;
+      z-index: 2;
+    }
+
+    .faq details {
+      break-inside: avoid;
+      border: 2px solid currentColor;
+      margin-bottom: 0.8rem;
+      padding: 0.6rem;
+      background: #ffffff;
+    }
+
+    .night .faq details { background: #1a1a1a; }
+
+    footer {
+      border-top: 3px double currentColor;
+      padding-top: 1rem;
+      margin-top: 1rem;
+      font-size: 0.88rem;
+      position: relative;
+      z-index: 2;
+    }
+
+    .iconline {
+      display: flex;
+      gap: 0.5rem;
+      align-items: center;
+      flex-wrap: wrap;
+      font-weight: 700;
+      margin-bottom: 0.4rem;
+    }
+
+    @media (max-width: 1100px) {
+      .grid-hero { grid-template-columns: 1fr; }
+      .column { grid-column: span 6; }
+      .paper-list { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .pricing { grid-template-columns: 1fr; }
+    }
+
+    @media (max-width: 760px) {
+      .column { grid-column: span 12; }
+      .paper-list { grid-template-columns: 1fr; }
+      .brand { grid-template-columns: 1fr; }
+      .faq { columns: 1; }
+      .slide { padding: 0.9rem; }
+    }
+  </style>
+</head>
+<body x-data="ledgerApp()">
+  <section class="slide" id="front-page">
+    <div class="ornament"></div>
+    <header class="masthead reveal">
+      <div class="topline">
+        <span>Est. 1898 • Feline Hygrometrics Group, Plc.</span>
+        <span>Issue 7,824 • Printed in Velvet & Steel</span>
+        <span>All departments humidity-audited</span>
+      </div>
+      <div class="brand">
+        <div class="iconline">
+          <i data-lucide="paw-print"></i>
+          <span>Corporate Organ</span>
+        </div>
+        <h1>The Whisker Ledger</h1>
+        <div class="tag">Official Moisture Record</div>
+      </div>
+      <nav class="navrow" aria-label="Primary">
+        <a class="pill" href="#front-page">Front Page</a>
+        <a class="pill" href="#desk">Editorial Desk</a>
+        <a class="pill" href="#market">Plans & Rates</a>
+        <a class="pill" href="#inquiries">Reader Office</a>
+      </nav>
+    </header>
+
+    <div class="grid-hero">
+      <article class="lead reveal">
+        <div class="kicker">Lead Report • Governance</div>
+        <h2>Board Certifies 62% Relative Humidity As "Executive Temperament" Across 14 Cat-Centered Campuses</h2>
+        <p>The quarterly temperament bulletin confirms that teams housed between fern walls and brass cooling towers show 28% fewer hiss-level escalations. The board has renewed the Lace Curtain Protocol, requiring all client meetings to begin with a three-minute ear-flick calibration and a silver-bowl scent check.</p>
+        <div class="quote">"Dry offices make sharp claws. Balanced air makes gentle paws and compliant procurement."</div>
+
+        <div class="filter-row" role="group" aria-label="Edition Switch">
+          <button class="pill" :aria-current="edition==='dawn'" @click="edition='dawn'">Dawn Edition</button>
+          <button class="pill" :aria-current="edition==='night'" @click="edition='night'">Night Edition</button>
+        </div>
+
+        <div x-show="edition==='dawn'" x-transition>
+          <p><strong>Morning Bulletin:</strong> East Atrium now open for sunbeam forecasting. All procurement cats report positive tail posture after replacing steel blinds with velvet vapor shutters.</p>
+        </div>
+        <div x-show="edition==='night'" x-transition>
+          <p><strong>Evening Bulletin:</strong> Nocturnal analytics confirms moonlit mist cycles improve dispute mediation by 17% in legal and yarn-futures divisions.</p>
+        </div>
+
+        <p class="meta">By Meowranda Slate, Senior Atmospheric Correspondent • Verified by Office of Claw Compliance</p>
+      </article>
+
+      <aside class="side-stack reveal" aria-label="Side notes and advertisements">
+        <section class="ad">
+          Sponsored Notice
+          <strong>Velvet Ventworks</strong>
+          Brass ducts. Silent fans. A purr you can hear in your bones.
+        </section>
+        <section class="card">
+          <h3 style="margin-bottom:0.35rem;">Ticker: Moisture Exchange</h3>
+          <p><strong>YARN-WET:</strong> +4.2% after afternoon mist.</p>
+          <p><strong>TIN-MILK:</strong> Stable under palace fog controls.</p>
+          <p><strong>NAP-BOND 10Y:</strong> Rated AAA by Catnip Standard.</p>
+        </section>
+        <section class="ad">
+          Classified Banner
+          <strong>Pawlished Marble Floors</strong>
+          Grip-tested for sprinting interns and ceremonial loafing.
+        </section>
+      </aside>
+    </div>
+  </section>
+
+  <section class="slide night" id="desk">
+    <div class="ornament"></div>
+    <header class="strip reveal">
+      <h2 style="font-size:clamp(1.5rem,3.5vw,2.8rem); margin-bottom:0.45rem;">Editorial Desk & Reader Wire</h2>
+      <p style="margin:0; font-weight:700;">Filter by desk, then open each column for full text. Every brief below was submitted before second nap bell.</p>
+    </header>
+
+    <div class="filter-row reveal" role="group" aria-label="Category Filter">
+      <template x-for="cat in categories" :key="cat">
+        <button class="pill" :aria-current="activeCategory===cat" @click="activeCategory=cat" x-text="cat"></button>
+      </template>
+    </div>
+
+    <div class="paper-list">
+      <template x-for="item in filteredItems()" :key="item.id">
+        <article class="paper-item reveal">
+          <span class="badge" x-text="item.type"></span>
+          <h4 x-text="item.title"></h4>
+          <p class="byline" x-text="item.byline"></p>
+          <p x-text="item.short"></p>
+          <button class="expand" @click="item.open = !item.open" x-text="item.open ? 'Fold Column' : 'Read Full Column'"></button>
+          <p x-show="item.open" x-transition x-text="item.full"></p>
+        </article>
+      </template>
+    </div>
+  </section>
+
+  <section class="slide" id="market">
+    <div class="ornament"></div>
+
+    <div class="news-grid reveal">
+      <section class="column">
+        <h3>Operations Desk</h3>
+        <article>
+          <div class="kicker">Infrastructure</div>
+          <h4>New Steam-Lace Server Hall Opens Under South Conservatory</h4>
+          <p>Racks now draped in anti-static brocade. Engineers report quieter fans and calmer whiskers during uptime drills.</p>
+        </article>
+        <article>
+          <div class="kicker">People</div>
+          <h4>Promotion: Chief Pawformance Officer</h4>
+          <p>Dame Tabitha Coil appointed to supervise stretch breaks, tail ergonomics, and all annual lap-sit reviews.</p>
+        </article>
+        <article>
+          <div class="kicker">Field Report</div>
+          <h4>Warehouse Colony Achieves 99.97% Purr Continuity</h4>
+          <p>Only disruption recorded: ceremonial tuna cake at 14:00 caused collective desk migration.</p>
+        </article>
+      </section>
+
+      <section class="column">
+        <h3>Opinion & Letters</h3>
+        <article>
+          <div class="kicker">Opinion</div>
+          <h4>In Praise of Condensation Etiquette</h4>
+          <p>When droplets gather on brass, so should patience gather in management. Drip rhythm is governance rhythm.</p>
+        </article>
+        <article>
+          <div class="kicker">Letter</div>
+          <h4>"Stop Calling My Team Feral"</h4>
+          <p>To the editor: we are not feral, we are agile. The cardboard architecture team demands an apology.</p>
+        </article>
+        <article>
+          <div class="kicker">Letter</div>
+          <h4>"More Windows, Fewer Spreadsheets"</h4>
+          <p>Sunbeam availability still differs by floor. Finance should not hoard all eastern light.</p>
+        </article>
+      </section>
+
+      <section class="column">
+        <h3>Corrections & Classifieds</h3>
+        <article>
+          <div class="kicker">Correction</div>
+          <h4>Yesterday's Ribbon Length</h4>
+          <p>Edition 7,823 misstated parade ribbon as 40m. Correct measurement: 44m, verified by Tail Unit Surveyors.</p>
+        </article>
+        <article>
+          <div class="kicker">Correction</div>
+          <h4>Title Amendment</h4>
+          <p>Mr. Boots is Assistant Deputy to the Regional Moisture Marshal, not Interim Dampness Clerk.</p>
+        </article>
+        <article>
+          <div class="kicker">Classified</div>
+          <h4>For Rent: Sunlit Filing Nook</h4>
+          <p>Includes scratching post, brass hygrometer, and one ethically sourced lap blanket. Apply by paw print.</p>
+        </article>
+      </section>
+    </div>
+
+    <section class="paper-box reveal" style="margin-top:1rem;">
+      <h3 style="font-size:1.5rem; margin-bottom:0.5rem;">Subscription Tariffs</h3>
+      <p style="margin:0.2rem 0 0.6rem;">Choose billing tempo for your corporate colony.</p>
+      <div class="filter-row">
+        <button class="pill" :aria-current="billing==='monthly'" @click="billing='monthly'">Monthly</button>
+        <button class="pill" :aria-current="billing==='annual'" @click="billing='annual'">Annual</button>
+      </div>
+
+      <div class="pricing">
+        <article class="price-card">
+          <h4>Parlor Plan</h4>
+          <p class="price" x-text="billing==='monthly' ? '$39' : '$390'"></p>
+          <p>One floor humidity profiling, quarterly whisker-readiness memo, and foyer fog tuning.</p>
+        </article>
+        <article class="price-card">
+          <h4>Manor Plan</h4>
+          <p class="price" x-text="billing==='monthly' ? '$129' : '$1290'"></p>
+          <p>Whole-building temperament map, brass vent choreography, and 24/7 pawline support.</p>
+        </article>
+        <article class="price-card">
+          <h4>Cathedral Plan</h4>
+          <p class="price" x-text="billing==='monthly' ? '$349' : '$3490'"></p>
+          <p>Global scent harmonization, treaty-grade dew compliance, and executive litter policy audits.</p>
+        </article>
+      </div>
+    </section>
+  </section>
+
+  <section class="slide night" id="inquiries">
+    <div class="ornament"></div>
+
+    <header class="strip reveal">
+      <h2 style="font-size:clamp(1.5rem,3.5vw,2.8rem); margin-bottom:0.45rem;">Reader Office, Testimonials, and Public Notices</h2>
+      <p style="margin:0; font-weight:700;">All statements notarized by the Guild of Courteous Cats.</p>
+    </header>
+
+    <div class="news-grid" style="margin-top:1rem;">
+      <section class="column reveal" style="grid-column: span 6;">
+        <h3>From Client Houses</h3>
+        <article>
+          <div class="kicker">Testimonial</div>
+          <h4>"Our merger stopped hissing the moment they installed dew drapery."</h4>
+          <p>Lady V. Crookshank, Chair, Marble Pantry Insurance</p>
+        </article>
+        <article>
+          <div class="kicker">Testimonial</div>
+          <h4>"Quarterly earnings call ended early because everyone was already agreeable."</h4>
+          <p>Rook & Paw Semiconductor Trust</p>
+        </article>
+        <article>
+          <div class="kicker">Testimonial</div>
+          <h4>"Their Dampness Marshal resolved a six-year hallway territorial dispute in one afternoon."</h4>
+          <p>North Dock Tuna Exchange</p>
+        </article>
+      </section>
+
+      <section class="column reveal" style="grid-column: span 6;">
+        <h3>Classifieds Continued</h3>
+        <article>
+          <div class="kicker">Classified</div>
+          <h4>Wanted: Senior Lap Compliance Analyst</h4>
+          <p>Must type 90 words per minute while purring and retain composure during surprise laser drills.</p>
+        </article>
+        <article>
+          <div class="kicker">Classified</div>
+          <h4>Estate Sale: Twelve Antique Hygrometers</h4>
+          <p>Polished oak, moderate patina, former property of a retired courthouse mouser.</p>
+        </article>
+        <article>
+          <div class="kicker">Classified</div>
+          <h4>Exchange Offer</h4>
+          <p>Will trade surplus velvet server curtains for first-edition whisker calipers.</p>
+        </article>
+      </section>
+    </div>
+
+    <section class="faq reveal" style="margin-top:1rem;">
+      <details>
+        <summary><strong>Do you service non-feline organizations?</strong></summary>
+        <p>Yes. We provide orientation packets for dog-led, human-led, and mixed-species boards, then translate findings into feline-standard humidity language.</p>
+      </details>
+      <details>
+        <summary><strong>What is the legal humidity threshold for executive suites?</strong></summary>
+        <p>Our legal desk recommends a temperament-safe band between 58% and 64%, adjusted for velvet density and corridor drama.</p>
+      </details>
+      <details>
+        <summary><strong>Can you audit existing HVAC systems?</strong></summary>
+        <p>Absolutely. We retrofit brass crowns, scent-neutral baffles, and paw-friendly vent timing without service interruption.</p>
+      </details>
+      <details>
+        <summary><strong>Is there an emergency line?</strong></summary>
+        <p>Yes: 1-800-PURR-DEW routes directly to overnight marshals trained in boardroom de-escalation and condensation first aid.</p>
+      </details>
+    </section>
+
+    <footer class="reveal">
+      <div class="iconline">
+        <i data-lucide="newspaper"></i>
+        <span>The Whisker Ledger • Property of Feline Hygrometrics Group, Plc.</span>
+      </div>
+      <p><strong>Head Office:</strong> 14 Velvet Switchyard, Brass District, New Albion</p>
+      <p><strong>Reader Mail:</strong> letters@whiskerledger.example • <strong>Press Wire:</strong> pressclaw@fhg.example</p>
+      <p><strong>Public Note:</strong> This publication adheres to the Temperament & Moisture Accountability Act, 1912 revision.</p>
+    </footer>
+  </section>
+
+  <script>
+    function ledgerApp() {
+      return {
+        edition: 'dawn',
+        billing: 'monthly',
+        activeCategory: 'All',
+        categories: ['All', 'Article', 'Opinion', 'Classified', 'Letter', 'Correction'],
+        items: [
+          { id: 1, type: 'Article', title: 'Atrium Mist Protocol Wins Procurement Vote', byline: 'By C. Nib, Governance Desk', short: 'Shareholders approved hourly fern vapor cycles with unanimous paw-raise.', full: 'After three rounds of corridor consultation, every division agreed that measured humidity reduced friction in contract review and increased inter-team loafing harmony.', open: false },
+          { id: 2, type: 'Opinion', title: 'The Moral Case for Brass Water Bowls', byline: 'By Opal Scratch, Opinion', short: 'Ceramic sweats. Brass remembers. Leadership should too.', full: 'A polished bowl is less about optics and more about institutional memory. When teams see care reflected in material choices, compliance becomes a social instinct.', open: false },
+          { id: 3, type: 'Classified', title: 'Seeking Junior Pawprint Archivist', byline: 'People Office', short: 'Catalog ceremonial paw seals by quarter and lint composition.', full: 'Applicants should read cursive claw marks, preserve wax impressions, and maintain strict neutrality during succession disputes.', open: false },
+          { id: 4, type: 'Letter', title: 'To The Editor: Vent Grilles Too Loud', byline: 'Signed, Third Floor Night Shift', short: 'Noise peaks at 02:10 are disrupting tactical naps.', full: 'Please route this to facilities. We support modernization but request quieter grilles and an apology to our senior analyst, who startled mid-dream.', open: false },
+          { id: 5, type: 'Correction', title: 'Milk Reserve Figure Restated', byline: 'Corrections Bureau', short: 'Yesterday listed 12,000 liters; audited total is 12,400 liters.', full: 'The discrepancy came from duplicate counting of ceremonial saucers. We regret the arithmetic and thank the Pantry Oversight Council.', open: false },
+          { id: 6, type: 'Article', title: 'Dockside Office Installs Tide-Synced Humidifiers', byline: 'By R. Pounce, Metro Desk', short: 'Harbor teams report calmer negotiations with synchronized marine vapor.', full: 'The new system mirrors coastal pressure shifts, helping brokers maintain steady tone during fast-moving tuna derivatives and rope imports.', open: false },
+          { id: 7, type: 'Opinion', title: 'Stop Penalizing Midday Sunbeam Attendance', byline: 'By Linette Whisk, Labor Column', short: 'Sunbeam attendance is not loafing; it is neurological maintenance.', full: 'Policy language should recognize thermal regulation as essential work preparation. The data is clear: fewer sunbeams, more corridor arguments.', open: false },
+          { id: 8, type: 'Classified', title: 'For Sale: Walnut Document Ladder', byline: 'Estate Listings', short: 'Claw-friendly treads, two owners, no wobble.', full: 'Ideal for archive rooms and dramatic memo retrieval. Comes with optional felt pads and a brass nameplate.', open: false },
+          { id: 9, type: 'Letter', title: 'Please Add Tuna-Free Meeting Options', byline: 'Signed, Allergic but Loyal', short: 'Commitment to inclusion should extend to luncheon standards.', full: 'Our team proposes rotating menu protocols with clear fish indicators. We remain devoted to company values and wish to breathe normally.', open: false },
+          { id: 10, type: 'Correction', title: 'Title in Sunday Profile', byline: 'Corrections Bureau', short: 'Lady Purl is Deputy Mist Cartographer, not Senior Fog Cartographer.', full: 'The masthead acknowledges the distinction and extends professional respect to both offices.', open: false }
+        ],
+        filteredItems() {
+          if (this.activeCategory === 'All') return this.items;
+          return this.items.filter(i => i.type === this.activeCategory);
+        }
+      };
+    }
+
+    document.addEventListener('DOMContentLoaded', function () {
+      if (window.lucide && typeof window.lucide.createIcons === 'function') {
+        window.lucide.createIcons();
+      }
+
+      if (window.gsap) {
+        gsap.from('.reveal', {
+          y: 20,
+          opacity: 0,
+          duration: 0.7,
+          stagger: 0.06,
+          ease: 'power2.out'
+        });
+      }
+    });
+  </script>
+</body>
+</html>

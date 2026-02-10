@@ -1,0 +1,492 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Emberstack Library & Bakehouse Press</title>
+  <link rel="stylesheet" href="/assets/css/pico.min.css" />
+  <link rel="stylesheet" href="/assets/css/fonts.css" />
+  <style>
+    :root {
+      --coral: #ff6f61;
+      --gold: #ffc857;
+      --purple: #8a4fff;
+      --deep-blue: #0a1338;
+      --ink: #050816;
+      --paper: #fff9ef;
+      --text-light: #f8fbff;
+      --text-dark: #110f18;
+      --line: #ffdca6;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html,
+    body {
+      margin: 0;
+      min-height: 100%;
+      font-family: 'Space Grotesk', sans-serif;
+      color: var(--text-light);
+      background:
+        radial-gradient(circle at 14% 18%, rgba(255, 111, 97, 0.18), transparent 36%),
+        radial-gradient(circle at 82% 22%, rgba(138, 79, 255, 0.2), transparent 42%),
+        radial-gradient(circle at 38% 78%, rgba(255, 200, 87, 0.13), transparent 38%),
+        linear-gradient(140deg, #070b1f 0%, #0c1c52 56%, #250f3f 100%);
+      overflow-x: hidden;
+    }
+
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      background: repeating-linear-gradient(
+        to bottom,
+        rgba(255, 255, 255, 0.03) 0,
+        rgba(255, 255, 255, 0.03) 1px,
+        transparent 1px,
+        transparent 3px
+      );
+      mix-blend-mode: screen;
+      opacity: 0.45;
+      animation: scan 18s linear infinite;
+    }
+
+    @keyframes scan {
+      from { transform: translateY(0); }
+      to { transform: translateY(8px); }
+    }
+
+    main {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 2.5rem 1rem 4rem;
+      position: relative;
+    }
+
+    .topbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 1rem;
+      margin-bottom: 2rem;
+      padding: 0.7rem 1rem;
+      border: 1px solid rgba(255, 220, 166, 0.5);
+      background: rgba(5, 8, 22, 0.62);
+      backdrop-filter: blur(8px);
+      border-radius: 0.5rem;
+    }
+
+    .brand {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(1.2rem, 1rem + 1vw, 1.8rem);
+      letter-spacing: 0.03em;
+      color: #fff8eb;
+      margin: 0;
+    }
+
+    .topbar nav {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.35rem 0.8rem;
+    }
+
+    .topbar a {
+      color: #ffffff;
+      text-decoration: none;
+      border-bottom: 1px solid transparent;
+      transition: border-color 0.4s ease, color 0.4s ease;
+      font-size: 0.95rem;
+    }
+
+    .topbar a:hover,
+    .topbar a:focus-visible {
+      color: #ffe9bf;
+      border-color: #ffe9bf;
+    }
+
+    .desktop {
+      position: relative;
+      min-height: 68rem;
+      padding-bottom: 8rem;
+    }
+
+    .window {
+      position: absolute;
+      border-radius: 0.65rem;
+      border: 1px solid rgba(255, 220, 166, 0.7);
+      background: rgba(5, 8, 22, 0.82);
+      backdrop-filter: blur(10px);
+      box-shadow:
+        0 24px 45px rgba(0, 0, 0, 0.4),
+        0 0 0 1px rgba(255, 111, 97, 0.17) inset;
+      overflow: hidden;
+      transform-origin: center;
+    }
+
+    .window header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0.55rem 0.8rem;
+      background: linear-gradient(90deg, rgba(255, 111, 97, 0.23), rgba(138, 79, 255, 0.28));
+      border-bottom: 1px solid rgba(255, 220, 166, 0.35);
+    }
+
+    .dotrow {
+      display: flex;
+      gap: 0.35rem;
+    }
+
+    .dot {
+      width: 0.55rem;
+      height: 0.55rem;
+      border-radius: 50%;
+      background: #fff3de;
+      opacity: 0.95;
+    }
+
+    .window h2,
+    .window h3,
+    .window p,
+    .window li,
+    .window small,
+    .window strong,
+    .window label {
+      color: var(--text-light);
+      opacity: 1;
+    }
+
+    .window h2,
+    .window h3 {
+      margin: 0;
+      font-family: 'Playfair Display', serif;
+      letter-spacing: 0.02em;
+    }
+
+    .window .inside {
+      padding: 1rem 1rem 1.2rem;
+    }
+
+    .lead {
+      font-size: clamp(1.2rem, 1rem + 1.8vw, 2.2rem);
+      line-height: 1.2;
+      margin-bottom: 0.8rem;
+      color: #fffef8;
+    }
+
+    .soft {
+      line-height: 1.68;
+      max-width: 57ch;
+      color: #f2f6ff;
+    }
+
+    .w-hero {
+      width: min(62rem, 92vw);
+      left: 2%;
+      top: 1.6rem;
+      transform: rotate(-1.2deg);
+      z-index: 2;
+    }
+
+    .w-hours {
+      width: min(27rem, 90vw);
+      right: 3%;
+      top: 22rem;
+      transform: rotate(1.7deg);
+      z-index: 5;
+    }
+
+    .w-membership {
+      width: min(34rem, 92vw);
+      left: 9%;
+      top: 33rem;
+      transform: rotate(-2deg);
+      z-index: 4;
+    }
+
+    .w-council {
+      width: min(28rem, 90vw);
+      left: 47%;
+      top: 45rem;
+      transform: rotate(1.1deg);
+      z-index: 6;
+    }
+
+    .w-notes {
+      width: min(23rem, 88vw);
+      left: 2%;
+      top: 58.5rem;
+      transform: rotate(2.5deg);
+      z-index: 3;
+      background: linear-gradient(150deg, rgba(10, 19, 56, 0.95), rgba(42, 17, 66, 0.93));
+    }
+
+    .library-tag {
+      display: inline-block;
+      color: var(--text-dark);
+      background: var(--gold);
+      border: 1px solid #ffeabf;
+      padding: 0.2rem 0.55rem;
+      border-radius: 99px;
+      font-weight: 700;
+      font-size: 0.78rem;
+      letter-spacing: 0.02em;
+      margin-bottom: 0.65rem;
+    }
+
+    .price {
+      font-size: 1.3rem;
+      font-weight: 700;
+      color: #fffef9;
+      margin: 0.4rem 0 0.8rem;
+    }
+
+    .book-list {
+      margin: 0;
+      padding-left: 1.2rem;
+    }
+
+    .book-list li {
+      margin-bottom: 0.65rem;
+      line-height: 1.45;
+    }
+
+    .book-list strong {
+      color: #fff5d8;
+    }
+
+    .cat-quote {
+      border-left: 3px solid var(--coral);
+      margin: 0.85rem 0;
+      padding-left: 0.7rem;
+      color: #fffdfa;
+    }
+
+    .mono {
+      font-family: 'IBM Plex Mono', monospace;
+      letter-spacing: 0.03em;
+      color: #fffbe9;
+      font-size: 0.86rem;
+    }
+
+    button.primary {
+      margin-top: 0.7rem;
+      background: linear-gradient(120deg, var(--coral), var(--purple));
+      border: 1px solid #ffd8ba;
+      color: #fff;
+      font-weight: 700;
+      padding: 0.58rem 0.9rem;
+      cursor: pointer;
+      transition: transform 0.5s ease, box-shadow 0.5s ease;
+    }
+
+    button.primary:hover,
+    button.primary:focus-visible {
+      transform: translateY(-2px);
+      box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.2), 0 10px 22px rgba(255, 111, 97, 0.35);
+    }
+
+    .reveal {
+      margin-top: 0.9rem;
+      padding: 0.75rem;
+      border: 1px solid rgba(255, 220, 166, 0.7);
+      background: rgba(255, 200, 87, 0.12);
+      color: #fffef8;
+    }
+
+    .hover-note {
+      display: inline-block;
+      border-bottom: 1px solid rgba(255, 220, 166, 0.85);
+      transition: letter-spacing 0.6s ease, color 0.6s ease;
+      color: #fff5d9;
+    }
+
+    .hover-note:hover {
+      letter-spacing: 0.08em;
+      color: #ffffff;
+    }
+
+    .quiet {
+      margin-top: 0.35rem;
+      font-size: 0.92rem;
+      color: #fff5df;
+    }
+
+    .footer-note {
+      margin-top: 1rem;
+      color: #fff5d8;
+      font-size: 0.9rem;
+    }
+
+    @media (max-width: 960px) {
+      .desktop {
+        min-height: 0;
+      }
+
+      .window {
+        position: relative;
+        width: 100%;
+        left: auto;
+        right: auto;
+        top: auto;
+        transform: none;
+        margin-bottom: 1rem;
+      }
+
+      .w-hero,
+      .w-hours,
+      .w-membership,
+      .w-council,
+      .w-notes {
+        width: 100%;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <section class="topbar" aria-label="Site navigation">
+      <h1 class="brand">Emberstack Library & Bakehouse Press</h1>
+      <nav>
+        <a href="#collections">Collections</a>
+        <a href="#night">Night Hours</a>
+        <a href="#membership">Membership</a>
+        <a href="#council">Cat Council</a>
+      </nav>
+    </section>
+
+    <section class="desktop" x-data="{ openPass: false }">
+      <article class="window w-hero" id="collections">
+        <header>
+          <div class="dotrow" aria-hidden="true">
+            <span class="dot"></span><span class="dot"></span><span class="dot"></span>
+          </div>
+          <small class="mono">STACK A: RIVAL IMPRINTS</small>
+        </header>
+        <div class="inside">
+          <span class="library-tag">Circulation Desk Open Until Moonset</span>
+          <p class="lead">Two sibling ovens. One city of sleepless readers. Every page traced in wax and resolve.</p>
+          <p class="soft">
+            Our twin bakers publish practical books for hard evenings: how to begin again,
+            how to keep your hands steady, how to forgive the hour. Manuscripts are drafted in crayon
+            at the long tables, proofed under amber lamps, and released by dawn with a warm loaf slip.
+          </p>
+          <ul class="book-list">
+            <li><strong>Volume I, Hearth Discipline:</strong> twelve rituals for mornings that arrive too fast.</li>
+            <li><strong>Volume II, Quiet Crumbs:</strong> a workbook for recovering after public failure.</li>
+            <li><strong>Volume III, The Second Rise:</strong> rebuilding confidence after the first collapse.</li>
+          </ul>
+          <p class="quiet">Current shelf note: <span class="hover-note">"Move slowly enough that your breath can keep up."</span></p>
+        </div>
+      </article>
+
+      <article class="window w-hours" id="night">
+        <header>
+          <div class="dotrow" aria-hidden="true">
+            <span class="dot"></span><span class="dot"></span><span class="dot"></span>
+          </div>
+          <small class="mono">STACK B: NIGHT ACCESS</small>
+        </header>
+        <div class="inside">
+          <h2>After-Hours Reading Pass</h2>
+          <p class="soft">
+            The lamps stay lit for members who need an extra chapter before sleep.
+            A custard bell rings at 01:10 and 03:40. Silence between bells is maintained by the floor cats.
+          </p>
+          <p class="price">$18 / month</p>
+          <button class="primary" type="button" x-on:click="openPass = !openPass" :aria-expanded="openPass.toString()">View Pass Terms</button>
+          <div class="reveal" x-show="openPass" x-transition.opacity.duration.700ms>
+            Includes one annotated loaf card per week, one shelf consult, and overnight borrowing from the Resilience Wing.
+          </div>
+        </div>
+      </article>
+
+      <article class="window w-membership" id="membership">
+        <header>
+          <div class="dotrow" aria-hidden="true">
+            <span class="dot"></span><span class="dot"></span><span class="dot"></span>
+          </div>
+          <small class="mono">STACK C: MEMBERSHIP TIERS</small>
+        </header>
+        <div class="inside">
+          <h2>Reader Plans</h2>
+          <p class="soft"><strong>Lantern Tier</strong> — $9/month. Weekly checkouts and margin coaching in the East Annex.</p>
+          <p class="soft"><strong>Ember Tier</strong> — $24/month. Full archive access, crayon draft studio, loaf credit every Friday.</p>
+          <p class="soft"><strong>Nocturne Tier</strong> — $46/month. Priority reservations, private mezzanine carrel, seasonal binding set.</p>
+          <p class="footer-note">Enrollment windows close on the last dusk of each month.</p>
+        </div>
+      </article>
+
+      <article class="window w-council" id="council">
+        <header>
+          <div class="dotrow" aria-hidden="true">
+            <span class="dot"></span><span class="dot"></span><span class="dot"></span>
+          </div>
+          <small class="mono">STACK D: QUALITY COUNCIL</small>
+        </header>
+        <div class="inside">
+          <h3>Certified by the Feline Review Board</h3>
+          <p class="cat-quote">"If the page cannot survive a paw at midnight, it is not ready for public shelves."</p>
+          <p class="soft">Each title undergoes claw-resistance, nap-duration, and lap-settle testing. Council signatures appear on every spine before circulation.</p>
+          <p class="mono">Current chair: Archivist Miso, 7th winter term.</p>
+        </div>
+      </article>
+
+      <article class="window w-notes">
+        <header>
+          <div class="dotrow" aria-hidden="true">
+            <span class="dot"></span><span class="dot"></span><span class="dot"></span>
+          </div>
+          <small class="mono">STACK E: PATRON NOTES</small>
+        </header>
+        <div class="inside">
+          <p class="cat-quote">"Their workbook sat beside my kitchen light for forty days. I stopped apologizing for starting over."</p>
+          <p class="mono">- R. Molina, Tram Operator</p>
+          <p class="cat-quote">"I borrowed one title, returned with three, and slept through the storm for the first time in years."</p>
+          <p class="mono">- A. Sato, Dock Registrar</p>
+        </div>
+      </article>
+    </section>
+  </main>
+
+  <script defer src="/assets/js/alpine.min.js"></script>
+  <script src="/assets/js/gsap.min.js"></script>
+  <script src="/assets/js/lucide.min.js"></script>
+  <script>
+    window.addEventListener('DOMContentLoaded', function () {
+      if (window.lucide && typeof window.lucide.createIcons === 'function') {
+        window.lucide.createIcons();
+      }
+
+      if (window.gsap) {
+        gsap.from('.window', {
+          opacity: 0,
+          y: 34,
+          duration: 1.8,
+          stagger: 0.22,
+          ease: 'power2.out'
+        });
+
+        gsap.to('.w-hero', {
+          y: '-=8',
+          duration: 5.8,
+          repeat: -1,
+          yoyo: true,
+          ease: 'sine.inOut'
+        });
+
+        gsap.to('.w-council', {
+          y: '+=7',
+          duration: 6.4,
+          repeat: -1,
+          yoyo: true,
+          ease: 'sine.inOut'
+        });
+      }
+    });
+  </script>
+</body>
+</html>

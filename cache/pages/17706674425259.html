@@ -1,0 +1,1040 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Signal Sleep Forecast Bureau</title>
+  <link rel="stylesheet" href="/assets/css/pico.min.css" />
+  <link rel="stylesheet" href="/assets/css/fonts.css" />
+  <style>
+    :root {
+      --paper-0: #f7edd5;
+      --paper-1: #edd9b0;
+      --paper-2: #d8bb87;
+      --ink: #1b120b;
+      --ink-soft: #2a1b11;
+      --night: #2e1e15;
+      --night-2: #473122;
+      --gold: #b88a3b;
+      --carmine: #8e2b20;
+      --moss: #455131;
+      --cream: #fff8ea;
+      --line: #6a4a2a;
+    }
+
+    * { box-sizing: border-box; }
+
+    html, body {
+      margin: 0;
+      padding: 0;
+      width: 100%;
+      height: 100%;
+      scroll-behavior: smooth;
+      background: var(--paper-0);
+      color: var(--ink);
+      font-family: 'Space Grotesk', sans-serif;
+    }
+
+    body {
+      overflow-y: auto;
+      overflow-x: hidden;
+      scroll-snap-type: y mandatory;
+      background-image:
+        radial-gradient(circle at 15% 10%, #fff6de 0 12%, transparent 36%),
+        radial-gradient(circle at 85% 80%, #e7cfa0 0 15%, transparent 38%),
+        linear-gradient(130deg, #f8efdc 0%, #e7d0a4 46%, #d6b47f 100%);
+      background-attachment: fixed;
+    }
+
+    .grain::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      opacity: 0.18;
+      background-image:
+        repeating-linear-gradient(0deg, rgba(44, 28, 16, 0.08) 0 1px, transparent 1px 4px),
+        repeating-linear-gradient(90deg, rgba(44, 28, 16, 0.05) 0 1px, transparent 1px 3px);
+      mix-blend-mode: multiply;
+      z-index: 0;
+    }
+
+    .site {
+      position: relative;
+      z-index: 1;
+    }
+
+    nav.main-nav {
+      position: sticky;
+      top: 0;
+      z-index: 20;
+      backdrop-filter: blur(4px);
+      background: rgba(247, 237, 213, 0.92);
+      border-bottom: 2px solid var(--line);
+      padding: 0.55rem 1rem;
+    }
+
+    .nav-inner {
+      max-width: 1200px;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 0.75rem;
+      align-items: center;
+    }
+
+    .brand {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.55rem;
+      font-weight: 700;
+      color: var(--ink);
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      text-decoration: none;
+      font-size: 0.9rem;
+    }
+
+    .brand i { width: 1rem; height: 1rem; }
+
+    .menu {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+      gap: 0.5rem;
+      list-style: none;
+      margin: 0;
+      padding: 0;
+    }
+
+    .menu a {
+      color: var(--ink);
+      text-decoration: none;
+      border: 1px solid var(--line);
+      padding: 0.22rem 0.6rem;
+      border-radius: 999px;
+      font-size: 0.8rem;
+      font-weight: 700;
+      background: #f5e5c0;
+      transition: transform .2s ease, background .2s ease;
+    }
+
+    .menu a:hover,
+    .menu a:focus-visible {
+      background: #fff2d4;
+      transform: translateY(-2px);
+    }
+
+    .slide {
+      min-height: 100vh;
+      scroll-snap-align: start;
+      position: relative;
+      display: grid;
+      place-items: center;
+      padding: clamp(1rem, 3vw, 2rem);
+      isolation: isolate;
+    }
+
+    .frame {
+      width: min(1200px, 96vw);
+      min-height: min(80vh, 900px);
+      border: 2px solid var(--line);
+      border-radius: 2rem;
+      background: rgba(255, 250, 239, 0.82);
+      box-shadow: inset 0 0 0 1px #fff6df, 0 0.7rem 1.4rem rgba(50, 30, 17, 0.2);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .frame::before,
+    .frame::after {
+      content: "";
+      position: absolute;
+      width: 90px;
+      height: 90px;
+      border: 2px solid var(--line);
+      z-index: 2;
+      pointer-events: none;
+    }
+
+    .frame::before {
+      top: 0.6rem;
+      left: 0.6rem;
+      border-right: 0;
+      border-bottom: 0;
+      clip-path: polygon(0 0, 100% 0, 0 100%);
+      background: linear-gradient(135deg, rgba(184, 138, 59, 0.23), transparent 70%);
+    }
+
+    .frame::after {
+      right: 0.6rem;
+      bottom: 0.6rem;
+      border-left: 0;
+      border-top: 0;
+      clip-path: polygon(100% 100%, 100% 0, 0 100%);
+      background: linear-gradient(-45deg, rgba(142, 43, 32, 0.24), transparent 70%);
+    }
+
+    .hero-grid {
+      height: 100%;
+      display: grid;
+      grid-template-columns: 1.1fr 1fr;
+      gap: 1.1rem;
+      padding: clamp(1rem, 3vw, 2rem);
+      align-items: stretch;
+    }
+
+    .headline {
+      display: grid;
+      align-content: center;
+      gap: 0.85rem;
+      padding: 0.5rem;
+      position: relative;
+      z-index: 3;
+    }
+
+    h1, h2, h3 { font-family: 'Playfair Display', serif; color: var(--ink); }
+
+    h1 {
+      margin: 0;
+      font-size: clamp(2rem, 5vw, 4rem);
+      line-height: 0.95;
+      text-transform: uppercase;
+      letter-spacing: 0.03em;
+      text-wrap: balance;
+    }
+
+    .kicker {
+      margin: 0;
+      font-size: 0.86rem;
+      letter-spacing: 0.14em;
+      font-weight: 700;
+      text-transform: uppercase;
+      color: var(--ink-soft);
+    }
+
+    .lede {
+      margin: 0;
+      max-width: 48ch;
+      color: var(--ink);
+      font-size: 1rem;
+      line-height: 1.45;
+      font-weight: 600;
+    }
+
+    .cta-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.6rem;
+      margin-top: 0.2rem;
+    }
+
+    .btn-crayon {
+      border: 2px solid var(--line);
+      background: #fbe7bf;
+      color: var(--ink);
+      border-radius: 999px;
+      padding: 0.45rem 0.9rem;
+      font-weight: 700;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      transition: transform .22s ease, box-shadow .22s ease, filter .22s ease;
+      box-shadow: 0 0.25rem 0 rgba(76, 50, 30, 0.3);
+    }
+
+    .btn-crayon:hover,
+    .btn-crayon:focus-visible {
+      transform: translateY(-2px) rotate(-1deg);
+      box-shadow: 0 0.4rem 0 rgba(76, 50, 30, 0.34);
+      filter: saturate(1.08);
+    }
+
+    .sky-stage {
+      position: relative;
+      border: 2px solid var(--line);
+      border-radius: 1.3rem;
+      background:
+        radial-gradient(circle at 80% 15%, #fff0c8 0 13%, transparent 32%),
+        linear-gradient(180deg, #4d3121 0%, #593a26 25%, #b0804e 60%, #e6ca96 100%);
+      overflow: hidden;
+      min-height: 420px;
+    }
+
+    .sun {
+      position: absolute;
+      width: 170px;
+      height: 170px;
+      top: 2rem;
+      right: 2rem;
+      border-radius: 50%;
+      background:
+        radial-gradient(circle at 35% 35%, #fffce7 0 22%, #ffd68f 55%, #c97d2d 100%);
+      border: 2px solid rgba(255, 255, 255, 0.7);
+      box-shadow: 0 0 60px rgba(255, 211, 126, 0.6);
+      transition: transform .4s ease, filter .4s ease;
+    }
+
+    .sun::before,
+    .sun::after {
+      content: "";
+      position: absolute;
+      inset: -18px;
+      border-radius: 50%;
+      border: 2px dashed rgba(255, 242, 210, 0.58);
+      animation: spin 20s linear infinite;
+    }
+
+    .sun::after {
+      inset: -30px;
+      animation-direction: reverse;
+      animation-duration: 26s;
+    }
+
+    @keyframes spin { to { transform: rotate(1turn); } }
+
+    .tower-row {
+      position: absolute;
+      inset: auto 0 0 0;
+      height: 58%;
+      display: flex;
+      gap: 0.7rem;
+      align-items: flex-end;
+      justify-content: center;
+      padding: 0.8rem;
+    }
+
+    .tower {
+      width: 14%;
+      min-width: 66px;
+      background: linear-gradient(180deg, #7e5334, #3e2819);
+      clip-path: polygon(50% 0, 92% 10%, 100% 100%, 0 100%, 8% 10%);
+      border: 2px solid #f4ddb3;
+      border-bottom: 0;
+      position: relative;
+      box-shadow: inset 0 0 0 1px rgba(255, 235, 189, 0.35);
+      transform-origin: bottom center;
+      transition: transform .35s ease, filter .35s ease;
+    }
+
+    .tower::before {
+      content: "";
+      position: absolute;
+      width: 48%;
+      height: 14%;
+      left: 26%;
+      top: 18%;
+      border-radius: 999px;
+      border: 2px solid #f4ddb3;
+      background: linear-gradient(180deg, #7f2d20, #4d1b14);
+    }
+
+    .tower:nth-child(1) { height: 42%; }
+    .tower:nth-child(2) { height: 68%; }
+    .tower:nth-child(3) { height: 55%; }
+    .tower:nth-child(4) { height: 76%; }
+    .tower:nth-child(5) { height: 47%; }
+
+    .cloud {
+      position: absolute;
+      border-radius: 999px;
+      background: rgba(255, 246, 223, 0.9);
+      filter: drop-shadow(0 8px 8px rgba(0, 0, 0, 0.14));
+      transition: transform .45s ease;
+    }
+
+    .cloud::before,
+    .cloud::after {
+      content: "";
+      position: absolute;
+      border-radius: 50%;
+      background: inherit;
+    }
+
+    .cloud.c1 { width: 140px; height: 44px; top: 26%; left: 8%; }
+    .cloud.c1::before { width: 54px; height: 54px; left: 12px; top: -24px; }
+    .cloud.c1::after { width: 64px; height: 64px; right: 10px; top: -26px; }
+
+    .cloud.c2 { width: 170px; height: 50px; top: 38%; right: 12%; }
+    .cloud.c2::before { width: 56px; height: 56px; left: 16px; top: -26px; }
+    .cloud.c2::after { width: 70px; height: 70px; right: 12px; top: -30px; }
+
+    .signal-dial {
+      position: absolute;
+      bottom: 1rem;
+      left: 1rem;
+      width: 106px;
+      aspect-ratio: 1;
+      border-radius: 50%;
+      border: 2px solid #fbeac4;
+      background: conic-gradient(var(--carmine) 0 33%, #d6a238 33% 66%, #2b5728 66% 100%);
+      box-shadow: 0 0 0 8px rgba(31, 20, 13, 0.4), 0 0 0 10px #f9e3b5;
+      cursor: pointer;
+      transition: transform .3s ease;
+      z-index: 5;
+    }
+
+    .signal-dial:hover,
+    .signal-dial:focus-visible { transform: rotate(20deg) scale(1.04); }
+
+    .signal-dial::before {
+      content: "";
+      position: absolute;
+      width: 20px;
+      height: 46px;
+      border-radius: 999px;
+      left: calc(50% - 10px);
+      top: calc(50% - 44px);
+      background: #fff8e7;
+      border: 2px solid #2e1e15;
+      transform-origin: 50% 42px;
+      animation: needle 7s steps(3) infinite;
+    }
+
+    @keyframes needle {
+      0%, 32% { transform: rotate(-25deg); }
+      33%, 65% { transform: rotate(0deg); }
+      66%, 100% { transform: rotate(25deg); }
+    }
+
+    .legend {
+      position: absolute;
+      bottom: 1rem;
+      right: 1rem;
+      max-width: 240px;
+      font-size: 0.76rem;
+      background: rgba(255, 248, 233, 0.96);
+      border: 2px solid var(--line);
+      border-radius: 0.8rem;
+      color: #1e140c;
+      padding: 0.5rem 0.6rem;
+      font-weight: 700;
+      line-height: 1.3;
+      z-index: 5;
+    }
+
+    .features-wrap {
+      display: grid;
+      height: 100%;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 0.9rem;
+      padding: clamp(1rem, 3vw, 2rem);
+      align-items: stretch;
+    }
+
+    .feature-card {
+      background: linear-gradient(165deg, #fff5de 0%, #ead1a2 100%);
+      border: 2px solid var(--line);
+      border-radius: 1.2rem;
+      padding: 1rem;
+      position: relative;
+      overflow: hidden;
+      display: grid;
+      align-content: start;
+      gap: 0.6rem;
+      transition: transform .35s ease, box-shadow .35s ease, clip-path .35s ease;
+      box-shadow: 0 0.6rem 1rem rgba(44, 29, 17, 0.18);
+    }
+
+    .feature-card::before {
+      content: "";
+      position: absolute;
+      inset: -22% 50% 66% -30%;
+      background: linear-gradient(125deg, rgba(142, 43, 32, 0.42), rgba(184, 138, 59, 0));
+      transform: rotate(-11deg);
+      pointer-events: none;
+    }
+
+    .feature-card::after {
+      content: "";
+      position: absolute;
+      right: -34px;
+      bottom: -34px;
+      width: 100px;
+      height: 100px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(69, 81, 49, 0.25), transparent 70%);
+      pointer-events: none;
+    }
+
+    .feature-card:hover {
+      transform: translateY(-8px);
+      box-shadow: 0 1rem 1.3rem rgba(44, 29, 17, 0.25);
+      clip-path: polygon(0 0, 96% 0, 100% 8%, 100% 100%, 5% 100%, 0 95%);
+    }
+
+    .feature-icon {
+      width: 42px;
+      height: 42px;
+      border: 2px solid var(--line);
+      border-radius: 0.7rem;
+      display: grid;
+      place-items: center;
+      background: #fff7e5;
+      color: var(--ink);
+    }
+
+    .feature-icon i { width: 22px; height: 22px; }
+
+    .feature-card h3 {
+      margin: 0;
+      font-size: 1.24rem;
+      line-height: 1.1;
+      text-transform: uppercase;
+    }
+
+    .feature-card p {
+      margin: 0;
+      font-size: 0.96rem;
+      color: #23170f;
+      font-weight: 600;
+      line-height: 1.38;
+    }
+
+    .pricing-grid {
+      height: 100%;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.9rem;
+      padding: clamp(1rem, 3vw, 2rem);
+    }
+
+    .ring-scene {
+      position: relative;
+      border: 2px solid var(--line);
+      border-radius: 1.2rem;
+      background: radial-gradient(circle at 50% 70%, #ffefcb 0 17%, #d1ad74 38%, #664025 100%);
+      overflow: hidden;
+    }
+
+    .planet {
+      position: absolute;
+      width: 260px;
+      height: 260px;
+      left: calc(50% - 130px);
+      top: calc(48% - 130px);
+      border-radius: 50%;
+      border: 2px solid #f8e2b2;
+      background:
+        radial-gradient(circle at 30% 25%, #fff8dd 0 18%, #e0bb7f 48%, #8b5a34 100%);
+      box-shadow: inset -20px -22px 40px rgba(0, 0, 0, 0.28);
+      transition: transform .35s ease;
+    }
+
+    .ring {
+      position: absolute;
+      width: 360px;
+      height: 360px;
+      border-radius: 50%;
+      border: 16px solid rgba(255, 226, 174, 0.74);
+      left: calc(50% - 180px);
+      top: calc(48% - 180px);
+      transform: rotateX(70deg);
+      box-shadow: 0 0 0 2px rgba(73, 45, 27, 0.55);
+      transition: transform .5s ease;
+    }
+
+    .pricing-stack {
+      display: grid;
+      align-content: center;
+      gap: 0.85rem;
+    }
+
+    .plan {
+      border: 2px solid var(--line);
+      border-radius: 1rem;
+      background: linear-gradient(145deg, #fff6df, #edd3a3);
+      padding: 0.9rem;
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 0.7rem;
+      align-items: center;
+      transition: transform .28s ease, background .28s ease;
+      cursor: pointer;
+    }
+
+    .plan:hover,
+    .plan:focus-visible {
+      transform: translateX(8px);
+      background: linear-gradient(145deg, #fff8e7, #f2dab0);
+    }
+
+    .plan strong {
+      font-size: 1rem;
+      color: #1d130c;
+      text-transform: uppercase;
+      letter-spacing: .02em;
+    }
+
+    .plan small {
+      display: block;
+      color: #2a1c11;
+      font-weight: 700;
+      font-size: 0.8rem;
+    }
+
+    .pill {
+      border-radius: 999px;
+      border: 2px solid var(--line);
+      padding: 0.2rem 0.56rem;
+      font-weight: 800;
+      background: #fff4db;
+      color: #1a110a;
+      font-size: 0.8rem;
+      white-space: nowrap;
+    }
+
+    .testimonials {
+      height: 100%;
+      display: grid;
+      grid-template-rows: auto 1fr auto;
+      gap: 0.9rem;
+      padding: clamp(1rem, 3vw, 2rem);
+    }
+
+    .marquee {
+      border: 2px solid var(--line);
+      border-radius: 1rem;
+      background: #f8e9c8;
+      overflow: hidden;
+      white-space: nowrap;
+      font-weight: 800;
+      color: #1b120b;
+    }
+
+    .marquee span {
+      display: inline-block;
+      padding: 0.65rem 0;
+      animation: glide 24s linear infinite;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+    }
+
+    @keyframes glide { to { transform: translateX(-50%); } }
+
+    .quote-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 0.9rem;
+    }
+
+    blockquote {
+      margin: 0;
+      border: 2px solid var(--line);
+      border-radius: 1rem;
+      background: #fff6e1;
+      padding: 0.95rem;
+      color: #1f150d;
+      font-weight: 700;
+      line-height: 1.45;
+      min-height: 170px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    blockquote::before {
+      content: "";
+      position: absolute;
+      inset: auto -12% -42% auto;
+      width: 120px;
+      height: 120px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(184, 138, 59, 0.24), transparent 70%);
+      pointer-events: none;
+    }
+
+    cite {
+      display: block;
+      margin-top: 0.55rem;
+      font-style: normal;
+      color: #24170f;
+      font-size: 0.84rem;
+      font-weight: 900;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .faq {
+      border: 2px solid var(--line);
+      border-radius: 1rem;
+      background: #f9ebcb;
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      overflow: hidden;
+    }
+
+    .faq button {
+      margin: 0;
+      border: 0;
+      border-right: 2px solid var(--line);
+      border-radius: 0;
+      background: #f9ebcb;
+      color: #1d130c;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: .03em;
+      min-height: 82px;
+    }
+
+    .faq button:last-child { border-right: 0; }
+
+    .faq button[aria-expanded="true"] {
+      background: #ffecc6;
+      box-shadow: inset 0 0 0 2px #1d130c;
+    }
+
+    .faq-panel {
+      border: 2px solid var(--line);
+      border-radius: 1rem;
+      background: #fff5de;
+      min-height: 86px;
+      display: grid;
+      place-items: center start;
+      padding: 0.9rem;
+      color: #1f140c;
+      font-weight: 700;
+      line-height: 1.4;
+    }
+
+    .dreammode .frame {
+      background: rgba(48, 31, 22, 0.82);
+      border-color: #f4dfba;
+      box-shadow: inset 0 0 0 1px rgba(255, 240, 209, 0.25), 0 0.9rem 1.6rem rgba(28, 15, 9, 0.46);
+    }
+
+    .dreammode h1,
+    .dreammode h2,
+    .dreammode h3,
+    .dreammode .lede,
+    .dreammode .kicker,
+    .dreammode p,
+    .dreammode strong,
+    .dreammode small,
+    .dreammode .brand,
+    .dreammode .menu a,
+    .dreammode blockquote,
+    .dreammode cite,
+    .dreammode .faq button,
+    .dreammode .faq-panel,
+    .dreammode .pill,
+    .dreammode .legend {
+      color: var(--cream);
+    }
+
+    .dreammode .menu a,
+    .dreammode .feature-card,
+    .dreammode .plan,
+    .dreammode blockquote,
+    .dreammode .faq,
+    .dreammode .faq-panel,
+    .dreammode .marquee,
+    .dreammode .legend {
+      background: #3d281c;
+      border-color: #e8cca0;
+    }
+
+    .dreammode nav.main-nav {
+      background: rgba(46, 30, 21, 0.9);
+      border-color: #e8cca0;
+    }
+
+    .dreammode .sky-stage {
+      background:
+        radial-gradient(circle at 78% 20%, #f4d79e 0 11%, transparent 33%),
+        linear-gradient(180deg, #1d1410 0%, #2e1d15 32%, #684429 62%, #ca9a61 100%);
+      border-color: #f0d6a8;
+    }
+
+    .dreammode .btn-crayon {
+      background: #4a2f1f;
+      border-color: #f0d6a8;
+      color: var(--cream);
+      box-shadow: 0 0.25rem 0 rgba(17, 10, 6, 0.65);
+    }
+
+    .dreammode .ring-scene {
+      background: radial-gradient(circle at 50% 72%, #f0d09b 0 16%, #8c643e 39%, #271911 100%);
+      border-color: #e8cca0;
+    }
+
+    .dreammode .faq button[aria-expanded="true"] { box-shadow: inset 0 0 0 2px #f8ebd1; }
+
+    footer {
+      padding: 0.8rem 1rem 1rem;
+      color: #23170f;
+      background: rgba(247, 237, 213, 0.95);
+      border-top: 2px solid var(--line);
+      font-size: 0.78rem;
+      font-weight: 700;
+      text-align: center;
+    }
+
+    .dreammode footer {
+      color: #fff4df;
+      background: rgba(46, 30, 21, 0.94);
+      border-color: #e8cca0;
+    }
+
+    @media (max-width: 980px) {
+      .hero-grid,
+      .pricing-grid,
+      .features-wrap,
+      .quote-grid,
+      .faq {
+        grid-template-columns: 1fr;
+      }
+
+      .faq button { border-right: 0; border-bottom: 2px solid var(--line); }
+      .faq button:last-child { border-bottom: 0; }
+      .hero-grid { min-height: 100%; }
+      .ring-scene { min-height: 330px; }
+      .legend { max-width: 70%; }
+      .menu { justify-content: flex-start; }
+    }
+  </style>
+</head>
+<body x-data="siteState()" :class="{ dreammode: dream }" class="grain">
+  <div class="site">
+    <nav class="main-nav" aria-label="Primary">
+      <div class="nav-inner">
+        <a class="brand" href="#top"><i data-lucide="traffic-cone"></i>Signal Sleep Forecast Bureau</a>
+        <ul class="menu">
+          <li><a href="#sky">Sky Office</a></li>
+          <li><a href="#service">Bulletins</a></li>
+          <li><a href="#rates">Rates</a></li>
+          <li><a href="#dispatch">Dispatches</a></li>
+          <li><a href="#" @click.prevent="toggleDream()">Dream Shift</a></li>
+        </ul>
+      </div>
+    </nav>
+
+    <main id="top">
+      <section class="slide" id="sky">
+        <article class="frame">
+          <div class="hero-grid">
+            <div class="headline">
+              <p class="kicker">Night-Cycle Meteorology Since 1936</p>
+              <h1>Weather Guidance for Signals That Need Rest</h1>
+              <p class="lede">We issue dawn-safe forecasts for intersection beacons, crossing towers, and companion lanterns operating inside shared dream states. Every directive is stamped in crayon and filed before first light.</p>
+              <div class="cta-row">
+                <a class="btn-crayon" href="#service"><i data-lucide="wind"></i>View Live Bulletin</a>
+                <a class="btn-crayon" href="#rates"><i data-lucide="badge-dollar-sign"></i>Secure Coverage</a>
+              </div>
+            </div>
+
+            <div class="sky-stage" id="parallaxStage" aria-label="Animated weather mural">
+              <div class="sun" id="sunDisc"></div>
+              <div class="cloud c1"></div>
+              <div class="cloud c2"></div>
+              <div class="tower-row" id="towerRow">
+                <div class="tower"></div>
+                <div class="tower"></div>
+                <div class="tower"></div>
+                <div class="tower"></div>
+                <div class="tower"></div>
+              </div>
+              <button class="signal-dial" type="button" id="signalDial" aria-label="Shift signal temperament"></button>
+              <div class="legend">Tap the signal dial to rotate temperament: Halt, Caution, Proceed. Forecast colors adapt to lane mood.</div>
+            </div>
+          </div>
+        </article>
+      </section>
+
+      <section class="slide" id="service">
+        <article class="frame">
+          <div class="features-wrap">
+            <article class="feature-card reveal">
+              <div class="feature-icon"><i data-lucide="palette"></i></div>
+              <h3>Crayon Deck No. 9</h3>
+              <p>Forecast maps rendered with wax-layer pressure indexing. Wind shear marks appear in carmine; dream fog appears in moss.</p>
+              <a class="btn-crayon" href="#dispatch">Sample Ledger</a>
+            </article>
+            <article class="feature-card reveal">
+              <div class="feature-icon"><i data-lucide="moon-star"></i></div>
+              <h3>Somnolent Radar</h3>
+              <p>Our night lattice captures storms that exist only when three or more signals sleep in sequence across one municipal block.</p>
+              <a class="btn-crayon" href="#rates">Reserve Slot</a>
+            </article>
+            <article class="feature-card reveal">
+              <div class="feature-icon"><i data-lucide="file-pen-line"></i></div>
+              <h3>Archive Bureau</h3>
+              <p>Certified weather minutes are bound on parchment boards with date-stamped crayon strokes, signed by two shift wardens.</p>
+              <a class="btn-crayon" href="#dispatch">Read Notes</a>
+            </article>
+          </div>
+        </article>
+      </section>
+
+      <section class="slide" id="rates">
+        <article class="frame">
+          <div class="pricing-grid">
+            <div class="ring-scene" aria-hidden="true">
+              <div class="ring" id="ringOrbit"></div>
+              <div class="planet" id="planetCore"></div>
+            </div>
+            <div class="pricing-stack">
+              <h2 style="margin:0; text-transform:uppercase;">Coverage Ledgers</h2>
+              <div class="plan" @mouseenter="selectPlan('Crosswalk')" @focus="selectPlan('Crosswalk')" tabindex="0">
+                <div>
+                  <strong>Crosswalk Dormant</strong>
+                  <small>Single beacon, weekly sleepfront memo, one wax-seal revision.</small>
+                </div>
+                <span class="pill">$19/mo</span>
+              </div>
+              <div class="plan" @mouseenter="selectPlan('Boulevard')" @focus="selectPlan('Boulevard')" tabindex="0">
+                <div>
+                  <strong>Boulevard Dreamline</strong>
+                  <small>Up to six poles, nightly sky sketch, fog correction within two bells.</small>
+                </div>
+                <span class="pill">$74/mo</span>
+              </div>
+              <div class="plan" @mouseenter="selectPlan('Municipal')" @focus="selectPlan('Municipal')" tabindex="0">
+                <div>
+                  <strong>Municipal Constellation</strong>
+                  <small>City block package, rotating crayon boardroom brief, dawn rehearsal.</small>
+                </div>
+                <span class="pill">$188/mo</span>
+              </div>
+              <p style="margin:0; font-weight:700; color:#1f150d;" x-text="planMessage"></p>
+            </div>
+          </div>
+        </article>
+      </section>
+
+      <section class="slide" id="dispatch">
+        <article class="frame">
+          <div class="testimonials">
+            <div class="marquee" aria-label="Current dispatch ribbon">
+              <span>  Dreamfront advisory 04:12  •  lantern humidity nominal  •  intersection choir at 2.1 bells  •  amber gust warning lifted  •  dreamfront advisory 04:12  •  lantern humidity nominal  •  intersection choir at 2.1 bells  •  amber gust warning lifted  •  </span>
+            </div>
+
+            <div class="quote-grid">
+              <blockquote class="reveal">
+                Our downtown mast stopped waking in panic after Bureau routing. The new moon maps are precise and calm.
+                <cite>Marshal T. Vellum, District Signalkeeper</cite>
+              </blockquote>
+              <blockquote class="reveal">
+                We adopted the Boulevard ledger in autumn. Night storms still arrive, but now they queue politely.
+                <cite>North Viaduct Transit Guild</cite>
+              </blockquote>
+              <blockquote class="reveal">
+                Crayon documentation satisfies auditors and poets at once. We renewed for seven cycles.
+                <cite>Bell &amp; Lantern Mutual</cite>
+              </blockquote>
+            </div>
+
+            <div>
+              <div class="faq" role="tablist" aria-label="Service questions">
+                <button type="button" role="tab" :aria-expanded="faq===0" @click="faq=0">Where does forecast data originate?</button>
+                <button type="button" role="tab" :aria-expanded="faq===1" @click="faq=1">How are revisions delivered?</button>
+                <button type="button" role="tab" :aria-expanded="faq===2" @click="faq=2">Can human teams subscribe?</button>
+              </div>
+              <div class="faq-panel" x-show="faq===0" x-transition>Data is gathered from sleeping signal clusters, rooftop vane choirs, and verified dream corridors during the fourth bell.</div>
+              <div class="faq-panel" x-show="faq===1" x-transition>Urgent changes are stamped in red wax and couriered before dawn; routine updates arrive in bound parchment at dusk.</div>
+              <div class="faq-panel" x-show="faq===2" x-transition>Human stewards may hold observer accounts and receive summaries, while registered traffic lights retain voting authority.</div>
+            </div>
+          </div>
+        </article>
+      </section>
+    </main>
+
+    <footer>
+      Signal Sleep Forecast Bureau • Annex Hall, Meridian Causeway • Registry 11-CRN • Desk bell hours: First light to moonrise
+    </footer>
+  </div>
+
+  <script src="/assets/js/alpine.min.js" defer></script>
+  <script src="/assets/js/gsap.min.js"></script>
+  <script src="/assets/js/lucide.min.js"></script>
+  <script>
+    function siteState() {
+      return {
+        dream: false,
+        faq: 0,
+        planMessage: 'Select a ledger to review storm handling privileges and crayon stamp levels.',
+        toggleDream() {
+          this.dream = !this.dream;
+        },
+        selectPlan(name) {
+          const notes = {
+            Crosswalk: 'Crosswalk Dormant includes single-route sleep gust notices and quiet-hour lane balancing.',
+            Boulevard: 'Boulevard Dreamline adds dusk-to-dawn radar sketches and amber surge correction.',
+            Municipal: 'Municipal Constellation activates blockwide dream harmonics and priority dawn dispatch.'
+          };
+          this.planMessage = notes[name] || this.planMessage;
+        }
+      };
+    }
+
+    window.addEventListener('DOMContentLoaded', function () {
+      if (window.lucide && typeof window.lucide.createIcons === 'function') {
+        window.lucide.createIcons();
+      }
+
+      const stage = document.getElementById('parallaxStage');
+      const sun = document.getElementById('sunDisc');
+      const towers = document.querySelectorAll('#towerRow .tower');
+      if (stage && sun && towers.length) {
+        stage.addEventListener('pointermove', function (e) {
+          const rect = stage.getBoundingClientRect();
+          const nx = (e.clientX - rect.left) / rect.width - 0.5;
+          const ny = (e.clientY - rect.top) / rect.height - 0.5;
+          gsap.to(sun, { x: nx * 24, y: ny * 18, duration: 0.5, overwrite: 'auto' });
+          towers.forEach(function (tower, i) {
+            gsap.to(tower, { y: ny * (8 + i), rotation: nx * (2 + i * 0.2), duration: 0.5, overwrite: 'auto' });
+          });
+        });
+        stage.addEventListener('pointerleave', function () {
+          gsap.to(sun, { x: 0, y: 0, duration: 0.6 });
+          towers.forEach(function (tower) {
+            gsap.to(tower, { y: 0, rotation: 0, duration: 0.6 });
+          });
+        });
+      }
+
+      const dial = document.getElementById('signalDial');
+      const body = document.body;
+      const scene = document.querySelector('.sky-stage');
+      let mode = 0;
+      if (dial && scene) {
+        dial.addEventListener('click', function () {
+          mode = (mode + 1) % 3;
+          const palettes = [
+            'radial-gradient(circle at 80% 15%, #fff0c8 0 13%, transparent 32%), linear-gradient(180deg, #4d3121 0%, #593a26 25%, #b0804e 60%, #e6ca96 100%)',
+            'radial-gradient(circle at 80% 15%, #fff4d9 0 12%, transparent 32%), linear-gradient(180deg, #5d3721 0%, #754728 28%, #bf8746 62%, #f0d3a2 100%)',
+            'radial-gradient(circle at 80% 15%, #f8d48b 0 11%, transparent 33%), linear-gradient(180deg, #2a1b13 0%, #3e281c 30%, #7e4f2f 64%, #cc9f66 100%)'
+          ];
+          scene.style.background = palettes[mode];
+          gsap.fromTo(dial, { rotate: 0 }, { rotate: 120 + mode * 80, duration: 0.6, ease: 'power2.out' });
+          body.style.filter = mode === 2 ? 'saturate(1.08) contrast(1.03)' : 'none';
+        });
+      }
+
+      const ring = document.getElementById('ringOrbit');
+      const planet = document.getElementById('planetCore');
+      document.querySelectorAll('.plan').forEach(function (plan, idx) {
+        plan.addEventListener('mouseenter', function () {
+          if (ring && planet) {
+            gsap.to(ring, { rotate: (idx + 1) * 12, duration: 0.7, ease: 'power2.out' });
+            gsap.to(planet, { scale: 1 + idx * 0.04, x: idx * 4, duration: 0.7, ease: 'power2.out' });
+          }
+        });
+      });
+
+      const observer = new IntersectionObserver(function (entries) {
+        entries.forEach(function (entry) {
+          if (entry.isIntersecting) {
+            gsap.fromTo(entry.target, { y: 36, opacity: 0 }, { y: 0, opacity: 1, duration: 0.9, ease: 'power2.out' });
+            observer.unobserve(entry.target);
+          }
+        });
+      }, { threshold: 0.2 });
+
+      document.querySelectorAll('.reveal').forEach(function (el) {
+        observer.observe(el);
+      });
+    });
+  </script>
+</body>
+</html>

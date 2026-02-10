@@ -1,0 +1,1297 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ASCEND™ — Premium Brief Abductions</title>
+<link rel="stylesheet" href="/assets/css/fonts.css">
+<script src="/assets/js/alpine.min.js" defer></script>
+<script src="/assets/js/gsap.min.js"></script>
+<style>
+  :root {
+    --coral: #FF6B6B;
+    --gold: #F4A261;
+    --purple: #7B2D8E;
+    --deep-blue: #1A1A3E;
+    --soft-coral: #FF8E8E;
+    --warm-gold: #FFD166;
+    --light-purple: #A855C8;
+    --midnight: #0D0D24;
+    --cream: #FFF5EE;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--midnight);
+    font-family: 'Space Grotesk', sans-serif;
+    overflow-x: hidden;
+    color: #FFFFFF;
+  }
+
+  /* ===== CSS ART: GEOMETRIC ELEVATOR SHAFT ===== */
+  .art-bg {
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    z-index: 0;
+    pointer-events: none;
+  }
+
+  .art-bg::before {
+    content: '';
+    position: absolute;
+    top: -50%; left: -50%;
+    width: 200%; height: 200%;
+    background:
+      radial-gradient(ellipse 600px 600px at 20% 30%, rgba(255,107,107,0.15) 0%, transparent 70%),
+      radial-gradient(ellipse 400px 400px at 80% 60%, rgba(123,45,142,0.2) 0%, transparent 70%),
+      radial-gradient(ellipse 500px 500px at 50% 80%, rgba(244,162,97,0.12) 0%, transparent 70%);
+    animation: drift 20s ease-in-out infinite alternate;
+  }
+
+  @keyframes drift {
+    0% { transform: translate(0, 0) rotate(0deg); }
+    100% { transform: translate(-3%, 2%) rotate(2deg); }
+  }
+
+  /* ===== ELEVATOR DOOR CSS ART ===== */
+  .elevator-art {
+    position: relative;
+    width: 280px;
+    height: 400px;
+    margin: 0 auto;
+  }
+
+  .elevator-frame {
+    position: absolute;
+    inset: 0;
+    border: 4px solid var(--gold);
+    border-radius: 8px 8px 0 0;
+    background: linear-gradient(180deg, rgba(244,162,97,0.05) 0%, rgba(123,45,142,0.08) 100%);
+  }
+
+  .elevator-frame::before {
+    content: '';
+    position: absolute;
+    top: -20px; left: 50%;
+    transform: translateX(-50%);
+    width: 60px; height: 16px;
+    background: var(--coral);
+    border-radius: 8px 8px 0 0;
+    box-shadow: 0 0 20px rgba(255,107,107,0.5);
+  }
+
+  .elevator-frame::after {
+    content: '▲';
+    position: absolute;
+    top: -18px; left: 50%;
+    transform: translateX(-50%);
+    font-size: 10px;
+    color: #fff;
+  }
+
+  .door-left, .door-right {
+    position: absolute;
+    top: 10px;
+    width: calc(50% - 12px);
+    height: calc(100% - 14px);
+    transition: transform 1.2s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .door-left {
+    left: 8px;
+    background: linear-gradient(135deg, var(--deep-blue) 0%, var(--purple) 50%, var(--deep-blue) 100%);
+    border-radius: 4px 0 0 4px;
+    clip-path: polygon(0 0, 100% 0, 95% 50%, 100% 100%, 0 100%);
+  }
+
+  .door-right {
+    right: 8px;
+    background: linear-gradient(225deg, var(--deep-blue) 0%, var(--purple) 50%, var(--deep-blue) 100%);
+    border-radius: 0 4px 4px 0;
+    clip-path: polygon(5% 0, 100% 0, 100% 100%, 0 100%, 5% 50%);
+  }
+
+  .door-left::after, .door-right::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    width: 3px;
+    height: 40px;
+    background: var(--gold);
+    border-radius: 2px;
+    transform: translateY(-50%);
+  }
+  .door-left::after { right: 12px; }
+  .door-right::after { left: 12px; }
+
+  .elevator-art.open .door-left { transform: translateX(-85%); }
+  .elevator-art.open .door-right { transform: translateX(85%); }
+
+  .elevator-interior {
+    position: absolute;
+    inset: 10px 8px 4px;
+    background:
+      repeating-linear-gradient(90deg, transparent 0px, transparent 38px, rgba(244,162,97,0.1) 38px, rgba(244,162,97,0.1) 40px),
+      linear-gradient(180deg, #1a0a2e 0%, #0d0520 100%);
+    border-radius: 4px;
+    z-index: -1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+  }
+
+  .elevator-interior::before {
+    content: '';
+    position: absolute;
+    top: 10px;
+    width: 80%;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, var(--gold), transparent);
+  }
+
+  .interior-text {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px;
+    color: var(--warm-gold);
+    text-align: center;
+    line-height: 1.8;
+    opacity: 0;
+    transition: opacity 0.8s ease 0.6s;
+  }
+
+  .elevator-art.open .interior-text { opacity: 1; }
+
+  /* ===== FLOATING SHAPES CSS ART ===== */
+  .shape {
+    position: absolute;
+    pointer-events: none;
+  }
+
+  .shape-diamond {
+    width: 40px; height: 40px;
+    background: linear-gradient(135deg, var(--coral), var(--gold));
+    clip-path: polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%);
+    opacity: 0.3;
+  }
+
+  .shape-ring {
+    width: 80px; height: 80px;
+    border: 3px solid var(--light-purple);
+    border-radius: 50%;
+    opacity: 0.2;
+  }
+
+  .shape-triangle {
+    width: 0; height: 0;
+    border-left: 25px solid transparent;
+    border-right: 25px solid transparent;
+    border-bottom: 43px solid var(--coral);
+    opacity: 0.15;
+  }
+
+  .shape-line {
+    width: 120px; height: 2px;
+    background: linear-gradient(90deg, transparent, var(--gold), transparent);
+    opacity: 0.3;
+  }
+
+  /* ===== NAV ===== */
+  nav {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    z-index: 100;
+    padding: 20px 40px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: rgba(13,13,36,0.8);
+    backdrop-filter: blur(20px);
+    border-bottom: 1px solid rgba(244,162,97,0.15);
+  }
+
+  .logo {
+    font-family: 'Playfair Display', serif;
+    font-size: 24px;
+    font-weight: 700;
+    background: linear-gradient(135deg, var(--coral), var(--gold));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    letter-spacing: 4px;
+  }
+
+  .logo span {
+    font-size: 10px;
+    vertical-align: super;
+    -webkit-text-fill-color: var(--gold);
+  }
+
+  .nav-links {
+    display: flex;
+    gap: 32px;
+    list-style: none;
+  }
+
+  .nav-links a {
+    color: rgba(255,255,255,0.7);
+    text-decoration: none;
+    font-size: 13px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    transition: color 0.3s ease;
+    position: relative;
+  }
+
+  .nav-links a::after {
+    content: '';
+    position: absolute;
+    bottom: -4px; left: 0;
+    width: 0; height: 1px;
+    background: var(--coral);
+    transition: width 0.3s ease;
+  }
+
+  .nav-links a:hover { color: #fff; }
+  .nav-links a:hover::after { width: 100%; }
+
+  /* ===== HERO ===== */
+  .hero {
+    position: relative;
+    z-index: 1;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 120px 20px 60px;
+    text-align: center;
+  }
+
+  .hero-badge {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 4px;
+    text-transform: uppercase;
+    color: var(--warm-gold);
+    margin-bottom: 24px;
+    padding: 6px 20px;
+    border: 1px solid rgba(244,162,97,0.3);
+    border-radius: 20px;
+  }
+
+  .hero h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(40px, 8vw, 100px);
+    line-height: 1.05;
+    margin-bottom: 12px;
+    background: linear-gradient(180deg, #fff 0%, rgba(255,255,255,0.6) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .hero-sub {
+    font-size: 18px;
+    color: rgba(255,255,255,0.6);
+    max-width: 460px;
+    line-height: 1.6;
+    margin-bottom: 48px;
+  }
+
+  /* ===== MASONRY CARDS ===== */
+  .masonry {
+    position: relative;
+    z-index: 1;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 40px 20px 100px;
+    columns: 3;
+    column-gap: 24px;
+  }
+
+  @media (max-width: 900px) { .masonry { columns: 2; } }
+  @media (max-width: 560px) { .masonry { columns: 1; } }
+
+  .card {
+    break-inside: avoid;
+    margin-bottom: 24px;
+    border-radius: 16px;
+    overflow: hidden;
+    position: relative;
+    transition: transform 0.4s ease, box-shadow 0.4s ease;
+  }
+
+  .card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 20px 60px rgba(0,0,0,0.4);
+  }
+
+  /* Card variants */
+  .card-art {
+    aspect-ratio: 1;
+    background: linear-gradient(135deg, var(--deep-blue), var(--purple));
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .card-art .art-piece {
+    width: 80%;
+    height: 80%;
+    position: relative;
+  }
+
+  /* CSS Art: Elevator Button Panel */
+  .button-panel {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+    padding: 20px;
+  }
+
+  .floor-btn {
+    width: 48px; height: 48px;
+    border-radius: 50%;
+    border: 2px solid var(--gold);
+    background: rgba(244,162,97,0.05);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 14px;
+    color: var(--gold);
+    cursor: pointer;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .floor-btn::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(circle, var(--coral) 0%, transparent 70%);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    border-radius: 50%;
+  }
+
+  .floor-btn:hover::before, .floor-btn.active::before { opacity: 1; }
+  .floor-btn:hover, .floor-btn.active {
+    color: #fff;
+    border-color: var(--coral);
+    box-shadow: 0 0 20px rgba(255,107,107,0.4);
+  }
+
+  .card-content {
+    background: linear-gradient(180deg, rgba(26,26,62,0.95), rgba(13,13,36,0.98));
+    border: 1px solid rgba(244,162,97,0.1);
+    padding: 32px;
+  }
+
+  .card-content h3 {
+    font-family: 'Playfair Display', serif;
+    font-size: 22px;
+    color: #fff;
+    margin-bottom: 12px;
+  }
+
+  .card-content p {
+    font-size: 14px;
+    line-height: 1.7;
+    color: rgba(255,255,255,0.7);
+  }
+
+  .card-pricing {
+    background: linear-gradient(135deg, var(--coral), var(--purple));
+    padding: 40px 32px;
+    text-align: center;
+  }
+
+  .card-pricing .price {
+    font-family: 'Playfair Display', serif;
+    font-size: 56px;
+    color: #fff;
+    font-weight: 700;
+  }
+
+  .card-pricing .period {
+    font-size: 14px;
+    color: rgba(255,255,255,0.8);
+    margin-top: 4px;
+  }
+
+  .card-pricing .plan-name {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 12px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.9);
+    margin-bottom: 16px;
+  }
+
+  .card-pricing ul {
+    list-style: none;
+    text-align: left;
+    margin-top: 20px;
+  }
+
+  .card-pricing li {
+    font-size: 13px;
+    color: rgba(255,255,255,0.9);
+    padding: 6px 0;
+    border-bottom: 1px solid rgba(255,255,255,0.1);
+  }
+
+  .card-pricing li::before {
+    content: '↑ ';
+    color: var(--warm-gold);
+  }
+
+  .card-testimonial {
+    background: rgba(26,26,62,0.9);
+    border: 1px solid rgba(123,45,142,0.2);
+    padding: 28px;
+  }
+
+  .card-testimonial blockquote {
+    font-family: 'Crimson Pro', serif;
+    font-size: 18px;
+    font-style: italic;
+    color: rgba(255,255,255,0.85);
+    line-height: 1.6;
+    margin-bottom: 16px;
+  }
+
+  .card-testimonial .author {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px;
+    color: var(--gold);
+    letter-spacing: 1px;
+  }
+
+  /* ===== CSS ART: Cable Pattern ===== */
+  .card-cable-art {
+    background: var(--deep-blue);
+    padding: 0;
+    height: 320px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .cable {
+    position: absolute;
+    width: 3px;
+    height: 100%;
+    top: 0;
+  }
+
+  .cable::before {
+    content: '';
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    background: repeating-linear-gradient(
+      180deg,
+      var(--gold) 0px,
+      var(--gold) 8px,
+      transparent 8px,
+      transparent 16px
+    );
+    opacity: 0.4;
+  }
+
+  .cable::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 20px;
+    height: 30px;
+    background: linear-gradient(180deg, var(--purple), var(--coral));
+    border-radius: 4px;
+    box-shadow: 0 4px 16px rgba(255,107,107,0.3);
+    animation: descend 3s ease-in-out infinite alternate;
+  }
+
+  @keyframes descend {
+    0% { bottom: 70%; }
+    100% { bottom: 10%; }
+  }
+
+  .cable:nth-child(1) { left: 20%; }
+  .cable:nth-child(2) { left: 40%; }
+  .cable:nth-child(2)::after { animation-delay: -1s; }
+  .cable:nth-child(3) { left: 60%; }
+  .cable:nth-child(3)::after { animation-delay: -2s; }
+  .cable:nth-child(4) { left: 80%; }
+  .cable:nth-child(4)::after { animation-delay: -0.5s; }
+
+  /* ===== CSS ART: Floor Indicator ===== */
+  .card-indicator {
+    background: #0a0a1a;
+    border: 1px solid rgba(244,162,97,0.15);
+    padding: 40px;
+    text-align: center;
+  }
+
+  .indicator-display {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 72px;
+    font-weight: 700;
+    color: var(--coral);
+    text-shadow: 0 0 30px rgba(255,107,107,0.5), 0 0 60px rgba(255,107,107,0.2);
+    position: relative;
+    display: inline-block;
+  }
+
+  .indicator-display::before,
+  .indicator-display::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    width: 40px;
+    height: 2px;
+    background: linear-gradient(90deg, var(--gold), transparent);
+  }
+
+  .indicator-display::before { right: calc(100% + 16px); }
+  .indicator-display::after {
+    left: calc(100% + 16px);
+    background: linear-gradient(270deg, var(--gold), transparent);
+  }
+
+  .indicator-label {
+    font-size: 11px;
+    letter-spacing: 4px;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.5);
+    margin-top: 12px;
+  }
+
+  /* ===== INTERACTIVE: Morphing Shape ===== */
+  .morph-container {
+    aspect-ratio: 1;
+    background: radial-gradient(circle at center, rgba(123,45,142,0.2), var(--midnight));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    border: 1px solid rgba(123,45,142,0.2);
+  }
+
+  .morph-shape {
+    width: 120px;
+    height: 120px;
+    background: linear-gradient(135deg, var(--coral), var(--gold), var(--purple));
+    transition: all 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+    border-radius: 0;
+    position: relative;
+  }
+
+  .morph-shape::before {
+    content: '';
+    position: absolute;
+    inset: -10px;
+    border: 1px solid rgba(244,162,97,0.3);
+    border-radius: inherit;
+    transition: all 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .morph-shape::after {
+    content: '';
+    position: absolute;
+    inset: -20px;
+    border: 1px solid rgba(244,162,97,0.15);
+    border-radius: inherit;
+    transition: all 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .morph-shape.circle {
+    border-radius: 50%;
+    transform: rotate(180deg) scale(0.8);
+    background: linear-gradient(135deg, var(--purple), var(--coral), var(--gold));
+  }
+
+  .morph-shape.diamond {
+    border-radius: 8px;
+    transform: rotate(45deg) scale(0.7);
+    background: linear-gradient(135deg, var(--gold), var(--purple), var(--coral));
+  }
+
+  .morph-shape.blob {
+    border-radius: 60% 40% 30% 70% / 60% 30% 70% 40%;
+    transform: rotate(90deg) scale(0.9);
+    background: linear-gradient(135deg, var(--coral), var(--purple), var(--gold));
+  }
+
+  .morph-label {
+    position: absolute;
+    bottom: 16px;
+    left: 0; right: 0;
+    text-align: center;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.5);
+  }
+
+  /* ===== CSS ART: Concentric Rings ===== */
+  .rings-art {
+    aspect-ratio: 1.2;
+    background: linear-gradient(180deg, var(--midnight), var(--deep-blue));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    overflow: hidden;
+    border: 1px solid rgba(123,45,142,0.15);
+  }
+
+  .ring {
+    position: absolute;
+    border-radius: 50%;
+    border: 1px solid;
+    animation: pulse-ring 4s ease-in-out infinite;
+  }
+
+  .ring:nth-child(1) { width: 60px; height: 60px; border-color: var(--coral); animation-delay: 0s; }
+  .ring:nth-child(2) { width: 120px; height: 120px; border-color: var(--gold); opacity: 0.7; animation-delay: 0.5s; }
+  .ring:nth-child(3) { width: 180px; height: 180px; border-color: var(--purple); opacity: 0.5; animation-delay: 1s; }
+  .ring:nth-child(4) { width: 240px; height: 240px; border-color: var(--coral); opacity: 0.3; animation-delay: 1.5s; }
+  .ring:nth-child(5) { width: 300px; height: 300px; border-color: var(--gold); opacity: 0.15; animation-delay: 2s; }
+
+  @keyframes pulse-ring {
+    0%, 100% { transform: scale(1); opacity: var(--base-opacity, 0.5); }
+    50% { transform: scale(1.08); opacity: calc(var(--base-opacity, 0.5) + 0.2); }
+  }
+
+  .ring:nth-child(1) { --base-opacity: 1; }
+  .ring:nth-child(2) { --base-opacity: 0.7; }
+  .ring:nth-child(3) { --base-opacity: 0.5; }
+  .ring:nth-child(4) { --base-opacity: 0.3; }
+  .ring:nth-child(5) { --base-opacity: 0.15; }
+
+  /* ===== CSS ART: Arrow Floor Indicators ===== */
+  .arrows-art {
+    background: var(--midnight);
+    padding: 32px;
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+    align-items: center;
+    border: 1px solid rgba(244,162,97,0.1);
+  }
+
+  .arrow-indicator {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .arrow-up {
+    width: 0; height: 0;
+    border-left: 16px solid transparent;
+    border-right: 16px solid transparent;
+    border-bottom: 22px solid var(--coral);
+    opacity: 0.3;
+    transition: all 0.3s ease;
+    filter: drop-shadow(0 0 0 transparent);
+  }
+
+  .arrow-indicator:hover .arrow-up {
+    opacity: 1;
+    filter: drop-shadow(0 -4px 12px rgba(255,107,107,0.5));
+  }
+
+  .arrow-floor {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px;
+    color: rgba(255,255,255,0.4);
+    transition: color 0.3s ease;
+  }
+
+  .arrow-indicator:hover .arrow-floor {
+    color: var(--warm-gold);
+  }
+
+  /* ===== STAT CARD ===== */
+  .card-stat {
+    background: linear-gradient(135deg, rgba(255,107,107,0.1), rgba(123,45,142,0.1));
+    border: 1px solid rgba(255,107,107,0.15);
+    padding: 32px;
+    text-align: center;
+  }
+
+  .stat-number {
+    font-family: 'Playfair Display', serif;
+    font-size: 48px;
+    font-weight: 700;
+    background: linear-gradient(135deg, var(--coral), var(--gold));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .stat-label {
+    font-size: 12px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.6);
+    margin-top: 8px;
+  }
+
+  /* ===== CTA CARD ===== */
+  .card-cta {
+    background: linear-gradient(135deg, var(--purple), var(--deep-blue));
+    padding: 40px 32px;
+    text-align: center;
+    border: 1px solid rgba(168,85,200,0.3);
+  }
+
+  .cta-btn {
+    display: inline-block;
+    padding: 14px 40px;
+    background: linear-gradient(135deg, var(--coral), var(--gold));
+    color: #fff;
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 14px;
+    font-weight: 600;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    text-decoration: none;
+    border: none;
+    border-radius: 30px;
+    cursor: pointer;
+    transition: all 0.4s ease;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .cta-btn::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, var(--gold), var(--coral));
+    opacity: 0;
+    transition: opacity 0.4s ease;
+    border-radius: 30px;
+  }
+
+  .cta-btn:hover::before { opacity: 1; }
+  .cta-btn:hover {
+    transform: scale(1.05);
+    box-shadow: 0 8px 30px rgba(255,107,107,0.4);
+  }
+
+  .cta-btn span { position: relative; z-index: 1; }
+
+  /* ===== FAQ ===== */
+  .card-faq {
+    background: rgba(26,26,62,0.95);
+    border: 1px solid rgba(244,162,97,0.08);
+    padding: 28px;
+  }
+
+  .faq-q {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--warm-gold);
+    margin-bottom: 8px;
+    cursor: pointer;
+  }
+
+  .faq-a {
+    font-size: 13px;
+    line-height: 1.7;
+    color: rgba(255,255,255,0.65);
+    overflow: hidden;
+  }
+
+  /* ===== BIOHAZARD CSS ART ===== */
+  .biohazard-art {
+    aspect-ratio: 1;
+    background: radial-gradient(circle at center, rgba(255,107,107,0.08), var(--midnight));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    border: 1px solid rgba(255,107,107,0.1);
+  }
+
+  .bio-symbol {
+    width: 150px;
+    height: 150px;
+    position: relative;
+    animation: bio-rotate 30s linear infinite;
+  }
+
+  @keyframes bio-rotate {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+  }
+
+  .bio-arc {
+    position: absolute;
+    width: 60px;
+    height: 60px;
+    border: 3px solid var(--coral);
+    border-radius: 50%;
+    clip-path: polygon(50% 0%, 100% 100%, 0% 100%);
+  }
+
+  .bio-arc:nth-child(1) { top: 0; left: 50%; transform: translateX(-50%); }
+  .bio-arc:nth-child(2) { bottom: 15px; left: 10px; transform: rotate(-120deg); }
+  .bio-arc:nth-child(3) { bottom: 15px; right: 10px; transform: rotate(120deg); }
+
+  .bio-center {
+    position: absolute;
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    width: 20px; height: 20px;
+    background: var(--gold);
+    border-radius: 50%;
+    box-shadow: 0 0 20px rgba(244,162,97,0.5);
+  }
+
+  /* ===== FOOTER ===== */
+  footer {
+    position: relative;
+    z-index: 1;
+    text-align: center;
+    padding: 60px 20px;
+    border-top: 1px solid rgba(244,162,97,0.1);
+  }
+
+  footer p {
+    font-size: 12px;
+    color: rgba(255,255,255,0.4);
+    letter-spacing: 1px;
+  }
+
+  footer .footer-logo {
+    font-family: 'Playfair Display', serif;
+    font-size: 18px;
+    background: linear-gradient(135deg, var(--coral), var(--gold));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin-bottom: 12px;
+  }
+
+  /* ===== INTERACTIVE: COLOR SHIFT CARD ===== */
+  .color-shift-card {
+    height: 200px;
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+    transition: all 0.6s ease;
+  }
+
+  .color-shift-card .gradient-layer {
+    position: absolute;
+    inset: 0;
+    transition: opacity 0.8s ease;
+  }
+
+  .color-shift-card .gradient-layer:nth-child(1) {
+    background: linear-gradient(135deg, var(--coral), var(--gold));
+  }
+  .color-shift-card .gradient-layer:nth-child(2) {
+    background: linear-gradient(135deg, var(--purple), var(--coral));
+    opacity: 0;
+  }
+  .color-shift-card .gradient-layer:nth-child(3) {
+    background: linear-gradient(135deg, var(--gold), var(--deep-blue));
+    opacity: 0;
+  }
+
+  .color-shift-card .shift-label {
+    position: absolute;
+    bottom: 16px; left: 20px;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: #fff;
+    z-index: 2;
+  }
+
+  /* ===== WAVE ART ===== */
+  .wave-art {
+    height: 180px;
+    background: var(--deep-blue);
+    position: relative;
+    overflow: hidden;
+    border: 1px solid rgba(244,162,97,0.1);
+  }
+
+  .wave-line {
+    position: absolute;
+    width: 200%;
+    height: 2px;
+    left: -50%;
+  }
+
+  .wave-line::before {
+    content: '';
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    background: repeating-linear-gradient(
+      90deg,
+      transparent 0px,
+      var(--coral) 40px,
+      transparent 80px
+    );
+    animation: wave-move 6s linear infinite;
+  }
+
+  @keyframes wave-move {
+    from { transform: translateX(0); }
+    to { transform: translateX(80px); }
+  }
+
+  .wave-line:nth-child(1) { top: 20%; opacity: 0.8; }
+  .wave-line:nth-child(2) { top: 35%; opacity: 0.6; }
+  .wave-line:nth-child(2)::before { animation-delay: -1s; background: repeating-linear-gradient(90deg, transparent 0px, var(--gold) 40px, transparent 80px); }
+  .wave-line:nth-child(3) { top: 50%; opacity: 0.4; }
+  .wave-line:nth-child(3)::before { animation-delay: -2s; background: repeating-linear-gradient(90deg, transparent 0px, var(--purple) 40px, transparent 80px); }
+  .wave-line:nth-child(4) { top: 65%; opacity: 0.3; }
+  .wave-line:nth-child(4)::before { animation-delay: -3s; }
+  .wave-line:nth-child(5) { top: 80%; opacity: 0.2; }
+  .wave-line:nth-child(5)::before { animation-delay: -4s; background: repeating-linear-gradient(90deg, transparent 0px, var(--gold) 40px, transparent 80px); }
+
+  @media (max-width: 768px) {
+    nav { padding: 16px 20px; }
+    .nav-links { gap: 16px; }
+    .nav-links a { font-size: 11px; }
+    .hero h1 { font-size: 36px; }
+    .hero-sub { font-size: 15px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="art-bg"></div>
+
+<!-- Floating CSS shapes -->
+<div class="shape shape-diamond" style="top:15%;left:8%;"></div>
+<div class="shape shape-ring" style="top:25%;right:12%;"></div>
+<div class="shape shape-triangle" style="top:60%;left:5%;"></div>
+<div class="shape shape-line" style="top:45%;right:5%;"></div>
+<div class="shape shape-diamond" style="top:75%;left:15%;"></div>
+<div class="shape shape-ring" style="top:80%;right:20%;"></div>
+
+<!-- NAV -->
+<nav>
+  <div class="logo">ASCEND<span>™</span></div>
+  <ul class="nav-links">
+    <li><a href="#experience">Experience</a></li>
+    <li><a href="#tiers">Tiers</a></li>
+    <li><a href="#community">Community</a></li>
+    <li><a href="#faq">FAQ</a></li>
+  </ul>
+</nav>
+
+<!-- HERO with elevator CSS art -->
+<section class="hero">
+  <div class="hero-badge">Est. 2019 — Certified Brief Abduction Provider</div>
+  <h1>Surrender to<br>the Ascent</h1>
+  <p class="hero-sub">Premium curated confinement experiences in compact vertical chambers. You step in. The doors close. We handle the rest.</p>
+
+  <div x-data="{ open: false }" style="margin-top: 20px;">
+    <div class="elevator-art" :class="open ? 'open' : ''" @click="open = !open">
+      <div class="elevator-interior">
+        <div class="interior-text">FLOOR 47<br>DURATION: 38s<br>STATUS: CAPTIVE</div>
+      </div>
+      <div class="elevator-frame"></div>
+      <div class="door-left"></div>
+      <div class="door-right"></div>
+    </div>
+    <p style="margin-top:20px;font-family:'IBM Plex Mono',monospace;font-size:11px;color:rgba(255,255,255,0.4);letter-spacing:2px;text-align:center;">TAP TO INITIATE ABDUCTION SEQUENCE</p>
+  </div>
+</section>
+
+<!-- MASONRY GRID -->
+<div class="masonry" id="experience">
+
+  <!-- Card: Concept -->
+  <div class="card card-content">
+    <h3>Why Be Free When You Can Be Lifted?</h3>
+    <p>Every day, millions enter small metal rooms voluntarily. The doors seal. A stranger breathes nearby. You are moved against your will to an unknown destination. At ASCEND™, we've perfected this ancient art of consensual captivity.</p>
+  </div>
+
+  <!-- Card: CSS Art - Cable Pattern -->
+  <div class="card card-cable-art">
+    <div class="cable"></div>
+    <div class="cable"></div>
+    <div class="cable"></div>
+    <div class="cable"></div>
+  </div>
+
+  <!-- Card: Testimonial -->
+  <div class="card card-testimonial">
+    <blockquote>"I used to take the stairs. Now I pay $249/month to be sealed in a 6×8 chamber with soft jazz and a stranger named Doug. Best decision I ever made."</blockquote>
+    <div class="author">— MARINA K., SUBSCRIBER SINCE 2021</div>
+  </div>
+
+  <!-- Card: Morph Interactive -->
+  <div class="card morph-container" x-data="{ state: 0, shapes: ['', 'circle', 'diamond', 'blob'] }" @click="state = (state + 1) % 4">
+    <div class="morph-shape" :class="shapes[state]"></div>
+    <div class="morph-label">Click to transform</div>
+  </div>
+
+  <!-- Card: Pricing 1 -->
+  <div class="card card-pricing" id="tiers">
+    <div class="plan-name">Lobby Tier</div>
+    <div class="price">$49</div>
+    <div class="period">per month</div>
+    <ul>
+      <li>Up to 12 abductions/month</li>
+      <li>Floors 1–6 only</li>
+      <li>Standard muzak selection</li>
+      <li>Shared captivity (up to 8 persons)</li>
+    </ul>
+  </div>
+
+  <!-- Card: Concentric Rings Art -->
+  <div class="card rings-art">
+    <div class="ring"></div>
+    <div class="ring"></div>
+    <div class="ring"></div>
+    <div class="ring"></div>
+    <div class="ring"></div>
+  </div>
+
+  <!-- Card: Stat -->
+  <div class="card card-stat">
+    <div class="stat-number">2.4M</div>
+    <div class="stat-label">Abductions Completed</div>
+  </div>
+
+  <!-- Card: Button Panel Interactive -->
+  <div class="card card-art" x-data="{ active: null }">
+    <div class="art-piece">
+      <div class="button-panel">
+        <template x-for="floor in ['B2','B1','G','1','2','3','4','5','6','7','8','PH']" :key="floor">
+          <div class="floor-btn" :class="active === floor ? 'active' : ''" @click="active = floor" x-text="floor"></div>
+        </template>
+      </div>
+    </div>
+  </div>
+
+  <!-- Card: Content -->
+  <div class="card card-content">
+    <h3>The ASCEND™ Guarantee</h3>
+    <p>Every abduction lasts between 11 and 94 seconds. If your captivity exceeds 94 seconds, we classify it as a "bonus detention" and add loyalty points to your account. No refunds. That's the thrill.</p>
+  </div>
+
+  <!-- Card: Arrow Indicators -->
+  <div class="card arrows-art">
+    <div class="arrow-indicator">
+      <div class="arrow-up"></div>
+      <span class="arrow-floor">B2</span>
+    </div>
+    <div class="arrow-indicator">
+      <div class="arrow-up"></div>
+      <span class="arrow-floor">B1</span>
+    </div>
+    <div class="arrow-indicator">
+      <div class="arrow-up"></div>
+      <span class="arrow-floor">G</span>
+    </div>
+    <div class="arrow-indicator">
+      <div class="arrow-up"></div>
+      <span class="arrow-floor">1</span>
+    </div>
+    <div class="arrow-indicator">
+      <div class="arrow-up"></div>
+      <span class="arrow-floor">2</span>
+    </div>
+    <div class="arrow-indicator">
+      <div class="arrow-up"></div>
+      <span class="arrow-floor">3</span>
+    </div>
+    <div class="arrow-indicator">
+      <div class="arrow-up"></div>
+      <span class="arrow-floor">4</span>
+    </div>
+  </div>
+
+  <!-- Card: Pricing 2 -->
+  <div class="card card-pricing" style="background: linear-gradient(135deg, var(--gold), var(--deep-blue));">
+    <div class="plan-name">Penthouse Tier</div>
+    <div class="price">$499</div>
+    <div class="period">per month</div>
+    <ul>
+      <li>Unlimited abductions</li>
+      <li>All floors including sub-basements</li>
+      <li>Private captivity (solo chamber)</li>
+      <li>Curated scent profile</li>
+      <li>Express doors (3s close time)</li>
+    </ul>
+  </div>
+
+  <!-- Card: Color Shift Interactive -->
+  <div class="card color-shift-card" x-data="{ phase: 0 }" @click="phase = (phase + 1) % 3">
+    <div class="gradient-layer" :style="phase === 0 ? 'opacity:1' : 'opacity:0'"></div>
+    <div class="gradient-layer" :style="phase === 1 ? 'opacity:1' : 'opacity:0'"></div>
+    <div class="gradient-layer" :style="phase === 2 ? 'opacity:1' : 'opacity:0'"></div>
+    <div class="shift-label">Tap to shift spectrum</div>
+  </div>
+
+  <!-- Card: Testimonial 2 -->
+  <div class="card card-testimonial">
+    <blockquote>"The doors closed and for 23 beautiful seconds I belonged to no one and nothing. Just a body suspended between floors. I wept. I renewed my subscription."</blockquote>
+    <div class="author">— JONATHAN R., PENTHOUSE TIER</div>
+  </div>
+
+  <!-- Card: Biohazard Art -->
+  <div class="card biohazard-art">
+    <div class="bio-symbol">
+      <div class="bio-arc"></div>
+      <div class="bio-arc"></div>
+      <div class="bio-arc"></div>
+      <div class="bio-center"></div>
+    </div>
+  </div>
+
+  <!-- Card: Floor Indicator -->
+  <div class="card card-indicator" x-data="{ floor: 1 }" x-init="setInterval(() => { floor = Math.floor(Math.random() * 47) + 1 }, 2000)">
+    <div class="indicator-display" x-text="floor"></div>
+    <div class="indicator-label">Current Abduction Floor</div>
+  </div>
+
+  <!-- Card: Wave Art -->
+  <div class="card wave-art">
+    <div class="wave-line"></div>
+    <div class="wave-line"></div>
+    <div class="wave-line"></div>
+    <div class="wave-line"></div>
+    <div class="wave-line"></div>
+  </div>
+
+  <!-- Card: FAQ 1 -->
+  <div class="card card-faq" id="faq" x-data="{ open: false }">
+    <div class="faq-q" @click="open = !open">↑ Is this kidnapping?</div>
+    <div class="faq-a" x-show="open" x-transition>No. Legally, it's "vertical relocation with implied consent." You pressed the button. You entered the chamber. The courts have been very clear on this.</div>
+  </div>
+
+  <!-- Card: Stat 2 -->
+  <div class="card card-stat">
+    <div class="stat-number">38s</div>
+    <div class="stat-label">Avg. Captivity Duration</div>
+  </div>
+
+  <!-- Card: FAQ 2 -->
+  <div class="card card-faq" x-data="{ open: false }">
+    <div class="faq-q" @click="open = !open">↑ What if I want to leave mid-abduction?</div>
+    <div class="faq-a" x-show="open" x-transition>That's the beauty of the experience — you can't. The chamber decides when you're released. We find this builds character and a healthy respect for vertical transit.</div>
+  </div>
+
+  <!-- Card: Content -->
+  <div class="card card-content" id="community">
+    <h3>Join the Captive Community</h3>
+    <p>Over 14,000 subscribers have embraced the vertically confined lifestyle. Our members-only Discord features floor reviews, muzak playlists, and a support channel for those experiencing post-abduction euphoria.</p>
+  </div>
+
+  <!-- Card: FAQ 3 -->
+  <div class="card card-faq" x-data="{ open: false }">
+    <div class="faq-q" @click="open = !open">↑ Why do the doors take so long to close?</div>
+    <div class="faq-a" x-show="open" x-transition>The anticipation is part of the premium experience. Our Door Hesitation Technology™ extends the pre-captivity phase by up to 6 seconds, allowing dread to develop naturally.</div>
+  </div>
+
+  <!-- Card: Testimonial 3 -->
+  <div class="card card-testimonial">
+    <blockquote>"My therapist says I should stop describing it as 'being taken.' But she also takes the stairs, so what does she know."</blockquote>
+    <div class="author">— PRIYA S., LOBBY TIER</div>
+  </div>
+
+  <!-- Card: CTA -->
+  <div class="card card-cta">
+    <h3 style="font-family:'Playfair Display',serif;font-size:26px;color:#fff;margin-bottom:16px;">Ready to Be Taken?</h3>
+    <p style="font-size:14px;color:rgba(255,255,255,0.8);margin-bottom:24px;">Your first abduction is on us. Step in. Let go.</p>
+    <button class="cta-btn"><span>Begin Captivity</span></button>
+  </div>
+
+</div>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-logo">ASCEND™</div>
+  <p>© 2026 ASCEND Vertical Confinement Corp. All rights reserved.</p>
+  <p style="margin-top:8px;font-size:11px;color:rgba(255,255,255,0.3);">Abductions may vary. ASCEND™ is not liable for existential revelations experienced between floors.</p>
+</footer>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  // GSAP: Animate floating shapes
+  var shapes = document.querySelectorAll('.shape');
+  shapes.forEach(function(shape, i) {
+    gsap.to(shape, {
+      y: 'random(-30, 30)',
+      x: 'random(-15, 15)',
+      rotation: 'random(-20, 20)',
+      duration: 'random(4, 8)',
+      ease: 'sine.inOut',
+      repeat: -1,
+      yoyo: true,
+      delay: i * 0.4
+    });
+  });
+
+  // GSAP: Hero entrance
+  gsap.from('.hero-badge', { opacity: 0, y: -20, duration: 1, delay: 0.3 });
+  gsap.from('.hero h1', { opacity: 0, y: 30, duration: 1.2, delay: 0.5 });
+  gsap.from('.hero-sub', { opacity: 0, y: 20, duration: 1, delay: 0.8 });
+  gsap.from('.elevator-art', { opacity: 0, scale: 0.9, duration: 1.2, delay: 1 });
+
+  // GSAP: Stagger cards on scroll (simple IntersectionObserver approach)
+  var cards = document.querySelectorAll('.card');
+  cards.forEach(function(card) {
+    gsap.set(card, { opacity: 0, y: 40 });
+  });
+
+  var observer = new IntersectionObserver(function(entries) {
+    entries.forEach(function(entry) {
+      if (entry.isIntersecting) {
+        gsap.to(entry.target, {
+          opacity: 1,
+          y: 0,
+          duration: 0.8,
+          ease: 'power2.out'
+        });
+        observer.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.1 });
+
+  cards.forEach(function(card) {
+    observer.observe(card);
+  });
+
+  // GSAP: Floor indicator glow pulse
+  var indicator = document.querySelector('.indicator-display');
+  if (indicator) {
+    gsap.to(indicator, {
+      textShadow: '0 0 50px rgba(255,107,107,0.8), 0 0 100px rgba(255,107,107,0.4)',
+      duration: 1.5,
+      ease: 'sine.inOut',
+      repeat: -1,
+      yoyo: true
+    });
+  }
+});
+</script>
+
+</body>
+</html>

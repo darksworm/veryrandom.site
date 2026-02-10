@@ -1,0 +1,674 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Gander & Ledger Globe | Winter Operations Edition</title>
+  <link rel="stylesheet" href="/assets/css/pico.min.css" />
+  <link rel="stylesheet" href="/assets/css/fonts.css" />
+  <style>
+    :root {
+      --bg: #071a26;
+      --bg-elev: #0d2a3b;
+      --bg-soft: #10364a;
+      --ink: #f4fbff;
+      --ink-strong: #ffffff;
+      --ink-dark: #021018;
+      --line: #2fd7b2;
+      --line-soft: #1f8f82;
+      --accent: #49f0c9;
+      --accent-2: #7df7dd;
+      --paper: #f8fff9;
+      --paper-ink: #0a1720;
+      --warning: #ffe08a;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      background:
+        radial-gradient(circle at 12% 8%, rgba(73, 240, 201, 0.18), transparent 24%),
+        radial-gradient(circle at 88% 14%, rgba(77, 151, 255, 0.12), transparent 26%),
+        linear-gradient(160deg, #061520 0%, #0a2636 52%, #041019 100%);
+      color: var(--ink);
+      font-family: "Space Grotesk", sans-serif;
+      min-height: 100vh;
+    }
+
+    .shell {
+      max-width: 1500px;
+      margin: 0 auto;
+      padding: 1rem;
+      display: grid;
+      grid-template-columns: 300px 1fr 270px;
+      gap: 1rem;
+    }
+
+    .panel {
+      background: linear-gradient(180deg, rgba(13,42,59,0.98), rgba(7,26,38,0.96));
+      border: 1px solid var(--line-soft);
+      border-radius: 14px;
+      padding: 1rem;
+      color: var(--ink);
+    }
+
+    .masthead {
+      display: flex;
+      gap: 0.8rem;
+      align-items: center;
+      margin-bottom: 1rem;
+      padding-bottom: 0.8rem;
+      border-bottom: 1px solid var(--line-soft);
+    }
+
+    .brand {
+      font-family: "Playfair Display", serif;
+      font-size: 1.35rem;
+      color: var(--ink-strong);
+      line-height: 1.1;
+    }
+
+    .muted {
+      color: #d7f6ee;
+      font-size: 0.86rem;
+    }
+
+    .icon-box {
+      width: 2.2rem;
+      height: 2.2rem;
+      border-radius: 8px;
+      border: 1px solid var(--line);
+      display: grid;
+      place-items: center;
+      color: var(--accent-2);
+      background: rgba(15, 67, 83, 0.5);
+    }
+
+    .sidebar-title {
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      font-size: 0.73rem;
+      color: var(--accent-2);
+      margin: 1rem 0 0.5rem;
+    }
+
+    .nav-btn,
+    .filter-btn,
+    .toggle-btn,
+    .expand-btn {
+      width: 100%;
+      text-align: left;
+      border: 1px solid var(--line-soft);
+      background: #0e3343;
+      color: var(--ink-strong);
+      margin: 0.3rem 0;
+      border-radius: 8px;
+      padding: 0.45rem 0.6rem;
+      font-size: 0.9rem;
+      cursor: pointer;
+    }
+
+    .nav-btn[aria-current="true"],
+    .filter-btn.active,
+    .toggle-btn.active {
+      background: #134a5d;
+      border-color: var(--line);
+      color: #ffffff;
+      font-weight: 600;
+    }
+
+    .main {
+      background: var(--paper);
+      color: var(--paper-ink);
+      border-radius: 14px;
+      border: 1px solid #a3ccb8;
+      padding: 1.2rem;
+      min-height: 80vh;
+    }
+
+    .edition-head {
+      border-bottom: 2px solid #133446;
+      padding-bottom: 0.8rem;
+      margin-bottom: 1rem;
+    }
+
+    .kicker {
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: #0b4656;
+      font-size: 0.76rem;
+      font-weight: 700;
+      margin: 0;
+    }
+
+    h1.headline {
+      margin: 0.25rem 0 0.35rem;
+      font-family: "Playfair Display", serif;
+      font-size: clamp(2rem, 4vw, 3rem);
+      line-height: 1.04;
+      color: #081823;
+    }
+
+    .deck {
+      font-size: 1.03rem;
+      color: #102431;
+      margin: 0;
+      max-width: 65ch;
+    }
+
+    .edition-meta {
+      margin-top: 0.5rem;
+      display: flex;
+      gap: 0.7rem;
+      flex-wrap: wrap;
+      font-family: "IBM Plex Mono", monospace;
+      font-size: 0.78rem;
+      color: #123142;
+    }
+
+    .toolbar {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.6rem;
+      margin: 1rem 0;
+    }
+
+    .toolbar .cluster {
+      display: flex;
+      gap: 0.35rem;
+      flex-wrap: wrap;
+    }
+
+    .toolbar button {
+      border: 1px solid #1a485e;
+      background: #f1fbf7;
+      color: #091922;
+      border-radius: 999px;
+      padding: 0.35rem 0.65rem;
+      font-size: 0.78rem;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .toolbar button.active {
+      background: #0f3e54;
+      color: #ffffff;
+      border-color: #0f3e54;
+    }
+
+    .columns {
+      columns: 2 320px;
+      column-gap: 1.2rem;
+    }
+
+    article.story,
+    .short-item,
+    blockquote.pull,
+    .letters,
+    .corrections,
+    .classifieds,
+    .ad-card {
+      break-inside: avoid;
+      margin-bottom: 1rem;
+      border: 1px solid #b8d8ca;
+      border-radius: 8px;
+      padding: 0.8rem;
+      background: #ffffff;
+      color: #0b1922;
+    }
+
+    .story h2 {
+      margin: 0.1rem 0 0.35rem;
+      font-family: "Playfair Display", serif;
+      font-size: 1.35rem;
+      line-height: 1.15;
+      color: #071826;
+    }
+
+    .byline,
+    .tagline {
+      font-family: "IBM Plex Mono", monospace;
+      font-size: 0.74rem;
+      color: #123243;
+      margin-bottom: 0.4rem;
+    }
+
+    p, li {
+      color: #0b1a23;
+      font-size: 0.95rem;
+      line-height: 1.48;
+      margin-bottom: 0.55rem;
+    }
+
+    .pull {
+      border-left: 5px solid #0d495d;
+      background: #eefaf4;
+      font-family: "Playfair Display", serif;
+      font-size: 1.15rem;
+      color: #071a26;
+      margin: 0 0 1rem;
+    }
+
+    .pull cite {
+      display: block;
+      font-family: "IBM Plex Mono", monospace;
+      font-size: 0.75rem;
+      margin-top: 0.6rem;
+      color: #123243;
+    }
+
+    .expand-btn {
+      background: #f4fffb;
+      color: #071826;
+      border-color: #1d5871;
+      font-weight: 700;
+      margin-top: 0.4rem;
+    }
+
+    .letters h3,
+    .corrections h3,
+    .classifieds h3,
+    .ad-card h3,
+    .short-item h3 {
+      margin: 0 0 0.4rem;
+      font-size: 1rem;
+      color: #071a26;
+      font-family: "Playfair Display", serif;
+    }
+
+    .letter {
+      border-top: 1px solid #d0e6dc;
+      padding-top: 0.45rem;
+      margin-top: 0.45rem;
+    }
+
+    .label {
+      display: inline-block;
+      font-size: 0.68rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: #0f3f52;
+      border: 1px solid #2a6a82;
+      padding: 0.1rem 0.35rem;
+      border-radius: 999px;
+      font-weight: 700;
+      margin-right: 0.35rem;
+      background: #ecfaf4;
+    }
+
+    .rail .panel {
+      padding: 0.9rem;
+      margin-bottom: 1rem;
+    }
+
+    .rail h3 {
+      margin-top: 0;
+      color: #f7ffff;
+      font-family: "Playfair Display", serif;
+      font-size: 1.05rem;
+    }
+
+    .rail p,
+    .rail li,
+    .rail small,
+    .rail strong {
+      color: #f2ffff;
+    }
+
+    .price-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.84rem;
+    }
+
+    .price-table th,
+    .price-table td {
+      border: 1px solid #2b7485;
+      padding: 0.34rem;
+      color: #ffffff;
+    }
+
+    .price-table th {
+      background: #165066;
+      text-align: left;
+    }
+
+    .price-table td {
+      background: #0f3a4a;
+    }
+
+    .badge {
+      display: inline-block;
+      border: 1px solid var(--line);
+      color: #ffffff;
+      background: #145267;
+      border-radius: 999px;
+      padding: 0.15rem 0.45rem;
+      font-size: 0.69rem;
+      font-weight: 700;
+      margin-right: 0.35rem;
+      margin-bottom: 0.2rem;
+    }
+
+    .foot {
+      margin-top: 1.2rem;
+      border-top: 1px solid #b7d8ca;
+      padding-top: 0.8rem;
+      color: #0e2532;
+      font-size: 0.82rem;
+      font-family: "IBM Plex Mono", monospace;
+    }
+
+    @media (max-width: 1180px) {
+      .shell { grid-template-columns: 260px 1fr; }
+      .rail { grid-column: 1 / -1; }
+      .rail-wrap { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1rem; }
+    }
+
+    @media (max-width: 860px) {
+      .shell { grid-template-columns: 1fr; }
+      .toolbar { grid-template-columns: 1fr; }
+      .columns { columns: 1; }
+    }
+  </style>
+</head>
+<body>
+  <div class="shell" x-data="globeDesk()">
+    <aside class="panel">
+      <div class="masthead">
+        <div class="icon-box"><i data-lucide="feather"></i></div>
+        <div>
+          <div class="brand">Gander & Ledger Globe</div>
+          <div class="muted">Consultancy + Lodging Command</div>
+        </div>
+      </div>
+
+      <p class="sidebar-title">Desk Navigation</p>
+      <button class="nav-btn" :aria-current="edition==='morning' ? 'true' : 'false'" @click="edition='morning'">Morning Bulletin</button>
+      <button class="nav-btn" :aria-current="edition==='evening' ? 'true' : 'false'" @click="edition='evening'">Evening Ledger</button>
+
+      <p class="sidebar-title">Coverage Filter</p>
+      <template x-for="cat in categories" :key="cat">
+        <button class="filter-btn" :class="{active: activeCategory===cat}" @click="activeCategory=cat" x-text="cat"></button>
+      </template>
+
+      <p class="sidebar-title">Page Switches</p>
+      <button class="toggle-btn" :class="{active: showOpinions}" @click="showOpinions=!showOpinions">Opinion Column</button>
+      <button class="toggle-btn" :class="{active: showLetters}" @click="showLetters=!showLetters">Letters Desk</button>
+      <button class="toggle-btn" :class="{active: showClassifieds}" @click="showClassifieds=!showClassifieds">Classifieds</button>
+
+      <p class="sidebar-title">Snow Globe Conditions</p>
+      <p><span class="badge">Visibility</span> Gentle glitter fall, 3 wing-lengths.</p>
+      <p><span class="badge">Roads</span> Packed sugar paths stable for sleigh carts.</p>
+      <p><span class="badge">Morale</span> Compliment reserves above seasonal threshold.</p>
+    </aside>
+
+    <main class="main">
+      <header class="edition-head">
+        <p class="kicker" x-text="edition==='morning' ? 'Morning Operations Edition' : 'Evening Consolidated Edition'"></p>
+        <h1 class="headline" id="lead">Quartermaster Geese Expand Hearth Capacity Ahead of Peak Flurry</h1>
+        <p class="deck">
+          Consulting marshals completed a twelve-nest audit and confirmed that compliment-backed bookings now settle faster than coin, provided each guest can deliver one sincere sentence per night.
+        </p>
+        <div class="edition-meta">
+          <span>Vol. 42</span>
+          <span>Sector: Inner Glass Province</span>
+          <span>Issued: 06:30 Snow Standard</span>
+          <span>Currency Index: +4.1% Praise</span>
+        </div>
+      </header>
+
+      <section class="toolbar" aria-label="controls">
+        <div class="cluster">
+          <button :class="{active: quickView==='front'}" @click="quickView='front'">Front Page</button>
+          <button :class="{active: quickView==='operations'}" @click="quickView='operations'">Operations</button>
+          <button :class="{active: quickView==='community'}" @click="quickView='community'">Community</button>
+        </div>
+        <div class="cluster">
+          <button :class="{active: layout==='dense'}" @click="layout='dense'">Dense Layout</button>
+          <button :class="{active: layout==='airy'}" @click="layout='airy'">Airy Layout</button>
+        </div>
+      </section>
+
+      <section class="columns" :style="layout==='airy' ? 'column-gap:1.8rem' : ''">
+        <template x-for="story in filteredStories" :key="story.id">
+          <article class="story" x-show="matchesView(story.section)">
+            <p class="tagline"><span class="label" x-text="story.category"></span><span x-text="story.byline"></span></p>
+            <h2 x-text="story.title"></h2>
+            <p x-text="story.body"></p>
+            <button class="expand-btn" @click="story.open = !story.open" x-text="story.open ? 'Fold Brief' : 'Expand Briefing'"></button>
+            <div x-show="story.open">
+              <p x-text="story.extra"></p>
+            </div>
+          </article>
+        </template>
+
+        <blockquote class="pull" x-show="activeCategory==='All' || activeCategory==='Editorial'">
+          "A properly timed compliment is lighter than coin and heavier than debt."
+          <cite>Field Manual 8, Hospitality Logistics Command</cite>
+        </blockquote>
+
+        <section class="short-item" x-show="activeCategory==='All' || activeCategory==='Dispatch'">
+          <h3>Harbor Clock Resynced After Young Gosling Set It to Lunchtime Forever</h3>
+          <p class="byline">Metro Desk | Harbor Bell Corridor</p>
+          <p>Engineers restored standard timekeeping after a jam incident involving oat porridge and enthusiasm. Four arrivals were delayed; all were compensated with handwritten admiration notes.</p>
+        </section>
+
+        <section class="short-item" x-show="activeCategory==='All' || activeCategory==='Hospitality'">
+          <h3>Kitchen Brigade Introduces Quiet Crust Protocol</h3>
+          <p class="byline">Inn Watch</p>
+          <p>Night bakers now cool rye rounds on wool pads to reduce corridor noise. Guests on upper roosts reported a 19% rise in dream quality and a 31% decrease in midnight honking.</p>
+        </section>
+
+        <section class="letters" x-show="showLetters && (activeCategory==='All' || activeCategory==='Editorial')">
+          <h3>Letters to the Editor</h3>
+          <div class="letter">
+            <p><strong>Regarding foyer queue posture:</strong> Please remind visiting consultants that map tubes are carried vertically, not as jousting lances. Two sconces were lost this week.</p>
+            <p class="byline">Marta Vell, Hall Steward</p>
+          </div>
+          <div class="letter">
+            <p><strong>On compliment inflation:</strong> "Pleasant" cannot be used as premium tender anymore. We must reserve top-tier terms for top-tier service, otherwise markets drift.</p>
+            <p class="byline">Arno Dake, Praise Comptroller</p>
+          </div>
+          <div class="letter">
+            <p><strong>Re: boots by the stove:</strong> Whoever dried muck boots on my herb rack owes basil an apology and replacement leaves.</p>
+            <p class="byline">Signed, The Conservatory Auntie</p>
+          </div>
+        </section>
+
+        <section class="corrections" x-show="activeCategory==='All' || activeCategory==='Editorial'">
+          <h3>Corrections & Clarifications</h3>
+          <p>Yesterday's map mislabeled Moss Alley as Moss Valley. Couriers were rerouted safely.</p>
+          <p>Captain Roan's rank is Logistics Marshal, not "Grand Pastry General."</p>
+          <p>The phrase "limitless porridge" referred to morale, not volume. Ladles remain finite.</p>
+        </section>
+
+        <section class="classifieds" x-show="showClassifieds && (activeCategory==='All' || activeCategory==='Classified')">
+          <h3>Classifieds</h3>
+          <p><strong>Wanted:</strong> Dawn bell ringer with steady wing and punctual temperament. Payment: three daily compliments plus soup rights.</p>
+          <p><strong>For Trade:</strong> One cedar trunk of winter scarves, exchanged for two competent route sketches.</p>
+          <p><strong>Notice:</strong> Lost brass compass engraved "To Mira, who finds home." Return to intake desk for generous praise package.</p>
+          <p><strong>Service:</strong> Needlework mender specializing in satchels and campaign quilts. Honest rates in kind words.</p>
+        </section>
+
+        <section class="short-item" x-show="showOpinions && (activeCategory==='All' || activeCategory==='Editorial')">
+          <h3>Opinion: Stop Calling Every Spreadsheet a Migration Plan</h3>
+          <p class="byline">By Edna Tallow, Senior Roost Strategist</p>
+          <p>Tables are not strategy. Strategy includes weather, tea temperature, and whether your lead courier has slept. Respect sequence before symbolism.</p>
+        </section>
+
+        <section class="short-item" x-show="showOpinions && (activeCategory==='All' || activeCategory==='Consulting')">
+          <h3>Column: In Defense of the Modest Checklist</h3>
+          <p class="byline">By Fen Moor, Process Desk</p>
+          <p>Checklist discipline is not bureaucracy; it is kindness for your future self. A missed lantern wick can undo six meetings and one wedding breakfast.</p>
+        </section>
+
+        <section class="short-item" x-show="activeCategory==='All' || activeCategory==='Dispatch'">
+          <h3>Field Note: East Ramp Cleared Before First Light</h3>
+          <p class="byline">Courier Pool #3</p>
+          <p>Volunteer geese rotated shovel duty in fifteen-minute shifts while singing route mnemonics. No slips, no sprains, no dropped satchels.</p>
+        </section>
+
+        <section class="short-item" x-show="activeCategory==='All' || activeCategory==='Hospitality'">
+          <h3>Guest Ledger: Compliment Settlement Highlights</h3>
+          <p class="byline">Front Desk Audit</p>
+          <p>Suite Fern accepted "Your porch lantern made me feel expected" as full payment. Loft Sparrow accepted "I have never slept this bravely."</p>
+        </section>
+      </section>
+
+      <footer class="foot">
+        Printed by the Glass-Rim Press Cooperative. Reproduction permitted with attribution and at least one specific compliment to the copy desk.
+      </footer>
+    </main>
+
+    <aside class="rail">
+      <div class="rail-wrap">
+        <section class="panel ad-card">
+          <h3>Sponsored Notice</h3>
+          <p><strong>Need route certainty?</strong> Emberline Goose Consulting offers lane choreography, stove placement plans, and emergency tea sequencing for inns under weather pressure.</p>
+          <p><small>Book through Quarterdeck Window 2. Intake closes at moonrise.</small></p>
+        </section>
+
+        <section class="panel">
+          <h3>Compliment Exchange Board</h3>
+          <table class="price-table">
+            <thead>
+              <tr><th>Phrase Grade</th><th>Nightly Value</th></tr>
+            </thead>
+            <tbody>
+              <tr><td>Specific Praise</td><td>1.0 room-night</td></tr>
+              <tr><td>Poetic Admiration</td><td>1.5 room-night</td></tr>
+              <tr><td>General Niceness</td><td>0.4 room-night</td></tr>
+              <tr><td>Backhanded Flattery</td><td>Rejected</td></tr>
+            </tbody>
+          </table>
+        </section>
+
+        <section class="panel ad-card">
+          <h3>Margin Advertisement</h3>
+          <p><strong>Moss & March Supply</strong></p>
+          <p>Waterproof ledger wraps, lantern-safe ribbon, and stackable oat tins for long corridor campaigns.</p>
+          <p><small>Ask for the green crate and mention this issue.</small></p>
+        </section>
+
+        <section class="panel">
+          <h3>Briefing Docket</h3>
+          <ul>
+            <li>07:15: Corridor draft drill</li>
+            <li>09:40: New guest orientation</li>
+            <li>12:10: Soup convoy handoff</li>
+            <li>15:20: Compliment quality review</li>
+            <li>18:45: Snow globe polish watch</li>
+          </ul>
+        </section>
+      </div>
+    </aside>
+  </div>
+
+  <script src="/assets/js/alpine.min.js" defer></script>
+  <script src="/assets/js/gsap.min.js" defer></script>
+  <script src="/assets/js/lucide.min.js" defer></script>
+  <script>
+    function globeDesk() {
+      return {
+        edition: 'morning',
+        activeCategory: 'All',
+        quickView: 'front',
+        layout: 'dense',
+        showOpinions: true,
+        showLetters: true,
+        showClassifieds: true,
+        categories: ['All', 'Consulting', 'Hospitality', 'Dispatch', 'Editorial', 'Classified'],
+        stories: [
+          {
+            id: 1,
+            category: 'Consulting',
+            section: 'front',
+            byline: 'By Celia Brant, Senior Correspondent',
+            title: 'War Room to Warm Room: Command Desk Reworks Check-In Flow',
+            body: 'Former campaign planners redesigned the inn foyer with triage lanes, tea staging, and map hooks, cutting arrival congestion during squall nights.',
+            extra: 'The redesign introduces a "quiet wing" lane for exhausted couriers and a rapid "boots, broth, bed" route for late arrivals carrying operational dispatches.',
+            open: false
+          },
+          {
+            id: 2,
+            category: 'Hospitality',
+            section: 'front',
+            byline: 'By Rooke Vale, Hearth Desk',
+            title: 'Featherdown Annex Opens Six New Nests Above Lantern Hall',
+            body: 'The bed and breakfast now hosts mixed teams of pilots, auditors, and orchard delegates under one cedar-beam roofline.',
+            extra: 'Sound baffling made from woven reeds keeps dawn chatter low while preserving the lobby bell for actual emergencies.',
+            open: false
+          },
+          {
+            id: 3,
+            category: 'Dispatch',
+            section: 'operations',
+            byline: 'By Tamsin Quill, Field Bureau',
+            title: 'South Causeway Convoy Completes 112 Deliveries Before Noon',
+            body: 'Route marshals credited precise checklists and neighborly hand signals for the smooth run through drifting glitter snow.',
+            extra: 'Each stop received cargo and one morale citation, a policy credited with reducing reroute disputes by nearly half this quarter.',
+            open: false
+          },
+          {
+            id: 4,
+            category: 'Consulting',
+            section: 'operations',
+            byline: 'By Jonah Pike, Ledger Beat',
+            title: 'Quartermaster Seminar Teaches Praise Auditing for New Managers',
+            body: 'Managers practiced rating compliments by specificity, sincerity, and timeliness to stabilize lodging exchange rates.',
+            extra: 'A good compliment names a behavior, says why it mattered, and arrives close to the event. Vague praise is accepted only at a discount.',
+            open: false
+          },
+          {
+            id: 5,
+            category: 'Editorial',
+            section: 'community',
+            byline: 'By The Night Editor',
+            title: 'Leader: Hospitality Is Logistics With Better Blankets',
+            body: 'A warm room is not accidental. It is inventory, sequencing, and dependable kindness executed on schedule.',
+            extra: 'Our readers know that comfort has a supply chain. Respect the quartermaster and thank the kettle runner by name.',
+            open: false
+          },
+          {
+            id: 6,
+            category: 'Hospitality',
+            section: 'community',
+            byline: 'By Mira Hallow, Guest Affairs',
+            title: 'Weekend Workshop Trains Hosts in Tactical Scone Deployment',
+            body: 'Hosts learned when to offer sweet, savory, or emergency oat rounds based on arrival mood and weather fatigue.',
+            extra: 'Instructors recommend savory-first for soaked boots, sweet-first for celebratory delegations, and dual trays for tense mediation visits.',
+            open: false
+          }
+        ],
+        matchesView(section) {
+          if (this.quickView === 'front') return section === 'front';
+          if (this.quickView === 'operations') return section === 'operations';
+          if (this.quickView === 'community') return section === 'community';
+          return true;
+        },
+        get filteredStories() {
+          if (this.activeCategory === 'All') return this.stories;
+          return this.stories.filter((s) => s.category === this.activeCategory);
+        }
+      };
+    }
+
+    document.addEventListener('DOMContentLoaded', function () {
+      if (window.lucide && typeof window.lucide.createIcons === 'function') {
+        window.lucide.createIcons();
+      }
+      if (window.gsap) {
+        window.gsap.from('.masthead, .headline, .story, .short-item, .panel', {
+          opacity: 0,
+          y: 12,
+          duration: 0.5,
+          stagger: 0.04,
+          ease: 'power2.out'
+        });
+      }
+    });
+  </script>
+</body>
+</html>

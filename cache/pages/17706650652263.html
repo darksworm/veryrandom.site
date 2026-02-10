@@ -1,0 +1,517 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Cul-de-Sac Renewal Cooperative</title>
+  <link rel="stylesheet" href="/assets/css/pico.min.css" />
+  <link rel="stylesheet" href="/assets/css/fonts.css" />
+  <style>
+    :root {
+      --bg: #eef5ff;
+      --panel: #f8fbff;
+      --panel-2: #dfeaf8;
+      --line: #9cb5d3;
+      --ink: #091425;
+      --ink-soft: #1a2a43;
+      --accent: #0d3d74;
+      --accent-2: #265e96;
+      --ok: #0b5e43;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html, body {
+      margin: 0;
+      padding: 0;
+      background: radial-gradient(circle at 10% 0%, #f7fbff 0%, var(--bg) 45%, #e3edf9 100%);
+      color: var(--ink);
+      font-family: "IBM Plex Mono", monospace;
+      line-height: 1.6;
+      scroll-behavior: smooth;
+    }
+
+    body {
+      min-height: 100vh;
+    }
+
+    .crt-grid {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      background-image: linear-gradient(to bottom, rgba(9, 20, 37, 0.05) 1px, transparent 1px);
+      background-size: 100% 3px;
+      opacity: 0.35;
+      z-index: 0;
+    }
+
+    main {
+      position: relative;
+      z-index: 1;
+      width: min(980px, 92vw);
+      margin: 0 auto;
+      padding: 2rem 0 4rem;
+    }
+
+    header {
+      border: 1px solid var(--line);
+      background: linear-gradient(180deg, #f9fcff 0%, #edf4fd 100%);
+      padding: 1.2rem;
+      border-radius: 0;
+      margin-bottom: 1.4rem;
+    }
+
+    .topbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 1rem;
+      flex-wrap: wrap;
+      margin-bottom: 1rem;
+    }
+
+    .badge {
+      border: 1px solid var(--accent);
+      color: var(--accent);
+      padding: 0.15rem 0.5rem;
+      font-size: 0.76rem;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      background: #ffffff;
+    }
+
+    nav {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.75rem;
+    }
+
+    nav a {
+      text-decoration: none;
+      color: var(--ink);
+      border: 1px solid var(--line);
+      background: #ffffff;
+      padding: 0.25rem 0.6rem;
+      font-size: 0.82rem;
+    }
+
+    nav a:hover {
+      background: var(--panel-2);
+      color: var(--ink);
+    }
+
+    .hero {
+      border: 1px solid var(--line);
+      background: var(--panel);
+      padding: 1.5rem;
+      margin-bottom: 1.2rem;
+    }
+
+    h1, h2, h3 {
+      font-weight: 600;
+      letter-spacing: 0.01em;
+      color: var(--ink);
+    }
+
+    h1 {
+      font-size: clamp(1.4rem, 4vw, 2.3rem);
+      margin: 0 0 0.8rem;
+      line-height: 1.2;
+    }
+
+    .lead {
+      font-size: 1.02rem;
+      color: var(--ink);
+      margin-bottom: 1.2rem;
+    }
+
+    .inline-meta {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 0.65rem;
+      margin-top: 1rem;
+    }
+
+    .inline-meta div {
+      border: 1px solid var(--line);
+      background: #fff;
+      padding: 0.6rem;
+      font-size: 0.82rem;
+      color: var(--ink-soft);
+    }
+
+    section.panel {
+      border: 1px solid var(--line);
+      background: var(--panel);
+      padding: 1.2rem;
+      margin-bottom: 1.1rem;
+    }
+
+    .prompt {
+      border-left: 3px solid var(--accent);
+      padding-left: 0.8rem;
+      margin: 1rem 0;
+    }
+
+    button, .button {
+      border-radius: 0;
+      border: 1px solid var(--accent);
+      background: #ffffff;
+      color: var(--ink);
+      font-family: "IBM Plex Mono", monospace;
+      font-weight: 600;
+    }
+
+    button:hover, .button:hover {
+      background: #dce9f8;
+      color: var(--ink);
+    }
+
+    .reveal {
+      margin-top: 0.8rem;
+      border: 1px dashed var(--accent-2);
+      padding: 0.8rem;
+      background: #eef5fe;
+      color: var(--ink);
+    }
+
+    .terminal {
+      background: #f3f8ff;
+      border: 1px solid var(--line);
+      padding: 0.9rem;
+      white-space: pre-wrap;
+      color: #0a1f38;
+      font-size: 0.92rem;
+    }
+
+    .memo-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+      gap: 0.8rem;
+      margin-top: 0.8rem;
+    }
+
+    .memo {
+      border: 1px solid var(--line);
+      background: #ffffff;
+      padding: 0.9rem;
+      min-height: 180px;
+      transition: transform 0.18s ease, background-color 0.18s ease;
+    }
+
+    .memo:hover {
+      transform: translateY(-4px);
+      background: #edf5ff;
+    }
+
+    .redacted {
+      background: #0f1f34;
+      color: #0f1f34;
+      padding: 0 0.2rem;
+      transition: color 0.2s ease;
+    }
+
+    .memo:hover .redacted {
+      color: #f4f9ff;
+    }
+
+    .pricing {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 0.8rem;
+    }
+
+    .plan {
+      border: 1px solid var(--line);
+      background: #ffffff;
+      padding: 0.9rem;
+    }
+
+    .plan h3 {
+      margin-top: 0;
+      margin-bottom: 0.35rem;
+      font-size: 1.05rem;
+    }
+
+    .price {
+      font-size: 1.3rem;
+      font-weight: 700;
+      color: #082c57;
+      margin-bottom: 0.4rem;
+    }
+
+    .quote {
+      border: 1px solid var(--line);
+      background: #fff;
+      padding: 0.9rem;
+      margin-bottom: 0.7rem;
+      color: var(--ink);
+    }
+
+    .finale {
+      background: linear-gradient(180deg, #edf5ff 0%, #e2edf9 100%);
+      border: 1px solid var(--line);
+    }
+
+    label {
+      color: var(--ink);
+      font-weight: 600;
+    }
+
+    input, textarea, select {
+      border-radius: 0;
+      border: 1px solid #5c7da4;
+      background: #ffffff;
+      color: #07111e;
+      font-family: "IBM Plex Mono", monospace;
+    }
+
+    input::placeholder, textarea::placeholder {
+      color: #223954;
+      opacity: 1;
+    }
+
+    .stamp {
+      margin-top: 1rem;
+      border: 1px dashed #3f658e;
+      padding: 0.6rem;
+      color: #0b2a4d;
+      background: #f7fbff;
+      font-size: 0.86rem;
+    }
+
+    footer {
+      margin-top: 1rem;
+      font-size: 0.8rem;
+      color: #10253f;
+      text-align: left;
+    }
+
+    .scroll-reveal {
+      opacity: 0;
+      transform: translateY(24px);
+    }
+
+    @media (max-width: 700px) {
+      main {
+        width: min(980px, 94vw);
+      }
+
+      .hero,
+      section.panel,
+      header {
+        padding: 1rem;
+      }
+
+      nav {
+        gap: 0.45rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="crt-grid" aria-hidden="true"></div>
+
+  <main>
+    <header>
+      <div class="topbar">
+        <strong>CUL-DE-SAC RENEWAL COOPERATIVE</strong>
+        <span class="badge">Regional Chapter 17 / Est. 2004</span>
+      </div>
+      <nav>
+        <a href="#orientation">Orientation</a>
+        <a href="#field">Field Notes</a>
+        <a href="#residents">Resident Voices</a>
+        <a href="#membership">Membership</a>
+        <a href="#enroll">Enrollment</a>
+      </nav>
+    </header>
+
+    <section class="hero scroll-reveal" id="orientation" x-data="{ step: 0 }">
+      <h1>Rewild your address without alarming the homeowners association.</h1>
+      <p class="lead">
+        We help households transition from ornamental turf dependency to resilient front-yard ecology,
+        one carefully documented cul-de-sac at a time.
+      </p>
+
+      <div class="prompt">
+        <p><strong>Orientation Console:</strong> "Most residents arrive after their third Saturday of edging. You are in safe hands."</p>
+        <button type="button" x-on:click="step = 1">Acknowledge Intake Statement</button>
+      </div>
+
+      <div class="reveal" x-show="step >= 1" x-transition>
+        <p>
+          Intake accepted. Your lawn did not fail you; it was designed to consume your weekends,
+          your groundwater, and eventually your conversational range.
+        </p>
+        <button type="button" x-on:click="step = 2">Continue to Field Protocol</button>
+      </div>
+
+      <div class="reveal" x-show="step >= 2" x-transition>
+        <p>
+          Field Protocol unlocked: Phase one is social camouflage. We replace twelve square feet at a time,
+          introduce native groundcover, and leave one precise strip of conventional grass so no one asks questions until week six.
+        </p>
+      </div>
+
+      <div class="inline-meta">
+        <div><i data-lucide="clipboard-check"></i> Typical timeline: 14 weeks from mowing loop to pollinator loop.</div>
+        <div><i data-lucide="sprout"></i> Certified in municipal code interpretation across 31 counties.</div>
+        <div><i data-lucide="shield-check"></i> HOA correspondence reviewed before every installation stage.</div>
+      </div>
+    </section>
+
+    <section class="panel scroll-reveal" id="field">
+      <h2>Field Notes: Week 0 to Week 8</h2>
+      <p>
+        We opened with a neighborhood listening walk at dusk. Sprinklers hissed in stereo. Three residents held hoses
+        like ceremonial objects while discussing rainfall deficits. At 7:43 PM, participant #214 whispered,
+        "I think I only own this yard because my father owned this yard." We marked that as the turning point.
+      </p>
+
+      <div class="terminal" aria-label="Field log transcript">
+[LOG 02] Replace south-facing turf with low-water sedge matrix.
+[LOG 03] Introduce sign: "SOIL RECOVERY IN PROGRESS" to reduce peer concern.
+[LOG 04] Redirect Saturday labor toward porch breakfast and unstructured reading.
+[LOG 05] Track hummingbird return. Resident tears noted. Positive trajectory.
+      </div>
+
+      <p style="margin-top: 0.85rem;">
+        Hover each internal memo to view the line that used to stay redacted during first consultations.
+      </p>
+
+      <div class="memo-grid">
+        <article class="memo">
+          <h3>Memo A: Compliance</h3>
+          <p>"Maintain one familiar visual anchor near curb edge."</p>
+          <p><span class="redacted">We call it the comfort strip so neighbors feel the transition as design, not rebellion.</span></p>
+        </article>
+        <article class="memo">
+          <h3>Memo B: Family Script</h3>
+          <p>"When relatives ask why the lawn changed, avoid debate language."</p>
+          <p><span class="redacted">Say: We updated the yard to match local climate and now Saturdays belong to us again.</span></p>
+        </article>
+        <article class="memo">
+          <h3>Memo C: Block Dynamics</h3>
+          <p>"Do not underestimate copied behavior on short streets."</p>
+          <p><span class="redacted">One visible conversion often triggers two more by the next tax season.</span></p>
+        </article>
+      </div>
+    </section>
+
+    <section class="panel scroll-reveal" id="residents">
+      <h2>Letters from Residents</h2>
+      <article class="quote">
+        "By month three, our son stopped referring to weekends as 'yard work days.' He calls them 'outside days' now.
+        We found ladybugs in the thyme bed and the whole block pretended it was normal."<br />
+        <strong>- M. Alvarez, Cedar Loop</strong>
+      </article>
+      <article class="quote">
+        "I joined for the irrigation audit and stayed for the scripts. Your consultant taught me how to answer
+        passive-aggressive porch questions with calm, zoning-compliant sentences."<br />
+        <strong>- K. Patel, North Bend Court</strong>
+      </article>
+      <article class="quote">
+        "The old lawn looked expensive and felt dead. The new yard looks gentle and alive.
+        Also, I got my Saturdays back, which no contractor had ever offered me before."<br />
+        <strong>- R. Donovan, Briar Circle</strong>
+      </article>
+    </section>
+
+    <section class="panel scroll-reveal" id="membership">
+      <h2>Membership Programs</h2>
+      <p>
+        Pricing is simple: pay for guidance, planning, and social shielding. Plants and hardscape billed at cost,
+        approved line by line.
+      </p>
+      <div class="pricing">
+        <article class="plan">
+          <h3>Starter Parcel</h3>
+          <div class="price">$190 / month</div>
+          <p>For homes testing a 120 sq ft pilot conversion.</p>
+          <p>Includes intake, soil map, and first HOA letter draft.</p>
+        </article>
+        <article class="plan">
+          <h3>Full Front Transition</h3>
+          <div class="price">$420 / month</div>
+          <p>For complete front-yard redesign and phased installation.</p>
+          <p>Includes weekly check-ins, signage kit, and neighbor Q&A scriptbook.</p>
+        </article>
+        <article class="plan">
+          <h3>Block Package</h3>
+          <div class="price">$980 / month</div>
+          <p>For 4-8 homes on one street converting together.</p>
+          <p>Includes municipal liaison support and shared contractor scheduling.</p>
+        </article>
+      </div>
+    </section>
+
+    <section class="panel finale scroll-reveal" id="enroll" x-data="{ sent: false }">
+      <h2>Enrollment Terminal</h2>
+      <p>
+        Tell us where you are in the process. We reply within two business days with a sober plan and exact next steps.
+      </p>
+      <form x-show="!sent" x-on:submit.prevent="sent = true">
+        <label for="name">Resident name</label>
+        <input id="name" name="name" placeholder="e.g., Dana Morales" required />
+
+        <label for="phase">Current phase</label>
+        <select id="phase" name="phase" required>
+          <option value="">Select one</option>
+          <option>Still mowing but asking questions</option>
+          <option>Ready for pilot conversion</option>
+          <option>Already removed turf, need structure</option>
+        </select>
+
+        <label for="notes">Block notes</label>
+        <textarea id="notes" name="notes" rows="4" placeholder="HOA constraints, irrigation setup, social context..." required></textarea>
+
+        <button type="submit">Submit Intake Packet</button>
+      </form>
+
+      <div class="reveal" x-show="sent" x-transition>
+        Intake packet accepted. Your file has been assigned to a field coordinator.
+        Next message will include a phased map, cost envelope, and your first neighborhood-safe sentence.
+      </div>
+
+      <div class="stamp">
+        <strong>Operational Note:</strong> No pesticides. No synthetic turf. No weekend martyrdom.
+      </div>
+    </section>
+
+    <footer>
+      <p>CRC Cooperative, District Office 17, Open Tue-Sat, 08:00-18:00</p>
+    </footer>
+  </main>
+
+  <script defer src="/assets/js/alpine.min.js"></script>
+  <script src="/assets/js/gsap.min.js"></script>
+  <script src="/assets/js/lucide.min.js"></script>
+  <script>
+    document.addEventListener("DOMContentLoaded", function () {
+      if (window.lucide && typeof window.lucide.createIcons === "function") {
+        window.lucide.createIcons();
+      }
+
+      if (window.gsap && typeof window.gsap.utils !== "undefined") {
+        gsap.utils.toArray(".scroll-reveal").forEach(function (el, index) {
+          gsap.to(el, {
+            opacity: 1,
+            y: 0,
+            duration: 0.7,
+            delay: index * 0.08,
+            ease: "power2.out"
+          });
+        });
+      } else {
+        document.querySelectorAll(".scroll-reveal").forEach(function (el) {
+          el.style.opacity = "1";
+          el.style.transform = "translateY(0)";
+        });
+      }
+    });
+  </script>
+</body>
+</html>

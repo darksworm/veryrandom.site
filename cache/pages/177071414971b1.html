@@ -1,0 +1,662 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>The Stepdown Ledger | National Rampfront Initiative</title>
+  <link rel="stylesheet" href="/assets/css/pico.min.css" />
+  <link rel="stylesheet" href="/assets/css/fonts.css" />
+  <style>
+    :root {
+      --paper: #ffffff;
+      --ink: #102218;
+      --ink-soft: #2d4639;
+      --accent: #0e9f6e;
+      --accent-deep: #0b6b4b;
+      --grid: #d7f2e7;
+      --rule: #b6e6d2;
+      --warn: #0b3d2e;
+      --card: #f7fffb;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html,
+    body {
+      margin: 0;
+      padding: 0;
+      background: var(--paper);
+      color: var(--ink);
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 16px;
+      overflow-x: hidden;
+      scroll-behavior: smooth;
+    }
+
+    body {
+      background-image:
+        linear-gradient(to right, var(--grid) 1px, transparent 1px),
+        linear-gradient(to bottom, var(--grid) 1px, transparent 1px);
+      background-size: 22px 22px;
+    }
+
+    main {
+      scroll-snap-type: y mandatory;
+    }
+
+    .slide {
+      min-height: 100svh;
+      scroll-snap-align: start;
+      border-bottom: 2px solid var(--rule);
+      padding: clamp(1rem, 2.2vw, 2rem);
+      display: grid;
+      align-content: start;
+    }
+
+    .masthead {
+      border: 3px double var(--accent-deep);
+      background: var(--paper);
+      padding: 1rem;
+      display: grid;
+      gap: 0.6rem;
+    }
+
+    .mast-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 0.6rem;
+      flex-wrap: wrap;
+      border-bottom: 1px solid var(--rule);
+      padding-bottom: 0.45rem;
+      font-family: 'IBM Plex Mono', monospace;
+      color: var(--ink-soft);
+      font-size: 0.9rem;
+    }
+
+    .brand {
+      font-size: clamp(2rem, 5vw, 5rem);
+      line-height: 0.94;
+      margin: 0;
+      letter-spacing: 0.02em;
+      text-transform: uppercase;
+      color: var(--warn);
+    }
+
+    .subhead {
+      font-size: clamp(1rem, 2.1vw, 1.35rem);
+      margin: 0;
+      color: var(--ink-soft);
+      max-width: 75ch;
+    }
+
+    .hero-grid {
+      display: grid;
+      grid-template-columns: 2.2fr 1fr;
+      gap: 1rem;
+      margin-top: 1rem;
+    }
+
+    .panel,
+    .ad,
+    .story,
+    .price,
+    .faq-item,
+    .letter,
+    .correction {
+      background: var(--card);
+      border: 1px solid var(--rule);
+      padding: 1rem;
+    }
+
+    .panel h2,
+    .story h3,
+    .price h3,
+    .faq-item h3,
+    .letter h3,
+    .correction h3 {
+      margin-top: 0;
+      color: var(--warn);
+    }
+
+    .panel p,
+    .story p,
+    .price p,
+    .faq-item p,
+    .letter p,
+    .correction p,
+    li,
+    small,
+    label,
+    time,
+    span {
+      color: var(--ink);
+    }
+
+    .pull {
+      border-left: 6px solid var(--accent);
+      padding-left: 0.8rem;
+      margin: 1rem 0;
+      font-size: 1.08rem;
+      font-weight: 700;
+      color: var(--warn);
+    }
+
+    .button-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.6rem;
+      margin-top: 0.6rem;
+    }
+
+    .button-row button,
+    .chips button,
+    .tab-row button,
+    .faq-toggle,
+    .read-more,
+    .jump a {
+      min-height: 44px;
+      border: 1px solid var(--accent-deep);
+      background: var(--paper);
+      color: var(--warn);
+      font-weight: 700;
+      padding: 0.45rem 0.85rem;
+      cursor: pointer;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.45rem;
+    }
+
+    .button-row button:hover,
+    .chips button:hover,
+    .tab-row button:hover,
+    .faq-toggle:hover,
+    .read-more:hover,
+    .jump a:hover {
+      background: #ddf9ed;
+    }
+
+    .on {
+      background: var(--accent);
+      color: #ffffff;
+      border-color: var(--accent-deep);
+    }
+
+    .jump {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      margin-top: 0.8rem;
+    }
+
+    .news-shell {
+      display: grid;
+      gap: 1rem;
+      grid-template-columns: 1fr 280px;
+      align-items: start;
+    }
+
+    .tab-row,
+    .chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.45rem;
+      margin-bottom: 0.8rem;
+    }
+
+    .stories {
+      display: grid;
+      gap: 0.7rem;
+    }
+
+    .stories.archive {
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    }
+
+    .meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.55rem;
+      font-size: 0.85rem;
+      font-family: 'IBM Plex Mono', monospace;
+      color: var(--ink-soft);
+      margin-bottom: 0.45rem;
+    }
+
+    .tag {
+      border: 1px solid var(--rule);
+      background: #e9fff5;
+      padding: 0.12rem 0.45rem;
+      color: var(--warn);
+    }
+
+    .ad-stack {
+      display: grid;
+      gap: 0.7rem;
+    }
+
+    .ad {
+      border-style: dashed;
+    }
+
+    .ad h4 {
+      margin: 0 0 0.35rem;
+      color: var(--accent-deep);
+      font-size: 1rem;
+    }
+
+    .split {
+      display: grid;
+      gap: 1rem;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      margin-top: 1rem;
+    }
+
+    .letter-grid {
+      display: grid;
+      gap: 0.8rem;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      margin-top: 0.8rem;
+    }
+
+    .byline {
+      font-family: 'IBM Plex Mono', monospace;
+      color: var(--ink-soft);
+      font-size: 0.88rem;
+      margin-bottom: 0.45rem;
+    }
+
+    .faq {
+      display: grid;
+      gap: 0.7rem;
+      margin-top: 1rem;
+    }
+
+    .faq-toggle {
+      width: 100%;
+      justify-content: space-between;
+      text-align: left;
+      background: #effff8;
+    }
+
+    .kpi-row {
+      display: grid;
+      gap: 0.8rem;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      margin-top: 0.8rem;
+    }
+
+    .kpi {
+      border: 1px solid var(--rule);
+      background: #f0fff8;
+      padding: 0.75rem;
+    }
+
+    .kpi strong {
+      display: block;
+      font-size: 1.5rem;
+      color: var(--warn);
+    }
+
+    .ticker {
+      margin-top: 0.7rem;
+      border: 1px solid var(--accent-deep);
+      padding: 0.5rem;
+      font-family: 'IBM Plex Mono', monospace;
+      color: var(--warn);
+      background: #e5fff3;
+    }
+
+    .footer-note {
+      border-top: 2px solid var(--rule);
+      padding-top: 0.9rem;
+      margin-top: 1rem;
+      font-family: 'IBM Plex Mono', monospace;
+      color: var(--ink-soft);
+      font-size: 0.9rem;
+    }
+
+    @media (max-width: 980px) {
+      .hero-grid,
+      .news-shell,
+      .split,
+      .letter-grid,
+      .kpi-row {
+        grid-template-columns: 1fr;
+      }
+
+      .ad-stack {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        display: grid;
+      }
+    }
+
+    @media (max-width: 640px) {
+      .slide {
+        padding: 0.8rem;
+      }
+
+      .brand {
+        font-size: clamp(1.6rem, 11vw, 2.6rem);
+      }
+
+      .ad-stack {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main x-data="ledgerApp()">
+    <section class="slide" id="front">
+      <header class="masthead reveal">
+        <div class="mast-top">
+          <span>PUBLICATION OF THE NATIONAL RAMPFRONT INITIATIVE</span>
+          <span>Tuesday Edition | Stair Hazard Index: Severe</span>
+        </div>
+        <h1 class="brand">The Stepdown Ledger</h1>
+        <p class="subhead">
+          I am Lenny Pike, former municipal staircase inspector, current editor, and the woman who watched Stair 11 eat my wedding cannoli in 2004. I am not over it. Neither should this nation be.
+        </p>
+      </header>
+
+      <div class="hero-grid reveal">
+        <article class="panel">
+          <h2>Front Page Emergency</h2>
+          <p>
+            City Hall spent $78,000 repainting steps "less intimidating beige." We asked for ramps. They sent us a color swatch named "Compliance Oat." This is why I publish six times a week.
+          </p>
+          <p class="pull">
+            "If a surface requires counting before use, it's infrastructure cosplay."
+          </p>
+          <div class="button-row">
+            <button type="button" @click="alarm = !alarm" :class="alarm ? 'on' : ''">
+              <i data-lucide="siren"></i>
+              <span x-text="alarm ? 'Disable Stair Siren' : 'Enable Stair Siren'"></span>
+            </button>
+            <button type="button" @click="edition = edition === 'Morning Panic' ? 'Lunch Anxiety' : (edition === 'Lunch Anxiety' ? 'Evening Reckoning' : 'Morning Panic')">
+              <i data-lucide="newspaper"></i>
+              Rotate Edition
+            </button>
+          </div>
+          <div class="ticker" x-show="alarm" x-transition>
+            ALERT: Residents of Block C report three consecutive "decorative" steps near a frozen yogurt shop. Deploying pamphlets and one very loud clipboard.
+          </div>
+          <p class="byline">Current print run: <strong x-text="edition"></strong></p>
+          <div class="jump">
+            <a href="#news"><i data-lucide="file-text"></i> News Desk</a>
+            <a href="#dues"><i data-lucide="badge-dollar-sign"></i> Membership Dues</a>
+            <a href="#letters"><i data-lucide="mail"></i> Letters</a>
+          </div>
+        </article>
+
+        <aside class="ad-stack">
+          <div class="ad">
+            <h4>Paid Notice</h4>
+            <p>
+              Buy the "NO STEP LEFT BEHIND" yard sign pack. Includes 4 signs, 1 whistle, and a pre-addressed complaint card to your mayor.
+            </p>
+            <small>$24.11 + indignation</small>
+          </div>
+          <div class="ad">
+            <h4>Classified Alert</h4>
+            <p>
+              Seeking witness who saw me trip outside Parcel Depot on June 14. You held my tote bag and said, "This is systemic." Please call.
+            </p>
+          </div>
+          <div class="ad">
+            <h4>Correction Preview</h4>
+            <p>
+              Yesterday we reported 43 stairs at the Transit Annex. Final count is 44. We missed one because it was "a mood step."
+            </p>
+          </div>
+        </aside>
+      </div>
+
+      <div class="kpi-row reveal">
+        <div class="kpi"><strong>11,402</strong> stairs politely asked to retire since 2022.</div>
+        <div class="kpi"><strong>97%</strong> of members can now carry soup confidently.</div>
+        <div class="kpi"><strong>1</strong> personal nemesis: Stair 11, district archives building.</div>
+      </div>
+    </section>
+
+    <section class="slide" id="news">
+      <div class="news-shell reveal">
+        <div>
+          <div class="tab-row">
+            <button type="button" @click="desk='front'" :class="desk==='front' ? 'on' : ''">Front Desk</button>
+            <button type="button" @click="desk='investigations'" :class="desk==='investigations' ? 'on' : ''">Investigations</button>
+            <button type="button" @click="desk='culture'" :class="desk==='culture' ? 'on' : ''">Culture</button>
+          </div>
+
+          <div class="chips">
+            <button type="button" @click="active='All'" :class="active==='All' ? 'on' : ''">All</button>
+            <button type="button" @click="active='News'" :class="active==='News' ? 'on' : ''">News</button>
+            <button type="button" @click="active='Opinion'" :class="active==='Opinion' ? 'on' : ''">Opinion</button>
+            <button type="button" @click="active='Classifieds'" :class="active==='Classifieds' ? 'on' : ''">Classifieds</button>
+            <button type="button" @click="active='Letters'" :class="active==='Letters' ? 'on' : ''">Letters</button>
+            <button type="button" @click="active='Corrections'" :class="active==='Corrections' ? 'on' : ''">Corrections</button>
+            <button type="button" @click="archive = !archive" :class="archive ? 'on' : ''">
+              <i data-lucide="layout-grid"></i>
+              <span x-text="archive ? 'Archive Wall' : 'Column View'"></span>
+            </button>
+          </div>
+
+          <div class="stories" :class="archive ? 'archive' : ''">
+            <template x-for="item in filteredStories()" :key="item.id">
+              <article class="story">
+                <div class="meta">
+                  <span class="tag" x-text="item.category"></span>
+                  <span x-text="item.byline"></span>
+                  <span x-text="item.desk"></span>
+                </div>
+                <h3 x-text="item.title"></h3>
+                <p x-text="item.deck"></p>
+                <button type="button" class="read-more" @click="toggleOpen(item.id)">
+                  <i data-lucide="chevrons-down"></i>
+                  <span x-text="isOpen(item.id) ? 'Hide full copy' : 'Read full copy'"></span>
+                </button>
+                <p x-show="isOpen(item.id)" x-transition x-text="item.body"></p>
+              </article>
+            </template>
+          </div>
+        </div>
+
+        <aside class="ad-stack">
+          <div class="ad">
+            <h4>Margin Ad</h4>
+            <p>
+              Need testimony rehearsal? Book Lenny's 12-minute "Council Voice" training. Learn to say "with all due respect" like a legal thunderclap.
+            </p>
+            <small>$18 per session</small>
+          </div>
+          <div class="ad">
+            <h4>Sponsored Tool</h4>
+            <p>
+              Pocket Level Plus: proves every "just one little step" is actually 7.2 inches of betrayal.
+            </p>
+          </div>
+          <div class="ad">
+            <h4>Public Notice</h4>
+            <p>
+              Committee hearing this Friday. Bring two forms of ID and one emotionally grounded anecdote.
+            </p>
+          </div>
+        </aside>
+      </div>
+    </section>
+
+    <section class="slide" id="dues">
+      <h2 class="reveal">Membership, Dues, and Tactical Stationery</h2>
+      <p class="subhead reveal">
+        We are a nonprofit. We are also deeply funded by spite, clipboards, and people who dropped a muffin on stair four and decided never again.
+      </p>
+
+      <div class="split reveal">
+        <article class="price">
+          <h3>Porch Leveler - $12/month</h3>
+          <p>Monthly newsletter, one printable "I Counted, It's Still Bad" door hanger, and access to the Stair Sighting Map.</p>
+          <p class="byline">Best for newly radicalized neighbors.</p>
+        </article>
+        <article class="price">
+          <h3>Council Menace - $47.99/month</h3>
+          <p>Everything above, plus hotline scripts, hearing reminders, and our annual tote: "Ramps Are Romance."</p>
+          <p class="byline">Most popular among librarians and furious dads.</p>
+        </article>
+        <article class="price">
+          <h3>Legacy Drop-Kicker - $211/year</h3>
+          <p>Founder's circle, signed correction slips, and a framed photo of Stair 11 with a polite black ribbon.</p>
+          <p class="byline">For families healing in public.</p>
+        </article>
+      </div>
+
+      <div class="panel reveal">
+        <h2>Field Operations This Week</h2>
+        <ul>
+          <li>Wednesday 7:30 AM: Bagel shop ramp audit with laser measure and pastries.</li>
+          <li>Thursday 5:00 PM: "Stop Calling It Character" architecture intervention.</li>
+          <li>Saturday 11:00 AM: Community repaint of curb cuts in surgical green.</li>
+          <li>Sunday 2:00 PM: Open mic for stair-related emotional closure.</li>
+        </ul>
+      </div>
+    </section>
+
+    <section class="slide" id="letters">
+      <h2 class="reveal">Letters, Corrections, and Questions We Keep Getting</h2>
+
+      <div class="letter-grid reveal">
+        <article class="letter">
+          <h3>Letter: "My fiance says I'm overreacting."</h3>
+          <p class="byline">From Kira M., Newark</p>
+          <p>You are not overreacting. Anyone who says "it's only three steps" should carry your slow cooker up them during rain.</p>
+        </article>
+        <article class="letter">
+          <h3>Letter: "Can stairs be grandfathered in?"</h3>
+          <p class="byline">From "Concerned Contractor"</p>
+          <p>We do not negotiate with nostalgia. If your staircase has a family crest, that is not compliance.</p>
+        </article>
+        <article class="correction">
+          <h3>Correction #882</h3>
+          <p>In Monday's issue, we described the museum staircase as "smug." Legal requested "architecturally condescending." Updated.</p>
+        </article>
+        <article class="correction">
+          <h3>Correction #883</h3>
+          <p>We misspelled Councilmember Brigg's quote "we hear your concerns" as "we fear your concerns." Our typo was emotionally accurate.</p>
+        </article>
+      </div>
+
+      <div class="faq reveal">
+        <article class="faq-item" x-data="{open:false}">
+          <button class="faq-toggle" type="button" @click="open=!open">
+            <span>Do you hate stairs or just bad design?</span>
+            <span x-text="open ? '-' : '+'"></span>
+          </button>
+          <p x-show="open" x-transition>Both. We hate avoidable barriers and the little grin steps seem to wear when people pretend they're "historic charm."</p>
+        </article>
+        <article class="faq-item" x-data="{open:false}">
+          <button class="faq-toggle" type="button" @click="open=!open">
+            <span>Why is your mascot a raccoon with a level?</span>
+            <span x-text="open ? '-' : '+'"></span>
+          </button>
+          <p x-show="open" x-transition>Rampsy the Raccoon once stole my measuring tape and returned it sorted by inch. Leadership qualities.</p>
+        </article>
+        <article class="faq-item" x-data="{open:false}">
+          <button class="faq-toggle" type="button" @click="open=!open">
+            <span>Can I volunteer if I still own a staircase?</span>
+            <span x-text="open ? '-' : '+'"></span>
+          </button>
+          <p x-show="open" x-transition>Yes. Accountability starts at home. We offer a gentle "renovate, don't self-flagellate" checklist.</p>
+        </article>
+      </div>
+
+      <div class="footer-note reveal">
+        Editor's oath, signed Lenny Pike: "No one spills soup on my watch again."<br />
+        National Rampfront Initiative, 42 Incline-Free Plaza, Suite 0, Ground Level by design.
+      </div>
+    </section>
+  </main>
+
+  <script src="/assets/js/alpine.min.js" defer></script>
+  <script src="/assets/js/gsap.min.js" defer></script>
+  <script src="/assets/js/lucide.min.js" defer></script>
+  <script>
+    function ledgerApp() {
+      return {
+        alarm: false,
+        archive: false,
+        active: 'All',
+        desk: 'front',
+        edition: 'Morning Panic',
+        openIds: [],
+        stories: [
+          { id: 1, category: 'News', desk: 'front', byline: 'By Lenny Pike', title: 'Transit Hub Adds Ramp, Names It "Temporary Forever"', deck: 'Ribbon cutting lasted nine minutes before someone parked a decorative fern on it.', body: 'We asked why it was blocked. Facilities said the fern was "boosting morale." We moved morale.' },
+          { id: 2, category: 'Opinion', desk: 'front', byline: 'By Lenny Pike', title: 'A Love Letter to Flat Ground', deck: 'You never surprised me. You never demanded a running start.', body: 'Flat ground is humble. Flat ground does not perform tricks. Flat ground respects casseroles and knees equally.' },
+          { id: 3, category: 'Classifieds', desk: 'culture', byline: 'Classified Desk', title: 'For Sale: Slightly Used Staircase Excuses', deck: 'Includes "historic," "cozy," and "character."', body: 'Will trade for one zoning board member who has met gravity personally.' },
+          { id: 4, category: 'Letters', desk: 'front', byline: 'From Milo P.', title: 'My Cat Prefers the Ramp', deck: 'She used to pause at step two and sigh dramatically.', body: 'Installed your DIY ramp kit. Cat now ascends with confidence and mild superiority.' },
+          { id: 5, category: 'Corrections', desk: 'investigations', byline: 'Standards Desk', title: 'Correction: Not a "Trip," It Was a "Policy Failure"', deck: 'Language matters when your lunch ends up airborne.', body: 'Our style guide now bans the phrase "minor stumble" and recommends "predictable civic launch event."' },
+          { id: 6, category: 'News', desk: 'investigations', byline: 'By D. Caro', title: 'Secret Steps Found Behind "Accessible" Door', deck: 'Door badge read WELCOME ALL. Floor plan read absolutely not.', body: 'Inspectors discovered four hidden risers and one fake potted palm trying to look innocent.' },
+          { id: 7, category: 'Opinion', desk: 'culture', byline: 'By Guest Columnist Dr. Ren Song', title: 'Why Architects Keep Drawing Tiny Betrayals', deck: 'The line between "feature" and "lawsuit" is exactly 7 inches tall.', body: 'We analyzed 120 brochures. Every staircase was photographed at sunset, never at grocery hour.' },
+          { id: 8, category: 'Classifieds', desk: 'front', byline: 'Classified Desk', title: 'Wanted: Eyewitness to Courthouse Step Incident', deck: 'Reward includes two gala tickets and a stern nod.', body: 'You said, "This is why paperwork takes years." Please contact our legal empathy desk.' },
+          { id: 9, category: 'News', desk: 'culture', byline: 'By Lenny Pike', title: 'Teenagers Paint Unauthorized Mini-Ramp at Skate Spot', deck: 'City called it vandalism; neighbors called it "finally practical."', body: 'We call it proof of concept in aerosol form.' },
+          { id: 10, category: 'Letters', desk: 'investigations', byline: 'From Yvette G.', title: 'My Building Added a Ramp and Rent Stayed the Same', deck: 'A rare miracle observed in Midtown.', body: 'Landlord said the ramp made deliveries faster. Kindness and efficiency can share a lease.' },
+          { id: 11, category: 'Corrections', desk: 'front', byline: 'Standards Desk', title: 'Correction: 18 Steps, Not 17, at River Theater', deck: 'Reporter lost count while arguing with an usher.', body: 'In our defense, the seventh step had no edges and appeared metaphysical.' },
+          { id: 12, category: 'Opinion', desk: 'investigations', byline: 'By Lenny Pike', title: 'Stop Calling Ramps "Special Access"', deck: 'Bread is not special bread because everyone can eat it.', body: 'Access is baseline civilization, not a boutique service you unlock with paperwork.' },
+          { id: 13, category: 'Classifieds', desk: 'culture', byline: 'Community Board', title: 'Swap Meet: Knee Braces for Clipboards', deck: 'All sizes welcome; hard feelings optional.', body: 'Saturday near the fountain. Bring labels. Bring stories. Bring very comfortable shoes.' },
+          { id: 14, category: 'News', desk: 'front', byline: 'By Tessa N.', title: 'Bakery Installs Ramp, Sells Out Before Noon', deck: 'Turns out more people can enter a place when they can physically enter a place.', body: 'Owner says profits rose 22%. Also, fewer croissants were dropped on tile.' },
+          { id: 15, category: 'Letters', desk: 'culture', byline: 'From Anonymous Intern', title: 'Our Office Staircase Is a Team-Building Exercise', deck: 'I did not apply for cardio with my spreadsheet role.', body: 'HR sent a motivational poster. We sent your petition template. Guess which one worked.' },
+          { id: 16, category: 'Corrections', desk: 'investigations', byline: 'Standards Desk', title: 'Correction: It Was Councilman, Not Consultant, Who Said "Use Smaller Wheels"', deck: 'We regret the confusion and the blood pressure spike.', body: 'Statement remains in context and somehow became worse when confirmed.' }
+        ],
+        filteredStories() {
+          return this.stories.filter((story) => {
+            const categoryMatch = this.active === 'All' || story.category === this.active;
+            const deskMatch = story.desk === this.desk;
+            return categoryMatch && deskMatch;
+          });
+        },
+        toggleOpen(id) {
+          if (this.openIds.includes(id)) {
+            this.openIds = this.openIds.filter((x) => x !== id);
+          } else {
+            this.openIds.push(id);
+          }
+          this.$nextTick(() => {
+            if (window.lucide) {
+              window.lucide.createIcons();
+            }
+          });
+        },
+        isOpen(id) {
+          return this.openIds.includes(id);
+        }
+      };
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      if (window.lucide) {
+        window.lucide.createIcons();
+      }
+
+      if (window.gsap) {
+        const revealTargets = document.querySelectorAll('.reveal');
+        const observer = new IntersectionObserver((entries) => {
+          entries.forEach((entry) => {
+            if (entry.isIntersecting) {
+              gsap.fromTo(
+                entry.target,
+                { y: 22, opacity: 0 },
+                { y: 0, opacity: 1, duration: 0.65, ease: 'power2.out', clearProps: 'opacity,transform' }
+              );
+              observer.unobserve(entry.target);
+            }
+          });
+        }, { threshold: 0.2 });
+
+        revealTargets.forEach((el) => observer.observe(el));
+      }
+    });
+  </script>
+</body>
+</html>

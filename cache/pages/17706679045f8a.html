@@ -1,0 +1,731 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Luminous Manifest Authority | Crayon Broadcast Bureau</title>
+  <link rel="stylesheet" href="/assets/css/pico.min.css" />
+  <link rel="stylesheet" href="/assets/css/fonts.css" />
+  <style>
+    :root {
+      --ice-0: #f7fcff;
+      --ice-1: #eaf5ff;
+      --ice-2: #d7ebff;
+      --ice-3: #c3dcf3;
+      --ink-0: #02101f;
+      --ink-1: #0a2238;
+      --ink-2: #113555;
+      --line: #7ba6c9;
+      --alert: #b20f2b;
+      --good: #0d6a4a;
+      --glow: 0 0 0 1px #9ec3e0, 0 0 18px rgba(112, 170, 212, 0.35);
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: 'Space Grotesk', sans-serif;
+      color: var(--ink-0);
+      background:
+        linear-gradient(130deg, rgba(255,255,255,0.85), rgba(210,232,249,0.75)),
+        repeating-linear-gradient(90deg, rgba(15,42,66,0.06) 0, rgba(15,42,66,0.06) 1px, transparent 1px, transparent 7px),
+        linear-gradient(180deg, var(--ice-0), var(--ice-2));
+      min-height: 100vh;
+    }
+
+    .portal-wrap {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 1rem;
+    }
+
+    nav {
+      border: 1px solid var(--line);
+      background: linear-gradient(180deg, #ffffff, #e7f3ff);
+      box-shadow: var(--glow);
+      padding: 0.6rem 0.9rem;
+      margin-bottom: 1rem;
+    }
+
+    nav ul { align-items: center; }
+    nav a { color: var(--ink-1); font-weight: 700; }
+    .brand {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 0.95rem;
+      letter-spacing: 0.03em;
+      text-transform: uppercase;
+      color: var(--ink-2);
+    }
+
+    .split {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+    }
+
+    .wing {
+      border: 1px solid var(--line);
+      box-shadow: var(--glow);
+      overflow: hidden;
+    }
+
+    .wing-left {
+      background: linear-gradient(170deg, #ffffff 0%, #ebf5ff 40%, #dcefff 100%);
+      color: var(--ink-0);
+    }
+
+    .wing-right {
+      background:
+        linear-gradient(170deg, #0a2238 0%, #0f2f4b 35%, #173f61 100%);
+      color: #f7fbff;
+      border-color: #8db6d4;
+    }
+
+    .wing-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0.8rem 1rem;
+      border-bottom: 1px solid currentColor;
+      font-family: 'IBM Plex Mono', monospace;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      font-size: 0.82rem;
+      font-weight: 700;
+    }
+
+    .wing-body {
+      padding: 1rem;
+      display: grid;
+      gap: 0.9rem;
+    }
+
+    .stack-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.75rem;
+    }
+
+    .panel {
+      border: 1px solid rgba(8,40,65,0.38);
+      background: rgba(255,255,255,0.86);
+      padding: 0.75rem;
+    }
+
+    .wing-right .panel {
+      border-color: rgba(215,235,255,0.52);
+      background: rgba(7,29,49,0.72);
+      color: #f7fbff;
+    }
+
+    h1, h2, h3, p { margin: 0; }
+
+    h1 {
+      font-size: clamp(1.4rem, 2vw, 2rem);
+      line-height: 1.15;
+      margin-bottom: 0.3rem;
+    }
+
+    h2 { font-size: 1rem; margin-bottom: 0.4rem; }
+    h3 { font-size: 0.85rem; margin-bottom: 0.3rem; text-transform: uppercase; }
+
+    .small { font-size: 0.8rem; }
+    .mono { font-family: 'IBM Plex Mono', monospace; }
+
+    .kpis {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 0.5rem;
+    }
+
+    .kpi {
+      border: 1px solid rgba(10,44,72,0.35);
+      padding: 0.55rem;
+      background: rgba(250,253,255,0.92);
+    }
+
+    .wing-right .kpi {
+      border-color: rgba(194,220,242,0.58);
+      background: rgba(11,45,72,0.9);
+      color: #ffffff;
+    }
+
+    .kpi strong {
+      display: block;
+      font-size: 1.25rem;
+      margin-bottom: 0.1rem;
+    }
+
+    .switch-row,
+    .btn-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+    }
+
+    button,
+    .btn-lite {
+      border: 1px solid var(--ink-2);
+      background: #ffffff;
+      color: var(--ink-0);
+      padding: 0.4rem 0.65rem;
+      font-family: 'IBM Plex Mono', monospace;
+      font-weight: 700;
+      cursor: pointer;
+      margin: 0;
+    }
+
+    .wing-right button {
+      border-color: #d6ecff;
+      background: #eef7ff;
+      color: #08233b;
+    }
+
+    button:hover,
+    .btn-lite:hover { background: #d9ecff; }
+
+    .bulletin {
+      min-height: 82px;
+      border: 1px dashed rgba(6,32,53,0.45);
+      background: rgba(255,255,255,0.94);
+      padding: 0.55rem;
+      font-size: 0.9rem;
+      color: #031425;
+    }
+
+    .wing-right .bulletin {
+      border-color: rgba(206,228,245,0.7);
+      background: rgba(231,244,255,0.95);
+      color: #04172a;
+    }
+
+    .ticker {
+      border: 1px solid rgba(8,40,65,0.38);
+      padding: 0.55rem;
+      background: rgba(255,255,255,0.94);
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 0.82rem;
+      color: #04182b;
+      overflow: hidden;
+      white-space: nowrap;
+      text-overflow: ellipsis;
+    }
+
+    .wing-right .ticker {
+      border-color: rgba(210,234,252,0.65);
+      background: rgba(239,248,255,0.97);
+      color: #032038;
+    }
+
+    .meter {
+      display: grid;
+      gap: 0.35rem;
+    }
+
+    .bar {
+      height: 1rem;
+      background: linear-gradient(90deg, #11466f, #2f83c4);
+      border: 1px solid #072139;
+      color: #ffffff;
+      font-size: 0.72rem;
+      line-height: 0.9rem;
+      padding-left: 0.35rem;
+      white-space: nowrap;
+      overflow: hidden;
+    }
+
+    table {
+      width: 100%;
+      font-size: 0.78rem;
+      border-collapse: collapse;
+      background: rgba(255,255,255,0.94);
+      color: #031425;
+    }
+
+    .wing-right table {
+      background: rgba(240,248,255,0.98);
+      color: #02111f;
+    }
+
+    th, td {
+      border: 1px solid #7ca5c8;
+      padding: 0.3rem;
+      text-align: left;
+    }
+
+    th { background: #c9e1f5; color: #04192c; }
+
+    .pill {
+      display: inline-block;
+      border: 1px solid currentColor;
+      padding: 0.08rem 0.4rem;
+      font-size: 0.72rem;
+      font-weight: 700;
+      text-transform: uppercase;
+    }
+
+    .pill.ok { color: #0b4c35; background: #d8f5e8; }
+    .pill.warn { color: #5a3c00; background: #fff3cf; }
+    .pill.flag { color: #710016; background: #ffd8df; }
+
+    .footnotes {
+      border: 1px dashed #2b618d;
+      padding: 0.5rem;
+      background: #f2f9ff;
+      color: #062038;
+      font-size: 0.73rem;
+      line-height: 1.35;
+    }
+
+    .wing-right .footnotes {
+      background: #eaf5ff;
+      color: #04192f;
+    }
+
+    .faq details {
+      border: 1px solid rgba(6,35,58,0.4);
+      background: rgba(255,255,255,0.9);
+      padding: 0.45rem;
+      margin-bottom: 0.45rem;
+      color: #04172b;
+    }
+
+    .faq summary {
+      font-weight: 700;
+      cursor: pointer;
+      color: #031526;
+    }
+
+    .status-dot {
+      width: 9px;
+      height: 9px;
+      border-radius: 50%;
+      display: inline-block;
+      margin-right: 0.35rem;
+      vertical-align: middle;
+      background: #0b734f;
+      box-shadow: 0 0 0 2px rgba(11,115,79,0.22);
+    }
+
+    .status-dot.alert {
+      background: var(--alert);
+      box-shadow: 0 0 0 2px rgba(178,15,43,0.23);
+    }
+
+    .grid-3 {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 0.5rem;
+    }
+
+    .plan-card {
+      border: 1px solid rgba(7,38,62,0.45);
+      background: rgba(255,255,255,0.93);
+      color: #031629;
+      padding: 0.55rem;
+    }
+
+    .plan-card strong {
+      display: block;
+      margin-bottom: 0.25rem;
+      font-size: 0.9rem;
+    }
+
+    .plan-card .price {
+      font-size: 1.3rem;
+      font-weight: 800;
+      color: #031a30;
+    }
+
+    footer {
+      margin-top: 1rem;
+      border: 1px solid var(--line);
+      background: #e8f4ff;
+      color: #031528;
+      padding: 0.7rem;
+      font-size: 0.78rem;
+    }
+
+    .icon-line i { vertical-align: -2px; }
+
+    @media (max-width: 1080px) {
+      .split,
+      .stack-2,
+      .kpis,
+      .grid-3 { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <div class="portal-wrap" id="appRoot">
+    <nav>
+      <ul>
+        <li><strong class="brand">LMA // Crayon Broadcast Bureau</strong></li>
+      </ul>
+      <ul>
+        <li><a href="#operations">Operations</a></li>
+        <li><a href="#subscription">Subscriptions</a></li>
+        <li><a href="#audit">Audit Ledger</a></li>
+        <li><a href="#faq">Civic FAQ</a></li>
+      </ul>
+    </nav>
+
+    <div class="split">
+      <section class="wing wing-left" id="operations">
+        <header class="wing-head">
+          <span><span class="status-dot"></span>Studio Floor A: Lamp Manifest Desk</span>
+          <span class="mono" id="localTime">--:--:--</span>
+        </header>
+        <div class="wing-body">
+          <div class="panel">
+            <h1>Luminous Manifest Authority</h1>
+            <p>The public utility for televised policy, nightly decree, and rhyme-compliant civic relief.</p>
+          </div>
+
+          <div class="kpis">
+            <div class="kpi"><strong id="kpiEpisodes">1204</strong><span class="small">Episodes aired this quarter</span></div>
+            <div class="kpi"><strong id="kpiRhymes">98.4%</strong><span class="small">Certified rhyme ratio</span></div>
+            <div class="kpi"><strong id="kpiCrayon">64</strong><span class="small">Active crayon clerks</span></div>
+            <div class="kpi"><strong id="kpiPetitions">4421</strong><span class="small">Petitions sealed before dawn</span></div>
+          </div>
+
+          <div class="stack-2">
+            <article class="panel">
+              <h2 class="icon-line"><i data-lucide="megaphone"></i> Broadcast Bulletins</h2>
+              <div class="btn-row" style="margin-bottom:0.45rem;">
+                <button type="button" data-bulletin="prime">Prime Feed</button>
+                <button type="button" data-bulletin="legal">Legal Feed</button>
+                <button type="button" data-bulletin="field">Field Feed</button>
+              </div>
+              <div class="bulletin" id="bulletinText">Awaiting bulletin selection.</div>
+            </article>
+
+            <article class="panel">
+              <h2 class="icon-line"><i data-lucide="timer"></i> Session Clocks</h2>
+              <p class="small mono" id="countdown">Next adjudication in: --:--:--</p>
+              <p class="small mono" id="uptime">Network uptime: 0 days 00:00:00</p>
+              <div class="switch-row" style="margin-top:0.45rem;">
+                <button type="button" id="modeToggle">Emergency Verse Mode: OFF</button>
+                <button type="button" id="resetClock">Reset Clock</button>
+              </div>
+              <p class="small" style="margin-top:0.4rem;">When emergency mode is active, all permits rhyme by line and time.</p>
+            </article>
+          </div>
+
+          <article class="panel">
+            <h2 class="icon-line"><i data-lucide="bar-chart-3"></i> Crayon Pressure Allocation Map</h2>
+            <label for="pressure" class="small">Pressure Index (1-100): <span id="pressureValue">58</span></label>
+            <input type="range" min="1" max="100" value="58" id="pressure" />
+            <div class="meter" id="meterBars">
+              <div class="bar" data-base="42" style="width:42%">Drafting Wing</div>
+              <div class="bar" data-base="61" style="width:61%">Archive Wing</div>
+              <div class="bar" data-base="78" style="width:78%">Rhyme Tribunal</div>
+              <div class="bar" data-base="50" style="width:50%">Lamp Registry</div>
+            </div>
+          </article>
+
+          <article class="panel" id="audit">
+            <h2 class="icon-line"><i data-lucide="table"></i> Public Episode Audit Ledger</h2>
+            <table>
+              <thead>
+                <tr>
+                  <th>Lot</th>
+                  <th>Segment</th>
+                  <th>Ink Type</th>
+                  <th>Rhyme Seal</th>
+                  <th>Review</th>
+                </tr>
+              </thead>
+              <tbody id="ledgerRows">
+                <tr><td>L-441</td><td>Midnight Climate Climb</td><td>Cobalt Crayon</td><td>full rhyme</td><td><span class="pill ok">cleared</span></td></tr>
+                <tr><td>L-442</td><td>Tax Facts in Wax Stacks</td><td>Silver Crayon</td><td>end rhyme</td><td><span class="pill warn">edit due</span></td></tr>
+                <tr><td>L-443</td><td>Road Code Ode Mode</td><td>Polar Crayon</td><td>full rhyme</td><td><span class="pill ok">cleared</span></td></tr>
+                <tr><td>L-444</td><td>Night Light Flight Right</td><td>Frost Crayon</td><td>slant rhyme</td><td><span class="pill flag">flagged</span></td></tr>
+              </tbody>
+            </table>
+            <div class="btn-row" style="margin-top:0.45rem;">
+              <button type="button" id="addLedger">Append Ledger Row</button>
+              <button type="button" id="toggleFlags">Hide Flagged Rows</button>
+            </div>
+          </article>
+
+          <article class="footnotes mono">
+            Footnote 11a: Every decree appears in waxy lines so each precinct can sign in time.<br />
+            Footnote 11b: If meter drifts, clerks repeat with beat until sheets complete.<br />
+            Footnote 11c: All remarks are archived in bark-toned marks for public parks.
+          </article>
+        </div>
+      </section>
+
+      <section class="wing wing-right" id="subscription">
+        <header class="wing-head">
+          <span><span class="status-dot"></span>Studio Floor B: Citizen Services</span>
+          <span class="mono" id="queueStat">Queue 017</span>
+        </header>
+        <div class="wing-body">
+          <article class="panel">
+            <h2 class="icon-line"><i data-lucide="radio"></i> Civic Ticker Wire</h2>
+            <div class="ticker" id="tickerLine">The bureau hums in silver rooms while lamp decrees in choral tunes.</div>
+            <div class="btn-row" style="margin-top:0.5rem;">
+              <button type="button" id="nextTicker">Next Wire</button>
+              <button type="button" id="manifestoBtn">Issue Manifest Verse</button>
+            </div>
+            <p class="small" id="manifestoOut" style="margin-top:0.5rem; color:#f8fcff;">Manifest status: waiting for dispatch.</p>
+          </article>
+
+          <article class="panel">
+            <h2 class="icon-line"><i data-lucide="layout-grid"></i> Subscription Tranches</h2>
+            <div class="grid-3">
+              <div class="plan-card">
+                <strong>Harbor Basic</strong>
+                <div class="price">$19</div>
+                <p class="small">Weekly decree digest, one rhyme audit, two midnight replays.</p>
+              </div>
+              <div class="plan-card">
+                <strong>Beacon Plus</strong>
+                <div class="price">$79</div>
+                <p class="small">Daily judge notes, priority hotline, district-wide chime alerts.</p>
+              </div>
+              <div class="plan-card">
+                <strong>Aurora Sovereign</strong>
+                <div class="price">$249</div>
+                <p class="small">Live studio seat, quarterly lamp oath, family permit queue skip.</p>
+              </div>
+            </div>
+          </article>
+
+          <div class="stack-2">
+            <article class="panel">
+              <h2 class="icon-line"><i data-lucide="heart-handshake"></i> Citizen Testimonials</h2>
+              <div class="bulletin" id="quoteBox">
+                "Their lamp camp fixed our permit stamp, now every clerk can work in verse." - Borough Clerk, East Wharf
+              </div>
+              <button type="button" id="nextQuote" style="margin-top:0.45rem;">Rotate Testimonial</button>
+            </article>
+
+            <article class="panel">
+              <h2 class="icon-line"><i data-lucide="calculator"></i> Approval Counter</h2>
+              <p class="small">Stamped approvals in this watch:</p>
+              <p class="mono" style="font-size:1.4rem; font-weight:800; margin:0.25rem 0;" id="approvalCount">003842</p>
+              <button type="button" id="boostCount">Fast-Stamp +17</button>
+              <p class="small" style="margin-top:0.35rem;">Counter rises with every signed line.</p>
+            </article>
+          </div>
+
+          <article class="panel faq" id="faq">
+            <h2 class="icon-line"><i data-lucide="help-circle"></i> Civic FAQ</h2>
+            <details>
+              <summary>How do I submit a decree that rhymes?</summary>
+              <p class="small">Use paired lines, match closing sound, and file before moonrise for same-night review.</p>
+            </details>
+            <details>
+              <summary>Can businesses sponsor an episode?</summary>
+              <p class="small">Yes. Licensed sponsors may underwrite one segment per quarter with full public disclosure.</p>
+            </details>
+            <details>
+              <summary>What happens if a document fails cadence?</summary>
+              <p class="small">It enters the Calm Redraft Queue and returns with meter guidance from tribunal staff.</p>
+            </details>
+          </article>
+
+          <article class="footnotes mono">
+            Notice 31f: Metered matter is a public right.<br />
+            Notice 31g: Queue stamps roll from dusk till dawn.<br />
+            Notice 31h: Service credits apply when rhyme clocks slip.
+          </article>
+        </div>
+      </section>
+    </div>
+
+    <footer>
+      <strong>Crayon Broadcast Bureau // Luminous Manifest Authority</strong>
+      <div class="small">Federal Channel License 88-LAMP. Civic hotline: 800-RHYME-NOW. Records hall: Pier 6, North Ice District.</div>
+    </footer>
+  </div>
+
+  <script src="/assets/js/gsap.min.js"></script>
+  <script src="/assets/js/lucide.min.js"></script>
+  <script>
+    (function () {
+      const byId = (id) => document.getElementById(id);
+
+      const bulletinText = byId('bulletinText');
+      const manifestOut = byId('manifestoOut');
+      const quoteBox = byId('quoteBox');
+      const approvalCount = byId('approvalCount');
+      const queueStat = byId('queueStat');
+      const pressure = byId('pressure');
+      const pressureValue = byId('pressureValue');
+      const meterBars = Array.from(document.querySelectorAll('#meterBars .bar'));
+      const ledgerRows = byId('ledgerRows');
+      const countdownEl = byId('countdown');
+      const uptimeEl = byId('uptime');
+      const localTime = byId('localTime');
+      const tickerLine = byId('tickerLine');
+      const appRoot = byId('appRoot');
+
+      const bulletins = {
+        prime: 'Prime feed: The lamp camp signs each plan in rhyme; tonight we align the transit line.',
+        legal: 'Legal feed: Clause by clause, applause by laws. All filings sealed by district draws.',
+        field: 'Field feed: Snow-road crews report in verse; each route rehearsed avoids reverse.'
+      };
+
+      const wires = [
+        'District 9 confirms dock clocks hum while permit drums align by sum.',
+        'Archive hall restored twelve scrolls; each roll enrolled with cadence goals.',
+        'Public studio seats are full; moonlit jury starts at 21:00 local.',
+        'Harbor schools submitted rules in couplets; tribunal response due at dawn.'
+      ];
+
+      const manifestLines = [
+        'By lamp and stamp we keep the camp in civic rhyme and lawful time.',
+        'From pier to square, each oath is fair; we file with care and open glare.',
+        'Let every ward record accord; the glowing board keeps public score.',
+        'Tonight we write by frosted light so every right is signed in sight.'
+      ];
+
+      const quotes = [
+        '"Their lamp camp fixed our permit stamp, now every clerk can work in verse." - Borough Clerk, East Wharf',
+        '"I paid for Beacon Plus and my zoning dispute resolved before sunrise." - Marina Shop Union',
+        '"The rhyme hotline reduced filing errors by half in two weeks." - Transit Office, North Ring',
+        '"Our district hearings became legible and credible in one billing cycle." - Civic Auditor, Ward 3'
+      ];
+
+      let wireIndex = 0;
+      let quoteIndex = 0;
+      let manifestIndex = 0;
+      let approvals = 3842;
+      let hideFlagged = false;
+      let emergency = false;
+      let targetTime = Date.now() + 1000 * (60 * 23 + 17);
+      const boot = Date.now();
+
+      function pad(n) { return String(n).padStart(2, '0'); }
+
+      function renderClock() {
+        const now = new Date();
+        localTime.textContent = `${pad(now.getHours())}:${pad(now.getMinutes())}:${pad(now.getSeconds())}`;
+
+        const diff = Math.max(0, targetTime - Date.now());
+        const h = Math.floor(diff / 3600000);
+        const m = Math.floor((diff % 3600000) / 60000);
+        const s = Math.floor((diff % 60000) / 1000);
+        countdownEl.textContent = `Next adjudication in: ${pad(h)}:${pad(m)}:${pad(s)}`;
+
+        if (diff === 0) {
+          targetTime = Date.now() + 1000 * (60 * (14 + Math.floor(Math.random() * 30)));
+        }
+
+        const up = Date.now() - boot;
+        const days = Math.floor(up / 86400000);
+        const uh = Math.floor((up % 86400000) / 3600000);
+        const um = Math.floor((up % 3600000) / 60000);
+        const us = Math.floor((up % 60000) / 1000);
+        uptimeEl.textContent = `Network uptime: ${days} days ${pad(uh)}:${pad(um)}:${pad(us)}`;
+      }
+
+      function setPressure(v) {
+        pressureValue.textContent = String(v);
+        meterBars.forEach((bar, i) => {
+          const base = Number(bar.dataset.base) || 50;
+          const wave = (i % 2 === 0 ? 1 : -1) * Math.round(v / 8);
+          const width = Math.max(8, Math.min(100, base + wave));
+          bar.style.width = `${width}%`;
+        });
+      }
+
+      document.querySelectorAll('button[data-bulletin]').forEach((btn) => {
+        btn.addEventListener('click', () => {
+          const key = btn.getAttribute('data-bulletin');
+          bulletinText.textContent = bulletins[key] || 'Feed unavailable.';
+        });
+      });
+
+      byId('nextTicker').addEventListener('click', () => {
+        wireIndex = (wireIndex + 1) % wires.length;
+        tickerLine.textContent = wires[wireIndex];
+      });
+
+      byId('manifestoBtn').addEventListener('click', () => {
+        manifestIndex = (manifestIndex + 1) % manifestLines.length;
+        manifestOut.textContent = `Manifest status: ${manifestLines[manifestIndex]}`;
+      });
+
+      byId('nextQuote').addEventListener('click', () => {
+        quoteIndex = (quoteIndex + 1) % quotes.length;
+        quoteBox.textContent = quotes[quoteIndex];
+      });
+
+      byId('boostCount').addEventListener('click', () => {
+        approvals += 17;
+        approvalCount.textContent = String(approvals).padStart(6, '0');
+      });
+
+      byId('modeToggle').addEventListener('click', (e) => {
+        emergency = !emergency;
+        e.currentTarget.textContent = `Emergency Verse Mode: ${emergency ? 'ON' : 'OFF'}`;
+        appRoot.style.filter = emergency ? 'contrast(1.08) saturate(1.06)' : 'none';
+      });
+
+      byId('resetClock').addEventListener('click', () => {
+        targetTime = Date.now() + 1000 * (60 * (10 + Math.floor(Math.random() * 40)));
+      });
+
+      pressure.addEventListener('input', (e) => setPressure(Number(e.target.value)));
+
+      byId('addLedger').addEventListener('click', () => {
+        const lot = `L-${445 + Math.floor(Math.random() * 90)}`;
+        const segments = [
+          'Canal Plan Annual Scan',
+          'Bridge Pledge Sledge Edge',
+          'Harbor Charter Starter Smarter',
+          'Signal Trial Vial Dial'
+        ];
+        const inks = ['Slate Crayon', 'Frost Crayon', 'Cobalt Crayon', 'Silver Crayon'];
+        const seals = ['full rhyme', 'end rhyme', 'slant rhyme'];
+        const statuses = ['ok', 'warn', 'flag'];
+        const labels = { ok: 'cleared', warn: 'edit due', flag: 'flagged' };
+
+        const s = statuses[Math.floor(Math.random() * statuses.length)];
+        const tr = document.createElement('tr');
+        tr.innerHTML = `<td>${lot}</td><td>${segments[Math.floor(Math.random() * segments.length)]}</td><td>${inks[Math.floor(Math.random() * inks.length)]}</td><td>${seals[Math.floor(Math.random() * seals.length)]}</td><td><span class="pill ${s}">${labels[s]}</span></td>`;
+        ledgerRows.prepend(tr);
+      });
+
+      byId('toggleFlags').addEventListener('click', (e) => {
+        hideFlagged = !hideFlagged;
+        e.currentTarget.textContent = hideFlagged ? 'Show Flagged Rows' : 'Hide Flagged Rows';
+        Array.from(ledgerRows.querySelectorAll('tr')).forEach((row) => {
+          const flagged = row.textContent.toLowerCase().includes('flagged');
+          row.style.display = hideFlagged && flagged ? 'none' : '';
+        });
+      });
+
+      setInterval(() => {
+        approvals += Math.floor(Math.random() * 4);
+        approvalCount.textContent = String(approvals).padStart(6, '0');
+        byId('kpiPetitions').textContent = String(4400 + Math.floor(Math.random() * 60));
+        byId('kpiCrayon').textContent = String(60 + Math.floor(Math.random() * 8));
+        byId('kpiEpisodes').textContent = String(1200 + Math.floor(Math.random() * 20));
+        byId('kpiRhymes').textContent = `${(97.7 + Math.random() * 1.5).toFixed(1)}%`;
+        queueStat.textContent = `Queue ${String(10 + Math.floor(Math.random() * 80)).padStart(3, '0')}`;
+      }, 2400);
+
+      setInterval(renderClock, 1000);
+      renderClock();
+      setPressure(Number(pressure.value));
+      bulletinText.textContent = bulletins.prime;
+
+      if (window.lucide && typeof window.lucide.createIcons === 'function') {
+        window.lucide.createIcons();
+      }
+
+      if (window.gsap) {
+        window.gsap.from('.wing', { duration: 0.7, y: 24, opacity: 0, stagger: 0.14, ease: 'power2.out' });
+        window.gsap.from('.panel', { duration: 0.55, opacity: 0, stagger: 0.03, ease: 'power1.out', delay: 0.15 });
+      }
+    })();
+  </script>
+</body>
+</html>

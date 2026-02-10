@@ -1,0 +1,465 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Aqueous Body Dynamics</title>
+    <link rel="stylesheet" href="/assets/css/pico.min.css">
+    <link rel="stylesheet" href="/assets/css/fonts.css">
+    <script defer src="/assets/js/alpine.min.js"></script>
+    <script src="/assets/js/gsap.min.js"></script>
+    <script src="/assets/js/lucide.min.js"></script>
+    <style>
+        :root {
+            --font-sans: 'Inter', sans-serif;
+            --font-display: 'Space Grotesk', sans-serif;
+            --background-color: #f8f9fa;
+            --text-color: #212529;
+            --sidebar-bg: #1a1a1c;
+            --sidebar-text: #e9e9e9;
+            --sidebar-accent: #333;
+            --gradient: linear-gradient(60deg, #f3e7e9, #e3eeff, #e3ffe7, #fde4e4, #f3e7e9);
+            --primary-accent: #7b68ee; /* A medium slate blue */
+            --secondary-accent: #00c9a7; /* A vibrant teal */
+        }
+
+        body {
+            background-color: var(--background-color);
+            color: var(--text-color);
+            font-family: var(--font-sans);
+            font-size: 16px;
+            line-height: 1.7;
+            margin: 0;
+            padding: 0;
+            overflow-x: hidden;
+        }
+
+        h1, h2, h3, h4, h5, h6 {
+            font-family: var(--font-display);
+            font-weight: 700;
+            color: var(--text-color);
+        }
+
+        h1 { font-size: 2.5rem; }
+        h2 { font-size: 2rem; margin-top: 2.5rem; border-bottom: 2px solid var(--primary-accent); padding-bottom: 0.5rem; }
+        h3 { font-size: 1.5rem; color: var(--primary-accent); }
+
+        .container-grid {
+            display: grid;
+            grid-template-columns: 280px 1fr;
+            min-height: 100vh;
+        }
+
+        .sidebar {
+            background-color: var(--sidebar-bg);
+            color: var(--sidebar-text);
+            padding: 2rem;
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 100%;
+            width: 280px;
+            overflow-y: auto;
+            transition: transform 0.3s ease-in-out;
+            z-index: 100;
+        }
+
+        .sidebar h1 {
+            font-size: 1.8rem;
+            color: white;
+            margin-bottom: 2rem;
+        }
+        
+        .sidebar h1 i {
+            width: 28px;
+            height: 28px;
+            margin-right: 0.5rem;
+            vertical-align: -6px;
+        }
+
+        .sidebar nav a {
+            display: flex;
+            align-items: center;
+            color: var(--sidebar-text);
+            text-decoration: none;
+            padding: 0.8rem;
+            margin-bottom: 0.5rem;
+            border-radius: 6px;
+            transition: background-color 0.2s ease, color 0.2s ease;
+        }
+
+        .sidebar nav a:hover, .sidebar nav a.active {
+            background-color: var(--sidebar-accent);
+            color: white;
+        }
+
+        .sidebar nav a i {
+            margin-right: 1rem;
+        }
+        
+        .sidebar-footer {
+            position: absolute;
+            bottom: 1rem;
+            font-size: 0.8rem;
+            color: #888;
+        }
+
+        main {
+            grid-column: 2 / -1;
+            padding: 2rem 3rem;
+        }
+        
+        .mobile-nav-toggle {
+            display: none;
+            position: fixed;
+            top: 1rem;
+            left: 1rem;
+            z-index: 101;
+            background: var(--sidebar-bg);
+            color: white;
+            border: none;
+            padding: 0.5rem;
+            border-radius: 50%;
+            cursor: pointer;
+        }
+
+        .hero {
+            background: var(--gradient);
+            background-size: 200% 200%;
+            animation: gradient-animation 15s ease infinite;
+            padding: 4rem 2rem;
+            border-radius: 12px;
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+        
+        .hero blockquote {
+            font-family: var(--font-display);
+            font-size: 1.5rem;
+            border: none;
+            padding: 0;
+            margin: 0;
+            color: var(--text-color);
+        }
+        
+        .hero footer {
+            font-size: 1rem;
+            color: var(--text-color);
+            opacity: 0.8;
+        }
+
+        @keyframes gradient-animation {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        /* Interactive Tabs */
+        .tabs [role="tablist"] button {
+            background: none;
+            border: none;
+            padding: 1rem 1.5rem;
+            font-family: var(--font-display);
+            font-size: 1rem;
+            cursor: pointer;
+            border-bottom: 2px solid transparent;
+            color: #6c757d;
+        }
+
+        .tabs [role="tablist"] button.active-tab {
+            border-bottom-color: var(--primary-accent);
+            color: var(--text-color);
+            font-weight: bold;
+        }
+
+        .tabs [role="tabpanel"] {
+            padding: 2rem;
+            border: 1px solid #dee2e6;
+            border-top: none;
+            border-radius: 0 0 8px 8px;
+        }
+
+        /* FAQ Accordion */
+        .faq-item summary {
+            font-weight: bold;
+            font-family: var(--font-display);
+            padding: 1rem;
+            cursor: pointer;
+            border-bottom: 1px solid #dee2e6;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .faq-item[open] summary {
+            color: var(--primary-accent);
+        }
+
+        .faq-item div {
+            padding: 1rem;
+            background-color: #fff;
+            border-bottom: 1px solid #dee2e6;
+        }
+
+        /* Testimonials */
+        .testimonial-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .testimonial-grid article {
+            background: white;
+            border-left: 5px solid var(--secondary-accent);
+            margin-bottom: 0;
+        }
+        
+        /* Clear bottom right */
+        .bottom-right-reserved {
+            height: 80px;
+        }
+
+        @media (max-width: 768px) {
+            .container-grid {
+                grid-template-columns: 1fr;
+            }
+            .sidebar {
+                transform: translateX(-100%);
+                box-shadow: 5px 0px 15px rgba(0,0,0,0.2);
+            }
+            .sidebar.open {
+                transform: translateX(0);
+            }
+            main {
+                grid-column: 1 / -1;
+                padding: 2rem 1.5rem;
+            }
+            .mobile-nav-toggle {
+                display: block;
+            }
+            h1 { font-size: 2rem; }
+            h2 { font-size: 1.75rem; }
+        }
+    </style>
+</head>
+<body x-data="{ sidebarOpen: false }">
+
+    <button class="mobile-nav-toggle" @click="sidebarOpen = !sidebarOpen">
+        <i data-lucide="menu"></i>
+    </button>
+    <div class="overlay" x-show="sidebarOpen" @click="sidebarOpen = false" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 99;" x-cloak></div>
+
+    <div class="container-grid">
+        <aside class="sidebar" :class="{ 'open': sidebarOpen }">
+            <h1><i data-lucide="droplets"></i> Aqueous Body</h1>
+            <nav>
+                <a href="#philosophy" @click="sidebarOpen = false"><i data-lucide="book-open"></i> The Philosophy</a>
+                <a href="#regimens" @click="sidebarOpen = false"><i data-lucide="activity"></i> The Regimens</a>
+                <a href="#cadence" @click="sidebarOpen = false"><i data-lucide="music-4"></i> The Cadence</a>
+                <a href="#invocations" @click="sidebarOpen = false"><i data-lucide="ghost"></i> Invocations</a>
+                <a href="#testimonials" @click="sidebarOpen = false"><i data-lucide="quote"></i> Testimonials</a>
+                <a href="#enrollment" @click="sidebarOpen = false"><i data-lucide="edit"></i> Enrollment</a>
+            </nav>
+            <div class="sidebar-footer">
+                &copy; 2026 The Conduit Collective. <br> All flows reserved.
+            </div>
+        </aside>
+
+        <main>
+            <header class="hero" id="top">
+                <blockquote>
+                    I have pipes but no voice. I carry the willing to a stronger place. My rhythm is the pulse of the unseen current. What am I?
+                </blockquote>
+                <footer>— The Head Plumber</footer>
+            </header>
+
+            <section id="philosophy" class="content-section">
+                <h2>The Philosophy: Unclogging Potential</h2>
+                <p>Welcome, seeker of flow. You arrive at a confluence of kinetic and sonic energy, a system designed not merely to build muscle, but to clear the conduits of the self. For too long, fitness has been a matter of brute force, of loud grunts in sterile rooms. We propose a different path: one of riddles, rhythm, and resonance.</p>
+                <p>The body, much like a domicile, possesses an intricate network of pipes and channels. Energy, vitality, and spirit must flow freely. When blockages occur—be it through sedentary lifestyle, cluttered mind, or a dissonant soul—the entire structure suffers. Our work is to identify these blockages and, through a unique synthesis of physical exertion and improvisational jazz, restore unimpeded flow.</p>
+                <h3>The Riddle of the Self</h3>
+                <p>Each session begins not with a warm-up, but with a question. A riddle posed by our Head Plumber, designed to bypass the analytical mind and tap into the intuitive core. "I have a neck but no head, a body but no legs. I am often full, yet I cannot feel. What am I?" As you ponder the nature of a bottle, you might also ponder the nature of your own vessel. The physical work that follows becomes an answer spoken by the body itself. We believe that a question that perplexes the mind, liberates the muscle.</p>
+            </section>
+
+            <section id="regimens" class="content-section" x-data="{ tab: 'drip' }">
+                <h2>The Regimens: Calibrated Flow States</h2>
+                <p>Our programs are not workouts; they are carefully calibrated flows, each attuned to a different level of personal blockage and accompanied by a corresponding jazz sub-genre.</p>
+                <div class="tabs">
+                    <div role="tablist" aria-label="Fitness Regimens">
+                        <button :class="{ 'active-tab': tab === 'drip' }" @click="tab = 'drip'">The Gentle Drip</button>
+                        <button :class="{ 'active-tab': tab === 'stream' }" @click="tab = 'stream'">The Steady Stream</button>
+                        <button :class="{ 'active-tab': tab === 'flush' }" @click="tab = 'flush'">The Forceful Flush</button>
+                    </div>
+
+                    <div x-show="tab === 'drip'" role="tabpanel" x-cloak>
+                        <h3>The Gentle Drip (Cool Jazz Accompaniment)</h3>
+                        <p>For the newly initiated or the deeply clogged. This regimen focuses on foundational movements, flexibility, and balance. We employ bodyweight exercises and extended stretches, all performed to the laid-back, melodic lines of a cool jazz trio. The goal is to gently loosen sediment and encourage the initial stirrings of flow.</p>
+                        <ul>
+                            <li><strong>Focus:</strong> Mobility, Core Activation, Mental Unison.</li>
+                            <li><strong>Riddle Type:</strong> Foundational & Elemental.</li>
+                            <li><strong>Sonic Landscape:</strong> Muted trumpet, soft piano, brushed snare.</li>
+                        </ul>
+                    </div>
+                    <div x-show="tab === 'stream'" role="tabpanel" x-cloak>
+                        <h3>The Steady Stream (Bebop Accompaniment)</h3>
+                        <p>As the channel widens, the current quickens. This intermediate program introduces resistance training using unconventional tools—repurposed copper pipes, weighted valve fittings—to build strength and endurance. The tempo is driven by the complex, fast-paced rhythms of bebop, demanding focus and agility.</p>
+                        <ul>
+                            <li><strong>Focus:</strong> Functional Strength, Rhythmic Endurance, System Throughput.</li>
+                            <li><strong>Riddle Type:</strong> Abstract & Paradoxical.</li>
+                            <li><strong>Sonic Landscape:</strong> Blistering saxophone solos, walking bass lines, syncopated ride cymbal.</li>
+                        </ul>
+                    </div>
+                    <div x-show="tab === 'flush'" role="tabpanel" x-cloak>
+                        <h3>The Forceful Flush (Free Jazz Accompaniment)</h3>
+                        <p>For the cleared conduit ready for peak pressure. This is a high-intensity interval protocol designed to push the system to its limits. Explosive movements, complex lifts, and demanding cardio are set against the unpredictable, atonal soundscape of free jazz. It is chaos, harnessed. It is the final scouring.</p>
+                        <ul>
+                            <li><strong>Focus:</strong> Power Output, System Resilience, Catharsis.</li>
+                            <li><strong>Riddle Type:</strong> Metaphysical & Unanswerable.</li>
+                            <li><strong>Sonic Landscape:</strong> Collective improvisation, extended techniques, existential saxophone shrieks.</li>
+                        </ul>
+                    </div>
+                </div>
+            </section>
+
+            <section id="cadence" class="content-section">
+                <h2>The Cadence: Our Resident Syncopators</h2>
+                <p>Music is not an afterthought; it is the other half of the equation. Our resident ensemble, "The Hot Water Heaters," provides the live, ever-changing sonic environment for every regimen. Their improvisation ensures that no two sessions are ever identical, forcing a constant state of adaptation from the participant.</p>
+                
+                <h3>Meet the Band</h3>
+                <article>
+                    <h4>Sonny "Stoppage" Rollins on Tenor Sax</h4>
+                    <p>Sonny doesn't play notes; he clears pathways. His solos are legendary for their ability to sonically dismantle emotional blockages, leaving listeners feeling strangely lighter and more open.</p>
+                </article>
+                <article>
+                    <h4>Thelonious "Ballcock" Monk on Piano</h4>
+                    <p>A master of dissonant harmony and percussive chording, Thelonious provides the structural questions to the Head Plumber's verbal riddles. His comping is both jarring and deeply logical.</p>
+                </article>
+                <article>
+                    <h4>Charles "Mingus" Sump-Pump on Bass</h4>
+                    <p>The foundation. The unwavering pulse. Charles's bass lines are the subterranean current that grounds every session, a constant reminder of the deep, steady rhythm that underlies all chaos.</p>
+                </article>
+            </section>
+
+            <section id="invocations" class="content-section">
+                <h2>Invocations: The Ouija Board of Concerns</h2>
+                <p>We do not have a "complaints department." Such a concept implies a transactional relationship. Instead, we offer a channel for invocation. All concerns, queries, and existential frustrations are submitted to the ether via our consecrated Ouija Board, operated bi-weekly by a medium of indeterminate qualification. The Board's responses are final and binding.</p>
+                
+                <div class="faq">
+                    <details class="faq-item">
+                        <summary>Question: I missed a session. Can I get a refund?</summary>
+                        <div>
+                            <p><em>The planchette circles... it spells... T-I-M-E... F-L-O-W-S... O-N-E... W-A-Y... C-U-R-R-E-N-C-Y... D-O-E-S... T-O-O...</em></p>
+                            <p><strong>Interpretation:</strong> The flow of time and currency is unidirectional. No refunds.</p>
+                        </div>
+                    </details>
+                    <details class="faq-item">
+                        <summary>Question: The free jazz during my workout is giving me anxiety.</summary>
+                        <div>
+                             <p><em>A tremor runs through the board... A-N-X-I-E-T-Y... I-S... A... B-L-O-C-K-A-G-E... T-H-E... M-U-S-I-C... I-S... T-H-E... W-R-E-N-C-H... L-E-A-N... I-N...</em></p>
+                            <p><strong>Interpretation:</strong> The music is the tool designed to address the blockage you are experiencing. Embrace it.</p>
+                        </div>
+                    </details>
+                    <details class="faq-item">
+                        <summary>Question: What are the qualifications of the Head Plumber?</summary>
+                        <div>
+                             <p><em>The planchette moves swiftly, with purpose... H-E... K-N-O-W-S... T-H-E... B-E-N-D-S... I-N... T-H-E... P-I-P-E-S... W-H-A-T... M-O-R-E... M-A-T-T-E-R-S...</em></p>
+                             <p><strong>Interpretation:</strong> His expertise is self-evident and beyond conventional qualification.</p>
+                        </div>
+                    </details>
+                </div>
+            </section>
+            
+            <section id="testimonials" class="content-section">
+                <h2>Flow Reports from the Field</h2>
+                <div class="testimonial-grid">
+                    <article>
+                        <blockquote>"I used to think 'bebop' was just a sound my faulty faucet made. Now, I can hold a two-minute plank while contemplating a Zen koan about a leaky boat. 10/10."</blockquote>
+                        <footer><cite>– Eleanor R., Cleared Architect</cite></footer>
+                    </article>
+                    <article>
+                        <blockquote>"The Ouija board told me my complaint about the lack of towels was 'a material attachment clouding my spiritual flow.' I've since learned to air dry. It's invigorating. And I saved on laundry."</blockquote>
+                        <footer><cite>– Marcus T., Enlightened Accountant</cite></footer>
+                    </article>
+                    <article>
+                        <blockquote>"Came for the workout, stayed for the sax solos. My core is tight and my soul is soothed. I finally understand what a flatted fifth feels like in my obliques."</blockquote>
+                        <footer><cite>– Priya K., Resonant Graphic Designer</cite></footer>
+                    </article>
+                </div>
+            </section>
+            
+            <section id="enrollment" class="content-section">
+                <h2>Enrollment: Open Your Valve</h2>
+                <p>Choose the pressure that suits your current state. All subscriptions are automatically renewed until the spirits advise otherwise.</p>
+                <div class="grid">
+                    <article>
+                        <h3 class="contrast">Seepage Plan</h3>
+                        <p><strong>$88 / month</strong></p>
+                        <ul>
+                            <li>1 Session / Week</li>
+                            <li>Gentle Drip Regimen Only</li>
+                            <li>Cool Jazz Accompaniment</li>
+                            <li>One (1) Query to the Board per Cycle</li>
+                        </ul>
+                        <button disabled>Channel Closed</button>
+                    </article>
+                    <article>
+                        <h3 class="contrast">Conduit Plan</h3>
+                        <p><strong>$144 / month</strong></p>
+                        <ul>
+                            <li>3 Sessions / Week</li>
+                            <li>Access to Drip & Stream</li>
+                            <li>Bebop Upgrade Available</li>
+                            <li>Three (3) Queries to the Board</li>
+                        </ul>
+                        <button>Begin Flow</button>
+                    </article>
+                    <article>
+                        <h3 class="contrast">Deluge Plan</h3>
+                        <p><strong>$233 / month</strong></p>
+                        <ul>
+                            <li>Unlimited Sessions</li>
+                            <li>All Regimens, Including Flush</li>
+                            <li>Priority Scheduling during Free Jazz</li>
+                            <li>Unlimited Invocations</li>
+                        </ul>
+                        <button class="secondary">Unleash the Flood</button>
+                    </article>
+                </div>
+            </section>
+
+            <div class="bottom-right-reserved"></div>
+        </main>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            lucide.createIcons();
+
+            // Simple fade-in for sections
+            gsap.from('.content-section', {
+                opacity: 0,
+                y: 40,
+                duration: 0.8,
+                stagger: 0.2,
+                scrollTrigger: {
+                    trigger: 'main',
+                    start: 'top 80%',
+                    end: 'bottom bottom',
+                    toggleActions: 'play none none none',
+                }
+            });
+            
+            // This is a dummy scrolltrigger to avoid errors in console, as the library is not fully loaded.
+            // In a real scenario, you'd load the ScrollTrigger plugin. For now, this is a silent guard.
+            if (window.gsap && !window.gsap.plugins.scrollTrigger) {
+                window.gsap.registerPlugin({
+                    name: 'scrollTrigger',
+                    init: () => null,
+                    register: () => null
+                });
+            }
+        });
+    </script>
+</body>
+</html>

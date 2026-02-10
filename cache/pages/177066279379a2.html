@@ -1,0 +1,886 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Full-Moon Feline Flight Kitchen</title>
+  <link rel="stylesheet" href="/assets/css/pico.min.css" />
+  <link rel="stylesheet" href="/assets/css/fonts.css" />
+  <script defer src="/assets/js/alpine.min.js"></script>
+  <script defer src="/assets/js/gsap.min.js"></script>
+  <script defer src="/assets/js/lucide.min.js"></script>
+  <style>
+    :root {
+      --coral: #ff6b5a;
+      --gold: #f6c453;
+      --purple: #5c2a82;
+      --deepblue: #0c1b4d;
+      --navy: #0a1236;
+      --cream: #fff3e6;
+      --ink: #0b0b18;
+      --panel: #1a255f;
+      --panel-2: #3b1a66;
+      --panel-3: #7b2d5e;
+      --accent: #ffb347;
+      --mint: #d6ffe5;
+      --danger: #ff3b57;
+      --shadow: rgba(6, 10, 30, 0.4);
+    }
+
+    html, body {
+      height: 100%;
+      background: linear-gradient(135deg, var(--deepblue), #1c1455 45%, #4a1f6a);
+      color: var(--cream);
+      font-family: "Space Grotesk", "Inter", system-ui, sans-serif;
+    }
+
+    body {
+      margin: 0;
+      overflow-x: hidden;
+    }
+
+    .page {
+      min-height: 100vh;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0;
+      position: relative;
+      background: radial-gradient(circle at top left, #f6c45344 0 25%, transparent 40%),
+                  radial-gradient(circle at bottom right, #ff6b5a44 0 30%, transparent 55%);
+    }
+
+    .pane {
+      padding: 2.5rem 2.5rem 3rem;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .left {
+      background: linear-gradient(160deg, #0a1236 0%, #132064 55%, #2a2f7d 100%);
+      border-right: 4px solid var(--gold);
+    }
+
+    .right {
+      background: linear-gradient(200deg, #3b1a66 0%, #5c2a82 45%, #7b2d5e 100%);
+    }
+
+    .banner {
+      display: flex;
+      gap: 1rem;
+      align-items: center;
+      background: #111a4e;
+      color: var(--gold);
+      padding: 1rem 1.25rem;
+      border: 2px solid var(--gold);
+      border-radius: 12px;
+      box-shadow: 0 10px 30px var(--shadow);
+    }
+
+    .banner h1 {
+      font-family: "Playfair Display", "Crimson Pro", serif;
+      font-size: 2.2rem;
+      margin: 0;
+      color: var(--gold);
+      letter-spacing: 0.03em;
+    }
+
+    .banner p {
+      margin: 0;
+      color: var(--cream);
+      font-size: 0.95rem;
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.25rem 0.7rem;
+      border-radius: 999px;
+      border: 2px solid var(--gold);
+      background: #0d1642;
+      color: var(--gold);
+      font-weight: 700;
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+
+    .grid {
+      display: grid;
+      gap: 1rem;
+    }
+
+    .grid.cols-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .grid.cols-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    .grid.cols-4 { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+
+    .panel {
+      background: rgba(13, 20, 60, 0.92);
+      border: 2px solid var(--gold);
+      border-radius: 14px;
+      padding: 1rem;
+      box-shadow: 0 12px 24px var(--shadow);
+    }
+
+    .panel.alt {
+      background: rgba(40, 15, 70, 0.94);
+      border-color: var(--coral);
+    }
+
+    .panel h3, .panel h4 {
+      margin-top: 0;
+      color: var(--gold);
+      font-family: "Playfair Display", serif;
+    }
+
+    .tagline {
+      background: #1a255f;
+      border-left: 6px solid var(--coral);
+      padding: 0.9rem 1rem;
+      font-size: 0.95rem;
+      color: var(--cream);
+    }
+
+    .paw {
+      position: absolute;
+      width: 120px;
+      height: 120px;
+      opacity: 0.2;
+      background: radial-gradient(circle at 30% 30%, var(--gold) 0 18%, transparent 19%),
+                  radial-gradient(circle at 70% 30%, var(--gold) 0 18%, transparent 19%),
+                  radial-gradient(circle at 50% 55%, var(--gold) 0 28%, transparent 29%);
+      border-radius: 50%;
+      filter: blur(0.2px);
+    }
+
+    .paw.one { top: 8%; left: -10px; }
+    .paw.two { bottom: 18%; right: 5%; transform: rotate(25deg); }
+    .paw.three { top: 48%; right: 20%; transform: rotate(-15deg); }
+
+    .ticker {
+      display: flex;
+      gap: 1rem;
+      overflow: hidden;
+      border: 2px solid var(--coral);
+      background: #2d134f;
+      padding: 0.6rem 1rem;
+      border-radius: 10px;
+      font-family: "IBM Plex Mono", monospace;
+      color: var(--mint);
+      font-size: 0.85rem;
+    }
+
+    .ticker span {
+      white-space: nowrap;
+    }
+
+    .big-number {
+      font-size: 2rem;
+      font-weight: 800;
+      color: var(--gold);
+    }
+
+    .status-pill {
+      padding: 0.25rem 0.6rem;
+      border-radius: 999px;
+      font-size: 0.7rem;
+      font-weight: 700;
+      border: 1px solid var(--cream);
+      color: var(--deepblue);
+      background: var(--gold);
+      text-transform: uppercase;
+    }
+
+    .status-pill.moon {
+      background: var(--coral);
+      color: #1b0b2f;
+      border-color: #1b0b2f;
+    }
+
+    .button-row button,
+    .button-row .btn {
+      font-weight: 700;
+      border-width: 2px;
+      background: var(--gold);
+      color: var(--deepblue);
+    }
+
+    .button-row button.secondary,
+    .button-row .btn.secondary {
+      background: var(--coral);
+      color: #180923;
+      border-color: #180923;
+    }
+
+    .button-row button.ghost,
+    .button-row .btn.ghost {
+      background: transparent;
+      color: var(--cream);
+      border-color: var(--cream);
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.85rem;
+    }
+
+    th, td {
+      border: 1px solid var(--gold);
+      padding: 0.5rem;
+      text-align: left;
+      color: var(--cream);
+    }
+
+    th {
+      background: #14205c;
+      color: var(--gold);
+    }
+
+    .chart {
+      display: grid;
+      grid-template-columns: repeat(8, minmax(0, 1fr));
+      gap: 0.4rem;
+      align-items: end;
+      height: 120px;
+      padding: 0.5rem;
+      background: #121b4d;
+      border: 2px solid var(--gold);
+      border-radius: 12px;
+    }
+
+    .bar {
+      background: linear-gradient(180deg, var(--coral), var(--gold));
+      border-radius: 6px 6px 2px 2px;
+      height: 40%;
+    }
+
+    .stat-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.75rem;
+      background: rgba(12, 20, 60, 0.7);
+      border: 1px solid var(--gold);
+      padding: 0.5rem 0.75rem;
+      border-radius: 10px;
+      font-size: 0.85rem;
+    }
+
+    .cat-card {
+      background: #180f3f;
+      border: 2px dashed var(--gold);
+      border-radius: 12px;
+      padding: 0.8rem;
+      color: var(--cream);
+    }
+
+    .moon-indicator {
+      font-family: "IBM Plex Mono", monospace;
+      background: #0f1b4f;
+      border: 2px solid var(--coral);
+      border-radius: 10px;
+      padding: 0.6rem 0.9rem;
+      color: var(--mint);
+    }
+
+    .note {
+      font-size: 0.78rem;
+      color: #ffe6c7;
+      opacity: 0.9;
+    }
+
+    .divider {
+      height: 3px;
+      background: linear-gradient(90deg, var(--gold), var(--coral), var(--gold));
+      margin: 1rem 0;
+    }
+
+    .toggle {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.6rem;
+      padding: 0.6rem 0.8rem;
+      border-radius: 10px;
+      border: 2px solid var(--gold);
+      background: #121b4d;
+      color: var(--cream);
+      font-size: 0.85rem;
+    }
+
+    .toggle input {
+      width: 44px;
+      height: 22px;
+      accent-color: var(--gold);
+    }
+
+    .moon-lock {
+      background: #36124f;
+      border: 2px solid var(--gold);
+      padding: 0.7rem 1rem;
+      border-radius: 12px;
+      color: var(--gold);
+      font-weight: 700;
+    }
+
+    .mission {
+      display: flex;
+      gap: 0.8rem;
+      align-items: center;
+      background: #101a4d;
+      border: 2px solid var(--coral);
+      padding: 0.7rem 0.9rem;
+      border-radius: 12px;
+    }
+
+    .mission span {
+      font-family: "IBM Plex Mono", monospace;
+      color: var(--mint);
+      font-size: 0.85rem;
+    }
+
+    .footer {
+      margin-top: 1rem;
+      font-size: 0.75rem;
+      color: #ffe6c7;
+      border-top: 1px dashed var(--gold);
+      padding-top: 0.8rem;
+    }
+
+    .badge-stack {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.5rem 0.8rem;
+      border-radius: 10px;
+      border: 2px solid var(--deepblue);
+      text-decoration: none;
+      cursor: pointer;
+    }
+
+    .floating {
+      position: absolute;
+      right: 1rem;
+      top: 1rem;
+      background: #ff6b5a;
+      color: #2b0d27;
+      padding: 0.3rem 0.6rem;
+      border-radius: 999px;
+      font-weight: 700;
+      font-size: 0.7rem;
+      transform: rotate(8deg);
+    }
+
+    .moon-phase {
+      display: inline-block;
+      width: 16px;
+      height: 16px;
+      border-radius: 50%;
+      background: #fff2d6;
+      box-shadow: inset -4px 0 0 0 #231143;
+      margin-right: 0.4rem;
+    }
+
+    .panel-scroll {
+      max-height: 190px;
+      overflow: auto;
+      padding-right: 0.5rem;
+    }
+
+    .right .panel {
+      background: rgba(52, 19, 74, 0.94);
+      border-color: var(--gold);
+    }
+
+    .right .panel.alt {
+      background: rgba(98, 31, 86, 0.95);
+    }
+
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 0.75rem;
+    }
+
+    .list-tight {
+      margin: 0;
+      padding-left: 1rem;
+      font-size: 0.88rem;
+      color: var(--cream);
+    }
+
+    .kpi {
+      font-size: 1.4rem;
+      font-weight: 800;
+      color: var(--gold);
+    }
+
+    .pulse {
+      animation: pulse 2s infinite ease-in-out;
+    }
+
+    @keyframes pulse {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.03); }
+    }
+
+    @media (max-width: 1000px) {
+      .page { grid-template-columns: 1fr; }
+      .left { border-right: none; border-bottom: 4px solid var(--gold); }
+    }
+  </style>
+</head>
+<body>
+  <div class="page" x-data="moonKitchen()">
+    <div class="paw one"></div>
+    <div class="paw two"></div>
+    <div class="paw three"></div>
+
+    <section class="pane left">
+      <div class="floating">NO BEIGE, NO MERCY</div>
+      <div class="banner">
+        <div>
+          <span class="badge"><i data-lucide="moon"></i> Full-Moon Only</span>
+          <h1>Purr-Launch Kitchen: Astronaut Chef Nyx</h1>
+          <p>Retired commander, current whisk-wielder. We cook by moonlight, log by claw-light.</p>
+        </div>
+      </div>
+
+      <div class="divider"></div>
+
+      <div class="ticker" aria-live="polite">
+        <span>Meow-teor Dust: <strong x-text="stats.meowteor + '%'"></strong></span>
+        <span>Orbital Oven Temp: <strong x-text="stats.oven + '°C'"></strong></span>
+        <span>Catnip Rations: <strong x-text="stats.catnip + ' crates'"></strong></span>
+        <span>Whisk Thrust: <strong x-text="stats.thrust + ' kN'"></strong></span>
+      </div>
+
+      <div class="grid cols-2" style="margin-top: 1rem;">
+        <div class="panel">
+          <h3>Moon-Lock Status</h3>
+          <div class="moon-indicator">
+            <span class="moon-phase"></span>
+            <strong x-text="moonState"></strong>
+          </div>
+          <p class="note">Only full moons open the galley. If not, the cats nap on the throttle.</p>
+          <div class="button-row" style="margin-top: 0.6rem; display: flex; gap: 0.6rem; flex-wrap: wrap;">
+            <button class="btn" @click="toggleMoon()">Toggle Moon Mood</button>
+            <button class="btn secondary" @click="boostMoon()">Boost Fullness</button>
+            <button class="btn ghost" @click="resetMoon()">Reset Phase</button>
+          </div>
+        </div>
+
+        <div class="panel alt">
+          <h3>Feline Flight Console</h3>
+          <div class="stats-grid">
+            <div class="stat-row"><span>Claw-Pressure</span><strong x-text="stats.claw + ' psi'"></strong></div>
+            <div class="stat-row"><span>Whisker Drift</span><strong x-text="stats.drift + '°'"></strong></div>
+            <div class="stat-row"><span>Paw Fuel</span><strong x-text="stats.fuel + '%'"></strong></div>
+            <div class="stat-row"><span>Purr-imeter</span><strong x-text="stats.purr + ' Hz'"></strong></div>
+          </div>
+          <div class="toggle" style="margin-top: 0.6rem;">
+            <span>Auto-purr Stabilizers</span>
+            <label>
+              <input type="checkbox" x-model="toggles.stabilizers" />
+            </label>
+          </div>
+          <div class="toggle" style="margin-top: 0.6rem;">
+            <span>Anti-Beige Alarm</span>
+            <label>
+              <input type="checkbox" x-model="toggles.beigeAlarm" />
+            </label>
+          </div>
+        </div>
+      </div>
+
+      <div class="grid cols-3" style="margin-top: 1rem;">
+        <div class="panel">
+          <h4>Mission Log: Whisker Logistics</h4>
+          <div class="panel-scroll">
+            <ul class="list-tight">
+              <li>Dock 4: Delivered 900 tins of tuna torque.</li>
+              <li>Launch Bay: Paw-printed inventory complete.</li>
+              <li>Chow Deck: Zero beige violations logged.</li>
+              <li>Signal: Meow-scan pulse synced with moon.</li>
+              <li>Boilers: Soup thrusters at purr-formance.</li>
+            </ul>
+          </div>
+        </div>
+        <div class="panel alt">
+          <h4>Recipe: Gravity-Defying Bisque</h4>
+          <p class="tagline">Add coral carrots, gold corn, purple basil, deep-blue potatoes. No beige. Ever.</p>
+          <div class="button-row" style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+            <button class="btn" @click="swapRecipe('Comet Chowder')">Comet Chowder</button>
+            <button class="btn secondary" @click="swapRecipe('Nebula Noodles')">Nebula Noodles</button>
+            <button class="btn ghost" @click="swapRecipe('Paw-sta Pilaf')">Paw-sta Pilaf</button>
+          </div>
+          <p style="margin-top: 0.6rem;">Active Dish: <strong x-text="activeRecipe"></strong></p>
+        </div>
+        <div class="panel">
+          <h4>Launchpad Timer</h4>
+          <div class="big-number" x-text="timerDisplay"></div>
+          <p class="note">Countdown to the next full-moon broadcast window. Paw-check your calendar.</p>
+          <div class="button-row" style="display: flex; gap: 0.5rem;">
+            <button class="btn" @click="pauseTimer()">Pause</button>
+            <button class="btn secondary" @click="resumeTimer()">Resume</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="panel" style="margin-top: 1rem;">
+        <h3>Purr-formance Charts</h3>
+        <div class="chart">
+          <div class="bar" :style="'height:' + chart[0] + '%'" title="Tuna"></div>
+          <div class="bar" :style="'height:' + chart[1] + '%'" title="Rocket Radish"></div>
+          <div class="bar" :style="'height:' + chart[2] + '%'" title="Cosmic Cabbage"></div>
+          <div class="bar" :style="'height:' + chart[3] + '%'" title="Meteor Mint"></div>
+          <div class="bar" :style="'height:' + chart[4] + '%'" title="Stellar Squash"></div>
+          <div class="bar" :style="'height:' + chart[5] + '%'" title="Lunar Lentils"></div>
+          <div class="bar" :style="'height:' + chart[6] + '%'" title="Galactic Garlic"></div>
+          <div class="bar" :style="'height:' + chart[7] + '%'" title="Orbit Onion"></div>
+        </div>
+        <p class="note">Chart is updated every 4 seconds. Yes, the bars are cat-approved.</p>
+      </div>
+
+      <div class="panel alt" style="margin-top: 1rem;">
+        <h3>Absurd Inventory Table</h3>
+        <table>
+          <thead>
+            <tr>
+              <th>Item</th>
+              <th>Unit</th>
+              <th>Qty</th>
+              <th>Captain's Paw-roval</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Moonlit Sardine Crates</td>
+              <td>crate</td>
+              <td x-text="inventory[0]"></td>
+              <td><span class="status-pill">Meow</span></td>
+            </tr>
+            <tr>
+              <td>Paw-printed Cargo Tags</td>
+              <td>stack</td>
+              <td x-text="inventory[1]"></td>
+              <td><span class="status-pill moon">Hiss</span></td>
+            </tr>
+            <tr>
+              <td>Anti-Beige Spice Blasters</td>
+              <td>kit</td>
+              <td x-text="inventory[2]"></td>
+              <td><span class="status-pill">Purr</span></td>
+            </tr>
+            <tr>
+              <td>Gravity-Laced Gravy Pods</td>
+              <td>pod</td>
+              <td x-text="inventory[3]"></td>
+              <td><span class="status-pill">Meow</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="footer">
+        <p>Footnote 1: Any beige detected is immediately yeeted into orbit. Footnote 2: All cats are unionized. Footnote 3: Paw-prints on paperwork count as signatures.</p>
+      </div>
+    </section>
+
+    <section class="pane right">
+      <div class="banner" style="border-color: var(--coral);">
+        <div>
+          <span class="badge" style="border-color: var(--coral); color: var(--coral);"><i data-lucide="rocket"></i> Cottagecore Logistics</span>
+          <h1>Moon Base Mess Hall: Cat-Only Broadcast</h1>
+          <p>Wicker baskets, steel crates, and a tactical herb garden. Everything is paw-sorted.</p>
+        </div>
+      </div>
+
+      <div class="divider"></div>
+
+      <div class="grid cols-2">
+        <div class="panel">
+          <h3>Paw-ducer Controls</h3>
+          <div class="button-row" style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+            <button class="btn" @click="toggleBroadcast()">Toggle Broadcast</button>
+            <button class="btn secondary" @click="cueSfx('Mew-mic Check')">Cue Mew-mic</button>
+            <button class="btn ghost" @click="cueSfx('Hiss Harmony')">Cue Hiss Harmony</button>
+          </div>
+          <p style="margin-top: 0.6rem;">On Air: <strong x-text="broadcastStatus"></strong></p>
+          <p class="note" x-text="sfxMessage"></p>
+        </div>
+
+        <div class="panel alt">
+          <h3>Moon Mission Dispatch</h3>
+          <div class="mission">
+            <i data-lucide="satellite"></i>
+            <div>
+              <strong x-text="dispatch.title"></strong><br />
+              <span x-text="dispatch.detail"></span>
+            </div>
+          </div>
+          <div class="button-row" style="margin-top: 0.6rem; display: flex; gap: 0.5rem;">
+            <button class="btn" @click="nextDispatch()">Next Dispatch</button>
+            <button class="btn secondary" @click="panicDispatch()">Panic Paws</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="grid cols-3" style="margin-top: 1rem;">
+        <div class="panel">
+          <h4>Paw Metrics</h4>
+          <div class="stat-row"><span>Catnap Debt</span><strong x-text="stats.nap + ' hrs'"></strong></div>
+          <div class="stat-row"><span>Orbital Biscuits</span><strong x-text="stats.biscuits + ' trays'"></strong></div>
+          <div class="stat-row"><span>Tailwind Taste</span><strong x-text="stats.tail + '%'"></strong></div>
+        </div>
+        <div class="panel alt">
+          <h4>Cat Council Votes</h4>
+          <div class="cat-card">
+            <p><strong x-text="voteTopic"></strong></p>
+            <div class="button-row" style="display: flex; gap: 0.5rem;">
+              <button class="btn" @click="vote('Purr')">Purr</button>
+              <button class="btn secondary" @click="vote('Hiss')">Hiss</button>
+              <button class="btn ghost" @click="vote('Nap')">Nap</button>
+            </div>
+            <p class="note" x-text="voteResult"></p>
+          </div>
+        </div>
+        <div class="panel">
+          <h4>Feline Supply Slider</h4>
+          <label for="sardine">Sardine Decibels</label>
+          <input id="sardine" type="range" min="10" max="99" step="1" x-model="stats.sardine" />
+          <p class="note">Current howl: <strong x-text="stats.sardine + ' dB'"></strong></p>
+          <label for="mint">Mint Canopy Glow</label>
+          <input id="mint" type="range" min="15" max="100" step="1" x-model="stats.glow" />
+          <p class="note">Glow index: <strong x-text="stats.glow + '%'"></strong></p>
+        </div>
+      </div>
+
+      <div class="panel" style="margin-top: 1rem;">
+        <h3>Cat-tery Queue Board</h3>
+        <div class="grid cols-4">
+          <div class="cat-card pulse">
+            <div class="kpi" x-text="queue.paws"></div>
+            <div>Pending Paws</div>
+          </div>
+          <div class="cat-card">
+            <div class="kpi" x-text="queue.rations"></div>
+            <div>Ration Requests</div>
+          </div>
+          <div class="cat-card">
+            <div class="kpi" x-text="queue.overtime"></div>
+            <div>Overtime Meows</div>
+          </div>
+          <div class="cat-card">
+            <div class="kpi" x-text="queue.stamps"></div>
+            <div>Paw Stamps</div>
+          </div>
+        </div>
+        <div class="note" style="margin-top: 0.5rem;">Queue updates every 3 seconds. Cats dislike stale numbers.</div>
+      </div>
+
+      <div class="panel alt" style="margin-top: 1rem;">
+        <h3>Moonlit Meal Manifest</h3>
+        <div class="grid cols-2">
+          <div>
+            <p><strong>Tonight's Signal Dish:</strong> <span x-text="signalDish"></span></p>
+            <div class="button-row" style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+              <button class="btn" @click="shuffleDish()">Shuffle Dish</button>
+              <button class="btn secondary" @click="swapPalette()">Swap Palette Alarm</button>
+            </div>
+            <p class="note" x-text="paletteNote"></p>
+          </div>
+          <div class="moon-lock">
+            <div>Moon Lock Key:</div>
+            <div class="big-number" x-text="lockKey"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="panel" style="margin-top: 1rem;">
+        <h3>Cat-Scan Disclaimers</h3>
+        <ul class="list-tight">
+          <li>All whiskers must be braided during launch simmer.</li>
+          <li>Any beige container is a contraband treat box. Confiscated for research.</li>
+          <li>Paw-signatures are legally binding on lunar outposts.</li>
+          <li>Moonlight only. Sunlight is a hostile stakeholder.</li>
+        </ul>
+      </div>
+
+      <div class="footer">
+        <p>Footnote A: The show has zero ads, only purrs. Footnote B: Every chair is a cardboard box in disguise. Footnote C: All logistics are approved by the Cat-alyst Council.</p>
+      </div>
+    </section>
+  </div>
+
+  <script>
+    function moonKitchen() {
+      return {
+        moonState: 'FULL MOON: ACTIVE',
+        moonPhase: 100,
+        activeRecipe: 'Gravity-Defying Bisque',
+        timerSeconds: 3600,
+        timerPaused: false,
+        timerDisplay: '01:00:00',
+        broadcastStatus: 'LIVE PURRCAST',
+        sfxMessage: 'Mew-mic standing by.',
+        voteTopic: 'Should we deploy the Paw-printed napkins?',
+        voteResult: 'Votes pending: 0',
+        lockKey: '77-PAW-42',
+        signalDish: 'Comet-Spiced Clawder',
+        paletteNote: 'Palette steady. No beige detected.',
+        chart: [65, 40, 80, 55, 70, 35, 90, 50],
+        inventory: [14, 22, 7, 19],
+        dispatches: [
+          { title: 'Dockside Pawthorization', detail: 'Crate 7 cleared. Prepare the spoon thrusters.' },
+          { title: 'Moonbeam Logistics', detail: 'Wicker crates aligned with starboard pantry.' },
+          { title: 'Tactical Teapot', detail: 'Heat shields engaged, steep time calibrated.' }
+        ],
+        dispatchIndex: 0,
+        dispatch: { title: 'Dockside Pawthorization', detail: 'Crate 7 cleared. Prepare the spoon thrusters.' },
+        stats: {
+          meowteor: 62,
+          oven: 240,
+          catnip: 8,
+          thrust: 5.4,
+          claw: 33,
+          drift: 2.1,
+          fuel: 87,
+          purr: 440,
+          nap: 12,
+          biscuits: 6,
+          tail: 91,
+          sardine: 55,
+          glow: 70
+        },
+        toggles: {
+          stabilizers: true,
+          beigeAlarm: true
+        },
+        queue: {
+          paws: 18,
+          rations: 5,
+          overtime: 3,
+          stamps: 44
+        },
+        init() {
+          this.updateTimerDisplay();
+          this.startIntervals();
+          if (window.gsap) {
+            gsap.from('.panel', { opacity: 0, y: 20, stagger: 0.08, duration: 0.8, ease: 'power2.out' });
+          }
+          if (window.lucide) {
+            lucide.createIcons();
+          }
+        },
+        startIntervals() {
+          setInterval(() => {
+            this.stats.meowteor = this.randomBetween(45, 80);
+            this.stats.oven = this.randomBetween(210, 280);
+            this.stats.catnip = this.randomBetween(4, 12);
+            this.stats.thrust = (Math.random() * 4 + 3).toFixed(1);
+            this.stats.claw = this.randomBetween(20, 45);
+            this.stats.drift = (Math.random() * 5).toFixed(1);
+            this.stats.fuel = this.randomBetween(60, 98);
+            this.stats.purr = this.randomBetween(320, 520);
+            this.stats.nap = this.randomBetween(8, 14);
+            this.stats.biscuits = this.randomBetween(3, 9);
+            this.stats.tail = this.randomBetween(75, 98);
+          }, 4000);
+
+          setInterval(() => {
+            this.queue.paws = this.randomBetween(10, 28);
+            this.queue.rations = this.randomBetween(3, 12);
+            this.queue.overtime = this.randomBetween(1, 6);
+            this.queue.stamps = this.randomBetween(30, 60);
+          }, 3000);
+
+          setInterval(() => {
+            this.chart = this.chart.map(() => this.randomBetween(30, 95));
+          }, 4000);
+
+          setInterval(() => {
+            if (!this.timerPaused && this.timerSeconds > 0) {
+              this.timerSeconds -= 1;
+              this.updateTimerDisplay();
+            }
+          }, 1000);
+
+          setInterval(() => {
+            this.inventory = this.inventory.map((value) => {
+              const delta = Math.random() > 0.5 ? 1 : -1;
+              return Math.max(1, value + delta);
+            });
+          }, 5000);
+        },
+        updateTimerDisplay() {
+          const hours = String(Math.floor(this.timerSeconds / 3600)).padStart(2, '0');
+          const minutes = String(Math.floor((this.timerSeconds % 3600) / 60)).padStart(2, '0');
+          const seconds = String(this.timerSeconds % 60).padStart(2, '0');
+          this.timerDisplay = `${hours}:${minutes}:${seconds}`;
+        },
+        toggleMoon() {
+          if (this.moonState.includes('FULL')) {
+            this.moonState = 'HALF MOON: NAPPING';
+            this.moonPhase = 50;
+          } else {
+            this.moonState = 'FULL MOON: ACTIVE';
+            this.moonPhase = 100;
+          }
+        },
+        boostMoon() {
+          this.moonPhase = Math.min(100, this.moonPhase + 10);
+          this.moonState = this.moonPhase >= 90 ? 'FULL MOON: ACTIVE' : 'GROWING MOON: WARM-UP';
+        },
+        resetMoon() {
+          this.moonPhase = 40;
+          this.moonState = 'CRESCENT: SHARPENING CLAWS';
+        },
+        swapRecipe(name) {
+          this.activeRecipe = name;
+        },
+        pauseTimer() {
+          this.timerPaused = true;
+        },
+        resumeTimer() {
+          this.timerPaused = false;
+        },
+        toggleBroadcast() {
+          this.broadcastStatus = this.broadcastStatus.includes('LIVE') ? 'OFF-AIR NAP' : 'LIVE PURRCAST';
+        },
+        cueSfx(label) {
+          this.sfxMessage = `${label} queued. Paw-paw speakers warming.`;
+        },
+        nextDispatch() {
+          this.dispatchIndex = (this.dispatchIndex + 1) % this.dispatches.length;
+          this.dispatch = this.dispatches[this.dispatchIndex];
+        },
+        panicDispatch() {
+          this.dispatch = { title: 'Emergency Zoomies', detail: 'All paws to stations. Zero-gravity sprint underway.' };
+        },
+        vote(choice) {
+          const count = this.randomBetween(4, 11);
+          this.voteResult = `${choice} wins with ${count} whisker ballots.`;
+        },
+        shuffleDish() {
+          const options = ['Comet-Spiced Clawder', 'Nebula Noodle Bake', 'Starboard Sardine Pie', 'Lunar Lentil Loaf'];
+          this.signalDish = options[Math.floor(Math.random() * options.length)];
+        },
+        swapPalette() {
+          this.paletteNote = 'Alert: Beige detected. Deploying coral paint cannons.';
+        },
+        randomBetween(min, max) {
+          return Math.floor(Math.random() * (max - min + 1)) + min;
+        }
+      };
+    }
+  </script>
+</body>
+</html>

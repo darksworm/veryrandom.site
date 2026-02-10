@@ -1,0 +1,515 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Cat-Operated Airline Gazette — Submerged Transactions Edition</title>
+<style>
+  :root{
+    --bg:#f8fff9;
+    --ink:#0b1a12;
+    --accent:#35ff9a;
+    --accent2:#1fcf7b;
+    --shadow:rgba(0,0,0,.18);
+    --panel:#ffffff;
+    --panel2:#f1fff6;
+    --warn:#0a6b43;
+  }
+  *{box-sizing:border-box}
+  html,body{height:100%}
+  body{
+    margin:0;
+    font-family: "Georgia", "Times New Roman", serif;
+    color:var(--ink);
+    background:
+      radial-gradient(1200px 600px at 80% -10%, #e6fff1 0%, transparent 60%),
+      linear-gradient(135deg, #ffffff 0%, #f4fff8 55%, #e9fff3 100%);
+    overflow-x:hidden;
+  }
+  .page{
+    display:grid;
+    grid-template-columns: 280px 1fr 300px;
+    min-height:100vh;
+    gap:12px;
+    padding:14px;
+  }
+  .panel{
+    background:var(--panel);
+    border:2px solid var(--accent2);
+    box-shadow:0 12px 30px var(--shadow), inset 0 0 0 1px #e0ffe9;
+    border-radius:14px;
+    padding:14px;
+    position:relative;
+  }
+  .panel:before{
+    content:"";
+    position:absolute;
+    inset:6px;
+    border:1px dashed #b7ffd5;
+    border-radius:10px;
+    pointer-events:none;
+  }
+  .title{
+    font-family: "Garamond", "Georgia", serif;
+    font-size:28px;
+    letter-spacing:1px;
+    text-transform:uppercase;
+  }
+  .subtitle{
+    font-size:13px;
+    color:#1b4b33;
+    font-style:italic;
+  }
+  .pill{
+    display:inline-block;
+    padding:4px 8px;
+    border-radius:20px;
+    background:var(--accent);
+    color:#00301a;
+    font-size:12px;
+    margin:2px 0;
+  }
+  .ticker{
+    background:var(--panel2);
+    border:1px solid #b9ffd8;
+    padding:8px;
+    border-radius:10px;
+    font-family: "Courier New", monospace;
+    font-size:12px;
+    min-height:54px;
+  }
+  .grid{
+    display:grid;
+    gap:12px;
+  }
+  .card{
+    background:#fff;
+    border:1px solid #c2ffe1;
+    border-radius:12px;
+    padding:12px;
+    box-shadow:0 8px 16px rgba(0,0,0,.08);
+  }
+  .columns{
+    display:grid;
+    grid-template-columns: 1.2fr .8fr;
+    gap:12px;
+  }
+  .ledger{
+    font-family: "Courier New", monospace;
+    font-size:12px;
+    background:#f8fffb;
+    border:1px solid #c3ffe2;
+    border-radius:10px;
+    padding:10px;
+    max-height:250px;
+    overflow:auto;
+  }
+  .water{
+    position:relative;
+    height:120px;
+    border-radius:12px;
+    overflow:hidden;
+    border:1px solid #a6ffd0;
+    background:linear-gradient(180deg, #f7fffb, #e6fff1);
+  }
+  .water:after{
+    content:"";
+    position:absolute;
+    left:-10%;
+    top:40%;
+    width:120%;
+    height:60%;
+    background:radial-gradient(circle at 50% 0, rgba(53,255,154,.35), transparent 60%);
+    animation: tide 6s ease-in-out infinite;
+  }
+  @keyframes tide{
+    0%{transform:translateY(10px)}
+    50%{transform:translateY(-10px)}
+    100%{transform:translateY(10px)}
+  }
+  .bubble{
+    position:absolute;
+    bottom:-20px;
+    width:10px;height:10px;
+    border-radius:50%;
+    background:rgba(53,255,154,.6);
+    animation: rise 4s linear infinite;
+  }
+  @keyframes rise{
+    0%{transform:translateY(0) scale(1); opacity:.7}
+    100%{transform:translateY(-140px) scale(.6); opacity:0}
+  }
+  .glow{
+    animation: glow 2.4s ease-in-out infinite;
+  }
+  @keyframes glow{
+    0%,100%{box-shadow:0 0 0 rgba(53,255,154,0)}
+    50%{box-shadow:0 0 20px rgba(53,255,154,.6)}
+  }
+  .btn{
+    display:inline-block;
+    padding:8px 10px;
+    border-radius:10px;
+    border:2px solid var(--accent2);
+    background:#f8fffb;
+    cursor:pointer;
+    font-weight:bold;
+    font-family: "Georgia", serif;
+    transition:transform .2s, background .2s;
+  }
+  .btn:hover{transform:translateY(-2px); background:#eafff2}
+  .btn:active{transform:translateY(0)}
+  .kbd{
+    font-family:"Courier New", monospace;
+    background:#eafff2;
+    border:1px solid #b7ffd6;
+    padding:2px 6px;
+    border-radius:6px;
+  }
+  .stamp{
+    position:absolute;
+    right:12px;
+    top:12px;
+    transform:rotate(6deg);
+    border:2px solid #0a6b43;
+    color:#0a6b43;
+    padding:4px 8px;
+    font-family:"Courier New", monospace;
+    font-size:11px;
+  }
+  .sidebar h3{
+    margin:6px 0 8px;
+  }
+  .sidebar ul{
+    list-style:none; padding:0; margin:0; font-size:14px;
+  }
+  .sidebar li{padding:6px 0; border-bottom:1px dashed #c8ffe4}
+  .headline{
+    font-size:22px;
+    margin:0 0 8px;
+  }
+  .note{
+    font-size:12px;
+    color:#2b4f3b;
+  }
+  .badge{
+    font-family:"Courier New", monospace;
+    font-size:11px;
+    background:#eafff2;
+    border:1px solid #b7ffd6;
+    padding:3px 6px;
+    border-radius:6px;
+    display:inline-block;
+  }
+  .toggle{
+    display:flex;
+    gap:8px;
+    flex-wrap:wrap;
+  }
+  .hidden{display:none}
+  .queue{
+    display:grid; gap:6px; font-size:13px;
+  }
+  .queue .item{
+    border:1px solid #c8ffe4; border-radius:8px; padding:6px 8px; background:#f8fffb;
+  }
+  .footer{
+    font-size:12px; color:#2b4f3b; text-align:center; padding:8px;
+  }
+  .victorian{
+    background:
+      linear-gradient(90deg, transparent 0 18%, rgba(53,255,154,.08) 18% 20%, transparent 20% 38%, rgba(53,255,154,.08) 38% 40%, transparent 40% 58%, rgba(53,255,154,.08) 58% 60%, transparent 60% 78%, rgba(53,255,154,.08) 78% 80%, transparent 80% 100%),
+      repeating-linear-gradient(0deg, rgba(53,255,154,.06) 0 2px, transparent 2px 8px);
+  }
+  .scanline{
+    position:absolute; inset:0; pointer-events:none;
+    background:linear-gradient(transparent, rgba(53,255,154,.08), transparent);
+    animation:scan 5s linear infinite;
+    mix-blend-mode:multiply;
+  }
+  @keyframes scan{0%{transform:translateY(-100%)}100%{transform:translateY(100%)}}
+  @media (max-width: 1100px){
+    .page{grid-template-columns:1fr;}
+  }
+</style>
+</head>
+<body>
+  <div class="page victorian">
+    <aside class="panel sidebar">
+      <div class="stamp">SEALED BY WHISKERS</div>
+      <div class="title">CATLINE GAZETTE</div>
+      <div class="subtitle">Official Newspaper of the Submerged Transaction Bureau</div>
+      <div class="pill">Edition 7,002 • Printed on kelp</div>
+      <h3>Admin Sidebar</h3>
+      <ul>
+        <li>Flight Queue: <span class="badge" id="queueCount">8</span> whiskers waiting</li>
+        <li>Waterline Depth: <span class="badge" id="depth">12.4m</span></li>
+        <li>Keyboard Integrity: <span class="badge" id="integrity">98%</span></li>
+        <li>Cat Mood: <span class="badge" id="mood">Velvet Scowl</span></li>
+        <li>Ink Pressure: <span class="badge" id="ink">Stable</span></li>
+      </ul>
+      <div class="card glow" style="margin-top:12px;">
+        <div class="note">Disclaimer: Our accountants are fish. They do not blink. Please stop asking.</div>
+      </div>
+      <div class="card" style="margin-top:12px;">
+        <div class="note">Humorous Disclosure: All tickets are void if the cat sneezes at the cashier.</div>
+      </div>
+      <div class="card" style="margin-top:12px;">
+        <div class="note">Safety Notice: Do not open this newspaper underwater unless you are already underwater.</div>
+      </div>
+    </aside>
+
+    <main class="panel">
+      <div class="headline">Breaking: Cat-Operated Airline Publishes Undersea Ledger, Keyboard Refuses to Stay Dry</div>
+      <div class="subtitle">A maximalist Victorian data center aesthetic, now with more bubbles.</div>
+
+      <div class="columns" style="margin-top:12px;">
+        <section class="card">
+          <h3>Front Page Highlights</h3>
+          <div class="grid">
+            <div>1. “Captain Whisker von Catt” knighted by the Coral Council for punctual naps.</div>
+            <div>2. 37% of tickets now paid in sardines, up from 12% last tide.</div>
+            <div>3. The runway is still a rug. The rug is still confused.</div>
+            <div>4. New policy: passengers must declare emotional baggage separately.</div>
+            <div>5. Weather report: 100% chance of bubbles, 60% chance of zoomies.</div>
+            <div>6. The ink blotter union demands more sunlight and fewer kelp puns.</div>
+          </div>
+        </section>
+        <section class="card">
+          <h3>Submerged Transaction Console</h3>
+          <div class="ticker" id="transactionConsole">Awaiting soggy input...</div>
+          <div style="margin-top:10px;" class="toggle">
+            <button class="btn" id="btnApprove">Approve Bubble Ticket</button>
+            <button class="btn" id="btnDeny">Deny with Meow</button>
+            <button class="btn" id="btnGlitch">Cat-on-Keyboard Mode</button>
+          </div>
+          <div class="note" style="margin-top:8px;">Note: Every keystroke is edited by a cat sitting on the keyboard. It is not negotiable.</div>
+        </section>
+      </div>
+
+      <div class="columns" style="margin-top:12px;">
+        <section class="card">
+          <h3>Ledger (Live)</h3>
+          <div class="ledger" id="ledger"></div>
+          <div style="margin-top:10px;" class="toggle">
+            <button class="btn" id="btnAdd">Add Transaction</button>
+            <button class="btn" id="btnPurge">Purge Sardine Fees</button>
+          </div>
+          <div class="note">Humorous Disclaimer: Purge button only removes imaginary fees. Real fees hide under the sofa.</div>
+        </section>
+        <section class="card">
+          <h3>Underwater Status</h3>
+          <div class="water" id="water">
+            <div class="bubble" style="left:12%; animation-delay:0s"></div>
+            <div class="bubble" style="left:32%; animation-delay:1s"></div>
+            <div class="bubble" style="left:52%; animation-delay:2s"></div>
+            <div class="bubble" style="left:72%; animation-delay:.5s"></div>
+            <div class="bubble" style="left:88%; animation-delay:1.7s"></div>
+          </div>
+          <div style="margin-top:10px;" class="toggle">
+            <button class="btn" id="btnVent">Open Pressure Vent</button>
+            <button class="btn" id="btnSeal">Seal Hatch</button>
+          </div>
+          <div class="note" id="pressureNote">Pressure: nominal. Kelp is behaving.</div>
+        </section>
+      </div>
+
+      <div class="card" style="margin-top:12px; position:relative;">
+        <div class="scanline"></div>
+        <h3>Passenger Queue</h3>
+        <div class="queue" id="queue">
+          <div class="item">Lady Marmalade • Seat: A-1 • Paid in pearls</div>
+          <div class="item">Sir Pounce • Seat: B-2 • Paid in tuna futures</div>
+          <div class="item">Countess Fluff • Seat: C-3 • Paid in compliments</div>
+        </div>
+        <div style="margin-top:10px;" class="toggle">
+          <button class="btn" id="btnBoard">Board Next Feline</button>
+          <button class="btn" id="btnShuffle">Shuffle Queue</button>
+        </div>
+      </div>
+
+      <div class="card" style="margin-top:12px;">
+        <h3>Editorial: Victorian Data Center, Now with Claw Marks</h3>
+        <div>We installed brass levers for aesthetics. The cat uses them as a hammock.</div>
+        <div>Our servers hum in iambic pentameter, which is terrible for uptime but excellent for drama.</div>
+        <div>Daily reminder: “Undersea” is a feeling, not just a location.</div>
+        <div>Humorous Disclaimer: This newspaper may contain traces of cat hair, which is also the operating system.</div>
+      </div>
+
+      <div class="footer">© The Cat-Operated Airline Gazette. All misprints are intentional, especially the ones the cat made on the keyboard.</div>
+    </main>
+
+    <aside class="panel">
+      <div class="title" style="font-size:22px;">Status Cabinet</div>
+      <div class="subtitle">Clinical white, surgical green, and a little chaos.</div>
+      <div class="card" style="margin-top:10px;">
+        <h3>Auto-Update Counters</h3>
+        <div>Meows per Minute: <span class="badge" id="meow">0</span></div>
+        <div>Bubble Cycle: <span class="badge" id="bubbleCycle">0</span></div>
+        <div>Soggy Transactions: <span class="badge" id="soggy">0</span></div>
+      </div>
+      <div class="card" style="margin-top:10px;">
+        <h3>Cat Keyboard Filter</h3>
+        <div class="note">Type in the input below. The cat will "fix" it.</div>
+        <input id="catInput" class="kbd" style="width:100%;" placeholder="Type a transaction..." />
+        <div class="note" style="margin-top:8px;">Processed Output:</div>
+        <div class="ticker" id="catOutput">No input yet. The cat is stretching.</div>
+        <button class="btn" style="margin-top:8px;" id="btnProcess">Process Keystrokes</button>
+      </div>
+      <div class="card" style="margin-top:10px;">
+        <h3>Witty Notices</h3>
+        <div>Notice: All flights are on time except the ones that aren’t.</div>
+        <div>Notice: Please do not pet the aircraft without consent.</div>
+        <div>Notice: The coral reef is not an ATM.</div>
+        <div>Notice: Our CEO is a cat. This is not up for debate.</div>
+      </div>
+    </aside>
+  </div>
+
+<script>
+(() => {
+  const ledger = document.getElementById('ledger');
+  const queue = document.getElementById('queue');
+  const transactionConsole = document.getElementById('transactionConsole');
+  const depth = document.getElementById('depth');
+  const integrity = document.getElementById('integrity');
+  const mood = document.getElementById('mood');
+  const queueCount = document.getElementById('queueCount');
+  const meow = document.getElementById('meow');
+  const bubbleCycle = document.getElementById('bubbleCycle');
+  const soggy = document.getElementById('soggy');
+  const pressureNote = document.getElementById('pressureNote');
+  const water = document.getElementById('water');
+
+  const phrases = [
+    'Transaction: 3 sardines for aisle seat — approved by paw stamp.',
+    'Refund issued in yarn. Customer visibly puzzled.',
+    'Seat upgraded to Window (fish view).',
+    'Passenger paid with a haiku. Accounting wept.',
+    'Emergency landing rescheduled to nap time.',
+    'Cargo hold filled with dramatic sighs.',
+    'Pilot requested more lasers. Request denied (temporarily).',
+    'Kelp surcharge waived after purring inspection.',
+    'Passenger declared emotional baggage: 2 suitcases of guilt.',
+    'Runway rug expressed mild disagreement.',
+    'Cabin pressure stabilized by purr-engine.',
+    'Transaction failed due to wet whiskers. Retrying.'
+  ];
+
+  const names = ['Baron Whisk', 'Duchess Purr', 'Captain Mews', 'Oracle Floof', 'Sir Snaps', 'Madam Claw', 'Professor Pounce'];
+  let ledgerCount = 0;
+  let meowCount = 0;
+  let bubbleCount = 0;
+  let soggyCount = 0;
+  let depthVal = 12.4;
+  let integrityVal = 98;
+
+  function addLedgerEntry(text){
+    const line = document.createElement('div');
+    line.textContent = `${new Date().toLocaleTimeString()} | ${text}`;
+    ledger.prepend(line);
+    ledgerCount++;
+    soggyCount++;
+    soggy.textContent = soggyCount;
+  }
+
+  function catGlitch(text){
+    const swaps = {'a':'@','e':'3','i':'1','o':'0','s':'$'};
+    return text.split('').map(ch => {
+      if (Math.random() < 0.15) return '🐾';
+      const lower = ch.toLowerCase();
+      if (swaps[lower] && Math.random() < 0.3) return swaps[lower];
+      if (Math.random() < 0.08) return ch.toUpperCase();
+      return ch;
+    }).join('');
+  }
+
+  function updateConsole(msg){
+    transactionConsole.textContent = msg;
+  }
+
+  function addPassenger(){
+    const item = document.createElement('div');
+    item.className = 'item';
+    const name = names[Math.floor(Math.random()*names.length)];
+    const seat = String.fromCharCode(65 + Math.floor(Math.random()*6)) + '-' + (1+Math.floor(Math.random()*6));
+    const pay = ['pearls','tuna futures','compliments','moonlight','lint','ancient coins'][Math.floor(Math.random()*6)];
+    item.textContent = `${name} • Seat: ${seat} • Paid in ${pay}`;
+    queue.appendChild(item);
+    queueCount.textContent = queue.children.length + 5; // pretend more are off-screen
+  }
+
+  document.getElementById('btnApprove').addEventListener('click', () => {
+    addLedgerEntry(phrases[Math.floor(Math.random()*phrases.length)]);
+    updateConsole('Approved. The cat nodded once.' );
+  });
+
+  document.getElementById('btnDeny').addEventListener('click', () => {
+    addLedgerEntry('Denied by whisker veto. Fee converted to a soft hiss.');
+    updateConsole('Denied. The cat stared through the screen.' );
+  });
+
+  document.getElementById('btnGlitch').addEventListener('click', () => {
+    const msg = catGlitch('Keyboard interference detected: all payments now spelled with paws.');
+    updateConsole(msg);
+    integrityVal = Math.max(70, integrityVal - 3);
+    integrity.textContent = integrityVal + '%';
+  });
+
+  document.getElementById('btnAdd').addEventListener('click', () => {
+    addLedgerEntry('Manual entry: ceremonial tuna stamp applied.');
+  });
+
+  document.getElementById('btnPurge').addEventListener('click', () => {
+    addLedgerEntry('Sardine fees purged. Ledger smells better already.');
+  });
+
+  document.getElementById('btnVent').addEventListener('click', () => {
+    pressureNote.textContent = 'Pressure vented. Bubbles applauded.';
+    water.classList.add('glow');
+  });
+
+  document.getElementById('btnSeal').addEventListener('click', () => {
+    pressureNote.textContent = 'Hatch sealed. The ocean filed a complaint.';
+    water.classList.remove('glow');
+  });
+
+  document.getElementById('btnBoard').addEventListener('click', () => {
+    if (queue.firstElementChild) queue.removeChild(queue.firstElementChild);
+    addPassenger();
+  });
+
+  document.getElementById('btnShuffle').addEventListener('click', () => {
+    const items = Array.from(queue.children);
+    items.sort(() => Math.random() - 0.5);
+    queue.innerHTML = '';
+    items.forEach(i => queue.appendChild(i));
+    updateConsole('Queue shuffled by a mysterious tail swipe.');
+  });
+
+  document.getElementById('btnProcess').addEventListener('click', () => {
+    const input = document.getElementById('catInput').value.trim();
+    if (!input){
+      document.getElementById('catOutput').textContent = 'No input. The cat is busy judging.';
+      return;
+    }
+    document.getElementById('catOutput').textContent = catGlitch(input);
+  });
+
+  // Auto-updating counters and status
+  setInterval(() => {
+    meowCount += Math.floor(Math.random()*3);
+    bubbleCount++;
+    depthVal += (Math.random() - 0.5) * 0.3;
+    meow.textContent = meowCount;
+    bubbleCycle.textContent = bubbleCount;
+    depth.textContent = depthVal.toFixed(1) + 'm';
+    if (Math.random() < 0.3) mood.textContent = ['Velvet Scowl','Neutral Purr','Magnificent Judgment','Laser Focus'][Math.floor(Math.random()*4)];
+  }, 1200);
+
+  // seed ledger
+  for (let i=0;i<5;i++) addLedgerEntry(phrases[i]);
+})();
+</script>
+</body>
+</html>

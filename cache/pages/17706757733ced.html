@@ -1,0 +1,1462 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>VOSS & VOSS — Temporal Liberation Consultancy</title>
+<link rel="stylesheet" href="/assets/css/fonts.css">
+<style>
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+:root {
+  --acid: #39FF14;
+  --yellow: #FFE500;
+  --orange: #FF6600;
+  --black: #0a0a0a;
+  --dark: #111;
+  --gray: #1a1a1a;
+  --win-border-light: #c0c0c0;
+  --win-border-dark: #404040;
+  --terminal: #39FF14;
+}
+
+html { scroll-behavior: smooth; }
+
+body {
+  font-family: 'IBM Plex Mono', monospace;
+  background: var(--black);
+  color: #e0e0e0;
+  overflow-x: hidden;
+  min-height: 100vh;
+  cursor: crosshair;
+}
+
+/* ═══════ WINDOWS 95 WINDOW COMPONENT ═══════ */
+.win95 {
+  background: #c0c0c0;
+  border: 2px solid;
+  border-color: #ffffff #404040 #404040 #ffffff;
+  box-shadow: 1px 1px 0 #000;
+}
+
+.win95-title {
+  background: linear-gradient(90deg, #000080, #1084d0);
+  color: white;
+  padding: 3px 6px;
+  font-size: 12px;
+  font-weight: bold;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-family: 'IBM Plex Mono', monospace;
+  user-select: none;
+}
+
+.win95-title-buttons {
+  display: flex;
+  gap: 2px;
+}
+
+.win95-btn {
+  width: 16px;
+  height: 14px;
+  background: #c0c0c0;
+  border: 1px solid;
+  border-color: #ffffff #404040 #404040 #ffffff;
+  font-size: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: #000;
+  font-weight: bold;
+  line-height: 1;
+}
+
+.win95-body {
+  padding: 12px;
+  color: #000;
+  font-size: 13px;
+}
+
+/* ═══════ CSS ART: FLOATING CALENDAR SHREDS ═══════ */
+.shred {
+  position: fixed;
+  pointer-events: none;
+  z-index: 0;
+  opacity: 0.08;
+}
+
+.shred-1 {
+  top: 10%;
+  left: 5%;
+  width: 80px;
+  height: 100px;
+  background: repeating-linear-gradient(
+    0deg,
+    transparent,
+    transparent 18px,
+    var(--acid) 18px,
+    var(--acid) 19px
+  );
+  border-left: 3px solid var(--orange);
+  transform: rotate(-12deg);
+  clip-path: polygon(0 0, 100% 5%, 95% 100%, 5% 95%);
+}
+
+.shred-2 {
+  top: 30%;
+  right: 8%;
+  width: 60px;
+  height: 80px;
+  background: repeating-linear-gradient(
+    0deg,
+    transparent,
+    transparent 14px,
+    var(--yellow) 14px,
+    var(--yellow) 15px
+  );
+  border-left: 3px solid var(--acid);
+  transform: rotate(8deg);
+  clip-path: polygon(5% 0, 100% 3%, 97% 100%, 0 97%);
+}
+
+.shred-3 {
+  bottom: 20%;
+  left: 12%;
+  width: 50px;
+  height: 70px;
+  background: repeating-linear-gradient(
+    0deg,
+    transparent,
+    transparent 12px,
+    var(--orange) 12px,
+    var(--orange) 13px
+  );
+  border-left: 3px solid var(--yellow);
+  transform: rotate(-5deg);
+  clip-path: polygon(3% 2%, 98% 0, 100% 98%, 0 100%);
+}
+
+/* ═══════ CSS ART: GLITCH GRID BACKGROUND ═══════ */
+.grid-bg {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  background:
+    repeating-linear-gradient(
+      0deg,
+      transparent,
+      transparent 60px,
+      rgba(57, 255, 20, 0.03) 60px,
+      rgba(57, 255, 20, 0.03) 61px
+    ),
+    repeating-linear-gradient(
+      90deg,
+      transparent,
+      transparent 60px,
+      rgba(57, 255, 20, 0.03) 60px,
+      rgba(57, 255, 20, 0.03) 61px
+    );
+  pointer-events: none;
+}
+
+/* ═══════ SCANLINE OVERLAY ═══════ */
+.scanlines {
+  position: fixed;
+  inset: 0;
+  z-index: 9998;
+  pointer-events: none;
+  background: repeating-linear-gradient(
+    0deg,
+    transparent,
+    transparent 2px,
+    rgba(0,0,0,0.06) 2px,
+    rgba(0,0,0,0.06) 4px
+  );
+}
+
+/* ═══════ NAV ═══════ */
+nav {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  background: var(--dark);
+  border-bottom: 1px solid var(--acid);
+  padding: 0 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 44px;
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+}
+
+nav .logo {
+  color: var(--acid);
+  font-weight: bold;
+  font-size: 14px;
+}
+
+nav .nav-links {
+  display: flex;
+  gap: 20px;
+}
+
+nav a {
+  color: #999;
+  text-decoration: none;
+  transition: color 0.2s;
+}
+
+nav a:hover { color: var(--acid); }
+
+@media (max-width: 600px) {
+  nav .nav-links { gap: 10px; font-size: 10px; letter-spacing: 1px; }
+}
+
+/* ═══════ SECTION SHARED ═══════ */
+section {
+  position: relative;
+  z-index: 1;
+  padding: 60px 20px;
+  max-width: 1100px;
+  margin: 0 auto;
+}
+
+/* ═══════ HERO — CSS ART CENTERPIECE ═══════ */
+.hero {
+  min-height: 90vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 40px 20px;
+  position: relative;
+  overflow: hidden;
+}
+
+/* CSS-drawn calendar being torn apart */
+.calendar-art {
+  position: relative;
+  width: clamp(240px, 50vw, 400px);
+  height: clamp(240px, 50vw, 400px);
+  margin-bottom: 40px;
+}
+
+.cal-frame {
+  position: absolute;
+  inset: 0;
+  border: 2px solid var(--acid);
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  grid-template-rows: 30px repeat(5, 1fr);
+  gap: 1px;
+  background: rgba(57, 255, 20, 0.05);
+  transition: transform 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+.cal-header {
+  grid-column: 1 / -1;
+  background: var(--orange);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #000;
+  font-weight: bold;
+  font-size: clamp(10px, 2vw, 14px);
+  letter-spacing: 3px;
+  text-transform: uppercase;
+}
+
+.cal-cell {
+  border: 1px solid rgba(57, 255, 20, 0.15);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: clamp(8px, 1.5vw, 12px);
+  color: rgba(57, 255, 20, 0.6);
+  position: relative;
+  transition: all 0.3s;
+}
+
+.cal-cell.guilt {
+  background: rgba(255, 102, 0, 0.15);
+  color: var(--orange);
+}
+
+.cal-cell.guilt::after {
+  content: '!';
+  position: absolute;
+  top: 2px;
+  right: 3px;
+  font-size: 8px;
+  color: var(--orange);
+}
+
+.cal-cell.free {
+  background: rgba(57, 255, 20, 0.1);
+  color: var(--acid);
+}
+
+/* Diagonal tear line — CSS clip-path art */
+.tear-line {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.6s;
+}
+
+.tear-line::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(
+    135deg,
+    transparent 44%,
+    var(--acid) 44.5%,
+    var(--acid) 45%,
+    var(--yellow) 45.5%,
+    var(--yellow) 46%,
+    transparent 46.5%
+  );
+  animation: tearPulse 2s ease-in-out infinite;
+}
+
+@keyframes tearPulse {
+  0%, 100% { opacity: 0.4; }
+  50% { opacity: 1; }
+}
+
+.calendar-art:hover .tear-line {
+  opacity: 1;
+}
+
+.calendar-art:hover .cal-frame {
+  transform: perspective(600px) rotateY(5deg);
+}
+
+/* ═══════ HERO TEXT ═══════ */
+.hero h1 {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: clamp(32px, 7vw, 80px);
+  font-weight: 700;
+  color: var(--acid);
+  line-height: 1;
+  letter-spacing: -2px;
+  margin-bottom: 16px;
+  text-shadow: 0 0 40px rgba(57, 255, 20, 0.3);
+}
+
+.hero .tagline {
+  font-size: clamp(13px, 2vw, 18px);
+  color: var(--yellow);
+  letter-spacing: 4px;
+  text-transform: uppercase;
+  margin-bottom: 8px;
+}
+
+.hero .sub {
+  font-size: clamp(11px, 1.5vw, 14px);
+  color: #888;
+  max-width: 500px;
+}
+
+/* ═══════ CSS ART: TOXIC STATUS BAR ═══════ */
+.status-bar {
+  width: 100%;
+  max-width: 800px;
+  margin: 40px auto 0;
+  background: var(--dark);
+  border: 1px solid var(--acid);
+  padding: 12px 16px;
+  font-size: 12px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.status-bar .blink {
+  color: var(--acid);
+  animation: blink 1s steps(1) infinite;
+}
+
+@keyframes blink {
+  0%, 50% { opacity: 1; }
+  51%, 100% { opacity: 0; }
+}
+
+.status-bar span { color: #888; }
+
+/* ═══════ DIAGNOSIS SECTION ═══════ */
+.diagnosis {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 20px;
+  padding: 60px 20px;
+  max-width: 1100px;
+  margin: 0 auto;
+  position: relative;
+  z-index: 1;
+}
+
+.diag-card {
+  background: var(--gray);
+  border: 1px solid rgba(57, 255, 20, 0.2);
+  padding: 0;
+  transition: all 0.3s;
+  position: relative;
+  overflow: hidden;
+}
+
+.diag-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 4px;
+  height: 100%;
+  transition: background 0.3s;
+}
+
+.diag-card:nth-child(1)::before { background: var(--acid); }
+.diag-card:nth-child(2)::before { background: var(--yellow); }
+.diag-card:nth-child(3)::before { background: var(--orange); }
+
+.diag-card:hover {
+  border-color: var(--acid);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 20px rgba(57, 255, 20, 0.1);
+}
+
+.diag-card .card-header {
+  padding: 16px 20px;
+  border-bottom: 1px solid rgba(57, 255, 20, 0.1);
+  font-size: 11px;
+  color: var(--acid);
+  text-transform: uppercase;
+  letter-spacing: 2px;
+}
+
+.diag-card .card-body {
+  padding: 20px;
+}
+
+.diag-card h3 {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 20px;
+  color: #fff;
+  margin-bottom: 10px;
+}
+
+.diag-card p {
+  font-size: 13px;
+  color: #aaa;
+  line-height: 1.6;
+}
+
+.diag-card .stat {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 36px;
+  font-weight: 700;
+  color: var(--yellow);
+  display: block;
+  margin-top: 12px;
+}
+
+/* ═══════ CSS ART: GEOMETRIC DIVIDER ═══════ */
+.divider {
+  width: 100%;
+  max-width: 1100px;
+  margin: 0 auto;
+  height: 60px;
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.divider::before {
+  content: '';
+  width: 100%;
+  height: 1px;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    var(--acid) 20%,
+    var(--yellow) 50%,
+    var(--orange) 80%,
+    transparent 100%
+  );
+}
+
+.divider-diamond {
+  position: absolute;
+  width: 12px;
+  height: 12px;
+  background: var(--black);
+  border: 1px solid var(--acid);
+  transform: rotate(45deg);
+}
+
+/* ═══════ SERVICES / PRICING ═══════ */
+.pricing {
+  padding: 60px 20px;
+  max-width: 1100px;
+  margin: 0 auto;
+  position: relative;
+  z-index: 1;
+}
+
+.pricing-header {
+  text-align: center;
+  margin-bottom: 40px;
+}
+
+.pricing-header h2 {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: clamp(24px, 4vw, 40px);
+  color: var(--acid);
+  margin-bottom: 8px;
+}
+
+.pricing-header p {
+  color: #888;
+  font-size: 13px;
+}
+
+.pricing-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 20px;
+}
+
+.price-card {
+  border: 1px solid rgba(255, 230, 0, 0.2);
+  background: var(--gray);
+  position: relative;
+  transition: all 0.3s;
+}
+
+.price-card.featured {
+  border-color: var(--acid);
+  box-shadow: 0 0 30px rgba(57, 255, 20, 0.08);
+}
+
+.price-card.featured::after {
+  content: 'RECOMMENDED SEVERITY';
+  position: absolute;
+  top: -12px;
+  left: 20px;
+  background: var(--acid);
+  color: #000;
+  font-size: 9px;
+  font-weight: bold;
+  padding: 3px 10px;
+  letter-spacing: 2px;
+}
+
+.price-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 30px rgba(57, 255, 20, 0.1);
+}
+
+.price-tier {
+  padding: 20px;
+  border-bottom: 1px solid rgba(57, 255, 20, 0.1);
+}
+
+.price-tier .name {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 3px;
+  color: var(--orange);
+  margin-bottom: 8px;
+}
+
+.price-tier .amount {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 40px;
+  font-weight: 700;
+  color: #fff;
+}
+
+.price-tier .amount span {
+  font-size: 14px;
+  color: #666;
+  font-weight: 400;
+}
+
+.price-details {
+  padding: 20px;
+}
+
+.price-details ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.price-details li {
+  padding: 8px 0;
+  font-size: 12px;
+  color: #aaa;
+  border-bottom: 1px solid rgba(255,255,255,0.04);
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+}
+
+.price-details li::before {
+  content: '>';
+  color: var(--acid);
+  font-weight: bold;
+  flex-shrink: 0;
+}
+
+.price-cta {
+  padding: 0 20px 20px;
+}
+
+.price-cta button {
+  width: 100%;
+  padding: 12px;
+  background: transparent;
+  border: 1px solid var(--acid);
+  color: var(--acid);
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 3px;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.price-cta button:hover {
+  background: var(--acid);
+  color: #000;
+}
+
+/* ═══════ TERMINAL / TESTIMONIALS ═══════ */
+.terminal-section {
+  padding: 60px 20px;
+  max-width: 800px;
+  margin: 0 auto;
+  position: relative;
+  z-index: 1;
+}
+
+.terminal {
+  background: #0c0c0c;
+  border: 1px solid var(--acid);
+  font-size: 13px;
+  overflow: hidden;
+}
+
+.terminal-bar {
+  background: #1a1a1a;
+  padding: 8px 12px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  border-bottom: 1px solid rgba(57, 255, 20, 0.2);
+}
+
+.terminal-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+}
+
+.terminal-dot:nth-child(1) { background: #ff5f56; }
+.terminal-dot:nth-child(2) { background: #ffbd2e; }
+.terminal-dot:nth-child(3) { background: #27c93f; }
+
+.terminal-bar span {
+  margin-left: 10px;
+  font-size: 11px;
+  color: #666;
+}
+
+.terminal-content {
+  padding: 20px;
+  line-height: 1.8;
+  color: var(--acid);
+  min-height: 200px;
+}
+
+.terminal-content .prompt { color: var(--yellow); }
+.terminal-content .response { color: #ccc; }
+.terminal-content .error { color: var(--orange); }
+.terminal-content .success { color: var(--acid); }
+
+/* ═══════ CSS ART: PULSING WARNING SHAPES ═══════ */
+.warning-shapes {
+  position: relative;
+  z-index: 1;
+  padding: 40px 20px;
+  display: flex;
+  justify-content: center;
+  gap: 40px;
+  flex-wrap: wrap;
+}
+
+.hex {
+  width: 80px;
+  height: 92px;
+  background: var(--acid);
+  clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  transition: all 0.3s;
+  cursor: pointer;
+}
+
+.hex::after {
+  content: '';
+  position: absolute;
+  inset: 3px;
+  background: var(--black);
+  clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
+}
+
+.hex .hex-label {
+  position: relative;
+  z-index: 1;
+  font-size: 9px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: var(--acid);
+  text-align: center;
+  padding: 0 10px;
+}
+
+.hex:nth-child(2) { background: var(--yellow); }
+.hex:nth-child(2) .hex-label { color: var(--yellow); }
+.hex:nth-child(3) { background: var(--orange); }
+.hex:nth-child(3) .hex-label { color: var(--orange); }
+
+.hex:hover {
+  transform: scale(1.15);
+  filter: drop-shadow(0 0 15px currentColor);
+}
+
+.hex:nth-child(1):hover { filter: drop-shadow(0 0 15px var(--acid)); }
+.hex:nth-child(2):hover { filter: drop-shadow(0 0 15px var(--yellow)); }
+.hex:nth-child(3):hover { filter: drop-shadow(0 0 15px var(--orange)); }
+
+/* ═══════ FOUNDER SECTION ═══════ */
+.founder {
+  padding: 60px 20px;
+  max-width: 800px;
+  margin: 0 auto;
+  position: relative;
+  z-index: 1;
+}
+
+.founder-card {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 30px;
+  align-items: start;
+}
+
+@media (max-width: 600px) {
+  .founder-card { grid-template-columns: 1fr; }
+}
+
+/* CSS Art portrait */
+.portrait {
+  width: 120px;
+  height: 150px;
+  position: relative;
+  border: 1px solid var(--acid);
+  overflow: hidden;
+  flex-shrink: 0;
+}
+
+.portrait::before {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 60px;
+  height: 60px;
+  border-radius: 50% 50% 0 0;
+  background: linear-gradient(180deg, var(--acid), var(--yellow));
+  opacity: 0.3;
+}
+
+.portrait::after {
+  content: 'M.V.';
+  position: absolute;
+  bottom: 10px;
+  width: 100%;
+  text-align: center;
+  font-size: 24px;
+  font-weight: bold;
+  color: var(--acid);
+  font-family: 'Playfair Display', serif;
+}
+
+.founder-info h3 {
+  font-family: 'Playfair Display', serif;
+  font-size: clamp(20px, 3vw, 28px);
+  color: #fff;
+  margin-bottom: 4px;
+}
+
+.founder-info .title {
+  font-size: 11px;
+  color: var(--orange);
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  margin-bottom: 16px;
+}
+
+.founder-info blockquote {
+  border-left: 2px solid var(--acid);
+  padding-left: 16px;
+  font-size: 14px;
+  color: #ccc;
+  line-height: 1.7;
+  font-style: italic;
+  font-family: 'Crimson Pro', serif;
+}
+
+/* ═══════ FAQ ═══════ */
+.faq {
+  padding: 60px 20px;
+  max-width: 800px;
+  margin: 0 auto;
+  position: relative;
+  z-index: 1;
+}
+
+.faq h2 {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: clamp(20px, 3vw, 32px);
+  color: var(--acid);
+  margin-bottom: 30px;
+  text-align: center;
+}
+
+.faq-item {
+  border-bottom: 1px solid rgba(57, 255, 20, 0.1);
+  padding: 16px 0;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.faq-item:hover {
+  padding-left: 8px;
+}
+
+.faq-q {
+  font-size: 14px;
+  color: var(--yellow);
+  margin-bottom: 8px;
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+}
+
+.faq-q::before {
+  content: 'C:\\>';
+  color: var(--acid);
+  flex-shrink: 0;
+  font-size: 12px;
+}
+
+.faq-a {
+  font-size: 13px;
+  color: #999;
+  line-height: 1.6;
+  padding-left: 36px;
+  overflow: hidden;
+  transition: max-height 0.3s, opacity 0.3s;
+}
+
+/* ═══════ FOOTER ═══════ */
+footer {
+  position: relative;
+  z-index: 1;
+  border-top: 1px solid rgba(57, 255, 20, 0.15);
+  padding: 30px 20px;
+  text-align: center;
+  font-size: 11px;
+  color: #555;
+}
+
+footer a { color: var(--acid); text-decoration: none; }
+footer a:hover { text-decoration: underline; }
+
+.footer-legal {
+  margin-top: 12px;
+  font-size: 9px;
+  color: #333;
+  max-width: 600px;
+  margin-left: auto;
+  margin-right: auto;
+  line-height: 1.5;
+}
+
+/* ═══════ CSS ART: ANIMATED CORNER ACCENTS ═══════ */
+.corner-accent {
+  position: fixed;
+  width: 80px;
+  height: 80px;
+  z-index: 2;
+  pointer-events: none;
+}
+
+.corner-accent.tl {
+  top: 50px;
+  left: 0;
+  border-top: 2px solid var(--acid);
+  border-left: 2px solid var(--acid);
+  opacity: 0.3;
+}
+
+.corner-accent.br {
+  /* Moved to bottom-left to keep bottom-right clear */
+  bottom: 0;
+  left: 0;
+  border-bottom: 2px solid var(--orange);
+  border-left: 2px solid var(--orange);
+  opacity: 0.3;
+}
+
+/* ═══════ INTERACTIVE: GAUGE CSS ART ═══════ */
+.gauge-row {
+  display: flex;
+  justify-content: center;
+  gap: 40px;
+  flex-wrap: wrap;
+  padding: 40px 20px;
+  position: relative;
+  z-index: 1;
+}
+
+.gauge {
+  text-align: center;
+  cursor: pointer;
+}
+
+.gauge-ring {
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+  position: relative;
+  margin: 0 auto 12px;
+  transition: transform 0.3s;
+}
+
+.gauge-ring::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  border: 4px solid rgba(255,255,255,0.05);
+}
+
+.gauge-ring::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  border: 4px solid transparent;
+  transition: all 0.3s;
+}
+
+.gauge:nth-child(1) .gauge-ring::after {
+  border-top-color: var(--acid);
+  border-right-color: var(--acid);
+  border-bottom-color: var(--acid);
+}
+
+.gauge:nth-child(2) .gauge-ring::after {
+  border-top-color: var(--yellow);
+  border-right-color: var(--yellow);
+}
+
+.gauge:nth-child(3) .gauge-ring::after {
+  border-top-color: var(--orange);
+  border-right-color: var(--orange);
+  border-bottom-color: var(--orange);
+  border-left-color: var(--orange);
+}
+
+.gauge:hover .gauge-ring {
+  transform: scale(1.1);
+}
+
+.gauge:hover .gauge-ring::after {
+  filter: drop-shadow(0 0 10px currentColor);
+}
+
+.gauge-value {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 24px;
+  font-weight: 700;
+  color: #fff;
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.gauge-label {
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  color: #888;
+}
+
+/* ═══════ CRT HOVER EFFECT ON WHOLE PAGE ═══════ */
+.crt-flash {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  pointer-events: none;
+  opacity: 0;
+  background: var(--acid);
+  transition: opacity 0.05s;
+}
+
+/* ═══════ RESPONSIVE ═══════ */
+@media (max-width: 768px) {
+  section { padding: 40px 16px; }
+  .pricing-grid { grid-template-columns: 1fr; }
+  .diagnosis { grid-template-columns: 1fr; }
+  .warning-shapes { gap: 20px; }
+  .hex { width: 60px; height: 69px; }
+  .hex .hex-label { font-size: 7px; }
+  .gauge-row { gap: 20px; }
+}
+
+@media (max-width: 375px) {
+  nav { padding: 0 12px; font-size: 10px; }
+  .hero h1 { letter-spacing: -1px; }
+  .price-tier .amount { font-size: 32px; }
+}
+</style>
+</head>
+<body x-data="voss()">
+<div class="grid-bg"></div>
+<div class="scanlines"></div>
+<div class="crt-flash" :style="{ opacity: flashOn ? 0.08 : 0 }"></div>
+<div class="shred shred-1"></div>
+<div class="shred shred-2"></div>
+<div class="shred shred-3"></div>
+<div class="corner-accent tl"></div>
+<div class="corner-accent br"></div>
+
+<!-- NAV -->
+<nav>
+  <div class="logo">V&V_</div>
+  <div class="nav-links">
+    <a href="#diagnosis">Diagnosis</a>
+    <a href="#treatment">Treatment</a>
+    <a href="#founder">Founder</a>
+    <a href="#faq">FAQ</a>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="calendar-art" @mouseenter="flashOn = true" @mouseleave="flashOn = false">
+    <div class="cal-frame">
+      <div class="cal-header">YOUR GUILT — 2026</div>
+      <template x-for="day in calDays" :key="day.n">
+        <div class="cal-cell"
+             :class="{ guilt: day.g, free: day.f }"
+             x-text="day.n > 0 ? day.n : ''"></div>
+      </template>
+    </div>
+    <div class="tear-line"></div>
+  </div>
+
+  <p class="tagline">Temporal Liberation Consultancy</p>
+  <h1>VOSS & VOSS</h1>
+  <p class="sub">We delete your calendar. You find your soul. $12,000/month.</p>
+
+  <div class="status-bar">
+    <span><span class="blink">●</span> SYSTEM ACTIVE</span>
+    <span>CALENDARS DESTROYED: <span x-text="destroyedCount" style="color: var(--acid);"></span></span>
+    <span>GUILT LEVEL: <span style="color: var(--orange);">CRITICAL</span></span>
+  </div>
+</section>
+
+<!-- GAUGES -->
+<div class="gauge-row">
+  <div class="gauge" @click="toggleGauge(0)">
+    <div class="gauge-ring">
+      <div class="gauge-value" x-text="gauges[0].val + '%'"></div>
+    </div>
+    <div class="gauge-label">Guilt Freed</div>
+  </div>
+  <div class="gauge" @click="toggleGauge(1)">
+    <div class="gauge-ring">
+      <div class="gauge-value" x-text="gauges[1].val + '%'"></div>
+    </div>
+    <div class="gauge-label">Meetings Killed</div>
+  </div>
+  <div class="gauge" @click="toggleGauge(2)">
+    <div class="gauge-ring">
+      <div class="gauge-value" x-text="gauges[2].val + '%'"></div>
+    </div>
+    <div class="gauge-label">Time Reclaimed</div>
+  </div>
+</div>
+
+<div class="divider"><div class="divider-diamond"></div></div>
+
+<!-- DIAGNOSIS -->
+<div class="diagnosis" id="diagnosis">
+  <div class="diag-card">
+    <div class="card-header">Condition 001</div>
+    <div class="card-body">
+      <h3>Phantom Slot Syndrome</h3>
+      <p>You feel a meeting even when none exists. You check the calendar 14 times before lunch. The 2pm block haunts you though it's been empty since March.</p>
+      <span class="stat">87%</span>
+      <p style="font-size:11px; color:#666; margin-top:4px;">of executives test positive</p>
+    </div>
+  </div>
+  <div class="diag-card">
+    <div class="card-header">Condition 002</div>
+    <div class="card-body">
+      <h3>Guilt Stacking</h3>
+      <p>Every blank hour becomes a silent accusation. You schedule "deep work" blocks you never use because looking at white space feels like unemployment.</p>
+      <span class="stat">$340B</span>
+      <p style="font-size:11px; color:#666; margin-top:4px;">annual cost of fake focus time</p>
+    </div>
+  </div>
+  <div class="diag-card">
+    <div class="card-header">Condition 003</div>
+    <div class="card-body">
+      <h3>Recurring Wound</h3>
+      <p>That weekly standup you set in 2021. It outlived two managers, one company pivot, and your will to live. Nobody knows who owns it. Nobody can delete it.</p>
+      <span class="stat">∞</span>
+      <p style="font-size:11px; color:#666; margin-top:4px;">average lifespan of a standup</p>
+    </div>
+  </div>
+</div>
+
+<!-- WARNING HEXAGONS -->
+<div class="warning-shapes">
+  <div class="hex" @click="hexPulse = 1" :style="hexPulse === 1 ? 'transform: scale(1.2)' : ''">
+    <span class="hex-label">Acute</span>
+  </div>
+  <div class="hex" @click="hexPulse = 2" :style="hexPulse === 2 ? 'transform: scale(1.2)' : ''">
+    <span class="hex-label">Chronic</span>
+  </div>
+  <div class="hex" @click="hexPulse = 3" :style="hexPulse === 3 ? 'transform: scale(1.2)' : ''">
+    <span class="hex-label">Terminal</span>
+  </div>
+</div>
+
+<div class="divider"><div class="divider-diamond"></div></div>
+
+<!-- PRICING -->
+<div class="pricing" id="treatment">
+  <div class="pricing-header">
+    <h2>Treatment Plans</h2>
+    <p>All interventions are HIPAA-adjacent and calendar-final.</p>
+  </div>
+  <div class="pricing-grid">
+    <div class="price-card">
+      <div class="price-tier">
+        <div class="name">Triage</div>
+        <div class="amount">$2,400<span>/mo</span></div>
+      </div>
+      <div class="price-details">
+        <ul>
+          <li>Audit of your top 40 recurring meetings</li>
+          <li>Guilt Score™ assessment (proprietary algorithm)</li>
+          <li>Permission slip to decline 3 meetings/week</li>
+          <li>One (1) calendar cleanse ceremony</li>
+        </ul>
+      </div>
+      <div class="price-cta">
+        <button @click="selectedPlan = 'triage'" x-text="selectedPlan === 'triage' ? 'SUBMITTED ✓' : 'BEGIN TRIAGE'"></button>
+      </div>
+    </div>
+    <div class="price-card featured">
+      <div class="price-tier">
+        <div class="name">Radical Excision</div>
+        <div class="amount">$12,000<span>/mo</span></div>
+      </div>
+      <div class="price-details">
+        <ul>
+          <li>Full calendar deletion (irrevocable)</li>
+          <li>Replacement Temporal Intuition Framework (sticky notes)</li>
+          <li>24/7 guilt hotline access</li>
+          <li>Meridian Voss personal voice memo (monthly)</li>
+          <li>Legal protection from your own scheduling habits</li>
+        </ul>
+      </div>
+      <div class="price-cta">
+        <button @click="selectedPlan = 'excision'" x-text="selectedPlan === 'excision' ? 'SUBMITTED ✓' : 'LIBERATE ME'"></button>
+      </div>
+    </div>
+    <div class="price-card">
+      <div class="price-tier">
+        <div class="name">Total Dissolution</div>
+        <div class="amount">$47,999<span>/mo</span></div>
+      </div>
+      <div class="price-details">
+        <ul>
+          <li>Everything in Radical Excision</li>
+          <li>We physically remove all clocks from your office</li>
+          <li>NDA preventing your EA from re-scheduling</li>
+          <li>Custom leather-bound "Week" (7 blank pages, artisanal)</li>
+          <li>Meridian visits your home and whispers "no" at your laptop</li>
+        </ul>
+      </div>
+      <div class="price-cta">
+        <button @click="selectedPlan = 'dissolution'" x-text="selectedPlan === 'dissolution' ? 'SUBMITTED ✓' : 'DISSOLVE TIME'"></button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- TERMINAL / TESTIMONIALS -->
+<div class="terminal-section">
+  <div class="terminal">
+    <div class="terminal-bar">
+      <div class="terminal-dot"></div>
+      <div class="terminal-dot"></div>
+      <div class="terminal-dot"></div>
+      <span>client_recovery_log.exe</span>
+    </div>
+    <div class="terminal-content" x-ref="termContent">
+      <template x-for="(line, i) in terminalLines" :key="i">
+        <div>
+          <span :class="line.type" x-text="line.text"></span>
+        </div>
+      </template>
+      <div>
+        <span class="prompt" x-text="'> ' + currentTyping"></span><span class="blink">_</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- FOUNDER -->
+<div class="founder" id="founder">
+  <div class="founder-card">
+    <div class="portrait"></div>
+    <div class="founder-info">
+      <h3>Meridian Voss</h3>
+      <div class="title">Chief Temporal Officer / Founder / Survivor</div>
+      <blockquote>
+        "In 2019 I opened my Outlook calendar and saw 47 recurring meetings. Not one had an agenda. Not one had ever been questioned. I wept for eleven minutes — the only unscheduled eleven minutes I'd had in four years. That night I deleted everything. My manager called it 'career suicide.' I call it the first honest thing a calendar has ever done: go blank. Now I charge other people to feel that silence. You're welcome."
+      </blockquote>
+    </div>
+  </div>
+</div>
+
+<div class="divider"><div class="divider-diamond"></div></div>
+
+<!-- FAQ -->
+<div class="faq" id="faq">
+  <h2>Frequently Asked Questions</h2>
+
+  <div class="faq-item" @click="faqOpen = faqOpen === 1 ? 0 : 1">
+    <div class="faq-q">Is this therapy?</div>
+    <div class="faq-a" x-show="faqOpen === 1" x-transition>No. Therapists ask how the calendar makes you feel. We ask how the calendar makes you <em style="color:var(--orange);">complicit</em>. Legally distinct.</div>
+  </div>
+  <div class="faq-item" @click="faqOpen = faqOpen === 2 ? 0 : 2">
+    <div class="faq-q">What if I need my calendar for actual meetings?</div>
+    <div class="faq-a" x-show="faqOpen === 2" x-transition>Ask yourself: does the meeting need <em>you</em>, or does it need a warm body that nods? We provide a nodding consultant ($800/session) for the latter.</div>
+  </div>
+  <div class="faq-item" @click="faqOpen = faqOpen === 3 ? 0 : 3">
+    <div class="faq-q">My company requires shared calendars.</div>
+    <div class="faq-a" x-show="faqOpen === 3" x-transition>Our Enterprise plan includes a dummy calendar that shows you as "In a strategic alignment session" at all times. Nobody has ever questioned this.</div>
+  </div>
+  <div class="faq-item" @click="faqOpen = faqOpen === 4 ? 0 : 4">
+    <div class="faq-q">Do you have a satisfaction guarantee?</div>
+    <div class="faq-a" x-show="faqOpen === 4" x-transition>The concept of "satisfaction" implies a timeline. Timelines imply calendars. You're relapsing. Please call the guilt hotline immediately: 1-800-NO-SLOTS.</div>
+  </div>
+  <div class="faq-item" @click="faqOpen = faqOpen === 5 ? 0 : 5">
+    <div class="faq-q">What are the sticky notes about?</div>
+    <div class="faq-a" x-show="faqOpen === 5" x-transition>Our proprietary Temporal Intuition Framework™ replaces your calendar with artisanal 3x3 sticky notes in Pantone 389 C (acid green, naturally). Each note says one word: "maybe." This is the only scheduling commitment a free human should make.</div>
+  </div>
+</div>
+
+<!-- FOOTER -->
+<footer>
+  <p>VOSS & VOSS Temporal Liberation Consultancy</p>
+  <p style="margin-top: 6px;">New York / Zurich / Wherever You Are Hiding From Your 3pm</p>
+  <p style="margin-top: 6px;"><a href="#">Careers</a> · <a href="#">Anti-Calendar Manifesto</a> · <a href="#">Guilt Hotline</a></p>
+  <div class="footer-legal">
+    VOSS & VOSS is not a licensed medical provider, financial advisor, or time-travel agency. "Calendar deletion" is metaphorical except where it isn't. Temporal Intuition Framework™ is a registered trademark. Sticky notes not included in Triage tier. Meridian Voss is a real person who will really come to your house on the $47,999 plan. © 2026 VOSS & VOSS LLC. All time reclaimed.
+  </div>
+</footer>
+
+<script src="/assets/js/alpine.min.js" defer></script>
+<script src="/assets/js/gsap.min.js"></script>
+<script>
+function voss() {
+  return {
+    flashOn: false,
+    hexPulse: 0,
+    selectedPlan: '',
+    faqOpen: 0,
+    destroyedCount: 14207,
+    gauges: [
+      { val: 73, base: 73 },
+      { val: 56, base: 56 },
+      { val: 91, base: 91 }
+    ],
+    calDays: [],
+    terminalLines: [],
+    currentTyping: '',
+    _typeInterval: null,
+
+    init() {
+      this.buildCal();
+      this.tickCounter();
+      this.runTerminal();
+      this.animateEntrance();
+    },
+
+    buildCal() {
+      var days = [];
+      // Calendar grid: 35 cells, month starts on day 3 (Wednesday)
+      var startOffset = 2;
+      for (var i = 0; i < 35; i++) {
+        var dayNum = i - startOffset + 1;
+        if (dayNum < 1 || dayNum > 28) {
+          days.push({ n: 0, g: false, f: false });
+        } else {
+          // Most days are guilt, a few are free
+          var isGuilt = dayNum % 7 !== 0 && dayNum % 7 !== 6 && dayNum !== 14;
+          var isFree = dayNum === 14 || dayNum % 7 === 0;
+          days.push({ n: dayNum, g: isGuilt, f: isFree });
+        }
+      }
+      this.calDays = days;
+    },
+
+    tickCounter() {
+      var self = this;
+      setInterval(function() {
+        self.destroyedCount += Math.floor(Math.random() * 3) + 1;
+      }, 2400);
+    },
+
+    toggleGauge(idx) {
+      if (this.gauges[idx].val === this.gauges[idx].base) {
+        this.gauges[idx].val = 100;
+      } else {
+        this.gauges[idx].val = this.gauges[idx].base;
+      }
+    },
+
+    runTerminal() {
+      var self = this;
+      var lines = [
+        { type: 'prompt', text: '> load client_janet_chen.recovery' },
+        { type: 'response', text: 'Loading recovery log for Janet Chen, VP Ops, Salesforce...' },
+        { type: 'success', text: '[OK] Pre-treatment: 340 recurring meetings / week' },
+        { type: 'error', text: '[CRITICAL] Guilt Score: 9.7 / 10' },
+        { type: 'success', text: '[OK] Post-treatment: 0 meetings. 0 calendar apps installed.' },
+        { type: 'response', text: '"I don\'t know what day it is anymore and I have never been happier." — J.C.' },
+        { type: 'prompt', text: '> load client_marcus_webb.recovery' },
+        { type: 'response', text: 'Loading recovery log for Marcus Webb, CTO, Series B startup...' },
+        { type: 'success', text: '[OK] Calendars destroyed: 4 (Google, Outlook, Notion, a wall calendar)' },
+        { type: 'error', text: '[RELAPSE] Patient re-installed Calendly at 3am. Intervention required.' },
+        { type: 'success', text: '[RESOLVED] Calendly uninstalled. Laptop sealed in resin. Patient stable.' },
+        { type: 'response', text: '"Meridian showed up at 3am and took my laptop. Five stars." — M.W.' },
+        { type: 'prompt', text: '> run guilt_scan --global' },
+        { type: 'error', text: '[WARNING] 4.2 billion calendars still operational worldwide' },
+        { type: 'response', text: 'The work continues.' },
+      ];
+
+      var idx = 0;
+      function addNext() {
+        if (idx >= lines.length) {
+          idx = 0;
+          self.terminalLines = [];
+        }
+        var line = lines[idx];
+        self.typeText(line.text, function() {
+          self.currentTyping = '';
+          self.terminalLines.push(line);
+          // Keep terminal from getting too long
+          if (self.terminalLines.length > 10) {
+            self.terminalLines.splice(0, 1);
+          }
+          idx++;
+          setTimeout(addNext, 800);
+        });
+      }
+
+      setTimeout(addNext, 1500);
+    },
+
+    typeText(text, cb) {
+      var self = this;
+      var i = 0;
+      self.currentTyping = '';
+      if (self._typeInterval) clearInterval(self._typeInterval);
+      self._typeInterval = setInterval(function() {
+        if (i < text.length) {
+          self.currentTyping += text[i];
+          i++;
+        } else {
+          clearInterval(self._typeInterval);
+          self._typeInterval = null;
+          if (cb) cb();
+        }
+      }, 25);
+    },
+
+    animateEntrance() {
+      gsap.fromTo('.hero h1',
+        { opacity: 0, y: 30 },
+        { opacity: 1, y: 0, duration: 1, ease: 'power3.out', clearProps: 'opacity,transform' }
+      );
+      gsap.fromTo('.hero .tagline',
+        { opacity: 0, y: 20 },
+        { opacity: 1, y: 0, duration: 0.8, delay: 0.3, ease: 'power3.out', clearProps: 'opacity,transform' }
+      );
+      gsap.fromTo('.hero .sub',
+        { opacity: 0 },
+        { opacity: 1, duration: 0.8, delay: 0.6, clearProps: 'opacity' }
+      );
+      gsap.fromTo('.status-bar',
+        { opacity: 0, y: 10 },
+        { opacity: 1, y: 0, duration: 0.6, delay: 0.9, clearProps: 'opacity,transform' }
+      );
+      gsap.fromTo('.calendar-art',
+        { opacity: 0, scale: 0.9 },
+        { opacity: 1, scale: 1, duration: 1, delay: 0.2, ease: 'back.out(1.7)', clearProps: 'opacity,transform' }
+      );
+
+      gsap.fromTo('.diag-card',
+        { opacity: 0, y: 40 },
+        { opacity: 1, y: 0, duration: 0.6, stagger: 0.15, delay: 1.2, clearProps: 'opacity,transform' }
+      );
+    }
+  };
+}
+</script>
+</body>
+</html>

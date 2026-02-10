@@ -1,0 +1,1022 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DSMV Tiny Tomes — Miniature Literature for the Recently Deceased</title>
+<link rel="stylesheet" href="/assets/css/fonts.css">
+<script defer src="/assets/js/alpine.min.js"></script>
+<script src="/assets/js/gsap.min.js"></script>
+<script src="/assets/js/lucide.min.js"></script>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --neon-green: #39ff14;
+    --neon-pink: #ff2d6b;
+    --neon-cyan: #00fff7;
+    --neon-yellow: #f5ff3a;
+    --neon-purple: #bf5fff;
+    --bg: #050505;
+    --bg-card: #0d0d0d;
+    --bg-card-hover: #141414;
+    --text: #f0f0f0;
+    --text-muted: #b0b0b0;
+    --border: #222222;
+  }
+
+  body {
+    font-family: 'Space Grotesk', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.6;
+    font-size: 17px;
+    overflow-x: hidden;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  h1, h2, h3, h4 { font-family: 'Playfair Display', serif; line-height: 1.15; }
+
+  a { color: var(--neon-green); text-decoration: none; transition: color 0.2s; }
+  a:hover { color: var(--neon-cyan); }
+
+  .container { max-width: 800px; margin: 0 auto; padding: 0 24px; }
+
+  /* ====== NAV ====== */
+  nav {
+    position: sticky; top: 0; z-index: 100;
+    background: rgba(5,5,5,0.92); backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--border);
+    padding: 14px 24px;
+    display: flex; align-items: center; justify-content: space-between;
+    flex-wrap: wrap; gap: 10px;
+  }
+  nav .logo {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 14px; letter-spacing: 2px; text-transform: uppercase;
+    color: var(--neon-green);
+    display: flex; align-items: center; gap: 8px;
+  }
+  nav .logo .paw { font-size: 18px; }
+  nav ul { list-style: none; display: flex; gap: 20px; flex-wrap: wrap; }
+  nav ul li a { color: var(--text-muted); font-size: 14px; text-transform: uppercase; letter-spacing: 1px; }
+  nav ul li a:hover { color: var(--neon-green); }
+
+  /* ====== HERO ====== */
+  .hero {
+    min-height: 90vh;
+    display: flex; flex-direction: column; justify-content: center; align-items: center;
+    text-align: center;
+    padding: 80px 24px 60px;
+    position: relative;
+  }
+  .hero-badge {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px; letter-spacing: 3px; text-transform: uppercase;
+    color: var(--neon-pink);
+    border: 1px solid var(--neon-pink);
+    padding: 6px 16px; border-radius: 2px;
+    margin-bottom: 32px;
+    display: inline-block;
+  }
+  .hero h1 {
+    font-size: clamp(48px, 10vw, 120px);
+    color: #ffffff;
+    margin-bottom: 24px;
+    letter-spacing: -2px;
+  }
+  .hero h1 span { color: var(--neon-green); }
+  .hero-sub {
+    font-size: clamp(16px, 2.5vw, 22px);
+    color: var(--text-muted);
+    max-width: 560px;
+    margin-bottom: 40px;
+    line-height: 1.5;
+  }
+  .hero-smell {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 12px; color: var(--neon-yellow);
+    letter-spacing: 2px; text-transform: uppercase;
+    margin-top: 48px;
+    animation: pulse 3s ease-in-out infinite;
+  }
+  @keyframes pulse { 0%,100% { opacity: 0.6; } 50% { opacity: 1; } }
+
+  .cta-row { display: flex; gap: 16px; flex-wrap: wrap; justify-content: center; }
+  .btn {
+    display: inline-block; padding: 14px 32px;
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 15px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase;
+    border: none; cursor: pointer; transition: all 0.2s;
+    min-height: 48px; text-align: center;
+  }
+  .btn-primary {
+    background: var(--neon-green); color: #000000;
+  }
+  .btn-primary:hover { background: #50ff30; color: #000000; box-shadow: 0 0 30px rgba(57,255,20,0.3); }
+  .btn-outline {
+    background: transparent; color: var(--neon-green);
+    border: 1px solid var(--neon-green);
+  }
+  .btn-outline:hover { background: var(--neon-green); color: #000000; }
+  .btn-donate {
+    background: var(--neon-pink); color: #ffffff;
+  }
+  .btn-donate:hover { background: #ff4580; box-shadow: 0 0 30px rgba(255,45,107,0.3); }
+
+  /* ====== SECTIONS ====== */
+  section { padding: 80px 0; }
+  section + section { border-top: 1px solid var(--border); }
+
+  .section-label {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px; letter-spacing: 3px; text-transform: uppercase;
+    color: var(--neon-pink);
+    margin-bottom: 16px;
+  }
+  .section-title {
+    font-size: clamp(32px, 5vw, 56px);
+    color: #ffffff;
+    margin-bottom: 24px;
+  }
+
+  /* ====== MISSION ====== */
+  .mission-text {
+    font-family: 'Crimson Pro', serif;
+    font-size: clamp(20px, 3vw, 28px);
+    color: #e0e0e0;
+    line-height: 1.6;
+    margin-bottom: 32px;
+  }
+  .mission-stats {
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 24px; margin-top: 40px;
+  }
+  .stat-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    padding: 28px;
+    text-align: center;
+  }
+  .stat-card .number {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 36px; color: var(--neon-green);
+    display: block; margin-bottom: 8px;
+  }
+  .stat-card .label {
+    font-size: 14px; color: var(--text-muted);
+    text-transform: uppercase; letter-spacing: 1px;
+  }
+
+  /* ====== CATALOG / TABS ====== */
+  .tab-row {
+    display: flex; gap: 0; margin-bottom: 32px;
+    border-bottom: 1px solid var(--border);
+    flex-wrap: wrap;
+  }
+  .tab-btn {
+    padding: 12px 24px;
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 14px; font-weight: 600; text-transform: uppercase; letter-spacing: 1px;
+    background: none; border: none; color: var(--text-muted);
+    cursor: pointer; transition: all 0.2s;
+    border-bottom: 2px solid transparent;
+    min-height: 44px;
+  }
+  .tab-btn:hover { color: var(--text); }
+  .tab-btn.active { color: var(--neon-green); border-bottom-color: var(--neon-green); }
+
+  .book-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    padding: 28px;
+    margin-bottom: 16px;
+    transition: border-color 0.2s;
+  }
+  .book-card:hover { border-color: var(--neon-green); }
+  .book-card h4 {
+    font-size: 22px; color: #ffffff; margin-bottom: 4px;
+  }
+  .book-meta {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 12px; color: var(--neon-cyan); margin-bottom: 12px;
+    display: flex; gap: 16px; flex-wrap: wrap;
+  }
+  .book-card p { color: #d0d0d0; font-size: 15px; }
+  .book-size {
+    display: inline-block;
+    background: var(--neon-yellow); color: #000000;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 10px; font-weight: 700;
+    padding: 2px 8px; letter-spacing: 1px;
+    margin-left: 8px; vertical-align: middle;
+  }
+
+  /* ====== TESTIMONIALS ====== */
+  .testimonial {
+    background: var(--bg-card);
+    border-left: 3px solid var(--neon-purple);
+    padding: 28px;
+    margin-bottom: 24px;
+  }
+  .testimonial blockquote {
+    font-family: 'Crimson Pro', serif;
+    font-size: 19px; color: #e0e0e0;
+    font-style: italic;
+    margin-bottom: 16px;
+    line-height: 1.5;
+  }
+  .testimonial cite {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 12px; color: var(--neon-purple);
+    font-style: normal;
+    display: block;
+  }
+
+  /* ====== FAQ ====== */
+  .faq-item {
+    border-bottom: 1px solid var(--border);
+    padding: 20px 0;
+  }
+  .faq-q {
+    font-size: 18px; font-weight: 700;
+    color: #ffffff; cursor: pointer;
+    display: flex; justify-content: space-between; align-items: center;
+    min-height: 44px; gap: 12px;
+  }
+  .faq-q .toggle {
+    color: var(--neon-green);
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 20px; flex-shrink: 0;
+    width: 28px; text-align: center;
+    transition: transform 0.2s;
+  }
+  .faq-a {
+    color: #d0d0d0; font-size: 15px;
+    padding-top: 12px; line-height: 1.6;
+    overflow: hidden;
+  }
+
+  /* ====== TEAM ====== */
+  .team-grid {
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 20px;
+  }
+  .team-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    padding: 28px;
+  }
+  .team-card h4 { font-size: 20px; color: #ffffff; margin-bottom: 4px; }
+  .team-role {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px; color: var(--neon-cyan);
+    text-transform: uppercase; letter-spacing: 1px;
+    margin-bottom: 12px; display: block;
+  }
+  .team-card p { color: #d0d0d0; font-size: 14px; }
+  .team-status {
+    margin-top: 12px;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 10px; letter-spacing: 1px;
+    text-transform: uppercase;
+  }
+  .status-alive { color: var(--neon-green); }
+  .status-dead { color: var(--neon-pink); }
+  .status-unclear { color: var(--neon-yellow); }
+
+  /* ====== VOLUNTEER ====== */
+  .volunteer-roles {
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 20px;
+  }
+  .role-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    padding: 28px;
+    transition: border-color 0.2s;
+  }
+  .role-card:hover { border-color: var(--neon-cyan); }
+  .role-card h4 { font-size: 18px; color: #ffffff; margin-bottom: 8px; }
+  .role-card p { color: #d0d0d0; font-size: 14px; margin-bottom: 12px; }
+  .role-tag {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 10px; color: var(--neon-cyan);
+    text-transform: uppercase; letter-spacing: 1px;
+    border: 1px solid var(--neon-cyan);
+    padding: 3px 10px; display: inline-block;
+  }
+
+  /* ====== PRESS ====== */
+  .press-item {
+    padding: 24px 0;
+    border-bottom: 1px solid var(--border);
+  }
+  .press-item h4 { font-size: 20px; color: #ffffff; margin-bottom: 6px; }
+  .press-source {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px; color: var(--neon-yellow);
+    text-transform: uppercase; letter-spacing: 1px;
+    margin-bottom: 10px; display: block;
+  }
+  .press-item p { color: #d0d0d0; font-size: 15px; }
+
+  /* ====== DONATE ====== */
+  .donate-box {
+    background: var(--bg-card);
+    border: 2px solid var(--neon-pink);
+    padding: 48px 32px;
+    text-align: center;
+    margin-top: 32px;
+  }
+  .donate-box h3 { font-size: 32px; color: #ffffff; margin-bottom: 16px; }
+  .donate-box p { color: #d0d0d0; margin-bottom: 24px; max-width: 500px; margin-left: auto; margin-right: auto; }
+  .donate-tiers {
+    display: flex; gap: 12px; justify-content: center; flex-wrap: wrap;
+    margin-bottom: 24px;
+  }
+  .donate-tier {
+    background: transparent; border: 1px solid var(--border);
+    color: var(--text); font-family: 'IBM Plex Mono', monospace;
+    font-size: 14px; padding: 12px 24px;
+    cursor: pointer; transition: all 0.2s;
+    min-height: 44px;
+  }
+  .donate-tier:hover, .donate-tier.selected {
+    border-color: var(--neon-pink); color: var(--neon-pink);
+  }
+
+  /* ====== SMELL TICKER ====== */
+  .smell-ticker {
+    background: var(--neon-green);
+    color: #000000;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 12px; font-weight: 700;
+    letter-spacing: 1px; text-transform: uppercase;
+    padding: 10px 0;
+    overflow: hidden;
+    white-space: nowrap;
+  }
+  .smell-ticker-inner {
+    display: inline-block;
+    animation: ticker 30s linear infinite;
+  }
+  @keyframes ticker {
+    0% { transform: translateX(0); }
+    100% { transform: translateX(-50%); }
+  }
+
+  /* ====== FOOTER ====== */
+  footer {
+    border-top: 1px solid var(--border);
+    padding: 48px 24px;
+    text-align: center;
+  }
+  footer p { color: var(--text-muted); font-size: 13px; margin-bottom: 8px; }
+  footer .legal {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 10px; color: #888888;
+    letter-spacing: 1px; text-transform: uppercase;
+    margin-top: 20px;
+    line-height: 1.8;
+  }
+
+  /* ====== PAWPRINT DIVIDER ====== */
+  .paw-divider {
+    text-align: center; padding: 32px 0;
+    font-size: 24px; letter-spacing: 24px;
+    color: var(--neon-green);
+    opacity: 0.4;
+  }
+
+  /* ====== BLOG ====== */
+  .blog-post {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    padding: 32px;
+    margin-bottom: 24px;
+  }
+  .blog-post h4 { font-size: 22px; color: #ffffff; margin-bottom: 6px; }
+  .blog-date {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px; color: var(--neon-cyan);
+    margin-bottom: 14px; display: block;
+  }
+  .blog-post p { color: #d0d0d0; font-size: 15px; margin-bottom: 12px; line-height: 1.6; }
+
+  /* ====== GLOW EFFECTS ====== */
+  .glow-line {
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--neon-green), transparent);
+    margin: 60px auto;
+    max-width: 400px;
+  }
+
+  /* ====== BIOHAZARD DECORATION ====== */
+  .biohazard-mark {
+    position: fixed;
+    top: 50%;
+    left: -60px;
+    transform: translateY(-50%) rotate(-90deg);
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 4px;
+    text-transform: uppercase;
+    color: #1a1a1a;
+    pointer-events: none;
+    z-index: 1;
+  }
+
+  /* ====== RESPONSIVE ====== */
+  @media (max-width: 768px) {
+    nav { padding: 12px 16px; }
+    nav ul { gap: 12px; }
+    nav ul li a { font-size: 12px; }
+    .hero { min-height: 70vh; padding: 60px 16px 40px; }
+    .container { padding: 0 16px; }
+    section { padding: 56px 0; }
+    .tab-btn { padding: 10px 16px; font-size: 12px; }
+    .donate-box { padding: 32px 20px; }
+    .biohazard-mark { display: none; }
+    .team-grid { grid-template-columns: 1fr; }
+  }
+
+  @media (max-width: 375px) {
+    .hero h1 { font-size: 40px; }
+    .cta-row { flex-direction: column; align-items: stretch; }
+    .btn { width: 100%; }
+    nav ul { gap: 8px; }
+  }
+
+  /* ====== SCROLL ANIMATIONS ====== */
+  .reveal { opacity: 0; transform: translateY(30px); }
+</style>
+</head>
+<body>
+
+<!-- SMELL TICKER -->
+<div class="smell-ticker">
+  <div class="smell-ticker-inner">
+    <span>🐾 TODAY'S AROMA: FRESH SOURDOUGH & JASMINE 🐾 CURRENT WAIT TIME: 47 SPECTRAL MINUTES 🐾 LOST SOULS SERVED: 12,847 🐾 BOOK SIZE: 2 INCHES MAX 🐾 "THE SMELL IS NOT OUR DOING" — MGMT 🐾 NEXT READING: THURSDAY AT DUSK 🐾 PAWS ON FILE REQUIRED 🐾 TODAY'S AROMA: FRESH SOURDOUGH & JASMINE 🐾 CURRENT WAIT TIME: 47 SPECTRAL MINUTES 🐾 LOST SOULS SERVED: 12,847 🐾 BOOK SIZE: 2 INCHES MAX 🐾 "THE SMELL IS NOT OUR DOING" — MGMT 🐾 NEXT READING: THURSDAY AT DUSK 🐾 PAWS ON FILE REQUIRED 🐾&nbsp;&nbsp;&nbsp;&nbsp;</span>
+  </div>
+</div>
+
+<!-- NAV -->
+<nav>
+  <div class="logo">
+    <span class="paw">🐾</span> DSMV TINY TOMES
+  </div>
+  <ul>
+    <li><a href="#mission">Mission</a></li>
+    <li><a href="#catalog">Catalog</a></li>
+    <li><a href="#team">Team</a></li>
+    <li><a href="#faq">FAQ</a></li>
+    <li><a href="#donate">Donate</a></li>
+  </ul>
+</nav>
+
+<!-- BIOHAZARD SIDE TEXT -->
+<div class="biohazard-mark">DSMV — DEPT OF SPECTRAL MOTOR VEHICLES — EST. 1987 — FORM 9-LIVES REQUIRED</div>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-badge">☣ 501(c)(3) Non-Purr-ofit Organization</div>
+  <h1>Tiny<br><span>Tomes</span></h1>
+  <p class="hero-sub">The Department of Spectral Motor Vehicles' award-winning miniature book club for deceased felines and the humans they once tolerated.</p>
+  <div class="cta-row">
+    <a href="#catalog" class="btn btn-primary">Browse Catalog</a>
+    <a href="#donate" class="btn btn-donate">Donate a Paw</a>
+  </div>
+  <p class="hero-smell">☣ Unexplained aroma status: lavender & warm croissants ☣</p>
+</section>
+
+<div class="glow-line"></div>
+
+<!-- MISSION -->
+<section id="mission">
+  <div class="container">
+    <div class="section-label">Our Mission</div>
+    <h2 class="section-title">Literacy Doesn't End at Death.</h2>
+    <p class="mission-text">
+      In 1987, a 19-year-old calico named Meredith Whiskers III died on a warm radiator in Trenton, New Jersey. She left behind no will, no heirs, and one unfinished copy of <em>Watership Down</em> that she'd been sitting on for six years. That book was 11 inches tall. She never had a chance.
+    </p>
+    <p class="mission-text">
+      Today, the DSMV Tiny Tomes Initiative ensures no departed soul — feline or otherwise — is denied the right to read simply because their translucent paws can't grip a full-sized hardcover. Every book in our collection measures 2 inches or less. Every page is printed on ectoplasm-compatible paper. Every story is purrfect.
+    </p>
+    <p class="mission-text" style="color: var(--neon-yellow);">
+      We don't know why it smells so good in here. We have investigated. The smell predates us. Please stop asking.
+    </p>
+
+    <div class="mission-stats">
+      <div class="stat-card">
+        <span class="number">12,847</span>
+        <span class="label">Ghosts Served</span>
+      </div>
+      <div class="stat-card">
+        <span class="number">2"</span>
+        <span class="label">Max Book Height</span>
+      </div>
+      <div class="stat-card">
+        <span class="number">94%</span>
+        <span class="label">Cat Membership</span>
+      </div>
+      <div class="stat-card">
+        <span class="number">$0.00</span>
+        <span class="label">Late Fees (We're Dead)</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="paw-divider">🐾 🐾 🐾</div>
+
+<!-- CATALOG WITH TABS -->
+<section id="catalog" x-data="{ tab: 'fiction' }">
+  <div class="container">
+    <div class="section-label">The Collection</div>
+    <h2 class="section-title">This Month's Tiny Reads</h2>
+    <p style="color: #d0d0d0; margin-bottom: 32px;">All titles measure 2" × 1.4" × 0.3". Ectoplasm-resistant binding. Paw-turn pages standard on all editions.</p>
+
+    <div class="tab-row">
+      <button class="tab-btn" :class="{ active: tab === 'fiction' }" @click="tab = 'fiction'">Fiction</button>
+      <button class="tab-btn" :class="{ active: tab === 'nonfiction' }" @click="tab = 'nonfiction'">Non-Fiction</button>
+      <button class="tab-btn" :class="{ active: tab === 'kittens' }" @click="tab = 'kittens'">Kitten Lit</button>
+      <button class="tab-btn" :class="{ active: tab === 'banned' }" @click="tab = 'banned'">Banned</button>
+    </div>
+
+    <!-- FICTION -->
+    <div x-show="tab === 'fiction'" x-transition>
+      <div class="book-card">
+        <h4>The Great Catsby <span class="book-size">1.8"</span></h4>
+        <div class="book-meta">
+          <span>F. Scatt Fitzgerald</span>
+          <span>☣ Aroma: Old money & tuna</span>
+        </div>
+        <p>A ghost cat stares across a bay at a green light that turns out to be a laser pointer. 47 pages. Devastating. Three members of our Thursday group had to be re-deceased.</p>
+      </div>
+      <div class="book-card">
+        <h4>One Hundred Years of Solitude (Abridged for Cats) <span class="book-size">2.0"</span></h4>
+        <div class="book-meta">
+          <span>Gabriel García Meowquez</span>
+          <span>☣ Aroma: Rain on warm stone</span>
+        </div>
+        <p>The full text but every human character replaced with a cat who knocks things off tables. Surprisingly, the plot is unchanged. Our most checked-out title since March.</p>
+      </div>
+      <div class="book-card">
+        <h4>To Kill a Mockingbird (Literally) <span class="book-size">1.6"</span></h4>
+        <div class="book-meta">
+          <span>Harper Leash</span>
+          <span>☣ Aroma: Southern porch & feathers</span>
+        </div>
+        <p>A courtroom drama where the defendant is a tabby accused of killing a mockingbird. He did it. Everyone knows he did it. He's not sorry. Acquitted on all charges. 4.9 stars.</p>
+      </div>
+    </div>
+
+    <!-- NON-FICTION -->
+    <div x-show="tab === 'nonfiction'" x-transition>
+      <div class="book-card">
+        <h4>The 7 Habits of Highly Effective Ghosts <span class="book-size">1.9"</span></h4>
+        <div class="book-meta">
+          <span>Stephen R. Covey (Deceased)</span>
+          <span>☣ Aroma: Corporate lavender</span>
+        </div>
+        <p>Habit 1: Be Proactive (about haunting). Habit 4: Think Win-Win (you scare them, they scream, everyone's happy). Habit 7: Sharpen the Claw. The self-help book that changed the afterlife.</p>
+      </div>
+      <div class="book-card">
+        <h4>Paws on the Wheel: A History of the DSMV <span class="book-size">2.0"</span></h4>
+        <div class="book-meta">
+          <span>Meredith Whiskers III</span>
+          <span>☣ Aroma: Bureau filing cabinets</span>
+        </div>
+        <p>Our founder's memoir. Covers the 1987 founding, the Great Licensing Scandal of '03 (a Siamese was issuing fake IDs), and the ongoing mystery of why the building smells like a French bakery. 212 tiny pages. Required reading for all volunteers.</p>
+      </div>
+      <div class="book-card">
+        <h4>Why Is Everything So Small: A Pamphlet <span class="book-size">0.8"</span></h4>
+        <div class="book-meta">
+          <span>Anonymous</span>
+          <span>☣ Aroma: Existential dread & cinnamon</span>
+        </div>
+        <p>We found this on the floor. It appears to be a complaint. We filed it under Non-Fiction because we cannot disprove its claims. Currently our third most-requested title.</p>
+      </div>
+    </div>
+
+    <!-- KITTEN LIT -->
+    <div x-show="tab === 'kittens'" x-transition>
+      <div class="book-card">
+        <h4>Goodnight, Room I Died In <span class="book-size">1.2"</span></h4>
+        <div class="book-meta">
+          <span>Margaret Wise Browntabby</span>
+          <span>☣ Aroma: Warm milk & closure</span>
+        </div>
+        <p>Goodnight radiator. Goodnight window I fell out of. Goodnight the concept of corporeal form. A gentle bedtime story for ghost kittens ages 0-2 (in death years).</p>
+      </div>
+      <div class="book-card">
+        <h4>If You Give a Ghost a Treat <span class="book-size">1.4"</span></h4>
+        <div class="book-meta">
+          <span>Laura Numeroff-Nine-Lives</span>
+          <span>☣ Aroma: Phantom treats</span>
+        </div>
+        <p>If you give a ghost a treat, he'll want a bowl. If you give him a bowl, he'll remember he can't eat. If he remembers he can't eat, he'll knock the bowl off the counter anyway. Instant classic. 6 pages.</p>
+      </div>
+    </div>
+
+    <!-- BANNED -->
+    <div x-show="tab === 'banned'" x-transition>
+      <div class="book-card" style="border-color: var(--neon-pink);">
+        <h4>The Vacuum Cleaner Owner's Manual <span class="book-size">1.7"</span></h4>
+        <div class="book-meta">
+          <span>Dyson Corp.</span>
+          <span>☣ Aroma: CLASSIFIED</span>
+        </div>
+        <p>Banned in 2019 after a reading caused a mass haunting event at a Bed Bath & Beyond in Paramus. Seven ghosts had to be sedated. We do not speak of this.</p>
+      </div>
+      <div class="book-card" style="border-color: var(--neon-pink);">
+        <h4>Dogs: A Celebration <span class="book-size">2.0"</span></h4>
+        <div class="book-meta">
+          <span>Various Authors</span>
+          <span>☣ Aroma: Wet dog</span>
+        </div>
+        <p>No.</p>
+      </div>
+      <div class="book-card" style="border-color: var(--neon-pink);">
+        <h4>Full-Sized Books: Why Bigger is Better <span class="book-size">11"</span></h4>
+        <div class="book-meta">
+          <span>Barnes & Noble Marketing Dept.</span>
+          <span>☣ Aroma: Propaganda</span>
+        </div>
+        <p>This book is 11 inches tall and therefore cannot physically exist within our facility. It was smuggled in by a contrarian Maine Coon ghost in January. The building shook. Three shelves collapsed. We lost an entire wing of Kitten Lit. Permanently banned. The Maine Coon has been asked to haunt elsewhere.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="paw-divider">🐾 🐾 🐾</div>
+
+<!-- TESTIMONIALS -->
+<section id="testimonials">
+  <div class="container">
+    <div class="section-label">Voices from Beyond</div>
+    <h2 class="section-title">What Our Members Meow</h2>
+
+    <div class="testimonial">
+      <blockquote>"I've been dead since 2004 and this is the first time anyone's handed me a book I could actually hold. I wept. Ectoplasm everywhere. They had to mop."</blockquote>
+      <cite>— SERGEANT BISCUITS, deceased tabby, member since 2006 · Form 9L-204B on file</cite>
+    </div>
+
+    <div class="testimonial">
+      <blockquote>"I came to renew my spectral driver's license and accidentally joined a book club. I've now read 340 tiny books and forgotten why I came here. Best mistake of my afterlife."</blockquote>
+      <cite>— HELEN MARJORIE PERKINS, deceased human, member since 2011 · Smells like vanilla for some reason</cite>
+    </div>
+
+    <div class="testimonial">
+      <blockquote>"The Catsby changed me. I'm a ghost. I didn't think I could change. I stared at that green laser pointer passage for six hours. My ectoplasm got thicker."</blockquote>
+      <cite>— MR. MIDNIGHT, deceased black cat, member since 1992 · Employee of the Month, November 2024</cite>
+    </div>
+
+    <div class="testimonial">
+      <blockquote>"Why does it smell so good in here? I've been dead for 40 years. I shouldn't be able to smell. And yet: fresh croissants. Every time. This is the real miracle."</blockquote>
+      <cite>— ANONYMOUS, species unclear, possibly a possum · Filed formal smell inquiry (Form 9L-SNIFF)</cite>
+    </div>
+
+    <div class="testimonial">
+      <blockquote>"The books are too small. My paws are too big. I am a ghost Great Dane. I was denied a library card on the grounds that I am 'not a cat.' This organization is discriminatory and the sourdough smell is suspicious."</blockquote>
+      <cite>— DUKE, deceased Great Dane · APPLICATION DENIED · Appeal pending since 2017</cite>
+    </div>
+  </div>
+</section>
+
+<div class="glow-line"></div>
+
+<!-- TEAM -->
+<section id="team">
+  <div class="container">
+    <div class="section-label">The Staff</div>
+    <h2 class="section-title">Our Purrsonnel</h2>
+    <p style="color: #d0d0d0; margin-bottom: 32px;">The DSMV Tiny Tomes Initiative is staffed by 4 ghosts, 1 living intern, and something in the basement we haven't identified.</p>
+
+    <div class="team-grid">
+      <div class="team-card">
+        <h4>Meredith Whiskers III</h4>
+        <span class="team-role">Founder & Executive Director</span>
+        <p>Calico. Died 1987 on a radiator in Trenton. Never finished <em>Watership Down</em>. Furious about it. Founded this organization so no one else has to die mid-chapter. Has 11 lives on file (clerical error she refuses to correct).</p>
+        <div class="team-status status-dead">☣ STATUS: DECEASED (ACTIVE)</div>
+      </div>
+      <div class="team-card">
+        <h4>The Honorable Reginald Fluffington</h4>
+        <span class="team-role">Head Librarian & Smell Investigator</span>
+        <p>Persian. Died 2003 during a nap so peaceful it technically counts as a religious experience. Cataloged over 8,000 miniature titles. Appointed himself Smell Investigator in 2019. No findings to date. The investigation is "ongoing."</p>
+        <div class="team-status status-dead">☣ STATUS: DECEASED (FRUSTRATED)</div>
+      </div>
+      <div class="team-card">
+        <h4>Kevin</h4>
+        <span class="team-role">Living Intern · Mon/Wed/Fri</span>
+        <p>Human. 22 years old. Applied for a DMV job and didn't read the posting carefully. Has been here for 7 months. Cannot see any of his coworkers. Thinks the book club is a podcast. We let him believe this. He handles the website.</p>
+        <div class="team-status status-alive">◉ STATUS: ALIVE (CONFUSED)</div>
+      </div>
+      <div class="team-card">
+        <h4>Chairman Meow</h4>
+        <span class="team-role">Treasurer & Ethics Board</span>
+        <p>Tuxedo. Died 1999 from "sheer dignity," per the death certificate. Manages our $47,000 annual budget with an iron paw. Once denied a reimbursement request for "emotional damages" from the vacuum manual incident. Correct to do so.</p>
+        <div class="team-status status-dead">☣ STATUS: DECEASED (FISCALLY RESPONSIBLE)</div>
+      </div>
+      <div class="team-card">
+        <h4>The Basement Thing</h4>
+        <span class="team-role">Unknown · Possibly Janitorial</span>
+        <p>Species unknown. Predates the building. Makes a sound like a printer that's almost out of toner. Possibly responsible for the smell. Does not attend meetings. Has a library card somehow. Checked out <em>Why Is Everything So Small</em> in 2021 and has not returned it.</p>
+        <div class="team-status status-unclear">⚠ STATUS: UNCLEAR</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="paw-divider">🐾 🐾 🐾</div>
+
+<!-- BLOG / NEWS -->
+<section id="blog">
+  <div class="container">
+    <div class="section-label">The Litter Box — Official Blog</div>
+    <h2 class="section-title">Recent Mews</h2>
+
+    <div class="blog-post">
+      <h4>Emergency Closure: Wing C Flooded with Ectoplasm Again</h4>
+      <span class="blog-date">January 15, 2025 · Filed by Reginald Fluffington</span>
+      <p>Following last Thursday's emotionally charged reading of <em>The Catsby</em>, Wing C experienced what our insurance provider calls a "Class 4 Spectral Moisture Event." Fourteen ghosts wept simultaneously, producing approximately 23 gallons of ectoplasm. The Kitten Lit section sustained significant damage. <em>Goodnight, Room I Died In</em> — ironically — survived. Kevin has been given a mop and no explanation.</p>
+      <p>Wing C will reopen once the ectoplasm reaches an acceptable viscosity. We apologize for the inconvenience and the smell, which has somehow gotten <em>better</em>.</p>
+    </div>
+
+    <div class="blog-post">
+      <h4>Treasurer's Note: Stop Trying to Donate Ectoplasm</h4>
+      <span class="blog-date">December 3, 2024 · Filed by Chairman Meow</span>
+      <p>To our generous supporters: we appreciate your commitment to our cause. However, I must reiterate for the fourteenth time that <strong>ectoplasm is not legal tender</strong>. Our payment processor (Square) does not accept it. PayPal does not accept it. The IRS does not recognize it as a deductible donation. The jar labeled "Ectoplasm Donations" in the lobby was placed there by an unknown party and has been removed. It was full. We don't know what to do with it.</p>
+      <p>Please donate in USD. We accept checks, credit cards, and, reluctantly, cryptocurrency. Thank you.</p>
+    </div>
+
+    <div class="blog-post">
+      <h4>PRESS RELEASE: DSMV Tiny Tomes Wins "Most Fragrant Non-Profit" for Third Consecutive Year</h4>
+      <span class="blog-date">November 18, 2024 · Filed by Meredith Whiskers III</span>
+      <p>The National Council of Spectral Organizations has once again awarded DSMV Tiny Tomes the title of Most Fragrant Non-Profit. We would like to emphasize, as we do every year, that <strong>we did not apply for this award</strong>. We do not want this award. The smell is not something we cultivate, encourage, or understand. It was here before us. It will be here after us. We are merely its tenants.</p>
+      <p>That said, we are honored. The trophy is 6 inches tall, which means it cannot be stored in our facility. Kevin is keeping it at his apartment. He thinks he won a podcast award.</p>
+    </div>
+  </div>
+</section>
+
+<div class="glow-line"></div>
+
+<!-- FAQ -->
+<section id="faq" x-data="{ open: null }">
+  <div class="container">
+    <div class="section-label">Frequently Asked Questions</div>
+    <h2 class="section-title">Before You Haunt Our Inbox</h2>
+
+    <div class="faq-item">
+      <div class="faq-q" @click="open = open === 1 ? null : 1">
+        <span>Why are all the books so small?</span>
+        <span class="toggle" :style="open === 1 && 'transform: rotate(45deg)'">+</span>
+      </div>
+      <div class="faq-a" x-show="open === 1" x-transition>
+        Ghost paws experience a 73% reduction in grip strength post-mortem. Standard books are a safety hazard and a dignity issue. Our founder, Meredith Whiskers III, died without finishing a single book because she couldn't turn the pages. Every title in our collection is 2 inches or less, printed on ectoplasm-resistant cardstock with paw-turn page technology. This is not a gimmick. This is accessibility.
+      </div>
+    </div>
+
+    <div class="faq-item">
+      <div class="faq-q" @click="open = open === 2 ? null : 2">
+        <span>Why does it smell so good in here?</span>
+        <span class="toggle" :style="open === 2 && 'transform: rotate(45deg)'">+</span>
+      </div>
+      <div class="faq-a" x-show="open === 2" x-transition>
+        We don't know. We've had four independent investigations. The first concluded "bakery-adjacent aromatics of unknown spectral origin." The second investigator quit. The third said it was "probably ghosts" and charged us $4,200. The fourth investigation is being led by Reginald Fluffington, who has spent three years sniffing corners and filing inconclusive reports. Current leading theories: (1) the building is haunted by a deceased French baker, (2) it's a side effect of concentrated ectoplasm, (3) the Basement Thing. We have stopped asking. It smells like fresh bread and lavender today. It smelled like cinnamon rolls yesterday. Please stop filing Form 9L-SNIFF. We don't have answers.
+      </div>
+    </div>
+
+    <div class="faq-item">
+      <div class="faq-q" @click="open = open === 3 ? null : 3">
+        <span>I'm not a cat. Can I still join?</span>
+        <span class="toggle" :style="open === 3 && 'transform: rotate(45deg)'">+</span>
+      </div>
+      <div class="faq-a" x-show="open === 3" x-transition>
+        Technically, yes. Our charter was amended in 2008 to include "all spectral entities and compatible living organisms." In practice, 94% of our membership is cats. We've had three human members (one is Kevin, who doesn't know he's a member), a hamster ghost who attended one meeting and was never seen again, and Duke the Great Dane, whose application has been "under review" for seven years. We are not discriminatory. We are simply cat-forward.
+      </div>
+    </div>
+
+    <div class="faq-item">
+      <div class="faq-q" @click="open = open === 4 ? null : 4">
+        <span>What's in the basement?</span>
+        <span class="toggle" :style="open === 4 && 'transform: rotate(45deg)'">+</span>
+      </div>
+      <div class="faq-a" x-show="open === 4" x-transition>
+        It has a library card. It checked out <em>Why Is Everything So Small</em> in 2021. It has not returned it. The late fee would be $0.00 because we don't charge late fees, but it's the principle. We've left notes. The notes disappear. Once, a note was returned with the word "NO" written on it in what appeared to be ectoplasm but smelled like rosemary focaccia. We no longer go to the basement. The Basement Thing is classified as "staff" for insurance purposes.
+      </div>
+    </div>
+
+    <div class="faq-item">
+      <div class="faq-q" @click="open = open === 5 ? null : 5">
+        <span>Is this a real DMV?</span>
+        <span class="toggle" :style="open === 5 && 'transform: rotate(45deg)'">+</span>
+      </div>
+      <div class="faq-a" x-show="open === 5" x-transition>
+        Yes. The Department of Spectral Motor Vehicles issues Class S (Spectral) driver's licenses, haunting permits, and ectoplasm disposal certifications. The book club started as a waiting room initiative in 1992 when wait times exceeded 400 spectral minutes. It is now the primary reason most ghosts visit. We still process licenses. The wait is currently 47 minutes. Nobody is waiting. Everyone is reading.
+      </div>
+    </div>
+
+    <div class="faq-item">
+      <div class="faq-q" @click="open = open === 6 ? null : 6">
+        <span>How do I return a book if my paws pass through it now?</span>
+        <span class="toggle" :style="open === 6 && 'transform: rotate(45deg)'">+</span>
+      </div>
+      <div class="faq-a" x-show="open === 6" x-transition>
+        This is a known issue. Approximately 12% of our members experience "phase drift," where their ectoplasmic density fluctuates and they lose the ability to interact with physical objects. If this happens, please visit our front desk and fill out Form 9L-DRIFT. A staff member will retrieve the book from wherever it fell through your paws. If the book fell through the floor into the basement, we will issue a replacement. We do not retrieve items from the basement. See previous question.
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="paw-divider">🐾 🐾 🐾</div>
+
+<!-- VOLUNTEER -->
+<section id="volunteer">
+  <div class="container">
+    <div class="section-label">Get Involved</div>
+    <h2 class="section-title">Volunteer Oppurrtunities</h2>
+    <p style="color: #d0d0d0; margin-bottom: 32px;">All positions are unpaid (we're dead, and also a non-profit). Haunting experience preferred but not required.</p>
+
+    <div class="volunteer-roles">
+      <div class="role-card">
+        <h4>Tiny Book Binder</h4>
+        <p>Hand-bind miniature books using ectoplasm-resistant thread and spectral-grade adhesive. Must be comfortable working at 2-inch scale. Magnifying glass provided. Previous bookbinding experience or at least 3 functional paws required.</p>
+        <span class="role-tag">Ghost or Living</span>
+      </div>
+      <div class="role-card">
+        <h4>Smell Investigator (Junior)</h4>
+        <p>Assist Reginald in the ongoing investigation. Duties include sniffing, documenting sniffs, and filing Form 9L-SNIFF. Must have a functioning nose (spectral or otherwise). No findings expected. This is a long-term commitment.</p>
+        <span class="role-tag">Ghost Preferred</span>
+      </div>
+      <div class="role-card">
+        <h4>Kevin's Supervisor</h4>
+        <p>Kevin needs supervision. He's been here 7 months and still thinks this is a podcast studio. Duties include redirecting Kevin, explaining things Kevin won't understand, and making sure Kevin doesn't go to the basement. Must be visible to the living.</p>
+        <span class="role-tag">Living Only</span>
+      </div>
+      <div class="role-card">
+        <h4>Ectoplasm Custodian</h4>
+        <p>Post-reading cleanup. Thursday nights are the worst. Must own or be willing to purchase a spectral mop ($34.99, not reimbursable — see Chairman Meow's expense policy). Emotional resilience recommended.</p>
+        <span class="role-tag">Ghost or Living</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="glow-line"></div>
+
+<!-- DONATE -->
+<section id="donate" x-data="{ selected: '$19', custom: false }">
+  <div class="container">
+    <div class="section-label">Support the Mission</div>
+    <h2 class="section-title">Every Dollar Buys a Tiny Book</h2>
+    <p style="color: #d0d0d0; margin-bottom: 12px;">The DSMV Tiny Tomes Initiative is a registered 501(c)(3) non-purr-ofit. Your donation is tax-deductible and smells faintly of sourdough for reasons we cannot explain.</p>
+
+    <div class="donate-box">
+      <h3>Make a Donation 🐾</h3>
+      <p>$19 prints one tiny book. $47 sponsors a ghost's membership for a year. $199 names a shelf. $1,000 funds the Smell Investigation for approximately 6 more inconclusive weeks.</p>
+
+      <div class="donate-tiers">
+        <button class="donate-tier" :class="{ selected: selected === '$19' }" @click="selected = '$19'; custom = false">$19</button>
+        <button class="donate-tier" :class="{ selected: selected === '$47' }" @click="selected = '$47'; custom = false">$47</button>
+        <button class="donate-tier" :class="{ selected: selected === '$199' }" @click="selected = '$199'; custom = false">$199</button>
+        <button class="donate-tier" :class="{ selected: selected === '$1000' }" @click="selected = '$1000'; custom = false">$1,000</button>
+      </div>
+
+      <p style="color: var(--text-muted); font-size: 13px; margin-bottom: 24px;">
+        Selected: <strong style="color: var(--neon-pink);" x-text="selected"></strong> — <span x-show="selected === '$19'">One tiny book, printed and bound</span><span x-show="selected === '$47'">Annual ghost membership + library card</span><span x-show="selected === '$199'">Name a shelf in our micro-library</span><span x-show="selected === '$1000'">Fund 6 weeks of smell research (no results guaranteed)</span>
+      </p>
+
+      <button class="btn btn-donate" style="font-size: 16px; padding: 16px 48px;">
+        Donate <span x-text="selected"></span> Now
+      </button>
+
+      <p style="color: #888888; font-size: 11px; margin-top: 16px; font-family: 'IBM Plex Mono', monospace;">
+        EIN: 87-1987MEOW · Ectoplasm donations are not tax-deductible
+      </p>
+    </div>
+  </div>
+</section>
+
+<div class="paw-divider">🐾 🐾 🐾</div>
+
+<!-- PRESS -->
+<section id="press">
+  <div class="container">
+    <div class="section-label">In the Mews</div>
+    <h2 class="section-title">Press & Recognition</h2>
+
+    <div class="press-item">
+      <span class="press-source">The Spectral Times — October 2024</span>
+      <h4>"The Smallest Library You'll Never See"</h4>
+      <p>"In a nondescript building that smells inexplicably like a Parisian boulangerie, a dead calico is running the most important literacy program in the afterlife. The books are two inches tall. The mission is enormous. I cried ectoplasm on my notepad."</p>
+    </div>
+    <div class="press-item">
+      <span class="press-source">Haunting Quarterly — June 2024</span>
+      <h4>"Ghost DMV Pivots to Literature, Accidentally Creates Cult Following"</h4>
+      <p>"What began as a waiting room distraction has become the afterlife's most beloved institution. With over 12,000 members and a budget of $47,000, DSMV Tiny Tomes punches above its weight — which, to be fair, is technically zero grams."</p>
+    </div>
+    <div class="press-item">
+      <span class="press-source">Kevin's Blog — March 2024</span>
+      <h4>"My Podcast Studio is Haunted and I Think My Boss is a Cat"</h4>
+      <p>"I keep finding tiny books everywhere. The AC smells like cookies. I've been employee of the month three times but I've never seen the plaque. I'm starting to think this isn't a podcast."</p>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="container">
+    <p style="font-size: 20px; margin-bottom: 4px;">🐾</p>
+    <p><strong style="color: #ffffff;">DSMV Tiny Tomes Initiative</strong></p>
+    <p>A program of the Department of Spectral Motor Vehicles</p>
+    <p>742 Evergreen Terrace, Liminal Space, NJ 00000</p>
+    <p style="color: var(--neon-yellow); font-size: 12px; margin-top: 12px;">Current aroma: Rosemary focaccia & something we can't identify but it's lovely</p>
+    <div class="legal">
+      501(c)(3) Non-Purr-ofit · EIN: 87-1987MEOW · All books 2" or less · No dogs allowed (under review)<br>
+      © 1987–2025 DSMV Tiny Tomes Initiative · "Literacy Doesn't End at Death"™<br>
+      Form 9L-SNIFF inquiries: smell@dsmvtinytomes.org · Allow 400 spectral minutes for response<br>
+      The smell is not our fault · We have documentation · Please stop asking
+    </div>
+  </div>
+</footer>
+
+<script>
+  // Initialize Lucide icons
+  document.addEventListener('DOMContentLoaded', function() {
+    if (typeof lucide !== 'undefined') {
+      lucide.createIcons();
+    }
+
+    // GSAP reveal animations
+    var reveals = document.querySelectorAll('section > .container, .hero > *');
+    reveals.forEach(function(el, i) {
+      gsap.fromTo(el,
+        { y: 30, opacity: 0 },
+        {
+          y: 0, opacity: 1,
+          duration: 0.7,
+          delay: i * 0.05,
+          ease: 'power2.out',
+          clearProps: 'opacity,transform',
+          scrollTrigger: null
+        }
+      );
+    });
+
+    // Animate stat cards with stagger
+    var stats = document.querySelectorAll('.stat-card');
+    stats.forEach(function(el, i) {
+      gsap.fromTo(el,
+        { y: 20, opacity: 0 },
+        {
+          y: 0, opacity: 1,
+          duration: 0.5,
+          delay: 0.8 + (i * 0.1),
+          ease: 'power2.out',
+          clearProps: 'opacity,transform'
+        }
+      );
+    });
+
+    // Animate team cards
+    var teamCards = document.querySelectorAll('.team-card');
+    teamCards.forEach(function(el, i) {
+      gsap.fromTo(el,
+        { y: 20, opacity: 0 },
+        {
+          y: 0, opacity: 1,
+          duration: 0.5,
+          delay: 0.3 + (i * 0.08),
+          ease: 'power2.out',
+          clearProps: 'opacity,transform'
+        }
+      );
+    });
+
+    // Subtle parallax on hero
+    var heroTitle = document.querySelector('.hero h1');
+    if (heroTitle) {
+      window.addEventListener('scroll', function() {
+        var scrollY = window.scrollY;
+        if (scrollY < 800) {
+          heroTitle.style.transform = 'translateY(' + (scrollY * 0.15) + 'px)';
+        }
+      }, { passive: true });
+    }
+
+    // Smooth scroll for nav links
+    document.querySelectorAll('nav a[href^="#"]').forEach(function(link) {
+      link.addEventListener('click', function(e) {
+        e.preventDefault();
+        var target = document.querySelector(this.getAttribute('href'));
+        if (target) {
+          target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+      });
+    });
+  });
+</script>
+</body>
+</html>

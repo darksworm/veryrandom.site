@@ -1,0 +1,612 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Order of the Consulting Goose</title>
+  <link rel="stylesheet" href="/assets/css/pico.min.css" />
+  <link rel="stylesheet" href="/assets/css/fonts.css" />
+  <script defer src="/assets/js/alpine.min.js"></script>
+  <script defer src="/assets/js/gsap.min.js"></script>
+  <script defer src="/assets/js/lucide.min.js"></script>
+  <style>
+    :root {
+      --ink: #131321;
+      --ink-2: #1a1a2e;
+      --paper: #ffffff;
+      --accent: #ff3d7f;
+      --acid: #43ffd5;
+      --toxic: #b2ff00;
+      --warning: #ffb703;
+      --violet: #8f4bff;
+      --cyan: #4cc9f0;
+      --rose: #ff7bd5;
+      --sky: #8be3ff;
+      --mint: #9cffc7;
+      --sun: #ffe66d;
+      --shadow: rgba(9, 9, 24, 0.2);
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      font-family: "Space Grotesk", system-ui, sans-serif;
+      color: var(--ink);
+      background: radial-gradient(circle at 10% 10%, var(--sky), transparent 45%),
+                  radial-gradient(circle at 80% 20%, var(--rose), transparent 40%),
+                  radial-gradient(circle at 20% 80%, var(--mint), transparent 45%),
+                  radial-gradient(circle at 70% 75%, var(--sun), transparent 45%),
+                  linear-gradient(135deg, #ffe0ff 0%, #ccf6ff 25%, #d6ffed 50%, #fff0b3 75%, #ffd2f2 100%);
+      min-height: 100vh;
+      margin: 0;
+    }
+
+    main {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 2.5rem 1.5rem 4rem;
+    }
+
+    .masthead {
+      position: relative;
+      background: var(--paper);
+      border: 3px solid var(--ink);
+      border-radius: 20px;
+      padding: 2rem 2.5rem;
+      box-shadow: 0 20px 60px var(--shadow);
+      overflow: hidden;
+    }
+
+    .masthead::before,
+    .masthead::after {
+      content: "";
+      position: absolute;
+      inset: -30% -10% auto auto;
+      width: 60%;
+      height: 150%;
+      background: conic-gradient(from 90deg, var(--rose), var(--cyan), var(--toxic), var(--violet), var(--rose));
+      opacity: 0.25;
+      transform: rotate(-6deg);
+      pointer-events: none;
+      filter: blur(0.5px);
+    }
+
+    .masthead::after {
+      inset: auto auto -40% -10%;
+      width: 70%;
+      height: 180%;
+      background: repeating-linear-gradient(45deg, rgba(0,0,0,0.08) 0 8px, transparent 8px 16px),
+                  radial-gradient(circle, var(--acid) 0 30%, transparent 31%);
+      opacity: 0.3;
+      transform: rotate(6deg);
+    }
+
+    .brand {
+      display: grid;
+      grid-template-columns: auto 1fr;
+      gap: 1.5rem;
+      align-items: center;
+    }
+
+    .logo {
+      width: 110px;
+      height: 110px;
+      border-radius: 26px;
+      background: linear-gradient(135deg, var(--violet), var(--cyan), var(--toxic));
+      border: 3px solid var(--ink);
+      position: relative;
+      overflow: hidden;
+      box-shadow: 0 12px 24px var(--shadow);
+      display: grid;
+      place-items: center;
+      color: var(--ink);
+    }
+
+    .logo svg {
+      width: 68px;
+      height: 68px;
+      stroke-width: 1.8px;
+    }
+
+    .logo::before {
+      content: "";
+      position: absolute;
+      inset: 12px;
+      border: 2px dashed rgba(19, 19, 33, 0.7);
+      border-radius: 20px;
+    }
+
+    .masthead h1 {
+      font-family: "Playfair Display", serif;
+      font-size: clamp(2.2rem, 4vw, 3.6rem);
+      margin: 0;
+      letter-spacing: 0.02em;
+    }
+
+    .masthead p {
+      margin: 0.6rem 0 0;
+      font-size: 1rem;
+      max-width: 55ch;
+      color: #1b1b2b;
+    }
+
+    .ticker {
+      display: flex;
+      gap: 1rem;
+      flex-wrap: wrap;
+      margin-top: 1.5rem;
+      font-weight: 600;
+    }
+
+    .ticker span {
+      background: var(--toxic);
+      color: #0a0a12;
+      padding: 0.3rem 0.7rem;
+      border-radius: 999px;
+      border: 2px solid var(--ink);
+    }
+
+    .newspaper {
+      margin-top: 2.5rem;
+      background: var(--paper);
+      border: 3px solid var(--ink);
+      border-radius: 24px;
+      padding: 2rem;
+      column-count: 3;
+      column-gap: 2rem;
+      box-shadow: 0 20px 60px var(--shadow);
+    }
+
+    @media (max-width: 1000px) {
+      .newspaper { column-count: 2; }
+    }
+
+    @media (max-width: 720px) {
+      .newspaper { column-count: 1; }
+      .brand { grid-template-columns: 1fr; }
+    }
+
+    .headline {
+      break-inside: avoid;
+      border-bottom: 3px solid var(--ink);
+      margin-bottom: 1.2rem;
+      padding-bottom: 1rem;
+    }
+
+    .headline h2 {
+      font-family: "Playfair Display", serif;
+      font-size: 2rem;
+      margin: 0 0 0.6rem;
+    }
+
+    .headline p {
+      font-size: 0.95rem;
+      margin: 0;
+      color: #181827;
+    }
+
+    .art-block {
+      break-inside: avoid;
+      margin-bottom: 2rem;
+      padding: 1rem;
+      border: 2px solid var(--ink);
+      border-radius: 18px;
+      background: linear-gradient(135deg, rgba(255, 255, 255, 0.9), rgba(255, 255, 255, 0.6));
+      position: relative;
+      overflow: hidden;
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .art-block:hover {
+      transform: translateY(-6px) rotate(-0.6deg);
+      box-shadow: 0 18px 40px rgba(10, 10, 20, 0.18);
+    }
+
+    .art-block h3 {
+      margin: 0 0 0.4rem;
+      font-size: 1.1rem;
+    }
+
+    .art-block p {
+      margin: 0;
+      font-size: 0.9rem;
+      color: #202034;
+    }
+
+    .sigil {
+      width: 100%;
+      height: 180px;
+      margin: 0.8rem 0 0.2rem;
+      background: conic-gradient(from 120deg, var(--violet), var(--cyan), var(--toxic), var(--rose), var(--violet));
+      border-radius: 16px;
+      position: relative;
+      clip-path: polygon(5% 5%, 95% 0, 100% 95%, 0 100%);
+      transition: clip-path 0.5s ease, filter 0.5s ease;
+    }
+
+    .art-block:hover .sigil {
+      clip-path: polygon(12% 0, 100% 12%, 88% 100%, 0 88%);
+      filter: hue-rotate(18deg) saturate(1.2);
+    }
+
+    .sigil::before,
+    .sigil::after {
+      content: "";
+      position: absolute;
+      inset: 14px;
+      border: 2px dashed rgba(16, 16, 30, 0.7);
+      border-radius: 12px;
+    }
+
+    .sigil::after {
+      inset: 32px;
+      border-radius: 50%;
+      border-style: solid;
+      border-color: rgba(16, 16, 30, 0.6);
+    }
+
+    .ritual {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 1rem;
+      break-inside: avoid;
+      margin-bottom: 2rem;
+    }
+
+    .ritual-card {
+      border: 2px solid var(--ink);
+      border-radius: 18px;
+      padding: 1rem;
+      background: linear-gradient(150deg, #ffffff 0%, #f9f6ff 40%, #e9fff4 100%);
+      position: relative;
+      overflow: hidden;
+      transition: transform 0.35s ease, background 0.35s ease;
+    }
+
+    .ritual-card:hover {
+      transform: scale(1.02) rotate(0.5deg);
+      background: linear-gradient(150deg, #fff7ff 0%, #f1feff 40%, #fff5d9 100%);
+    }
+
+    .ritual-card strong {
+      display: block;
+      font-size: 0.95rem;
+      margin-bottom: 0.2rem;
+    }
+
+    .ritual-card span {
+      font-size: 0.85rem;
+      color: #25253a;
+    }
+
+    .dance-lab {
+      break-inside: avoid;
+      border: 3px solid var(--ink);
+      border-radius: 20px;
+      padding: 1.2rem;
+      background: #ffffff;
+      margin-bottom: 2rem;
+    }
+
+    .dance-stage {
+      height: 220px;
+      border-radius: 16px;
+      background: radial-gradient(circle at 20% 30%, #ffe97a, transparent 35%),
+                  radial-gradient(circle at 70% 40%, #9dffdc, transparent 40%),
+                  radial-gradient(circle at 50% 75%, #ff8bd1, transparent 38%),
+                  linear-gradient(120deg, #e3f6ff, #fff1fa);
+      border: 2px solid var(--ink);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .goose {
+      width: 80px;
+      height: 120px;
+      position: absolute;
+      left: 20%;
+      top: 30%;
+      background: #ffffff;
+      border: 3px solid var(--ink);
+      border-radius: 40px 40px 30px 30px;
+      box-shadow: 0 10px 20px rgba(0,0,0,0.15);
+      transition: transform 0.4s ease;
+    }
+
+    .goose::before {
+      content: "";
+      position: absolute;
+      width: 70px;
+      height: 60px;
+      left: -40px;
+      top: 10px;
+      background: var(--sun);
+      border: 3px solid var(--ink);
+      border-radius: 60% 40% 60% 40%;
+    }
+
+    .goose::after {
+      content: "";
+      position: absolute;
+      width: 28px;
+      height: 22px;
+      right: -18px;
+      top: 22px;
+      background: var(--accent);
+      border: 3px solid var(--ink);
+      border-radius: 60% 40% 40% 60%;
+      transform: rotate(8deg);
+    }
+
+    .dance-stage:hover .goose {
+      transform: translateX(120px) rotate(-8deg) scale(1.05);
+    }
+
+    .dial {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      margin-top: 0.9rem;
+    }
+
+    .dial button {
+      background: var(--ink);
+      color: #ffffff;
+      border: 2px solid var(--ink);
+      border-radius: 12px;
+      padding: 0.35rem 0.9rem;
+      font-size: 0.85rem;
+      cursor: pointer;
+      transition: background 0.3s ease, color 0.3s ease, transform 0.3s ease;
+    }
+
+    .dial button:hover {
+      background: var(--toxic);
+      color: #111;
+      transform: translateY(-2px);
+    }
+
+    .signal {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      font-weight: 600;
+      font-size: 0.85rem;
+      background: var(--acid);
+      color: #121221;
+      padding: 0.3rem 0.6rem;
+      border-radius: 999px;
+      border: 2px solid var(--ink);
+    }
+
+    .biohazard {
+      width: 100%;
+      height: 180px;
+      margin-top: 0.8rem;
+      background: radial-gradient(circle at 50% 50%, #fff7 0 20%, transparent 22%),
+                  conic-gradient(from 0deg, var(--violet), var(--cyan), var(--toxic), var(--rose), var(--violet));
+      border: 3px solid var(--ink);
+      border-radius: 50%;
+      position: relative;
+      overflow: hidden;
+      filter: drop-shadow(0 14px 26px rgba(0,0,0,0.2));
+      transition: transform 0.5s ease, filter 0.5s ease;
+    }
+
+    .biohazard::before,
+    .biohazard::after {
+      content: "";
+      position: absolute;
+      inset: 18%;
+      border: 3px solid rgba(10, 10, 20, 0.8);
+      border-radius: 50%;
+    }
+
+    .biohazard::after {
+      inset: 38% 18% 18% 38%;
+      border-radius: 60% 40% 55% 45%;
+      transform: rotate(25deg);
+    }
+
+    .biohazard:hover {
+      transform: rotate(12deg) scale(1.05);
+      filter: hue-rotate(-15deg) drop-shadow(0 20px 30px rgba(0,0,0,0.25));
+    }
+
+    .footer {
+      margin-top: 2.5rem;
+      padding: 1.5rem 2rem;
+      background: var(--paper);
+      border: 3px solid var(--ink);
+      border-radius: 20px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1rem;
+      align-items: center;
+      justify-content: space-between;
+      box-shadow: 0 20px 60px var(--shadow);
+    }
+
+    .footer p {
+      margin: 0;
+      font-size: 0.9rem;
+      color: #1b1b2b;
+    }
+
+    .badge-row {
+      display: flex;
+      gap: 0.6rem;
+      flex-wrap: wrap;
+    }
+
+    .badge {
+      background: #ffffff;
+      color: var(--ink);
+      border: 2px solid var(--ink);
+      border-radius: 999px;
+      padding: 0.35rem 0.7rem;
+      font-size: 0.75rem;
+      font-weight: 600;
+    }
+
+    .floating-ornament {
+      position: absolute;
+      right: 8%;
+      top: 18%;
+      width: 180px;
+      height: 180px;
+      border-radius: 30px;
+      background: linear-gradient(135deg, #ffd6ff, #caffbf, #9bf6ff);
+      border: 3px solid var(--ink);
+      transform: rotate(8deg);
+      box-shadow: 0 16px 30px rgba(0,0,0,0.18);
+      display: grid;
+      place-items: center;
+      font-weight: 700;
+    }
+
+    .floating-ornament span {
+      display: block;
+      text-transform: uppercase;
+      font-size: 0.7rem;
+      letter-spacing: 0.2em;
+    }
+
+    .visually-hidden {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      padding: 0;
+      margin: -1px;
+      overflow: hidden;
+      clip: rect(0, 0, 0, 0);
+      border: 0;
+    }
+  </style>
+</head>
+<body>
+  <main x-data="{ mantra: 'We honk, therefore we consult.' }">
+    <section class="masthead">
+      <div class="floating-ornament" aria-hidden="true">
+        HONK
+        <span>Protocol 7</span>
+      </div>
+      <div class="brand">
+        <div class="logo" aria-hidden="true">
+          <i data-lucide="biohazard"></i>
+        </div>
+        <div>
+          <h1>The Order of the Consulting Goose</h1>
+          <p>A biohazard-luxury religion founded by a goose advisory firm. All guidance is delivered through interpretive dance. Beige is forbidden.</p>
+          <div class="ticker">
+            <span>Pastel Hazard Level: Radiant</span>
+            <span>Oracle Status: Flapping</span>
+            <span>Member Count: 1 Goose</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="newspaper">
+      <article class="headline">
+        <h2>Breaking: Consultants Resign, Become Choreographers</h2>
+        <p>The strategic plan is now a footwork diagram. The board minutes are a mixtape. We call it compliance.</p>
+      </article>
+
+      <article class="art-block">
+        <h3>Sigil of Profitless Guidance</h3>
+        <div class="sigil" aria-hidden="true"></div>
+        <p>Hover the sigil to witness a compliance pivot. No beige, only gradients.</p>
+      </article>
+
+      <article class="ritual">
+        <div class="ritual-card">
+          <strong>Ritual One</strong>
+          <span>Double flap, one decisive honk.</span>
+        </div>
+        <div class="ritual-card">
+          <strong>Ritual Two</strong>
+          <span>Slide left. Spin quarterly.</span>
+        </div>
+        <div class="ritual-card">
+          <strong>Ritual Three</strong>
+          <span>Bow to the pastel gradient.</span>
+        </div>
+        <div class="ritual-card">
+          <strong>Ritual Four</strong>
+          <span>Stamp the seal with glitter.</span>
+        </div>
+      </article>
+
+      <article class="dance-lab">
+        <h3>Interpretive Comms Lab</h3>
+        <div class="dance-stage" id="danceStage" aria-label="Animated goose dance stage">
+          <div class="goose" id="goose"></div>
+        </div>
+        <div class="dial">
+          <button type="button" id="pulseBtn">Pulse the Goose</button>
+          <div class="signal"><i data-lucide="sparkles"></i> <span x-text="mantra"></span></div>
+        </div>
+      </article>
+
+      <article class="art-block">
+        <h3>Biohazard Luxury Seal</h3>
+        <div class="biohazard" aria-hidden="true"></div>
+        <p>Hover the seal. Observe the sacred compliance glow.</p>
+      </article>
+
+      <article class="art-block">
+        <h3>Doctrine Dispatch</h3>
+        <p>Newspaper format, maximum spectacle. The CEO goose only answers via interpretive dance performed near a pastel hazard symbol.</p>
+        <div class="dial">
+          <button type="button" id="mantraBtn">Shuffle Mantra</button>
+          <span class="signal">No Beige Clause Active</span>
+        </div>
+      </article>
+    </section>
+
+    <section class="footer">
+      <p><strong>Official Statement:</strong> Strategy is now choreography. Deliverables are feathers, not PDFs.</p>
+      <div class="badge-row" aria-label="Agency badges">
+        <span class="badge">Honk Certified</span>
+        <span class="badge">Pastel Compliant</span>
+        <span class="badge">Biohazard Luxury</span>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    window.addEventListener("DOMContentLoaded", () => {
+      lucide.createIcons();
+
+      const stage = document.getElementById("danceStage");
+      const goose = document.getElementById("goose");
+      const pulseBtn = document.getElementById("pulseBtn");
+      const mantraBtn = document.getElementById("mantraBtn");
+      const mantras = [
+        "We honk, therefore we consult.",
+        "Dance the quarterly forecast.",
+        "Profit is a pirouette.",
+        "A goose never beige.",
+        "Deliverables are now footnotes in motion."
+      ];
+
+      gsap.from(".masthead", { y: 30, opacity: 0, duration: 0.9, ease: "power2.out" });
+      gsap.from(".newspaper", { y: 40, opacity: 0, duration: 0.9, delay: 0.2, ease: "power2.out" });
+
+      pulseBtn.addEventListener("click", () => {
+        gsap.timeline()
+          .to(goose, { x: 140, rotation: -12, duration: 0.35, ease: "power1.out" })
+          .to(goose, { x: 0, rotation: 8, duration: 0.35, ease: "power1.inOut" })
+          .to(goose, { x: 40, rotation: 0, duration: 0.3, ease: "power1.out" });
+        gsap.to(stage, { backgroundPosition: "80% 40%", duration: 0.5, yoyo: true, repeat: 1, ease: "sine.inOut" });
+      });
+
+      mantraBtn.addEventListener("click", () => {
+        const next = mantras[Math.floor(Math.random() * mantras.length)];
+        document.querySelector("main").__x.$data.mantra = next;
+      });
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,645 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Neon Molar Exchange — Coverage & Kitchen Trading</title>
+  <link rel="stylesheet" href="/assets/css/pico.min.css" />
+  <link rel="stylesheet" href="/assets/css/fonts.css" />
+  <script defer src="/assets/js/alpine.min.js"></script>
+  <script defer src="/assets/js/gsap.min.js"></script>
+  <script defer src="/assets/js/lucide.min.js"></script>
+  <style>
+    :root {
+      --bg: #05010a;
+      --panel: #0b0616;
+      --panel-2: #120726;
+      --neon-cyan: #00f5ff;
+      --neon-pink: #ff2bd1;
+      --neon-lime: #7dff2b;
+      --neon-yellow: #ffe600;
+      --neon-blue: #5b7dff;
+      --neon-red: #ff3b5c;
+      --white: #f9f7ff;
+      --mono: "IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      --shadow: 0 0 18px rgba(0,245,255,0.25), 0 0 28px rgba(255,43,209,0.2);
+    }
+    * { box-sizing: border-box; }
+    html, body { height: 100%; }
+    body {
+      margin: 0;
+      background: radial-gradient(1200px 900px at 20% 10%, #130a2b 0%, #05010a 55%, #000 100%);
+      color: var(--white);
+      font-family: var(--mono);
+      letter-spacing: 0.2px;
+    }
+    a { color: var(--neon-cyan); text-decoration: none; }
+    a:hover { color: var(--neon-yellow); }
+    header {
+      padding: 24px 20px 6px 20px;
+      border-bottom: 2px solid var(--neon-cyan);
+      box-shadow: var(--shadow);
+      background: linear-gradient(90deg, #06010c, #10051f, #06010c);
+    }
+    .brand {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 16px;
+      align-items: center;
+    }
+    .brand h1 {
+      font-size: 26px;
+      margin: 0;
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+      color: var(--neon-cyan);
+    }
+    .brand p {
+      margin: 4px 0 0 0;
+      color: var(--white);
+      font-size: 13px;
+    }
+    nav {
+      margin-top: 12px;
+      display: grid;
+      grid-template-columns: repeat(6, minmax(0, 1fr));
+      gap: 8px;
+    }
+    nav a {
+      display: block;
+      border: 1px solid var(--neon-pink);
+      padding: 8px 10px;
+      text-align: center;
+      background: #0d0216;
+      color: var(--white);
+      text-transform: uppercase;
+      font-size: 11px;
+      box-shadow: 0 0 10px rgba(255,43,209,0.2);
+    }
+    nav a:hover { background: #1c0931; }
+    main { padding: 18px; }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(12, minmax(0, 1fr));
+      gap: 12px;
+    }
+
+    .panel {
+      background: linear-gradient(180deg, var(--panel) 0%, var(--panel-2) 100%);
+      border: 1px solid var(--neon-blue);
+      padding: 12px;
+      box-shadow: var(--shadow);
+      position: relative;
+      overflow: hidden;
+      min-height: 120px;
+    }
+    .panel h2, .panel h3, .panel h4 {
+      margin: 0 0 8px 0;
+      color: var(--neon-lime);
+      font-size: 14px;
+      text-transform: uppercase;
+    }
+    .panel .tag {
+      position: absolute;
+      top: 8px;
+      right: 8px;
+      font-size: 10px;
+      padding: 2px 6px;
+      border: 1px solid var(--neon-yellow);
+      color: var(--white);
+      background: #0a0017;
+    }
+
+    .kpi {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 10px;
+    }
+    .kpi .tile {
+      border: 1px solid var(--neon-cyan);
+      padding: 10px;
+      background: #080013;
+    }
+    .tile .label { font-size: 11px; color: var(--white); }
+    .tile .value { font-size: 20px; color: var(--neon-yellow); }
+
+    .ticker {
+      display: grid;
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+      gap: 6px;
+      font-size: 12px;
+    }
+    .ticker div {
+      border: 1px dashed var(--neon-pink);
+      padding: 6px 8px;
+      background: #0a0016;
+    }
+
+    .console {
+      border: 1px solid var(--neon-cyan);
+      padding: 10px;
+      background: #06000e;
+      font-size: 12px;
+      line-height: 1.5;
+      min-height: 170px;
+    }
+    .console .line { display: flex; justify-content: space-between; }
+
+    .chart {
+      display: grid;
+      grid-template-columns: repeat(12, 1fr);
+      align-items: end;
+      gap: 3px;
+      height: 120px;
+    }
+    .bar {
+      background: linear-gradient(180deg, var(--neon-pink), var(--neon-cyan));
+      box-shadow: 0 0 12px rgba(0,245,255,0.3);
+      border: 1px solid #30004a;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 12px;
+    }
+    th, td {
+      border: 1px solid var(--neon-blue);
+      padding: 6px;
+      text-align: left;
+      color: var(--white);
+      background: #0a0117;
+    }
+    th { color: var(--neon-cyan); }
+
+    .controls {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 8px;
+    }
+    .controls button, .controls select, .controls input {
+      width: 100%;
+      background: #0b0218;
+      color: var(--white);
+      border: 1px solid var(--neon-lime);
+      padding: 8px;
+      font-family: var(--mono);
+    }
+    .controls button:hover { background: #1c0a2f; }
+
+    .pill {
+      display: inline-block;
+      padding: 2px 8px;
+      border: 1px solid var(--neon-red);
+      color: var(--white);
+      font-size: 11px;
+      background: #12000a;
+    }
+
+    .footer {
+      margin-top: 16px;
+      border-top: 2px solid var(--neon-cyan);
+      padding: 12px;
+      font-size: 11px;
+      background: #06000d;
+    }
+
+    .stack {
+      display: grid;
+      gap: 8px;
+    }
+
+    .blink {
+      animation: blink 1.4s steps(2, end) infinite;
+    }
+    @keyframes blink {
+      50% { opacity: 0.3; }
+    }
+
+    .glow {
+      text-shadow: 0 0 8px rgba(0,245,255,0.7);
+    }
+
+    .note { color: var(--white); font-size: 11px; }
+
+    .wide { grid-column: span 12; }
+    .span-8 { grid-column: span 8; }
+    .span-6 { grid-column: span 6; }
+    .span-5 { grid-column: span 5; }
+    .span-4 { grid-column: span 4; }
+    .span-3 { grid-column: span 3; }
+    .span-2 { grid-column: span 2; }
+
+    @media (max-width: 1100px) {
+      nav { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+      .kpi { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .controls { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .span-8, .span-6, .span-5, .span-4, .span-3, .span-2 { grid-column: span 12; }
+    }
+  </style>
+</head>
+<body x-data="pageState()" x-init="init()">
+  <header>
+    <div class="brand">
+      <div>
+        <h1 class="glow">Neon Molar Exchange</h1>
+        <p>Coverage orchestration • Kitchen broadcast ops • Live trade desk for premium bites</p>
+      </div>
+      <div class="pill">24/7 DENTAL RISK + MENU QUANTS</div>
+    </div>
+    <nav>
+      <a href="#desk">Trade Desk</a>
+      <a href="#policy">Policies</a>
+      <a href="#menu">Kitchen Book</a>
+      <a href="#claims">Claims Lab</a>
+      <a href="#studios">Broadcast</a>
+      <a href="#vault">Premium Vault</a>
+    </nav>
+  </header>
+
+  <main class="grid">
+    <section id="desk" class="panel span-8">
+      <span class="tag">LIVE</span>
+      <h2>Coverage Liquidity Desk</h2>
+      <div class="kpi">
+        <div class="tile">
+          <div class="label">Active Policies</div>
+          <div class="value" x-text="metrics.policies"></div>
+          <div class="note">Rolling 7 min window</div>
+        </div>
+        <div class="tile">
+          <div class="label">Claim Velocity</div>
+          <div class="value" x-text="metrics.claimVelocity + ' / hr'"></div>
+          <div class="note">Auto-sorted</div>
+        </div>
+        <div class="tile">
+          <div class="label">Kitchen Yield</div>
+          <div class="value" x-text="metrics.kitchenYield + '%'"></div>
+          <div class="note">Recipe coverage</div>
+        </div>
+        <div class="tile">
+          <div class="label">Broadcast Queue</div>
+          <div class="value" x-text="metrics.queue"></div>
+          <div class="note">Studio carts</div>
+        </div>
+      </div>
+      <div style="margin-top:10px" class="ticker">
+        <div x-text="tickers[0]"></div>
+        <div x-text="tickers[1]"></div>
+        <div x-text="tickers[2]"></div>
+        <div x-text="tickers[3]"></div>
+        <div x-text="tickers[4]"></div>
+      </div>
+      <div style="margin-top:10px" class="controls">
+        <button @click="nudge('coverage')">Nudge Coverage Spread</button>
+        <button @click="nudge('menu')">Rebalance Menu Risk</button>
+        <button @click="nudge('studio')">Queue Studio Segment</button>
+        <select x-model="strategy">
+          <option>Neon Shield</option>
+          <option>Arcade Premium</option>
+          <option>Bubblegum Catastrophe</option>
+          <option>Turbo Whitening</option>
+        </select>
+        <input type="range" min="1" max="100" x-model="risk" />
+        <button @click="togglePulse()" x-text="pulseOn ? 'Pulse OFF' : 'Pulse ON'"></button>
+      </div>
+    </section>
+
+    <section class="panel span-4">
+      <span class="tag">COUNTER</span>
+      <h3>Kitchen Broadcast Clock</h3>
+      <div class="console">
+        <div class="line"><span>SEGMENT START</span><span x-text="clock.start"></span></div>
+        <div class="line"><span>LIVE TIMER</span><span class="blink" x-text="clock.elapsed"></span></div>
+        <div class="line"><span>OVENS READY</span><span x-text="clock.ovens"></span></div>
+        <div class="line"><span>STIR RATE</span><span x-text="clock.stir"></span></div>
+        <div class="line"><span>TOOTH SHIELD</span><span x-text="clock.shield"></span></div>
+      </div>
+      <div style="margin-top:8px" class="controls">
+        <button @click="resetClock()">Reset Timer</button>
+        <button @click="toggleOvens()" x-text="ovensOn ? 'Ovens OFF' : 'Ovens ON'"></button>
+      </div>
+    </section>
+
+    <section id="policy" class="panel span-6">
+      <span class="tag">PLANS</span>
+      <h3>Policy Tiers</h3>
+      <table>
+        <thead>
+          <tr>
+            <th>Tier</th>
+            <th>Monthly</th>
+            <th>Coverage</th>
+            <th>Kitchen Perks</th>
+            <th>Broadcast Slots</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Plasma Basic</td>
+            <td>$29</td>
+            <td>Routine + 1 glow clean</td>
+            <td>Standard prep, no rush</td>
+            <td>1 segment</td>
+          </tr>
+          <tr>
+            <td>Laser Prime</td>
+            <td>$59</td>
+            <td>Fillings + whitening shield</td>
+            <td>Priority prep lane</td>
+            <td>3 segments</td>
+          </tr>
+          <tr>
+            <td>Neon Apex</td>
+            <td>$109</td>
+            <td>All services + safety glaze</td>
+            <td>Chef relay + rush</td>
+            <td>Unlimited</td>
+          </tr>
+        </tbody>
+      </table>
+      <p class="note">*All tiers auto-sync to kitchen ledger. Coverage renews every 28 days. No beige forms accepted.</p>
+    </section>
+
+    <section id="menu" class="panel span-6">
+      <span class="tag">MENU BOOK</span>
+      <h3>Recipe Coverage Inventory</h3>
+      <div class="chart">
+        <div class="bar" style="height: 40%"></div>
+        <div class="bar" style="height: 70%"></div>
+        <div class="bar" style="height: 55%"></div>
+        <div class="bar" style="height: 85%"></div>
+        <div class="bar" style="height: 65%"></div>
+        <div class="bar" style="height: 95%"></div>
+        <div class="bar" style="height: 50%"></div>
+        <div class="bar" style="height: 75%"></div>
+        <div class="bar" style="height: 60%"></div>
+        <div class="bar" style="height: 30%"></div>
+        <div class="bar" style="height: 80%"></div>
+        <div class="bar" style="height: 45%"></div>
+      </div>
+      <div class="controls" style="margin-top:10px">
+        <button @click="shuffleMenu()">Shuffle Recipes</button>
+        <button @click="boost('crunch')">Boost Crunch Index</button>
+        <button @click="boost('glaze')">Boost Glaze Index</button>
+      </div>
+      <div class="note" style="margin-top:6px">Inventory rebalances every 90 seconds with studio sentiment.</div>
+    </section>
+
+    <section id="claims" class="panel span-4">
+      <span class="tag">CLAIMS</span>
+      <h3>Claim Intake Console</h3>
+      <div class="stack">
+        <div class="console">
+          <div class="line"><span>NEW CLAIMS</span><span x-text="claims.new"></span></div>
+          <div class="line"><span>UNDER REVIEW</span><span x-text="claims.review"></span></div>
+          <div class="line"><span>APPROVED</span><span x-text="claims.approved"></span></div>
+          <div class="line"><span>DENIED</span><span x-text="claims.denied"></span></div>
+        </div>
+        <div class="controls">
+          <button @click="approveClaim()">Approve Random</button>
+          <button @click="denyClaim()">Deny Random</button>
+          <button @click="escalateClaim()">Escalate Review</button>
+        </div>
+      </div>
+      <p class="note">*Claims must include recipe footage. Coverage not valid on beige plates.</p>
+    </section>
+
+    <section id="studios" class="panel span-4">
+      <span class="tag">STUDIO</span>
+      <h3>Broadcast Queue</h3>
+      <div class="console">
+        <template x-for="(show, idx) in studioQueue" :key="idx">
+          <div class="line"><span x-text="show.title"></span><span x-text="show.slot"></span></div>
+        </template>
+      </div>
+      <div class="controls" style="margin-top:8px">
+        <button @click="rotateQueue()">Rotate Slot</button>
+        <button @click="addSegment()">Add Segment</button>
+      </div>
+    </section>
+
+    <section class="panel span-4">
+      <span class="tag">TESTIMONIALS</span>
+      <h3>Member Signals</h3>
+      <div class="stack">
+        <div class="console">"Coverage cleared my molar volatility while the studio baked my claims." — Aster V.</div>
+        <div class="console">"The Neon Apex tier makes the ovens feel insured." — Dr. K. Pell</div>
+        <div class="console">"I switched from a beige plan. Never again." — Mira L.</div>
+      </div>
+    </section>
+
+    <section id="vault" class="panel span-8">
+      <span class="tag">PREMIUM</span>
+      <h3>Premium Vault Access</h3>
+      <div class="grid" style="gap:8px">
+        <div class="panel span-4">
+          <h4>Arcade Warranty</h4>
+          <p>Emergency glaze, hush coverage, and a private pantry lane.</p>
+          <div class="pill">$210 / month</div>
+        </div>
+        <div class="panel span-4">
+          <h4>Laser Event Cover</h4>
+          <p>Live segment support, studio soundproofing, and enamel futures.</p>
+          <div class="pill">$380 / month</div>
+        </div>
+        <div class="panel span-4">
+          <h4>Nightshift Dental</h4>
+          <p>After-hours claim sweeps, priority kitchen yield, no beige clauses.</p>
+          <div class="pill">$540 / month</div>
+        </div>
+      </div>
+      <div class="controls" style="margin-top:10px">
+        <button @click="toggleVault()" x-text="vaultOpen ? 'Lock Vault' : 'Unlock Vault'"></button>
+        <button @click="issuePass()">Issue Guest Pass</button>
+        <button @click="auditVault()">Audit Coverage</button>
+      </div>
+      <div class="console" style="margin-top:8px">
+        <div class="line"><span>VAULT STATUS</span><span x-text="vaultOpen ? 'OPEN' : 'LOCKED'"></span></div>
+        <div class="line"><span>GUEST PASSES</span><span x-text="vaultPasses"></span></div>
+        <div class="line"><span>AUDIT SCORE</span><span x-text="vaultScore + '%'"></span></div>
+      </div>
+    </section>
+
+    <section class="panel span-4">
+      <span class="tag">LEGAL</span>
+      <h3>Footnotes + Disclosures</h3>
+      <ul>
+        <li>All coverage ratios are illustrative and recalibrated every 9 minutes.</li>
+        <li>Claims require verified bite footage and kitchen timestamp.</li>
+        <li>Studio segments are assigned by queue velocity, not preference.</li>
+        <li>Plans exclude beige surfaces, plates, or kitchens of any kind.</li>
+        <li>Recipe coverage subject to premium audit.</li>
+      </ul>
+    </section>
+  </main>
+
+  <section class="footer">
+    <div class="grid" style="gap:8px">
+      <div class="span-6">
+        <strong>Neon Molar Exchange</strong><br />
+        44 Lucid Arcade, Suite 12, Neon District<br />
+        Coverage Hotline: (555) 410-NEON
+      </div>
+      <div class="span-6">
+        <div class="console">
+          <div class="line"><span>COMPLIANCE TONE</span><span>STRICT</span></div>
+          <div class="line"><span>AVERAGE HOLD</span><span x-text="metrics.avgHold + ' sec'"></span></div>
+          <div class="line"><span>PAYOUT RATIO</span><span x-text="metrics.payout + '%'"></span></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <script>
+    function pageState() {
+      return {
+        metrics: {
+          policies: 812,
+          claimVelocity: 41,
+          kitchenYield: 76,
+          queue: 12,
+          avgHold: 18,
+          payout: 94
+        },
+        tickers: [
+          "MOLAR+2.4%",
+          "GLAZE-0.8%",
+          "OVEN+1.1%",
+          "WHITEN+0.6%",
+          "QUEUE-2.0%"
+        ],
+        strategy: "Neon Shield",
+        risk: 54,
+        pulseOn: false,
+        claims: {
+          new: 16,
+          review: 9,
+          approved: 48,
+          denied: 6
+        },
+        studioQueue: [
+          { title: "Midnight Meringue", slot: "00:12" },
+          { title: "Laser Glaze", slot: "00:18" },
+          { title: "Crown Crunch", slot: "00:24" },
+          { title: "Enamel Forge", slot: "00:30" },
+          { title: "Neon Souffle", slot: "00:36" }
+        ],
+        clock: {
+          start: new Date().toLocaleTimeString(),
+          elapsed: "00:00",
+          ovens: "WARM",
+          stir: "43 rpm",
+          shield: "ONLINE"
+        },
+        ovensOn: true,
+        vaultOpen: false,
+        vaultPasses: 3,
+        vaultScore: 92,
+        _timerId: null,
+        _pulseId: null,
+        init() {
+          this._timerId = setInterval(() => {
+            const now = Date.now();
+            if (!this._startTs) this._startTs = now;
+            const secs = Math.floor((now - this._startTs) / 1000);
+            const mm = String(Math.floor(secs / 60)).padStart(2, "0");
+            const ss = String(secs % 60).padStart(2, "0");
+            this.clock.elapsed = `${mm}:${ss}`;
+            this.metrics.policies = 780 + (secs % 50);
+            this.metrics.claimVelocity = 36 + (secs % 12);
+            this.metrics.kitchenYield = 72 + (secs % 9);
+            this.metrics.queue = 9 + (secs % 8);
+            this.metrics.avgHold = 14 + (secs % 10);
+            this.metrics.payout = 92 + (secs % 6);
+            this.claims.new = 12 + (secs % 10);
+            this.claims.review = 7 + (secs % 6);
+            if (secs % 7 === 0) this.rotateTicker();
+          }, 1000);
+        },
+        rotateTicker() {
+          const head = this.tickers.shift();
+          this.tickers.push(head);
+        },
+        nudge(type) {
+          if (type === "coverage") this.metrics.payout = Math.min(99, this.metrics.payout + 1);
+          if (type === "menu") this.metrics.kitchenYield = Math.min(99, this.metrics.kitchenYield + 2);
+          if (type === "studio") this.metrics.queue = Math.max(1, this.metrics.queue - 1);
+        },
+        togglePulse() {
+          this.pulseOn = !this.pulseOn;
+          if (this.pulseOn) {
+            this._pulseId = setInterval(() => {
+              this.metrics.claimVelocity = 30 + Math.floor(Math.random() * 30);
+            }, 900);
+          } else if (this._pulseId) {
+            clearInterval(this._pulseId);
+            this._pulseId = null;
+          }
+        },
+        resetClock() {
+          this._startTs = Date.now();
+          this.clock.start = new Date().toLocaleTimeString();
+        },
+        toggleOvens() {
+          this.ovensOn = !this.ovensOn;
+          this.clock.ovens = this.ovensOn ? "WARM" : "COOL";
+        },
+        shuffleMenu() {
+          const bars = document.querySelectorAll('.bar');
+          bars.forEach(bar => {
+            const h = 30 + Math.floor(Math.random() * 70);
+            bar.style.height = `${h}%`;
+          });
+        },
+        boost(kind) {
+          if (kind === "crunch") this.metrics.kitchenYield = Math.min(99, this.metrics.kitchenYield + 3);
+          if (kind === "glaze") this.metrics.payout = Math.min(99, this.metrics.payout + 2);
+        },
+        approveClaim() {
+          if (this.claims.review > 0) {
+            this.claims.review -= 1;
+            this.claims.approved += 1;
+          }
+        },
+        denyClaim() {
+          if (this.claims.review > 0) {
+            this.claims.review -= 1;
+            this.claims.denied += 1;
+          }
+        },
+        escalateClaim() {
+          this.claims.review += 1;
+          if (this.claims.new > 0) this.claims.new -= 1;
+        },
+        rotateQueue() {
+          const head = this.studioQueue.shift();
+          this.studioQueue.push(head);
+        },
+        addSegment() {
+          const slot = `00:${String(12 + this.studioQueue.length * 6).padStart(2, "0")}`;
+          this.studioQueue.push({ title: "Glaze Sprint", slot });
+        },
+        toggleVault() {
+          this.vaultOpen = !this.vaultOpen;
+        },
+        issuePass() {
+          this.vaultPasses += 1;
+        },
+        auditVault() {
+          this.vaultScore = 85 + Math.floor(Math.random() * 15);
+        }
+      };
+    }
+
+    window.addEventListener('DOMContentLoaded', () => {
+      if (window.lucide) window.lucide.createIcons();
+      if (window.gsap) {
+        gsap.from('header', { duration: 1, y: -30, opacity: 0, ease: 'power2.out' });
+        gsap.from('.panel', { duration: 1, opacity: 0, y: 20, stagger: 0.08, ease: 'power2.out' });
+      }
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,469 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Crayon Forecasts & The Cat QA Cabinet</title>
+  <link rel="stylesheet" href="/assets/css/pico.min.css" />
+  <link rel="stylesheet" href="/assets/css/fonts.css" />
+  <style>
+    :root {
+      --coral: #ff6f61;
+      --gold: #f5c542;
+      --purple: #7a3df0;
+      --deep: #101a4a;
+      --ink: #0b0f2a;
+      --paper: #fff3df;
+      --cream: #f8efe3;
+      --teal: #2fc4b2;
+      --shadow: rgba(10, 12, 30, 0.35);
+    }
+
+    body {
+      font-family: 'Space Grotesk', 'Inter', system-ui, sans-serif;
+      color: var(--ink);
+      background: linear-gradient(140deg, #fbd1c8 0%, #f7d98a 28%, #bca0ff 62%, #20307a 100%);
+      min-height: 100vh;
+    }
+
+    header.hero {
+      background: rgba(255, 243, 223, 0.9);
+      border: 3px solid var(--deep);
+      box-shadow: 0 18px 40px var(--shadow);
+      padding: 2.5rem 2rem;
+      border-radius: 18px;
+      margin-bottom: 2rem;
+      position: relative;
+      overflow: hidden;
+    }
+
+    header.hero::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(circle at 15% 20%, rgba(255, 111, 97, 0.25), transparent 50%),
+                  radial-gradient(circle at 85% 10%, rgba(122, 61, 240, 0.25), transparent 55%);
+      pointer-events: none;
+    }
+
+    header.hero h1 {
+      font-family: 'Playfair Display', 'Crimson Pro', serif;
+      color: var(--deep);
+      font-size: clamp(2.2rem, 4vw, 3.4rem);
+      margin-bottom: 0.5rem;
+      letter-spacing: 0.02em;
+    }
+
+    header.hero p {
+      font-size: 1.1rem;
+      max-width: 52rem;
+    }
+
+    .layout {
+      display: grid;
+      grid-template-columns: minmax(240px, 300px) 1fr;
+      gap: 1.8rem;
+      align-items: start;
+    }
+
+    .sidebar {
+      position: sticky;
+      top: 1.5rem;
+      background: rgba(16, 26, 74, 0.92);
+      color: #f7f0ff;
+      border-radius: 18px;
+      padding: 1.7rem;
+      border: 2px solid #f5c542;
+      box-shadow: 0 12px 30px var(--shadow);
+    }
+
+    .sidebar h2 {
+      font-family: 'Playfair Display', serif;
+      color: #ffd77a;
+      font-size: 1.5rem;
+      margin-bottom: 0.6rem;
+    }
+
+    .sidebar p,
+    .sidebar li {
+      color: #f7f0ff;
+      font-size: 0.95rem;
+    }
+
+    .sidebar ul {
+      padding-left: 1rem;
+    }
+
+    .paw {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      font-weight: 600;
+    }
+
+    .paw i {
+      width: 20px;
+      height: 20px;
+      color: #ffd77a;
+    }
+
+    main {
+      display: flex;
+      flex-direction: column;
+      gap: 2rem;
+    }
+
+    section.card {
+      background: var(--cream);
+      border-radius: 18px;
+      border: 3px solid var(--deep);
+      box-shadow: 0 12px 30px var(--shadow);
+      padding: 2rem;
+      position: relative;
+      overflow: hidden;
+    }
+
+    section.card h3 {
+      font-family: 'Playfair Display', serif;
+      color: var(--deep);
+      margin-bottom: 0.5rem;
+      font-size: 1.8rem;
+    }
+
+    section.card p {
+      color: #1c2255;
+      font-size: 1.02rem;
+    }
+
+    .crayon-note {
+      font-family: 'IBM Plex Mono', monospace;
+      background: #fff;
+      border: 2px dashed var(--purple);
+      color: #351f7c;
+      padding: 1rem;
+      border-radius: 12px;
+      box-shadow: inset 0 0 0 2px rgba(122, 61, 240, 0.2);
+      margin-top: 1rem;
+    }
+
+    .letter {
+      background: #fff8ee;
+      border: 2px solid #ff6f61;
+      border-radius: 12px;
+      padding: 1rem 1.2rem;
+      font-family: 'Crimson Pro', serif;
+      color: #2b1d4a;
+    }
+
+    .drawer {
+      background: #f7d98a;
+      border-radius: 14px;
+      padding: 1rem;
+      color: #2a1d3c;
+      border: 2px solid #7a3df0;
+      cursor: pointer;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .drawer:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 20px rgba(16, 26, 74, 0.3);
+    }
+
+    .drawer strong {
+      color: #1a1f4a;
+    }
+
+    .reveal {
+      margin-top: 0.8rem;
+      background: #fff;
+      border-left: 4px solid #2fc4b2;
+      padding: 0.9rem 1rem;
+      border-radius: 10px;
+      color: #123a4a;
+    }
+
+    .tabbed {
+      display: grid;
+      gap: 0.8rem;
+    }
+
+    .tabbed button {
+      background: #101a4a;
+      color: #fbe9ff;
+      border: 2px solid #f5c542;
+      padding: 0.65rem 1rem;
+      border-radius: 999px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    .tabbed button.active {
+      background: #ff6f61;
+      color: #1a1340;
+    }
+
+    .testimonial {
+      background: rgba(255, 255, 255, 0.92);
+      border-radius: 14px;
+      padding: 1rem 1.2rem;
+      border: 2px solid #20307a;
+      color: #1c2255;
+    }
+
+    .footer {
+      background: rgba(16, 26, 74, 0.95);
+      color: #f7f0ff;
+      border-radius: 18px;
+      padding: 2rem;
+      border: 2px solid #f5c542;
+      box-shadow: 0 12px 30px var(--shadow);
+    }
+
+    .footer h3 {
+      font-family: 'Playfair Display', serif;
+      color: #ffd77a;
+    }
+
+    .pawline {
+      display: flex;
+      gap: 0.4rem;
+      flex-wrap: wrap;
+      margin-top: 0.6rem;
+    }
+
+    .pawline span {
+      background: #ff6f61;
+      color: #1a1340;
+      padding: 0.2rem 0.6rem;
+      border-radius: 999px;
+      font-weight: 600;
+      font-size: 0.85rem;
+    }
+
+    .scribble {
+      position: absolute;
+      top: -10px;
+      right: -10px;
+      background: #f5c542;
+      color: #2b1d4a;
+      padding: 0.4rem 0.8rem;
+      border-radius: 8px;
+      font-weight: 700;
+      transform: rotate(6deg);
+      box-shadow: 0 6px 16px rgba(26, 19, 64, 0.35);
+    }
+
+    .story-step {
+      opacity: 0;
+      transform: translateY(24px);
+    }
+
+    .story-step.visible {
+      opacity: 1;
+      transform: translateY(0);
+      transition: all 0.7s ease;
+    }
+
+    .cta {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      background: #ff6f61;
+      color: #1a1340;
+      border: 2px solid #7a3df0;
+      padding: 0.6rem 1rem;
+      border-radius: 999px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .cta i {
+      width: 18px;
+      height: 18px;
+    }
+
+    .fineprint {
+      font-family: 'IBM Plex Mono', monospace;
+      color: #362a6f;
+      font-size: 0.85rem;
+    }
+
+    @media (max-width: 900px) {
+      .layout {
+        grid-template-columns: 1fr;
+      }
+
+      .sidebar {
+        position: static;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header class="hero">
+    <div class="scribble">CRAYON CERTIFIED</div>
+    <h1>WhiskerWeave Forecasting Bureau</h1>
+    <p>
+      A competitive knitter launched a weather service, and the cats took over quality control. Every report is
+      scrawled in crayon, every policy stamped with paw prints, every forecast measured in yarn lengths. This is a
+      tale of vaporwave dental insurance, sunset skies, and a purr-sonal war against drizzle.
+    </p>
+  </header>
+
+  <div class="layout">
+    <aside class="sidebar">
+      <h2>Admin Meow Panel</h2>
+      <p class="paw"><i data-lucide="paw-print"></i> Today’s narrative queue</p>
+      <ul>
+        <li>Chapter 1: The Knitter’s Oath & the Cloud Cabinet</li>
+        <li>Chapter 2: Cats in QA with crayon clipboards</li>
+        <li>Chapter 3: The Dental-Insurance Storm Treaty</li>
+      </ul>
+      <p class="paw"><i data-lucide="sparkles"></i> Paw-cessibility status: purrfect contrast only.</p>
+      <div class="crayon-note">
+        NOTICE: All documents must smell faintly of sunshine and marker caps. Violation = immediate boop.
+      </div>
+    </aside>
+
+    <main>
+      <section class="card story-step" id="chapter-1">
+        <h3>Chapter 1: The Knitter’s Oath & the Cloud Cabinet</h3>
+        <p>
+          Wren “Needleclaw” Mallory was a champion of competitive knitting, a speed-stitch legend with a scarf in each
+          hand and a thundercloud in each eye. She wanted forecasts that fit in a yarn basket, so she built a weather
+          service that speaks in fiber metaphors. The cabinet was lined with velvet, and each drawer opened with a
+          promise: no forecast shall leave without a cat’s paw of approval.
+        </p>
+        <div class="drawer" x-data="{ open: false }" x-on:click="open = !open" aria-expanded="false">
+          <strong>Tap the Cloud Cabinet Drawer</strong> to read the knitter’s oath.
+          <div class="reveal" x-show="open" x-transition>
+            “By needle, by paw, by the teal crayon that smells like ambition: I vow to tell the truth about drizzle,
+            even when it frays the scarf. I vow to chart wind in skeins. I vow to let the cats veto every storm.”
+          </div>
+        </div>
+        <p class="fineprint">Interactive moment 1: click to reveal the oath. Cats will clap politely.</p>
+      </section>
+
+      <section class="card story-step" id="chapter-2" x-data="{ note: 'A feline taps the clipboard with a paw...' }">
+        <h3>Chapter 2: Cats in QA with Crayon Clipboards</h3>
+        <p>
+          The quality control room is run by a council of cats: Baron Biscuit, Dr. Puddlewhisk, and the intern,
+          Peaches McScribble. They review every forecast with squinted eyes and a suspicious nose for humidity. If a
+          sentence isn’t purr-fect, it gets shredded into confetti for the office plant, which has never asked for any
+          of this.
+        </p>
+        <div class="tabbed" x-data="{ tab: 'baron' }">
+          <div>
+            <button :class="tab === 'baron' ? 'active' : ''" x-on:click="tab = 'baron'">Baron Biscuit</button>
+            <button :class="tab === 'puddle' ? 'active' : ''" x-on:click="tab = 'puddle'">Dr. Puddlewhisk</button>
+            <button :class="tab === 'peaches' ? 'active' : ''" x-on:click="tab = 'peaches'">Peaches McScribble</button>
+          </div>
+          <div class="testimonial" x-show="tab === 'baron'" x-transition>
+            “We require every forecast to include a nap window. If you cannot nap, it is not a forecast.”
+          </div>
+          <div class="testimonial" x-show="tab === 'puddle'" x-transition>
+            “Dentists crave clarity. So do cats. That’s why our storm warnings include molar metaphors.”
+          </div>
+          <div class="testimonial" x-show="tab === 'peaches'" x-transition>
+            “I eat the corners of the report. If it survives, it is robust.”
+          </div>
+        </div>
+        <div class="crayon-note" x-text="note"></div>
+        <p class="fineprint">Interactive moment 2: toggle the QA council’s testimonials.</p>
+      </section>
+
+      <section class="card story-step" id="chapter-3">
+        <h3>Chapter 3: The Dental-Insurance Storm Treaty</h3>
+        <p>
+          The service’s biggest client is a vaporwave dental insurer called Molar Mirage. They demanded a treaty: no
+          storm shall arrive without a notice written in crayon and signed by a cat. In exchange, every cat receives
+          premium tuna coverage and floss that doubles as yarn. The treaty ended the great gumline blizzard of last
+          winter, and the knitter finally slept through a night of hail.
+        </p>
+        <div class="letter">
+          <strong>Letter from Molar Mirage, stamped with paw ink:</strong><br />
+          “Dear WhiskerWeave, our policyholders cannot handle surprise snow. Please forecast in colors we can taste.
+          We will cover every whisker if you keep the skies polite.”
+        </div>
+        <div class="drawer" x-data="{ open: false }" x-on:click="open = !open">
+          <strong>Hover or click for the treaty’s final clause.</strong>
+          <div class="reveal" x-show="open" x-transition>
+            Clause 9: “Should thunder exceed three tail flicks, the cats may declare a blanket emergency and demand
+            snacks.”
+          </div>
+        </div>
+      </section>
+
+      <section class="card story-step" id="epilogue">
+        <h3>Epilogue: The Forecast That Purred</h3>
+        <p>
+          Wren now writes the evening forecast with a crayon between her teeth and a cat on each shoulder. The cats
+          demand the story of tomorrow, and she gives it to them: a sky in coral gold, a breeze in purple, and a deep
+          blue night with teeth like crescent moons. The story ends as all good cat tales do — with a nap and a purr.
+        </p>
+        <button class="cta" id="continue-btn" type="button">
+          <i data-lucide="wind"></i> Tap to hear the last purr
+        </button>
+        <div class="crayon-note" id="final-purr" hidden>
+          “Prrrr. Forecast complete. Snacks now.” — signed, the QA Cabinet
+        </div>
+        <div class="pawline">
+          <span>paw-print approved</span>
+          <span>crayon-compliant</span>
+          <span>yarn-indexed</span>
+        </div>
+      </section>
+
+      <section class="footer story-step">
+        <h3>Administrative Addendum</h3>
+        <p>
+          All documents are filed in the sidebar’s velvet archive and written in the broad strokes of wax. If you
+          would like to appeal a forecast, please submit a yarn sample and a sincere chin scratch. Cats will reply
+          within two naps.
+        </p>
+        <p class="fineprint">End of narrative. Please exit quietly; the cats are auditing the breeze.</p>
+      </section>
+    </main>
+  </div>
+
+  <script src="/assets/js/alpine.min.js" defer></script>
+  <script src="/assets/js/gsap.min.js" defer></script>
+  <script src="/assets/js/lucide.min.js" defer></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      if (window.lucide) {
+        window.lucide.createIcons();
+      }
+
+      const steps = document.querySelectorAll('.story-step');
+      const revealStep = (step) => step.classList.add('visible');
+
+      const observer = new IntersectionObserver(
+        (entries) => {
+          entries.forEach((entry) => {
+            if (entry.isIntersecting) {
+              revealStep(entry.target);
+            }
+          });
+        },
+        { threshold: 0.2 }
+      );
+
+      steps.forEach((step) => observer.observe(step));
+
+      const button = document.getElementById('continue-btn');
+      const finalPurr = document.getElementById('final-purr');
+      if (button && finalPurr) {
+        button.addEventListener('click', () => {
+          finalPurr.hidden = !finalPurr.hidden;
+        });
+      }
+
+      if (window.gsap) {
+        gsap.from('.hero', { duration: 1.2, y: 20, opacity: 0, ease: 'power2.out' });
+      }
+    });
+  </script>
+</body>
+</html>

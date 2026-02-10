@@ -1,0 +1,468 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Temporal Reclamation Bureau /// CLASSIFIED ///</title>
+    <link rel="stylesheet" href="/assets/css/pico.min.css">
+    <link rel="stylesheet" href="/assets/css/fonts.css">
+    <style>
+        :root {
+            --font-main: 'IBM Plex Mono', monospace;
+            --font-heading: 'Space Grotesk', sans-serif;
+            --color-bg: #0a0a0a;
+            --color-text: #e0e0e0;
+            --color-text-muted: #888888;
+            --color-accent: #ff0000;
+            --color-border: #333333;
+            --pico-font-family: var(--font-main);
+            --pico-h1-font-size: 3rem;
+            --pico-h2-font-size: 2.25rem;
+            --pico-line-height: 1.7;
+        }
+
+        body {
+            background-color: var(--color-bg);
+            color: var(--color-text);
+            font-family: var(--font-main);
+            font-size: 16px;
+            overflow-x: hidden;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        /* Scanline Overlay */
+        body::after {
+            content: " ";
+            display: block;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: repeating-linear-gradient(0deg, rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0.3) 1px, transparent 1px, transparent 3px);
+            pointer-events: none;
+            z-index: 10000;
+            opacity: 0.5;
+        }
+        
+        main.container-fluid {
+            scroll-snap-type: y mandatory;
+            overflow-y: scroll;
+            height: 100vh;
+        }
+
+        section {
+            scroll-snap-align: start;
+            min-height: 100vh;
+            width: 100vw;
+            padding: 4rem 2rem;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            border-bottom: 1px solid var(--color-border);
+            position: relative;
+        }
+
+        h1, h2, h3, h4, h5, h6 {
+            font-family: var(--font-heading);
+            color: var(--color-text);
+            font-weight: 700;
+            text-transform: uppercase;
+        }
+
+        h1 { text-shadow: 0 0 5px var(--color-accent); }
+        h2 { border-bottom: 2px solid var(--color-border); padding-bottom: 0.5rem; }
+
+        a { color: var(--color-accent); text-decoration: none; }
+        a:hover { text-decoration: underline; }
+
+        .red-text { color: var(--color-accent); }
+        .muted-text { color: var(--color-text-muted); font-size: 0.875rem; }
+
+        .glitch-text {
+            animation: glitch 3s linear infinite;
+        }
+
+        @keyframes glitch {
+            2%, 64% { transform: translate(2px, 0) skew(0deg); }
+            4%, 60% { transform: translate(-2px, 0) skew(0deg); }
+            62% { transform: translate(0, 0) skew(5deg); }
+        }
+
+        .classified-banner {
+            position: absolute;
+            top: 5rem;
+            left: -2rem;
+            background: var(--color-accent);
+            color: var(--color-bg);
+            padding: 0.25rem 1rem;
+            font-family: var(--font-heading);
+            transform: rotate(-5deg);
+            font-size: 1.2rem;
+            z-index: 100;
+        }
+
+        .data-panel {
+            border: 1px solid var(--color-border);
+            padding: 1.5rem;
+            background: rgba(18,18,18,0.5);
+            backdrop-filter: blur(2px);
+        }
+        
+        .data-panel h4 { font-size: 1rem; margin-bottom: 0.5rem; color: var(--color-text-muted); }
+        .data-panel .value { font-size: 2.5rem; font-weight: 700; color: var(--color-accent); }
+        
+        table {
+            border: 1px solid var(--color-border);
+            width: 100%;
+        }
+        th, td {
+            border: 1px solid var(--color-border);
+            padding: 0.75rem;
+            text-align: left;
+        }
+        thead th {
+            background-color: var(--color-border);
+            font-family: var(--font-heading);
+        }
+
+        .threat-gauge-container {
+            width: 150px;
+            height: 75px;
+            overflow: hidden;
+            position: relative;
+        }
+        .threat-gauge {
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            border: 10px solid var(--color-border);
+            border-bottom-color: var(--color-accent);
+            border-right-color: var(--color-accent);
+            transform: rotate(135deg);
+            animation: pulse-gauge 2s infinite alternate;
+        }
+        @keyframes pulse-gauge {
+            from { border-bottom-color: #ff0000; border-right-color: #ff0000; }
+            to { border-bottom-color: #ff8080; border-right-color: #ff8080; }
+        }
+
+        .css-chart {
+            display: flex;
+            gap: 2px;
+            align-items: flex-end;
+            height: 100px;
+            border-bottom: 1px solid var(--color-border);
+        }
+        .css-chart-bar {
+            width: 10px;
+            background: var(--color-accent);
+            opacity: 0.7;
+        }
+        
+        .nav-header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: rgba(10, 10, 10, 0.8);
+            backdrop-filter: blur(5px);
+            z-index: 1000;
+            border-bottom: 1px solid var(--color-border);
+        }
+        .nav-header .logo { font-family: var(--font-heading); font-weight: 700; }
+        .nav-header nav a { margin-left: 1.5rem; font-size: 0.9rem; }
+        
+        [x-cloak] { display: none !important; }
+
+        @media (max-width: 768px) {
+            :root {
+                --pico-h1-font-size: 2.25rem;
+                --pico-h2-font-size: 1.75rem;
+            }
+            section {
+                padding: 5rem 1rem 3rem;
+            }
+            .grid {
+                grid-template-columns: 1fr;
+            }
+            .nav-header nav a {
+                display: none; /* simple responsive nav */
+            }
+        }
+        
+    </style>
+</head>
+<body x-data="tuesdaySystem">
+
+    <header class="nav-header">
+        <div class="logo">T.R.B. /// ID: BH-077</div>
+        <nav>
+            <a href="#anomaly">01_THE_ANOMALY</a>
+            <a href="#evidence">02_EVIDENCE_LOG</a>
+            <a href="#reclamation">03_RECLAMATION_PROTOCOL</a>
+            <a href="#faq">04_CLASSIFIED_Q_A</a>
+        </nav>
+    </header>
+
+    <main class="container-fluid">
+        <!-- SECTION 1: HERO -->
+        <section id="hero">
+            <div class="classified-banner">LEVEL 7 CLEARANCE</div>
+            <h1>Tuesday is a <span class="red-text glitch-text">Temporal Anomaly.</span></h1>
+            <p class="muted-text">UNCLASSIFIED FINDING #74-B. A weekly statistical error propagated since Temporal Redundancy Event 001 (45 B.C.).</p>
+            
+            <div class="data-panel" style="margin-top: 2rem;">
+                <h4>GLOBAL TIME DEBT (ACCUMULATED SINCE LAST ANOMALY)</h4>
+                <div class="value" x-text="timeWastedCounter + ' HOURS'"></div>
+                <small class="muted-text">This counter represents man-hours lost to the cyclical void. It is a conservative estimate.</small>
+            </div>
+            <p style="margin-top:2rem;">This is not a conspiracy. It's a clerical error. We have the data. We have the means to correct it. Scroll down to proceed.</p>
+        </section>
+
+        <!-- SECTION 2: THE ANOMALY -->
+        <section id="anomaly" x-data="{view: 'symptoms'}">
+            <h2>01_THE_ANOMALY</h2>
+            <p>The anomaly, designated 'Tuesday', presents identifiable symptoms and has a traceable origin. Analysis requires switching between data views.</p>
+            <nav>
+                <ul>
+                    <li><a href="#" @click.prevent="view = 'symptoms'" :class="{'red-text': view === 'symptoms'}">View: Symptomology</a></li>
+                    <li><a href="#" @click.prevent="view = 'problem'" :class="{'red-text': view === 'problem'}">View: Redacted Origin Brief</a></li>
+                </ul>
+            </nav>
+
+            <article x-show="view === 'symptoms'" x-cloak>
+                <h3>SYMPTOMOLOGY REPORT #4C</h3>
+                <p>Exposure to the anomaly results in the following documented phenomena:</p>
+                <ul>
+                    <li>A 78% increase in existential dread during morning commutes.</li>
+                    <li>Spontaneous beige-colored thoughts and a craving for bland sandwiches.</li>
+                    <li>The uncanny feeling that the week is both dragging and rushing by simultaneously.</li>
+                    <li>"Phantom Weekend Syndrome": A false sense of accomplishment typically reserved for Fridays.</li>
+                    <li>Measurable decrease in caffeine efficacy (up to 34%).</li>
+                </ul>
+            </article>
+
+            <article x-show="view === 'problem'" x-cloak class="data-panel" style="background-color: #f0f0f0; color: #000;">
+                <h3 style="color:#000">DECLASSIFIED BRIEF [REDACTED]</h3>
+                <p style="font-family: 'Crimson Pro', serif;">
+                    Following the Julian calendar reform, a bureaucratic oversight resulted in a temporal duplication event. A junior chronographer, <span style="background:#000; color:#000;">[REDACTED]</span>, incorrectly filed paperwork creating a redundant 24-hour cycle between Monday and Wednesday. This 'placeholder day' was never purged from the system. Its recursive, self-perpetuating nature has resulted in a weekly state of low-grade temporal friction. We've been living with a cosmic typo for over two millennia. All attempts to patch the timeline have been met with <span style="background:#000; color:#000;">[REDACTED BY O5-COUNCIL]</span>.
+                </p>
+                <p class="muted-text" style="color:#555;">FILE: TRB-ORIGINS-001-B. DO NOT DISTRIBUTE.</p>
+            </article>
+        </section>
+
+        <!-- SECTION 3: EVIDENCE -->
+        <section id="evidence">
+            <h2>02_EVIDENCE_LOG</h2>
+            <p>Real-time dashboard monitoring temporal fluctuations attributed to Anomaly-TUE.</p>
+            <div class="grid">
+                <div class="data-panel">
+                    <h4>TEMPORAL THREAT LEVEL</h4>
+                    <div class="threat-gauge-container">
+                        <div class="threat-gauge"></div>
+                    </div>
+                    <span class="value" style="font-size: 1.5rem;">SEVERE</span>
+                </div>
+                <div class="data-panel">
+                    <h4>CHRONON FLUX</h4>
+                    <div class="css-chart">
+                        <template x-for="bar in chartData">
+                            <div class="css-chart-bar" :style="{ height: bar + '%' }"></div>
+                        </template>
+                    </div>
+                    <small class="muted-text">Positive values indicate timeline instability.</small>
+                </div>
+                <div class="data-panel">
+                    <h4>PRODUCTIVITY DEBT</h4>
+                    <div class="value" x-text="'$' + productivityLoss"></div>
+                    <small class="muted-text">Global GDP loss calculated per second.</small>
+                </div>
+            </div>
+            <h3 style="margin-top: 2rem;">INCONSISTENCY LOG <button @click="sortInconsistencies" style="font-size: 0.8rem; padding: 0.2rem 0.5rem; float: right;">Sort by ID</button></h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Event ID</th>
+                        <th>Description</th>
+                        <th>Discrepancy Factor</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <template x-for="item in inconsistencies" :key="item.id">
+                        <tr>
+                            <td x-text="item.id"></td>
+                            <td x-text="item.desc"></td>
+                            <td class="red-text" x-text="item.factor"></td>
+                        </tr>
+                    </template>
+                </tbody>
+            </table>
+        </section>
+
+        <!-- SECTION 4: RECLAMATION -->
+        <section id="reclamation">
+            <h2>03_RECLAMATION_PROTOCOL</h2>
+            <p>We offer three tiers of temporal correction. This is not a product. This is a service for reality maintenance.</p>
+            <div class="grid">
+                <article class="data-panel">
+                    <h4>TIER 1: AWARENESS</h4>
+                    <p class="value" style="font-size: 1.5rem;">$14.99</p>
+                    <p>A one-time delivery of our 3-page, heavily-redacted brief explaining the core issue. Knowledge is the first step.</p>
+                    <button disabled>Packet Unavailable</button>
+                </article>
+                <article class="data-panel">
+                    <h4>TIER 2: REALIGNMENT</h4>
+                    <p class="value" style="font-size: 1.5rem;">$97.00/mo</p>
+                    <p>Weekly temporal sync pulses delivered via encrypted audio file to fortify your personal timeline. Includes certificate of non-compliance.</p>
+                    <button>Initiate Realignment</button>
+                </article>
+                <article class="data-panel">
+                    <h4>TIER 3: ERASURE</h4>
+                    <p class="value" style="font-size: 1.5rem;">$4,850.00/yr</p>
+                    <p>Complete removal of the anomaly from your subjective experience. Warning: May cause minor paradoxes.</p>
+                    <button x-data="{confirm: 0}" @click="confirm = (confirm + 1) % 3" 
+                        :class="{'secondary': confirm > 0, 'contrast': confirm === 2}"
+                        x-text="['Request Erasure', 'ARE YOU SURE?', 'PROCESSING...'][confirm]">
+                    </button>
+                </article>
+            </div>
+            <p class="muted-text" style="margin-top: 2rem;">Disclaimer: The Temporal Reclamation Bureau is not liable for temporal displacement of pets, sudden proficiency in Latin, or the development of a strong opinion on aqueducts.</p>
+        </section>
+        
+        <!-- SECTION 5: FAQ -->
+        <section id="faq" x-data="{ open: null }">
+            <h2>04_CLASSIFIED_Q&A</h2>
+            <p>Frequently asked questions retrieved from secure channel #T-7B.</p>
+            <details x-id="['faq-question']" @click="open = open === $id('faq-question') ? null : $id('faq-question')">
+                <summary>Is this legal?</summary>
+                <p>We operate within a temporal gray area not yet covered by conventional jurisprudence. Our activities are, technically, pre-legal.</p>
+            </details>
+            <details x-id="['faq-question']" @click="open = open === $id('faq-question') ? null : $id('faq-question')">
+                <summary>What happens to my memories of Tuesday?</summary>
+                <p>They are archived in a secure, off-timeline server located in a chronologically stable pocket dimension. Access is available under Tier 3-Addendum plans.</p>
+            </details>
+            <details x-id="['faq-question']" @click="open = open === $id('faq-question') ? null : $id('faq-question')">
+                <summary>What about 'Taco Tuesday'?</summary>
+                <p>A necessary sacrifice for temporal stability. We have found 'Taco Wednesday' to be a viable, and in 67% of cases, superior alternative. The alliteration is lost, but your time is not.</p>
+            </details>
+             <details x-id="['faq-question']" @click="open = open === $id('faq-question') ? null : $id('faq-question')">
+                <summary>Will this affect my birthday?</summary>
+                <p>If your birthday falls on a Tuesday, our system automatically shifts the celebration event to the nearest valid chronological point (usually Monday evening). You will not lose a birthday. You will gain a more efficient birthday.</p>
+            </details>
+        </section>
+        
+        <!-- FOOTER -->
+        <footer>
+            <div class="container" style="padding: 2rem; border-top: 1px solid var(--color-border);">
+                <p class="muted-text">Temporal Reclamation Bureau © Year <span x-text="new Date().getFullYear() + 200"></span>. All timelines reserved.</p>
+                <p class="muted-text" style="font-size: 0.75rem;">This broadcast is intended for individuals classified with Level 4 or higher Chrono-Awareness. Unauthorized reception is a violation of Temporal Accord 7.3.4 and may result in retroactive existence failure. Do not attempt to adjust your timeline. We are in control. The anomaly will be contained. The integrity of the week will be restored. Your compliance is mandatory. Failure to comply will be noted in your permanent temporal record.</p>
+            </div>
+        </footer>
+
+    </main>
+
+    <script src="/assets/js/alpine.min.js" defer></script>
+    <script src="/assets/js/gsap.min.js"></script>
+    <script src="/assets/js/lucide.min.js"></script>
+
+    <script>
+        document.addEventListener('alpine:init', () => {
+            Alpine.data('tuesdaySystem', () => ({
+                timeWastedCounter: 0,
+                productivityLoss: '14,201,837,422.71',
+                chartData: [40, 60, 50, 75, 65, 90, 80, 85, 70, 50, 60, 80],
+                inconsistencies: [
+                    { id: 'TUE-07B', desc: 'Lost Sock Phenomenon Spike', factor: '8.3' },
+                    { id: 'TUE-11A', desc: 'Global Déjà Vu Clusters', factor: '6.9' },
+                    { id: 'TUE-02F', desc: 'Mandela Effect Resonance', factor: '7.1' },
+                    { id: 'TUE-04C', desc: 'Jamais Vu Incidents (Urban)', factor: '5.4' },
+                ],
+                sortAsc: true,
+
+                init() {
+                    // 1. Live counter for time wasted
+                    this.updateTimeWasted();
+                    setInterval(() => this.updateTimeWasted(), 60 * 1000); // update every minute
+
+                    // 2. Live ticker for productivity loss
+                    setInterval(() => {
+                        let currentLoss = parseFloat(this.productivityLoss.replace(/,/g, ''));
+                        currentLoss += 31415.92; // some absurd rate
+                        this.productivityLoss = currentLoss.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+                    }, 1000);
+
+                    // 3. Animate chart bars with GSAP
+                    gsap.fromTo(".css-chart-bar", 
+                        { scaleY: 0, transformOrigin: 'bottom' }, 
+                        { scaleY: 1, duration: 1, stagger: 0.1, ease: 'power2.out', delay: 1 }
+                    );
+
+                    // 4. Lucide Icons
+                    lucide.createIcons();
+                    
+                    // 5. Section animations
+                    const sections = document.querySelectorAll('section');
+                    sections.forEach(section => {
+                       gsap.fromTo(section.children, 
+                           { y: 50, opacity: 0 },
+                           { 
+                               y: 0, 
+                               opacity: 1, 
+                               duration: 0.8, 
+                               stagger: 0.1,
+                               scrollTrigger: {
+                                   trigger: section,
+                                   start: 'top 80%',
+                                   end: 'bottom 20%',
+                                   toggleActions: 'play none none none', // play on enter
+                                   once: true,
+                               }
+                           }
+                       );
+                    });
+                },
+
+                updateTimeWasted() {
+                    const now = new Date();
+                    let lastTuesday = new Date();
+                    lastTuesday.setDate(now.getDate() - (now.getDay() - 2 + 7) % 7);
+                    lastTuesday.setHours(0, 0, 0, 0);
+                    
+                    const diffMs = now - lastTuesday;
+                    const diffHours = diffMs / (1000 * 60 * 60);
+                    
+                    // Multiply by a large number for "global" effect
+                    this.timeWastedCounter = Math.floor(diffHours * 150000000).toLocaleString('en-US');
+                },
+
+                sortInconsistencies() {
+                    this.sortAsc = !this.sortAsc;
+                    this.inconsistencies.sort((a, b) => {
+                        if (this.sortAsc) {
+                            return a.id.localeCompare(b.id);
+                        } else {
+                            return b.id.localeCompare(a.id);
+                        }
+                    });
+                }
+            }));
+        });
+        
+        // Safety check for GSAP ScrollTrigger - since it is not included, we create a dummy object to prevent errors if any library internals would call it.
+        if (typeof ScrollTrigger === 'undefined') {
+          window.ScrollTrigger = {
+            create: () => ({}),
+            addEventListener: () => {},
+            refresh: () => {},
+          };
+          gsap.registerPlugin(window.ScrollTrigger);
+        }
+    </script>
+</body>
+</html>

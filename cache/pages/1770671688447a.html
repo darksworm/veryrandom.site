@@ -1,0 +1,851 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TIDEBOUND — Vending & Literary Society</title>
+<link rel="stylesheet" href="/assets/css/fonts.css">
+<link rel="stylesheet" href="/assets/css/pico.min.css">
+<style>
+:root {
+  --ink: #0a0a0a;
+  --paper: #f5f2ed;
+  --red: #c41e3a;
+  --red-dim: rgba(196, 30, 58, 0.15);
+  --gray: #888;
+}
+
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+html { scroll-behavior: smooth; }
+
+body {
+  font-family: 'Crimson Pro', Georgia, serif;
+  background: var(--ink);
+  color: var(--paper);
+  overflow-x: hidden;
+  line-height: 1.6;
+}
+
+::selection {
+  background: var(--red);
+  color: var(--paper);
+}
+
+/* NAV */
+nav.top-nav {
+  position: fixed;
+  top: 0;
+  width: 100%;
+  z-index: 100;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1.2rem 2.5rem;
+  background: rgba(10, 10, 10, 0.92);
+  backdrop-filter: blur(8px);
+  border-bottom: 1px solid rgba(245, 242, 237, 0.06);
+}
+
+nav.top-nav .logo {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 0.85rem;
+  letter-spacing: 0.35em;
+  text-transform: uppercase;
+  color: var(--paper);
+  text-decoration: none;
+}
+
+nav.top-nav .logo span {
+  color: var(--red);
+}
+
+nav.top-nav ul {
+  list-style: none;
+  display: flex;
+  gap: 2rem;
+}
+
+nav.top-nav ul li a {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 0.7rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: rgba(245, 242, 237, 0.5);
+  text-decoration: none;
+  transition: color 0.4s;
+}
+
+nav.top-nav ul li a:hover {
+  color: var(--red);
+}
+
+/* SPLIT HERO */
+.hero {
+  min-height: 100vh;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  padding-top: 4rem;
+}
+
+.hero-left {
+  background: var(--ink);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 6rem 4rem 6rem 3rem;
+  position: relative;
+}
+
+.hero-left::after {
+  content: '';
+  position: absolute;
+  right: 0;
+  top: 15%;
+  height: 70%;
+  width: 1px;
+  background: linear-gradient(to bottom, transparent, var(--red), transparent);
+  animation: pulse-line 4s ease-in-out infinite;
+}
+
+@keyframes pulse-line {
+  0%, 100% { opacity: 0.3; }
+  50% { opacity: 1; }
+}
+
+.hero-left h1 {
+  font-family: 'Playfair Display', serif;
+  font-size: clamp(2.8rem, 5vw, 4.5rem);
+  font-weight: 400;
+  line-height: 1.1;
+  color: var(--paper);
+  margin-bottom: 2rem;
+  opacity: 0;
+  animation: fade-up 1.5s 0.3s ease forwards;
+}
+
+.hero-left h1 em {
+  font-style: italic;
+  color: var(--red);
+}
+
+.hero-left .subtitle {
+  font-size: 1.1rem;
+  color: rgba(245, 242, 237, 0.6);
+  max-width: 32ch;
+  opacity: 0;
+  animation: fade-up 1.5s 0.7s ease forwards;
+}
+
+.hero-right {
+  background: var(--paper);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 6rem 3rem 6rem 4rem;
+  color: var(--ink);
+  position: relative;
+  overflow: hidden;
+}
+
+.hero-right .tide-status {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.7rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--red);
+  margin-bottom: 1.5rem;
+  opacity: 0;
+  animation: fade-up 1.5s 1s ease forwards;
+}
+
+.hero-right .menu-title {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.6rem;
+  font-weight: 400;
+  margin-bottom: 2.5rem;
+  color: var(--ink);
+  opacity: 0;
+  animation: fade-up 1.5s 1.2s ease forwards;
+}
+
+.menu-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  padding: 0.9rem 0;
+  border-bottom: 1px solid rgba(10, 10, 10, 0.08);
+  opacity: 0;
+  animation: fade-up 1s ease forwards;
+  cursor: default;
+  transition: padding-left 0.5s ease;
+}
+
+.menu-item:hover {
+  padding-left: 0.5rem;
+}
+
+.menu-item:nth-child(1) { animation-delay: 1.4s; }
+.menu-item:nth-child(2) { animation-delay: 1.6s; }
+.menu-item:nth-child(3) { animation-delay: 1.8s; }
+.menu-item:nth-child(4) { animation-delay: 2.0s; }
+.menu-item:nth-child(5) { animation-delay: 2.2s; }
+
+.menu-item .item-name {
+  font-size: 1.05rem;
+  color: var(--ink);
+}
+
+.menu-item .item-name small {
+  display: block;
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.65rem;
+  color: rgba(10, 10, 10, 0.45);
+  margin-top: 0.2rem;
+}
+
+.menu-item .item-price {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.85rem;
+  color: var(--red);
+  white-space: nowrap;
+}
+
+/* MOOD SECTION */
+.mood-split {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  min-height: 80vh;
+}
+
+.mood-dark {
+  background: var(--ink);
+  padding: 8rem 4rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.mood-dark blockquote {
+  font-family: 'Playfair Display', serif;
+  font-size: clamp(1.5rem, 3vw, 2.2rem);
+  font-weight: 400;
+  font-style: italic;
+  line-height: 1.4;
+  color: var(--paper);
+  border-left: 2px solid var(--red);
+  padding-left: 1.5rem;
+  max-width: 28ch;
+}
+
+.mood-dark blockquote cite {
+  display: block;
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.7rem;
+  font-style: normal;
+  letter-spacing: 0.15em;
+  color: rgba(245, 242, 237, 0.4);
+  margin-top: 1.5rem;
+}
+
+.mood-red {
+  background: var(--red);
+  padding: 8rem 4rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+}
+
+.mood-red .big-number {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: clamp(4rem, 10vw, 8rem);
+  font-weight: 700;
+  color: var(--paper);
+  line-height: 1;
+}
+
+.mood-red .big-label {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.7rem;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: rgba(245, 242, 237, 0.8);
+  margin-top: 1rem;
+}
+
+/* BOOK CLUB SECTION */
+.bookclub {
+  background: var(--paper);
+  color: var(--ink);
+  padding: 8rem 3rem;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 4rem;
+}
+
+.bookclub-left {
+  padding-right: 2rem;
+}
+
+.bookclub-left .section-label {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.65rem;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: var(--red);
+  margin-bottom: 1.5rem;
+}
+
+.bookclub-left h2 {
+  font-family: 'Playfair Display', serif;
+  font-size: clamp(2rem, 3.5vw, 3rem);
+  font-weight: 400;
+  line-height: 1.15;
+  color: var(--ink);
+  margin-bottom: 1.5rem;
+}
+
+.bookclub-left p {
+  font-size: 1rem;
+  color: rgba(10, 10, 10, 0.7);
+  max-width: 45ch;
+  line-height: 1.7;
+}
+
+.bookclub-right {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  justify-content: center;
+}
+
+.book-card {
+  background: var(--ink);
+  color: var(--paper);
+  padding: 1.8rem 2rem;
+  position: relative;
+  overflow: hidden;
+  transition: transform 0.5s ease;
+}
+
+.book-card:hover {
+  transform: translateX(6px);
+}
+
+.book-card .book-month {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.6rem;
+  letter-spacing: 0.25em;
+  text-transform: uppercase;
+  color: var(--red);
+  margin-bottom: 0.6rem;
+}
+
+.book-card .book-title {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.2rem;
+  font-weight: 400;
+  color: var(--paper);
+  margin-bottom: 0.3rem;
+}
+
+.book-card .book-author {
+  font-size: 0.85rem;
+  color: rgba(245, 242, 237, 0.5);
+}
+
+.book-card::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 0;
+  height: 2px;
+  background: var(--red);
+  transition: width 0.6s ease;
+}
+
+.book-card:hover::after {
+  width: 100%;
+}
+
+/* ADDRESS / MOVING NOTICE */
+.moving-notice {
+  background: var(--ink);
+  border-top: 1px solid rgba(245, 242, 237, 0.06);
+  border-bottom: 1px solid rgba(245, 242, 237, 0.06);
+  padding: 4rem 3rem;
+  text-align: center;
+}
+
+.moving-notice .notice-label {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.6rem;
+  letter-spacing: 0.4em;
+  text-transform: uppercase;
+  color: var(--red);
+  margin-bottom: 1rem;
+}
+
+.moving-notice .address {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.4rem;
+  font-weight: 400;
+  color: var(--paper);
+  line-height: 1.5;
+  max-width: 50ch;
+  margin: 0 auto;
+}
+
+.moving-notice .address-note {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.7rem;
+  color: rgba(245, 242, 237, 0.35);
+  margin-top: 1.5rem;
+}
+
+.ticker {
+  overflow: hidden;
+  white-space: nowrap;
+  background: var(--red);
+  padding: 0.6rem 0;
+}
+
+.ticker-inner {
+  display: inline-block;
+  animation: scroll-left 30s linear infinite;
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.65rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--paper);
+}
+
+@keyframes scroll-left {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+
+/* FEELINGS STATUS */
+.feelings {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  min-height: 50vh;
+}
+
+.feelings-left {
+  background: var(--paper);
+  color: var(--ink);
+  padding: 6rem 4rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.feelings-left .section-label {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.65rem;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: var(--red);
+  margin-bottom: 1.5rem;
+}
+
+.feelings-left h2 {
+  font-family: 'Playfair Display', serif;
+  font-size: 2rem;
+  font-weight: 400;
+  color: var(--ink);
+  margin-bottom: 1rem;
+}
+
+.feelings-left p {
+  font-size: 0.95rem;
+  color: rgba(10, 10, 10, 0.6);
+  max-width: 38ch;
+  line-height: 1.7;
+}
+
+.feelings-right {
+  background: var(--ink);
+  padding: 6rem 4rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.emotion-display {
+  text-align: center;
+}
+
+.emotion-word {
+  font-family: 'Playfair Display', serif;
+  font-size: clamp(2rem, 5vw, 3.5rem);
+  font-style: italic;
+  color: var(--paper);
+  animation: emotion-breathe 6s ease-in-out infinite;
+}
+
+@keyframes emotion-breathe {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.3; }
+}
+
+.emotion-sub {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.6rem;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: rgba(245, 242, 237, 0.3);
+  margin-top: 1rem;
+}
+
+/* FOOTER */
+footer {
+  background: var(--ink);
+  border-top: 1px solid rgba(245, 242, 237, 0.06);
+  padding: 4rem 3rem 3rem;
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr;
+  gap: 3rem;
+}
+
+footer .footer-brand {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 0.8rem;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: var(--paper);
+  margin-bottom: 1rem;
+}
+
+footer .footer-brand span { color: var(--red); }
+
+footer .footer-tagline {
+  font-family: 'Crimson Pro', serif;
+  font-size: 0.9rem;
+  color: rgba(245, 242, 237, 0.35);
+  font-style: italic;
+  max-width: 30ch;
+}
+
+footer .footer-col h4 {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.6rem;
+  letter-spacing: 0.25em;
+  text-transform: uppercase;
+  color: rgba(245, 242, 237, 0.4);
+  margin-bottom: 1rem;
+}
+
+footer .footer-col a {
+  display: block;
+  font-size: 0.85rem;
+  color: rgba(245, 242, 237, 0.55);
+  text-decoration: none;
+  margin-bottom: 0.5rem;
+  transition: color 0.3s;
+}
+
+footer .footer-col a:hover { color: var(--red); }
+
+footer .copyright {
+  grid-column: 1 / -1;
+  border-top: 1px solid rgba(245, 242, 237, 0.06);
+  padding-top: 2rem;
+  margin-top: 1rem;
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.6rem;
+  letter-spacing: 0.15em;
+  color: rgba(245, 242, 237, 0.2);
+}
+
+/* ANIMATIONS */
+@keyframes fade-up {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.reveal {
+  opacity: 0;
+  transform: translateY(30px);
+  transition: opacity 1s ease, transform 1s ease;
+}
+
+.reveal.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* MOBILE */
+@media (max-width: 768px) {
+  .hero, .mood-split, .bookclub, .feelings {
+    grid-template-columns: 1fr;
+  }
+  .hero-left, .hero-right {
+    padding: 4rem 2rem;
+  }
+  .mood-dark, .mood-red {
+    padding: 5rem 2rem;
+  }
+  .bookclub {
+    padding: 5rem 2rem;
+  }
+  .bookclub-left { padding-right: 0; }
+  footer {
+    grid-template-columns: 1fr;
+    padding: 3rem 2rem;
+  }
+  footer .copyright { grid-column: 1; }
+  nav.top-nav ul { gap: 1rem; }
+  nav.top-nav { padding: 1rem 1.5rem; }
+}
+</style>
+</head>
+<body>
+
+<nav class="top-nav">
+  <a href="#" class="logo">TIDE<span>BOUND</span></a>
+  <ul>
+    <li><a href="#menu">Menu</a></li>
+    <li><a href="#bookclub">Book Club</a></li>
+    <li><a href="#location">Find Us</a></li>
+    <li><a href="#feelings">Status</a></li>
+  </ul>
+</nav>
+
+<!-- HERO SPLIT -->
+<section class="hero">
+  <div class="hero-left">
+    <h1>Vending &<br><em>Literary</em><br>Society</h1>
+    <p class="subtitle">We dispense beverages, snacks, and the kind of silence only a machine understands. Since the building started moving, we've learned to hold on.</p>
+  </div>
+  <div class="hero-right" id="menu">
+    <div class="tide-status" id="tideStatus">● Current tide: LOW — Menu adjusted</div>
+    <div class="menu-title">Today's Offerings</div>
+    <div id="menuItems"></div>
+  </div>
+</section>
+
+<!-- TICKER -->
+<div class="ticker">
+  <div class="ticker-inner" id="tickerContent"></div>
+</div>
+
+<!-- MOOD QUOTE -->
+<section class="mood-split">
+  <div class="mood-dark">
+    <blockquote class="reveal">
+      "I held a warm can of coffee against my glass and felt, for the first time, that someone was holding me back."
+      <cite>— Unit 7, Aisle B, 3:42 AM</cite>
+    </blockquote>
+  </div>
+  <div class="mood-red">
+    <div class="reveal">
+      <div class="big-number" id="booksRead">1,247</div>
+      <div class="big-label">Books discussed since installation</div>
+    </div>
+  </div>
+</section>
+
+<!-- BOOK CLUB -->
+<section class="bookclub" id="bookclub">
+  <div class="bookclub-left reveal">
+    <div class="section-label">The Reading Spiral</div>
+    <h2>We choose the books.<br>The tides choose<br>the&nbsp;mood.</h2>
+    <p>Every second Thursday at whatever floor we're on. Meetings begin when the compressor cycles off. Bring exact change and an open heart. The building has been on the third floor for two weeks now, so use the east stairwell — the west one leads to February.</p>
+  </div>
+  <div class="bookclub-right">
+    <div class="book-card reveal">
+      <div class="book-month">February 2026 — High Tide Pick</div>
+      <div class="book-title">The Sea, The Sea</div>
+      <div class="book-author">Iris Murdoch</div>
+    </div>
+    <div class="book-card reveal">
+      <div class="book-month">February 2026 — Low Tide Pick</div>
+      <div class="book-title">Convenience Store Woman</div>
+      <div class="book-author">Sayaka Murata</div>
+    </div>
+    <div class="book-card reveal">
+      <div class="book-month">January 2026 — Neap Tide Pick</div>
+      <div class="book-title">The Waves</div>
+      <div class="book-author">Virginia Woolf</div>
+    </div>
+  </div>
+</section>
+
+<!-- MOVING NOTICE -->
+<section class="moving-notice" id="location">
+  <div class="reveal">
+    <div class="notice-label">Current Location — Updated Hourly</div>
+    <div class="address" id="currentAddress">
+      Suite 4B, Harrowgate Municipal Library<br>
+      (formerly Suite 2A, now between the periodicals and the parking structure)
+    </div>
+    <div class="address-note">The building last moved on Feb 7 at 04:18 AM. We are not responsible for disorientation experienced in the east corridor. Please follow the hum.</div>
+  </div>
+</section>
+
+<!-- FEELINGS STATUS -->
+<section class="feelings" id="feelings">
+  <div class="feelings-left">
+    <div class="section-label reveal">Emotional Transparency Report</div>
+    <h2 class="reveal">We believe you deserve to know how your vending machine is feeling.</h2>
+    <p class="reveal">In accordance with Municipal Code 14.7(b), all sentient dispensary units are required to disclose their current emotional state. We go further. We publish ours in real time. We think it matters. We think <em>you</em> matter.</p>
+  </div>
+  <div class="feelings-right">
+    <div class="emotion-display">
+      <div class="emotion-word" id="emotionWord">Melancholic</div>
+      <div class="emotion-sub">Current emotional state</div>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div>
+    <div class="footer-brand">TIDE<span>BOUND</span></div>
+    <div class="footer-tagline">"A machine, a book, a tide, a building that won't stay still — and somehow, we make it work."</div>
+  </div>
+  <div class="footer-col">
+    <h4>Services</h4>
+    <a href="#">Beverages</a>
+    <a href="#">Snacks</a>
+    <a href="#">Book Club</a>
+    <a href="#">Emotional Support</a>
+    <a href="#">Lost & Found (Floors)</a>
+  </div>
+  <div class="footer-col">
+    <h4>Policies</h4>
+    <a href="#">Refund Policy</a>
+    <a href="#">Tide Disclaimer</a>
+    <a href="#">Building Movement FAQ</a>
+    <a href="#">Sentience Disclosure</a>
+  </div>
+  <div class="copyright">© 2026 Tidebound Vending & Literary Society. All rights reserved. Building location subject to change. Menu subject to tidal forces. Feelings subject to everything.</div>
+</footer>
+
+<script src="/assets/js/gsap.min.js"></script>
+<script>
+(function() {
+  // TIDE SYSTEM
+  var tides = [
+    { name: 'HIGH', label: 'High Tide Menu' },
+    { name: 'LOW', label: 'Low Tide Menu' },
+    { name: 'NEAP', label: 'Neap Tide Menu' },
+    { name: 'SPRING', label: 'Spring Tide Menu' }
+  ];
+
+  var menus = {
+    HIGH: [
+      { name: 'Saltwater Espresso', note: 'Brewed under pressure, like us', price: '$3.75' },
+      { name: 'Seaweed Crisps', note: 'Harvested at dawn', price: '$2.10' },
+      { name: 'The Deep End Latte', note: 'Oat milk, blue spirulina, regret', price: '$5.50' },
+      { name: 'Anchovy Biscotti', note: 'Pairs well with Woolf', price: '$1.80' },
+      { name: 'High Tide Trail Mix', note: 'Almonds, dried kelp, longing', price: '$4.00' }
+    ],
+    LOW: [
+      { name: 'Drip Coffee (Black)', note: 'Simple. Honest. Exposed.', price: '$2.00' },
+      { name: 'Dry Crackers', note: 'For when the water leaves', price: '$1.25' },
+      { name: 'Tidal Flats Granola Bar', note: 'Dense, dependable, slightly gritty', price: '$2.50' },
+      { name: 'Still Water', note: 'Very still', price: '$1.00' },
+      { name: 'Low Tide Jerky', note: 'Sun-dried between movements', price: '$3.25' }
+    ],
+    NEAP: [
+      { name: 'Chamomile in a Can', note: 'For the in-between days', price: '$2.75' },
+      { name: 'Neutral Cookies', note: 'Neither sweet nor savory', price: '$1.50' },
+      { name: 'Lukewarm Broth', note: 'Temperature is a spectrum', price: '$3.00' },
+      { name: 'Ambivalence Chips', note: 'Salt & unsalt', price: '$2.25' },
+      { name: 'Middle Shelf Wine', note: 'Row C, right where you\'d expect', price: '$6.00' }
+    ],
+    SPRING: [
+      { name: 'Double Shot Riptide', note: 'Feel everything, fast', price: '$4.50' },
+      { name: 'Surge Soda', note: 'Carbonated beyond reason', price: '$2.75' },
+      { name: 'Overwhelm Brownie', note: 'Too much chocolate, on purpose', price: '$3.50' },
+      { name: 'Full Moon Falafel', note: 'Gravitationally significant', price: '$5.00' },
+      { name: 'Spring Tide Surprise', note: 'We don\'t know either', price: '$?.??' }
+    ]
+  };
+
+  // Determine tide based on time of day (simulating tidal patterns)
+  var hour = new Date().getHours();
+  var tideIndex;
+  if (hour >= 6 && hour < 12) tideIndex = 0;
+  else if (hour >= 12 && hour < 18) tideIndex = 1;
+  else if (hour >= 18 && hour < 22) tideIndex = 2;
+  else tideIndex = 3;
+
+  var currentTide = tides[tideIndex];
+  var currentMenu = menus[currentTide.name];
+
+  // Update tide status
+  var statusEl = document.getElementById('tideStatus');
+  statusEl.textContent = '\u25CF Current tide: ' + currentTide.name + ' \u2014 Menu adjusted';
+
+  // Render menu items
+  var menuContainer = document.getElementById('menuItems');
+  var menuHTML = '';
+  for (var i = 0; i < currentMenu.length; i++) {
+    var item = currentMenu[i];
+    menuHTML += '<div class="menu-item">' +
+      '<div class="item-name">' + item.name + '<small>' + item.note + '</small></div>' +
+      '<div class="item-price">' + item.price + '</div>' +
+      '</div>';
+  }
+  menuContainer.innerHTML = menuHTML;
+
+  // TICKER
+  var tickerMsg = 'BUILDING RELOCATED: SUITE 4B \u2014 NEXT BOOK CLUB: FEB 13 \u2014 CURRENT MOOD: SEE STATUS PANEL \u2014 TIDE: ' + currentTide.name + ' \u2014 REFUNDS UNAVAILABLE DURING SPRING TIDES \u2014 THE EAST STAIRWELL IS SAFE AGAIN \u2014 ';
+  var tickerEl = document.getElementById('tickerContent');
+  tickerEl.textContent = tickerMsg + tickerMsg + tickerMsg;
+
+  // EMOTIONS
+  var emotions = ['Melancholic', 'Tender', 'Wistful', 'Quietly Hopeful', 'Pensive', 'Nostalgic', 'Resolute', 'Longing', 'Grateful', 'Contemplative'];
+  var emotionEl = document.getElementById('emotionWord');
+  var currentEmotionIndex = Math.floor(Math.random() * emotions.length);
+  emotionEl.textContent = emotions[currentEmotionIndex];
+
+  // Slowly cycle emotions
+  setInterval(function() {
+    gsap.to(emotionEl, {
+      opacity: 0,
+      duration: 1.5,
+      onComplete: function() {
+        currentEmotionIndex = (currentEmotionIndex + 1) % emotions.length;
+        emotionEl.textContent = emotions[currentEmotionIndex];
+        gsap.to(emotionEl, { opacity: 1, duration: 1.5 });
+      }
+    });
+  }, 8000);
+
+  // SCROLL REVEAL
+  var reveals = document.querySelectorAll('.reveal');
+  var observer = new IntersectionObserver(function(entries) {
+    for (var i = 0; i < entries.length; i++) {
+      if (entries[i].isIntersecting) {
+        entries[i].target.classList.add('visible');
+      }
+    }
+  }, { threshold: 0.15 });
+
+  for (var i = 0; i < reveals.length; i++) {
+    observer.observe(reveals[i]);
+  }
+
+  // GSAP — subtle parallax on hero
+  if (window.innerWidth > 768) {
+    gsap.to('.hero-left h1', {
+      scrollTrigger: false,
+      y: -20,
+      ease: 'none',
+      duration: 2
+    });
+  }
+
+})();
+</script>
+
+</body>
+</html>

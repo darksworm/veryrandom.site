@@ -1,0 +1,485 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ShadowMark™ — Your Form is Your Fortune.</title>
+    
+    <link rel="stylesheet" href="/assets/css/pico.min.css">
+    <link rel="stylesheet" href="/assets/css/fonts.css">
+
+    <style>
+        :root {
+            --font-main: 'Space Grotesk', sans-serif;
+            --font-mono: 'IBM Plex Mono', monospace;
+            --color-bg: #FFFFFF;
+            --color-text: #0D0D0D;
+            --color-accent: #00FF89;
+            --color-accent-dark: #009953;
+            --color-border: #E0E0E0;
+            --container-width: 1100px;
+        }
+
+        body {
+            background-color: var(--color-bg);
+            color: var(--color-text);
+            font-family: var(--font-main);
+            font-size: 18px;
+            line-height: 1.6;
+            -webkit-font-smoothing: antialiased;
+            text-rendering: optimizeLegibility;
+            overflow-x: hidden;
+        }
+
+        /* TYPOGRAPHY */
+        h1, h2, h3, h4, h5, h6 {
+            font-family: var(--font-main);
+            font-weight: 700;
+            color: var(--color-text);
+            letter-spacing: -0.02em;
+        }
+
+        h1 {
+            font-size: clamp(3.5rem, 8vw, 7rem);
+            line-height: 1.05;
+            margin-bottom: 1rem;
+        }
+        
+        h2 {
+            font-size: clamp(2rem, 5vw, 3rem);
+            line-height: 1.1;
+            margin-top: 4rem;
+            margin-bottom: 1.5rem;
+            border-top: 2px solid var(--color-border);
+            padding-top: 2rem;
+        }
+
+        h3 {
+            font-size: 1.5rem;
+            font-weight: 700;
+        }
+        
+        p, li, a, button, input, label, th, td, blockquote {
+            color: var(--color-text);
+        }
+        
+        a { text-decoration: none; color: var(--color-accent-dark); font-weight: 600; transition: color 0.2s ease;}
+        a:hover { color: var(--color-text); }
+        
+        code {
+            font-family: var(--font-mono);
+            background-color: #F0F0F0;
+            padding: 0.2em 0.4em;
+            border-radius: 4px;
+            font-size: 0.9em;
+        }
+
+        /* LAYOUT */
+        .container {
+            max-width: var(--container-width);
+            padding-left: 1.5rem;
+            padding-right: 1.5rem;
+        }
+
+        header, section, footer {
+            margin-bottom: 5rem;
+        }
+
+        /* HEADER */
+        header nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1.5rem 0;
+            border-bottom: 1px solid var(--color-border);
+        }
+        .logo { font-weight: 700; font-size: 1.25rem; }
+        .nav-links a { margin-left: 1.5rem; font-size: 1rem; font-weight: 500;}
+
+        /* MAXIMALIST ELEMENTS */
+        .live-counter {
+            font-family: var(--font-mono);
+            font-size: clamp(1.5rem, 4vw, 2.5rem);
+            color: var(--color-accent-dark);
+            background: #F5F5F5;
+            padding: 1rem 2rem;
+            border-radius: 8px;
+            border: 1px solid var(--color-border);
+            text-align: center;
+            letter-spacing: 0.05em;
+        }
+        
+        .dashboard {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin-top: 3rem;
+        }
+        .dash-panel {
+            background: var(--color-bg);
+            border: 1px solid var(--color-border);
+            border-radius: 12px;
+            padding: 1.5rem;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.03);
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+        .dash-panel:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 24px rgba(0,0,0,0.05);
+        }
+        .dash-panel h4 { margin-top: 0; font-size: 1.1rem; color: #555; font-weight: 500; display: flex; align-items: center; }
+        .dash-panel h4 i { margin-right: 0.5rem; color: var(--color-accent-dark); }
+        .dash-panel .stat { font-size: 2.5rem; font-weight: 700; line-height: 1; margin-bottom: 0.5rem; }
+        
+        .chart-bar-container { height: 150px; display: flex; align-items: flex-end; gap: 5px; }
+        .chart-bar { background-color: var(--color-accent); width: 100%; border-radius: 4px 4px 0 0;}
+        
+        .toggle-switch { display: flex; justify-content: space-between; align-items: center; padding: 1rem; border: 1px solid var(--color-border); border-radius: 8px; margin-bottom: 1rem; }
+        .toggle-switch label { font-size: 1.1rem; font-weight: 600; margin-bottom: 0; }
+        
+        .risk-meter {
+            width: 100%; height: 50px; background: linear-gradient(to right, #00FF89, #FFC700, #FF4D4D);
+            border-radius: 8px; border: 1px solid var(--color-border); position: relative;
+        }
+        .risk-needle {
+            width: 4px; height: 60px; background: var(--color-text); position: absolute; bottom: -5px;
+            left: 50%; transform-origin: bottom center; transition: transform 0.5s cubic-bezier(0.68, -0.55, 0.27, 1.55);
+        }
+        
+        /* PRICING */
+        .pricing-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 2rem;
+        }
+        .pricing-card {
+            border: 1px solid var(--color-border);
+            border-radius: 12px;
+            padding: 2rem;
+            display: flex;
+            flex-direction: column;
+        }
+        .pricing-card.highlight {
+            border-color: var(--color-accent-dark);
+            border-width: 2px;
+        }
+        .pricing-card h3 { margin-top: 0; }
+        .price { font-size: 3rem; font-weight: 700; }
+        .price span { font-size: 1rem; font-weight: 500; color: #777; }
+        .pricing-card ul { padding-left: 20px; flex-grow: 1; }
+        .pricing-card li { margin-bottom: 0.5rem; }
+        
+        /* TABLE */
+        .data-table table { width: 100%; font-family: var(--font-mono); font-size: 0.9rem;}
+        .data-table th { border-bottom-width: 2px; text-align: left; }
+        .data-table td { background: transparent; }
+        .data-table tr:nth-child(even) td { background: #F9F9F9; }
+        
+        /* FOOTER */
+        footer {
+            border-top: 1px solid var(--color-border);
+            padding-top: 3rem;
+            font-size: 0.9rem;
+            color: #777;
+        }
+        footer p { margin-bottom: 0.5rem; color: #777;}
+        
+        /* BUTTONS */
+        button, .button {
+            background-color: var(--color-accent);
+            color: var(--color-text) !important;
+            border: 2px solid var(--color-accent-dark) !important;
+            border-radius: 8px !important;
+            font-weight: 700 !important;
+            padding: 12px 24px !important;
+            text-transform: uppercase;
+            transition: all 0.2s ease !important;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        button:hover, .button:hover {
+            background-color: var(--color-accent-dark) !important;
+            color: var(--color-bg) !important;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+        }
+        
+        /* Blinking dot animation */
+        .blinking-dot {
+            animation: blinker 1.5s linear infinite;
+        }
+        @keyframes blinker {
+            50% { opacity: 0.2; }
+        }
+
+        /* Ensure bottom right is clear */
+        body > *:not(script):not(style) {
+            position: relative;
+            z-index: 1;
+        }
+        
+        @media (max-width: 768px) {
+            .nav-links { display: none; }
+        }
+
+    </style>
+</head>
+<body>
+
+    <header class="container">
+        <nav>
+            <div class="logo">ShadowMark™</div>
+            <div class="nav-links">
+                <a href="#assessment">Threat Assessment</a>
+                <a href="#technology">Technology</a>
+                <a href="#plans">Protection Plans</a>
+                <a href="#registry">Global Registry</a>
+            </div>
+        </nav>
+    </header>
+
+    <main class="container">
+
+        <section id="hero" x-data="{ infringements: 4815162342 }">
+            <h1>Your Form is Your Fortune. Own Your Shadow.</h1>
+            <p class="pico-color-azure-500" style="font-size: 1.5rem; max-width: 45ch; margin-bottom: 3rem;">In the new economy, your most unique asset isn't your data. It's the ephemeral, tangible form you cast upon the world. We protect it.</p>
+            
+            <div class="live-counter" x-init="setInterval(() => infringements += Math.floor(Math.random() * 5) + 1, 1500)">
+                <span x-text="infringements.toLocaleString()"></span> Infringements Tracked Today
+            </div>
+            
+            <p style="font-size: 0.8rem; color: #999; text-align: center; margin-top: 1rem;">*Pursuant to the Tangible Light Obstruction Act of 2024 (Pending Enactment)</p>
+        </section>
+
+        <section id="assessment" x-data="{ risk: 10, q1: false, q2: false, q3: false, q4: false, calculateRisk() { this.risk = 10 + (this.q1 ? 20 : 0) + (this.q2 ? 15 : 0) + (this.q3 ? 25 : 0) + (this.q4 ? 30 : 0); } }">
+            <h2 id="threat-assessment">Live Threat Assessment</h2>
+            <p>Your umbral integrity is under constant, systemic attack. Complete this diagnostic to quantify your current vulnerability.</p>
+
+            <div class="grid">
+                <div class="toggle-switch">
+                    <label for="q1">Do you operate outdoors during daylight hours?</label>
+                    <input type="checkbox" id="q1" role="switch" x-model="q1" @change="calculateRisk">
+                </div>
+                <div class="toggle-switch">
+                    <label for="q2">Do you utilize more than two (2) artificial light sources in your primary domicile?</label>
+                    <input type="checkbox" id="q2" role="switch" x-model="q2" @change="calculateRisk">
+                </div>
+                 <div class="toggle-switch">
+                    <label for="q3">Have you ever been described as having "a distinct silhouette"?</label>
+                    <input type="checkbox" id="q3" role="switch" x-model="q3" @change="calculateRisk">
+                </div>
+                 <div class="toggle-switch">
+                    <label for="q4">Do you engage in public gatherings, social events, or "brunch"?</label>
+                    <input type="checkbox" id="q4" role="switch" x-model="q4" @change="calculateRisk">
+                </div>
+            </div>
+            
+            <div style="margin-top: 3rem;">
+                <h3>Vulnerability Index: <span x-text="risk + '%'" style="font-family: var(--font-mono);"></span></h3>
+                <div class="risk-meter">
+                    <div class="risk-needle" :style="`transform: translateX(-50%) rotate(${(risk / 100) * 180 - 90}deg)`"></div>
+                </div>
+                 <p style="margin-top: 1rem; text-align: center; font-weight: 700; font-size: 1.2rem;" 
+                    :class="{ 'pico-color-red-600': risk > 75, 'pico-color-orange-500': risk > 40 && risk <= 75, 'pico-color-green-500': risk <= 40 }"
+                    x-text="risk > 75 ? 'STATUS: CRITICAL EXPOSURE' : (risk > 40 ? 'STATUS: HEIGHTENED RISK' : 'STATUS: COMPROMISE IMMINENT')">
+                </p>
+            </div>
+        </section>
+
+        <section id="technology">
+            <h2 id="technology">Our Patented Technology</h2>
+            <p>We leverage a proprietary quad-vector analysis framework to secure your umbral assets. Our methods are complex, absolute, and non-negotiable.</p>
+
+            <div class="dashboard" x-data="dashboardData()">
+                <div class="dash-panel" x-init="gsap.fromTo($el, {opacity:0, y:20}, {opacity:1, y:0, duration:0.5, delay:0.2})">
+                    <h4><i data-lucide="bar-chart-3"></i> Unauthorized Duplications</h4>
+                    <div class="stat" x-text="unauthorizedCopies.toLocaleString()">8,391,011</div>
+                    <div class="pico-color-gray-500">Per solar cycle.</div>
+                </div>
+                <div class="dash-panel" x-init="gsap.fromTo($el, {opacity:0, y:20}, {opacity:1, y:0, duration:0.5, delay:0.3})">
+                    <h4><i data-lucide="shield-check"></i> Photon Disturbance Grid</h4>
+                    <div class="stat">ACTIVE</div>
+                    <div class="pico-color-gray-500"><span class="blinking-dot" style="display: inline-block; width: 10px; height: 10px; background: var(--color-accent); border-radius: 50%; margin-right: 5px;"></span>Global Coverage: 99.8%</div>
+                </div>
+                <div class="dash-panel" x-init="gsap.fromTo($el, {opacity:0, y:20}, {opacity:1, y:0, duration:0.5, delay:0.4})">
+                    <h4><i data-lucide="pie-chart"></i> Shadow Market Share</h4>
+                    <div class="stat">73%</div>
+                    <p class="pico-color-gray-500">Of all legally registered silhouettes are managed by ShadowMark™.</p>
+                </div>
+                 <div class="dash-panel" style="grid-column: 1 / -1;" x-init="gsap.fromTo($el, {opacity:0, y:20}, {opacity:1, y:0, duration:0.5, delay:0.5})">
+                    <h4><i data-lucide="line-chart"></i> Infringement Sources (Last 24h)</h4>
+                    <div class="chart-bar-container" x-ref="chart">
+                        <template x-for="bar in chartData">
+                             <div class="chart-bar" :style="`height: ${bar.value}%;`" :title="`${bar.label}: ${bar.value}%`"></div>
+                        </template>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="plans">
+            <h2 id="plans">Protection Plans</h2>
+            <p>Sovereignty is not a privilege; it is a subscription. Choose the plan that reflects your commitment to umbral self-determination.</p>
+
+            <div class="pricing-grid">
+                <article class="pricing-card">
+                    <h3>Bronze</h3>
+                    <p>Passive Monitoring</p>
+                    <div class="price">$19<span>.99/mo</span></div>
+                    <ul>
+                        <li>Post-infringement email alerts</li>
+                        <li>Quarterly shadow integrity report</li>
+                        <li>Access to our 2,000-word FAQ</li>
+                        <li>Standard legal boilerplate</li>
+                    </ul>
+                    <button class="secondary outline">Begin Monitoring</button>
+                </article>
+                <article class="pricing-card highlight">
+                    <h3>Silver</h3>
+                    <p>Active Defense</p>
+                    <div class="price">$47<span>.99/mo</span></div>
+                    <ul>
+                        <li><strong>Everything in Bronze, plus:</strong></li>
+                        <li>Photon Disturbance Grid™ deployment</li>
+                        <li>Edge-blurring to deter casual copying</li>
+                        <li>Up to 3 (three) Cease & Desist filings per month</li>
+                        <li>Priority email support</li>
+                    </ul>
+                    <button>Secure My Shadow</button>
+                </article>
+                <article class="pricing-card">
+                    <h3>Gold</h3>
+                    <p>Total Sovereignty</p>
+                    <div class="price">$199<span>.99/mo</span></div>
+                    <ul>
+                        <li><strong>Everything in Silver, plus:</strong></li>
+                        <li>Real-time kinematic shadow registration</li>
+                        <li>On-chain hash of your unique form factor</li>
+                        <li>Assigned Personal Shadow Bailiff*</li>
+                        <li>Canine & Companion Addendum included</li>
+                    </ul>
+                    <button class="secondary outline">Achieve Sovereignty</button>
+                </article>
+            </div>
+            <p style="font-size: 0.8rem; color: #999; margin-top: 1rem;">*Bailiff is unarmed and is legally required to stay 50 feet away at all times. Primarily for deterrence.</p>
+        </section>
+
+        <section id="registry" x-data="registryFeed()">
+            <h2 id="registry">Global Shadow Registry (LIVE)</h2>
+            <p>Witness the ongoing project of global shadow registration. A new form cataloged every few seconds.</p>
+
+            <div class="data-table">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Registration ID</th>
+                            <th>Form Factor</th>
+                            <th>Umbral Class</th>
+                            <th>Timestamp (UTC)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <template x-for="item in items" :key="item.id">
+                            <tr>
+                                <td x-text="item.id"></td>
+                                <td x-text="item.form"></td>
+                                <td x-text="item.class"></td>
+                                <td x-text="item.time"></td>
+                            </tr>
+                        </template>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+        
+        <section id="faq">
+            <h2>Frequently Asserted Queries</h2>
+             <details>
+                <summary>Is this a joke?</summary>
+                <p>The rampant, unauthorized duplication of unique corporeal silhouettes is a multi-trillion dollar black market that infringes upon the fundamental rights of form-havers. The only joke is that society has ignored it for this long. Our legal department has been notified of your query's IP address and a preliminary file has been opened.</p>
+            </details>
+            <details>
+                <summary>What if I just stay inside or in the dark?</summary>
+                <p>A futile gesture. Artificial light sources—from a common table lamp to the malevolent glow of a refrigerator door—create equally valid, equally vulnerable shadows (see Finch vs. General Electric, 2023). Our patents cover penumbras cast by incandescent, fluorescent, LED, and halogen sources. There is no escape.</p>
+            </details>
+            <details>
+                <summary>Can I copyright my shadow myself?</summary>
+                <p>You could attempt to navigate the labyrinthine bureaucracy of global intellectual property law on your own, yes. You could also perform your own dental surgery. We provide the expertise and enforcement infrastructure necessary for true peace of mind. Attempting to self-file often results in an improperly defined Form Factor, leaving you more vulnerable than before.</p>
+            </details>
+             <details>
+                <summary>What about my pet's shadow?</summary>
+                <p>Under the Canine & Companion Addendum (available as a standard inclusion on our Gold plan or as a $12/mo add-on for Silver), the umbral rights of domestic non-human partners are fully protected. This includes quadrupeds, avians, and approved exotics. We do not currently cover insects or amorphous pets.</p>
+            </details>
+        </section>
+
+    </main>
+
+    <footer class="container">
+        <p>&copy; 2024-2026 ShadowMark Global Holdings, LLC. All Rights Reserved.</p>
+        <p>The term "shadow," "silhouette," "penumbra," and any concept of form-based light obstruction are trademarks of Alistair Finch, Progenitor. Unauthorized use or discussion of these concepts constitutes infringement.</p>
+        <p>This website and its contents are themselves protected by a meta-shadow, which is also our intellectual property. Do not attempt to replicate.</p>
+    </footer>
+
+    <script src="/assets/js/alpine.min.js" defer></script>
+    <script src="/assets/js/gsap.min.js"></script>
+    <script src="/assets/js/lucide.min.js"></script>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            lucide.createIcons();
+
+            // GSAP Animations
+            gsap.fromTo('h1', { opacity: 0, y: 30 }, { opacity: 1, y: 0, duration: 1, ease: 'power3.out' });
+            gsap.fromTo('p, .live-counter', { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.8, stagger: 0.1, ease: 'power3.out', delay: 0.3 });
+        });
+        
+        function dashboardData() {
+            return {
+                unauthorizedCopies: 8391011,
+                chartData: [
+                    { label: 'Commercial', value: 45 },
+                    { label: 'Social Media', value: 25 },
+                    { label: 'Street-level', value: 18 },
+                    { label: 'Artistic', value: 7 },
+                    { label: 'Other', value: 5 },
+                ],
+                init() {
+                    setInterval(() => { this.unauthorizedCopies += Math.floor(Math.random() * 10); }, 2000);
+                    
+                    this.$nextTick(() => {
+                        gsap.fromTo(this.$refs.chart.children, 
+                            { height: '0%' }, 
+                            { height: (i, el) => `${this.chartData[i].value}%`, duration: 1, stagger: 0.1, ease: 'power2.inOut', delay: 0.8 }
+                        );
+                    });
+                }
+            }
+        }
+        
+        function registryFeed() {
+            return {
+                items: [],
+                nextId: 734,
+                formFactors: ['Bipedal, standard', 'Bipedal, minor slouch', 'Quadrupedal, canine', 'Non-standard, object', 'Bipedal, athletic'],
+                umbralClasses: ['Class II', 'Class IV', 'Class III', 'Class V (Object)'],
+                init() {
+                    for(let i=0; i<5; i++) { this.addItem(); }
+                    setInterval(() => {
+                        this.items.shift();
+                        this.addItem();
+                    }, 3000);
+                },
+                addItem() {
+                    const id = `SHD-X${this.nextId++}-Q${Math.floor(Math.random()*900)+100}`;
+                    this.items.push({
+                        id: id,
+                        form: this.formFactors[Math.floor(Math.random() * this.formFactors.length)],
+                        class: this.umbralClasses[Math.floor(Math.random() * this.umbralClasses.length)],
+                        time: new Date().toISOString().substr(11, 8)
+                    });
+                }
+            }
+        }
+
+    </script>
+</body>
+</html>

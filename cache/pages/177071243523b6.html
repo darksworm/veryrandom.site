@@ -1,0 +1,673 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Chronocorrective Union Cloud</title>
+  <link rel="stylesheet" href="/assets/css/pico.min.css" />
+  <link rel="stylesheet" href="/assets/css/fonts.css" />
+  <style>
+    :root {
+      --acid: #c6ff00;
+      --warn: #ffd400;
+      --hazard: #ff6a00;
+      --ink: #111111;
+      --steel: #1d1f22;
+      --paper: #f4f1e6;
+      --good: #00c853;
+      --bad: #d50000;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: 'Space Grotesk', sans-serif;
+      background:
+        linear-gradient(125deg, #151515 0%, #242424 35%, #191919 100%);
+      color: #f5f5f5;
+      min-height: 100vh;
+      overflow-x: hidden;
+      font-size: 16px;
+    }
+
+    .noise {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      background-image:
+        repeating-linear-gradient(90deg, #000000 0, #000000 1px, transparent 1px, transparent 6px),
+        repeating-linear-gradient(0deg, #000000 0, #000000 1px, transparent 1px, transparent 7px);
+      mix-blend-mode: soft-light;
+      opacity: 0.2;
+    }
+
+    main {
+      width: min(1440px, 100% - 1rem);
+      margin: 0 auto;
+      padding: 0.75rem 0.5rem 2.5rem;
+    }
+
+    .topbar {
+      background: linear-gradient(90deg, var(--hazard), var(--warn));
+      border: 3px solid #000000;
+      color: #111111;
+      padding: 0.6rem;
+      display: flex;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 0.7rem;
+    }
+
+    .brand {
+      font-size: clamp(1.1rem, 2.5vw, 1.5rem);
+      font-weight: 800;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+    }
+
+    .small {
+      font-size: 0.85rem;
+      color: #222222;
+      font-family: 'IBM Plex Mono', monospace;
+    }
+
+    .badge-row {
+      display: flex;
+      gap: 0.45rem;
+      flex-wrap: wrap;
+    }
+
+    .badge {
+      padding: 0.35rem 0.55rem;
+      border: 2px solid #111111;
+      background: #fefefe;
+      color: #111111;
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 0.78rem;
+      font-weight: 700;
+      text-transform: uppercase;
+    }
+
+    .desktop {
+      display: grid;
+      grid-template-columns: repeat(12, minmax(0, 1fr));
+      gap: 0.6rem;
+      align-items: start;
+    }
+
+    .window {
+      background: var(--paper);
+      color: var(--ink);
+      border: 3px solid #000000;
+      box-shadow: 6px 6px 0 #000000;
+      padding: 0.75rem;
+      position: relative;
+      overflow: hidden;
+      min-width: 0;
+    }
+
+    .window h2,
+    .window h3,
+    .window h4,
+    .window p,
+    .window li,
+    .window label,
+    .window td,
+    .window th,
+    .window small,
+    .window strong,
+    .window span,
+    .window button {
+      color: #111111;
+    }
+
+    .title {
+      font-size: 1rem;
+      margin: 0 0 0.6rem;
+      text-transform: uppercase;
+      letter-spacing: 0.03em;
+      display: flex;
+      align-items: center;
+      gap: 0.35rem;
+    }
+
+    .hero {
+      grid-column: span 8;
+      background:
+        linear-gradient(142deg, var(--acid) 0%, var(--warn) 62%, #fff68c 100%);
+      transform: rotate(-0.45deg);
+    }
+
+    .clockbox {
+      grid-column: span 4;
+      background: linear-gradient(150deg, #0f0f10, #272b2f);
+      transform: rotate(0.65deg);
+    }
+
+    .clockbox h3,
+    .clockbox p,
+    .clockbox span,
+    .clockbox strong,
+    .clockbox small,
+    .clockbox button,
+    .clockbox label {
+      color: #f5f5f5;
+    }
+
+    .ops {
+      grid-column: span 7;
+      transform: rotate(0.2deg);
+    }
+
+    .payroll {
+      grid-column: span 5;
+      transform: rotate(-0.35deg);
+      background: linear-gradient(170deg, #fff9dd, #ffe38f);
+    }
+
+    .board {
+      grid-column: span 6;
+      background: linear-gradient(170deg, #ffed99, #ffc44d);
+      transform: rotate(-0.2deg);
+    }
+
+    .faq {
+      grid-column: span 6;
+      transform: rotate(0.45deg);
+    }
+
+    .foot {
+      grid-column: span 12;
+      background: linear-gradient(90deg, #151515, #232323);
+      color: #f5f5f5;
+    }
+
+    .foot p,
+    .foot strong,
+    .foot small,
+    .foot a {
+      color: #f5f5f5;
+    }
+
+    .kpi-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 0.5rem;
+    }
+
+    .kpi {
+      border: 2px solid #111111;
+      background: #ffffff;
+      padding: 0.45rem;
+    }
+
+    .kpi b {
+      display: block;
+      font-size: 1.25rem;
+      line-height: 1.2;
+      font-family: 'IBM Plex Mono', monospace;
+    }
+
+    .btn-grid {
+      display: flex;
+      gap: 0.45rem;
+      flex-wrap: wrap;
+      margin-top: 0.55rem;
+    }
+
+    button,
+    .chip {
+      min-height: 44px;
+      border: 2px solid #000000;
+      font-weight: 700;
+      letter-spacing: 0.02em;
+      padding: 0.5rem 0.7rem;
+      cursor: pointer;
+      background: #ffffff;
+      color: #111111;
+    }
+
+    .danger { background: var(--hazard); color: #111111; }
+    .acid { background: var(--acid); color: #111111; }
+    .warn { background: var(--warn); color: #111111; }
+
+    .mono {
+      font-family: 'IBM Plex Mono', monospace;
+    }
+
+    .fake-chart {
+      margin-top: 0.4rem;
+      display: grid;
+      grid-template-columns: repeat(14, minmax(0, 1fr));
+      gap: 0.25rem;
+      align-items: end;
+      height: 120px;
+      background: #111111;
+      padding: 0.35rem;
+      border: 2px solid #000000;
+    }
+
+    .bar {
+      background: linear-gradient(180deg, var(--acid), var(--hazard));
+      border: 1px solid #000000;
+      min-height: 8px;
+      transition: height 0.2s linear;
+    }
+
+    table {
+      width: 100%;
+      font-size: 0.86rem;
+      border-collapse: collapse;
+    }
+
+    th, td {
+      border: 1px solid #000000;
+      padding: 0.35rem;
+      text-align: left;
+      background: #fffdf7;
+      color: #111111;
+    }
+
+    .ticker {
+      border: 2px solid #000000;
+      padding: 0.4rem;
+      background: #ffffff;
+      margin-top: 0.4rem;
+      font-family: 'IBM Plex Mono', monospace;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    details {
+      border: 2px solid #000000;
+      background: #ffffff;
+      margin-bottom: 0.35rem;
+      padding: 0.4rem;
+    }
+
+    summary {
+      cursor: pointer;
+      font-weight: 700;
+      color: #111111;
+    }
+
+    .footer-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 0.7rem;
+    }
+
+    .marq {
+      border: 2px solid #ffffff;
+      padding: 0.35rem;
+      font-family: 'IBM Plex Mono', monospace;
+      color: #f5f5f5;
+      background: #111111;
+    }
+
+    @media (max-width: 1024px) {
+      .hero, .clockbox, .ops, .payroll, .board, .faq { grid-column: span 12; transform: none; }
+      .kpi-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .footer-grid { grid-template-columns: 1fr; }
+    }
+
+    @media (max-width: 680px) {
+      main { width: min(100%, 100% - 0.4rem); padding: 0.45rem 0.2rem 1.8rem; }
+      .topbar { padding: 0.45rem; }
+      .kpi-grid { grid-template-columns: 1fr; }
+      .desktop { gap: 0.45rem; }
+      .window { padding: 0.6rem; box-shadow: 4px 4px 0 #000000; }
+      table { font-size: 0.8rem; }
+    }
+  </style>
+</head>
+<body x-data="clockUnion()" x-init="init()">
+  <div class="noise" aria-hidden="true"></div>
+
+  <main>
+    <header class="topbar panel">
+      <div>
+        <div class="brand">Chronocorrective Union Cloud</div>
+        <div class="small">Founder Desk: Oleg Variant 4 | "If the clock lies, payroll tells the truth."</div>
+      </div>
+      <div class="badge-row">
+        <span class="badge">State-Certified Time Mutiny</span>
+        <span class="badge">Uptime: <span class="mono" x-text="uptime"></span></span>
+        <span class="badge">Soundtrack: <span x-text="soundtrackOn ? 'Never Off' : 'Suspiciously Off'"></span></span>
+      </div>
+    </header>
+
+    <section class="desktop">
+      <article class="window hero panel">
+        <h2 class="title"><i data-lucide="factory"></i> Welcome. I am Oleg, all departments are me.</h2>
+        <p><strong>We sell enterprise-grade clock honesty.</strong> Every minute your office loses to lying clocks becomes free overtime for management. I learned this after my third self sued my fifth self.</p>
+        <p class="mono">Current campaign: "No More 8:57 That Feels Like 9:13"</p>
+
+        <div class="kpi-grid">
+          <div class="kpi">
+            <small>Falsified Minutes Recovered Today</small>
+            <b x-text="minutesRecovered.toLocaleString()"></b>
+          </div>
+          <div class="kpi">
+            <small>Active Oleg Replicants</small>
+            <b x-text="clones"></b>
+          </div>
+          <div class="kpi">
+            <small>Strike Probability</small>
+            <b x-text="strikeChance + '%' "></b>
+          </div>
+        </div>
+
+        <div class="btn-grid">
+          <button class="acid" @click="recoverMinutes()"><i data-lucide="plus-circle"></i> Recover 17 Minutes</button>
+          <button class="warn" @click="spawnClone()"><i data-lucide="copy"></i> Hire Another Me</button>
+          <button class="danger" @click="triggerRevolution()"><i data-lucide="siren"></i> Trigger Soft Revolution</button>
+          <button @click="toggleSoundtrack()"><i data-lucide="music-2"></i> Toggle Soundtrack</button>
+        </div>
+
+        <div class="ticker" x-text="ticker"></div>
+      </article>
+
+      <article class="window clockbox panel">
+        <h3 class="title"><i data-lucide="clock-3"></i> National Clock Integrity Terminal</h3>
+        <p class="mono">Wall Clock Says: <strong x-text="displayClock"></strong></p>
+        <p class="mono">Actual Time Says: <strong x-text="actualClock"></strong></p>
+        <p><strong>Status:</strong> <span x-text="truthMode ? 'Truth Enforcement Enabled' : 'Strategic Lying (Legacy Mode)'"></span></p>
+
+        <div class="btn-grid">
+          <button class="acid" @click="truthMode = !truthMode">Toggle Truth Mode</button>
+          <button class="warn" @click="drift = (drift + 3) % 12">Add +3m Drift</button>
+        </div>
+
+        <p class="mono">Drift: <span x-text="drift"></span>m | BPM: <span x-text="bpm"></span></p>
+      </article>
+
+      <article class="window ops panel">
+        <h3 class="title"><i data-lucide="activity"></i> Live Operations Grid</h3>
+        <p class="mono">I monitor all teams. They are all me. I still do weekly one-on-ones.</p>
+
+        <table>
+          <thead>
+            <tr>
+              <th>Department</th>
+              <th>Current Oleg</th>
+              <th>Pulse</th>
+              <th>Risk</th>
+            </tr>
+          </thead>
+          <tbody>
+            <template x-for="row in filteredOps" :key="row.dept">
+              <tr>
+                <td x-text="row.dept"></td>
+                <td x-text="row.variant"></td>
+                <td x-text="row.pulse + ' bpm'"></td>
+                <td x-text="row.risk"></td>
+              </tr>
+            </template>
+          </tbody>
+        </table>
+
+        <div class="btn-grid">
+          <button @click="onlyRebels = !onlyRebels" class="warn" x-text="onlyRebels ? 'Show All Departments' : 'Show Rebel Departments'"></button>
+          <button @click="shuffleOps()">Reassign Oleg Variants</button>
+        </div>
+
+        <div class="fake-chart" aria-label="Anomaly chart">
+          <template x-for="(height, idx) in chartBars" :key="idx">
+            <div class="bar" :style="`height:${height}%`"></div>
+          </template>
+        </div>
+      </article>
+
+      <article class="window payroll panel">
+        <h3 class="title"><i data-lucide="badge-dollar-sign"></i> Pricing & Worker Packages</h3>
+        <p><strong>Simple plans.</strong> Complicated consequences.</p>
+        <table>
+          <thead>
+            <tr>
+              <th>Plan</th>
+              <th>Monthly</th>
+              <th>Includes</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Minute Janitor</td>
+              <td>$47.99</td>
+              <td>One audit, two whistles, legally threatening memo template.</td>
+            </tr>
+            <tr>
+              <td>Union Prime</td>
+              <td>$193.00</td>
+              <td>Six synchronized Olegs, emergency lunch bell override.</td>
+            </tr>
+            <tr>
+              <td>Revolution Enterprise</td>
+              <td>$1,004.12</td>
+              <td>24/7 soundtrack compliance + boardroom fog machine.</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <div class="btn-grid">
+          <button class="acid" @click="selectedPlan = 'Minute Janitor'">Select Minute Janitor</button>
+          <button class="warn" @click="selectedPlan = 'Union Prime'">Select Union Prime</button>
+          <button class="danger" @click="selectedPlan = 'Revolution Enterprise'">Select Revolution Enterprise</button>
+        </div>
+        <p class="mono">Selected Plan: <strong x-text="selectedPlan"></strong></p>
+      </article>
+
+      <article class="window board panel">
+        <h3 class="title"><i data-lucide="megaphone"></i> Testimonial Feed (Legally Verified)</h3>
+        <p class="mono">Client quotes rotate every click because trust loves velocity.</p>
+        <blockquote>
+          <strong x-text="testimonials[testimonialIndex].name"></strong>
+          <p x-text="testimonials[testimonialIndex].quote"></p>
+        </blockquote>
+        <div class="btn-grid">
+          <button @click="nextTestimonial()">Next Testimonial</button>
+          <button class="acid" @click="appendMemo()">Issue New Founder Memo</button>
+        </div>
+        <ul>
+          <template x-for="(memo, idx) in memos" :key="idx">
+            <li x-text="memo"></li>
+          </template>
+        </ul>
+      </article>
+
+      <article class="window faq panel">
+        <h3 class="title"><i data-lucide="help-circle"></i> Questions Before You Panic</h3>
+        <details>
+          <summary>Why are all your employees named Oleg?</summary>
+          <p>Procurement accidentally bulk-ordered my DNA in 2019. We decided not to waste taxpayer optimism.</p>
+        </details>
+        <details>
+          <summary>Can your service stop time theft?</summary>
+          <p>Yes. Last quarter we recovered 1,881 lunch minutes and one deeply emotional Tuesday.</p>
+        </details>
+        <details>
+          <summary>Why does the soundtrack never stop?</summary>
+          <p>Silence is where middle management hides bad ideas. We keep a bassline running at all times.</p>
+        </details>
+
+        <p class="mono">Revolutions Initiated This Session: <strong x-text="revolutions"></strong></p>
+        <p class="mono">Disclaimer 7-B: Side effects may include punctuality, solidarity, and surprise choreography.</p>
+      </article>
+
+      <footer class="window foot panel">
+        <div class="footer-grid">
+          <div>
+            <strong>Chronocorrective Union Cloud, Office Block C</strong>
+            <p>Concrete Ring Road 11, Floor -1, Clock Repair Wing</p>
+            <small>Founder: Oleg V4, Oleg V7 (legal), Oleg V2 (night shift)</small>
+          </div>
+          <div>
+            <div class="marq mono">LIVE ALERT: <span x-text="alert"></span></div>
+            <p class="mono">Support Hotline: +1-800-NOT-LATE</p>
+          </div>
+          <div>
+            <p><strong>Quarterly claim:</strong> 93% of time theft vanishes in 48 hours. The other 7% joined accounting.</p>
+            <small>By entering this website, you agree your wall clock may be interviewed.</small>
+          </div>
+        </div>
+      </footer>
+    </section>
+  </main>
+
+  <script defer src="/assets/js/alpine.min.js"></script>
+  <script src="/assets/js/gsap.min.js"></script>
+  <script src="/assets/js/lucide.min.js"></script>
+  <script>
+    function clockUnion() {
+      return {
+        minutesRecovered: 24881,
+        clones: 16,
+        strikeChance: 64,
+        revolutions: 2,
+        drift: 6,
+        truthMode: false,
+        soundtrackOn: true,
+        bpm: 123,
+        uptime: '00:00:00',
+        displayClock: '--:--:--',
+        actualClock: '--:--:--',
+        selectedPlan: 'Union Prime',
+        onlyRebels: false,
+        ticker: 'Initializing workplace harmonics...',
+        alert: 'Clock Tribunal in session. Bring receipts.',
+        testimonialIndex: 0,
+        memos: [
+          'Memo 1: Stop calling it "time drift." It is wage drift.',
+          'Memo 2: If a clock lies once, it will lie in court.',
+          'Memo 3: Friday standup moved to horizontal dance line.'
+        ],
+        testimonials: [
+          { name: 'Irina P., Rail Parts CFO', quote: 'Their software found 14 fake minutes in our breakroom microwave clock. We promoted everyone.' },
+          { name: 'Todd "Night Shift" M.', quote: 'I thought this was a cult. It is, but my payroll is accurate now.' },
+          { name: 'Municipal Library Annex', quote: 'They replaced our silent clock with one that chants solidarity. Kids love it.' },
+          { name: 'Kira L., Operations', quote: 'An Oleg audited my team. Then another Oleg audited the first Oleg. Finally, balance.' }
+        ],
+        opsRows: [
+          { dept: 'Clock Forensics', variant: 'Oleg v12', pulse: 118, risk: 'YELLOW', rebel: true },
+          { dept: 'Payroll Defense', variant: 'Oleg v3', pulse: 97, risk: 'LOW', rebel: false },
+          { dept: 'Soundtrack Continuity', variant: 'Oleg v15', pulse: 132, risk: 'HIGH', rebel: true },
+          { dept: 'Lunch Bell Affairs', variant: 'Oleg v8', pulse: 105, risk: 'MED', rebel: false },
+          { dept: 'Boardroom Deception Lab', variant: 'Oleg v6', pulse: 126, risk: 'HIGH', rebel: true }
+        ],
+        chartBars: [35, 44, 23, 67, 58, 41, 72, 52, 61, 49, 77, 69, 54, 80],
+        get filteredOps() {
+          return this.onlyRebels ? this.opsRows.filter((r) => r.rebel) : this.opsRows;
+        },
+        init() {
+          this.refreshClocks();
+          this.updateTicker();
+          this.startLoops();
+          this.animatePanels();
+          if (window.lucide && typeof window.lucide.createIcons === 'function') {
+            window.lucide.createIcons();
+          }
+        },
+        startLoops() {
+          setInterval(() => {
+            this.refreshClocks();
+            this.bumpStats();
+            this.rollAlert();
+          }, 1000);
+        },
+        refreshClocks() {
+          const now = new Date();
+          this.actualClock = now.toLocaleTimeString('en-US', { hour12: false });
+          const shifted = new Date(now.getTime() + (this.truthMode ? 0 : this.drift * 60000));
+          this.displayClock = shifted.toLocaleTimeString('en-US', { hour12: false });
+        },
+        bumpStats() {
+          this.minutesRecovered += this.truthMode ? 3 : 1;
+          this.strikeChance = Math.max(11, Math.min(99, this.strikeChance + (Math.random() > 0.55 ? 1 : -1)));
+          this.bpm = this.soundtrackOn ? 118 + Math.floor(Math.random() * 12) : 0;
+          this.chartBars = this.chartBars.map((v) => {
+            const next = v + Math.floor(Math.random() * 11) - 5;
+            return Math.max(12, Math.min(96, next));
+          });
+          const secs = Math.floor(performance.now() / 1000);
+          const hh = String(Math.floor(secs / 3600)).padStart(2, '0');
+          const mm = String(Math.floor((secs % 3600) / 60)).padStart(2, '0');
+          const ss = String(secs % 60).padStart(2, '0');
+          this.uptime = `${hh}:${mm}:${ss}`;
+        },
+        rollAlert() {
+          const alerts = [
+            'Overtime leak patched in Sector B.',
+            'Three clocks confessed under light questioning.',
+            'Union karaoke drill now mandatory.',
+            'Oleg v9 requests a mirror break.',
+            'Compliance fog machine passed inspection.'
+          ];
+          if (Math.random() > 0.72) {
+            this.alert = alerts[Math.floor(Math.random() * alerts.length)];
+          }
+        },
+        recoverMinutes() {
+          this.minutesRecovered += 17;
+          this.ticker = 'Recovered 17 stolen minutes from conference room wall clock.';
+        },
+        spawnClone() {
+          this.clones += 1;
+          this.ticker = `Onboarded Oleg v${this.clones}. Desk and identical mug assigned.`;
+        },
+        triggerRevolution() {
+          this.revolutions += 1;
+          this.strikeChance = Math.min(99, this.strikeChance + 5);
+          this.ticker = 'Soft revolution activated: managers now report to the breakroom bell.';
+        },
+        toggleSoundtrack() {
+          this.soundtrackOn = !this.soundtrackOn;
+          this.ticker = this.soundtrackOn
+            ? 'Soundtrack resumed at legally motivating volume.'
+            : 'Soundtrack paused. Building morale has dropped 12%.';
+        },
+        updateTicker() {
+          const lines = [
+            'Inspecting lobby clock for ideological bias.',
+            'Union Prime clients receive tactical tambourines.',
+            'Clock Tribunal accepts witnesses and snacks.',
+            'Payroll harmonics stabilized after bass adjustment.'
+          ];
+          let idx = 0;
+          setInterval(() => {
+            idx = (idx + 1) % lines.length;
+            this.ticker = lines[idx];
+          }, 4800);
+        },
+        shuffleOps() {
+          this.opsRows = this.opsRows
+            .map((row) => ({ ...row, pulse: 90 + Math.floor(Math.random() * 50) }))
+            .sort(() => Math.random() - 0.5);
+          this.ticker = 'Oleg variants reshuffled for strategic confusion.';
+        },
+        nextTestimonial() {
+          this.testimonialIndex = (this.testimonialIndex + 1) % this.testimonials.length;
+        },
+        appendMemo() {
+          const note = `Memo ${this.memos.length + 1}: ${['Respect the whistle.', 'Synchronize lunch to justice.', 'Never trust a decorative clock.', 'Audit first, apologize never.'][Math.floor(Math.random() * 4)]}`;
+          this.memos.unshift(note);
+          this.memos = this.memos.slice(0, 5);
+        },
+        animatePanels() {
+          const panels = document.querySelectorAll('.panel');
+          panels.forEach((el, i) => {
+            gsap.fromTo(
+              el,
+              { y: 24 + (i % 4) * 8, opacity: 0 },
+              { y: 0, opacity: 1, duration: 0.5 + i * 0.04, ease: 'power2.out', clearProps: 'opacity,transform' }
+            );
+          });
+        }
+      };
+    }
+  </script>
+</body>
+</html>

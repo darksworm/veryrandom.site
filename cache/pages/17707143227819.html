@@ -1,0 +1,602 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Tiny Aggressive Rakes | Founded by Rada Forkova</title>
+  <link rel="stylesheet" href="/assets/css/pico.min.css" />
+  <link rel="stylesheet" href="/assets/css/fonts.css" />
+  <style>
+    :root {
+      --ink: #121212;
+      --paper: #fff8ef;
+      --red: #e63946;
+      --blue: #3a86ff;
+      --mint: #5ec576;
+      --sun: #ffd166;
+      --rose: #ff7aa2;
+      --lav: #b8a1ff;
+      --card: #ffffff;
+      --line: #202020;
+    }
+
+    * { box-sizing: border-box; }
+
+    html,
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: 'Space Grotesk', sans-serif;
+      color: var(--ink);
+      background: linear-gradient(135deg, #ffd6e8 0%, #ffe8bf 25%, #d7ffd9 50%, #d8ebff 75%, #eddcff 100%);
+      background-attachment: fixed;
+      font-size: 16px;
+      overflow-x: hidden;
+      scroll-snap-type: y mandatory;
+    }
+
+    a { color: #102a62; }
+
+    .deck {
+      width: min(1200px, 94vw);
+      margin: 0 auto;
+      padding: 1.2rem 0 2rem;
+    }
+
+    .slide {
+      min-height: 100svh;
+      scroll-snap-align: start;
+      display: grid;
+      align-content: center;
+      padding: 1.2rem;
+    }
+
+    .panel {
+      background: var(--paper);
+      border: 3px solid var(--line);
+      box-shadow: 10px 10px 0 #121212;
+      padding: clamp(1rem, 2.5vw, 2rem);
+    }
+
+    .mast {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: center;
+      gap: 0.8rem;
+      margin-bottom: 1rem;
+      border-bottom: 3px solid var(--line);
+      padding-bottom: 0.8rem;
+    }
+
+    .brand {
+      font-size: clamp(1.1rem, 2vw, 1.4rem);
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.03em;
+    }
+
+    .pillrow {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+    }
+
+    .pill {
+      background: #fff;
+      color: #181818;
+      border: 2px solid var(--line);
+      padding: 0.45rem 0.7rem;
+      font-size: 0.84rem;
+      font-weight: 700;
+      text-transform: uppercase;
+    }
+
+    h1,
+    h2,
+    h3,
+    h4 {
+      font-family: 'Space Grotesk', sans-serif;
+      margin-top: 0;
+      color: #101010;
+      line-height: 1.1;
+    }
+
+    h1 {
+      font-size: clamp(2rem, 7vw, 5rem);
+      max-width: 20ch;
+      margin-bottom: 0.7rem;
+      text-transform: uppercase;
+    }
+
+    h2 { font-size: clamp(1.5rem, 4vw, 2.8rem); margin-bottom: 1rem; }
+    h3 { font-size: clamp(1.1rem, 3vw, 1.5rem); margin-bottom: 0.6rem; }
+
+    p,
+    li,
+    dd,
+    dt,
+    small,
+    summary,
+    label,
+    button,
+    input,
+    textarea {
+      color: #1a1a1a;
+      line-height: 1.45;
+    }
+
+    .lead {
+      font-size: clamp(1.05rem, 2vw, 1.35rem);
+      max-width: 64ch;
+      margin-bottom: 1rem;
+      font-weight: 600;
+      color: #161616;
+    }
+
+    .hero-grid {
+      display: grid;
+      grid-template-columns: 1.2fr 1fr;
+      gap: 1rem;
+      align-items: stretch;
+    }
+
+    .banner,
+    .quote,
+    .note,
+    .menu-card,
+    .price,
+    .story,
+    .qa,
+    .bio,
+    .press,
+    .formblock {
+      border: 2px solid var(--line);
+      padding: 1rem;
+      background: #ffffff;
+    }
+
+    .banner {
+      background: linear-gradient(120deg, #ffe08a 0%, #ffb3c7 55%, #a0d8ff 100%);
+      transform: rotate(-1.2deg);
+    }
+
+    .quote {
+      background: #ffefe4;
+      border-left: 10px solid var(--red);
+    }
+
+    .grid-3 {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 0.9rem;
+    }
+
+    .grid-2 {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 0.9rem;
+    }
+
+    .menu-card h3,
+    .price h3,
+    .bio h3,
+    .press h3 { margin-bottom: 0.2rem; }
+
+    .label {
+      display: inline-block;
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 0.78rem;
+      text-transform: uppercase;
+      background: #fff;
+      border: 2px solid var(--line);
+      padding: 0.2rem 0.45rem;
+      margin-bottom: 0.6rem;
+      color: #111;
+    }
+
+    .tag {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 0.8rem;
+      color: #212121;
+      background: #f5f5f5;
+      border: 1px solid #222;
+      padding: 0.2rem 0.45rem;
+      display: inline-block;
+      margin-right: 0.35rem;
+      margin-top: 0.35rem;
+    }
+
+    .tabs {
+      display: flex;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+      margin-bottom: 0.9rem;
+    }
+
+    .tabs button {
+      min-height: 44px;
+      border: 2px solid var(--line);
+      background: #fff;
+      color: #101010;
+      font-weight: 700;
+      padding: 0.55rem 0.8rem;
+      margin: 0;
+    }
+
+    .tabs button.active {
+      background: var(--sun);
+    }
+
+    details {
+      border: 2px solid var(--line);
+      background: #fff;
+      padding: 0.75rem;
+      margin-bottom: 0.65rem;
+    }
+
+    summary {
+      cursor: pointer;
+      font-weight: 700;
+      min-height: 44px;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .bio {
+      transition: transform 0.25s ease;
+      background: #fff;
+    }
+
+    .bio:hover {
+      transform: translateY(-4px) rotate(-0.6deg);
+    }
+
+    .bio .secret {
+      border-top: 1px solid #333;
+      margin-top: 0.7rem;
+      padding-top: 0.6rem;
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 0.82rem;
+      color: #202020;
+    }
+
+    .cta {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      min-height: 44px;
+      border: 2px solid var(--line);
+      background: var(--red);
+      color: #ffffff;
+      text-decoration: none;
+      padding: 0.7rem 1rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.02em;
+    }
+
+    .ghost {
+      border: 2px solid var(--line);
+      background: #ffffff;
+      color: #111;
+      text-decoration: none;
+      padding: 0.7rem 1rem;
+      min-height: 44px;
+      display: inline-flex;
+      align-items: center;
+      font-weight: 700;
+      text-transform: uppercase;
+    }
+
+    .action-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.7rem;
+      margin-top: 1rem;
+    }
+
+    .foot {
+      text-align: left;
+      font-size: 0.95rem;
+      border-top: 3px solid var(--line);
+      padding-top: 0.8rem;
+      color: #202020;
+    }
+
+    .mono { font-family: 'IBM Plex Mono', monospace; }
+
+    @media (max-width: 900px) {
+      .hero-grid,
+      .grid-3,
+      .grid-2 {
+        grid-template-columns: 1fr;
+      }
+
+      .panel { box-shadow: 6px 6px 0 #121212; }
+      .slide { padding: 0.8rem; }
+    }
+  </style>
+</head>
+<body>
+  <main class="deck" x-data="site()">
+    <section class="slide">
+      <div class="panel">
+        <header class="mast reveal">
+          <div class="brand">Tiny Aggressive Rakes, Ltd.</div>
+          <nav class="pillrow" aria-label="Main">
+            <a class="pill" href="#menu">Emergency Kits</a>
+            <a class="pill" href="#pricing">Memberships</a>
+            <a class="pill" href="#newsroom">Newsroom</a>
+            <a class="pill" href="#faq">Fork Questions</a>
+          </nav>
+        </header>
+
+        <div class="hero-grid">
+          <div class="reveal">
+            <span class="label">Personal Statement</span>
+            <h1>I am Rada Forkova. I negotiate peace with forks.</h1>
+            <p class="lead">
+              Age 11: school cafeteria, fish sticks, one fork flipped and launched peas into my left eye.
+              Since then, I have dedicated my adult life to utensil de-escalation.
+            </p>
+            <p>
+              Tiny Aggressive Rakes is a lifestyle company, a risk protocol, and frankly a support group for people
+              who know a fork is never just a fork. It is four little ultimatums.
+            </p>
+            <div class="action-row">
+              <a class="cta" href="#pricing"><i data-lucide="shield"></i> Join The Truce</a>
+              <a class="ghost" href="#menu">Review Neutral Tools</a>
+            </div>
+          </div>
+
+          <aside class="banner reveal" aria-label="Urgent fork bulletin">
+            <h3>Tonight's Silverware Weather</h3>
+            <p><strong>High Risk Zones:</strong> office salad bars, wedding buffets, cousin brunches.</p>
+            <p><strong>Calm Zones:</strong> soup counters, yogurt bars, all-spoon households.</p>
+            <p class="mono">Updated every 6 minutes by Gary (he listens to cutlery).</p>
+          </aside>
+        </div>
+
+        <div class="quote reveal" style="margin-top:1rem;">
+          <strong>From my founder notebook, page 3:</strong> "A spoon asks. A fork insists. We are building a world that asks first."
+        </div>
+      </div>
+    </section>
+
+    <section class="slide" id="menu">
+      <div class="panel">
+        <span class="label reveal">Field Catalog</span>
+        <h2 class="reveal">Starter kits for people who have seen things at brunch</h2>
+        <p class="lead reveal">Pick your protocol. Every kit ships with a tiny whistle and a laminated phrase card: "Put the fork down, Darren."</p>
+
+        <div class="tabs reveal">
+          <button :class="{active: tab==='home'}" @click="tab='home'">Home</button>
+          <button :class="{active: tab==='office'}" @click="tab='office'">Office</button>
+          <button :class="{active: tab==='romance'}" @click="tab='romance'">Date Night</button>
+        </div>
+
+        <div x-show="tab==='home'" class="grid-3" x-cloak>
+          <article class="menu-card">
+            <h3>Family Table Ceasefire Box</h3>
+            <p>12 soft-grip spoons, 1 de-escalation table runner, and a fridge magnet that says "No stabbing before 9am."</p>
+            <span class="tag">$58 one-time</span><span class="tag">Ships in 2 days</span>
+          </article>
+          <article class="menu-card">
+            <h3>Sunday Roast Neutralizer</h3>
+            <p>Fork covers in "Aunt-safe beige." Tested through 9 consecutive passive-aggressive dinners.</p>
+            <span class="tag">$34</span><span class="tag">Dishwasher brave</span>
+          </article>
+          <article class="menu-card">
+            <h3>Junior Anti-Poke Pack</h3>
+            <p>Kid-size spoon set plus comic book: <em>Captain Ladle vs. The Four Tines of Doom</em>.</p>
+            <span class="tag">$27.99</span><span class="tag">Ages 6-10</span>
+          </article>
+        </div>
+
+        <div x-show="tab==='office'" class="grid-3" x-cloak>
+          <article class="menu-card">
+            <h3>Breakroom Arbitration Crate</h3>
+            <p>For teams where one intern keeps eating cake with a carving fork "for texture."</p>
+            <span class="tag">$89/team</span><span class="tag">HR friendly</span>
+          </article>
+          <article class="menu-card">
+            <h3>Desk Drawer Dignity Sleeve</h3>
+            <p>Slide this over rogue forks. Turns every tine into a soft rounded apology.</p>
+            <span class="tag">$11 each</span><span class="tag">Bulk: 20% off</span>
+          </article>
+          <article class="menu-card">
+            <h3>Boardroom Spoon Bell</h3>
+            <p>One ring means "agenda." Two rings means "stop pointing cutlery at the slide deck."</p>
+            <span class="tag">$41</span><span class="tag">Brass finish</span>
+          </article>
+        </div>
+
+        <div x-show="tab==='romance'" class="grid-3" x-cloak>
+          <article class="menu-card">
+            <h3>First Date Truce Pouch</h3>
+            <p>Includes two matching dessert spoons and a tiny card: "I choose tenderness over tines."</p>
+            <span class="tag">$22</span><span class="tag">Gift-wrap +$4</span>
+          </article>
+          <article class="menu-card">
+            <h3>Anniversary Non-Stab Set</h3>
+            <p>Rose-gold spoon pair, engraved with your names and your argument-safe word.</p>
+            <span class="tag">$63</span><span class="tag">Custom engraving</span>
+          </article>
+          <article class="menu-card">
+            <h3>In-Law Dinner Buffer Pack</h3>
+            <p>Four emergency ladles. One hidden mini manual: "Smiling through comments about your career."</p>
+            <span class="tag">$47.99</span><span class="tag">Bestseller</span>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section class="slide" id="pricing">
+      <div class="panel">
+        <span class="label reveal">Membership</span>
+        <h2 class="reveal">Choose your level of utensil preparedness</h2>
+        <div class="grid-3">
+          <article class="price reveal">
+            <h3>Observer Tier</h3>
+            <p class="mono">$9/month</p>
+            <p>Monthly newsletter, "Fork Mood Index," and one printable boundary script.</p>
+            <p><strong>Best for:</strong> people who are "just browsing" but flinch in buffet lines.</p>
+          </article>
+          <article class="price reveal" style="background:#fff3d8;">
+            <h3>Active De-Escalator</h3>
+            <p class="mono">$47.99/month</p>
+            <p>Quarterly kit, hotline access, and a wallet card certifying you as "Level-2 Spoon Diplomat."</p>
+            <p><strong>Most popular:</strong> nurses, baristas, and one retired pirate.</p>
+          </article>
+          <article class="price reveal">
+            <h3>Executive Truce Council</h3>
+            <p class="mono">$112/month</p>
+            <p>Everything above plus annual table audit by me, Rada, in a sensible blazer.</p>
+            <p><strong>Fine print:</strong> I will absolutely comment on your cutlery drawer organization.</p>
+          </article>
+        </div>
+
+        <div class="grid-2" style="margin-top:0.9rem;">
+          <article class="story reveal">
+            <h3>Client memo: Brasslight Accounting</h3>
+            <p>
+              "Before Tiny Aggressive Rakes, our annual pie party ended with one pie, two accusations,
+              and three bent forks. This year we used the Spoon Bell. Nobody cried in the parking lot."
+            </p>
+            <p class="mono">- Marlene Cho, CFO, who now hosts quiche with confidence</p>
+          </article>
+          <article class="story reveal">
+            <h3>What your first 30 days look like</h3>
+            <ol>
+              <li>Week 1: identify your household's top three "sudden fork events."</li>
+              <li>Week 2: replace one aggressive utensil with a neutral spoon.</li>
+              <li>Week 3: rehearse calm phrase: "Let us mash, not jab."</li>
+            </ol>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section class="slide" id="newsroom">
+      <div class="panel">
+        <span class="label reveal">Newsroom & Personnel</span>
+        <h2 class="reveal">Updates from headquarters (former dental office, Unit B)</h2>
+
+        <div class="grid-2" style="margin-bottom:0.9rem;">
+          <article class="press reveal">
+            <h3>Press release: We reject the term "anti-fork"</h3>
+            <p>
+              Tiny Aggressive Rakes confirms it is <strong>pro-consent utensil usage</strong>.
+              We believe forks can change with coaching, boundaries, and proper tine orientation.
+            </p>
+            <p class="mono">Issued Jan 8 at 6:14 AM after an incident involving shrimp cocktail.</p>
+          </article>
+          <article class="press reveal">
+            <h3>Field note #204: Airport food courts</h3>
+            <p>
+              Regression spike detected near Gate C17. Passengers under stress are defaulting to forks for soft noodles.
+              We deployed two volunteer spoon ambassadors and one laminated calm sign.
+            </p>
+            <p class="mono">Outcome: peaceful ramen in 23 minutes.</p>
+          </article>
+        </div>
+
+        <div class="grid-3">
+          <article class="bio reveal">
+            <h3>Rada Forkova</h3>
+            <p>Founder & Chief De-Tiner. Owns seven identical red blazers for "crisis consistency."</p>
+            <div class="secret">Confession: still cannot attend fondue night without a rehearsal.</div>
+          </article>
+          <article class="bio reveal">
+            <h3>Gary Bellarmine</h3>
+            <p>Senior Fork Listener. Presses his ear to silverware drawers and takes notes in graph paper.</p>
+            <div class="secret">Rivalry: a teaspoon named Mildred who outpredicted him in Q3.</div>
+          </article>
+          <article class="bio reveal">
+            <h3>Petra N.</h3>
+            <p>Head of Romance Protocols. Wrote our guide "How to split tiramisu without escalating."</p>
+            <div class="secret">Carries emergency panna cotta at all times.</div>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section class="slide" id="faq">
+      <div class="panel">
+        <span class="label reveal">FAQ</span>
+        <h2 class="reveal">Questions I hear at every pop-up kiosk</h2>
+        <div class="qa reveal">
+          <details>
+            <summary><i data-lucide="help-circle"></i> Are you legally allowed to call forks "tiny aggressive rakes"?</summary>
+            <p>Yes. Our legal counsel says it's "descriptive language with emotional accuracy."</p>
+          </details>
+          <details>
+            <summary><i data-lucide="help-circle"></i> I love forks. Can I still join?</summary>
+            <p>Absolutely. We are a rehabilitation-first culture. Bring your fork. We begin with listening.</p>
+          </details>
+          <details>
+            <summary><i data-lucide="help-circle"></i> Do you do weddings?</summary>
+            <p>Yes. We provide aisle-side spoon baskets and discreet intervention if an uncle starts gesturing with a salad fork.</p>
+          </details>
+          <details>
+            <summary><i data-lucide="help-circle"></i> What is your return policy?</summary>
+            <p>30 days. If your household achieved complete utensil harmony, keep the whistle. You've earned it.</p>
+          </details>
+        </div>
+
+        <div class="formblock reveal" style="margin-top:0.9rem;">
+          <h3>Request a table audit</h3>
+          <p>Tell me where tension spikes: breakfast, potlucks, or your mother's lasagna night.</p>
+          <form @submit.prevent="submitted=true">
+            <label for="name">Name</label>
+            <input id="name" name="name" type="text" placeholder="Marlene, Darren, etc." required />
+            <label for="zone">Highest-risk zone</label>
+            <select id="zone" name="zone">
+              <option>Family dinners</option>
+              <option>Office breakroom</option>
+              <option>Romantic dessert sharing</option>
+              <option>Buffets with shrimp</option>
+            </select>
+            <button type="submit" class="cta" style="margin-top:0.8rem;"><i data-lucide="send"></i> Submit Calmly</button>
+            <p x-show="submitted" x-cloak style="margin-top:0.7rem;"><strong>Received.</strong> I will arrive with a clipboard and no judgment.</p>
+          </form>
+        </div>
+
+        <footer class="foot reveal" style="margin-top:1rem;">
+          <p><strong>Tiny Aggressive Rakes, Ltd.</strong> | "We do not ban forks. We mentor them."</p>
+          <p class="mono">Hotline: 1-800-NO-TINES | HQ: Unit B, across from Laser Cat Grooming</p>
+        </footer>
+      </div>
+    </section>
+  </main>
+
+  <script defer src="/assets/js/alpine.min.js"></script>
+  <script src="/assets/js/gsap.min.js"></script>
+  <script src="/assets/js/lucide.min.js"></script>
+  <script>
+    function site() {
+      return {
+        tab: 'home',
+        submitted: false
+      };
+    }
+
+    document.addEventListener('DOMContentLoaded', function () {
+      if (window.lucide && typeof window.lucide.createIcons === 'function') {
+        window.lucide.createIcons();
+      }
+
+      var reveals = document.querySelectorAll('.reveal');
+      reveals.forEach(function (el, idx) {
+        gsap.fromTo(
+          el,
+          { y: 24, opacity: 0 },
+          { y: 0, opacity: 1, duration: 0.65, delay: idx * 0.03, ease: 'power2.out', clearProps: 'opacity,transform' }
+        );
+      });
+    });
+  </script>
+</body>
+</html>

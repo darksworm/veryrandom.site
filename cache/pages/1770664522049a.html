@@ -1,0 +1,607 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AeroPerch Ledger | In-Flight Wellness & Workforce Journal</title>
+  <link rel="stylesheet" href="/assets/css/pico.min.css" />
+  <link rel="stylesheet" href="/assets/css/fonts.css" />
+  <style>
+    :root {
+      --bg: #040404;
+      --panel: #0f0f0f;
+      --ink: #f7f7f2;
+      --neon-lime: #d7ff2f;
+      --neon-cyan: #36f7ff;
+      --neon-pink: #ff4ad8;
+      --neon-orange: #ff8f00;
+      --neon-green: #39ff6b;
+      --line: #f7f7f2;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: 'Space Grotesk', sans-serif;
+      background: radial-gradient(circle at 20% 10%, #19001b 0%, #040404 42%),
+        radial-gradient(circle at 75% 30%, #001b20 0%, #040404 44%),
+        radial-gradient(circle at 50% 85%, #1a1200 0%, #040404 45%),
+        #040404;
+      color: var(--ink);
+      line-height: 1.45;
+    }
+
+    a {
+      color: var(--neon-cyan);
+    }
+
+    .page {
+      max-width: 1320px;
+      margin: 0 auto;
+      padding: 1.2rem 1rem 4rem;
+    }
+
+    .masthead {
+      border: 2px solid var(--line);
+      background: #000;
+      padding: 1rem;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .masthead::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(110deg, transparent 30%, rgba(255, 255, 255, 0.09) 50%, transparent 70%);
+      transform: translateX(-120%);
+      animation: sweep 9s linear infinite;
+      pointer-events: none;
+    }
+
+    @keyframes sweep {
+      to { transform: translateX(120%); }
+    }
+
+    .brand-row {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      align-items: end;
+      gap: 1rem;
+    }
+
+    .brand {
+      font-family: 'Crimson Pro', serif;
+      font-size: clamp(2rem, 6vw, 4.6rem);
+      line-height: 0.95;
+      margin: 0;
+      color: var(--neon-lime);
+      text-transform: uppercase;
+      letter-spacing: 0.03em;
+    }
+
+    .tag {
+      margin: 0.5rem 0 0;
+      font-size: 1rem;
+      color: #ffffff;
+      letter-spacing: 0.02em;
+    }
+
+    .issue {
+      text-align: right;
+      font-size: 0.9rem;
+      color: #ffffff;
+      border-left: 2px solid var(--line);
+      padding-left: 0.8rem;
+    }
+
+    .nav-strip {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.45rem;
+      margin-top: 1rem;
+      border-top: 2px solid var(--line);
+      padding-top: 0.75rem;
+    }
+
+    .chip {
+      border: 1px solid var(--line);
+      padding: 0.25rem 0.65rem;
+      font-size: 0.8rem;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      background: #000;
+      color: #ffffff;
+      cursor: pointer;
+    }
+
+    .chip[data-active="true"] {
+      background: var(--neon-pink);
+      color: #000;
+      border-color: var(--neon-pink);
+      font-weight: 700;
+    }
+
+    .layout {
+      margin-top: 1rem;
+      display: grid;
+      grid-template-columns: 0.9fr 2fr 1fr;
+      gap: 1rem;
+    }
+
+    .column {
+      display: grid;
+      gap: 1rem;
+      align-content: start;
+    }
+
+    article, aside, section.card {
+      background: var(--panel);
+      border: 1.5px solid var(--line);
+      padding: 1rem;
+      position: relative;
+    }
+
+    .kicker {
+      margin: 0;
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--neon-cyan);
+      font-weight: 700;
+    }
+
+    h2, h3, h4 {
+      font-family: 'Crimson Pro', serif;
+      margin: 0.45rem 0;
+      color: #ffffff;
+      line-height: 1.05;
+    }
+
+    .deck {
+      font-size: 0.95rem;
+      color: #ffffff;
+    }
+
+    .byline {
+      font-size: 0.8rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--neon-lime);
+      margin-bottom: 0.65rem;
+    }
+
+    .pull-quote {
+      border-left: 4px solid var(--neon-pink);
+      padding-left: 0.7rem;
+      margin: 0.7rem 0;
+      font-family: 'Crimson Pro', serif;
+      font-size: 1.2rem;
+      color: #ffffff;
+    }
+
+    .story-list {
+      display: grid;
+      gap: 0.8rem;
+    }
+
+    .story-item {
+      border-top: 1px solid var(--line);
+      padding-top: 0.8rem;
+    }
+
+    .story-item:first-child {
+      border-top: none;
+      padding-top: 0;
+    }
+
+    .story-item button {
+      width: 100%;
+      text-align: left;
+      background: #000;
+      border: 1px solid var(--line);
+      color: #ffffff;
+      padding: 0.55rem 0.65rem;
+      font-size: 0.88rem;
+      cursor: pointer;
+    }
+
+    .story-item button:hover {
+      border-color: var(--neon-cyan);
+      color: #ffffff;
+    }
+
+    .story-meta {
+      display: flex;
+      justify-content: space-between;
+      gap: 0.5rem;
+      font-size: 0.76rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-bottom: 0.35rem;
+      color: var(--neon-orange);
+    }
+
+    .ad-block {
+      transform: rotate(-1.3deg);
+      border: 2px solid var(--neon-orange);
+      background: #110900;
+      color: #ffffff;
+    }
+
+    .ad-block h4 {
+      color: var(--neon-orange);
+      text-transform: uppercase;
+      font-size: 1.2rem;
+    }
+
+    .ad-block p {
+      margin: 0.4rem 0;
+    }
+
+    .rate-card {
+      display: grid;
+      gap: 0.7rem;
+    }
+
+    .rate {
+      border: 1px solid var(--line);
+      padding: 0.65rem;
+      background: #000;
+      color: #ffffff;
+    }
+
+    .rate strong {
+      color: var(--neon-green);
+      font-size: 1.1rem;
+    }
+
+    .letters li, .corrections li {
+      margin: 0.55rem 0;
+      color: #ffffff;
+    }
+
+    .small {
+      font-size: 0.82rem;
+      color: #ffffff;
+    }
+
+    .tabs {
+      display: flex;
+      gap: 0.4rem;
+      flex-wrap: wrap;
+      margin-bottom: 0.8rem;
+    }
+
+    .tabs button {
+      border: 1px solid var(--line);
+      background: #000;
+      color: #ffffff;
+      padding: 0.4rem 0.7rem;
+      font-size: 0.8rem;
+      text-transform: uppercase;
+      cursor: pointer;
+    }
+
+    .tabs button.active {
+      background: var(--neon-lime);
+      border-color: var(--neon-lime);
+      color: #000;
+      font-weight: 700;
+    }
+
+    .class-search {
+      width: 100%;
+      margin-bottom: 0.65rem;
+      background: #000;
+      color: #ffffff;
+      border: 1px solid var(--line);
+      padding: 0.55rem;
+    }
+
+    .class-search::placeholder {
+      color: #ffffff;
+      opacity: 1;
+    }
+
+    .classified {
+      border-top: 1px dashed var(--line);
+      padding-top: 0.55rem;
+      margin-top: 0.55rem;
+    }
+
+    .classified:first-of-type {
+      border-top: none;
+      margin-top: 0;
+      padding-top: 0;
+    }
+
+    .badge {
+      display: inline-block;
+      border: 1px solid var(--line);
+      padding: 0.12rem 0.42rem;
+      font-size: 0.68rem;
+      text-transform: uppercase;
+      background: #000;
+      color: var(--neon-cyan);
+      margin-bottom: 0.25rem;
+    }
+
+    .split {
+      columns: 2;
+      column-gap: 1rem;
+    }
+
+    .split p {
+      margin: 0 0 0.65rem;
+      break-inside: avoid;
+      color: #ffffff;
+    }
+
+    .footer {
+      margin-top: 1.2rem;
+      border-top: 2px solid var(--line);
+      padding-top: 0.8rem;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1rem;
+      justify-content: space-between;
+      font-size: 0.8rem;
+      color: #ffffff;
+    }
+
+    .overlap {
+      margin-top: -1rem;
+      margin-left: 1rem;
+      z-index: 2;
+    }
+
+    @media (max-width: 1040px) {
+      .layout {
+        grid-template-columns: 1fr;
+      }
+      .overlap {
+        margin-top: 0;
+        margin-left: 0;
+      }
+      .split {
+        columns: 1;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="page" x-data="newsroomApp()">
+    <header class="masthead" id="heroPanel">
+      <div class="brand-row">
+        <div>
+          <p class="kicker">Established over the Mid-Atlantic Drift Corridor</p>
+          <h1 class="brand">AeroPerch Ledger</h1>
+          <p class="tag">Official publication of the Lifted Vitality Bureau</p>
+        </div>
+        <div class="issue">
+          Vol. 19, Issue 6<br />
+          Monday Air Session<br />
+          Printed before ballast check
+        </div>
+      </div>
+      <nav class="nav-strip" aria-label="Section filter">
+        <button class="chip" :data-active="activeCategory==='All'" @click="activeCategory='All'">All</button>
+        <button class="chip" :data-active="activeCategory==='Workouts'" @click="activeCategory='Workouts'">Workouts</button>
+        <button class="chip" :data-active="activeCategory==='Policy'" @click="activeCategory='Policy'">Policy</button>
+        <button class="chip" :data-active="activeCategory==='Culture'" @click="activeCategory='Culture'">Culture</button>
+        <button class="chip" :data-active="activeCategory==='Transit'" @click="activeCategory='Transit'">Transit</button>
+        <button class="chip" :data-active="activeCategory==='Marketplace'" @click="activeCategory='Marketplace'">Marketplace</button>
+      </nav>
+    </header>
+
+    <div class="layout">
+      <aside class="column">
+        <section class="card ad-block">
+          <p class="kicker">Sponsored Placement</p>
+          <h4>Deduct Wind, Not Morale</h4>
+          <p>Helium-side tax prep for mobile employers. Auditproof logs, clouded receipts, no clipboard loss.</p>
+          <p><strong style="color:#ffffff;">Free first quarter closeout.</strong></p>
+        </section>
+
+        <section class="card">
+          <p class="kicker">Letters To Flight Ops</p>
+          <ul class="letters">
+            <li>"Please stop scheduling plank intervals during cloud turbulence. We are staff, not confetti." — Dock Team 3</li>
+            <li>"The founder's bowl acoustics make standups hard to hear. Requesting subtitles on megaphones." — Benefits Analyst</li>
+            <li>"Can we get perch-height options in the conference basket? Some of us have tail clearance concerns." — HR, Avian Ops</li>
+            <li>"I finished Neon Core Level 4 and my shoulders now sort envelopes with confidence." — Payroll</li>
+          </ul>
+        </section>
+
+        <section class="card">
+          <p class="kicker">Corrections</p>
+          <ul class="corrections small">
+            <li>Yesterday's masthead mislabeled the Eastern jet stream as a "wellness corridor." It is, in fact, both.</li>
+            <li>Coach Beakley's quote should read: "hydrate before altitude drills," not "hibernate before altitude drills."</li>
+            <li>The classifieds listing for "left-handed resistance rope" has sold out.</li>
+          </ul>
+        </section>
+
+        <section class="card">
+          <p class="kicker">Rate Card</p>
+          <div class="rate-card">
+            <div class="rate"><strong>$49</strong><br />Grounded Essentials<br /><span class="small">Weekly stretch bulletin, attendance stamp, one buoyancy consult.</span></div>
+            <div class="rate"><strong>$129</strong><br />Cabin Circuit Pro<br /><span class="small">Three in-basket classes, posture audit, parrot-led accountability checks.</span></div>
+            <div class="rate"><strong>$279</strong><br />Founder Current<br /><span class="small">Priority basket seating, custom fin-safe resistance plan, monthly altitude review.</span></div>
+          </div>
+        </section>
+      </aside>
+
+      <section class="column">
+        <article>
+          <p class="kicker">Front Story</p>
+          <h2>HR Council Ratifies Six-Week "Perch & Pulse" Program Across All Gondolas</h2>
+          <p class="byline">By Rhea Quill, Senior Labor Correspondent</p>
+          <p class="deck">After a unanimous squawk vote, the bureau's avian human-resources council has standardized cardio and mobility windows between route checkpoints.</p>
+          <div class="split">
+            <p>Program pilots began in the northern thermal lane where attendance rose 38% once interval sets were paired with payroll certainty. Managers report reduced shoulder strain among map readers, fewer clipboard drops during descent, and notably calmer quarter-end reconciliations.</p>
+            <p>Session architecture keeps drills brief and repeatable: three-minute rope pulses, deck-wide balance holds, and guided breath counts timed to burner cadence. Trainers emphasize consistency over speed, noting that mid-air offices demand longevity more than spectacle.</p>
+            <p>Policy language requires all departments to designate an emergency substitute instructor for fog delays, ensuring continuity when navigation teams are called to weather review. Compliance audits begin next month, with incentives tied to retention and sick-day reduction.</p>
+            <p>"We are not forcing elite performance," said Chief People Parrot Mx. Tansy. "We are preserving worker stamina in a moving workplace."</p>
+          </div>
+          <p class="pull-quote">"A steady wingbeat and a steady spreadsheet come from the same habit loop."</p>
+        </article>
+
+        <article class="overlap">
+          <p class="kicker">Desk Analysis</p>
+          <h3>Opinion: Why Confidence Coaching Works Better When It Comes From a Bowl at Eye Level</h3>
+          <p class="byline">By Editorial Board</p>
+          <p>The founder's weekly addresses are concise, repetitive, and statistically useful. Delivery from a reinforced glass bowl appears to increase perceived clarity in teams handling risk-heavy planning cycles.</p>
+          <p>Behavioral notes show that staff respond to certainty cues: direct verbs, simple metrics, and consistent rituals. The founder offers all three, then anchors each speech with one directive: complete one difficult set before lunch. There is no ambiguity in that instruction.</p>
+          <p>Managers who mirrored the script saw improved completion rates across compliance forms, ballast logs, and training journals. Confidence, in this operation, is treated as a process variable rather than personality.</p>
+        </article>
+
+        <section class="card">
+          <div class="tabs" role="tablist" aria-label="Edition selector">
+            <button :class="{active: edition==='morning'}" @click="edition='morning'">Morning Edition</button>
+            <button :class="{active: edition==='inflight'}" @click="edition='inflight'">In-Flight Edition</button>
+          </div>
+
+          <div x-show="edition==='morning'">
+            <p class="kicker">Morning Briefs</p>
+            <div class="story-list">
+              <div class="story-item"><p class="story-meta"><span>Transit</span><span>06:10</span></p><p>West Basin launch delayed 14 minutes after ceremonial whistle inspection.</p></div>
+              <div class="story-item"><p class="story-meta"><span>Policy</span><span>06:24</span></p><p>Benefits confirms feather-safe resistance bands now covered under preventive care.</p></div>
+              <div class="story-item"><p class="story-meta"><span>Workouts</span><span>06:42</span></p><p>Altitude stair intervals added to Tuesday route for accounting and legal pods.</p></div>
+              <div class="story-item"><p class="story-meta"><span>Culture</span><span>07:05</span></p><p>Choir warmups moved to pre-burner slot to protect post-lunch focus.</p></div>
+            </div>
+          </div>
+
+          <div x-show="edition==='inflight'">
+            <p class="kicker">In-Flight Wire</p>
+            <div class="story-list">
+              <div class="story-item"><p class="story-meta"><span>Transit</span><span>11:18</span></p><p>Southern crosswind lane reopened with reduced paperwork turbulence.</p></div>
+              <div class="story-item"><p class="story-meta"><span>Marketplace</span><span>11:41</span></p><p>Hydration canteens with shoulder strap sold out in under one lunch loop.</p></div>
+              <div class="story-item"><p class="story-meta"><span>Policy</span><span>12:03</span></p><p>New meeting format caps agenda slides at seven to preserve lift attention span.</p></div>
+              <div class="story-item"><p class="story-meta"><span>Culture</span><span>12:29</span></p><p>Team "Bunson Burners" wins quarterfinal in basket-deck shuffleball league.</p></div>
+            </div>
+          </div>
+        </section>
+
+        <section class="card">
+          <p class="kicker">Feature Desk</p>
+          <h3>Filed Reports</h3>
+          <p class="small">Click a headline to open the full brief.</p>
+          <template x-for="item in filteredArticles" :key="item.id">
+            <div class="story-item">
+              <p class="story-meta"><span x-text="item.category"></span><span x-text="item.author"></span></p>
+              <button @click="toggleStory(item.id)">
+                <span x-text="item.title"></span>
+              </button>
+              <div x-show="openStories.includes(item.id)" x-transition>
+                <p class="small" x-text="item.body"></p>
+              </div>
+            </div>
+          </template>
+        </section>
+      </section>
+
+      <aside class="column">
+        <section class="card">
+          <p class="kicker">Classifieds</p>
+          <input class="class-search" type="text" placeholder="Search classifieds" x-model="classQuery" aria-label="Search classifieds" />
+          <template x-for="ad in filteredClassifieds" :key="ad.title">
+            <div class="classified">
+              <span class="badge" x-text="ad.type"></span>
+              <h4 x-text="ad.title"></h4>
+              <p class="small" x-text="ad.copy"></p>
+            </div>
+          </template>
+        </section>
+
+        <section class="card ad-block" style="transform: rotate(1.2deg); border-color: var(--neon-cyan); background:#001216;">
+          <p class="kicker" style="color:#ffffff;">Marketplace Insert</p>
+          <h4 style="color:var(--neon-cyan);">Gondola Ledger School</h4>
+          <p>Night classes for airborne bookkeeping, route forecasting, and calm-voice negotiation.</p>
+          <p><strong style="color:#ffffff;">Enrollment closes Thursday at dusk.</strong></p>
+        </section>
+
+        <section class="card">
+          <p class="kicker">People</p>
+          <h4>Testimonials</h4>
+          <p class="small">"Our meeting endurance doubled when sessions switched to interval agendas." — Fleet Scheduler</p>
+          <p class="small">"The new shoulder rotation sequence fixed ten years of basket hunch." — Copy Chief</p>
+          <p class="small">"I pay for Cabin Circuit Pro because it keeps my team on time and upright." — Legal Operations Lead</p>
+        </section>
+
+        <section class="card">
+          <p class="kicker">Public Notice</p>
+          <h4>Route Compliance Calendar</h4>
+          <p class="small">Tuesday: posture audits. Wednesday: meal timing check-ins. Friday: full-program recap before descent.</p>
+          <p class="small">Departments missing two consecutive recaps will be assigned a roving parrot consultant.</p>
+        </section>
+      </aside>
+    </div>
+
+    <footer class="footer">
+      <div>AeroPerch Ledger, Lifted Vitality Bureau, Dock 7 Air Office</div>
+      <div>Subscriptions, syndication, and payroll-safe wellness licensing available</div>
+    </footer>
+  </main>
+
+  <script src="/assets/js/alpine.min.js" defer></script>
+  <script src="/assets/js/gsap.min.js"></script>
+  <script src="/assets/js/lucide.min.js"></script>
+  <script>
+    function newsroomApp() {
+      return {
+        activeCategory: 'All',
+        edition: 'morning',
+        classQuery: '',
+        openStories: [],
+        articles: [
+          { id: 1, category: 'Workouts', author: 'Metro Desk', title: 'Column: Five-Minute Deck Mobility Is Replacing Coffee Panic', body: 'Morning mobility blocks cut late-start incidents by 22% and reduce reliance on emergency caffeine briefings during ascent.' },
+          { id: 2, category: 'Policy', author: 'Labor Wire', title: 'Union and HR Agree on Quiet Burner Intervals for Breath Work', body: 'A joint memo now reserves two low-noise periods per shift for controlled breathing and shoulder decompression.' },
+          { id: 3, category: 'Culture', author: 'Features', title: 'Profile: The Parrot Who Built a 40-Person Accountability Roster', body: 'Coordinator Pica rotates motivational check-ins by perch zone so no team slips through weekly wellness reporting.' },
+          { id: 4, category: 'Transit', author: 'Weather Desk', title: 'Crosswind Briefing Adds Core-Brace Cue Before Sharp Turns', body: 'Pilots and trainers introduced a shared command phrase that helps standing teams stabilize before major course changes.' },
+          { id: 5, category: 'Marketplace', author: 'Business', title: 'Demand Surges for Fin-Friendly Resistance Gear in Company Store', body: 'The procurement office says adaptive equipment now outsells standard kits by nearly two to one this quarter.' },
+          { id: 6, category: 'Policy', author: 'Compliance', title: 'Meeting Minutes Must Log Stretch Breaks Starting Next Cycle', body: 'Audits will include wellness timestamp checks beside attendance records to standardize safe-duration sessions.' },
+          { id: 7, category: 'Culture', author: 'Opinion', title: 'Letter: Let Choir Warmups Count Toward Cardio Requirement', body: 'Editorial receives broad support for counting vocal-breath conditioning as approved low-impact endurance work.' }
+        ],
+        classifieds: [
+          { type: 'For Sale', title: 'Gently used anti-slip deck mats', copy: 'Set of 12, neon striped, certified for light drizzle and office shoes.' },
+          { type: 'Wanted', title: 'Assistant route notetaker', copy: 'Strong handwriting in moving conditions. Must tolerate celebratory whistle blasts.' },
+          { type: 'Services', title: 'Mobile tax prep, airborne specialty', copy: 'Quarterly filing packages built for balloon-based employers and shift crews.' },
+          { type: 'Exchange', title: 'Trade meal vouchers for training credits', copy: 'Seeking Tuesday credits. Offering two premium lunch tokens and one canopy pass.' },
+          { type: 'Housing', title: 'Shared dock loft near launch tower', copy: 'Early departures ideal. Includes rope rack, ledger desk, and weatherproof pantry.' }
+        ],
+        toggleStory(id) {
+          if (this.openStories.includes(id)) {
+            this.openStories = this.openStories.filter((n) => n !== id);
+          } else {
+            this.openStories.push(id);
+          }
+        },
+        get filteredArticles() {
+          if (this.activeCategory === 'All') return this.articles;
+          return this.articles.filter((a) => a.category === this.activeCategory);
+        },
+        get filteredClassifieds() {
+          const q = this.classQuery.trim().toLowerCase();
+          if (!q) return this.classifieds;
+          return this.classifieds.filter((c) => (c.title + ' ' + c.copy + ' ' + c.type).toLowerCase().includes(q));
+        }
+      };
+    }
+
+    window.addEventListener('DOMContentLoaded', function () {
+      if (window.gsap) {
+        gsap.from('#heroPanel', { y: -24, opacity: 0, duration: 0.8, ease: 'power2.out' });
+        gsap.from('.column > *', { y: 20, opacity: 0, duration: 0.55, stagger: 0.08, delay: 0.2, ease: 'power1.out' });
+      }
+      if (window.lucide && typeof window.lucide.createIcons === 'function') {
+        window.lucide.createIcons();
+      }
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,716 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>The Abyssal Ledger | Architecture-Grade Financial Choreography</title>
+  <link rel="stylesheet" href="/assets/css/pico.min.css" />
+  <link rel="stylesheet" href="/assets/css/fonts.css" />
+  <style>
+    :root {
+      --ocean-950: #041726;
+      --ocean-900: #07243a;
+      --ocean-800: #0b3552;
+      --ocean-700: #0f4b6d;
+      --bio-500: #1fd8b5;
+      --bio-400: #5ef0d2;
+      --bio-300: #9cf7e3;
+      --paper: #e9f6ff;
+      --ink: #032033;
+      --ink-soft: #18445f;
+      --line: #1f6b87;
+      --ad: #d5fff4;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: "Space Grotesk", sans-serif;
+      font-size: 16px;
+      line-height: 1.45;
+      color: var(--paper);
+      background:
+        linear-gradient(140deg, var(--ocean-950) 0%, var(--ocean-900) 45%, var(--ocean-800) 100%);
+      min-height: 100vh;
+    }
+
+    .page {
+      width: min(1360px, 100% - 2rem);
+      margin: 1rem auto 2.5rem;
+      border: 2px solid var(--line);
+      background: linear-gradient(180deg, #07304a 0%, #052739 100%);
+      box-shadow: 0 20px 40px #02101c;
+    }
+
+    .edition-midnight {
+      background: linear-gradient(180deg, #03131f 0%, #082a3f 100%);
+    }
+
+    .masthead {
+      padding: 1rem;
+      border-bottom: 2px solid var(--line);
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 1rem;
+      align-items: center;
+    }
+
+    .kicker {
+      margin: 0;
+      font-family: "IBM Plex Mono", monospace;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--bio-300);
+      font-size: 0.86rem;
+    }
+
+    h1 {
+      margin: 0.25rem 0;
+      font-size: clamp(1.8rem, 4vw, 3.3rem);
+      line-height: 1;
+      text-transform: uppercase;
+      letter-spacing: 0.03em;
+      color: #ffffff;
+    }
+
+    .tagline {
+      margin: 0;
+      color: #d7f2ff;
+      font-size: 1rem;
+      max-width: 70ch;
+    }
+
+    .header-controls {
+      display: flex;
+      gap: 0.6rem;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+    }
+
+    .btn {
+      min-height: 44px;
+      padding: 0.55rem 0.9rem;
+      border: 1px solid var(--bio-500);
+      background: #0c3d58;
+      color: #ffffff;
+      font-family: "IBM Plex Mono", monospace;
+      font-size: 0.86rem;
+      cursor: pointer;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+
+    .btn:hover,
+    .btn.active {
+      background: var(--bio-500);
+      color: #032033;
+      border-color: var(--bio-300);
+    }
+
+    .strip {
+      border-bottom: 1px solid var(--line);
+      border-top: 1px solid var(--line);
+      padding: 0.75rem 1rem;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .strip .label {
+      font-family: "IBM Plex Mono", monospace;
+      color: #d5f5ff;
+      margin-right: 0.2rem;
+      font-size: 0.9rem;
+      text-transform: uppercase;
+    }
+
+    .urgent-toggle {
+      margin-left: auto;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.45rem;
+      color: #ffffff;
+      font-size: 0.9rem;
+      min-height: 44px;
+      padding: 0.3rem 0.2rem;
+    }
+
+    .urgent-toggle input {
+      width: 20px;
+      height: 20px;
+      accent-color: var(--bio-500);
+    }
+
+    .signal {
+      padding: 0.9rem 1rem;
+      border-bottom: 1px solid var(--line);
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 0.8rem;
+      align-items: center;
+      background: #08324c;
+    }
+
+    .signal p {
+      margin: 0;
+      color: #e7fcff;
+      font-size: 1rem;
+    }
+
+    .layout {
+      display: grid;
+      grid-template-columns: 240px minmax(0, 1fr) 290px;
+      gap: 0;
+    }
+
+    aside,
+    .center {
+      padding: 1rem;
+      border-right: 1px solid var(--line);
+    }
+
+    .right-rail {
+      border-right: 0;
+    }
+
+    .section-title {
+      margin: 0 0 0.8rem;
+      font-family: "IBM Plex Mono", monospace;
+      text-transform: uppercase;
+      font-size: 0.86rem;
+      letter-spacing: 0.06em;
+      color: var(--bio-300);
+      border-bottom: 1px solid var(--line);
+      padding-bottom: 0.35rem;
+    }
+
+    .ad,
+    .tiny-card {
+      border: 1px solid var(--line);
+      padding: 0.7rem;
+      margin-bottom: 0.7rem;
+      background: #0a3a57;
+    }
+
+    .ad strong,
+    .tiny-card strong {
+      color: #ffffff;
+      font-size: 0.98rem;
+    }
+
+    .ad p,
+    .tiny-card p,
+    .tiny-card li,
+    .ad li {
+      color: #def6ff;
+      margin: 0.35rem 0;
+      font-size: 0.92rem;
+    }
+
+    .center {
+      border-right: 1px solid var(--line);
+    }
+
+    .lead {
+      border: 1px solid var(--bio-500);
+      background: #0a4866;
+      padding: 0.9rem;
+      margin-bottom: 1rem;
+    }
+
+    .lead h2 {
+      margin: 0;
+      font-size: clamp(1.2rem, 2.7vw, 2rem);
+      line-height: 1.1;
+      color: #ffffff;
+      text-wrap: balance;
+    }
+
+    .lead p {
+      margin: 0.45rem 0 0;
+      color: #e5fcff;
+    }
+
+    .article-grid {
+      columns: 2;
+      column-gap: 0.8rem;
+    }
+
+    article.story {
+      break-inside: avoid;
+      display: inline-block;
+      width: 100%;
+      margin: 0 0 0.8rem;
+      border: 1px solid var(--line);
+      background: #093650;
+      padding: 0.75rem;
+    }
+
+    .meta {
+      display: flex;
+      justify-content: space-between;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+      font-family: "IBM Plex Mono", monospace;
+      color: var(--bio-300);
+      font-size: 0.76rem;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+
+    .story h3 {
+      margin: 0.42rem 0;
+      color: #ffffff;
+      font-size: 1.08rem;
+      line-height: 1.2;
+    }
+
+    .story .dek,
+    .story .body,
+    .story blockquote {
+      margin: 0.35rem 0;
+      color: #ddf8ff;
+      font-size: 0.95rem;
+    }
+
+    .story blockquote {
+      border-left: 3px solid var(--bio-500);
+      padding-left: 0.6rem;
+      color: #ffffff;
+      font-weight: 700;
+    }
+
+    .story .byline {
+      font-family: "IBM Plex Mono", monospace;
+      color: #c4efff;
+      font-size: 0.78rem;
+      margin-top: 0.5rem;
+    }
+
+    .story .expand {
+      margin-top: 0.4rem;
+      width: 100%;
+      min-height: 44px;
+      padding: 0.45rem 0.65rem;
+      border: 1px solid var(--bio-500);
+      background: #08324c;
+      color: #ffffff;
+      font-family: "IBM Plex Mono", monospace;
+      font-size: 0.82rem;
+      text-transform: uppercase;
+      cursor: pointer;
+    }
+
+    .story .expand:hover {
+      background: var(--bio-500);
+      color: #032033;
+    }
+
+    .tiny-card ul {
+      margin: 0.4rem 0 0;
+      padding-left: 1rem;
+    }
+
+    .tiny-card li {
+      margin-bottom: 0.35rem;
+    }
+
+    .letter {
+      border-top: 1px solid var(--line);
+      padding-top: 0.6rem;
+      margin-top: 0.6rem;
+    }
+
+    .letter h4 {
+      margin: 0;
+      color: #ffffff;
+      font-size: 1rem;
+    }
+
+    .letter p {
+      margin: 0.35rem 0;
+      color: #dcf7ff;
+      font-size: 0.92rem;
+    }
+
+    footer {
+      border-top: 2px solid var(--line);
+      padding: 1rem;
+      display: grid;
+      gap: 0.65rem;
+      background: #06253a;
+    }
+
+    footer p {
+      margin: 0;
+      color: #dcf8ff;
+      font-size: 0.9rem;
+    }
+
+    .icon-row {
+      display: flex;
+      gap: 0.7rem;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+
+    .icon-row span {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.3rem;
+      color: #ffffff;
+      font-size: 0.88rem;
+      border: 1px solid var(--line);
+      padding: 0.3rem 0.5rem;
+      background: #0a3651;
+    }
+
+    [x-cloak] {
+      display: none !important;
+    }
+
+    @media (max-width: 1100px) {
+      .layout {
+        grid-template-columns: 1fr;
+      }
+
+      aside,
+      .center {
+        border-right: 0;
+        border-bottom: 1px solid var(--line);
+      }
+
+      .right-rail {
+        border-bottom: 0;
+      }
+
+      .article-grid {
+        columns: 1;
+      }
+    }
+
+    @media (max-width: 760px) {
+      .page {
+        width: calc(100% - 1rem);
+        margin-top: 0.5rem;
+      }
+
+      .masthead {
+        grid-template-columns: 1fr;
+      }
+
+      .header-controls {
+        justify-content: flex-start;
+      }
+
+      .signal {
+        grid-template-columns: 1fr;
+      }
+
+      .strip {
+        gap: 0.4rem;
+      }
+
+      .urgent-toggle {
+        margin-left: 0;
+      }
+
+      h1 {
+        letter-spacing: 0.01em;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main x-data="newsroom()" x-init="init()" :class="edition === 'midnight' ? 'page edition-midnight' : 'page'">
+    <header class="masthead reveal">
+      <div>
+        <p class="kicker">Vol. 88 • Reef Sector 5 • Printed in brine and certainty</p>
+        <h1>The Abyssal Ledger</h1>
+        <p class="tagline">I am Mirella Ink VIII, licensed octopus architect. I design portfolios the way I design cathedrals: eight supports, zero panic, and every decision translated from ghost dance notation.</p>
+      </div>
+      <div class="header-controls">
+        <button class="btn" @click="toggleEdition()" x-text="edition === 'morning' ? 'Switch To Midnight Edition' : 'Switch To Morning Tide'"></button>
+      </div>
+    </header>
+
+    <section class="strip reveal" aria-label="Sections">
+      <span class="label">Desk:</span>
+      <template x-for="item in categories" :key="item.key">
+        <button class="btn" :class="category === item.key ? 'active' : ''" @click="category = item.key" x-text="item.label"></button>
+      </template>
+      <label class="urgent-toggle">
+        <input type="checkbox" x-model="urgentOnly" />
+        Show only urgent omens
+      </label>
+    </section>
+
+    <section class="signal reveal">
+      <p><strong>Live Dance Signal:</strong> <span x-text="danceSignal"></span></p>
+      <button class="btn" @click="nextSignal()">Request New Interpretation</button>
+    </section>
+
+    <section class="layout">
+      <aside class="left-rail reveal">
+        <h2 class="section-title">Margin Ads</h2>
+        <div class="ad">
+          <strong>AD: Quiet Ledger Bell</strong>
+          <p>Ring once if markets dip. Ring twice if your uncle says "crypto" at brunch. $14.20, brass finish, spiritually rude.</p>
+        </div>
+        <div class="ad">
+          <strong>AD: Ectoplasm-Proof Briefcase</strong>
+          <p>Now with twelve pockets, one for each tax quarter and one for regret. Field-tested by three transparent auditors.</p>
+        </div>
+        <div class="ad">
+          <strong>AD: Tentacle Cufflinks</strong>
+          <p>Architectural-grade grip during volatile board meetings. Available in Matte Abyss and Hostile Emerald.</p>
+        </div>
+
+        <h2 class="section-title">Classifieds</h2>
+        <div class="tiny-card">
+          <ul>
+            <li><strong>Seeking:</strong> Junior waltz translator. Must distinguish "pirouette" from "pension warning."</li>
+            <li><strong>For sale:</strong> Slightly haunted filing cabinet. Drawers whisper only in Q4.</li>
+            <li><strong>Missed connection:</strong> You were a ghost in pinstripes doing a moonwalk near municipal bonds.</li>
+            <li><strong>Roommate wanted:</strong> Saltwater tank with ocean view, no loud exorcisms after 10pm.</li>
+          </ul>
+        </div>
+
+        <h2 class="section-title">Corrections</h2>
+        <div class="tiny-card">
+          <p>Yesterday we reported "buy pork futures." The dancer actually performed "diversify, then nap."</p>
+          <p>We misspelled "seance" as "science." Legal has requested we leave both.</p>
+        </div>
+      </aside>
+
+      <div class="center reveal">
+        <div class="lead">
+          <h2>Front Page: Pension Fund Saved By One Extremely Aggressive Charleston</h2>
+          <p>At 06:42, my head of afterlife research cartwheeled through the atrium, confirming the bond ladder needed one more rung and two fewer feelings. Clients applauded. One fainted from fiscal clarity.</p>
+        </div>
+
+        <div class="article-grid">
+          <template x-for="a in filteredArticles()" :key="a.id">
+            <article class="story">
+              <div class="meta">
+                <span x-text="a.category"></span>
+                <span x-text="a.urgent ? 'Urgent Omen' : 'Routine Haunting'"></span>
+              </div>
+              <h3 x-text="a.title"></h3>
+              <p class="dek" x-text="a.dek"></p>
+              <button class="expand" @click="toggleArticle(a.id)" x-text="expanded[a.id] ? 'Collapse Brief' : 'Expand Brief'"></button>
+              <div x-show="expanded[a.id]" x-cloak>
+                <p class="body" x-text="a.body"></p>
+                <blockquote x-text="a.pull"></blockquote>
+                <p class="byline" x-text="a.byline"></p>
+              </div>
+            </article>
+          </template>
+        </div>
+      </div>
+
+      <aside class="right-rail reveal">
+        <h2 class="section-title">Letters To Mirella</h2>
+        <div class="letter">
+          <h4>"My retirement plan only does jazz hands."</h4>
+          <p>Dear Mirella, my advisor retired to a lighthouse. Your ghost clerk did six perfect jazz hands and I finally understood index funds. Is this normal? - Deb from Tucson</p>
+        </div>
+        <div class="letter">
+          <h4>"Please stop forecasting during weddings."</h4>
+          <p>Your team interpreted the father-daughter dance as "sell tech, buy grain." It was accurate but socially complicated. - Anonymous Groom</p>
+        </div>
+        <div class="letter">
+          <h4>"Thank you for making spreadsheets emotional."</h4>
+          <p>I cried when a phantom in loafers performed my debt payoff timeline in interpretive tango. Five stars. - Corrine, Municipal Dentist</p>
+        </div>
+
+        <h2 class="section-title">Opinion Desk</h2>
+        <div class="tiny-card">
+          <strong>Op-Ed:</strong>
+          <p>If your portfolio cannot survive a dramatic pause, it is not diversified. This is architecture, not improv night.</p>
+        </div>
+        <div class="tiny-card">
+          <strong>Counterpoint:</strong>
+          <p>My interns insist moonwalking is a macroeconomic indicator. I disagree, but results are annoying.</p>
+        </div>
+
+        <h2 class="section-title">Embassy Signals</h2>
+        <div class="icon-row">
+          <span><i data-lucide="anchor"></i> Bond Season</span>
+          <span><i data-lucide="trending-up"></i> Tide Rising</span>
+          <span><i data-lucide="ghost"></i> Staff Present</span>
+        </div>
+      </aside>
+    </section>
+
+    <footer class="reveal">
+      <p><strong>Office Hours:</strong> 05:30-11:30 tide time. Closed during eclipses and aggressive salsas.</p>
+      <p><strong>Disclosure:</strong> Not insured by ordinary banks. Insured by my reputation and three deeply judgmental ancestors.</p>
+      <p><strong>Address:</strong> Embassy Annex, Trench Level B, opposite the glowing vending machine.</p>
+    </footer>
+  </main>
+
+  <script defer src="/assets/js/alpine.min.js"></script>
+  <script defer src="/assets/js/gsap.min.js"></script>
+  <script defer src="/assets/js/lucide.min.js"></script>
+  <script>
+    function newsroom() {
+      return {
+        edition: "morning",
+        category: "all",
+        urgentOnly: false,
+        danceSignal: "Two spins + controlled collapse = Increase emergency cash by 3 months.",
+        categories: [
+          { key: "all", label: "All" },
+          { key: "investments", label: "Investments" },
+          { key: "architecture", label: "Architecture" },
+          { key: "afterlife", label: "Afterlife HR" },
+          { key: "opinion", label: "Opinion" },
+          { key: "corrections", label: "Corrections" }
+        ],
+        expanded: {},
+        signals: [
+          "Rapid shoulder shimmy = Pause luxury spending until Mercury calms down.",
+          "One elegant backflip = Rebalance into boring funds and call your mother.",
+          "Slow toe point toward north wall = Mortgage refinance window opens Thursday.",
+          "Eight-arm ripple in canon = Keep dividend stocks, fire your group chat advisor.",
+          "Stern jazz square = Do not buy anything described as 'guaranteed moon'."
+        ],
+        articles: [
+          {
+            id: 1,
+            category: "investments",
+            urgent: true,
+            title: "Blue-Chip Clam Trust Reopens After Exorcism Audit",
+            dek: "Auditors found one poltergeist and seventeen undocumented shell companies, all literal shells.",
+            body: "I redesigned the trust as an octagonal vault. Returns are modest, serene, and no longer chanting at night.",
+            pull: "I don't chase alpha; I trap it in reinforced coral.",
+            byline: "By Mirella Ink VIII, Founding Architect"
+          },
+          {
+            id: 2,
+            category: "architecture",
+            urgent: false,
+            title: "How To Build A Portfolio Like A Cathedral",
+            dek: "Load-bearing assets at the base, stained-glass risk near the top.",
+            body: "If one pillar fails, the dome still stands. If three fail, you bought meme tokens at a family reunion.",
+            pull: "Every budget deserves buttresses.",
+            byline: "Design Notes, Studio Desk"
+          },
+          {
+            id: 3,
+            category: "afterlife",
+            urgent: true,
+            title: "Payroll Delay: Ghost Staff Demand Better Chains",
+            dek: "Our dance interpreters walked out, then floated back in when offered polished silver links and dental.",
+            body: "Compensation now includes 401(k), 401(boo), and one annual haunting stipend for professional development.",
+            pull: "Retention improves when your break room has candles.",
+            byline: "By Human Resources, Mostly Transparent"
+          },
+          {
+            id: 4,
+            category: "opinion",
+            urgent: false,
+            title: "Stop Calling It Passive Income If You Are Sweating",
+            dek: "If you refresh your app nine times before breakfast, that is cardio, not strategy.",
+            body: "My method is simple: the dancers move, we translate, then we eat soup and ignore panic headlines.",
+            pull: "Discipline is just choreography with fewer sequins.",
+            byline: "Column: Stern But Caring"
+          },
+          {
+            id: 5,
+            category: "corrections",
+            urgent: false,
+            title: "Correction: The Ghost Did Not Dab",
+            dek: "Yesterday's move was a ceremonial hinge rotation indicating municipal confidence.",
+            body: "We regret implying our chief analyst celebrated. He never celebrates. He hovers with purpose.",
+            pull: "Precision matters, especially with elbows.",
+            byline: "Corrections Desk"
+          },
+          {
+            id: 6,
+            category: "investments",
+            urgent: false,
+            title: "Index Fund Ballet Enters Its Fourth Standing Ovation",
+            dek: "Clients report lower blood pressure and fewer midnight option trades.",
+            body: "A calm arabesque from Accounting now signals 'hold for ten years,' replacing our old alarm bell system.",
+            pull: "The long term has better lighting.",
+            byline: "Markets & Movement"
+          },
+          {
+            id: 7,
+            category: "architecture",
+            urgent: true,
+            title: "New Vault Wing Features Anti-Panic Hallway",
+            dek: "The corridor narrows every time someone says 'all in.'",
+            body: "By the final door, visitors can only whisper 'diversification' and sign forms responsibly.",
+            pull: "Architecture is compliance with nicer stairs.",
+            byline: "Bureau of Structural Finance"
+          },
+          {
+            id: 8,
+            category: "afterlife",
+            urgent: false,
+            title: "Seance Desk Launches Estate Plan Tuesdays",
+            dek: "Bring your will, your heirs, and one person who can clap on beat.",
+            body: "We now include a grief-proof binder tab labeled 'Who gets the vintage submarine lamp.'",
+            pull: "Legacy planning should not require shouting.",
+            byline: "Afterlife Services Supplement"
+          },
+          {
+            id: 9,
+            category: "investments",
+            urgent: true,
+            title: "Emergency Bulletin: Your Cousin Is Not A Hedge Fund",
+            dek: "He owns two podcasts and a rented blazer. Decline politely.",
+            body: "For a scripted refusal, ask for our pamphlet: 'No Thanks, Trevor, I Prefer Fiduciary Duty.'",
+            pull: "Boundaries are an asset class.",
+            byline: "Consumer Protection Reef"
+          },
+          {
+            id: 10,
+            category: "opinion",
+            urgent: false,
+            title: "I Fired A Client For Saying 'Vibes Portfolio'",
+            dek: "He brought incense, no records, and a belief in crypto moons.",
+            body: "We remain friends. He now owns a juice truck. I sleep better.",
+            pull: "Compassion does not include approving bad math.",
+            byline: "Mirella's Notebook"
+          }
+        ],
+        filteredArticles() {
+          return this.articles.filter((article) => {
+            const categoryMatch = this.category === "all" || article.category === this.category;
+            const urgencyMatch = !this.urgentOnly || article.urgent;
+            return categoryMatch && urgencyMatch;
+          });
+        },
+        toggleArticle(id) {
+          this.expanded[id] = !this.expanded[id];
+        },
+        nextSignal() {
+          const i = Math.floor(Math.random() * this.signals.length);
+          this.danceSignal = this.signals[i];
+        },
+        toggleEdition() {
+          this.edition = this.edition === "morning" ? "midnight" : "morning";
+        },
+        init() {
+          this.$nextTick(() => {
+            lucide.createIcons();
+            gsap.fromTo(
+              ".reveal",
+              { y: 20, opacity: 0 },
+              { y: 0, opacity: 1, duration: 0.65, stagger: 0.07, clearProps: "opacity,transform" }
+            );
+          });
+        }
+      };
+    }
+  </script>
+</body>
+</html>

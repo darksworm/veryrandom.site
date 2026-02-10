@@ -1,0 +1,657 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Puddle Ledger Alliance</title>
+  <link rel="stylesheet" href="/assets/css/pico.min.css" />
+  <link rel="stylesheet" href="/assets/css/fonts.css" />
+  <style>
+    :root {
+      --ink: #0b0b0b;
+      --paper: #fbfbf7;
+      --alert: #c40019;
+      --line: #101010;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: 'Space Grotesk', sans-serif;
+      color: var(--ink);
+      background: var(--paper);
+    }
+
+    h1, h2, h3, h4 {
+      font-family: 'Playfair Display', serif;
+      letter-spacing: 0.02em;
+      margin: 0 0 0.6rem;
+      color: inherit;
+    }
+
+    p, li, small, label, td, th, input, select, button {
+      color: inherit;
+    }
+
+    .split {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      min-height: 100vh;
+    }
+
+    .left, .right {
+      padding: 1.1rem;
+      border: 2px solid var(--line);
+    }
+
+    .left {
+      background: var(--paper);
+      color: var(--ink);
+      border-right: 1px solid var(--line);
+    }
+
+    .right {
+      background: var(--ink);
+      color: #ffffff;
+      border-left: 1px solid #ffffff;
+    }
+
+    .strip {
+      border: 2px solid currentColor;
+      padding: 0.65rem;
+      margin-bottom: 0.9rem;
+      display: grid;
+      gap: 0.4rem;
+      background: transparent;
+    }
+
+    .alert {
+      background: var(--alert);
+      color: #ffffff;
+      border-color: #ffffff;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+    }
+
+    nav {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      align-items: center;
+      justify-content: space-between;
+      border: 2px solid currentColor;
+      padding: 0.65rem;
+      margin-bottom: 0.9rem;
+    }
+
+    .nav-links {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+    }
+
+    .chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      border: 2px solid currentColor;
+      padding: 0.2rem 0.45rem;
+      font-size: 0.82rem;
+      font-weight: 700;
+      background: transparent;
+    }
+
+    .chip.red {
+      background: var(--alert);
+      color: #ffffff;
+      border-color: var(--alert);
+    }
+
+    .dense-grid {
+      display: grid;
+      grid-template-columns: repeat(12, minmax(0, 1fr));
+      gap: 0.65rem;
+    }
+
+    .panel {
+      border: 2px solid currentColor;
+      padding: 0.75rem;
+      background: transparent;
+      min-height: 120px;
+    }
+
+    .left .panel { background: #ffffff; }
+    .right .panel { background: #141414; }
+
+    .c12 { grid-column: span 12; }
+    .c8 { grid-column: span 8; }
+    .c6 { grid-column: span 6; }
+    .c4 { grid-column: span 4; }
+    .c3 { grid-column: span 3; }
+
+    .kpi {
+      font-size: 1.7rem;
+      font-weight: 800;
+      line-height: 1;
+      margin: 0.3rem 0;
+      font-family: 'Space Grotesk', sans-serif;
+    }
+
+    .mono {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 0.85rem;
+    }
+
+    .btn-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.45rem;
+      margin-top: 0.45rem;
+    }
+
+    button, [role="button"] {
+      border: 2px solid currentColor;
+      border-radius: 0;
+      font-weight: 700;
+      margin: 0;
+      padding: 0.35rem 0.6rem;
+      background: transparent;
+      color: inherit;
+    }
+
+    .left button:hover, .left button:focus {
+      background: var(--ink);
+      color: #ffffff;
+    }
+
+    .right button:hover, .right button:focus {
+      background: #ffffff;
+      color: #000000;
+    }
+
+    .danger {
+      background: var(--alert);
+      color: #ffffff;
+      border-color: var(--alert);
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.8rem;
+    }
+
+    th, td {
+      border: 1px solid currentColor;
+      padding: 0.3rem;
+      text-align: left;
+    }
+
+    .bars {
+      display: grid;
+      gap: 0.35rem;
+      margin-top: 0.4rem;
+    }
+
+    .bar {
+      height: 1.15rem;
+      border: 1px solid currentColor;
+      position: relative;
+      overflow: hidden;
+      background: transparent;
+    }
+
+    .bar > span {
+      position: absolute;
+      top: 0;
+      left: 0;
+      bottom: 0;
+      background: var(--alert);
+    }
+
+    .bar > em {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 0.35rem;
+      font-style: normal;
+      font-size: 0.72rem;
+      font-weight: 700;
+      color: #ffffff;
+      mix-blend-mode: normal;
+    }
+
+    .right .bar > em { color: #ffffff; }
+
+    .ticker {
+      border: 2px dashed currentColor;
+      padding: 0.35rem;
+      font-family: 'IBM Plex Mono', monospace;
+      white-space: nowrap;
+      overflow: hidden;
+    }
+
+    .ticker span {
+      display: inline-block;
+      padding-right: 2.2rem;
+      animation: crawl 16s linear infinite;
+    }
+
+    @keyframes crawl {
+      from { transform: translateX(0); }
+      to { transform: translateX(-50%); }
+    }
+
+    .smallprint {
+      font-size: 0.7rem;
+      line-height: 1.35;
+      border-top: 2px solid currentColor;
+      margin-top: 0.6rem;
+      padding-top: 0.45rem;
+      font-weight: 700;
+    }
+
+    .meter {
+      height: 12px;
+      border: 1px solid currentColor;
+      margin-top: 0.4rem;
+      position: relative;
+      background: transparent;
+    }
+
+    .meter > i {
+      position: absolute;
+      top: 0;
+      left: 0;
+      bottom: 0;
+      background: var(--alert);
+      display: block;
+    }
+
+    input[type="range"], input[type="number"], select {
+      width: 100%;
+      margin: 0.3rem 0;
+      border: 2px solid currentColor;
+      background: transparent;
+      color: inherit;
+      border-radius: 0;
+      padding: 0.25rem;
+    }
+
+    input::placeholder {
+      color: inherit;
+      opacity: 1;
+    }
+
+    .faq details {
+      border: 1px solid currentColor;
+      padding: 0.4rem;
+      margin-bottom: 0.35rem;
+      background: transparent;
+    }
+
+    .faq summary {
+      cursor: pointer;
+      font-weight: 700;
+    }
+
+    footer {
+      border: 2px solid currentColor;
+      padding: 0.6rem;
+      margin-top: 0.65rem;
+      font-size: 0.75rem;
+      font-weight: 700;
+    }
+
+    @media (max-width: 980px) {
+      .split { grid-template-columns: 1fr; }
+      .c8, .c6, .c4, .c3 { grid-column: span 12; }
+    }
+  </style>
+</head>
+<body>
+  <main class="split" x-data="puddleSite()">
+    <section class="left">
+      <nav>
+        <strong style="font-size:1.1rem;">Puddle Ledger Alliance</strong>
+        <div class="nav-links mono">
+          <span class="chip"><i data-lucide="map-pin"></i> Catchments</span>
+          <span class="chip"><i data-lucide="briefcase"></i> Partnerships</span>
+          <span class="chip"><i data-lucide="clipboard-list"></i> Protocols</span>
+          <span class="chip red"><i data-lucide="bell-ring"></i> Action Day</span>
+        </div>
+      </nav>
+
+      <div class="strip alert mono">
+        <div>Regional Liquidity Advisory: <span x-text="riskLabel"></span></div>
+        <div>Open Micro-Puddle Cases: <span x-text="openCases"></span> / 500</div>
+      </div>
+
+      <div class="dense-grid">
+        <article class="panel c8 reveal">
+          <h1>Every Surface Pool Is Untapped Local Revenue</h1>
+          <p>We help municipalities, schools, and wedding venues classify street runoff as actionable commercial terrain. Certified stewards convert overlooked standing water into compliant micro-enterprises.</p>
+          <div class="btn-row">
+            <button @click="cycleRisk()">Shift Weather Tier</button>
+            <button @click="openCases += 7">File 7 New Cases</button>
+            <button class="danger" @click="openCases = Math.max(0, openCases - 12)">Resolve 12 Cases</button>
+          </div>
+          <div class="smallprint">Disclosure 1A: Valuations are directional and should not be interpreted as rain certainty. Disclosure 1B: Curbs are treated as distribution edges.</div>
+        </article>
+
+        <article class="panel c4 reveal">
+          <h3>Live Ledger Clock</h3>
+          <p class="kpi mono" x-text="clock"></p>
+          <p class="mono">Next audit lock in <strong x-text="countdown"></strong></p>
+          <div class="meter"><i :style="`width:${countPct}%`"></i></div>
+        </article>
+
+        <article class="panel c6 reveal">
+          <h3>Field Readiness Board</h3>
+          <label><input type="checkbox" x-model="readiness.kits" /> Sealant kit dispatched</label>
+          <label><input type="checkbox" x-model="readiness.signage" /> Sidewalk signage approved</label>
+          <label><input type="checkbox" x-model="readiness.vest" /> Visibility vests counted</label>
+          <label><input type="checkbox" x-model="readiness.clipboard" /> Notarized clipboard stocked</label>
+          <p class="mono">Ready units: <strong x-text="readyCount"></strong>/4</p>
+        </article>
+
+        <article class="panel c6 reveal">
+          <h3>Contribution Calibrator</h3>
+          <label for="depth">Projected puddle depth (mm)</label>
+          <input id="depth" type="range" min="5" max="140" x-model.number="depth" />
+          <label for="sites">Partner sites this quarter</label>
+          <input id="sites" type="number" min="1" max="250" x-model.number="sites" />
+          <p class="kpi">$<span x-text="donationEstimate"></span></p>
+          <p class="mono">Recommended monthly contribution based on depth density index.</p>
+        </article>
+
+        <article class="panel c12 reveal">
+          <h3>Catchment Yield Matrix</h3>
+          <div class="bars">
+            <template x-for="zone in zones" :key="zone.name">
+              <div class="bar">
+                <span :style="`width:${zone.fill}%`"></span>
+                <em><b x-text="zone.name"></b><b x-text="zone.fill + '% yield'"></b></em>
+              </div>
+            </template>
+          </div>
+        </article>
+
+        <article class="panel c12 reveal">
+          <h3>Public Trust Notes</h3>
+          <table>
+            <thead>
+              <tr><th>Partner</th><th>Region</th><th>Program</th><th>Verified uplift</th></tr>
+            </thead>
+            <tbody>
+              <tr><td>North Arch Parish Hall</td><td>Mid-Atlantic</td><td>Aisle Drain Futures</td><td>+18.4%</td></tr>
+              <tr><td>Civic Lot 12</td><td>Upper Midwest</td><td>Curbside Vendor Lane</td><td>+26.1%</td></tr>
+              <tr><td>Willow & Ring Planners Guild</td><td>Gulf South</td><td>Reception Runoff Registry</td><td>+31.7%</td></tr>
+              <tr><td>Metro Bus Shelter Union</td><td>Great Lakes</td><td>Transit Basin Monetization</td><td>+14.9%</td></tr>
+            </tbody>
+          </table>
+        </article>
+      </div>
+
+      <footer>
+        Stewardship office line: 800-PUDDLE-LEDGER. By continuing, you acknowledge all estimates are scenario-linked and may change with curb geometry, bouquet density, and heel traffic.
+      </footer>
+    </section>
+
+    <section class="right">
+      <div class="strip mono">
+        <strong>Operations Tape</strong>
+        <div class="ticker">
+          <span x-text="tickerText"></span>
+        </div>
+      </div>
+
+      <div class="dense-grid">
+        <article class="panel c4 reveal">
+          <h3>Membership Tiers</h3>
+          <table>
+            <thead>
+              <tr><th>Plan</th><th>Monthly</th></tr>
+            </thead>
+            <tbody>
+              <tr><td>Foyer Drip</td><td>$49</td></tr>
+              <tr><td>Ceremony Basin</td><td>$199</td></tr>
+              <tr><td>Cathedral Overflow</td><td>$699</td></tr>
+            </tbody>
+          </table>
+          <div class="smallprint">All tiers include one embossed towel and two legal phrases for stakeholder reassurance.</div>
+        </article>
+
+        <article class="panel c4 reveal">
+          <h3>Sentiment Dial</h3>
+          <p class="kpi" x-text="sentiment + '%'">92%</p>
+          <div class="btn-row">
+            <button @click="sentiment = Math.min(100, sentiment + 3)">Raise confidence</button>
+            <button @click="sentiment = Math.max(40, sentiment - 5)">Stress test</button>
+          </div>
+          <div class="meter"><i :style="`width:${sentiment}%`"></i></div>
+        </article>
+
+        <article class="panel c4 reveal">
+          <h3>Rapid Intake</h3>
+          <label>Surface type</label>
+          <select x-model="surface">
+            <option>Brick plaza</option>
+            <option>Parking apron</option>
+            <option>Church stairs</option>
+            <option>Marble foyer</option>
+          </select>
+          <p class="mono">Current protocol: <strong x-text="surfacePolicy"></strong></p>
+        </article>
+
+        <article class="panel c6 reveal">
+          <h3>Client Endorsements</h3>
+          <p><strong x-text="testimonials[testimonialIdx].name"></strong></p>
+          <p x-text="testimonials[testimonialIdx].quote"></p>
+          <div class="btn-row">
+            <button @click="prevTestimonial()">Previous</button>
+            <button @click="nextTestimonial()">Next</button>
+          </div>
+        </article>
+
+        <article class="panel c6 reveal faq">
+          <h3>Compliance FAQ</h3>
+          <details>
+            <summary>Do we need permits for temporary puddle kiosks?</summary>
+            <p>Usually yes. We pre-fill packet CL-9 and route to municipal review with a same-day ceremonial stamp.</p>
+          </details>
+          <details>
+            <summary>Can wedding venues join municipal pilots?</summary>
+            <p>Yes, provided exits remain clear and heel sink-risk stays below 3.2 in the Alliance Friction Index.</p>
+          </details>
+          <details>
+            <summary>What does “non-extractive pooling” mean?</summary>
+            <p>No siphoning. Value comes from licensing, naming rights, and guided viewing corridors.</p>
+          </details>
+        </article>
+
+        <article class="panel c12 reveal">
+          <h3>District Throughput Dashboard</h3>
+          <table>
+            <thead>
+              <tr><th>District</th><th>Rain windows</th><th>Active brokers</th><th>Gross puddle value</th><th>Status</th></tr>
+            </thead>
+            <tbody>
+              <template x-for="d in districts" :key="d.name">
+                <tr>
+                  <td x-text="d.name"></td>
+                  <td x-text="d.windows"></td>
+                  <td x-text="d.brokers"></td>
+                  <td x-text="'$' + d.value.toLocaleString()"></td>
+                  <td x-text="d.status"></td>
+                </tr>
+              </template>
+            </tbody>
+          </table>
+          <div class="btn-row">
+            <button @click="shuffleDistricts()">Recompute district model</button>
+            <button class="danger" @click="lockQuarter()">Lock quarter numbers</button>
+            <span class="chip" x-show="locked">Quarter locked for board packet</span>
+          </div>
+          <div class="smallprint">Appendix R: Table may include projected drizzle categories and ceremonial overflow rights. For board use only.</div>
+        </article>
+      </div>
+    </section>
+  </main>
+
+  <script defer src="/assets/js/alpine.min.js"></script>
+  <script defer src="/assets/js/gsap.min.js"></script>
+  <script defer src="/assets/js/lucide.min.js"></script>
+  <script>
+    function puddleSite() {
+      return {
+        riskCycle: ['Mild Drip Opportunity', 'Broad Surface Activation', 'Red Basin Expansion'],
+        riskIdx: 1,
+        openCases: 173,
+        depth: 42,
+        sites: 18,
+        sentiment: 91,
+        surface: 'Brick plaza',
+        clock: '--:--:--',
+        countdown: '00:00',
+        countPct: 0,
+        secondsLeft: 180,
+        locked: false,
+        readiness: { kits: true, signage: false, vest: true, clipboard: false },
+        tickerItems: [
+          'Board approves Midtown gutter cooperative',
+          'Three campuses adopt basin-right naming policy',
+          'Vendor queue rises 11% after curb repaint',
+          'Transit shelter lot enters premium drizzle lane',
+          'Weekend ceremonies report full runoff compliance'
+        ],
+        zones: [
+          { name: 'Cathedral steps', fill: 82 },
+          { name: 'Crosswalk corners', fill: 68 },
+          { name: 'Bus shelter troughs', fill: 91 },
+          { name: 'Event tent perimeter', fill: 74 },
+          { name: 'Parking lot seams', fill: 59 }
+        ],
+        districts: [
+          { name: 'North Quoin', windows: 16, brokers: 24, value: 321000, status: 'Escalating' },
+          { name: 'Elm Junction', windows: 12, brokers: 17, value: 248900, status: 'Stable' },
+          { name: 'Trinity Annex', windows: 19, brokers: 31, value: 407200, status: 'Priority' },
+          { name: 'Canal Ward', windows: 9, brokers: 13, value: 188400, status: 'Watchlist' }
+        ],
+        testimonials: [
+          {
+            name: 'Mara C., Municipal Treasurer',
+            quote: 'The Alliance mapped every curb depression and gave us a revenue calendar that pairs with wedding season.'
+          },
+          {
+            name: 'Jonah R., Venue Operator',
+            quote: 'Guests now ask to reserve our signature forecourt basin for photos. Sponsorship waitlist is full.'
+          },
+          {
+            name: 'Len A., Transit District Lead',
+            quote: 'We moved from cleanup costs to licensed viewing corridors in a single quarter.'
+          }
+        ],
+        testimonialIdx: 0,
+
+        get riskLabel() {
+          return this.riskCycle[this.riskIdx];
+        },
+        get readyCount() {
+          return Object.values(this.readiness).filter(Boolean).length;
+        },
+        get donationEstimate() {
+          const value = Math.round((this.depth * 14 + this.sites * 39) * 1.82);
+          return value.toLocaleString();
+        },
+        get surfacePolicy() {
+          const map = {
+            'Brick plaza': 'Protocol BR-2 / absorbent perimeter',
+            'Parking apron': 'Protocol PA-7 / lane markers required',
+            'Church stairs': 'Protocol CS-1 / ceremony escorts',
+            'Marble foyer': 'Protocol MF-9 / reflection rights bundle'
+          };
+          return map[this.surface] || 'Protocol pending';
+        },
+        get tickerText() {
+          return this.tickerItems.join('  //  ') + '  //  ' + this.tickerItems.join('  //  ');
+        },
+
+        cycleRisk() {
+          this.riskIdx = (this.riskIdx + 1) % this.riskCycle.length;
+        },
+        nextTestimonial() {
+          this.testimonialIdx = (this.testimonialIdx + 1) % this.testimonials.length;
+        },
+        prevTestimonial() {
+          this.testimonialIdx = (this.testimonialIdx + this.testimonials.length - 1) % this.testimonials.length;
+        },
+        shuffleDistricts() {
+          this.districts = this.districts.map((d) => {
+            const valueDelta = Math.round((Math.random() * 36000) - 9000);
+            const brokerDelta = Math.round((Math.random() * 4) - 1);
+            const windowDelta = Math.round((Math.random() * 3) - 1);
+            const statuses = ['Stable', 'Escalating', 'Priority', 'Watchlist'];
+            return {
+              ...d,
+              windows: Math.max(6, d.windows + windowDelta),
+              brokers: Math.max(8, d.brokers + brokerDelta),
+              value: Math.max(110000, d.value + valueDelta),
+              status: statuses[Math.floor(Math.random() * statuses.length)]
+            };
+          });
+          this.locked = false;
+        },
+        lockQuarter() {
+          this.locked = true;
+        },
+        tick() {
+          const now = new Date();
+          this.clock = now.toLocaleTimeString();
+          this.secondsLeft -= 1;
+          if (this.secondsLeft <= 0) this.secondsLeft = 180;
+          const min = String(Math.floor(this.secondsLeft / 60)).padStart(2, '0');
+          const sec = String(this.secondsLeft % 60).padStart(2, '0');
+          this.countdown = min + ':' + sec;
+          this.countPct = Math.round(((180 - this.secondsLeft) / 180) * 100);
+          if (now.getSeconds() % 7 === 0) {
+            this.openCases = Math.min(500, this.openCases + 1);
+          }
+        },
+        init() {
+          this.tick();
+          setInterval(() => this.tick(), 1000);
+          setInterval(() => {
+            this.sentiment = Math.max(40, Math.min(100, this.sentiment + (Math.random() > 0.5 ? 1 : -1)));
+          }, 2500);
+          setInterval(() => {
+            this.zones = this.zones.map((z) => {
+              const delta = Math.round((Math.random() * 8) - 4);
+              return { ...z, fill: Math.max(30, Math.min(98, z.fill + delta)) };
+            });
+          }, 4000);
+        }
+      }
+    }
+
+    window.addEventListener('DOMContentLoaded', () => {
+      if (window.lucide && typeof window.lucide.createIcons === 'function') {
+        window.lucide.createIcons();
+      }
+      if (window.gsap) {
+        window.gsap.from('.reveal', {
+          y: 18,
+          opacity: 0,
+          duration: 0.5,
+          stagger: 0.04,
+          ease: 'power2.out'
+        });
+      }
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,786 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PurrDream Mutual — Dream Insurance for the Unconscious Cat</title>
+<link rel="stylesheet" href="/assets/css/fonts.css">
+<script src="/assets/js/gsap.min.js"></script>
+<style>
+  *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+  :root {
+    --acid: #b5ff2b;
+    --warn: #ffe23b;
+    --hazard: #ff8c1a;
+    --void: #0a0a0c;
+    --void-light: #131317;
+    --void-mid: #1a1a21;
+    --text: #e8e8ec;
+    --text-dim: #a0a0aa;
+    --glow-acid: rgba(181, 255, 43, 0.15);
+    --glow-warn: rgba(255, 226, 59, 0.08);
+  }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    font-family: 'IBM Plex Mono', monospace;
+    background: var(--void);
+    color: var(--text);
+    overflow-x: hidden;
+    line-height: 1.6;
+    font-size: 16px;
+  }
+
+  ::selection {
+    background: var(--acid);
+    color: var(--void);
+  }
+
+  /* ---- AMBIENT BACKGROUND ---- */
+  .atmosphere {
+    position: fixed;
+    top: 0; left: 0;
+    width: 100vw; height: 100vh;
+    pointer-events: none;
+    z-index: 0;
+    overflow: hidden;
+  }
+
+  .orb {
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(120px);
+    opacity: 0.2;
+    animation: drift 20s ease-in-out infinite alternate;
+  }
+
+  .orb-1 {
+    width: 500px; height: 500px;
+    background: var(--acid);
+    top: -10%; left: -10%;
+    animation-duration: 25s;
+  }
+
+  .orb-2 {
+    width: 400px; height: 400px;
+    background: var(--hazard);
+    bottom: -15%; right: 10%;
+    animation-duration: 30s;
+    animation-delay: -8s;
+  }
+
+  .orb-3 {
+    width: 300px; height: 300px;
+    background: var(--warn);
+    top: 40%; left: 50%;
+    animation-duration: 22s;
+    animation-delay: -14s;
+  }
+
+  @keyframes drift {
+    0% { transform: translate(0, 0) scale(1); }
+    33% { transform: translate(30px, -40px) scale(1.1); }
+    66% { transform: translate(-20px, 30px) scale(0.95); }
+    100% { transform: translate(40px, 20px) scale(1.05); }
+  }
+
+  /* ---- CONTENT WRAPPER ---- */
+  .content {
+    position: relative;
+    z-index: 1;
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 0 24px;
+  }
+
+  /* ---- NAV ---- */
+  nav {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 24px 0;
+    border-bottom: 1px solid rgba(181, 255, 43, 0.1);
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+
+  .logo {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: clamp(14px, 3vw, 18px);
+    font-weight: 700;
+    color: var(--acid);
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .logo .paw {
+    display: inline-block;
+    font-size: 1.2em;
+  }
+
+  .nav-status {
+    font-size: 11px;
+    color: var(--text-dim);
+    letter-spacing: 1px;
+    text-transform: uppercase;
+  }
+
+  .nav-status .blink {
+    display: inline-block;
+    width: 6px; height: 6px;
+    background: var(--acid);
+    border-radius: 50%;
+    margin-right: 6px;
+    animation: pulse 2s ease-in-out infinite;
+  }
+
+  @keyframes pulse {
+    0%, 100% { opacity: 0.3; }
+    50% { opacity: 1; }
+  }
+
+  /* ---- HERO ---- */
+  .hero {
+    padding: clamp(80px, 15vh, 160px) 0 clamp(60px, 10vh, 120px);
+    text-align: left;
+  }
+
+  .hero-label {
+    font-size: 11px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--hazard);
+    margin-bottom: 24px;
+    opacity: 0;
+  }
+
+  .hero h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(36px, 7vw, 72px);
+    font-weight: 400;
+    line-height: 1.1;
+    color: var(--text);
+    margin-bottom: 32px;
+    opacity: 0;
+  }
+
+  .hero h1 em {
+    font-style: italic;
+    color: var(--acid);
+  }
+
+  .hero-sub {
+    font-size: clamp(14px, 2vw, 16px);
+    color: var(--text-dim);
+    max-width: 540px;
+    line-height: 1.8;
+    opacity: 0;
+  }
+
+  /* ---- DIVIDER ---- */
+  .divider {
+    width: 100%;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--acid), transparent);
+    opacity: 0.15;
+    margin: clamp(40px, 8vh, 80px) 0;
+  }
+
+  /* ---- SECTION: WHISKERS NOTE ---- */
+  .whiskers-note {
+    padding: clamp(40px, 8vh, 80px) 0;
+    opacity: 0;
+  }
+
+  .note-header {
+    font-size: 11px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--warn);
+    margin-bottom: 32px;
+  }
+
+  .note-body {
+    font-family: 'Crimson Pro', serif;
+    font-size: clamp(18px, 3vw, 24px);
+    line-height: 1.8;
+    color: var(--text);
+    max-width: 680px;
+  }
+
+  .note-body p {
+    margin-bottom: 1.5em;
+  }
+
+  .note-body .aside {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 12px;
+    color: var(--text-dim);
+    border-left: 2px solid var(--hazard);
+    padding-left: 16px;
+    margin: 32px 0;
+  }
+
+  /* ---- COVERAGE GRID ---- */
+  .coverage {
+    padding: clamp(40px, 8vh, 80px) 0;
+  }
+
+  .coverage-header {
+    font-size: 11px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--acid);
+    margin-bottom: 48px;
+    opacity: 0;
+  }
+
+  .coverage-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 2px;
+  }
+
+  .coverage-item {
+    background: var(--void-light);
+    padding: clamp(24px, 4vw, 40px);
+    border: 1px solid rgba(181, 255, 43, 0.05);
+    transition: border-color 0.6s ease, background 0.6s ease;
+    cursor: default;
+    opacity: 0;
+  }
+
+  .coverage-item:hover {
+    border-color: rgba(181, 255, 43, 0.2);
+    background: var(--void-mid);
+  }
+
+  .coverage-item .code {
+    font-size: 11px;
+    color: var(--hazard);
+    letter-spacing: 2px;
+    margin-bottom: 12px;
+  }
+
+  .coverage-item h3 {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: clamp(16px, 2.5vw, 20px);
+    font-weight: 500;
+    color: var(--text);
+    margin-bottom: 12px;
+  }
+
+  .coverage-item p {
+    font-size: 13px;
+    color: var(--text-dim);
+    line-height: 1.7;
+  }
+
+  .coverage-item .price {
+    margin-top: 16px;
+    font-size: 14px;
+    color: var(--acid);
+    font-weight: 700;
+  }
+
+  /* ---- CLAIMS SECTION ---- */
+  .claims {
+    padding: clamp(60px, 12vh, 120px) 0;
+    opacity: 0;
+  }
+
+  .claims-header {
+    font-size: 11px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--warn);
+    margin-bottom: 48px;
+  }
+
+  .claim {
+    margin-bottom: clamp(40px, 6vh, 64px);
+    padding-bottom: clamp(40px, 6vh, 64px);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+  }
+
+  .claim:last-child {
+    border-bottom: none;
+  }
+
+  .claim-number {
+    font-size: 11px;
+    color: var(--text-dim);
+    letter-spacing: 2px;
+    margin-bottom: 12px;
+  }
+
+  .claim-quote {
+    font-family: 'Crimson Pro', serif;
+    font-size: clamp(20px, 3.5vw, 28px);
+    line-height: 1.6;
+    color: var(--text);
+    margin-bottom: 16px;
+  }
+
+  .claim-meta {
+    font-size: 12px;
+    color: var(--text-dim);
+  }
+
+  .claim-meta .status {
+    color: var(--acid);
+    margin-left: 8px;
+  }
+
+  /* ---- FAQ ---- */
+  .faq {
+    padding: clamp(40px, 8vh, 80px) 0;
+    opacity: 0;
+  }
+
+  .faq-header {
+    font-size: 11px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--hazard);
+    margin-bottom: 48px;
+  }
+
+  .faq-item {
+    margin-bottom: 40px;
+  }
+
+  .faq-q {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: clamp(16px, 2.5vw, 18px);
+    color: var(--text);
+    margin-bottom: 12px;
+    font-weight: 500;
+  }
+
+  .faq-a {
+    font-size: 14px;
+    color: var(--text-dim);
+    line-height: 1.8;
+    max-width: 600px;
+  }
+
+  /* ---- FLOATING OFFICE ---- */
+  .balloon-section {
+    padding: clamp(60px, 12vh, 120px) 0;
+    text-align: center;
+    opacity: 0;
+  }
+
+  .balloon-ascii {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: clamp(8px, 1.5vw, 12px);
+    line-height: 1.3;
+    color: var(--acid);
+    white-space: pre;
+    display: inline-block;
+    margin-bottom: 32px;
+    opacity: 0.7;
+    animation: float 6s ease-in-out infinite;
+  }
+
+  @keyframes float {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-12px); }
+  }
+
+  .balloon-label {
+    font-size: 11px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--text-dim);
+    margin-bottom: 16px;
+  }
+
+  .balloon-text {
+    font-family: 'Crimson Pro', serif;
+    font-size: clamp(18px, 3vw, 24px);
+    color: var(--text);
+    max-width: 500px;
+    margin: 0 auto;
+    line-height: 1.7;
+  }
+
+  /* ---- FINE PRINT / FOOTER ---- */
+  .fine-print {
+    padding: clamp(40px, 8vh, 80px) 0 40px;
+    border-top: 1px solid rgba(181, 255, 43, 0.06);
+    opacity: 0;
+  }
+
+  .fine-print p {
+    font-size: 11px;
+    color: var(--text-dim);
+    line-height: 1.9;
+    margin-bottom: 12px;
+  }
+
+  .fine-print .sign-off {
+    margin-top: 32px;
+    font-family: 'Crimson Pro', serif;
+    font-size: 16px;
+    font-style: italic;
+    color: var(--warn);
+  }
+
+  footer {
+    padding: 24px 0 48px;
+    font-size: 11px;
+    color: rgba(255, 255, 255, 0.2);
+    text-align: center;
+  }
+
+  /* ---- PAW PRINTS (decorative) ---- */
+  .paw-trail {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 0;
+    overflow: hidden;
+  }
+
+  .paw-print {
+    position: absolute;
+    font-size: 18px;
+    opacity: 0.04;
+    color: var(--acid);
+    animation: pawFade 12s ease-in-out infinite;
+  }
+
+  @keyframes pawFade {
+    0%, 100% { opacity: 0.02; }
+    50% { opacity: 0.06; }
+  }
+
+  /* ---- HOVER REVEAL ---- */
+  .reveal-zone {
+    position: relative;
+    display: inline-block;
+    cursor: help;
+    border-bottom: 1px dashed rgba(181, 255, 43, 0.3);
+  }
+
+  .reveal-zone .reveal-text {
+    position: absolute;
+    bottom: calc(100% + 8px);
+    left: 0;
+    background: var(--void-mid);
+    border: 1px solid var(--acid);
+    padding: 8px 12px;
+    font-size: 11px;
+    color: var(--acid);
+    white-space: nowrap;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.4s ease;
+    z-index: 10;
+  }
+
+  .reveal-zone:hover .reveal-text {
+    opacity: 1;
+  }
+
+  /* ---- RESPONSIVE ---- */
+  @media (max-width: 600px) {
+    .content { padding: 0 16px; }
+    nav { padding: 16px 0; }
+    .balloon-ascii { font-size: 7px; }
+    .reveal-zone .reveal-text { white-space: normal; width: 200px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- Ambient atmosphere -->
+<div class="atmosphere">
+  <div class="orb orb-1"></div>
+  <div class="orb orb-2"></div>
+  <div class="orb orb-3"></div>
+</div>
+
+<!-- Faint paw prints -->
+<div class="paw-trail" id="pawTrail"></div>
+
+<div class="content">
+
+  <!-- NAV -->
+  <nav>
+    <div class="logo">
+      <span class="paw">🐾</span> PurrDream Mutual
+    </div>
+    <div class="nav-status">
+      <span class="blink"></span>Claims Balloon Airborne
+    </div>
+  </nav>
+
+  <!-- HERO -->
+  <section class="hero">
+    <div class="hero-label">Dream Insurance — Policy Cats. Since 3 AM.</div>
+    <h1>Your dreams are <em>uninsured.</em><br>We find that <em>purr</em>-sonally offensive.</h1>
+    <p class="hero-sub">
+      PurrDream Mutual provides comprehensive coverage for everything that happens after you close your eyes. Tooth loss. Falling. The one where you're at work but also it's your childhood kitchen. All of it. Filed from our Floating Claims Office at 14,000 feet.
+    </p>
+  </section>
+
+  <div class="divider"></div>
+
+  <!-- FOUNDER'S NOTE -->
+  <section class="whiskers-note">
+    <div class="note-header">A Note from Nurse Whiskers, Founder & Chief Napping Officer</div>
+    <div class="note-body">
+      <p>
+        I worked the night shift at St. Bartholomew's Feline ICU for nine years. Nine years of fluorescent lights and the quiet beeping of machines monitoring cats who'd eaten things they shouldn't have.
+      </p>
+      <p>
+        Somewhere around year six, I stopped being able to tell when I was asleep. The dreams felt clinical. The shifts felt imaginary. I once filed a real incident report about a patient who turned into a salmon. HR was
+        <span class="reveal-zone">understanding.
+          <span class="reveal-text">They were not understanding.</span>
+        </span>
+      </p>
+      <p>
+        Then one night — or maybe a dream — I fell from a very tall shelf. In the dream, I shattered my pelvis. I woke up and called my insurance. They said they don't cover dreams. I said: <em>what do you mean you don't cover dreams, I was there, I felt it, I have emotional damages.</em> They hung up.
+      </p>
+      <div class="aside">
+        I haven't slept in 11 days. The balloon is real. I can see it from here. It's always been real. — N.W.
+      </div>
+    </div>
+  </section>
+
+  <div class="divider"></div>
+
+  <!-- COVERAGE -->
+  <section class="coverage">
+    <div class="coverage-header">Coverage Tiers — Select Your Fur-equency</div>
+    <div class="coverage-grid">
+      <div class="coverage-item">
+        <div class="code">PDM-001</div>
+        <h3>Kitten Nap</h3>
+        <p>Covers standard falling dreams, nudity-at-work dreams, and up to 3 tooth-loss events per lunar cycle. Does not cover the one about your mother.</p>
+        <div class="price">$47.99/mo</div>
+      </div>
+      <div class="coverage-item">
+        <div class="code">PDM-002</div>
+        <h3>Catnap Plus</h3>
+        <p>Everything in Kitten Nap, plus lucid dream liability, recurring nightmare PTSD counseling (dream-side only), and chase-sequence coverage up to Mach 2.</p>
+        <div class="price">$89.99/mo</div>
+      </div>
+      <div class="coverage-item">
+        <div class="code">PDM-003</div>
+        <h3>Deep Purr</h3>
+        <p>Full REM spectrum. Covers parallel-life dreams, the one where you can fly but only a little, prophetic visions (unverified), and sleep-within-a-sleep incidents. Includes balloon ride.</p>
+        <div class="price">$147.00/mo</div>
+      </div>
+      <div class="coverage-item">
+        <div class="code">PDM-000</div>
+        <h3>The Void</h3>
+        <p>You don't dream. You go somewhere else. We don't ask where. We just make sure you come back. 87% success rate. That's good. That's very good for this.</p>
+        <div class="price">$311.11/mo</div>
+      </div>
+    </div>
+  </section>
+
+  <div class="divider"></div>
+
+  <!-- CLAIMS / TESTIMONIALS -->
+  <section class="claims">
+    <div class="claims-header">Recent Claims — Filed from 14,000 ft.</div>
+
+    <div class="claim">
+      <div class="claim-number">CLAIM #PDM-7741</div>
+      <div class="claim-quote">
+        "I dreamt I was a bowl of warm milk. Not in a bowl. I was the milk. I had no body. I had no name. When I woke up I couldn't feel my whiskers for two hours. PurrDream covered the existential damages in full."
+      </div>
+      <div class="claim-meta">
+        — Mr. Biscuits, age 4, Domestic Shorthair
+        <span class="status">✓ APPROVED</span>
+      </div>
+    </div>
+
+    <div class="claim">
+      <div class="claim-number">CLAIM #PDM-9203</div>
+      <div class="claim-quote">
+        "Every night for three weeks I dreamt I was being chased by a cucumber. I know what you're thinking. It wasn't that kind of cucumber fear. This one had a face. It knew my name."
+      </div>
+      <div class="claim-meta">
+        — Sergeant Fluffington, age 7, Maine Coon
+        <span class="status">✓ APPROVED — PTSD-C (Cucumber)</span>
+      </div>
+    </div>
+
+    <div class="claim">
+      <div class="claim-number">CLAIM #PDM-4418</div>
+      <div class="claim-quote">
+        "I dreamt I finally caught the red dot. I held it in my paws. It was warm. It whispered something I can't remember. Then I woke up. My paws were empty. They have always been empty."
+      </div>
+      <div class="claim-meta">
+        — Anonymous, age unknown, breed declined
+        <span class="status">✓ APPROVED — GRIEF (Unrequited)</span>
+      </div>
+    </div>
+  </section>
+
+  <div class="divider"></div>
+
+  <!-- BALLOON -->
+  <section class="balloon-section">
+    <div class="balloon-ascii">
+        .  *  .    *
+    *    /\\_/\\    .
+   .   ( o.o )  *
+    *   > ^ <     .
+       /|   |\\
+      (_|   |_)
+      __|   |__
+     [___balloon___]
+      |  claims  |
+      |  office  |
+      |__________|
+       \\        /
+        \\  🐾  /
+         \\    /
+          \\  /
+           \\/
+           ||
+           ||
+    </div>
+    <div class="balloon-label">Our Floating Claims Office</div>
+    <p class="balloon-text">
+      All policy meetings take place at 14,000 feet. We believe altitude improves honesty. Also, it is harder to leave a meeting when you are in a basket above the clouds. Cancellation requests must be submitted mid-flight, in writing, by paw.
+    </p>
+  </section>
+
+  <div class="divider"></div>
+
+  <!-- FAQ -->
+  <section class="faq">
+    <div class="faq-header">Fur-equently Asked Questions</div>
+
+    <div class="faq-item">
+      <div class="faq-q">Is this real insurance?</div>
+      <div class="faq-a">We are as real as anything you experience with your eyes closed. Our actuarial tables are maintained by a team of 14 sleeping cats in a server room in Portland. They have never been awake at the same time.</div>
+    </div>
+
+    <div class="faq-item">
+      <div class="faq-q">How do I file a claim?</div>
+      <div class="faq-a">Board the balloon. Bring the dream in a jar. If you cannot jar the dream, describe it to our claims adjuster (a tabby named Leonard who will not make eye contact with you). Leonard has a 93% claim approval rate. We do not know what he does with the other 7%.</div>
+    </div>
+
+    <div class="faq-item">
+      <div class="faq-q">Can I insure someone else's dream?</div>
+      <div class="faq-a">No. Legally and metaphysically, you may only insure dreams you have personally inhabited. We tried third-party dream insurance in 2019. We lost Leonard's brother. We do not discuss this.</div>
+    </div>
+
+    <div class="faq-item">
+      <div class="faq-q">Nurse Whiskers, are you okay?</div>
+      <div class="faq-a">I appreciate your concern. I am in the balloon. I have always been in the balloon. The balloon is in the dream. The dream is in the balloon. I would like to come down now but the wind is very beautiful up here and also I don't remember how.</div>
+    </div>
+  </section>
+
+  <div class="divider"></div>
+
+  <!-- FINE PRINT -->
+  <section class="fine-print">
+    <p>PurrDream Mutual is not licensed to operate in any waking jurisdiction. All policies are binding only during REM cycles exceeding 11 minutes. Coverage void if you are a dog. Coverage void if you dream about being a dog. Coverage void in the state of Arizona for reasons we are not at liberty to discuss. Premium payments are collected via direct deposit from your dream bank account (routing number provided during onboarding nightmare).</p>
+    <p>87% of our policyholders report feeling "more insured" during sleep. 13% report a persistent buzzing sound. These numbers are not related. Probably.</p>
+    <p>PurrDream Mutual is a subsidiary of nothing. We have no parent company. We emerged fully formed from a nap Nurse Whiskers took during a code blue in 2017. Our tax status is "unclear." Our mailing address is "the sky, mostly." Our hold music is purring.</p>
+    <div class="sign-off">— Filed from 14,000 ft. with trembling paws and no regrets. Meow.</div>
+  </section>
+
+  <footer>
+    © 2026 PurrDream Mutual · Policy dreams are not dreams of policy · 🐾
+  </footer>
+
+</div>
+
+<script>
+(function() {
+  // Scatter faint paw prints
+  var trail = document.getElementById('pawTrail');
+  var pawChar = '🐾';
+  for (var i = 0; i < 20; i++) {
+    var paw = document.createElement('span');
+    paw.className = 'paw-print';
+    paw.textContent = pawChar;
+    paw.style.left = (Math.random() * 100) + '%';
+    paw.style.top = (Math.random() * 100) + '%';
+    paw.style.animationDelay = (Math.random() * 12) + 's';
+    paw.style.transform = 'rotate(' + (Math.random() * 360) + 'deg)';
+    trail.appendChild(paw);
+  }
+
+  // GSAP animations — slow, cinematic
+  gsap.fromTo('.hero-label',
+    { opacity: 0, y: 20 },
+    { opacity: 1, y: 0, duration: 1.5, delay: 0.3, ease: 'power2.out', clearProps: 'opacity,transform' }
+  );
+
+  gsap.fromTo('.hero h1',
+    { opacity: 0, y: 30 },
+    { opacity: 1, y: 0, duration: 2, delay: 0.8, ease: 'power2.out', clearProps: 'opacity,transform' }
+  );
+
+  gsap.fromTo('.hero-sub',
+    { opacity: 0, y: 20 },
+    { opacity: 1, y: 0, duration: 1.8, delay: 1.4, ease: 'power2.out', clearProps: 'opacity,transform' }
+  );
+
+  // Scroll-triggered reveals (manual, no ScrollTrigger plugin)
+  var reveals = [
+    { selector: '.whiskers-note', delay: 0 },
+    { selector: '.coverage-header', delay: 0 },
+    { selector: '.claims', delay: 0 },
+    { selector: '.faq', delay: 0 },
+    { selector: '.balloon-section', delay: 0 },
+    { selector: '.fine-print', delay: 0 }
+  ];
+
+  var coverageItems = document.querySelectorAll('.coverage-item');
+
+  function checkVisibility() {
+    var windowHeight = window.innerHeight;
+
+    reveals.forEach(function(item) {
+      var el = document.querySelector(item.selector);
+      if (!el) return;
+      var rect = el.getBoundingClientRect();
+      if (rect.top < windowHeight * 0.85 && !el.dataset.revealed) {
+        el.dataset.revealed = 'true';
+        gsap.fromTo(el,
+          { opacity: 0, y: 40 },
+          { opacity: 1, y: 0, duration: 1.5, delay: item.delay, ease: 'power2.out', clearProps: 'opacity,transform' }
+        );
+      }
+    });
+
+    coverageItems.forEach(function(el, i) {
+      var rect = el.getBoundingClientRect();
+      if (rect.top < windowHeight * 0.85 && !el.dataset.revealed) {
+        el.dataset.revealed = 'true';
+        gsap.fromTo(el,
+          { opacity: 0, y: 30 },
+          { opacity: 1, y: 0, duration: 1.2, delay: i * 0.15, ease: 'power2.out', clearProps: 'opacity,transform' }
+        );
+      }
+    });
+  }
+
+  window.addEventListener('scroll', checkVisibility, { passive: true });
+  checkVisibility();
+})();
+</script>
+
+</body>
+</html>

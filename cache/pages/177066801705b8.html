@@ -1,0 +1,793 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Purrimeter Coalition | Sock Migration Watch</title>
+  <link rel="stylesheet" href="/assets/css/pico.min.css" />
+  <link rel="stylesheet" href="/assets/css/fonts.css" />
+  <style>
+    :root {
+      --bg: #f9fffb;
+      --ink: #04140c;
+      --surgical: #0fa36b;
+      --surgical-dark: #0b7e52;
+      --mint: #dffff0;
+      --line: #072116;
+      --panel: #ffffff;
+      --alert: #022f1e;
+      --pulse: #7dffd2;
+      --grid: rgba(8, 57, 38, 0.22);
+      --portal-size: 1;
+      --x: 50%;
+      --y: 50%;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: 'IBM Plex Mono', monospace;
+      color: var(--ink);
+      background:
+        radial-gradient(circle at 10% 10%, #e9fff3 0%, transparent 30%),
+        radial-gradient(circle at 85% 20%, #ccffe8 0%, transparent 35%),
+        linear-gradient(180deg, #fcfffd 0%, #f0fff8 100%);
+      min-height: 100vh;
+    }
+
+    main {
+      width: min(1200px, 94vw);
+      margin: 1.2rem auto 2rem;
+      display: grid;
+      gap: 1rem;
+    }
+
+    nav {
+      background: var(--panel);
+      border: 2px solid var(--line);
+      border-radius: 0.85rem;
+      padding: 0.65rem 1rem;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.75rem;
+      box-shadow: 0 10px 0 rgba(7, 33, 22, 0.08);
+    }
+
+    .brand {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.55rem;
+      font-weight: 700;
+      color: var(--ink);
+    }
+
+    .brand mark {
+      background: #b8ffd9;
+      color: #022112;
+      padding: 0.15rem 0.4rem;
+      border-radius: 0.3rem;
+      border: 1px solid var(--line);
+    }
+
+    .nav-links {
+      display: inline-flex;
+      gap: 0.4rem;
+      flex-wrap: wrap;
+    }
+
+    .nav-links a {
+      color: #032114;
+      text-decoration: none;
+      border: 1px solid var(--line);
+      padding: 0.3rem 0.65rem;
+      border-radius: 999px;
+      background: #f4fff9;
+      font-size: 0.86rem;
+      font-weight: 600;
+    }
+
+    .hero {
+      border: 2px solid var(--line);
+      border-radius: 1rem;
+      background: var(--panel);
+      box-shadow: 0 14px 0 rgba(7, 33, 22, 0.08);
+      overflow: hidden;
+      position: relative;
+    }
+
+    .hero::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background:
+        repeating-linear-gradient(
+          90deg,
+          transparent 0,
+          transparent 24px,
+          rgba(11, 126, 82, 0.06) 24px,
+          rgba(11, 126, 82, 0.06) 25px
+        );
+      pointer-events: none;
+    }
+
+    .hero-top {
+      display: grid;
+      gap: 0.9rem;
+      grid-template-columns: 1.1fr 1fr;
+      padding: 1rem;
+      position: relative;
+      z-index: 1;
+    }
+
+    .headline {
+      padding: 0.8rem;
+      border: 1px dashed var(--line);
+      border-radius: 0.75rem;
+      background: #f8fffb;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: clamp(1.5rem, 3.8vw, 2.9rem);
+      line-height: 1;
+      letter-spacing: -0.03em;
+      color: #03170e;
+    }
+
+    .headline p {
+      margin: 0.85rem 0;
+      color: #052014;
+      font-size: 0.95rem;
+      max-width: 56ch;
+    }
+
+    .console {
+      border: 2px solid #052014;
+      border-radius: 0.65rem;
+      padding: 0.6rem;
+      background: #031d12;
+      color: #dbffee;
+      font-size: 0.8rem;
+      line-height: 1.35;
+      box-shadow: inset 0 0 0 1px #1ef2a655;
+    }
+
+    .console b { color: #8bffcc; }
+
+    .cta-row {
+      display: flex;
+      gap: 0.6rem;
+      flex-wrap: wrap;
+      margin-top: 0.75rem;
+    }
+
+    button,
+    .button-like {
+      border: 2px solid #052014;
+      background: linear-gradient(180deg, #d5ffea, #b7ffd7);
+      color: #032114;
+      font-weight: 700;
+      border-radius: 0.65rem;
+      padding: 0.52rem 0.8rem;
+      cursor: pointer;
+      text-decoration: none;
+      font-family: inherit;
+    }
+
+    button.secondary {
+      background: #ffffff;
+    }
+
+    .lab {
+      position: relative;
+      border: 2px solid var(--line);
+      border-radius: 0.9rem;
+      min-height: 380px;
+      overflow: hidden;
+      background:
+        radial-gradient(circle at var(--x) var(--y), rgba(125,255,210,0.55), transparent 40%),
+        linear-gradient(150deg, #f6fffa 0%, #d9ffec 65%, #eefff7 100%);
+    }
+
+    .lab::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background-image:
+        linear-gradient(var(--grid) 1px, transparent 1px),
+        linear-gradient(90deg, var(--grid) 1px, transparent 1px);
+      background-size: 20px 20px;
+      opacity: 0.35;
+    }
+
+    .scanner {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(180deg, transparent 0%, rgba(6, 92, 61, 0.13) 48%, transparent 52%, transparent 100%);
+      animation: scan 4.8s linear infinite;
+      pointer-events: none;
+    }
+
+    @keyframes scan {
+      from { transform: translateY(-75%); }
+      to { transform: translateY(75%); }
+    }
+
+    .cat-stage {
+      position: absolute;
+      left: 50%;
+      top: 52%;
+      transform: translate(-50%, -50%);
+      width: 250px;
+      height: 250px;
+      z-index: 2;
+    }
+
+    .cat-head {
+      width: 150px;
+      height: 140px;
+      background: #ffffff;
+      border: 3px solid var(--line);
+      border-radius: 48% 48% 44% 44%;
+      position: absolute;
+      left: 50%;
+      top: 52%;
+      transform: translate(-50%, -50%);
+      box-shadow: 0 8px 0 rgba(7,33,22,0.12);
+      transition: transform 260ms ease;
+    }
+
+    .cat-head::before,
+    .cat-head::after {
+      content: "";
+      position: absolute;
+      width: 48px;
+      height: 48px;
+      background: #ffffff;
+      border: 3px solid var(--line);
+      top: -26px;
+      clip-path: polygon(50% 0, 100% 100%, 0 100%);
+      transition: transform 260ms ease;
+    }
+
+    .cat-head::before { left: 7px; transform: rotate(-16deg); }
+    .cat-head::after { right: 7px; transform: rotate(16deg); }
+
+    .eye {
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      background: #071f14;
+      position: absolute;
+      top: 52px;
+      box-shadow: inset 0 0 0 5px #9cffcf;
+    }
+
+    .eye.left { left: 36px; }
+    .eye.right { right: 36px; }
+
+    .nose {
+      width: 16px;
+      height: 11px;
+      background: #0f9e68;
+      border: 2px solid var(--line);
+      border-radius: 42% 42% 52% 52%;
+      position: absolute;
+      left: 50%;
+      top: 84px;
+      transform: translateX(-50%);
+    }
+
+    .portal {
+      position: absolute;
+      width: calc(92px * var(--portal-size));
+      height: calc(120px * var(--portal-size));
+      border: 3px solid var(--line);
+      left: 50%;
+      top: 50%;
+      transform: translate(-50%, -50%) rotate(13deg);
+      border-radius: 45% 55% 60% 40% / 35% 50% 50% 65%;
+      background:
+        radial-gradient(circle at 30% 30%, #dcffee 0%, #8bffd1 40%, #0d8d5d 78%, #043624 100%);
+      box-shadow: 0 0 0 10px rgba(16,164,108,0.18), 0 0 42px rgba(15,163,107,0.44);
+      animation: wobble 3s ease-in-out infinite;
+      z-index: 1;
+      transition: all 300ms ease;
+    }
+
+    @keyframes wobble {
+      0%, 100% { border-radius: 45% 55% 60% 40% / 35% 50% 50% 65%; }
+      50% { border-radius: 60% 40% 45% 55% / 55% 45% 60% 40%; }
+    }
+
+    .sock {
+      position: absolute;
+      width: 44px;
+      height: 64px;
+      left: calc(50% + 40px);
+      top: calc(50% - 20px);
+      background: #ffffff;
+      border: 2px solid var(--line);
+      border-radius: 12px 12px 16px 16px;
+      transform: rotate(-20deg);
+      z-index: 3;
+      box-shadow: 4px 5px 0 rgba(7,33,22,0.16);
+    }
+
+    .sock::before {
+      content: "";
+      position: absolute;
+      width: 30px;
+      height: 20px;
+      border: 2px solid var(--line);
+      border-left: none;
+      right: -16px;
+      bottom: -2px;
+      border-radius: 0 14px 14px 0;
+      background: #ffffff;
+    }
+
+    .sock::after {
+      content: "";
+      position: absolute;
+      inset: 8px 6px;
+      border-top: 2px dashed #0fa36b;
+      border-bottom: 2px dashed #0fa36b;
+    }
+
+    .paw-trail {
+      position: absolute;
+      inset: 0;
+      z-index: 4;
+      pointer-events: none;
+      overflow: hidden;
+    }
+
+    .paw {
+      position: absolute;
+      width: 24px;
+      height: 24px;
+      border-radius: 48% 48% 45% 45%;
+      background: #d7ffe9;
+      border: 2px solid var(--line);
+      opacity: 0;
+      transform: scale(0.3);
+    }
+
+    .paw::before,
+    .paw::after {
+      content: "";
+      position: absolute;
+      width: 8px;
+      height: 8px;
+      background: #d7ffe9;
+      border: 2px solid var(--line);
+      border-radius: 50%;
+      top: -9px;
+    }
+
+    .paw::before { left: -3px; }
+    .paw::after { right: -3px; }
+
+    .panel-grid {
+      display: grid;
+      gap: 0.8rem;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      padding: 0 1rem 1rem;
+    }
+
+    .tile {
+      border: 2px solid var(--line);
+      border-radius: 0.8rem;
+      background: #ffffff;
+      padding: 0.8rem;
+      position: relative;
+      overflow: hidden;
+      min-height: 170px;
+    }
+
+    .tile h2,
+    .tile h3 {
+      margin: 0;
+      font-size: 0.95rem;
+      color: #03170e;
+    }
+
+    .tile p,
+    .tile li,
+    .tile dt,
+    .tile dd,
+    .tile small,
+    .tile label {
+      color: #072015;
+      font-size: 0.82rem;
+      margin: 0;
+    }
+
+    .tile.visual::before {
+      content: "";
+      position: absolute;
+      width: 160%;
+      height: 160%;
+      left: -30%;
+      top: -25%;
+      background:
+        conic-gradient(from 0deg, #cbffe8, #98ffd2, #e0fff1, #85f4c4, #cbffe8);
+      clip-path: polygon(50% 0, 100% 30%, 85% 100%, 20% 85%, 0 35%);
+      border: 2px solid var(--line);
+      opacity: 0.9;
+      transition: transform 500ms ease;
+    }
+
+    .tile.visual:hover::before { transform: rotate(24deg) scale(1.1); }
+
+    .tile.visual .content {
+      position: relative;
+      z-index: 1;
+      background: rgba(255,255,255,0.92);
+      border: 1px solid var(--line);
+      padding: 0.5rem;
+      border-radius: 0.6rem;
+      margin-top: 4.3rem;
+    }
+
+    .price {
+      font-size: 1.4rem;
+      font-weight: 700;
+      color: #03170e;
+    }
+
+    .badge {
+      display: inline-block;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      background: #d9ffeb;
+      color: #052014;
+      font-size: 0.72rem;
+      padding: 0.14rem 0.45rem;
+      margin-top: 0.2rem;
+      margin-right: 0.25rem;
+    }
+
+    .tick {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      margin-top: 0.4rem;
+      font-weight: 600;
+    }
+
+    .tick i { width: 14px; height: 14px; }
+
+    .faq details {
+      border: 1px solid var(--line);
+      border-radius: 0.6rem;
+      background: #f7fff9;
+      padding: 0.45rem 0.6rem;
+      margin-top: 0.45rem;
+    }
+
+    .faq summary {
+      color: #032013;
+      cursor: pointer;
+      font-weight: 700;
+      font-size: 0.82rem;
+    }
+
+    .faq p { margin-top: 0.45rem; }
+
+    footer {
+      border: 2px solid var(--line);
+      border-radius: 0.9rem;
+      background: #061f14;
+      color: #effff7;
+      padding: 0.9rem;
+      font-size: 0.8rem;
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 0.6rem;
+      align-items: center;
+    }
+
+    footer a { color: #b8ffd9; }
+
+    body.night {
+      --bg: #03160f;
+      --ink: #f0fff8;
+      --panel: #07291c;
+      --line: #b9ffd8;
+      --grid: rgba(208, 255, 231, 0.25);
+      background:
+        radial-gradient(circle at 10% 10%, #0b3b28 0%, transparent 35%),
+        radial-gradient(circle at 80% 25%, #0e4f35 0%, transparent 40%),
+        linear-gradient(180deg, #041d13 0%, #04140d 100%);
+      color: var(--ink);
+    }
+
+    body.night .hero,
+    body.night .tile,
+    body.night nav,
+    body.night .headline,
+    body.night .lab,
+    body.night .tile.visual .content {
+      background-color: #08271b;
+      color: #ecfff5;
+    }
+
+    body.night .tile p,
+    body.night .tile li,
+    body.night .tile dt,
+    body.night .tile dd,
+    body.night .tile small,
+    body.night .tile h2,
+    body.night .tile h3,
+    body.night .headline p,
+    body.night h1,
+    body.night .nav-links a,
+    body.night .brand,
+    body.night .price,
+    body.night .faq summary,
+    body.night .faq p,
+    body.night label {
+      color: #f3fff9;
+    }
+
+    body.night button,
+    body.night .button-like {
+      background: linear-gradient(180deg, #154931, #0d3c28);
+      color: #f3fff9;
+      border-color: #c2ffdf;
+    }
+
+    body.night .sock,
+    body.night .sock::before,
+    body.night .cat-head,
+    body.night .cat-head::before,
+    body.night .cat-head::after {
+      background: #d8ffeb;
+    }
+
+    @media (max-width: 980px) {
+      .hero-top { grid-template-columns: 1fr; }
+      .panel-grid { grid-template-columns: 1fr 1fr; }
+    }
+
+    @media (max-width: 650px) {
+      .panel-grid { grid-template-columns: 1fr; }
+      footer { grid-template-columns: 1fr; }
+      .lab { min-height: 330px; }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <nav>
+      <div class="brand">
+        <i data-lucide="cat"></i>
+        <span>Purrimeter Coalition <mark>501(c)(3)</mark></span>
+      </div>
+      <div class="nav-links" aria-label="Primary">
+        <a href="#watch">Watch Grid</a>
+        <a href="#kits">Guardian Kits</a>
+        <a href="#proof">Witnesses</a>
+        <a href="#faq">Field FAQ</a>
+      </div>
+    </nav>
+
+    <section class="hero" id="watch">
+      <div class="hero-top">
+        <div class="headline">
+          <h1>Every missing sock leaves a pawprint.</h1>
+          <p>Neighborhood cats track garment migration corridors and report active tunnel flow before laundry loss reaches household-critical levels.</p>
+
+          <div class="console" aria-label="Live migration log">
+            <div><b>NODE</b> // CEDAR DISTRICT 09 // Status: PURR-SCAN ONLINE</div>
+            <div><b>ALERT</b> // Right-foot cotton, striped, size M detected near radiator vent.</div>
+            <div><b>INTERCEPT</b> // Patrol cat "Comet" deployed decoy ankle sock at 07:32.</div>
+          </div>
+
+          <div class="cta-row">
+            <button id="patrolBtn" type="button">Release Decoy Sock</button>
+            <button id="nightBtn" class="secondary" type="button">Night Patrol Mode</button>
+            <a class="button-like" href="#kits">Sponsor a Cat Unit</a>
+          </div>
+        </div>
+
+        <div class="lab" id="artLab" aria-label="Migration visualizer">
+          <div class="scanner"></div>
+          <div class="cat-stage" id="catStage">
+            <div class="portal" id="portal"></div>
+            <div class="sock" aria-hidden="true"></div>
+            <div class="cat-head" id="catHead">
+              <div class="eye left"></div>
+              <div class="eye right"></div>
+              <div class="nose"></div>
+            </div>
+          </div>
+          <div class="paw-trail" id="pawTrail"></div>
+        </div>
+      </div>
+
+      <div class="panel-grid">
+        <article class="tile visual" id="kits">
+          <h2>Guardian Kit</h2>
+          <div class="content">
+            <div class="price">$19/mo</div>
+            <span class="badge">Home Tunnel Radar</span>
+            <span class="badge">2 Cat Audits</span>
+            <div class="tick"><i data-lucide="check-circle-2"></i> Vent whisker sensors</div>
+            <div class="tick"><i data-lucide="check-circle-2"></i> Sock scent decoys</div>
+          </div>
+        </article>
+
+        <article class="tile" id="proof">
+          <h3>Witness Statements</h3>
+          <p>"Our dryer ate nothing for three months after Inspector Beans moved in."</p>
+          <small>- Anja K., volunteer district lead</small>
+          <p style="margin-top:.5rem;">"Purrimeter tagged the migration route under our hallway rug in one night."</p>
+          <small>- Malik R., donor family</small>
+          <p style="margin-top:.5rem;">"We recovered six unmatched socks from a single tunnel branch."</p>
+          <small>- St. Clawrence Shelter Lab</small>
+        </article>
+
+        <article class="tile faq" id="faq">
+          <h3>Field FAQ</h3>
+          <details>
+            <summary>Why cats?</summary>
+            <p>Feline patrol units detect static-charge flutter and thermal drafts linked to early sock migration.</p>
+          </details>
+          <details>
+            <summary>Can I fund one district?</summary>
+            <p>Yes. District sponsorship starts at $120/month and includes a verified migration map report.</p>
+          </details>
+          <details>
+            <summary>Do you serve apartment buildings?</summary>
+            <p>Yes. Multi-unit “Tower Whisker” deployment is available in 14 cities.</p>
+          </details>
+        </article>
+
+        <article class="tile visual">
+          <h3>Portal Intensity</h3>
+          <p>Adjust tunnel pressure to train cats safely.</p>
+          <label for="intensity">Portal Scale</label>
+          <input id="intensity" type="range" min="70" max="150" value="100" />
+          <div class="tick"><i data-lucide="sparkles"></i> Live visualization calibration</div>
+        </article>
+
+        <article class="tile">
+          <h3>Programs</h3>
+          <div class="tick"><i data-lucide="paw-print"></i> Paw Forensics Labs</div>
+          <div class="tick"><i data-lucide="map-pinned"></i> Municipal Tunnel Mapping</div>
+          <div class="tick"><i data-lucide="shield-check"></i> Youth Laundry Safety Clinics</div>
+          <div class="tick"><i data-lucide="heart-handshake"></i> Shelter Cat Career Placement</div>
+        </article>
+
+        <article class="tile visual">
+          <h3>Migrate Counter</h3>
+          <p style="font-size:1.9rem;font-weight:700;margin-top:.4rem;" id="counter">00127</p>
+          <p>Pairs preserved this week by certified neighborhood cats.</p>
+          <button id="countPulse" type="button" style="margin-top:.55rem;">Recount District</button>
+        </article>
+      </div>
+    </section>
+
+    <footer>
+      <div>
+        <strong>Purrimeter Coalition</strong><br>
+        88 Whisker Exchange, Suite 4, Portland OR<br>
+        Hotline: (503) 555-PAWS | intake@purrimeter.org
+      </div>
+      <div>
+        Annual report and donor policy available on request.<br>
+        <a href="#watch">Return to scan grid</a>
+      </div>
+    </footer>
+  </main>
+
+  <script src="/assets/js/gsap.min.js"></script>
+  <script src="/assets/js/lucide.min.js"></script>
+  <script>
+    (function () {
+      if (window.lucide && typeof window.lucide.createIcons === 'function') {
+        window.lucide.createIcons();
+      }
+
+      const lab = document.getElementById('artLab');
+      const portal = document.getElementById('portal');
+      const catHead = document.getElementById('catHead');
+      const nightBtn = document.getElementById('nightBtn');
+      const patrolBtn = document.getElementById('patrolBtn');
+      const pawTrail = document.getElementById('pawTrail');
+      const intensity = document.getElementById('intensity');
+      const counter = document.getElementById('counter');
+      const pulseBtn = document.getElementById('countPulse');
+
+      let counterValue = 127;
+
+      lab.addEventListener('mousemove', function (e) {
+        const rect = lab.getBoundingClientRect();
+        const x = ((e.clientX - rect.left) / rect.width) * 100;
+        const y = ((e.clientY - rect.top) / rect.height) * 100;
+        lab.style.setProperty('--x', x + '%');
+        lab.style.setProperty('--y', y + '%');
+      });
+
+      lab.addEventListener('mouseenter', function () {
+        catHead.style.transform = 'translate(-50%, -50%) rotate(-3deg) scale(1.04)';
+      });
+
+      lab.addEventListener('mouseleave', function () {
+        catHead.style.transform = 'translate(-50%, -50%) rotate(0deg) scale(1)';
+      });
+
+      intensity.addEventListener('input', function () {
+        const v = Number(intensity.value) / 100;
+        document.documentElement.style.setProperty('--portal-size', String(v));
+        const glow = 0.3 + (v - 0.7);
+        portal.style.boxShadow = '0 0 0 10px rgba(16,164,108,0.18), 0 0 42px rgba(15,163,107,' + Math.max(0.25, Math.min(0.8, glow)).toFixed(2) + ')';
+      });
+
+      nightBtn.addEventListener('click', function () {
+        document.body.classList.toggle('night');
+      });
+
+      patrolBtn.addEventListener('click', function () {
+        for (let i = 0; i < 10; i++) {
+          const paw = document.createElement('span');
+          paw.className = 'paw';
+          const startX = 8 + Math.random() * 84;
+          const startY = 18 + Math.random() * 65;
+          paw.style.left = startX + '%';
+          paw.style.top = startY + '%';
+          pawTrail.appendChild(paw);
+
+          if (window.gsap) {
+            window.gsap.fromTo(
+              paw,
+              { opacity: 0, scale: 0.3, y: 20, rotate: -20 + Math.random() * 40 },
+              {
+                opacity: 1,
+                scale: 1,
+                y: -20 - Math.random() * 32,
+                duration: 0.45,
+                ease: 'back.out(2)',
+                onComplete: function () {
+                  window.gsap.to(paw, {
+                    opacity: 0,
+                    y: -42,
+                    duration: 0.55,
+                    onComplete: function () {
+                      paw.remove();
+                    }
+                  });
+                }
+              }
+            );
+          } else {
+            paw.style.opacity = '1';
+            setTimeout(function () { paw.remove(); }, 650);
+          }
+        }
+
+        if (window.gsap) {
+          const tl = window.gsap.timeline();
+          tl.to(portal, { rotate: '+=20', scale: 1.15, duration: 0.24, ease: 'power2.out' })
+            .to(portal, { rotate: '-=20', scale: 1, duration: 0.4, ease: 'elastic.out(1, 0.4)' });
+          tl.to(catHead, { y: '-=6', duration: 0.18, yoyo: true, repeat: 1 }, 0);
+        }
+      });
+
+      pulseBtn.addEventListener('click', function () {
+        counterValue += 3 + Math.floor(Math.random() * 6);
+        counter.textContent = String(counterValue).padStart(5, '0');
+        if (window.gsap) {
+          window.gsap.fromTo(counter, { scale: 1.36, color: '#0b7e52' }, { scale: 1, color: '', duration: 0.4, ease: 'power2.out' });
+        }
+      });
+    })();
+  </script>
+</body>
+</html>

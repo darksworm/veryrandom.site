@@ -1,0 +1,929 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Reliquary Rinse & Armor Atelier</title>
+<style>
+  :root {
+    --coral: #ff6b5e;
+    --gold: #f3b64c;
+    --purple: #7c4dff;
+    --deep: #171a52;
+    --ink: #0b0f2a;
+    --cream: #fff2e6;
+    --glow: 0 0 25px rgba(255, 107, 94, 0.35), 0 0 45px rgba(243, 182, 76, 0.25);
+    --hue: 0deg;
+    --zoom: 1;
+  }
+  * { box-sizing: border-box; }
+  html, body { height: 100%; }
+  body {
+    margin: 0;
+    font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, "Helvetica Neue", Arial, "Noto Sans", "Liberation Sans", sans-serif;
+    color: var(--cream);
+    background:
+      radial-gradient(1200px 800px at 10% 10%, rgba(255, 107, 94, 0.2), transparent 60%),
+      radial-gradient(900px 700px at 90% 20%, rgba(243, 182, 76, 0.18), transparent 55%),
+      radial-gradient(700px 700px at 50% 100%, rgba(124, 77, 255, 0.2), transparent 60%),
+      linear-gradient(160deg, #0a0f2b 0%, #14163b 50%, #0b0f2a 100%);
+    overflow: hidden;
+    filter: hue-rotate(var(--hue));
+    transform: scale(var(--zoom));
+    transform-origin: top left;
+  }
+
+  .desktop {
+    position: relative;
+    width: 100vw;
+    height: 100vh;
+    padding: 18px;
+  }
+
+  .window {
+    position: absolute;
+    background: rgba(13, 15, 40, 0.82);
+    border: 1px solid rgba(243, 182, 76, 0.25);
+    border-radius: 14px;
+    box-shadow: 0 20px 50px rgba(0,0,0,0.45), inset 0 0 0 1px rgba(255,255,255,0.03);
+    backdrop-filter: blur(8px);
+    overflow: hidden;
+    transition: transform 0.4s ease, opacity 0.4s ease, box-shadow 0.4s ease;
+  }
+  .window.collapsed .content { display: none; }
+  .window.collapsed { height: 48px !important; }
+
+  .titlebar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    padding: 10px 12px;
+    background: linear-gradient(90deg, rgba(255, 107, 94, 0.2), rgba(124, 77, 255, 0.2));
+    border-bottom: 1px solid rgba(255,255,255,0.05);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    font-size: 12px;
+  }
+  .titlebar .dots {
+    display: flex;
+    gap: 6px;
+  }
+  .dot { width: 10px; height: 10px; border-radius: 50%; }
+  .dot.red { background: #ff6b5e; }
+  .dot.gold { background: #f3b64c; }
+  .dot.purple { background: #7c4dff; }
+
+  .content { padding: 16px; }
+
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 12px;
+  }
+  .panel {
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,255,255,0.05);
+    border-radius: 12px;
+    padding: 12px;
+  }
+
+  h1, h2, h3 { margin: 0 0 8px 0; }
+  h1 { font-size: 28px; }
+  h2 { font-size: 20px; }
+  h3 { font-size: 16px; }
+  p { margin: 6px 0 10px 0; line-height: 1.45; }
+  small { opacity: 0.7; }
+
+  .badge { display: inline-block; padding: 4px 8px; border-radius: 999px; background: rgba(243,182,76,0.15); border: 1px solid rgba(243,182,76,0.35); font-size: 12px; }
+  .btn {
+    appearance: none;
+    border: 1px solid rgba(255,255,255,0.2);
+    background: linear-gradient(180deg, rgba(255,107,94,0.25), rgba(124,77,255,0.25));
+    color: var(--cream);
+    padding: 8px 12px;
+    border-radius: 10px;
+    cursor: pointer;
+    font-weight: 600;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    box-shadow: 0 6px 16px rgba(0,0,0,0.3);
+  }
+  .btn:hover { transform: translateY(-1px); box-shadow: 0 10px 22px rgba(0,0,0,0.35); }
+  .btn:active { transform: translateY(1px); }
+
+  .ticker {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+  .stat {
+    padding: 10px;
+    border-radius: 10px;
+    background: rgba(10,10,30,0.5);
+    border: 1px solid rgba(124,77,255,0.35);
+    min-width: 120px;
+  }
+  .stat strong { font-size: 20px; display: block; }
+
+  .armor-card {
+    display: grid;
+    grid-template-columns: 120px 1fr;
+    gap: 12px;
+    align-items: center;
+  }
+  .armor-visual {
+    width: 120px; height: 120px; border-radius: 14px;
+    background:
+      radial-gradient(circle at 30% 30%, rgba(255,255,255,0.2), transparent 40%),
+      linear-gradient(135deg, rgba(124,77,255,0.35), rgba(243,182,76,0.25));
+    border: 1px solid rgba(255,255,255,0.1);
+    position: relative;
+    overflow: hidden;
+  }
+  .armor-visual::before {
+    content: "";
+    position: absolute;
+    inset: 10px;
+    border-radius: 8px;
+    border: 1px dashed rgba(255,255,255,0.3);
+    transform: rotate(6deg);
+  }
+
+  .pulse {
+    position: absolute;
+    top: 50%; left: 50%;
+    width: 10px; height: 10px;
+    border-radius: 50%;
+    background: var(--gold);
+    transform: translate(-50%, -50%);
+    box-shadow: var(--glow);
+    animation: pulse 2.6s infinite;
+  }
+  @keyframes pulse {
+    0% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
+    70% { transform: translate(-50%, -50%) scale(4); opacity: 0; }
+    100% { opacity: 0; }
+  }
+
+  .floating-sigils {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    opacity: 0.7;
+  }
+  .sigil {
+    position: absolute;
+    width: 40px; height: 40px;
+    border: 1px solid rgba(243,182,76,0.3);
+    border-radius: 50%;
+    animation: drift 16s infinite ease-in-out;
+  }
+  @keyframes drift {
+    0% { transform: translate(0,0) rotate(0deg); }
+    50% { transform: translate(60px,-40px) rotate(180deg); }
+    100% { transform: translate(0,0) rotate(360deg); }
+  }
+
+  .chart {
+    display: grid;
+    grid-template-columns: repeat(12, 1fr);
+    gap: 4px;
+    align-items: end;
+    height: 120px;
+  }
+  .bar {
+    background: linear-gradient(180deg, rgba(255,107,94,0.9), rgba(124,77,255,0.6));
+    border-radius: 6px 6px 2px 2px;
+    box-shadow: 0 0 12px rgba(255,107,94,0.3);
+  }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 12px;
+  }
+  th, td {
+    border-bottom: 1px solid rgba(255,255,255,0.08);
+    padding: 6px 4px;
+    text-align: left;
+  }
+  th { color: var(--gold); }
+
+  .memory-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+  .tag {
+    background: rgba(124,77,255,0.2);
+    border: 1px solid rgba(124,77,255,0.5);
+    padding: 4px 8px;
+    border-radius: 10px;
+    font-size: 12px;
+  }
+
+  .ledger {
+    height: 120px;
+    overflow: auto;
+    background: rgba(0,0,0,0.2);
+    border-radius: 8px;
+    border: 1px solid rgba(255,255,255,0.05);
+    padding: 8px;
+    font-size: 12px;
+  }
+  .ledger div { margin-bottom: 6px; }
+
+  .marquee {
+    display: inline-block;
+    white-space: nowrap;
+    animation: scroll 16s linear infinite;
+  }
+  @keyframes scroll {
+    0% { transform: translateX(0); }
+    100% { transform: translateX(-50%); }
+  }
+
+  .toggle {
+    display: flex; align-items: center; gap: 8px;
+  }
+  .toggle input { width: 42px; height: 22px; appearance: none; background: rgba(255,255,255,0.1); border-radius: 999px; position: relative; outline: none; cursor: pointer; }
+  .toggle input::before { content: ""; position: absolute; top: 2px; left: 2px; width: 18px; height: 18px; border-radius: 50%; background: var(--gold); transition: transform 0.2s ease; }
+  .toggle input:checked::before { transform: translateX(20px); }
+
+  .conveyor {
+    position: relative; height: 36px; overflow: hidden; border-radius: 8px; border: 1px solid rgba(255,255,255,0.08);
+    background: linear-gradient(90deg, rgba(255,107,94,0.15), rgba(124,77,255,0.15));
+  }
+  .conveyor .belt {
+    position: absolute; inset: 0; display: flex; gap: 12px; align-items: center; padding: 0 12px;
+    animation: belt 8s linear infinite;
+  }
+  @keyframes belt { 0% { transform: translateX(0); } 100% { transform: translateX(-50%); } }
+
+  .chip { padding: 4px 8px; border-radius: 999px; background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.12); font-size: 12px; }
+
+  .window-hero { width: 560px; height: 360px; left: 30px; top: 20px; }
+  .window-ops { width: 430px; height: 360px; left: 620px; top: 40px; }
+  .window-style { width: 460px; height: 340px; left: 140px; top: 410px; }
+  .window-lab { width: 430px; height: 360px; left: 700px; top: 430px; }
+  .window-minis { width: 300px; height: 300px; left: 30px; top: 430px; }
+
+  .window:hover { box-shadow: 0 30px 70px rgba(0,0,0,0.55); }
+
+  .glitch {
+    position: relative;
+    text-shadow: 2px 0 var(--coral), -2px 0 var(--purple);
+  }
+
+  .equalizer { display: flex; gap: 4px; align-items: flex-end; height: 40px; }
+  .eq-bar { width: 6px; background: var(--gold); border-radius: 4px; animation: eq 1.2s infinite ease-in-out; }
+  .eq-bar:nth-child(2) { animation-delay: 0.2s; }
+  .eq-bar:nth-child(3) { animation-delay: 0.4s; }
+  .eq-bar:nth-child(4) { animation-delay: 0.6s; }
+  .eq-bar:nth-child(5) { animation-delay: 0.8s; }
+  @keyframes eq { 0% { height: 8px; } 50% { height: 38px; } 100% { height: 10px; } }
+  .muted .eq-bar { animation-play-state: paused; opacity: 0.4; }
+
+  .steam { position: absolute; inset: 0; pointer-events: none; opacity: 0; transition: opacity 0.4s ease; }
+  .steam.active { opacity: 1; }
+  .steam span { position: absolute; width: 120px; height: 120px; border-radius: 50%; background: radial-gradient(circle, rgba(255,255,255,0.2), transparent 60%); animation: steam 6s infinite; }
+  .steam span:nth-child(2) { left: 40%; animation-delay: 1s; }
+  .steam span:nth-child(3) { left: 70%; animation-delay: 2s; }
+  @keyframes steam { 0% { transform: translateY(40px) scale(0.6); opacity: 0; } 40% { opacity: 0.6; } 100% { transform: translateY(-120px) scale(1.2); opacity: 0; } }
+
+  .armor-mode .armor-visual { filter: saturate(1.8) brightness(1.2); }
+  .armor-mode .badge { background: rgba(124,77,255,0.25); }
+  .armor-mode .titlebar { background: linear-gradient(90deg, rgba(124,77,255,0.4), rgba(243,182,76,0.2)); }
+
+  .bubble-field { position: absolute; inset: 0; pointer-events: none; overflow: hidden; }
+  .bubble { position: absolute; width: 14px; height: 14px; border-radius: 50%; background: rgba(255,255,255,0.2); border: 1px solid rgba(255,255,255,0.2); animation: float 10s linear infinite; }
+  @keyframes float { 0% { transform: translateY(120vh) scale(0.6); opacity: 0; } 10% { opacity: 0.6; } 100% { transform: translateY(-20vh) scale(1.4); opacity: 0; } }
+
+  .footer-bar {
+    position: absolute;
+    left: 12px; right: 12px; bottom: 10px;
+    background: rgba(10,10,30,0.7);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 12px;
+    padding: 8px 12px;
+    display: flex; align-items: center; justify-content: space-between; gap: 12px;
+    font-size: 12px;
+  }
+
+  .legend { font-size: 11px; opacity: 0.75; }
+
+  .side-notes { font-size: 12px; opacity: 0.8; }
+
+  .fake-input { background: rgba(0,0,0,0.2); border: 1px solid rgba(255,255,255,0.1); color: var(--cream); border-radius: 8px; padding: 6px 8px; width: 100%; }
+
+  .mini-window {
+    position: absolute;
+    width: 180px; height: 120px;
+    border-radius: 10px;
+    background: rgba(20,20,50,0.75);
+    border: 1px solid rgba(255,255,255,0.08);
+    padding: 8px;
+    font-size: 11px;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.45);
+  }
+
+  .badge-row { display: flex; flex-wrap: wrap; gap: 8px; }
+
+  .scoreboard { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px; }
+  .score { background: rgba(124,77,255,0.2); border: 1px solid rgba(124,77,255,0.35); border-radius: 10px; padding: 8px; font-size: 12px; }
+
+  .fact { font-size: 12px; border-left: 2px solid rgba(243,182,76,0.5); padding-left: 8px; }
+
+  .notice {
+    background: rgba(255,107,94,0.1);
+    border: 1px dashed rgba(255,107,94,0.4);
+    border-radius: 8px;
+    padding: 8px;
+    font-size: 12px;
+  }
+
+  .window-hint { position: absolute; right: 14px; top: 62px; font-size: 11px; opacity: 0.6; }
+
+  .chaos-layer {
+    position: absolute;
+    inset: 0;
+    background:
+      repeating-linear-gradient(120deg, rgba(255,255,255,0.03) 0, rgba(255,255,255,0.03) 2px, transparent 2px, transparent 6px),
+      repeating-linear-gradient(20deg, rgba(124,77,255,0.05) 0, rgba(124,77,255,0.05) 1px, transparent 1px, transparent 8px);
+    mix-blend-mode: screen;
+    pointer-events: none;
+  }
+</style>
+</head>
+<body>
+<div class="desktop" id="desktop">
+  <div class="floating-sigils">
+    <div class="sigil" style="left:8%; top:20%;"></div>
+    <div class="sigil" style="left:70%; top:12%;"></div>
+    <div class="sigil" style="left:42%; top:72%;"></div>
+    <div class="sigil" style="left:86%; top:66%;"></div>
+  </div>
+  <div class="bubble-field" id="bubbleField"></div>
+  <div class="steam" id="steam">
+    <span style="left:10%; top:70%"></span>
+    <span style="left:40%; top:70%"></span>
+    <span style="left:70%; top:70%"></span>
+  </div>
+  <div class="pulse"></div>
+
+  <section class="window window-hero" id="winHero">
+    <div class="titlebar">
+      <div class="dots"><span class="dot red"></span><span class="dot gold"></span><span class="dot purple"></span></div>
+      <div>Reliquary Rinse & Armor Atelier</div>
+      <div class="badge">Open Since The Last Crusade</div>
+    </div>
+    <div class="content">
+      <h1 class="glitch">Memory-Laundering, Miniature Armor, Maximum Drama</h1>
+      <p>Welcome to the only laundromat that rinses your regrets into wearable folklore. We sanitize sentiments, press them into stitchable sigils, and ship them inside a micro-mail dress code. Our fashion label, <strong>Chainmail Cherubs</strong>, proves that evangelical cyberpunk folklore is best worn at the ankles.</p>
+      <p>Our motto: <em>“Wash once, remember twice.”</em> Our disclaimer: <em>“No refunds for déjà vu.”</em></p>
+      <div class="ticker">
+        <div class="stat"><small>Rinse Cycles Today</small><strong id="rinseCount">128</strong><small>+3 with every memory</small></div>
+        <div class="stat"><small>Armor Compliance</small><strong id="armorStatus">72%</strong><small>Grail Adjacent</small></div>
+        <div class="stat"><small>Miniature Hems</small><strong id="miniHems">4,812</strong><small>tiny yet sacred</small></div>
+        <div class="stat"><small>Confessions Processed</small><strong id="confessionCount">2,039</strong><small>non-binding</small></div>
+      </div>
+      <div style="margin-top:12px; display:flex; gap:8px; flex-wrap:wrap;">
+        <button class="btn" id="washBtn">Wash a Memory</button>
+        <button class="btn" id="fortuneBtn">Spin a Prophecy</button>
+        <button class="btn" id="steamBtn">Release Holy Steam</button>
+        <button class="btn" id="shuffleBtn">Shuffle Windows</button>
+        <button class="btn" id="openAllBtn">Toggle All Windows</button>
+      </div>
+      <p class="legend" id="fortune">Prophecy queue: “Your next outfit will defeat a small prophecy.”</p>
+      <div class="notice">Footnote 9a: Our machines are certified by the Guild of Audible Silence. This does not mean they are quiet, only spiritually subscribed to quietness.</div>
+    </div>
+  </section>
+
+  <section class="window window-ops" id="winOps">
+    <div class="titlebar">
+      <div class="dots"><span class="dot red"></span><span class="dot gold"></span><span class="dot purple"></span></div>
+      <div>Ops Cathedral // Memory Logistics</div>
+      <div class="badge">Prayer-Driven KPI</div>
+    </div>
+    <div class="content">
+      <h2>Ritual Dashboard</h2>
+      <div class="grid">
+        <div class="panel">
+          <h3>Cycle Clock</h3>
+          <p id="clock">--:--:--</p>
+          <div class="toggle"><input type="checkbox" id="ambientToggle" checked><label for="ambientToggle">Ambient Hum</label></div>
+          <div class="equalizer" id="equalizer">
+            <div class="eq-bar"></div><div class="eq-bar"></div><div class="eq-bar"></div><div class="eq-bar"></div><div class="eq-bar"></div>
+          </div>
+          <p class="side-notes">Witty text #1: The drums are ceremonial, not contractual.</p>
+        </div>
+        <div class="panel">
+          <h3>Conveyor of Tiny Armor</h3>
+          <div class="conveyor" id="conveyor">
+            <div class="belt" id="belt">
+              <span class="chip">pauldronette</span>
+              <span class="chip">knee-blessing</span>
+              <span class="chip">gauntletlet</span>
+              <span class="chip">helmlet</span>
+              <span class="chip">micro-gorget</span>
+              <span class="chip">ankle-psalm</span>
+              <span class="chip">waist-vigil</span>
+              <span class="chip">袖 of valor</span>
+              <span class="chip">mini-tabard</span>
+              <span class="chip">blessed buckle</span>
+            </div>
+          </div>
+          <div style="margin-top:8px; display:flex; gap:8px;">
+            <button class="btn" id="conveyorBtn">Pause/Resume Belt</button>
+            <button class="btn" id="inflateBtn">Release Bubbles</button>
+          </div>
+          <p class="side-notes">Witty text #2: Belt speed regulated by hymn tempo.</p>
+        </div>
+        <div class="panel">
+          <h3>Memory Triage</h3>
+          <div class="memory-tags" id="memoryTags">
+            <span class="tag">first bicycle sermon</span>
+            <span class="tag">unpaid library vow</span>
+            <span class="tag">grandma’s neon rosary</span>
+            <span class="tag">accidental knighthood</span>
+          </div>
+          <div style="margin-top:8px; display:flex; gap:8px;">
+            <input class="fake-input" id="tagInput" placeholder="Add a memory tag" />
+            <button class="btn" id="addTagBtn">Add</button>
+          </div>
+          <p class="side-notes">Witty text #3: Tags are edible, but only spiritually.</p>
+        </div>
+      </div>
+
+      <div class="panel" style="margin-top:12px;">
+        <h3>Detergent Choir Rankings</h3>
+        <table id="choirTable">
+          <thead>
+            <tr><th>Choir</th><th>Foam Index</th><th>Psalm Density</th><th>Static Halo</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>Seraphic Suds</td><td data-val="88">88</td><td data-val="91">91</td><td data-val="73">73</td></tr>
+            <tr><td>Neon Nuns</td><td data-val="75">75</td><td data-val="85">85</td><td data-val="90">90</td></tr>
+            <tr><td>Chorus of Chrome</td><td data-val="92">92</td><td data-val="77">77</td><td data-val="68">68</td></tr>
+            <tr><td>Lint Apostles</td><td data-val="66">66</td><td data-val="72">72</td><td data-val="95">95</td></tr>
+          </tbody>
+        </table>
+        <div style="margin-top:8px; display:flex; gap:8px;">
+          <button class="btn" id="sortTableBtn">Sort by Foam Index</button>
+          <button class="btn" id="filterTableBtn">Toggle Halo Filter</button>
+        </div>
+        <p class="side-notes">Witty text #4: Rankings recalculated after every thunderclap.</p>
+      </div>
+
+      <div class="panel" style="margin-top:12px;">
+        <h3>Rinse Ledger</h3>
+        <div class="ledger" id="ledger">
+          <div>09:04 - Memory washed: “The day the toaster applauded.”</div>
+          <div>09:17 - Armor hem blessed by mispronounced hymn.</div>
+          <div>09:23 - Lint oracle reports: “Choose the smaller sword.”</div>
+          <div>09:41 - Customer vowed to stop time at spin cycle 3.</div>
+        </div>
+        <p class="legend">Witty text #5: All logs are pre-forgiven.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="window window-style" id="winStyle">
+    <div class="titlebar">
+      <div class="dots"><span class="dot red"></span><span class="dot gold"></span><span class="dot purple"></span></div>
+      <div>Fashion Label: Chainmail Cherubs</div>
+      <div class="badge" id="armorBadge">Dress Code: Tiny Armor Required</div>
+    </div>
+    <div class="content">
+      <h2>Lookbook of the Small & Holy</h2>
+      <div class="armor-card">
+        <div class="armor-visual"></div>
+        <div>
+          <p>Season: <strong>Sunset Siege</strong></p>
+          <p>Silhouette: <strong>Miniature Paladin</strong></p>
+          <p>Fabric: <strong>Memory-washed chainmail & satin relics</strong></p>
+          <p class="fact">Witty text #6: Our hems are so short, even destiny blushes.</p>
+          <div style="margin-top:6px; display:flex; gap:8px;">
+            <button class="btn" id="armorToggleBtn">Toggle Armor Mode</button>
+            <button class="btn" id="paletteBtn">Shift Palette</button>
+          </div>
+        </div>
+      </div>
+
+      <div style="margin-top:12px;">
+        <h3>Miniature Runway Stats</h3>
+        <div class="scoreboard">
+          <div class="score"><strong id="runwayCount">19</strong><div>processions today</div></div>
+          <div class="score"><strong id="miniScale">1:12</strong><div>average scale</div></div>
+          <div class="score"><strong id="sparkleCount">642</strong><div>sparkle units</div></div>
+          <div class="score"><strong id="blessingCount">38</strong><div>blessings/min</div></div>
+        </div>
+        <p class="legend">Witty text #7: The runway is only six inches long, but the reviews are infinite.</p>
+      </div>
+
+      <div class="panel" style="margin-top:12px;">
+        <h3>Armor Assembly Chart</h3>
+        <div class="chart" id="armorChart">
+          <div class="bar" style="height:30%"></div>
+          <div class="bar" style="height:55%"></div>
+          <div class="bar" style="height:42%"></div>
+          <div class="bar" style="height:70%"></div>
+          <div class="bar" style="height:65%"></div>
+          <div class="bar" style="height:45%"></div>
+          <div class="bar" style="height:80%"></div>
+          <div class="bar" style="height:38%"></div>
+          <div class="bar" style="height:60%"></div>
+          <div class="bar" style="height:50%"></div>
+          <div class="bar" style="height:72%"></div>
+          <div class="bar" style="height:58%"></div>
+        </div>
+        <p class="legend">Witty text #8: Each bar is a blessing you can’t return.</p>
+      </div>
+
+      <div class="panel" style="margin-top:12px;">
+        <h3>Customer Blessings</h3>
+        <p>“I came for clean socks, left as a squire.” — anonymous pilgrim</p>
+        <p>“My memories now squeak like polished armor.” — a satisfied ghost</p>
+        <p>“I asked for lavender, got a crusade.” — scent-sensitive knight</p>
+        <p class="legend">Witty text #9: Testimonials are washed weekly.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="window window-lab" id="winLab">
+    <div class="titlebar">
+      <div class="dots"><span class="dot red"></span><span class="dot gold"></span><span class="dot purple"></span></div>
+      <div>Memory Lab & Style Cortex</div>
+      <div class="badge">Experimental, Not Ethical</div>
+    </div>
+    <div class="content">
+      <h2>Memory Distillation</h2>
+      <div class="panel">
+        <p>Our centrifuges spin nostalgia into fiber. The final rinse is a whisper of psalms and static. We do not guarantee accuracy; we guarantee sparkle.</p>
+        <div style="display:flex; gap:8px; align-items:center; margin-top:8px;">
+          <label for="hueSlider">Hue liturgy</label>
+          <input id="hueSlider" type="range" min="0" max="360" value="0" />
+          <span id="hueValue">0°</span>
+        </div>
+        <div style="display:flex; gap:8px; align-items:center; margin-top:8px;">
+          <label for="zoomSlider">Zoom incense</label>
+          <input id="zoomSlider" type="range" min="90" max="110" value="100" />
+          <span id="zoomValue">100%</span>
+        </div>
+        <p class="legend">Witty text #10: Hue sliders are licensed for miracles only.</p>
+      </div>
+
+      <div class="panel" style="margin-top:12px;">
+        <h3>Live Memory Mixer</h3>
+        <p>Pick two memories and blend them into a couture prophecy.</p>
+        <div style="display:flex; gap:8px;">
+          <select class="fake-input" id="memoryA">
+            <option>the bus that prayed</option>
+            <option>the lost mitten crusade</option>
+            <option>the vending machine confession</option>
+            <option>the cathedral arcade</option>
+          </select>
+          <select class="fake-input" id="memoryB">
+            <option>the midnight laundry hymn</option>
+            <option>the helmet that sneezed</option>
+            <option>the pixie laundress strike</option>
+            <option>the foam that foretold</option>
+          </select>
+          <button class="btn" id="blendBtn">Blend</button>
+        </div>
+        <p id="blendResult" class="fact">Result: “the bus that prayed” + “the midnight laundry hymn” = a ceremonial windbreaker of fate.</p>
+        <p class="legend">Witty text #11: Blends are spiritual smoothies.</p>
+      </div>
+
+      <div class="panel" style="margin-top:12px;">
+        <h3>Active Rituals</h3>
+        <div class="badge-row">
+          <span class="badge">Soap of Saint Circuit</span>
+          <span class="badge">Chainmail Communion</span>
+          <span class="badge">Sandalwood Subroutine</span>
+          <span class="badge">Gospel Glitter</span>
+          <span class="badge">Tiny Templar Tuesdays</span>
+        </div>
+        <p class="legend">Witty text #12: Ritual schedule subject to prophecy traffic.</p>
+      </div>
+
+      <div class="panel" style="margin-top:12px;">
+        <h3>Disclaimer Scroll</h3>
+        <p class="notice">Disclaimer 12c: The laundromat is not responsible for spontaneous knighthood, sudden oaths, or the appearance of shimmering heraldry. Please consult a medieval attorney before wearing our garments to modern court.</p>
+        <p class="notice">Disclaimer 14f: Any resemblance to your childhood is intentional, but not necessarily accurate.</p>
+        <p class="legend">Witty text #13: Disclaimers are also washed, so they may shrink.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="window window-minis" id="winMinis">
+    <div class="titlebar">
+      <div class="dots"><span class="dot red"></span><span class="dot gold"></span><span class="dot purple"></span></div>
+      <div>Mini Windows</div>
+      <div class="badge">Clutter Cult</div>
+    </div>
+    <div class="content">
+      <h3>Sidecar Console</h3>
+      <p class="side-notes">Witty text #14: This window is too small for your doubts.</p>
+      <div class="panel">
+        <p>Quick actions:</p>
+        <div style="display:flex; gap:8px; flex-wrap:wrap;">
+          <button class="btn" id="rumorBtn">Generate Rumor</button>
+          <button class="btn" id="resetBtn">Reset Counters</button>
+        </div>
+        <p id="rumor" class="legend">Rumor feed: “The lint is organizing.”</p>
+      </div>
+      <p class="legend">Witty text #15: Mini windows are full of tiny agenda.</p>
+    </div>
+  </section>
+
+  <div class="mini-window" style="left: 1020px; top: 20px;">
+    <strong>Footnote 7b</strong>
+    <p class="side-notes">Witty text #16: Armor must be hemmed to ankle or destiny may trip.</p>
+  </div>
+  <div class="mini-window" style="left: 1020px; top: 170px;">
+    <strong>Lint Oracle</strong>
+    <p class="side-notes">Witty text #17: The drum told me to hydrate.</p>
+  </div>
+  <div class="mini-window" style="left: 1020px; top: 320px;">
+    <strong>Queue Monitor</strong>
+    <p class="side-notes" id="queueMonitor">Queue: 14 paladins, 6 mannequins, 1 misplaced duck.</p>
+  </div>
+  <div class="mini-window" style="left: 1020px; top: 470px;">
+    <strong>Last Gospel Update</strong>
+    <p class="side-notes" id="gospelUpdate">Update: “The hem is holy.”</p>
+  </div>
+
+  <div class="footer-bar">
+    <div>
+      <div class="marquee" id="marquee">✶ Evangelical Cyberpunk Folklore ✶ Memory Laundering ✶ Miniature Armor ✶ Sunset Siege ✶</div>
+    </div>
+    <div style="display:flex; gap:12px; align-items:center;">
+      <span id="autoTicker">Auto-update in 5s</span>
+      <span class="legend">Witty text #18: The ticker is blessed but not accurate.</span>
+    </div>
+  </div>
+
+  <div class="chaos-layer"></div>
+  <div class="window-hint">Tip: click title bars to collapse windows. Witty text #19: Collapse responsibly.</div>
+</div>
+
+<script>
+(function() {
+  const rinseCount = document.getElementById('rinseCount');
+  const confessionCount = document.getElementById('confessionCount');
+  const ledger = document.getElementById('ledger');
+  const fortune = document.getElementById('fortune');
+  const steam = document.getElementById('steam');
+  const memoryTags = document.getElementById('memoryTags');
+  const tagInput = document.getElementById('tagInput');
+  const armorStatus = document.getElementById('armorStatus');
+  const armorBadge = document.getElementById('armorBadge');
+  const belt = document.getElementById('belt');
+  const conveyorBtn = document.getElementById('conveyorBtn');
+  const hueSlider = document.getElementById('hueSlider');
+  const hueValue = document.getElementById('hueValue');
+  const zoomSlider = document.getElementById('zoomSlider');
+  const zoomValue = document.getElementById('zoomValue');
+  const blendBtn = document.getElementById('blendBtn');
+  const blendResult = document.getElementById('blendResult');
+  const memoryA = document.getElementById('memoryA');
+  const memoryB = document.getElementById('memoryB');
+  const sortTableBtn = document.getElementById('sortTableBtn');
+  const filterTableBtn = document.getElementById('filterTableBtn');
+  const choirTable = document.getElementById('choirTable');
+  const openAllBtn = document.getElementById('openAllBtn');
+  const shuffleBtn = document.getElementById('shuffleBtn');
+  const armorToggleBtn = document.getElementById('armorToggleBtn');
+  const paletteBtn = document.getElementById('paletteBtn');
+  const rumorBtn = document.getElementById('rumorBtn');
+  const rumor = document.getElementById('rumor');
+  const resetBtn = document.getElementById('resetBtn');
+  const queueMonitor = document.getElementById('queueMonitor');
+  const gospelUpdate = document.getElementById('gospelUpdate');
+  const autoTicker = document.getElementById('autoTicker');
+  const ambientToggle = document.getElementById('ambientToggle');
+  const equalizer = document.getElementById('equalizer');
+  const runCount = document.getElementById('runwayCount');
+  const sparkleCount = document.getElementById('sparkleCount');
+  const blessingCount = document.getElementById('blessingCount');
+  const inflateBtn = document.getElementById('inflateBtn');
+  const bubbleField = document.getElementById('bubbleField');
+  const clock = document.getElementById('clock');
+
+  let isArmorMode = false;
+  let beltPaused = false;
+  let sortDesc = false;
+  let haloFilter = false;
+  let autoTick = 5;
+
+  const fortunes = [
+    'Your next outfit will defeat a small prophecy.',
+    'The lint knows your true name.',
+    'A tiny gauntlet will stop a large debate.',
+    'Your socks will testify in your favor.',
+    'Tomorrow, the spin cycle remembers you.',
+    'A mailbox knight brings excellent news.',
+    'Your hemline will cut through time like butter.',
+    'You are one rinse away from wisdom.',
+    'A soap bubble carries a secret oath.',
+    'The drum whispers: hydrate and conquer.'
+  ];
+
+  const rumors = [
+    'The lint is organizing.',
+    'A helmet asked for decaf.',
+    'The machines are forming a choir.',
+    'Someone forged a sword out of hangers.',
+    'The soap believes in you.',
+    'A pilgrim paid in glitter.',
+    'The conveyor belt learned ballroom.',
+    'A pocket knight demanded a raise.'
+  ];
+
+  const gospel = [
+    'The hem is holy.',
+    'Remember the rinse, forget the spin.',
+    'Chainmail is the new comfort.',
+    'Folded fabric is folded fate.',
+    'Blessings come in pairs of socks.'
+  ];
+
+  const logLines = [
+    'Memory washed: “The day the toaster applauded.”',
+    'Armor hem blessed by mispronounced hymn.',
+    'Lint oracle reports: “Choose the smaller sword.”',
+    'Customer vowed to stop time at spin cycle 3.',
+    'Squire attempted to barter with bubble tea.',
+    'Machine 7 confessed to a long-ago tumble.',
+    'Tiny crusader requested extra fabric softener.',
+    'A rogue mitten declared a coup.'
+  ];
+
+  function addLedger(text) {
+    const time = new Date();
+    const stamp = time.toTimeString().slice(0, 5);
+    const div = document.createElement('div');
+    div.textContent = `${stamp} - ${text}`;
+    ledger.prepend(div);
+  }
+
+  document.getElementById('washBtn').addEventListener('click', () => {
+    const current = parseInt(rinseCount.textContent.replace(/,/g, ''), 10) || 0;
+    const next = current + 3;
+    rinseCount.textContent = next.toLocaleString();
+    confessionCount.textContent = (parseInt(confessionCount.textContent.replace(/,/g, ''), 10) + 1).toLocaleString();
+    addLedger(logLines[Math.floor(Math.random() * logLines.length)]);
+  });
+
+  document.getElementById('fortuneBtn').addEventListener('click', () => {
+    fortune.textContent = 'Prophecy queue: “' + fortunes[Math.floor(Math.random() * fortunes.length)] + '”';
+  });
+
+  document.getElementById('steamBtn').addEventListener('click', () => {
+    steam.classList.toggle('active');
+  });
+
+  document.getElementById('addTagBtn').addEventListener('click', () => {
+    const value = tagInput.value.trim();
+    if (!value) return;
+    const span = document.createElement('span');
+    span.className = 'tag';
+    span.textContent = value;
+    memoryTags.appendChild(span);
+    tagInput.value = '';
+  });
+
+  conveyorBtn.addEventListener('click', () => {
+    beltPaused = !beltPaused;
+    belt.style.animationPlayState = beltPaused ? 'paused' : 'running';
+  });
+
+  hueSlider.addEventListener('input', () => {
+    const v = hueSlider.value;
+    document.documentElement.style.setProperty('--hue', v + 'deg');
+    hueValue.textContent = v + '°';
+  });
+
+  zoomSlider.addEventListener('input', () => {
+    const v = zoomSlider.value;
+    document.documentElement.style.setProperty('--zoom', v / 100);
+    zoomValue.textContent = v + '%';
+  });
+
+  blendBtn.addEventListener('click', () => {
+    const a = memoryA.value;
+    const b = memoryB.value;
+    blendResult.textContent = `Result: “${a}” + “${b}” = a ceremonial windbreaker of fate.`;
+  });
+
+  sortTableBtn.addEventListener('click', () => {
+    const tbody = choirTable.querySelector('tbody');
+    const rows = Array.from(tbody.querySelectorAll('tr'));
+    rows.sort((r1, r2) => {
+      const a = parseInt(r1.children[1].dataset.val, 10);
+      const b = parseInt(r2.children[1].dataset.val, 10);
+      return sortDesc ? b - a : a - b;
+    });
+    sortDesc = !sortDesc;
+    rows.forEach(row => tbody.appendChild(row));
+  });
+
+  filterTableBtn.addEventListener('click', () => {
+    haloFilter = !haloFilter;
+    const rows = Array.from(choirTable.querySelectorAll('tbody tr'));
+    rows.forEach(row => {
+      const halo = parseInt(row.children[3].dataset.val, 10);
+      row.style.display = haloFilter && halo < 80 ? 'none' : '';
+    });
+  });
+
+  openAllBtn.addEventListener('click', () => {
+    document.querySelectorAll('.window').forEach(win => win.classList.toggle('collapsed'));
+  });
+
+  shuffleBtn.addEventListener('click', () => {
+    document.querySelectorAll('.window').forEach(win => {
+      const x = Math.floor(Math.random() * 200) - 80;
+      const y = Math.floor(Math.random() * 160) - 60;
+      win.style.transform = `translate(${x}px, ${y}px)`;
+    });
+  });
+
+  armorToggleBtn.addEventListener('click', () => {
+    isArmorMode = !isArmorMode;
+    document.body.classList.toggle('armor-mode', isArmorMode);
+    armorBadge.textContent = isArmorMode ? 'Dress Code: Tiny Armor REQUIRED' : 'Dress Code: Tiny Armor Required';
+    armorStatus.textContent = isArmorMode ? '98%' : '72%';
+  });
+
+  paletteBtn.addEventListener('click', () => {
+    const current = parseInt(hueSlider.value, 10);
+    const next = (current + 35) % 360;
+    hueSlider.value = next;
+    hueSlider.dispatchEvent(new Event('input'));
+  });
+
+  rumorBtn.addEventListener('click', () => {
+    rumor.textContent = 'Rumor feed: “' + rumors[Math.floor(Math.random() * rumors.length)] + '”';
+  });
+
+  resetBtn.addEventListener('click', () => {
+    rinseCount.textContent = '128';
+    confessionCount.textContent = '2,039';
+    runCount.textContent = '19';
+    sparkleCount.textContent = '642';
+    blessingCount.textContent = '38';
+    addLedger('Counters reset by benevolent intern.');
+  });
+
+  ambientToggle.addEventListener('change', () => {
+    equalizer.classList.toggle('muted', !ambientToggle.checked);
+  });
+
+  inflateBtn.addEventListener('click', () => {
+    for (let i = 0; i < 16; i++) {
+      const b = document.createElement('div');
+      b.className = 'bubble';
+      b.style.left = Math.random() * 100 + '%';
+      b.style.animationDelay = (Math.random() * 2) + 's';
+      bubbleField.appendChild(b);
+      setTimeout(() => b.remove(), 12000);
+    }
+  });
+
+  function updateClock() {
+    const d = new Date();
+    const h = String(d.getHours()).padStart(2, '0');
+    const m = String(d.getMinutes()).padStart(2, '0');
+    const s = String(d.getSeconds()).padStart(2, '0');
+    clock.textContent = `${h}:${m}:${s}`;
+  }
+
+  function autoUpdate() {
+    autoTick -= 1;
+    if (autoTick <= 0) {
+      autoTick = 5;
+      const current = parseInt(runCount.textContent, 10);
+      runCount.textContent = String(current + 1);
+      sparkleCount.textContent = (parseInt(sparkleCount.textContent.replace(/,/g, ''), 10) + Math.floor(Math.random() * 6)).toLocaleString();
+      blessingCount.textContent = String(32 + Math.floor(Math.random() * 12));
+      gospelUpdate.textContent = 'Update: “' + gospel[Math.floor(Math.random() * gospel.length)] + '”';
+      queueMonitor.textContent = `Queue: ${10 + Math.floor(Math.random() * 10)} paladins, ${3 + Math.floor(Math.random() * 6)} mannequins, ${Math.floor(Math.random() * 3)} misplaced ducks.`;
+    }
+    autoTicker.textContent = `Auto-update in ${autoTick}s`;
+  }
+
+  document.querySelectorAll('.titlebar').forEach(bar => {
+    bar.addEventListener('click', () => {
+      bar.parentElement.classList.toggle('collapsed');
+    });
+  });
+
+  updateClock();
+  setInterval(updateClock, 1000);
+  setInterval(autoUpdate, 1000);
+})();
+</script>
+</body>
+</html>

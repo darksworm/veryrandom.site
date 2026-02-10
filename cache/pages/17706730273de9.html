@@ -1,0 +1,437 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Federal Bureau of Colorimetric Compliance (FBCC)</title>
+    <link rel="stylesheet" href="/assets/css/pico.min.css">
+    <link rel="stylesheet" href="/assets/css/fonts.css">
+    <style>
+        :root {
+            --bg-main: #3D402D;
+            --fg-main: #F3EFE6;
+            --accent-sand: #DDBA9C;
+            --accent-terracotta: #B45F3B;
+            --accent-olive-light: #5A5E43;
+            --border-color: var(--accent-sand);
+            --font-main: 'IBM Plex Mono', monospace;
+        }
+
+        /* Base & Typography */
+        body {
+            background-color: var(--bg-main);
+            color: var(--fg-main);
+            font-family: var(--font-main);
+            font-size: 16px;
+            line-height: 1.6;
+            text-rendering: optimizeLegibility;
+            -webkit-font-smoothing: antialiased;
+            overflow-x: hidden;
+        }
+
+        h1, h2, h3, h4, h5, h6 {
+            font-family: 'Space Grotesk', sans-serif;
+            color: var(--accent-sand);
+            font-weight: 700;
+        }
+
+        a { color: var(--accent-sand); text-decoration: underline; }
+        a:hover { color: var(--accent-terracotta); }
+
+        /* Overriding Pico for Terminal Aesthetic */
+        :where(h1, h2, h3, h4, h5, h6, p, ul, ol) { margin-bottom: 1rem; }
+        main, header, footer { padding: 1rem; }
+        article, .panel, nav ul {
+            background-color: transparent;
+            border: 1px solid var(--border-color);
+            padding: 1rem;
+            box-shadow: 4px 4px 0px var(--accent-olive-light);
+        }
+        
+        button, input, select, textarea {
+            font-family: var(--font-main);
+            background-color: var(--accent-olive-light);
+            color: var(--fg-main);
+            border: 1px solid var(--border-color);
+        }
+        button:hover, button:focus {
+            background-color: var(--accent-terracotta);
+            color: var(--bg-main);
+        }
+        
+        /* Layout */
+        .container { max-width: 1440px; margin: 0 auto; }
+        .grid { display: grid; grid-gap: 1.5rem; }
+
+        @media (min-width: 768px) {
+            .grid { grid-template-columns: repeat(auto-fit, minmax(350px, 1fr)); }
+        }
+
+        /* Header & Nav */
+        header nav ul {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            list-style: none;
+            padding: 0.5rem;
+            margin: 0;
+        }
+        header nav li { margin: 0.5rem 1rem; }
+        header nav a { text-decoration: none; font-weight: bold; }
+
+        /* Hero / Live Counter */
+        .hero { text-align: center; padding: 2rem 1rem; }
+        .hero h1 { font-size: clamp(2rem, 5vw, 3.5rem); letter-spacing: 2px; text-transform: uppercase; }
+        .live-counter {
+            font-size: clamp(2.5rem, 8vw, 6rem);
+            font-weight: 700;
+            color: var(--accent-terracotta);
+            letter-spacing: 4px;
+            background: var(--accent-olive-light);
+            padding: 0.5rem 1rem;
+            border: 2px solid var(--border-color);
+            display: inline-block;
+            min-width: 300px;
+        }
+        .live-counter-label { display: block; font-size: 1rem; color: var(--accent-sand); margin-top: 0.5rem; }
+
+        /* Dashboard Panels */
+        .panel { display: flex; flex-direction: column; }
+        .panel-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 0.5rem;
+            margin-bottom: 1rem;
+        }
+        .panel-title { font-weight: bold; color: var(--accent-sand); }
+        .panel-indicator { width: 12px; height: 12px; background-color: var(--accent-terracotta); border-radius: 50%; animation: pulse 2s infinite; }
+        @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.3; } 100% { opacity: 1; } }
+
+        .data-table { width: 100%; border-collapse: collapse; }
+        .data-table th, .data-table td {
+            text-align: left;
+            padding: 0.5rem;
+            border-bottom: 1px solid var(--accent-olive-light);
+        }
+        .data-table th { color: var(--accent-sand); }
+        .report-ticker { height: 120px; overflow: hidden; position: relative; }
+        .report-ticker p { position: absolute; width: 100%; transition: opacity 0.5s ease-in-out, transform 0.5s ease-in-out; }
+
+        /* CSS Chart */
+        .css-chart { list-style: none; padding: 0; margin: 0; }
+        .css-chart li { display: flex; align-items: center; margin-bottom: 0.5rem; }
+        .css-chart .label { width: 100px; flex-shrink: 0; font-size: 0.9em; }
+        .css-chart .bar-container { flex-grow: 1; background: var(--accent-olive-light); border: 1px solid var(--border-color); padding: 2px; }
+        .css-chart .bar { height: 20px; background-color: var(--accent-terracotta); transition: width 0.5s ease-out; }
+
+        /* Threat Matrix */
+        .threat-matrix { display: flex; flex-wrap: wrap; gap: 0.5rem; }
+        .threat-matrix button { flex-grow: 1; border: 1px solid transparent; }
+        .threat-matrix button.active { background-color: var(--accent-terracotta); color: var(--bg-main); font-weight: bold; }
+        .threat-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.5rem; margin-top: 1rem; }
+        .threat-item { border: 1px solid var(--accent-olive-light); padding: 0.5rem; text-align: center; transition: all 0.3s; }
+        .threat-item span { display: block; font-size: 0.8em; }
+
+        /* FAQ Section */
+        .faq-item summary { cursor: pointer; font-weight: bold; color: var(--accent-sand); }
+        .faq-item[open] summary { color: var(--accent-terracotta); }
+        .faq-item > div { padding: 1rem; background: var(--accent-olive-light); margin-top: 0.5rem; }
+
+        /* Footer */
+        footer { text-align: center; font-size: 0.8rem; color: var(--accent-sand); margin-top: 2rem; }
+        .footer-seal {
+            width: 80px; height: 80px;
+            border: 3px solid var(--accent-sand);
+            border-radius: 50%;
+            display: inline-flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 1rem;
+            font-weight: bold;
+        }
+        .footer-seal span { line-height: 1; }
+        
+        /* Utility */
+        .footnote { font-size: 0.75rem; opacity: 0.8; }
+        [x-cloak] { display: none !important; }
+    </style>
+</head>
+<body x-data="bureauApp()" x-cloak>
+
+    <header class="container">
+        <nav>
+            <ul>
+                <li><a href="#dashboard">FBCC Home</a></li>
+                <li><a href="#threat-matrix">Threat Index</a></li>
+                <li><a href="#compliance">Compliance</a></li>
+                <li><a href="#faq">Public Bulletins</a></li>
+                <li><a href="#footer">Contact Division¹</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <main class="container">
+        <section class="hero">
+            <h1>ALERT: BEIGE IS A MEMETIC HAZARD</h1>
+            <p>Monochromatic apathy threatens national vibrancy. We are the first line of defense.</p>
+            <div class="live-counter-container">
+                <div x-text="nationalBeigeSaturation.toFixed(4) + '%'" class="live-counter"></div>
+                <span class="live-counter-label">NATIONAL SATURATION INDEX (NSI)</span>
+            </div>
+        </section>
+
+        <div class="grid" id="dashboard">
+            <!-- Panel: Live Field Reports -->
+            <article class="panel">
+                <div class="panel-header">
+                    <h3 class="panel-title">LIVE FIELD REPORTS</h3>
+                    <div class="panel-indicator"></div>
+                </div>
+                <div class="report-ticker" x-ref="ticker">
+                    <template x-for="(report, index) in liveReports" :key="index">
+                        <p x-show="currentReportIndex === index" 
+                           x-transition:enter.duration.500ms
+                           x-transition:leave.duration.500ms>
+                           <strong>[RPT-<span x-text="report.id"></span>]:</strong> <span x-text="report.text"></span>
+                        </p>
+                    </template>
+                </div>
+                <p class="footnote">Report classification is automated. Some details may be redacted for civilian safety.</p>
+            </article>
+
+            <!-- Panel: Chromatic Threat Matrix -->
+            <article class="panel" id="threat-matrix">
+                <div class="panel-header">
+                    <h3 class="panel-title">THREAT MATRIX</h3>
+                    <i data-lucide="shield-alert"></i>
+                </div>
+                <p>Filter by known beige-adjacent threat vectors:</p>
+                <div class="threat-matrix">
+                    <button @click="activeThreat = 'all'" :class="{'active': activeThreat === 'all'}">ALL</button>
+                    <button @click="activeThreat = 'taupe'" :class="{'active': activeThreat === 'taupe'}">TAUPE</button>
+                    <button @click="activeThreat = 'greige'" :class="{'active': activeThreat === 'greige'}">GREIGE</button>
+                    <button @click="activeThreat = 'ecru'" :class="{'active': activeThreat === 'ecru'}">ECRU</button>
+                </div>
+                <div class="threat-grid">
+                    <template x-for="threat in filteredThreats" :key="threat.name">
+                        <div class="threat-item" :style="{borderColor: threat.color, background: activeThreat === threat.category || activeThreat === 'all' ? threat.color+'20' : 'transparent'}">
+                            <span x-text="threat.name"></span>
+                            <strong x-text="threat.code"></strong>
+                        </div>
+                    </template>
+                </div>
+            </article>
+
+            <!-- Panel: Compliance Countdown -->
+            <article class="panel" id="compliance">
+                <div class="panel-header">
+                    <h3 class="panel-title">MANDATORY COMPLIANCE DEADLINE</h3>
+                    <i data-lucide="timer"></i>
+                </div>
+                <h2 x-text="complianceTimer" style="font-size: 2.5rem; text-align: center; color: var(--accent-terracotta);"></h2>
+                <p style="text-align: center;">Until Chromatic Mandate 76-B is enforced. Failure to submit Form C-1138 (Application for Chromatic Variance) will result in aesthetic re-education.</p>
+                <button @click="submissionAttempts++">ATTEMPT DIGITAL SUBMISSION (ATTEMPTS: <span x-text="submissionAttempts"></span>)</button>
+            </article>
+
+            <!-- Panel: Bureau Budget -->
+            <article class="panel">
+                <div class="panel-header">
+                    <h3 class="panel-title">BUREAU BUDGET ALLOCATION²</h3>
+                    <i data-lucide="pie-chart"></i>
+                </div>
+                <ul class="css-chart">
+                    <li>
+                        <span class="label">Pigment R&D</span>
+                        <div class="bar-container"><div class="bar" style="width: 45%;"></div></div>
+                    </li>
+                    <li>
+                        <span class="label">Re-Education</span>
+                        <div class="bar-container"><div class="bar" style="width: 25%;"></div></div>
+                    </li>
+                    <li>
+                        <span class="label">Snack Fund</span>
+                        <div class="bar-container"><div class="bar" style="width: 30%;"></div></div>
+                    </li>
+                    <li>
+                        <span class="label">Admin</span>
+                        <div class="bar-container"><div class="bar" style="width: 12%;"></div></div>
+                    </li>
+                </ul>
+                <p class="footnote">²Fiscal data is algorithmically obfuscated for national security.</p>
+            </article>
+            
+            <!-- Panel: Approved Pigment Inventory -->
+            <article class="panel">
+                <div class="panel-header">
+                    <h3 class="panel-title">APPROVED PIGMENT INVENTORY</h3>
+                    <i data-lucide="paint-bucket"></i>
+                </div>
+                <p>Strategic reserve of non-beige pigments (in kilotons).</p>
+                <h2 x-text="pigmentInventory.toLocaleString()" style="font-size: 2.5rem; text-align: center; color: var(--accent-sand);"></h2>
+                <button @click="pigmentInventory += 1000">EXPEDITE PIGMENT PRODUCTION</button>
+            </article>
+
+            <!-- Panel: Personnel Vibrancy -->
+            <article class="panel">
+                 <div class="panel-header">
+                    <h3 class="panel-title">PERSONNEL VIBRANCY QUOTIENT (VQ)</h3>
+                    <i data-lucide="users"></i>
+                </div>
+                <div style="height: 180px; overflow-y: auto;">
+                    <table class="data-table">
+                        <thead><tr><th>Agent ID</th><th>Status</th><th>VQ</th></tr></thead>
+                        <tbody>
+                            <template x-for="agent in personnel" :key="agent.id">
+                                <tr>
+                                    <td x-text="agent.id"></td>
+                                    <td>
+                                        <span x-text="agent.status" :style="{color: agent.status === 'ACTIVE' ? 'var(--accent-sand)' : 'var(--accent-terracotta)'}"></span>
+                                    </td>
+                                    <td x-text="agent.vq"></td>
+                                </tr>
+                            </template>
+                        </tbody>
+                    </table>
+                </div>
+            </article>
+        </div>
+
+        <section id="faq" class="container" style="margin-top: 2rem;">
+            <h2>PUBLIC AWARENESS BULLETINS & FAQ</h2>
+            <article class="panel">
+                <details class="faq-item">
+                    <summary>Is 'ecru' considered a gateway color?</summary>
+                    <div>
+                        <p><strong>CLASSIFIED.</strong> However, individuals with prolonged exposure to ecru, eggshell, or off-white have demonstrated a statistically significant decline in personal creativity and joie de vivre. Proceed with caution.</p>
+                    </div>
+                </details>
+                <details class="faq-item">
+                    <summary>What are the penalties for possessing un-sanctioned neutral tones?</summary>
+                    <div>
+                        <p>Penalties range from mandatory subscription to avant-garde art magazines (Level 1 Infraction) to forced relocation to a home decorated exclusively in maximalist patterns and clashing colors (Level 3 Infraction). We do not discuss Level 4.</p>
+                    </div>
+                </details>
+                <details class="faq-item">
+                    <summary>My landlord insists on 'landlord beige'. What are my rights?</summary>
+                    <div>
+                        <p>The Landlord-Tenant Chromatic Rights Act of 2024 provides protections. You may be entitled to a Bureau-supplied 'Emergency Color Kit' (ECK) containing high-saturation paints and educational pamphlets. Contact your regional FBCC office.</p>
+                    </div>
+                </details>
+                 <details class="faq-item">
+                    <summary>How do I toggle dark/light mode?</summary>
+                    <div>
+                        <p>This department has determined that user-selectable themes are a vector for aesthetic cowardice. The approved color palette is final.</p>
+                    </div>
+                </details>
+            </article>
+        </section>
+
+    </main>
+
+    <footer id="footer" class="container">
+        <div class="footer-seal">
+            <span>FBCC</span>
+            <i data-lucide="check-shield"></i>
+            <span>EST. 2023</span>
+        </div>
+        <p>FEDERAL BUREAU OF COLORIMETRIC COMPLIANCE</p>
+        <p class="footnote">
+            ¹All communications are monitored, recorded, and analyzed for signs of beige-related sympathies.
+            By viewing this website, you consent to random, unannounced audits of your home's color palette.
+            The FBCC is a fictional entity for entertainment purposes, probably.
+        </p>
+    </footer>
+
+    <script src="/assets/js/alpine.min.js" defer></script>
+    <script src="/assets/js/gsap.min.js"></script>
+    <script src="/assets/js/lucide.min.js"></script>
+    <script>
+        function bureauApp() {
+            return {
+                // Counters & Timers
+                nationalBeigeSaturation: 22.7341,
+                pigmentInventory: 583920,
+                submissionAttempts: 0,
+
+                // Ticker Data
+                currentReportIndex: 0,
+                liveReports: [
+                    { id: 753, text: "Suburban cul-de-sac showing elevated levels of taupe siding. Intervention team dispatched." },
+                    { id: 754, text: "Minimalist coffee shop flagged for 'oat milk' color scheme. Under observation." },
+                    { id: 755, text: "Spike in 'greige' paint sales detected in sector 4. Raising alert level to amber." },
+                    { id: 756, text: "Influencer promoting 'sad beige baby' aesthetic has been issued a formal warning." },
+                    { id: 757, text: "Corporate office park found to be 98% compliant with Beige Mandate. Pre-crime unit alerted." }
+                ],
+                
+                // Threat Matrix Data
+                activeThreat: 'all',
+                threats: [
+                    { name: 'Khaki', code: 'KH-45', category: 'taupe', color: '#C3B091' },
+                    { name: 'Buff', code: 'BF-11', category: 'taupe', color: '#F0DC82' },
+                    { name: 'Fawn', code: 'FN-02', category: 'taupe', color: '#E5AA70' },
+                    { name: 'Linen', code: 'LN-98', category: 'ecru', color: '#FAF0E6' },
+                    { name: 'Eggshell', code: 'EG-50', category: 'ecru', color: '#F0EAD6' },
+                    { name: 'Ivory', code: 'IV-33', category: 'ecru', color: '#FFFFF0' },
+                    { name: 'Greige', code: 'GR-66', category: 'greige', color: '#B2B2A2' },
+                    { name: 'Putty', code: 'PT-78', category: 'greige', color: '#C9A798' },
+                    { name: 'Stone', code: 'ST-09', category: 'greige', color: '#888C8D' }
+                ],
+                get filteredThreats() {
+                    if (this.activeThreat === 'all') return this.threats;
+                    return this.threats.filter(t => t.category === this.activeThreat);
+                },
+
+                // Personnel Data
+                personnel: [
+                    { id: 'BLK-01', status: 'ACTIVE', vq: 98.4 },
+                    { id: 'CYN-03', status: 'ACTIVE', vq: 95.1 },
+                    { id: 'MGT-05', status: 'ACTIVE', vq: 99.2 },
+                    { id: 'YLW-02', status: 'IN_FIELD', vq: 92.8 },
+                    { id: 'ORG-08', status: 'ACTIVE', vq: 96.5 },
+                    { id: 'RED-04', status: 'RECALIBRATING', vq: 85.3 },
+                ],
+                
+                // Countdown Timer
+                complianceTimer: '23:59:59',
+                init() {
+                    // Lucide Icons
+                    lucide.createIcons();
+
+                    // GSAP animations for counters
+                    gsap.to(this, {
+                        nationalBeigeSaturation: 23,
+                        duration: 60,
+                        repeat: -1,
+                        yoyo: true,
+                        ease: 'none'
+                    });
+
+                    setInterval(() => {
+                        this.pigmentInventory += Math.floor(Math.random() * 21);
+                    }, 50);
+
+                    // Live report ticker
+                    setInterval(() => {
+                        this.currentReportIndex = (this.currentReportIndex + 1) % this.liveReports.length;
+                    }, 5000);
+
+                    // Compliance countdown
+                    let endTime = new Date();
+                    endTime.setHours(24, 0, 0, 0);
+                    setInterval(() => {
+                        let now = new Date();
+                        let diff = endTime - now;
+                        let h = Math.floor(diff / (1000*60*60));
+                        let m = Math.floor((diff % (1000*60*60)) / (1000*60));
+                        let s = Math.floor((diff % (1000*60)) / 1000);
+                        this.complianceTimer = `${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+                    }, 1000);
+                }
+            }
+        }
+    </script>
+</body>
+</html>

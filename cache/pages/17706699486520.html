@@ -1,0 +1,915 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Circadia Civic | The Official Ledger of Productive Time</title>
+  <link rel="stylesheet" href="/assets/css/pico.min.css" />
+  <link rel="stylesheet" href="/assets/css/fonts.css" />
+  <style>
+    :root {
+      --frost-0: #f8fcff;
+      --frost-1: #eef5fb;
+      --frost-2: #dfeaf4;
+      --steel-1: #9bb0c4;
+      --ink: #08111a;
+      --ink-soft: #122538;
+      --line: #b8cadd;
+      --accent: #1c4c7a;
+      --accent-2: #0e2b49;
+      --paper: #ffffff;
+      --ad: #e9f2fb;
+      --radius: 14px;
+      --shadow: 0 14px 36px rgba(7, 22, 37, 0.12);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      color: var(--ink);
+      font-family: 'Space Grotesk', sans-serif;
+      background:
+        radial-gradient(circle at 8% 8%, #ffffff 0%, #f4f9ff 33%, #eaf2fb 100%);
+      min-height: 100vh;
+      line-height: 1.45;
+    }
+
+    a {
+      color: var(--accent-2);
+      text-decoration-color: var(--accent-2);
+    }
+
+    .masthead {
+      padding: 1rem 1rem 0.75rem;
+      border-bottom: 2px solid var(--line);
+      background: linear-gradient(180deg, #ffffff 0%, #f0f7ff 100%);
+    }
+
+    .topline {
+      display: flex;
+      justify-content: space-between;
+      gap: 1rem;
+      font-size: 0.82rem;
+      font-family: 'IBM Plex Mono', monospace;
+      color: var(--ink);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-bottom: 0.65rem;
+    }
+
+    .brand-row {
+      display: grid;
+      grid-template-columns: 1fr auto 1fr;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .brand-rule {
+      height: 2px;
+      background: var(--ink);
+      opacity: 0.4;
+    }
+
+    .brand {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(1.65rem, 3.4vw, 3rem);
+      letter-spacing: 0.03em;
+      text-transform: uppercase;
+      margin: 0;
+      color: var(--ink);
+      white-space: nowrap;
+    }
+
+    .subbrand {
+      text-align: center;
+      margin: 0.3rem 0 0.2rem;
+      font-size: 0.92rem;
+      color: var(--ink);
+      font-family: 'IBM Plex Mono', monospace;
+      letter-spacing: 0.02em;
+    }
+
+    .main-nav {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.45rem;
+      justify-content: center;
+      padding: 0.75rem 0.5rem 0;
+    }
+
+    .nav-pill {
+      border: 1px solid var(--line);
+      background: #fff;
+      color: var(--ink);
+      border-radius: 999px;
+      padding: 0.35rem 0.75rem;
+      font-size: 0.82rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      cursor: pointer;
+    }
+
+    .nav-pill[aria-pressed="true"] {
+      background: var(--accent-2);
+      color: #ffffff;
+      border-color: var(--accent-2);
+    }
+
+    .page {
+      max-width: 1280px;
+      margin: 0 auto;
+      padding: 1.1rem;
+    }
+
+    .ticker {
+      display: grid;
+      grid-template-columns: auto 1fr;
+      gap: 0.6rem;
+      align-items: center;
+      border: 1px solid var(--line);
+      background: #fff;
+      padding: 0.6rem 0.8rem;
+      border-radius: var(--radius);
+      margin-bottom: 1rem;
+      box-shadow: 0 6px 18px rgba(8, 22, 36, 0.08);
+    }
+
+    .ticker b {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 0.72rem;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      padding: 0.2rem 0.45rem;
+      border-radius: 6px;
+      background: var(--accent-2);
+      color: #fff;
+    }
+
+    .ticker span {
+      font-size: 0.9rem;
+      color: var(--ink);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .controls {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 0.6rem;
+      margin-bottom: 1rem;
+    }
+
+    .control {
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      padding: 0.6rem;
+      background: #ffffff;
+      color: var(--ink);
+      display: flex;
+      align-items: center;
+      gap: 0.45rem;
+      justify-content: center;
+      font-size: 0.82rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.03em;
+      cursor: pointer;
+    }
+
+    .control.active {
+      background: var(--accent);
+      border-color: var(--accent);
+      color: #ffffff;
+    }
+
+    .grid {
+      columns: 320px;
+      column-gap: 1rem;
+    }
+
+    .card {
+      display: inline-block;
+      width: 100%;
+      break-inside: avoid;
+      margin-bottom: 1rem;
+      background: var(--paper);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+
+    .card-header {
+      border-bottom: 1px solid var(--line);
+      padding: 0.7rem 0.85rem;
+      display: flex;
+      justify-content: space-between;
+      gap: 0.6rem;
+      align-items: center;
+      background: linear-gradient(180deg, #ffffff 0%, #f4f8fd 100%);
+    }
+
+    .kicker {
+      margin: 0;
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--ink);
+      font-weight: 700;
+    }
+
+    .issue {
+      margin: 0;
+      font-size: 0.74rem;
+      color: var(--ink);
+      font-weight: 700;
+      text-transform: uppercase;
+    }
+
+    .card-body {
+      padding: 0.9rem;
+    }
+
+    h2, h3, h4 {
+      color: var(--ink);
+      margin-top: 0;
+      line-height: 1.15;
+    }
+
+    .headline {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(1.3rem, 2.2vw, 2rem);
+      margin: 0 0 0.5rem;
+    }
+
+    .deck {
+      margin: 0 0 0.65rem;
+      font-size: 0.99rem;
+      color: var(--ink);
+    }
+
+    .byline {
+      margin: 0 0 0.7rem;
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 0.74rem;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      color: var(--ink);
+      border-top: 1px dashed var(--line);
+      border-bottom: 1px dashed var(--line);
+      padding: 0.4rem 0;
+    }
+
+    .card p,
+    .card li,
+    .card small,
+    .quote {
+      color: var(--ink);
+    }
+
+    .collapsed {
+      max-height: 7.5rem;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .collapsed::after {
+      content: "";
+      position: absolute;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      height: 2.6rem;
+      background: linear-gradient(180deg, rgba(255, 255, 255, 0) 0%, #ffffff 100%);
+      pointer-events: none;
+    }
+
+    .text-btn {
+      margin-top: 0.55rem;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      background: #fff;
+      color: var(--ink);
+      font-size: 0.78rem;
+      padding: 0.25rem 0.68rem;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .pull {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.25rem;
+      line-height: 1.25;
+      border-left: 4px solid var(--accent);
+      padding-left: 0.7rem;
+      margin: 0.8rem 0;
+      color: var(--ink-soft);
+    }
+
+    .data-strip {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 0.5rem;
+      margin-top: 0.75rem;
+    }
+
+    .stat {
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      padding: 0.45rem;
+      background: var(--frost-1);
+      text-align: center;
+      color: var(--ink);
+    }
+
+    .stat strong {
+      display: block;
+      font-size: 1.2rem;
+      line-height: 1;
+      color: var(--ink);
+    }
+
+    .stat span {
+      font-size: 0.72rem;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      font-weight: 700;
+      color: var(--ink);
+    }
+
+    .mini-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.6rem;
+    }
+
+    .tag {
+      display: inline-block;
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 0.66rem;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      padding: 0.17rem 0.52rem;
+      margin-right: 0.22rem;
+      margin-bottom: 0.25rem;
+      color: var(--ink);
+      background: #fff;
+    }
+
+    .ad {
+      background: var(--ad);
+      border-top: 1px solid var(--line);
+      padding: 0.9rem;
+      color: var(--ink);
+    }
+
+    .ad h4 {
+      margin: 0 0 0.4rem;
+      font-family: 'Playfair Display', serif;
+      font-size: 1.15rem;
+      color: var(--ink);
+    }
+
+    .ad p {
+      margin: 0.18rem 0;
+      color: var(--ink);
+    }
+
+    .classifieds {
+      display: grid;
+      gap: 0.55rem;
+    }
+
+    .class-item {
+      border: 1px dashed var(--line);
+      padding: 0.55rem;
+      background: #fff;
+      border-radius: 8px;
+      color: var(--ink);
+    }
+
+    .letters {
+      display: grid;
+      gap: 0.75rem;
+    }
+
+    .letter {
+      border-left: 3px solid var(--accent);
+      padding-left: 0.6rem;
+      color: var(--ink);
+    }
+
+    details {
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      padding: 0.52rem 0.62rem;
+      background: #fff;
+    }
+
+    summary {
+      cursor: pointer;
+      font-weight: 700;
+      color: var(--ink);
+    }
+
+    footer {
+      margin-top: 1.1rem;
+      border-top: 2px solid var(--line);
+      padding: 0.9rem 0.2rem 2rem;
+      color: var(--ink);
+      font-size: 0.84rem;
+    }
+
+    .footer-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 0.75rem;
+    }
+
+    .icon-line {
+      display: flex;
+      gap: 0.5rem;
+      align-items: center;
+      color: var(--ink);
+    }
+
+    .chip {
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      font-size: 0.74rem;
+      font-family: 'IBM Plex Mono', monospace;
+      padding: 0.2rem 0.52rem;
+      color: var(--ink);
+      background: #fff;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.25rem;
+    }
+
+    @media (max-width: 960px) {
+      .controls {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      .footer-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      .brand-row {
+        grid-template-columns: 1fr;
+      }
+
+      .brand-rule {
+        display: none;
+      }
+    }
+
+    @media (max-width: 600px) {
+      .mini-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .topline {
+        flex-direction: column;
+      }
+
+      .controls {
+        grid-template-columns: 1fr;
+      }
+
+      .footer-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body x-data="ledgerPage()">
+  <header class="masthead">
+    <div class="topline">
+      <span>Vol. 42 • Public Service Edition</span>
+      <span>Printed for Founders, Households, and Overbooked Civilizations</span>
+      <span>Monday Briefing</span>
+    </div>
+    <div class="brand-row">
+      <div class="brand-rule"></div>
+      <h1 class="brand">Circadia Civic Ledger</h1>
+      <div class="brand-rule"></div>
+    </div>
+    <p class="subbrand">Infrastructure for emotional punctuality. Built by Circadia Civic, Inc.</p>
+    <nav class="main-nav" aria-label="Primary">
+      <button class="nav-pill" :aria-pressed="section==='front'" @click="section='front'">Front Desk</button>
+      <button class="nav-pill" :aria-pressed="section==='policy'" @click="section='policy'">Policy</button>
+      <button class="nav-pill" :aria-pressed="section==='market'" @click="section='market'">Market</button>
+      <button class="nav-pill" :aria-pressed="section==='life'" @click="section='life'">Living</button>
+      <button class="nav-pill" :aria-pressed="section==='letters'" @click="section='letters'">Letters</button>
+    </nav>
+  </header>
+
+  <main class="page">
+    <section class="ticker" aria-live="polite">
+      <b>City Wire</b>
+      <span x-text="wire[wireIndex]"></span>
+    </section>
+
+    <section class="controls" aria-label="Reader controls">
+      <button class="control" :class="{active: density==='brief'}" @click="density='brief'">
+        <i data-lucide="newspaper"></i> Brief Scan
+      </button>
+      <button class="control" :class="{active: density==='full'}" @click="density='full'">
+        <i data-lucide="scroll-text"></i> Full Read
+      </button>
+      <button class="control" :class="{active: category==='all'}" @click="category='all'">
+        <i data-lucide="filter"></i> All Categories
+      </button>
+      <button class="control" :class="{active: category!=='all'}" @click="cycleCategory()">
+        <i data-lucide="sparkles"></i> Cycle Category
+      </button>
+    </section>
+
+    <div class="grid" id="newsGrid">
+      <article class="card" x-show="isVisible('front','operations')" x-transition>
+        <div class="card-header">
+          <p class="kicker">Front Desk / Operations</p>
+          <p class="issue">Lead Report</p>
+        </div>
+        <div class="card-body">
+          <h2 class="headline">City Hall Replaces Wall Clock With Calm Index Beacon</h2>
+          <p class="deck">After a nine-month pilot, waiting-room panic dropped by 37% once officials stopped displaying minutes and started displaying "steady progress."</p>
+          <p class="byline">By Oona Halberg, Municipal Tempo Correspondent</p>
+          <div :class="density==='brief' ? 'collapsed' : ''">
+            <p>In the old system, citizens stared at a circular clock while permits crawled through the queue. In the new system, the beacon offers three plain states: "received," "under thoughtful review," and "approved." The average visitor now leaves with paperwork and blood pressure in the same folder.</p>
+            <p>Clerks report fewer arguments over what counts as "almost done." The department calls this breakthrough "timeline dignity."</p>
+            <p class="pull">"Our lobby no longer sounds like thirty metronomes negotiating with destiny."</p>
+            <p>Administrators confirmed the clock face was archived at the city museum under the label <em>Early Instrument of Collective Urgency</em>.</p>
+          </div>
+          <button class="text-btn" @click="density = density==='brief' ? 'full' : 'brief'" x-text="density==='brief' ? 'Expand article' : 'Collapse article'"></button>
+          <div class="data-strip">
+            <div class="stat"><strong>37%</strong><span>Panic Drop</span></div>
+            <div class="stat"><strong>11m</strong><span>Faster Service</span></div>
+            <div class="stat"><strong>93%</strong><span>Approval Clarity</span></div>
+          </div>
+        </div>
+        <div class="ad">
+          <h4>Sponsored Notice: The Family Hour Vault</h4>
+          <p>Store one uninterrupted evening per week. Locked from meeting invites.</p>
+          <p><strong>From $24/month household plan.</strong></p>
+        </div>
+      </article>
+
+      <article class="card" x-show="isVisible('front','finance')" x-transition>
+        <div class="card-header">
+          <p class="kicker">Market / Funding</p>
+          <p class="issue">Capital Desk</p>
+        </div>
+        <div class="card-body">
+          <h3 class="headline">Circadia Civic Closes $68M Series B for Urban Time Infrastructure</h3>
+          <p class="byline">By Ren Ito, Financing Editor</p>
+          <div :class="density==='brief' ? 'collapsed' : ''">
+            <p>Investors cited "massive demand for anti-friction scheduling systems" among schools, clinics, and logistics networks. The round values the company at $410M post-money.</p>
+            <p>New capital will fund district-scale deployments, more multilingual calm prompts, and regional repair crews for legacy wall clocks still triggering incident reports.</p>
+            <p>Chief Executive Mara Voss described the raise as "a commitment to civic peace, measured in completed afternoons."</p>
+          </div>
+          <button class="text-btn" @click="density = density==='brief' ? 'full' : 'brief'" x-text="density==='brief' ? 'Continue reading' : 'Show less'"></button>
+          <p>
+            <span class="tag">Series B</span>
+            <span class="tag">Govtech</span>
+            <span class="tag">Urban Ops</span>
+          </p>
+        </div>
+      </article>
+
+      <article class="card" x-show="isVisible('policy','regulation')" x-transition>
+        <div class="card-header">
+          <p class="kicker">Policy / Standards</p>
+          <p class="issue">Draft Bill</p>
+        </div>
+        <div class="card-body">
+          <h3 class="headline">Proposed Public Timing Standards Act Would Ban Aggressive Countdown Screens</h3>
+          <p class="byline">By Council Reporter Nari Cole</p>
+          <p>Committee language defines aggressive countdown as any display that blinks, pulses red, or implies moral failure after missed transit in under 90 seconds.</p>
+          <p>Transit unions support the bill, saying riders read countdown zeros as betrayal rather than probability.</p>
+          <details>
+            <summary>Read key clause excerpt</summary>
+            <p>"No civic interface shall depict dwindling numerals without context, alternatives, or a reassuring sentence written by an adult human."</p>
+          </details>
+        </div>
+      </article>
+
+      <article class="card" x-show="isVisible('life','opinion')" x-transition>
+        <div class="card-header">
+          <p class="kicker">Opinion / Culture</p>
+          <p class="issue">Column</p>
+        </div>
+        <div class="card-body">
+          <h3 class="headline">Opinion: Minutes Are Not a Personality Trait</h3>
+          <p class="byline">By Lior Mendel, Staff Columnist</p>
+          <p class="quote">If your kitchen timer sounds like a submarine alarm, you are not "high performance." You are hosting a tiny emergency four times nightly.</p>
+          <p>Our grandparents cooked by scent, weather, and gossip. We now check three apps to boil pasta. Circadia's household mode restores the ancestral unit: "done when calm."</p>
+        </div>
+      </article>
+
+      <article class="card" x-show="isVisible('market','product')" x-transition>
+        <div class="card-header">
+          <p class="kicker">Market / Product</p>
+          <p class="issue">Pricing Brief</p>
+        </div>
+        <div class="card-body">
+          <h3 class="headline">Plans for Homes, Teams, and Municipal Departments</h3>
+          <div class="mini-grid">
+            <div>
+              <h4>Household</h4>
+              <p><strong>$24/mo</strong></p>
+              <p>Shared calm board, bedtime glide mode, one panic rollback per day.</p>
+            </div>
+            <div>
+              <h4>Studio Team</h4>
+              <p><strong>$89/mo</strong></p>
+              <p>Meeting diffusion, project tempo lanes, deadline de-escalation controls.</p>
+            </div>
+            <div>
+              <h4>Department</h4>
+              <p><strong>$1,400/mo</strong></p>
+              <p>Queue dignity screens, cross-counter harmonization, compliance archives.</p>
+            </div>
+            <div>
+              <h4>Metropolitan</h4>
+              <p><strong>Custom</strong></p>
+              <p>Inter-agency cadence map, emergency grace protocol, 24/7 operator desk.</p>
+            </div>
+          </div>
+        </div>
+      </article>
+
+      <article class="card" x-show="isVisible('life','letters')" x-transition>
+        <div class="card-header">
+          <p class="kicker">Community / Letters</p>
+          <p class="issue">Reader Mail</p>
+        </div>
+        <div class="card-body letters">
+          <div class="letter">
+            <p><strong>"My son stopped sprinting through breakfast."</strong></p>
+            <p>After switching to Circadia School Morning, he now says "we have sequence" instead of "we're late." We have toast again. - D. Vega, North Shore</p>
+          </div>
+          <div class="letter">
+            <p><strong>"Please add a button for 'we are trying.'"</strong></p>
+            <p>I run a bakery. Sometimes cinnamon rolls need existential time. - I. Grant, Ward 5</p>
+          </div>
+          <div class="letter">
+            <p><strong>"Stop calling us early adopters."</strong></p>
+            <p>We're not early. We're emotionally punctual. - Transit Clerks Union Local 301</p>
+          </div>
+        </div>
+      </article>
+
+      <article class="card" x-show="isVisible('policy','public-safety')" x-transition>
+        <div class="card-header">
+          <p class="kicker">Policy / Public Safety</p>
+          <p class="issue">Advisory</p>
+        </div>
+        <div class="card-body">
+          <h3 class="headline">Emergency Services Adopts "Golden Two Minutes" Language</h3>
+          <p class="byline">By Sela Ward, Public Safety Bureau</p>
+          <p>Dispatch screens now lead with: "Help is on route. Stay where you are." Numeric ETA remains available to operators but is no longer shouted on public panels.</p>
+          <p>Paramedics say callers speak more clearly when the first sentence is human instead of arithmetic.</p>
+        </div>
+      </article>
+
+      <article class="card" x-show="isVisible('market','classifieds')" x-transition>
+        <div class="card-header">
+          <p class="kicker">Marketplace / Classifieds</p>
+          <p class="issue">Small Ads</p>
+        </div>
+        <div class="card-body classifieds">
+          <div class="class-item"><strong>FOR SALE:</strong> Antique brass clock, now repurposed as fruit bowl. Excellent patina. No ticking. $55.</div>
+          <div class="class-item"><strong>HIRING:</strong> Calm Operator II. Night shift. Must write reassuring sentences under pressure.</div>
+          <div class="class-item"><strong>WANTED:</strong> Choir for quarterly launch bells. Alto section with municipal experience preferred.</div>
+          <div class="class-item"><strong>SERVICES:</strong> Domestic cadence consulting. We tune household routines in three visits.</div>
+          <div class="class-item"><strong>EXCHANGE:</strong> Two urgent Mondays for one restorative Thursday. Negotiable.</div>
+        </div>
+      </article>
+
+      <article class="card" x-show="isVisible('front','corrections')" x-transition>
+        <div class="card-header">
+          <p class="kicker">Front Desk / Corrections</p>
+          <p class="issue">Record Note</p>
+        </div>
+        <div class="card-body">
+          <h3 class="headline">Corrections & Clarifications</h3>
+          <p>Friday's edition stated the East Pier office replaced "every clock." One lobby clock remains, strictly ornamental, and currently displays confidence.</p>
+          <p>We also misspelled the name of Deputy Director Camila Ahn as "Camila Anh." We regret compressing her vowels under deadline pressure.</p>
+        </div>
+      </article>
+
+      <article class="card" x-show="isVisible('life','culture')" x-transition>
+        <div class="card-header">
+          <p class="kicker">Living / Arts</p>
+          <p class="issue">Review</p>
+        </div>
+        <div class="card-body">
+          <h3 class="headline">Review: The Civic Opera's New Production, <em>Schedule for a Better Dawn</em></h3>
+          <p class="byline">By Thea Ru, Arts Critic</p>
+          <p>Act II features a duet between a planner and a bus lane. Neither character checks the time, yet everyone arrives. The audience rose before the final chord and queued politely for coats.</p>
+          <p class="pull">"An aria so punctual it made lateness feel optional rather than inherited."</p>
+        </div>
+      </article>
+
+      <article class="card" x-show="isVisible('market','testimonial')" x-transition>
+        <div class="card-header">
+          <p class="kicker">Market / Client Voice</p>
+          <p class="issue">Case Study</p>
+        </div>
+        <div class="card-body">
+          <h3 class="headline">Testimonial: "Our Team Stopped Using the Phrase 'Quick Sync'"</h3>
+          <p><strong>Portlight Insurance, Operations Lead:</strong> "Circadia forced us to label the emotional cost of every meeting. We deleted 41 recurring calls in one week and no project collapsed. We now launch on Thursdays before lunch."</p>
+          <p><span class="tag">B2B</span><span class="tag">Workflows</span><span class="tag">Retention +22%</span></p>
+        </div>
+      </article>
+
+      <article class="card" x-show="isVisible('policy','editorial')" x-transition>
+        <div class="card-header">
+          <p class="kicker">Editorial Board</p>
+          <p class="issue">Unsigned</p>
+        </div>
+        <div class="card-body">
+          <h3 class="headline">The Editorial Position: Public Time Is Public Health</h3>
+          <p>When systems communicate only countdowns, they export stress as policy. Clear sequencing, patient status text, and humane pacing are not luxuries. They are civic obligations no less vital than railings and streetlights.</p>
+          <p>Budget committees should classify calm interface layers as preventive infrastructure with measurable downstream savings.</p>
+        </div>
+      </article>
+
+      <article class="card" x-show="isVisible('life','advice')" x-transition>
+        <div class="card-header">
+          <p class="kicker">Living / Advice Desk</p>
+          <p class="issue">Practical Guide</p>
+        </div>
+        <div class="card-body">
+          <h3 class="headline">Five Household Rituals That Replace the Last-Minute Sprint</h3>
+          <ol>
+            <li>Set one "bag by the door" bell the night before.</li>
+            <li>Give breakfasts names, not durations.</li>
+            <li>Move urgent email to noon; mornings are for human faces.</li>
+            <li>Trade one alarm tone for a sentence: "You are on sequence."</li>
+            <li>Practice leaving with one thing imperfect.</li>
+          </ol>
+        </div>
+      </article>
+
+      <article class="card" x-show="isVisible('front','tech')" x-transition>
+        <div class="card-header">
+          <p class="kicker">Front Desk / Technology</p>
+          <p class="issue">Explainer</p>
+        </div>
+        <div class="card-body">
+          <h3 class="headline">How the Calm Index Works</h3>
+          <p>Our index combines queue depth, staff availability, and service complexity into one plain-language state. No red countdown. No blinking guilt. Just truthful progress and next-step instructions.</p>
+          <details>
+            <summary>View implementation principles</summary>
+            <ul>
+              <li>Readable from six meters at a glance.</li>
+              <li>Language first, numerics second.</li>
+              <li>Every status includes one actionable sentence.</li>
+              <li>Every delay includes one dignity clause.</li>
+            </ul>
+          </details>
+        </div>
+      </article>
+
+      <article class="card" x-show="isVisible('letters','qa')" x-transition>
+        <div class="card-header">
+          <p class="kicker">Letters / Ask Circadia</p>
+          <p class="issue">Q&A</p>
+        </div>
+        <div class="card-body">
+          <h3 class="headline">Reader Question: "Can I keep one dramatic timer?"</h3>
+          <p><strong>Answer:</strong> Yes. Keep exactly one for theatrical baking or sports finales. Place it away from school bags, shared calendars, and any room where apologies are frequently exchanged.</p>
+          <p><strong>Answer, part II:</strong> If the timer has flames on the display, demote it to weekends.</p>
+        </div>
+      </article>
+
+      <article class="card" x-show="isVisible('market','ad')" x-transition>
+        <div class="card-header">
+          <p class="kicker">Paid Placement</p>
+          <p class="issue">Partner Notice</p>
+        </div>
+        <div class="card-body">
+          <h3 class="headline">Announcing the Circadia Operator Certification</h3>
+          <p>Train your staff in narrative queue management, humane escalation language, and de-intensified dispatch scripting.</p>
+          <p><strong>Next cohort opens April 3. 18 seats. Includes city procurement template pack.</strong></p>
+          <p class="icon-line"><i data-lucide="badge-check"></i><span>Trusted by 42 municipal departments</span></p>
+        </div>
+      </article>
+    </div>
+
+    <footer>
+      <div class="footer-grid">
+        <div>
+          <p><strong>Circadia Civic, Inc.</strong></p>
+          <p>Clockless timing systems for cities, teams, and households.</p>
+        </div>
+        <div>
+          <p><strong>Desks</strong></p>
+          <p>Press • Policy • Client Success • Calm Operations</p>
+        </div>
+        <div>
+          <p><strong>Edition Toggles</strong></p>
+          <p>
+            <span class="chip"><i data-lucide="building-2"></i> Municipal</span>
+            <span class="chip"><i data-lucide="briefcase"></i> Enterprise</span>
+            <span class="chip"><i data-lucide="home"></i> Household</span>
+          </p>
+        </div>
+        <div>
+          <p><strong>Contact</strong></p>
+          <p>newsroom@circadiacivic.test<br/>+1 (555) 010-1142</p>
+        </div>
+      </div>
+    </footer>
+  </main>
+
+  <script src="/assets/js/alpine.min.js" defer></script>
+  <script src="/assets/js/gsap.min.js"></script>
+  <script src="/assets/js/lucide.min.js"></script>
+  <script>
+    function ledgerPage() {
+      return {
+        section: 'front',
+        density: 'brief',
+        category: 'all',
+        wireIndex: 0,
+        wire: [
+          'Harbor permit queue reaches "calm amber" after cross-desk staffing merge.',
+          'District 9 schools pilot "soft arrival" mode; tardy disputes fall sharply.',
+          'Procurement office renews three-year Circadia infrastructure contract.',
+          'Regional clinics adopt compassionate wait states for pediatric intake.',
+          'Transit authority retires final red-blink platform timer in central loop.'
+        ],
+        categories: ['all', 'operations', 'finance', 'regulation', 'opinion', 'product', 'letters', 'public-safety', 'classifieds', 'corrections', 'culture', 'testimonial', 'editorial', 'advice', 'tech', 'qa', 'ad'],
+        cycleCategory() {
+          const current = this.categories.indexOf(this.category);
+          const next = (current + 1) % this.categories.length;
+          this.category = this.categories[next];
+        },
+        isVisible(sectionName, categoryName) {
+          const sectionMatch = this.section === sectionName || this.section === 'front' && sectionName === 'front' || this.section === 'letters' && sectionName === 'life' ? false : this.section === sectionName;
+          const allowBySection = this.section === 'front'
+            ? sectionName === 'front' || sectionName === 'market' || sectionName === 'life' || sectionName === 'policy' || sectionName === 'letters'
+            : sectionName === this.section;
+          const allowByCategory = this.category === 'all' || this.category === categoryName;
+          return allowBySection && allowByCategory;
+        },
+        init() {
+          if (window.lucide && typeof window.lucide.createIcons === 'function') {
+            window.lucide.createIcons();
+          }
+
+          this.$watch('section', () => {
+            this.$nextTick(() => {
+              if (window.lucide && typeof window.lucide.createIcons === 'function') {
+                window.lucide.createIcons();
+              }
+            });
+          });
+
+          this.$watch('category', () => {
+            this.$nextTick(() => {
+              if (window.lucide && typeof window.lucide.createIcons === 'function') {
+                window.lucide.createIcons();
+              }
+            });
+          });
+
+          this.$watch('density', () => {
+            this.$nextTick(() => {
+              if (window.lucide && typeof window.lucide.createIcons === 'function') {
+                window.lucide.createIcons();
+              }
+            });
+          });
+
+          setInterval(() => {
+            this.wireIndex = (this.wireIndex + 1) % this.wire.length;
+          }, 3400);
+
+          if (window.gsap && document.querySelectorAll) {
+            gsap.from('.card', {
+              y: 24,
+              opacity: 0,
+              duration: 0.55,
+              stagger: 0.05,
+              ease: 'power2.out'
+            });
+          }
+        }
+      };
+    }
+  </script>
+</body>
+</html>

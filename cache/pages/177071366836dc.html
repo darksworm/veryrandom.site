@@ -1,0 +1,817 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>WhiskerQuant Mini Markets</title>
+  <link rel="stylesheet" href="/assets/css/pico.min.css" />
+  <link rel="stylesheet" href="/assets/css/fonts.css" />
+  <style>
+    :root {
+      --coral: #ff6f61;
+      --gold: #ffcb5b;
+      --purple: #7e5bef;
+      --deep: #1f2a60;
+      --cream: #fff7ea;
+      --ink: #1d1d1d;
+      --ink-soft: #343434;
+      --card: #fff8f0;
+      --paw: #ff9f8f;
+      --line: #2e2e2e;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 16px;
+      color: var(--ink);
+      background:
+        radial-gradient(circle at 15% 15%, #ffd98a 0%, #ffd98a 7%, transparent 8%),
+        radial-gradient(circle at 85% 22%, #b79dff 0%, #b79dff 8%, transparent 9%),
+        linear-gradient(120deg, #fff5e6 0%, #ffe0d5 46%, #e1d4ff 100%);
+      overflow-x: hidden;
+    }
+
+    main {
+      width: min(1200px, 100% - 2rem);
+      margin: 1rem auto 2rem;
+      border-radius: 28px;
+      overflow: hidden;
+      border: 2px solid #f3b6a4;
+      box-shadow: 0 26px 70px #b58ec5;
+      background: #ffffff;
+    }
+
+    .split {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      min-height: 82vh;
+    }
+
+    .left {
+      background: linear-gradient(175deg, #fff8ee 0%, #ffe6db 100%);
+      padding: clamp(1rem, 2.5vw, 2rem);
+      position: relative;
+    }
+
+    .left::before,
+    .left::after {
+      content: "";
+      position: absolute;
+      border-radius: 50%;
+      z-index: 0;
+    }
+
+    .left::before {
+      width: 140px;
+      height: 140px;
+      top: -45px;
+      left: -35px;
+      background: radial-gradient(circle at 30% 30%, #ffd67e 0%, #ffb46e 75%, #ff9a79 100%);
+      transform: rotate(8deg);
+    }
+
+    .left::after {
+      width: 100px;
+      height: 100px;
+      bottom: 18px;
+      right: 20px;
+      background: radial-gradient(circle at 40% 35%, #ffc4cf 0%, #ffa2b3 74%, #e88aa4 100%);
+    }
+
+    .right {
+      background: linear-gradient(170deg, #322570 0%, #22358f 50%, #162b72 100%);
+      color: #ffffff;
+      padding: clamp(1rem, 2.5vw, 2rem);
+      position: relative;
+      isolation: isolate;
+    }
+
+    .right::before {
+      content: "";
+      position: absolute;
+      inset: 6% 12% auto;
+      height: 44%;
+      background: linear-gradient(130deg, #ffba82 0%, #ff8a7f 50%, #aa81ff 100%);
+      clip-path: polygon(5% 26%, 23% 12%, 37% 25%, 51% 7%, 67% 22%, 83% 14%, 95% 38%, 88% 74%, 66% 90%, 42% 82%, 21% 95%, 4% 71%);
+      filter: drop-shadow(0 18px 24px #201a3e);
+      z-index: -1;
+      transition: transform 400ms ease;
+    }
+
+    .right:hover::before {
+      transform: rotate(2deg) scale(1.03);
+    }
+
+    nav {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.8rem;
+      flex-wrap: wrap;
+      position: relative;
+      z-index: 2;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 0.55rem;
+      font-weight: 700;
+      color: #141414;
+      background: #fff7e8;
+      border: 2px solid #ffb391;
+      border-radius: 999px;
+      padding: 0.4rem 0.8rem;
+    }
+
+    .brand i {
+      width: 18px;
+      height: 18px;
+      color: #d94557;
+    }
+
+    .menu {
+      display: flex;
+      gap: 0.35rem;
+      flex-wrap: wrap;
+    }
+
+    .menu a {
+      text-decoration: none;
+      color: #2b2b2b;
+      font-size: 0.95rem;
+      font-weight: 600;
+      padding: 0.45rem 0.7rem;
+      border-radius: 999px;
+      border: 1px solid #f2b59d;
+      background: #fff4ea;
+    }
+
+    .menu a:hover {
+      background: #ffe3d6;
+      transform: translateY(-1px);
+    }
+
+    .hero {
+      margin-top: 1.1rem;
+      position: relative;
+      z-index: 1;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: clamp(1.7rem, 4.6vw, 3.4rem);
+      line-height: 1.05;
+      letter-spacing: -0.02em;
+      color: #1d1d1d;
+      max-width: 12ch;
+    }
+
+    .lead {
+      margin: 0.9rem 0 1rem;
+      max-width: 45ch;
+      color: #2e2e2e;
+      font-size: clamp(1rem, 2.2vw, 1.12rem);
+    }
+
+    .chip-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.45rem;
+      margin-bottom: 1rem;
+    }
+
+    .chip {
+      border: 1px dashed #da8e73;
+      border-radius: 999px;
+      padding: 0.3rem 0.7rem;
+      background: #ffefe4;
+      color: #2f2f2f;
+      font-weight: 600;
+      font-size: 0.85rem;
+    }
+
+    .cta-row {
+      display: flex;
+      gap: 0.6rem;
+      flex-wrap: wrap;
+      margin-bottom: 1.1rem;
+    }
+
+    button, .btn {
+      min-height: 44px;
+      border-radius: 14px;
+      border: 2px solid #212121;
+      font-weight: 700;
+      cursor: pointer;
+      font-family: inherit;
+    }
+
+    .btn-primary {
+      background: linear-gradient(130deg, #ff7f6d, #ffbf70);
+      color: #1a1a1a;
+      padding: 0.6rem 0.9rem;
+    }
+
+    .btn-secondary {
+      background: #ffffff;
+      color: #242424;
+      padding: 0.6rem 0.9rem;
+    }
+
+    .btn-secondary:hover,
+    .btn-primary:hover {
+      transform: translateY(-2px) rotate(-0.5deg);
+      box-shadow: 0 8px 18px #cc9f90;
+    }
+
+    .plans {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 0.55rem;
+      margin-top: 0.8rem;
+    }
+
+    .plan {
+      border: 1px solid #efb39d;
+      background: #fff7f1;
+      border-radius: 16px;
+      padding: 0.7rem;
+      transition: transform 220ms ease, box-shadow 220ms ease;
+    }
+
+    .plan:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 12px 25px #e0b5b6;
+    }
+
+    .plan h3 {
+      margin: 0;
+      font-size: 1rem;
+      color: #1f1f1f;
+    }
+
+    .price {
+      margin: 0.2rem 0;
+      font-weight: 800;
+      color: #2c2c2c;
+      font-size: 1.1rem;
+    }
+
+    .price small {
+      font-size: 0.8rem;
+      color: #323232;
+    }
+
+    .plan p {
+      margin: 0;
+      color: #2f2f2f;
+      font-size: 0.88rem;
+    }
+
+    .ticker {
+      margin-top: 0.9rem;
+      border: 2px solid #e39d87;
+      background: #fff2e9;
+      border-radius: 14px;
+      padding: 0.65rem 0.7rem;
+      color: #2a2a2a;
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 0.88rem;
+      white-space: nowrap;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .ticker span {
+      display: inline-block;
+      padding-left: 100%;
+      animation: crawl 12s linear infinite;
+    }
+
+    @keyframes crawl {
+      from { transform: translateX(0); }
+      to { transform: translateX(-100%); }
+    }
+
+    .art-wrap {
+      position: relative;
+      z-index: 1;
+      min-height: 100%;
+      display: grid;
+      grid-template-rows: auto auto 1fr auto;
+      gap: 0.8rem;
+    }
+
+    .status {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 0.6rem;
+      border: 1px solid #e3d8ff;
+      border-radius: 999px;
+      padding: 0.45rem 0.8rem;
+      background: #f7f2ff;
+      color: #1f1f1f;
+      font-size: 0.85rem;
+      font-weight: 700;
+    }
+
+    .mood {
+      display: flex;
+      gap: 0.45rem;
+      flex-wrap: wrap;
+    }
+
+    .mood button {
+      border: 1px solid #ffe2ad;
+      border-radius: 999px;
+      padding: 0.45rem 0.7rem;
+      min-height: 44px;
+      background: #fff3d5;
+      color: #2f2f2f;
+      font-size: 0.84rem;
+      font-weight: 700;
+    }
+
+    .mood button.active {
+      background: #ffdb9b;
+      box-shadow: inset 0 0 0 2px #ff9f7a;
+    }
+
+    .cat-board {
+      margin-top: 0.2rem;
+      background: linear-gradient(160deg, #ffd4c1, #ffb5a3 40%, #b9a0ff 100%);
+      border: 2px solid #ffecc0;
+      border-radius: 24px;
+      padding: 1rem;
+      min-height: 300px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .cat-board::before {
+      content: "";
+      position: absolute;
+      width: 180px;
+      height: 180px;
+      top: -70px;
+      right: -60px;
+      background: radial-gradient(circle, #fff3c6 0%, #ffd07f 60%, #ffb073 100%);
+      border-radius: 40% 60% 58% 42% / 52% 43% 57% 48%;
+      animation: blob 8s ease-in-out infinite;
+    }
+
+    @keyframes blob {
+      0%, 100% { border-radius: 40% 60% 58% 42% / 52% 43% 57% 48%; }
+      50% { border-radius: 58% 42% 34% 66% / 45% 65% 35% 55%; }
+    }
+
+    .cat-face {
+      width: min(260px, 78%);
+      aspect-ratio: 1/1;
+      margin: 1rem auto 0;
+      position: relative;
+      background: #ffe6d6;
+      border: 4px solid #2b2448;
+      border-radius: 50% 50% 44% 44%;
+      box-shadow: 0 14px 0 #2b2448;
+      transition: transform 350ms ease;
+    }
+
+    .cat-face:hover {
+      transform: translateY(-6px) rotate(-1.2deg);
+    }
+
+    .ear {
+      position: absolute;
+      width: 36%;
+      height: 38%;
+      top: -17%;
+      background: #ffe6d6;
+      border: 4px solid #2b2448;
+      clip-path: polygon(50% 0%, 100% 100%, 0% 100%);
+    }
+
+    .ear::after {
+      content: "";
+      position: absolute;
+      inset: 24% 24% 10% 24%;
+      background: #ffb5ba;
+      clip-path: polygon(50% 0%, 100% 100%, 0% 100%);
+    }
+
+    .ear.left-ear { left: 2%; transform: rotate(-14deg); }
+    .ear.right-ear { right: 2%; transform: rotate(14deg); }
+
+    .eye {
+      position: absolute;
+      top: 40%;
+      width: 22%;
+      height: 22%;
+      border-radius: 50%;
+      background: #ffffff;
+      border: 3px solid #2c2c2c;
+      overflow: hidden;
+    }
+
+    .eye.left { left: 22%; }
+    .eye.right { right: 22%; }
+
+    .pupil {
+      position: absolute;
+      top: 20%;
+      left: 40%;
+      width: var(--pupil-size, 24%);
+      height: 58%;
+      background: #262626;
+      border-radius: 30px;
+      transition: width 220ms ease;
+    }
+
+    .nose {
+      position: absolute;
+      left: 50%;
+      top: 58%;
+      width: 14%;
+      height: 10%;
+      transform: translateX(-50%);
+      background: #ff8f99;
+      clip-path: polygon(50% 100%, 0 0, 100% 0);
+      border: 2px solid #2d2d2d;
+    }
+
+    .mouth {
+      position: absolute;
+      top: 66%;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 30%;
+      height: 18%;
+      border-bottom: 3px solid #2f2f2f;
+      border-radius: 0 0 40px 40px;
+    }
+
+    .whisker {
+      position: absolute;
+      width: 34%;
+      height: 2px;
+      background: #2d2d2d;
+      top: 61%;
+    }
+
+    .whisker.l1 { left: -21%; transform: rotate(12deg); }
+    .whisker.l2 { left: -23%; transform: rotate(-2deg); }
+    .whisker.r1 { right: -21%; transform: rotate(-12deg); }
+    .whisker.r2 { right: -23%; transform: rotate(2deg); }
+
+    .board-meta {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 0.5rem;
+      align-items: center;
+      margin-top: 0.9rem;
+      color: #111111;
+      font-weight: 700;
+    }
+
+    .risk-wrap {
+      background: #fff4dd;
+      border-radius: 12px;
+      border: 1px solid #ffd58a;
+      padding: 0.5rem;
+    }
+
+    .risk-wrap label {
+      color: #1f1f1f;
+      font-size: 0.84rem;
+      margin-bottom: 0.3rem;
+      display: block;
+    }
+
+    input[type="range"] {
+      width: 100%;
+      min-height: 44px;
+      accent-color: #7e5bef;
+    }
+
+    .risk-value {
+      display: inline-block;
+      min-width: 38px;
+      text-align: center;
+      background: #ffffff;
+      border: 1px solid #ffc071;
+      border-radius: 10px;
+      padding: 0.35rem 0.45rem;
+      color: #1a1a1a;
+    }
+
+    .testimonial {
+      margin-top: 0.8rem;
+      background: #f8f3ff;
+      border: 1px solid #d6c8ff;
+      border-radius: 14px;
+      padding: 0.6rem 0.75rem;
+      color: #212121;
+      font-size: 0.9rem;
+    }
+
+    .testimonial strong { color: #1a1a1a; }
+
+    .faq {
+      margin-top: 0.8rem;
+      display: grid;
+      gap: 0.45rem;
+    }
+
+    details {
+      background: #fff8ec;
+      border-radius: 10px;
+      border: 1px solid #f0bb87;
+      padding: 0.45rem 0.55rem;
+      color: #1e1e1e;
+    }
+
+    summary {
+      cursor: pointer;
+      font-weight: 700;
+      color: #212121;
+    }
+
+    details p {
+      margin: 0.4rem 0 0;
+      color: #2d2d2d;
+      font-size: 0.9rem;
+    }
+
+    .paw-burst {
+      position: absolute;
+      width: 22px;
+      height: 22px;
+      pointer-events: none;
+      color: #ffffff;
+    }
+
+    .paw-burst i {
+      width: 22px;
+      height: 22px;
+      display: block;
+    }
+
+    .mood-bull .cat-board { background: linear-gradient(160deg, #ffd8bf, #ffae95 40%, #9e8dff 100%); }
+    .mood-bear .cat-board { background: linear-gradient(160deg, #ffc7b8, #f2918e 42%, #806af0 100%); }
+    .mood-nap .cat-board { background: linear-gradient(160deg, #ffe8c7, #ffd3aa 42%, #bbaeff 100%); }
+
+    .mood-bull .cat-face { box-shadow: 0 14px 0 #2b2448, 0 0 0 8px #ffdca2; }
+    .mood-bear .cat-face { box-shadow: 0 14px 0 #2b2448, 0 0 0 8px #ffb7bf; }
+    .mood-nap .cat-face { box-shadow: 0 14px 0 #2b2448, 0 0 0 8px #fff0b5; }
+
+    footer {
+      padding: 0.9rem 0.2rem 0;
+      color: #282828;
+      font-size: 0.82rem;
+      text-align: center;
+    }
+
+    @media (max-width: 980px) {
+      .split {
+        grid-template-columns: 1fr;
+      }
+
+      .right {
+        border-top: 2px dashed #c3b4ff;
+      }
+
+      .plans {
+        grid-template-columns: 1fr 1fr;
+      }
+    }
+
+    @media (max-width: 640px) {
+      main { width: calc(100% - 1rem); margin: 0.5rem auto 1rem; }
+      .plans { grid-template-columns: 1fr; }
+      .board-meta { grid-template-columns: 1fr; }
+      .menu { width: 100%; }
+      .menu a { flex: 1 1 auto; text-align: center; }
+    }
+  </style>
+</head>
+<body>
+  <main x-data="quantCat()" :class="`mood-${mood}`">
+    <div class="split">
+      <section class="left">
+        <nav>
+          <div class="brand"><i data-lucide="cat"></i>WhiskerQuant 3000</div>
+          <div class="menu">
+            <a href="#plans">Plans</a>
+            <a href="#proof">Proof</a>
+            <a href="#faq">FAQ</a>
+          </div>
+        </nav>
+
+        <div class="hero">
+          <h1>I am Chaircat Noodle. I run tiny hamsters with giant leverage.</h1>
+          <p class="lead">My littermates opened bakeries. I built a miniature day-trading pit where twelve caffeinated hamsters scalp moon-ore futures. You subscribe, I groom risk with my tongue.</p>
+
+          <div class="chip-row">
+            <span class="chip">Year 3000 licensed</span>
+            <span class="chip">93% fewer panic meows</span>
+            <span class="chip">Pawudited weekly</span>
+          </div>
+
+          <div class="cta-row">
+            <button class="btn-primary" x-on:click="launchPaws($event)">Start 9-Lives Trial</button>
+            <button class="btn-secondary" x-on:click="rotateMood()">Toggle Market Mood</button>
+          </div>
+
+          <section id="plans" class="plans">
+            <article class="plan">
+              <h3>Kitten Entry</h3>
+              <p class="price">$47.99<small>/month</small></p>
+              <p>2 hamster analysts, 1 emergency laser pointer.</p>
+            </article>
+            <article class="plan">
+              <h3>Alpha Tabby</h3>
+              <p class="price">$119.00<small>/month</small></p>
+              <p>6 analysts, claw-based stop losses, bedtime recap.</p>
+            </article>
+            <article class="plan">
+              <h3>Panther Prime</h3>
+              <p class="price">$399.95<small>/month</small></p>
+              <p>Full pit, anti-yarn hedges, me on speakerphone.</p>
+            </article>
+          </section>
+
+          <div class="ticker">
+            <span>$TUNA +8.2% | $YARN -1.1% | $LITTER +14.0% | Hamster #4 suspended for insider sunflower seeds | </span>
+          </div>
+
+          <div id="proof" class="testimonial">
+            <strong>Client note, Riko the Hairless Sphynx:</strong> “Noodle turned my sad treat jar into a sovereign wealth fund. I now nap diversified.”
+          </div>
+
+          <section id="faq" class="faq">
+            <details>
+              <summary>Do your hamsters hold certifications?</summary>
+              <p>All traders pass the Series 9-Lives exam and can identify a fake sardine from 4 meters.</p>
+            </details>
+            <details>
+              <summary>Why is every chart covered in paw prints?</summary>
+              <p>Compliance. If I touched the chart, I reviewed the chart. My paw is the signature.</p>
+            </details>
+            <details>
+              <summary>What happened to your rival, NutriBullet Capital?</summary>
+              <p>They laughed at my miniature exchange. Then they asked for a referral link.</p>
+            </details>
+          </section>
+        </div>
+      </section>
+
+      <section class="right">
+        <div class="art-wrap">
+          <div class="status">
+            <span><i data-lucide="activity"></i> Floor Mood: <span x-text="moodLabel"></span></span>
+            <span><i data-lucide="clock-3"></i> Bell: 08:08</span>
+          </div>
+
+          <div class="mood">
+            <button :class="{active: mood==='bull'}" x-on:click="setMood('bull')">Bullpurr</button>
+            <button :class="{active: mood==='bear'}" x-on:click="setMood('bear')">Bearclaw</button>
+            <button :class="{active: mood==='nap'}" x-on:click="setMood('nap')">Sideways Nap</button>
+          </div>
+
+          <div class="cat-board" id="artBoard">
+            <div class="cat-face" id="catFace" :style="`--pupil-size:${pupilSize}%`">
+              <div class="ear left-ear"></div>
+              <div class="ear right-ear"></div>
+              <div class="eye left"><div class="pupil"></div></div>
+              <div class="eye right"><div class="pupil"></div></div>
+              <div class="nose"></div>
+              <div class="mouth"></div>
+              <div class="whisker l1"></div>
+              <div class="whisker l2"></div>
+              <div class="whisker r1"></div>
+              <div class="whisker r2"></div>
+            </div>
+
+            <div class="board-meta">
+              <div class="risk-wrap">
+                <label for="risk">Claw leverage: <span class="risk-value" x-text="risk"></span>x</label>
+                <input id="risk" type="range" min="1" max="9" step="1" x-model="risk" x-on:input="updatePupil()" />
+              </div>
+              <button class="btn-secondary" x-on:click="wiggleCat()">Rattle Trading Pit</button>
+            </div>
+          </div>
+
+          <footer>
+            Chaircat Noodle, Founder. If this fails, I am emotionally unavailable until Q4.
+          </footer>
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <script defer src="/assets/js/alpine.min.js"></script>
+  <script src="/assets/js/gsap.min.js"></script>
+  <script src="/assets/js/lucide.min.js"></script>
+  <script>
+    function quantCat() {
+      return {
+        mood: 'bull',
+        risk: 4,
+        pupilSize: 24,
+        get moodLabel() {
+          if (this.mood === 'bull') return 'Aggressively Cozy';
+          if (this.mood === 'bear') return 'Defensive Hiss';
+          return 'Warm Blanket Drift';
+        },
+        setMood(next) {
+          this.mood = next;
+          const board = document.getElementById('artBoard');
+          gsap.fromTo(board,
+            { rotate: -1, scale: 0.985 },
+            { rotate: 0, scale: 1, duration: 0.45, ease: 'power2.out', clearProps: 'transform' }
+          );
+        },
+        rotateMood() {
+          const order = ['bull', 'bear', 'nap'];
+          const idx = order.indexOf(this.mood);
+          this.setMood(order[(idx + 1) % order.length]);
+        },
+        updatePupil() {
+          this.pupilSize = 15 + (this.risk * 2.2);
+        },
+        wiggleCat() {
+          const face = document.getElementById('catFace');
+          gsap.fromTo(face,
+            { x: -5, rotate: -2 },
+            { x: 0, rotate: 0, duration: 0.35, ease: 'elastic.out(1, 0.4)', clearProps: 'transform' }
+          );
+        },
+        launchPaws(ev) {
+          const board = document.getElementById('artBoard');
+          const rect = board.getBoundingClientRect();
+
+          for (let i = 0; i < 12; i += 1) {
+            const paw = document.createElement('div');
+            paw.className = 'paw-burst';
+            paw.innerHTML = '<i data-lucide="paw-print"></i>';
+            paw.style.left = (rect.width * 0.15 + Math.random() * rect.width * 0.7) + 'px';
+            paw.style.top = (rect.height * 0.15 + Math.random() * rect.height * 0.7) + 'px';
+            board.appendChild(paw);
+          }
+
+          lucide.createIcons({ attrs: { 'stroke-width': 2 } });
+
+          const paws = board.querySelectorAll('.paw-burst');
+          paws.forEach((paw, idx) => {
+            gsap.fromTo(paw,
+              { y: 12, scale: 0.4, opacity: 0 },
+              {
+                y: -40 - (Math.random() * 40),
+                x: (-20 + Math.random() * 40),
+                scale: 1 + Math.random() * 0.6,
+                opacity: 1,
+                duration: 0.6,
+                delay: idx * 0.03,
+                ease: 'power2.out',
+                onComplete: () => {
+                  gsap.to(paw, {
+                    opacity: 0,
+                    duration: 0.35,
+                    onComplete: () => paw.remove()
+                  });
+                }
+              }
+            );
+          });
+
+          const target = ev.currentTarget;
+          gsap.fromTo(target,
+            { y: 0 },
+            { y: -2, duration: 0.15, repeat: 1, yoyo: true, ease: 'power1.inOut', clearProps: 'transform' }
+          );
+        }
+      };
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      lucide.createIcons({ attrs: { 'stroke-width': 2 } });
+
+      const heroBits = document.querySelectorAll('nav, .hero > *:not(.faq), .status, .mood, .cat-board, footer');
+      heroBits.forEach((el, i) => {
+        gsap.fromTo(el,
+          { y: 22, opacity: 0 },
+          { y: 0, opacity: 1, duration: 0.52, delay: i * 0.05, ease: 'power2.out', clearProps: 'opacity,transform' }
+        );
+      });
+    });
+  </script>
+</body>
+</html>

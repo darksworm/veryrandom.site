@@ -1,0 +1,438 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Mossy Cake Insurance Manual</title>
+<style>
+  :root{
+    --pink:#ff2fb2;
+    --blue:#00a7ff;
+    --lime:#a6ff1a;
+    --ink:#0a0a12;
+    --cream:#fff4f9;
+  }
+  *{box-sizing:border-box}
+  html,body{height:100%;}
+  body{
+    margin:0;
+    font-family: "Times New Roman", "Georgia", serif;
+    color:#0e0d10;
+    background:
+      radial-gradient(1200px 800px at 15% 10%, rgba(255,47,178,.35), transparent 55%),
+      radial-gradient(900px 700px at 80% 15%, rgba(0,167,255,.35), transparent 50%),
+      radial-gradient(1000px 700px at 50% 85%, rgba(166,255,26,.25), transparent 55%),
+      #f6f2f7;
+    overflow:hidden;
+  }
+
+  .stage{
+    position:relative;
+    width:100%;
+    height:100%;
+    padding:24px;
+  }
+
+  /* desktop haze */
+  .stage::before{
+    content:"";
+    position:absolute; inset:-10% -10% -10% -10%;
+    background:
+      conic-gradient(from 210deg at 20% 20%, rgba(255,47,178,.15), rgba(0,167,255,.08), rgba(166,255,26,.1), rgba(255,47,178,.18));
+    filter: blur(30px) saturate(1.1);
+    opacity:.7;
+    z-index:0;
+  }
+
+  .cluster{position:absolute; inset:0; z-index:1;}
+
+  .window{
+    position:absolute;
+    width:320px;
+    min-height:200px;
+    border-radius:16px 16px 22px 22px;
+    background: linear-gradient(180deg, #ffffff 0%, #f7f2ff 55%, #ffffff 100%);
+    box-shadow:
+      0 25px 60px rgba(0,0,0,.18),
+      inset 0 0 0 1px rgba(255,255,255,.7);
+    backdrop-filter: blur(6px);
+    overflow:hidden;
+    transform: rotate(var(--tilt,0deg));
+    animation: float 9s ease-in-out infinite;
+  }
+  .window::before{
+    content:"";
+    position:absolute; inset:-40% -40% auto -40%; height:60%;
+    background: radial-gradient(closest-side, rgba(255,47,178,.35), transparent 70%);
+    opacity:.6;
+  }
+  .window::after{
+    content:"";
+    position:absolute; inset:auto -30% -35% -30%; height:55%;
+    background: radial-gradient(closest-side, rgba(0,167,255,.35), transparent 70%);
+    opacity:.6;
+  }
+
+  @keyframes float{
+    0%,100%{transform: translateY(0) rotate(var(--tilt,0deg));}
+    50%{transform: translateY(-10px) rotate(calc(var(--tilt,0deg) + 0.6deg));}
+  }
+
+  .bar{
+    height:34px; display:flex; align-items:center; gap:8px; padding:0 12px;
+    background: linear-gradient(90deg, rgba(255,47,178,.35), rgba(0,167,255,.25), rgba(166,255,26,.25));
+    border-bottom:1px solid rgba(0,0,0,.08);
+    font-size:12px; letter-spacing:.12em; text-transform:uppercase;
+  }
+  .dot{width:10px;height:10px;border-radius:50%;background:#fff;box-shadow:0 0 0 1px rgba(0,0,0,.2)}
+  .dot.p{background:var(--pink)}
+  .dot.b{background:var(--blue)}
+  .dot.l{background:var(--lime)}
+
+  .pane{padding:14px 16px 18px 16px; position:relative;}
+
+  /* moss + cake art blocks */
+  .cake{
+    position:relative; height:120px; border-radius:14px;
+    background:
+      linear-gradient(180deg, #ffffff 0 30%, #ffd8ef 30% 60%, #ffffff 60% 100%);
+    box-shadow: inset 0 -12px 20px rgba(255,47,178,.25);
+    overflow:hidden;
+  }
+  .cake::before{
+    content:""; position:absolute; inset:-20% -10% auto -10%; height:60%;
+    background: radial-gradient(circle at 20% 30%, rgba(166,255,26,.8), transparent 50%),
+                radial-gradient(circle at 60% 60%, rgba(0,167,255,.6), transparent 55%),
+                radial-gradient(circle at 80% 20%, rgba(166,255,26,.7), transparent 50%);
+    filter: blur(1px) saturate(1.2);
+  }
+  .moss{
+    position:absolute; inset:auto 0 0 0; height:48%;
+    background:
+      radial-gradient(16px 10px at 10% 0, var(--lime), transparent 60%),
+      radial-gradient(18px 12px at 25% 10%, #7eff00, transparent 60%),
+      radial-gradient(20px 12px at 40% 0, var(--lime), transparent 60%),
+      radial-gradient(18px 12px at 60% 8%, #7eff00, transparent 60%),
+      radial-gradient(16px 10px at 78% 0, var(--lime), transparent 60%),
+      radial-gradient(16px 10px at 92% 8%, #7eff00, transparent 60%),
+      linear-gradient(180deg, rgba(166,255,26,.9), rgba(100,200,10,.9));
+    mix-blend-mode:multiply;
+  }
+
+  .badge{
+    position:absolute; right:14px; top:54px;
+    width:86px; height:86px; border-radius:50%;
+    background: conic-gradient(from 0deg, var(--pink), var(--blue), var(--lime), var(--pink));
+    box-shadow:0 0 0 2px rgba(255,255,255,.8), 0 12px 22px rgba(0,0,0,.2);
+    display:grid; place-items:center;
+    color:#fff; font-size:10px; text-transform:uppercase; letter-spacing:.2em;
+  }
+  .badge::after{
+    content:"BIOHAZARD"; transform:rotate(-10deg);
+  }
+
+  .grid{
+    display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-top:10px;
+  }
+  .chip{
+    height:56px; border-radius:10px; position:relative; overflow:hidden;
+    background:
+      linear-gradient(135deg, rgba(255,47,178,.45), rgba(0,167,255,.35)),
+      repeating-linear-gradient(90deg, rgba(255,255,255,.3) 0 6px, transparent 6px 12px);
+    box-shadow: inset 0 0 0 1px rgba(255,255,255,.6);
+  }
+  .chip::before{
+    content:""; position:absolute; inset:8px; border-radius:8px;
+    border:1px dashed rgba(0,0,0,.2);
+  }
+
+  .label{
+    font-size:11px; letter-spacing:.18em; text-transform:uppercase; opacity:.6;
+  }
+
+  /* windows positions */
+  .w1{left:4%; top:6%; --tilt:-2.5deg; width:360px;}
+  .w2{left:35%; top:10%; --tilt:1.5deg; width:340px;}
+  .w3{left:62%; top:6%; --tilt:-1deg; width:300px;}
+  .w4{left:10%; top:46%; --tilt:2deg; width:380px;}
+  .w5{left:44%; top:42%; --tilt:-3deg; width:360px;}
+  .w6{left:70%; top:44%; --tilt:1deg; width:320px;}
+
+  /* big centerpiece */
+  .manual{
+    position:absolute; left:22%; top:22%; width:56%; height:52%;
+    border-radius:24px;
+    background: linear-gradient(180deg, #fff 0%, #f9f3ff 70%, #fff 100%);
+    box-shadow: 0 40px 120px rgba(0,0,0,.25), inset 0 0 0 1px rgba(255,255,255,.8);
+    z-index:2;
+    overflow:hidden;
+    transform: rotate(-1deg);
+  }
+  .manual::before{
+    content:""; position:absolute; inset:-30% -10% auto -10%; height:60%;
+    background: radial-gradient(closest-side, rgba(0,167,255,.35), transparent 70%);
+  }
+  .manual::after{
+    content:""; position:absolute; inset:auto -10% -30% -10%; height:60%;
+    background: radial-gradient(closest-side, rgba(255,47,178,.35), transparent 70%);
+  }
+  .manual .bar{height:42px; font-size:12px;}
+  .manual .pane{padding:20px 24px;}
+
+  .logo{
+    font-size:14px; letter-spacing:.4em; text-transform:uppercase; font-weight:bold;
+  }
+  .logo span{color:var(--pink)}
+
+  .hero{
+    display:grid; grid-template-columns:1.1fr .9fr; gap:16px; align-items:center;
+  }
+
+  .sigil{
+    position:relative; width:100%; height:180px; border-radius:18px;
+    background:
+      radial-gradient(120px 90px at 20% 40%, rgba(166,255,26,.6), transparent 60%),
+      radial-gradient(140px 110px at 80% 30%, rgba(0,167,255,.5), transparent 60%),
+      linear-gradient(120deg, rgba(255,47,178,.35), rgba(255,255,255,.2));
+    box-shadow: inset 0 0 0 1px rgba(255,255,255,.8), 0 10px 24px rgba(0,0,0,.18);
+    overflow:hidden;
+  }
+  .sigil::before{
+    content:""; position:absolute; inset:18px; border-radius:50%;
+    border:2px solid rgba(0,0,0,.08);
+    box-shadow: inset 0 0 20px rgba(0,0,0,.12);
+    background: conic-gradient(from 0deg, var(--pink), var(--blue), var(--lime), var(--pink));
+    mix-blend-mode:screen;
+  }
+  .sigil::after{
+    content:""; position:absolute; inset:32px; border-radius:12px;
+    background: repeating-linear-gradient(90deg, rgba(255,255,255,.4) 0 8px, transparent 8px 16px);
+  }
+
+  .manual-text{
+    font-size:13px; line-height:1.4; letter-spacing:.08em;
+  }
+  .manual-text .title{
+    font-size:20px; font-weight:bold; text-transform:uppercase; letter-spacing:.2em;
+  }
+  .manual-text .title em{color:var(--blue); font-style:normal;}
+
+  /* interactive toggles */
+  .controls{
+    position:absolute; right:16px; top:48px; display:flex; gap:8px;
+  }
+  .btn{
+    font-size:10px; letter-spacing:.2em; text-transform:uppercase;
+    border:none; padding:8px 10px; border-radius:12px; cursor:pointer;
+    background:linear-gradient(120deg, var(--pink), var(--blue));
+    color:#fff; box-shadow:0 6px 14px rgba(0,0,0,.2);
+    transition:transform .2s ease, filter .2s ease;
+  }
+  .btn:hover{transform:translateY(-2px) scale(1.02); filter:saturate(1.2)}
+
+  /* states */
+  body.moss-mode .moss{height:60%; filter:contrast(1.2) saturate(1.5)}
+  body.moss-mode .window{background:linear-gradient(180deg,#f8fff2 0%, #e9ffea 60%, #fff 100%)}
+
+  body.cake-mode .cake{background:linear-gradient(180deg,#fff 0 40%, #ffe0f4 40% 70%, #fff 70% 100%)}
+  body.cake-mode .badge{transform:scale(1.1) rotate(12deg)}
+
+  body.biohazard .sigil::before{filter:hue-rotate(120deg)}
+  body.biohazard .bar{background:linear-gradient(90deg, rgba(0,167,255,.4), rgba(166,255,26,.35), rgba(255,47,178,.35))}
+  body.biohazard .window{box-shadow:0 30px 70px rgba(0,0,0,.3), 0 0 0 2px rgba(0,167,255,.25)}
+
+  /* hover interactions */
+  .window:hover .cake{transform:translateY(-2px) scale(1.02)}
+  .window:hover .badge{box-shadow:0 0 0 3px rgba(255,255,255,.9), 0 16px 30px rgba(0,0,0,.25)}
+  .sigil:hover{transform:rotate(1deg) scale(1.02)}
+  .sigil{transition:transform .25s ease}
+
+  /* ribbon */
+  .ribbon{
+    position:absolute; left:-40px; top:120px; width:220px; height:30px;
+    background:linear-gradient(90deg, var(--pink), var(--blue));
+    transform:rotate(-12deg);
+    color:#fff; text-transform:uppercase; letter-spacing:.3em; font-size:10px;
+    display:grid; place-items:center;
+    box-shadow:0 10px 20px rgba(0,0,0,.2);
+  }
+
+  /* footer strip */
+  .ticker{
+    position:absolute; left:0; bottom:0; width:100%; height:44px;
+    background:linear-gradient(90deg, rgba(0,0,0,.85), rgba(0,0,0,.7));
+    color:#fff; font-size:11px; letter-spacing:.25em; text-transform:uppercase;
+    display:flex; align-items:center; overflow:hidden;
+  }
+  .ticker span{
+    display:inline-block; padding-left:100%;
+    animation: scroll 18s linear infinite;
+  }
+  @keyframes scroll{to{transform:translateX(-100%)}}
+
+  /* interactive sliders */
+  .sliders{display:flex; gap:10px; margin-top:12px; align-items:center;}
+  .sliders input[type=range]{width:100%;}
+
+  /* tiny notes */
+  .note{font-size:11px; opacity:.6; letter-spacing:.08em}
+
+  /* responsive */
+  @media (max-width: 900px){
+    .manual{left:6%; top:18%; width:88%; height:55%;}
+    .w2,.w3,.w5,.w6{display:none;}
+  }
+  @media (max-width: 600px){
+    .manual{left:4%; top:12%; width:92%; height:65%;}
+    .w1,.w4{display:none;}
+    .hero{grid-template-columns:1fr;}
+  }
+</style>
+</head>
+<body>
+  <div class="stage">
+    <div class="cluster">
+      <div class="window w1">
+        <div class="bar"><span class="dot p"></span><span class="dot b"></span><span class="dot l"></span>policy pastry</div>
+        <div class="pane">
+          <div class="cake"><div class="moss"></div></div>
+          <div class="badge"></div>
+          <div class="grid">
+            <div class="chip"></div>
+            <div class="chip"></div>
+          </div>
+          <div class="label">Claim cake: approved</div>
+        </div>
+      </div>
+
+      <div class="window w2">
+        <div class="bar"><span class="dot p"></span><span class="dot b"></span><span class="dot l"></span>mossy premiums</div>
+        <div class="pane">
+          <div class="cake"><div class="moss"></div></div>
+          <div class="label">Underwriting by spores</div>
+          <div class="grid">
+            <div class="chip"></div>
+            <div class="chip"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="window w3">
+        <div class="bar"><span class="dot p"></span><span class="dot b"></span><span class="dot l"></span>compliance frosting</div>
+        <div class="pane">
+          <div class="cake"><div class="moss"></div></div>
+          <div class="label">Regulation: tasty</div>
+        </div>
+      </div>
+
+      <div class="window w4">
+        <div class="bar"><span class="dot p"></span><span class="dot b"></span><span class="dot l"></span>sentient hr manual</div>
+        <div class="pane">
+          <div class="cake"><div class="moss"></div></div>
+          <div class="label">Now hiring lichens</div>
+        </div>
+      </div>
+
+      <div class="window w5">
+        <div class="bar"><span class="dot p"></span><span class="dot b"></span><span class="dot l"></span>benefits bakery</div>
+        <div class="pane">
+          <div class="cake"><div class="moss"></div></div>
+          <div class="label">Dental: buttercream</div>
+          <div class="grid">
+            <div class="chip"></div>
+            <div class="chip"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="window w6">
+        <div class="bar"><span class="dot p"></span><span class="dot b"></span><span class="dot l"></span>claims loop</div>
+        <div class="pane">
+          <div class="cake"><div class="moss"></div></div>
+          <div class="label">Never stale</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="manual">
+      <div class="bar">
+        <span class="dot p"></span><span class="dot b"></span><span class="dot l"></span>
+        <div class="logo">MOSS<span>URE</span>CO</div>
+        <div class="controls">
+          <button class="btn" id="toggleMoss">Moss Surge</button>
+          <button class="btn" id="toggleCake">Cake Bloom</button>
+          <button class="btn" id="toggleBio">Biohazard</button>
+        </div>
+      </div>
+      <div class="pane">
+        <div class="ribbon">sentient manual</div>
+        <div class="hero">
+          <div class="manual-text">
+            <div class="title">Insurance of <em>Cake</em></div>
+            <p>Our HR manual woke up, bought an insurer, and replaced every wall with moss frosting. Coverage is 100% edible. Appeals handled by spores.</p>
+            <div class="sliders">
+              <span class="note">Chaos</span>
+              <input id="chaos" type="range" min="0" max="100" value="50" />
+            </div>
+            <div class="sliders">
+              <span class="note">Luxury</span>
+              <input id="lux" type="range" min="0" max="100" value="60" />
+            </div>
+            <p class="note">Hover windows. Toggle modes. Drag the sliders.</p>
+          </div>
+          <div class="sigil" id="sigil"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="ticker"><span>biohazard luxury minimalism · everything is cake · moss warranty · sentient hr manual · claims are snacks · </span></div>
+  </div>
+
+<script>
+  const body = document.body;
+  const mossBtn = document.getElementById('toggleMoss');
+  const cakeBtn = document.getElementById('toggleCake');
+  const bioBtn = document.getElementById('toggleBio');
+  const chaos = document.getElementById('chaos');
+  const lux = document.getElementById('lux');
+  const sigil = document.getElementById('sigil');
+
+  mossBtn.addEventListener('click', () => {
+    body.classList.toggle('moss-mode');
+  });
+  cakeBtn.addEventListener('click', () => {
+    body.classList.toggle('cake-mode');
+  });
+  bioBtn.addEventListener('click', () => {
+    body.classList.toggle('biohazard');
+  });
+
+  function updateChaos(){
+    const v = Number(chaos.value);
+    const deg = (v - 50) / 10;
+    document.querySelectorAll('.window').forEach((w, i) => {
+      w.style.transform = `rotate(${deg + (i%3-1)*1.2}deg)`;
+      w.style.boxShadow = `0 ${20 + v/3}px ${40 + v}px rgba(0,0,0,.25)`;
+    });
+    sigil.style.filter = `hue-rotate(${v*2}deg)`;
+  }
+
+  function updateLux(){
+    const v = Number(lux.value);
+    const glow = 0.2 + v/200;
+    document.querySelectorAll('.badge').forEach(b => {
+      b.style.boxShadow = `0 0 0 2px rgba(255,255,255,.8), 0 0 ${20 + v/2}px rgba(255,47,178,${glow})`;
+    });
+    document.querySelectorAll('.window').forEach(w => {
+      w.style.backdropFilter = `blur(${4 + v/20}px)`;
+    });
+  }
+
+  chaos.addEventListener('input', updateChaos);
+  lux.addEventListener('input', updateLux);
+
+  updateChaos();
+  updateLux();
+</script>
+</body>
+</html>

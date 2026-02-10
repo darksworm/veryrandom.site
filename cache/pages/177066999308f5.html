@@ -1,0 +1,690 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Bureau of Rolling Arts Logistics | Festival Operations Portal</title>
+  <link rel="stylesheet" href="/assets/css/pico.min.css" />
+  <link rel="stylesheet" href="/assets/css/fonts.css" />
+  <style>
+    :root {
+      --paper: #efe2c8;
+      --paper-2: #e2cfad;
+      --ink: #1b130a;
+      --ink-soft: #2d2112;
+      --seal: #5b2f12;
+      --seal-2: #7d3d17;
+      --dark: #120b05;
+      --line: #3a2a18;
+      --warn: #8a1e00;
+      --ok: #234f1e;
+      --gold: #b68937;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: "Space Grotesk", sans-serif;
+      color: var(--ink);
+      background:
+        repeating-linear-gradient(0deg, rgba(91, 47, 18, 0.09) 0 2px, transparent 2px 6px),
+        linear-gradient(130deg, #d8c19c 0%, #f1e4ca 40%, #cfb489 100%);
+      min-height: 100vh;
+    }
+
+    h1, h2, h3, h4 {
+      font-family: "IBM Plex Mono", monospace;
+      letter-spacing: 0.04em;
+      color: var(--ink);
+    }
+
+    a, button {
+      transition: all 160ms ease;
+    }
+
+    .portal-grid {
+      display: grid;
+      grid-template-columns: 1.08fr 0.92fr;
+      min-height: 100vh;
+    }
+
+    .left-pane {
+      background:
+        linear-gradient(180deg, rgba(255,255,255,0.06), rgba(0,0,0,0.06)),
+        linear-gradient(165deg, var(--paper) 0%, var(--paper-2) 100%);
+      border-right: 4px double var(--line);
+      padding: 1rem;
+    }
+
+    .right-pane {
+      background:
+        radial-gradient(circle at 20% 20%, rgba(182,137,55,0.25), transparent 40%),
+        linear-gradient(145deg, #261508 0%, #120b05 55%, #2a1708 100%);
+      color: #fff8e8;
+      padding: 1rem;
+    }
+
+    .top-nav {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      align-items: center;
+      border: 2px solid var(--line);
+      background: rgba(255, 250, 239, 0.92);
+      padding: 0.7rem;
+      margin-bottom: 0.8rem;
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      font-family: "IBM Plex Mono", monospace;
+      font-size: 0.72rem;
+      text-transform: uppercase;
+      border: 1px solid var(--line);
+      padding: 0.2rem 0.4rem;
+      background: #f7ebd5;
+      color: var(--ink);
+    }
+
+    .nav-btn {
+      border: 1px solid var(--line);
+      background: #f9e9c8;
+      color: var(--ink);
+      font-weight: 700;
+      font-size: 0.8rem;
+      padding: 0.4rem 0.6rem;
+      text-transform: uppercase;
+    }
+
+    .nav-btn:hover,
+    .nav-btn:focus-visible {
+      background: #f0d29b;
+      transform: translateY(-1px);
+    }
+
+    .stack {
+      display: grid;
+      gap: 0.7rem;
+    }
+
+    .card {
+      border: 2px solid var(--line);
+      background: rgba(255, 248, 235, 0.95);
+      padding: 0.7rem;
+      color: var(--ink);
+      overflow: hidden;
+    }
+
+    .glitch-title {
+      font-size: clamp(1.2rem, 2.3vw, 2rem);
+      text-transform: uppercase;
+      line-height: 1.12;
+      margin-bottom: 0.4rem;
+      text-shadow: 1px 0 var(--seal), -1px 0 #ffe3b1;
+    }
+
+    .card p,
+    .card li,
+    .card td,
+    .card th,
+    .card small,
+    .card label,
+    .card strong,
+    .right-pane p,
+    .right-pane li,
+    .right-pane td,
+    .right-pane th,
+    .right-pane small,
+    .right-pane label,
+    .right-pane strong,
+    .right-pane h2,
+    .right-pane h3,
+    .right-pane h4 {
+      opacity: 1;
+    }
+
+    .ticker {
+      border: 2px dashed var(--line);
+      background: #fff2da;
+      padding: 0.4rem;
+      font-family: "IBM Plex Mono", monospace;
+      font-size: 0.78rem;
+      min-height: 3.2rem;
+      color: var(--ink);
+    }
+
+    .big-num {
+      font-size: clamp(1.4rem, 4vw, 2.2rem);
+      font-weight: 800;
+      color: var(--seal);
+      line-height: 1;
+    }
+
+    .split-mini {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.6rem;
+    }
+
+    .meter {
+      border: 1px solid var(--line);
+      height: 16px;
+      background: #f7e7ca;
+      overflow: hidden;
+    }
+
+    .meter > span {
+      display: block;
+      height: 100%;
+      background: linear-gradient(90deg, #90611f, #4d2c14);
+    }
+
+    .table-wrap {
+      overflow-x: auto;
+      border: 2px solid var(--line);
+    }
+
+    table {
+      margin: 0;
+      font-size: 0.75rem;
+      color: inherit;
+    }
+
+    th {
+      background: #e1c69d;
+      color: var(--ink);
+    }
+
+    .right-pane .card {
+      background: rgba(31, 19, 10, 0.85);
+      border: 1px solid #d8ad70;
+      color: #fff8e8;
+    }
+
+    .right-pane .badge {
+      background: #2d1b0c;
+      color: #fff8e8;
+      border-color: #d8ad70;
+    }
+
+    .right-pane .nav-btn,
+    .right-pane button,
+    .action {
+      border: 1px solid #ffd49a;
+      background: #3d220d;
+      color: #fff8e8;
+      font-weight: 700;
+      font-size: 0.78rem;
+      padding: 0.42rem 0.56rem;
+      text-transform: uppercase;
+    }
+
+    .right-pane .nav-btn:hover,
+    .right-pane button:hover,
+    .action:hover,
+    .right-pane .nav-btn:focus-visible,
+    .right-pane button:focus-visible,
+    .action:focus-visible {
+      background: #5d3514;
+    }
+
+    .chart {
+      display: grid;
+      grid-template-columns: repeat(6, 1fr);
+      align-items: end;
+      gap: 0.45rem;
+      height: 140px;
+      border: 1px solid #d8ad70;
+      padding: 0.5rem;
+      background: #201207;
+    }
+
+    .bar {
+      background: linear-gradient(180deg, #f4cd8f 0%, #8a4d1c 100%);
+      border: 1px solid #ffe2b4;
+      min-height: 12px;
+    }
+
+    .faq-item {
+      border: 1px solid #d8ad70;
+      margin-bottom: 0.5rem;
+      background: #281608;
+    }
+
+    .faq-q {
+      width: 100%;
+      text-align: left;
+      padding: 0.55rem;
+      background: #3b220e;
+      color: #fff8e8;
+      border: none;
+      font-family: "IBM Plex Mono", monospace;
+      cursor: pointer;
+    }
+
+    .faq-a {
+      padding: 0.55rem;
+      color: #fff8e8;
+      border-top: 1px solid #d8ad70;
+    }
+
+    .warning {
+      color: #fff8e8;
+      background: #6a1a00;
+      border: 1px solid #ffbf9c;
+      padding: 0.4rem;
+      font-weight: 700;
+      font-size: 0.72rem;
+      text-transform: uppercase;
+    }
+
+    .micro {
+      font-size: 0.68rem;
+      line-height: 1.45;
+      color: inherit;
+    }
+
+    .pill {
+      display: inline-block;
+      border: 1px solid currentColor;
+      padding: 0.1rem 0.35rem;
+      margin-right: 0.2rem;
+      margin-bottom: 0.2rem;
+      font-size: 0.66rem;
+      text-transform: uppercase;
+      font-family: "IBM Plex Mono", monospace;
+    }
+
+    .footer-note {
+      margin-top: 0.7rem;
+      border: 1px dashed #d8ad70;
+      padding: 0.5rem;
+      font-size: 0.66rem;
+      color: #fff8e8;
+    }
+
+    .mono {
+      font-family: "IBM Plex Mono", monospace;
+    }
+
+    @media (max-width: 980px) {
+      .portal-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .left-pane {
+        border-right: none;
+        border-bottom: 4px double var(--line);
+      }
+    }
+  </style>
+</head>
+<body x-data="portalApp()" x-init="init()">
+  <main class="portal-grid">
+    <section class="left-pane">
+      <nav class="top-nav">
+        <span class="badge"><i data-lucide="shield"></i> certified rolling authority</span>
+        <button class="nav-btn" x-on:click="activeView='ops'">Ops Hub</button>
+        <button class="nav-btn" x-on:click="activeView='lineup'">Lineup Bureau</button>
+        <button class="nav-btn" x-on:click="activeView='vendors'">Vendor Ledger</button>
+        <button class="nav-btn" x-on:click="activeView='permits'">Permit Desk</button>
+        <span class="badge"><i data-lucide="timer-reset"></i> docket <span x-text="clock"></span></span>
+      </nav>
+
+      <div class="stack">
+        <article class="card" x-show="activeView==='ops'">
+          <div class="glitch-title">Bureau of Rolling Arts Logistics</div>
+          <p><strong>Annual Ground-Level Resonance Festival</strong> administrative console for district fields 4A through 4H. All crew assignments are fulfilled by licensed identity variants under one personnel umbrella.</p>
+          <div class="split-mini">
+            <div>
+              <small class="mono">Days until gate open</small>
+              <div class="big-num" x-text="countdown.days"></div>
+            </div>
+            <div>
+              <small class="mono">Soup reserve (liters)</small>
+              <div class="big-num" x-text="soupReserve.toLocaleString()"></div>
+            </div>
+          </div>
+          <div class="ticker" x-text="ticker[currentTicker]"></div>
+          <div style="display:flex; gap:0.45rem; margin-top:0.5rem; flex-wrap:wrap;">
+            <button class="nav-btn" x-on:click="rotateTicker()">Cycle Bulletin</button>
+            <button class="nav-btn" x-on:click="tickerRunning=!tickerRunning" x-text="tickerRunning ? 'Pause Feed' : 'Resume Feed'"></button>
+            <button class="nav-btn" x-on:click="soupReserve += 250">Emergency Soup Deposit +250L</button>
+          </div>
+        </article>
+
+        <article class="card" x-show="activeView==='lineup'">
+          <h3>Stage Rotation Registry</h3>
+          <p>Current authorized performance cell:</p>
+          <h2 class="mono" x-text="lineup[slotIndex].name"></h2>
+          <p><strong>Zone:</strong> <span x-text="lineup[slotIndex].zone"></span> | <strong>Set:</strong> <span x-text="lineup[slotIndex].set"></span></p>
+          <p><strong>Supervisor:</strong> <span x-text="lineup[slotIndex].persona"></span></p>
+          <button class="nav-btn" x-on:click="nextSlot()">Advance to Next Cell</button>
+          <div class="micro" style="margin-top:0.45rem;">Filed note 88-C: If two performers answer to the same legal signature, separate them by at least one soup break.</div>
+        </article>
+
+        <article class="card" x-show="activeView==='vendors'">
+          <h3>Concession Conversion Engine</h3>
+          <label for="soupSlider"><strong>Soup Units Tendered:</strong> <span x-text="soupUnits"></span></label>
+          <input id="soupSlider" type="range" min="10" max="200" step="5" x-model.number="soupUnits" />
+          <p><strong>Equivalent Stall Credits:</strong> <span class="mono" x-text="(soupUnits * 1.75).toFixed(2)"></span></p>
+          <p><strong>Sterilized Ladle Fee:</strong> <span class="mono" x-text="Math.ceil(soupUnits * 0.12)"></span> units</p>
+          <div class="split-mini">
+            <div>
+              <small>Broth Volatility</small>
+              <div class="meter"><span :style="`width:${brothVolatility}%`"></span></div>
+            </div>
+            <div>
+              <small>Noodle Density</small>
+              <div class="meter"><span :style="`width:${noodleDensity}%`"></span></div>
+            </div>
+          </div>
+          <button class="nav-btn" style="margin-top:0.5rem;" x-on:click="recalibrateFood()">Recalibrate Ingredients</button>
+        </article>
+
+        <article class="card" x-show="activeView==='permits'">
+          <h3>Permit Toggle Matrix</h3>
+          <p>Switch compliance packets for field teams:</p>
+          <div class="split-mini">
+            <label><input type="checkbox" x-model="permits.ampShield" /> Amp Shielding</label>
+            <label><input type="checkbox" x-model="permits.sparkWaiver" /> Spark Waiver</label>
+            <label><input type="checkbox" x-model="permits.fermentedStock" /> Fermented Stock Dispensing</label>
+            <label><input type="checkbox" x-model="permits.afterMidnightMop" /> After-Midnight Mop Access</label>
+          </div>
+          <p style="margin-top:0.5rem;"><strong>Enabled Packets:</strong> <span x-text="enabledPermitCount()"></span>/4</p>
+          <button class="nav-btn" x-on:click="approvePermits()">Stamp and Publish</button>
+          <div class="warning" x-show="permitNotice" x-text="permitNotice"></div>
+        </article>
+
+        <article class="card">
+          <h3>Dispatch Ledger</h3>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Unit</th>
+                  <th>Persona ID</th>
+                  <th>Task</th>
+                  <th>Fuel</th>
+                  <th>Status</th>
+                </tr>
+              </thead>
+              <tbody>
+                <template x-for="row in dispatchRows" :key="row.id">
+                  <tr>
+                    <td x-text="row.unit"></td>
+                    <td x-text="row.persona"></td>
+                    <td x-text="row.task"></td>
+                    <td x-text="row.fuel"></td>
+                    <td><span class="pill" x-text="row.status"></span></td>
+                  </tr>
+                </template>
+              </tbody>
+            </table>
+          </div>
+          <div style="display:flex; gap:0.5rem; margin-top:0.55rem; flex-wrap:wrap;">
+            <button class="nav-btn" x-on:click="appendDispatch()">Add Dispatch Row</button>
+            <button class="nav-btn" x-on:click="incidentCount=0">Reset Incidents</button>
+            <span class="badge">incidents logged: <span x-text="incidentCount"></span></span>
+          </div>
+        </article>
+
+        <article class="card">
+          <h3>Public Testimony Extracts</h3>
+          <div class="split-mini">
+            <blockquote>
+              "The grounds were spotless, the bassline was lawful, and my chowder paid for parking."<br />
+              <strong>- Vendor License 44-H</strong>
+            </blockquote>
+            <blockquote>
+              "Every staff member looked familiar, which made check-in efficient and spiritually concerning."<br />
+              <strong>- District Inspector</strong>
+            </blockquote>
+          </div>
+          <small class="micro">Filed under community confidence reports. Redactions available by spoon request.</small>
+        </article>
+      </div>
+    </section>
+
+    <section class="right-pane">
+      <div class="stack">
+        <article class="card">
+          <h2 style="color:#fff8e8;">Revenue Chamber</h2>
+          <div class="split-mini">
+            <div>
+              <small>Current Soup Intake (per minute)</small>
+              <div class="big-num" style="color:#ffe2b5;" x-text="`${soupRate} L`"></div>
+            </div>
+            <div>
+              <small>Volunteer Variants Onsite</small>
+              <div class="big-num" style="color:#ffe2b5;" x-text="volunteerVariants"></div>
+            </div>
+          </div>
+          <div class="chart" id="soupChart">
+            <template x-for="(h, idx) in chartHeights" :key="idx">
+              <div class="bar" :style="`height:${h}%`"></div>
+            </template>
+          </div>
+          <div style="display:flex; gap:0.5rem; margin-top:0.55rem; flex-wrap:wrap;">
+            <button class="action" x-on:click="simulateSpike()">Simulate Rainy Day Rush</button>
+            <button class="action" x-on:click="randomizeChart()">Re-scan Flow</button>
+          </div>
+        </article>
+
+        <article class="card">
+          <h3 style="color:#fff8e8;">Admission Packages</h3>
+          <div class="table-wrap" style="border-color:#d8ad70;">
+            <table>
+              <thead>
+                <tr>
+                  <th>Pass</th>
+                  <th>Includes</th>
+                  <th>Soup Price</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>Ground Sweep</td>
+                  <td>Entry, one bowl check, map packet</td>
+                  <td>45 units</td>
+                </tr>
+                <tr>
+                  <td>Boiler Room Terrace</td>
+                  <td>Priority lane, thermo-locker, refill lane A</td>
+                  <td>120 units</td>
+                </tr>
+                <tr>
+                  <td>Director's Bucket</td>
+                  <td>All zones, backstage mop blessing, brass wristband</td>
+                  <td>280 units</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="micro" style="margin-top:0.45rem; color:#fff8e8;">
+            Conversion rates audited every 15 minutes by the Office of Broth Equilibrium. Over-thick bisque incurs regulatory foam tax.
+          </div>
+        </article>
+
+        <article class="card">
+          <h3 style="color:#fff8e8;">Frequently Cleared Questions</h3>
+          <div class="faq-item" x-data="{open:false}">
+            <button class="faq-q" x-on:click="open=!open">Can one individual hold all employee records?</button>
+            <div class="faq-a" x-show="open">Yes. Identity variants are serialized by hairstyle, lanyard color, and preferred broom angle under Directive 17-S.</div>
+          </div>
+          <div class="faq-item" x-data="{open:false}">
+            <button class="faq-q" x-on:click="open=!open">Do you accept coins, cards, or digital transfer?</button>
+            <div class="faq-a" x-show="open">No. Tender is soup only. Clear, creamy, and tomato-forward categories are all valid if temperature compliant.</div>
+          </div>
+          <div class="faq-item" x-data="{open:false}">
+            <button class="faq-q" x-on:click="open=!open">What if my soup freezes during queue time?</button>
+            <div class="faq-a" x-show="open">Visit Reheat Bay C for thermal notarization. Frozen assets cannot be counted until ladle mobility is restored.</div>
+          </div>
+        </article>
+
+        <article class="card">
+          <h3 style="color:#fff8e8;">Micro Disclaimers and Forms</h3>
+          <p class="micro">Form 9-B confirms that all dance circles remain circular. Form 9-C indemnifies staff from rhythm-induced dizziness. Form 9-F is required for glow-stick agriculture. Form 9-G permits harmonica near generator lanes. Form 9-H covers accidental confetti ingestion. Form 10-A attests soup source legitimacy and anti-counterfeit spoon marks.</p>
+          <p class="micro">By entering perimeter fencing, attendees agree to periodic floor-vibration announcements, nozzle safety melodies, and randomized applause drills administered by trained staff duplicates.</p>
+          <div class="footer-note">
+            Contact desk: Hangar 6, Queue Wing B. Filing hours 06:00-23:40 local. Hotline reroutes to whichever employee version answers first.
+          </div>
+        </article>
+      </div>
+    </section>
+  </main>
+
+  <script src="/assets/js/alpine.min.js" defer></script>
+  <script src="/assets/js/gsap.min.js"></script>
+  <script src="/assets/js/lucide.min.js"></script>
+  <script>
+    function portalApp() {
+      return {
+        activeView: "ops",
+        clock: "",
+        soupReserve: 18240,
+        soupUnits: 75,
+        brothVolatility: 46,
+        noodleDensity: 61,
+        tickerRunning: true,
+        currentTicker: 0,
+        ticker: [
+          "Gate C broom convoy delayed 3 minutes for ceremonial polish.",
+          "Stage East approved for amplified brass and polite screaming.",
+          "Soup verification lane now accepting quart jars and sealed flasks.",
+          "Variant 5B reassigned from ticketing to drum-riser hydration.",
+          "Parchment wristbands in stock: sepia, walnut, and toasted oat."
+        ],
+        lineup: [
+          { name: "Static Ladle Ensemble", zone: "Substage Meridian", set: "13:20", persona: "Operator Ilmars-3" },
+          { name: "The Repeating Foreman", zone: "Dockside Echo Hall", set: "14:05", persona: "Operator Ilmars-7" },
+          { name: "Mop Choir of Nine", zone: "Aisle Delta", set: "15:10", persona: "Operator Ilmars-2" },
+          { name: "Vacuum Crown Orchestra", zone: "Main Dust Bowl", set: "16:45", persona: "Operator Ilmars-1" }
+        ],
+        slotIndex: 0,
+        permits: {
+          ampShield: true,
+          sparkWaiver: false,
+          fermentedStock: true,
+          afterMidnightMop: false
+        },
+        permitNotice: "",
+        dispatchRows: [
+          { id: 1, unit: "RV-01", persona: "ILM-1", task: "Barrier Sweep", fuel: "Minestrone", status: "active" },
+          { id: 2, unit: "RV-02", persona: "ILM-4", task: "Stage Cable Patrol", fuel: "Tomato", status: "queued" },
+          { id: 3, unit: "RV-03", persona: "ILM-6", task: "VIP Bowl Audit", fuel: "Bisque", status: "active" },
+          { id: 4, unit: "RV-04", persona: "ILM-8", task: "Crowd Spiral Mapping", fuel: "Broth", status: "standby" }
+        ],
+        incidentCount: 3,
+        volunteerVariants: 42,
+        soupRate: 118,
+        chartHeights: [42, 55, 61, 49, 70, 58],
+        countdown: { days: 0, hours: 0, mins: 0, secs: 0 },
+
+        init() {
+          this.updateClock();
+          this.updateCountdown();
+
+          setInterval(() => {
+            this.updateClock();
+            this.updateCountdown();
+          }, 1000);
+
+          setInterval(() => {
+            if (this.tickerRunning) {
+              this.rotateTicker();
+            }
+          }, 3200);
+
+          setInterval(() => {
+            this.incidentCount += Math.random() > 0.72 ? 1 : 0;
+            this.volunteerVariants += Math.random() > 0.75 ? 1 : 0;
+            this.soupRate = Math.max(80, Math.min(220, this.soupRate + Math.floor(Math.random() * 15) - 7));
+          }, 2500);
+
+          lucide.createIcons();
+
+          gsap.from(".card", {
+            opacity: 0,
+            y: 12,
+            duration: 0.45,
+            stagger: 0.05,
+            ease: "power1.out"
+          });
+        },
+
+        updateClock() {
+          const now = new Date();
+          this.clock = now.toLocaleTimeString("en-US", { hour12: false });
+        },
+
+        updateCountdown() {
+          const target = new Date("2026-08-21T14:00:00");
+          const now = new Date();
+          const diff = Math.max(0, target - now);
+          this.countdown.days = Math.floor(diff / (1000 * 60 * 60 * 24));
+          this.countdown.hours = Math.floor((diff / (1000 * 60 * 60)) % 24);
+          this.countdown.mins = Math.floor((diff / (1000 * 60)) % 60);
+          this.countdown.secs = Math.floor((diff / 1000) % 60);
+        },
+
+        rotateTicker() {
+          this.currentTicker = (this.currentTicker + 1) % this.ticker.length;
+        },
+
+        nextSlot() {
+          this.slotIndex = (this.slotIndex + 1) % this.lineup.length;
+        },
+
+        recalibrateFood() {
+          this.brothVolatility = 20 + Math.floor(Math.random() * 80);
+          this.noodleDensity = 20 + Math.floor(Math.random() * 80);
+          this.soupReserve += Math.floor(Math.random() * 70);
+        },
+
+        enabledPermitCount() {
+          return Object.values(this.permits).filter(Boolean).length;
+        },
+
+        approvePermits() {
+          this.permitNotice = "Permit batch sealed at " + new Date().toLocaleTimeString("en-US", { hour12: false }) + ".";
+          setTimeout(() => {
+            this.permitNotice = "";
+          }, 2500);
+        },
+
+        appendDispatch() {
+          const tasks = ["Fence Resonance Scan", "Soup Intake Audit", "Fog Horn Sync", "Lantern Charge Route", "Mop Wheel Alignment"];
+          const fuels = ["Bisque", "Tomato", "Miso", "Broth", "Chowder"];
+          const statuses = ["active", "queued", "standby"];
+          const id = this.dispatchRows.length + 1;
+          this.dispatchRows.push({
+            id,
+            unit: "RV-" + String(id).padStart(2, "0"),
+            persona: "ILM-" + (1 + Math.floor(Math.random() * 9)),
+            task: tasks[Math.floor(Math.random() * tasks.length)],
+            fuel: fuels[Math.floor(Math.random() * fuels.length)],
+            status: statuses[Math.floor(Math.random() * statuses.length)]
+          });
+        },
+
+        simulateSpike() {
+          this.soupRate += 35;
+          this.soupReserve = Math.max(0, this.soupReserve - 180);
+          this.randomizeChart();
+        },
+
+        randomizeChart() {
+          this.chartHeights = this.chartHeights.map(() => 20 + Math.floor(Math.random() * 75));
+          gsap.fromTo("#soupChart .bar", { opacity: 0.3 }, { opacity: 1, duration: 0.35, stagger: 0.04 });
+        }
+      };
+    }
+  </script>
+</body>
+</html>

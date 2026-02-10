@@ -1,0 +1,795 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Larder Ledger Co. | Field Reserve Program</title>
+  <link rel="stylesheet" href="/assets/css/pico.min.css" />
+  <link rel="stylesheet" href="/assets/css/fonts.css" />
+  <style>
+    :root {
+      --acid: #c8ff1a;
+      --warn: #ffd60a;
+      --hazard: #ff6a00;
+      --night: #0f1208;
+      --ink: #101010;
+      --paper: #fffbe8;
+      --white: #ffffff;
+      --grid: rgba(12, 16, 6, 0.25);
+      --shadow: 0 18px 44px rgba(0, 0, 0, 0.36);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html,
+    body {
+      margin: 0;
+      scroll-behavior: smooth;
+      background: var(--night);
+      color: var(--white);
+      font-family: "Space Grotesk", sans-serif;
+      overflow-x: hidden;
+    }
+
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      background:
+        repeating-linear-gradient(
+          90deg,
+          transparent 0,
+          transparent 62px,
+          rgba(255, 255, 255, 0.03) 62px,
+          rgba(255, 255, 255, 0.03) 63px
+        ),
+        repeating-linear-gradient(
+          0deg,
+          transparent 0,
+          transparent 62px,
+          rgba(255, 255, 255, 0.025) 62px,
+          rgba(255, 255, 255, 0.025) 63px
+        );
+      z-index: 1;
+    }
+
+    main {
+      position: relative;
+      z-index: 2;
+    }
+
+    .slide {
+      min-height: 100vh;
+      display: grid;
+      align-items: center;
+      position: relative;
+      overflow: hidden;
+      padding: clamp(1rem, 2.5vw, 2.4rem);
+      isolation: isolate;
+    }
+
+    .slide > * {
+      position: relative;
+      z-index: 2;
+    }
+
+    .grain::after {
+      content: "";
+      position: absolute;
+      inset: -20%;
+      z-index: 0;
+      background:
+        radial-gradient(circle at 12% 20%, rgba(255, 255, 255, 0.07), transparent 38%),
+        radial-gradient(circle at 85% 70%, rgba(255, 255, 255, 0.05), transparent 36%),
+        radial-gradient(circle at 40% 84%, rgba(255, 255, 255, 0.04), transparent 38%);
+      mix-blend-mode: screen;
+      pointer-events: none;
+      animation: drift 12s linear infinite alternate;
+    }
+
+    @keyframes drift {
+      from { transform: translate3d(-2%, -1%, 0) rotate(0deg); }
+      to { transform: translate3d(2%, 1%, 0) rotate(2deg); }
+    }
+
+    .topbar {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 1rem clamp(1rem, 3vw, 2.4rem);
+      z-index: 5;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 0.65rem;
+      color: var(--night);
+      background: var(--acid);
+      border: 2px solid #000;
+      padding: 0.45rem 0.75rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.07em;
+      box-shadow: 4px 4px 0 #000;
+    }
+
+    .navlinks {
+      display: flex;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+    }
+
+    .chip {
+      border: 2px solid #000;
+      background: var(--paper);
+      color: #000;
+      padding: 0.3rem 0.7rem;
+      font-size: 0.75rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      border-radius: 999px;
+      text-decoration: none;
+      transition: transform 0.2s ease, background 0.2s ease;
+    }
+
+    .chip:hover {
+      transform: translateY(-2px) scale(1.04);
+      background: var(--warn);
+    }
+
+    .hero {
+      background:
+        radial-gradient(circle at 85% 12%, rgba(255, 214, 10, 0.46), transparent 45%),
+        radial-gradient(circle at 18% 88%, rgba(255, 106, 0, 0.48), transparent 42%),
+        linear-gradient(160deg, #17220b 0%, #0d1206 52%, #1b2308 100%);
+    }
+
+    .hero-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 1.2rem;
+      width: min(1120px, 100%);
+      margin: 0 auto;
+      padding-top: 3rem;
+    }
+
+    h1, h2 {
+      margin: 0;
+      line-height: 0.95;
+      text-transform: uppercase;
+      letter-spacing: 0.03em;
+      font-weight: 800;
+      color: var(--white);
+    }
+
+    h1 {
+      font-size: clamp(2.2rem, 8vw, 6.5rem);
+      max-width: 13ch;
+    }
+
+    .sub {
+      font-size: clamp(1rem, 1.9vw, 1.35rem);
+      max-width: 56ch;
+      color: #fff;
+      background: rgba(0, 0, 0, 0.45);
+      border-left: 4px solid var(--acid);
+      padding: 0.75rem 0.9rem;
+    }
+
+    .crate-field {
+      display: grid;
+      grid-template-columns: repeat(6, minmax(42px, 1fr));
+      gap: 0.7rem;
+      margin-top: 0.8rem;
+      max-width: 780px;
+    }
+
+    .crate {
+      aspect-ratio: 1 / 1;
+      border: 2px solid #000;
+      background: linear-gradient(145deg, var(--warn), var(--hazard));
+      clip-path: polygon(10% 4%, 92% 0%, 100% 34%, 88% 100%, 8% 94%, 0% 45%);
+      box-shadow: var(--shadow);
+      transition: transform 0.35s ease, filter 0.35s ease;
+    }
+
+    .crate-field:hover .crate {
+      transform: rotate(7deg) translateY(-5px);
+      filter: saturate(1.2) brightness(1.05);
+    }
+
+    .hero-controls {
+      display: flex;
+      gap: 0.8rem;
+      flex-wrap: wrap;
+      margin-top: 0.25rem;
+    }
+
+    .btn-alert,
+    .btn-ghost {
+      border: 2px solid #000;
+      font-family: inherit;
+      font-weight: 800;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      cursor: pointer;
+    }
+
+    .btn-alert {
+      background: var(--acid);
+      color: #000;
+    }
+
+    .btn-ghost {
+      background: #fff;
+      color: #000;
+    }
+
+    .btn-alert:hover,
+    .btn-ghost:hover {
+      transform: translateY(-2px);
+    }
+
+    .signal {
+      margin-top: 0.5rem;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      background: #000;
+      border: 1px solid var(--acid);
+      color: #fff;
+      padding: 0.35rem 0.6rem;
+      font-size: 0.8rem;
+    }
+
+    .icon-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: var(--acid);
+      box-shadow: 0 0 0 0 rgba(200, 255, 26, 0.7);
+      animation: pulse 1.7s infinite;
+    }
+
+    @keyframes pulse {
+      0% { box-shadow: 0 0 0 0 rgba(200, 255, 26, 0.8); }
+      70% { box-shadow: 0 0 0 14px rgba(200, 255, 26, 0); }
+      100% { box-shadow: 0 0 0 0 rgba(200, 255, 26, 0); }
+    }
+
+    .vault {
+      background:
+        conic-gradient(from 45deg at 50% 50%, #ffe45e 0deg, #ff9f1c 120deg, #d00000 210deg, #ffe45e 360deg);
+      color: #000;
+    }
+
+    .vault-wrap {
+      width: min(1150px, 100%);
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: 1.2fr 1fr;
+      gap: clamp(1rem, 2.2vw, 2rem);
+      align-items: center;
+    }
+
+    .vault h2,
+    .vault p {
+      color: #000;
+    }
+
+    .vault p {
+      max-width: 56ch;
+      font-weight: 700;
+      background: rgba(255, 255, 255, 0.82);
+      border: 2px solid #000;
+      padding: 0.85rem;
+      margin-top: 0.8rem;
+    }
+
+    .silo {
+      --w: min(420px, 70vw);
+      width: var(--w);
+      margin-inline: auto;
+      aspect-ratio: 1 / 1;
+      border-radius: 50%;
+      background:
+        radial-gradient(circle at 50% 50%, rgba(0, 0, 0, 0.2) 0%, rgba(0, 0, 0, 0.55) 63%, #111 66%, #000 78%),
+        repeating-conic-gradient(from 0deg, #c8ff1a 0deg 15deg, #000 15deg 30deg);
+      border: 7px solid #000;
+      position: relative;
+      display: grid;
+      place-items: center;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.45);
+      transition: transform 0.7s ease;
+    }
+
+    .silo::before,
+    .silo::after {
+      content: "";
+      position: absolute;
+      inset: 12%;
+      border-radius: 50%;
+      border: 2px dashed rgba(255, 255, 255, 0.8);
+      animation: spin 10s linear infinite;
+    }
+
+    .silo::after {
+      inset: 24%;
+      animation-direction: reverse;
+      animation-duration: 5s;
+      border-color: rgba(255, 214, 10, 0.95);
+    }
+
+    @keyframes spin {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(360deg); }
+    }
+
+    .dial {
+      width: 48%;
+      aspect-ratio: 1 / 1;
+      border-radius: 50%;
+      border: 4px solid #000;
+      background: #fff;
+      color: #000;
+      display: grid;
+      place-items: center;
+      font-size: 1.15rem;
+      font-weight: 800;
+      text-align: center;
+      line-height: 1.2;
+      padding: 0.5rem;
+    }
+
+    .silo.active {
+      transform: rotate(22deg) scale(1.05);
+    }
+
+    .manifest {
+      background:
+        linear-gradient(180deg, rgba(17, 22, 8, 0.96), rgba(7, 10, 4, 0.95)),
+        radial-gradient(circle at 15% 15%, rgba(255, 214, 10, 0.5), transparent 40%),
+        radial-gradient(circle at 82% 70%, rgba(255, 106, 0, 0.45), transparent 44%);
+    }
+
+    .manifest-wrap {
+      width: min(1120px, 100%);
+      margin: 0 auto;
+      display: grid;
+      gap: 1rem;
+    }
+
+    .cards {
+      display: grid;
+      gap: 0.95rem;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+
+    .card {
+      background: #fff;
+      color: #000;
+      border: 2px solid #000;
+      padding: 1rem;
+      box-shadow: 6px 6px 0 #000;
+      transform-origin: center;
+      transition: transform 0.25s ease, box-shadow 0.25s ease;
+      min-height: 250px;
+      display: grid;
+      grid-template-rows: auto 1fr auto;
+      gap: 0.6rem;
+    }
+
+    .card:nth-child(1) {
+      background: linear-gradient(150deg, #fff7bf 0%, #ffe15c 100%);
+    }
+
+    .card:nth-child(2) {
+      background: linear-gradient(145deg, #e3ff91 0%, #c8ff1a 100%);
+    }
+
+    .card:nth-child(3) {
+      background: linear-gradient(145deg, #ffd4a8 0%, #ff8a00 100%);
+    }
+
+    .card:hover {
+      transform: translateY(-8px) rotate(-1deg);
+      box-shadow: 12px 12px 0 #000;
+    }
+
+    .card h3 {
+      margin: 0;
+      text-transform: uppercase;
+      font-size: 1rem;
+      letter-spacing: 0.05em;
+      color: #000;
+    }
+
+    .price {
+      font-size: 2rem;
+      font-weight: 900;
+      color: #000;
+      line-height: 1;
+    }
+
+    .tag {
+      display: inline-block;
+      background: #000;
+      color: #fff;
+      padding: 0.2rem 0.5rem;
+      font-weight: 700;
+      font-size: 0.75rem;
+      text-transform: uppercase;
+    }
+
+    .ticker {
+      width: min(1120px, 100%);
+      margin: 0 auto;
+      border: 2px solid #000;
+      background: #000;
+      color: #fff;
+      overflow: hidden;
+      white-space: nowrap;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      font-size: 0.82rem;
+    }
+
+    .ticker-track {
+      display: inline-block;
+      padding: 0.65rem 0;
+      min-width: 100%;
+      animation: run 16s linear infinite;
+    }
+
+    @keyframes run {
+      from { transform: translateX(0); }
+      to { transform: translateX(-50%); }
+    }
+
+    .proof {
+      background:
+        radial-gradient(circle at 72% 15%, rgba(200, 255, 26, 0.43), transparent 35%),
+        linear-gradient(140deg, #101702 0%, #172404 45%, #110f03 100%);
+    }
+
+    .proof-wrap {
+      width: min(1120px, 100%);
+      margin: 0 auto;
+      display: grid;
+      gap: 1rem;
+      grid-template-columns: 1fr 1fr;
+    }
+
+    .quote {
+      border: 2px solid #000;
+      background: #fff;
+      color: #000;
+      padding: 1rem;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .quote::after {
+      content: "";
+      position: absolute;
+      top: -25%;
+      right: -20%;
+      width: 160px;
+      height: 160px;
+      background: conic-gradient(from 0deg, var(--acid), var(--warn), var(--hazard), var(--acid));
+      border-radius: 50%;
+      opacity: 0.25;
+    }
+
+    .quote p,
+    .quote strong,
+    .quote small {
+      color: #000;
+      position: relative;
+      z-index: 1;
+    }
+
+    .quote p {
+      font-family: "Crimson Pro", serif;
+      font-size: 1.2rem;
+      line-height: 1.35;
+      margin-bottom: 0.7rem;
+    }
+
+    .faq-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.75rem;
+    }
+
+    details {
+      background: #000;
+      border: 2px solid var(--acid);
+      padding: 0.7rem 0.8rem;
+    }
+
+    summary {
+      color: #fff;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    details p {
+      margin: 0.5rem 0 0;
+      color: #fff;
+    }
+
+    .footer {
+      min-height: 52vh;
+      background: linear-gradient(180deg, #0a0e04, #000);
+      padding-bottom: 2.2rem;
+    }
+
+    .footer-wrap {
+      width: min(1120px, 100%);
+      margin: 0 auto;
+      display: grid;
+      gap: 1rem;
+      align-content: start;
+    }
+
+    .field-line {
+      display: grid;
+      grid-template-columns: repeat(8, minmax(0, 1fr));
+      gap: 0.4rem;
+    }
+
+    .seed {
+      height: 50px;
+      border: 2px solid #000;
+      background: linear-gradient(130deg, #ffde59, #ff8700);
+      clip-path: polygon(0 0, 94% 0, 100% 50%, 94% 100%, 0 100%, 6% 50%);
+      transition: transform 0.3s ease, filter 0.3s ease;
+    }
+
+    .field-line:hover .seed {
+      transform: translateY(-6px);
+      filter: hue-rotate(25deg) saturate(1.25);
+    }
+
+    .small {
+      color: #fff;
+      font-size: 0.8rem;
+    }
+
+    .mono {
+      font-family: "IBM Plex Mono", monospace;
+    }
+
+    @media (max-width: 980px) {
+      .vault-wrap,
+      .proof-wrap,
+      .cards,
+      .faq-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .field-line {
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+      }
+
+      .topbar {
+        gap: 0.8rem;
+      }
+
+      .navlinks {
+        justify-content: flex-start;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <section class="slide hero grain" id="reserve" x-data="{ open: false }">
+      <div class="topbar">
+        <div class="brand"><i data-lucide="warehouse"></i> Larder Ledger Co.</div>
+        <nav class="navlinks">
+          <a class="chip" href="#vault">Reserve Engine</a>
+          <a class="chip" href="#plans">Plans</a>
+          <a class="chip" href="#proof">Proof Desk</a>
+        </nav>
+      </div>
+
+      <div class="hero-grid reveal">
+        <h1>Field-grade leftovers. Civically stored.</h1>
+        <p class="sub">
+          We secure surplus stew, crust inventory, and high-potential roast fragments into audited pantry reserves for households, co-ops, and neighborhood command kitchens.
+        </p>
+
+        <div class="hero-controls">
+          <button class="btn-alert" x-on:click="open = !open">Toggle Harvest Signal</button>
+          <a class="btn-ghost" href="#plans" role="button">Open Subscription Tiers</a>
+        </div>
+
+        <div class="signal" x-show="open" x-transition>
+          <span class="icon-dot" aria-hidden="true"></span>
+          <span class="mono">Signal live: 14 district fridges synchronized</span>
+        </div>
+
+        <div class="crate-field" aria-hidden="true">
+          <div class="crate"></div><div class="crate"></div><div class="crate"></div><div class="crate"></div><div class="crate"></div><div class="crate"></div>
+          <div class="crate"></div><div class="crate"></div><div class="crate"></div><div class="crate"></div><div class="crate"></div><div class="crate"></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="slide vault grain" id="vault">
+      <div class="vault-wrap reveal">
+        <div>
+          <h2>Reserve Engine v4</h2>
+          <p>
+            The dial maps thermal, flavor, and shelf-stability pressure in one pass. Turn the vault and watch your regional confidence index stabilize before lunch service.
+          </p>
+          <button id="spinVault" class="btn-alert" style="margin-top: 0.4rem;">Cycle Allocation</button>
+        </div>
+        <div>
+          <div id="silo" class="silo">
+            <div class="dial mono">Yield<br />Secure</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="slide manifest grain" id="plans">
+      <div class="manifest-wrap reveal">
+        <h2 style="font-size: clamp(1.7rem, 5vw, 4rem);">Steady Plans, Volatile Flavor</h2>
+        <div class="cards">
+          <article class="card">
+            <h3><i data-lucide="leaf"></i> Homestead Buffer</h3>
+            <div class="price">$39<span class="mono" style="font-size: 0.85rem;">/mo</span></div>
+            <p>Weekly retrieval of family-scale extras with jar-safe preservation routing.</p>
+            <span class="tag">2 crates guaranteed</span>
+          </article>
+          <article class="card">
+            <h3><i data-lucide="tractor"></i> Parish Depot</h3>
+            <div class="price">$129<span class="mono" style="font-size: 0.85rem;">/mo</span></div>
+            <p>Cross-street balancing for bakeries, farmstands, and shared lunch halls.</p>
+            <span class="tag">9 routes + audit trail</span>
+          </article>
+          <article class="card">
+            <h3><i data-lucide="shield-check"></i> Command Reserve</h3>
+            <div class="price">$279<span class="mono" style="font-size: 0.85rem;">/mo</span></div>
+            <p>Priority triage, surge-cooling, and 24-hour redeployment for peak events.</p>
+            <span class="tag">Regional priority lane</span>
+          </article>
+        </div>
+        <div class="ticker" aria-label="Operational ticker">
+          <div class="ticker-track mono">
+            LOT 77B SEALED • TURNIP CASSEROLE UP 18% • HERB STOCK FIRM • MILK-BRAISED GREENS REBALANCED • SOUTH YARD CHILI NOW AAA STABLE • LOT 77B SEALED • TURNIP CASSEROLE UP 18% • HERB STOCK FIRM •
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="slide proof grain" id="proof">
+      <div class="proof-wrap reveal">
+        <div>
+          <h2 style="font-size: clamp(1.7rem, 4vw, 3.8rem);">Operator Notes</h2>
+          <article class="quote">
+            <p>“Our parish kitchen stopped panic-cooking. Every tray has a destination now, and our winter ledger finally runs positive.”</p>
+            <strong>R. Menard, Steward</strong><br />
+            <small>North Orchard Service Hall</small>
+          </article>
+          <article class="quote" style="margin-top: 0.7rem;">
+            <p>“The harvest signal let us reroute two days of braise in twelve minutes. Not a spoonful wasted.”</p>
+            <strong>Captain A. Solis</strong><br />
+            <small>District Pantry Corps</small>
+          </article>
+        </div>
+
+        <div>
+          <div class="faq-grid">
+            <details>
+              <summary>How fast is intake?</summary>
+              <p>Average pickup lock: 43 minutes from declaration.</p>
+            </details>
+            <details>
+              <summary>Can we pause service?</summary>
+              <p>Yes. Pause by district cycle without breaking reserve rank.</p>
+            </details>
+            <details>
+              <summary>Do you support co-ops?</summary>
+              <p>We support pooled ledgers with individual household visibility.</p>
+            </details>
+            <details>
+              <summary>Who verifies condition?</summary>
+              <p>Every batch is tagged by certified field tasters and temp logs.</p>
+            </details>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <footer class="slide footer grain" id="contact">
+      <div class="footer-wrap reveal">
+        <h2 style="font-size: clamp(1.6rem, 4.4vw, 3.3rem);">Larder Ledger Co. Dispatch</h2>
+        <div class="field-line" aria-hidden="true">
+          <div class="seed"></div><div class="seed"></div><div class="seed"></div><div class="seed"></div>
+          <div class="seed"></div><div class="seed"></div><div class="seed"></div><div class="seed"></div>
+        </div>
+        <p class="small mono">
+          Yard 04, Mill Road Exchange • Open 05:00-22:00 • hello@larderledger.co • +1 (555) 014-6724
+        </p>
+      </div>
+    </footer>
+  </main>
+
+  <script src="/assets/js/alpine.min.js" defer></script>
+  <script src="/assets/js/gsap.min.js"></script>
+  <script src="/assets/js/lucide.min.js"></script>
+  <script>
+    (function () {
+      lucide.createIcons();
+
+      var revealItems = document.querySelectorAll('.reveal');
+      revealItems.forEach(function (item) {
+        gsap.from(item, {
+          y: 34,
+          opacity: 0,
+          duration: 0.9,
+          ease: 'power2.out',
+          scrollTrigger: undefined
+        });
+      });
+
+      var silo = document.getElementById('silo');
+      var spinBtn = document.getElementById('spinVault');
+      if (silo && spinBtn) {
+        spinBtn.addEventListener('click', function () {
+          silo.classList.toggle('active');
+          gsap.to(silo, {
+            rotate: '+=' + (silo.classList.contains('active') ? 180 : -180),
+            duration: 0.9,
+            ease: 'power3.inOut'
+          });
+        });
+      }
+
+      var cards = document.querySelectorAll('.card');
+      cards.forEach(function (card, i) {
+        card.addEventListener('mouseenter', function () {
+          gsap.to(card, { rotate: i % 2 === 0 ? -2 : 2, duration: 0.22, ease: 'power1.out' });
+        });
+        card.addEventListener('mouseleave', function () {
+          gsap.to(card, { rotate: 0, duration: 0.3, ease: 'power1.out' });
+        });
+      });
+
+      var seeds = document.querySelectorAll('.seed');
+      seeds.forEach(function (seed, i) {
+        seed.addEventListener('mouseenter', function () {
+          gsap.to(seed, {
+            clipPath: 'polygon(6% 0, 100% 0, 94% 50%, 100% 100%, 6% 100%, 0 50%)',
+            duration: 0.25,
+            ease: 'power2.out',
+            delay: i * 0.01
+          });
+        });
+        seed.addEventListener('mouseleave', function () {
+          gsap.to(seed, {
+            clipPath: 'polygon(0 0, 94% 0, 100% 50%, 94% 100%, 0 100%, 6% 50%)',
+            duration: 0.25,
+            ease: 'power2.out'
+          });
+        });
+      });
+    })();
+  </script>
+</body>
+</html>

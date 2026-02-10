@@ -1,0 +1,1277 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Finch & Whiskers — Subaquatic Financial Advisory</title>
+<link rel="stylesheet" href="/assets/css/fonts.css">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --black: #111;
+  --white: #f5f5f0;
+  --red: #c0392b;
+  --gray: #888;
+  --light-gray: #e0e0dc;
+  --dark-gray: #333;
+}
+
+body {
+  font-family: 'IBM Plex Mono', monospace;
+  background: var(--white);
+  color: var(--black);
+  overflow-x: hidden;
+  min-height: 100vh;
+}
+
+/* ========== LAYOUT: SIDEBAR + MAIN ========== */
+.layout {
+  display: grid;
+  grid-template-columns: 260px 1fr;
+  min-height: 100vh;
+}
+
+@media (max-width: 900px) {
+  .layout {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ========== SIDEBAR ========== */
+.sidebar {
+  background: var(--black);
+  color: var(--white);
+  padding: 2rem 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  overflow-y: auto;
+}
+
+@media (max-width: 900px) {
+  .sidebar {
+    position: relative;
+    height: auto;
+    padding: 1.5rem;
+  }
+}
+
+.sidebar-logo {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.1rem;
+  font-weight: 700;
+  line-height: 1.3;
+  border-bottom: 2px solid var(--red);
+  padding-bottom: 1rem;
+}
+
+.sidebar-logo span {
+  color: var(--red);
+}
+
+.sidebar-nav {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.sidebar-nav a {
+  color: var(--light-gray);
+  text-decoration: none;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  padding: 0.5rem 0.75rem;
+  border-left: 3px solid transparent;
+  transition: all 0.2s;
+  display: block;
+}
+
+.sidebar-nav a:hover, .sidebar-nav a.active {
+  color: var(--white);
+  border-left-color: var(--red);
+  background: rgba(255,255,255,0.05);
+}
+
+.sidebar-status {
+  margin-top: auto;
+  font-size: 0.65rem;
+  color: var(--gray);
+  line-height: 1.6;
+}
+
+.sidebar-status .dot {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--red);
+  margin-right: 6px;
+  animation: pulse-dot 2s infinite;
+}
+
+@keyframes pulse-dot {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.3; }
+}
+
+/* ========== MAIN CONTENT ========== */
+.main {
+  padding: 2rem;
+  max-width: 1100px;
+}
+
+@media (max-width: 900px) {
+  .main {
+    padding: 1.5rem;
+  }
+}
+
+/* ========== CSS ART: UNDERWATER CAT ========== */
+.hero-art {
+  width: 100%;
+  height: 400px;
+  position: relative;
+  background: var(--black);
+  overflow: hidden;
+  margin-bottom: 2rem;
+  border: 2px solid var(--black);
+}
+
+@media (max-width: 600px) {
+  .hero-art {
+    height: 300px;
+  }
+}
+
+/* Water effect — animated waves */
+.water-layer {
+  position: absolute;
+  bottom: 0;
+  left: -10%;
+  width: 120%;
+  height: 70%;
+  background: repeating-linear-gradient(
+    0deg,
+    transparent,
+    transparent 8px,
+    rgba(192, 57, 43, 0.08) 8px,
+    rgba(192, 57, 43, 0.08) 9px
+  );
+  animation: water-drift 8s linear infinite;
+}
+
+@keyframes water-drift {
+  0% { transform: translateX(0) translateY(0); }
+  50% { transform: translateX(-20px) translateY(-5px); }
+  100% { transform: translateX(0) translateY(0); }
+}
+
+/* Bubbles — pure CSS */
+.bubble {
+  position: absolute;
+  border-radius: 50%;
+  border: 1.5px solid rgba(245, 245, 240, 0.3);
+  animation: rise linear infinite;
+}
+
+.bubble:nth-child(1) { width: 12px; height: 12px; left: 20%; bottom: -20px; animation-duration: 4s; animation-delay: 0s; }
+.bubble:nth-child(2) { width: 8px; height: 8px; left: 45%; bottom: -20px; animation-duration: 5s; animation-delay: 1s; }
+.bubble:nth-child(3) { width: 16px; height: 16px; left: 70%; bottom: -20px; animation-duration: 6s; animation-delay: 0.5s; }
+.bubble:nth-child(4) { width: 6px; height: 6px; left: 30%; bottom: -20px; animation-duration: 3.5s; animation-delay: 2s; }
+.bubble:nth-child(5) { width: 10px; height: 10px; left: 55%; bottom: -20px; animation-duration: 4.5s; animation-delay: 1.5s; }
+.bubble:nth-child(6) { width: 14px; height: 14px; left: 80%; bottom: -20px; animation-duration: 5.5s; animation-delay: 0.8s; }
+.bubble:nth-child(7) { width: 7px; height: 7px; left: 10%; bottom: -20px; animation-duration: 4.2s; animation-delay: 3s; }
+.bubble:nth-child(8) { width: 11px; height: 11px; left: 65%; bottom: -20px; animation-duration: 5.8s; animation-delay: 2.5s; }
+
+@keyframes rise {
+  0% { transform: translateY(0) scale(1); opacity: 0; }
+  10% { opacity: 1; }
+  90% { opacity: 0.6; }
+  100% { transform: translateY(-420px) scale(1.3); opacity: 0; }
+}
+
+/* CSS Cat silhouette */
+.cat-figure {
+  position: absolute;
+  bottom: 15%;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+/* Cat head */
+.cat-head {
+  width: 60px;
+  height: 50px;
+  background: var(--white);
+  border-radius: 50% 50% 45% 45%;
+  position: relative;
+  margin: 0 auto;
+}
+
+/* Cat ears */
+.cat-head::before, .cat-head::after {
+  content: '';
+  position: absolute;
+  top: -18px;
+  width: 0;
+  height: 0;
+  border-left: 12px solid transparent;
+  border-right: 12px solid transparent;
+  border-bottom: 22px solid var(--white);
+}
+.cat-head::before { left: 2px; transform: rotate(-8deg); }
+.cat-head::after { right: 2px; transform: rotate(8deg); }
+
+/* Cat eyes */
+.cat-eye {
+  width: 8px;
+  height: 12px;
+  background: var(--black);
+  border-radius: 50%;
+  position: absolute;
+  top: 18px;
+  animation: blink 4s infinite;
+}
+.cat-eye.left { left: 15px; }
+.cat-eye.right { right: 15px; }
+
+@keyframes blink {
+  0%, 95%, 100% { transform: scaleY(1); }
+  97% { transform: scaleY(0.1); }
+}
+
+/* Cat nose */
+.cat-nose {
+  width: 6px;
+  height: 4px;
+  background: var(--red);
+  border-radius: 50%;
+  position: absolute;
+  bottom: 14px;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+/* Cat body */
+.cat-body {
+  width: 70px;
+  height: 55px;
+  background: var(--white);
+  border-radius: 35px 35px 20px 20px;
+  margin: -5px auto 0;
+  position: relative;
+}
+
+/* Briefcase */
+.briefcase {
+  width: 30px;
+  height: 22px;
+  background: var(--red);
+  border-radius: 3px;
+  position: absolute;
+  right: -35px;
+  bottom: 5px;
+}
+.briefcase::before {
+  content: '';
+  position: absolute;
+  top: -6px;
+  left: 8px;
+  width: 14px;
+  height: 8px;
+  border: 2px solid var(--red);
+  border-bottom: none;
+  border-radius: 3px 3px 0 0;
+}
+
+/* Tie */
+.cat-tie {
+  width: 0;
+  height: 0;
+  border-left: 6px solid transparent;
+  border-right: 6px solid transparent;
+  border-top: 14px solid var(--red);
+  position: absolute;
+  top: 5px;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+/* Hero overlay text */
+.hero-text {
+  position: absolute;
+  top: 1.5rem;
+  left: 1.5rem;
+  right: 1.5rem;
+}
+
+.hero-text h1 {
+  font-family: 'Playfair Display', serif;
+  font-size: clamp(1.5rem, 4vw, 2.5rem);
+  color: var(--white);
+  line-height: 1.1;
+  margin-bottom: 0.5rem;
+}
+
+.hero-text p {
+  font-size: clamp(0.65rem, 1.5vw, 0.75rem);
+  color: var(--light-gray);
+  max-width: 400px;
+  line-height: 1.5;
+}
+
+/* ========== SECTION STYLES ========== */
+.section {
+  margin-bottom: 3rem;
+}
+
+.section-header {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.4rem;
+  font-weight: 700;
+  border-bottom: 2px solid var(--black);
+  padding-bottom: 0.5rem;
+  margin-bottom: 1.5rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.section-header .tag {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.6rem;
+  background: var(--red);
+  color: var(--white);
+  padding: 2px 8px;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
+
+/* ========== SOUP CONVERSION TABLE ========== */
+.soup-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.8rem;
+  margin-bottom: 1rem;
+}
+
+.soup-table th {
+  text-align: left;
+  font-size: 0.65rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  padding: 0.75rem 1rem;
+  background: var(--black);
+  color: var(--white);
+  border: 1px solid var(--black);
+}
+
+.soup-table td {
+  padding: 0.75rem 1rem;
+  border: 1px solid var(--light-gray);
+  background: var(--white);
+  color: var(--black);
+}
+
+.soup-table tr:hover td {
+  background: #f0f0ea;
+}
+
+.soup-table .volatile {
+  color: var(--red);
+  font-weight: 700;
+}
+
+/* ========== SERVICE CARDS ========== */
+.services-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 1.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.service-card {
+  border: 2px solid var(--black);
+  padding: 1.5rem;
+  position: relative;
+  background: var(--white);
+  transition: all 0.3s;
+  cursor: default;
+}
+
+.service-card:hover {
+  transform: translate(-4px, -4px);
+  box-shadow: 4px 4px 0 var(--black);
+}
+
+.service-card h3 {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.1rem;
+  margin-bottom: 0.5rem;
+}
+
+.service-card .price {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--red);
+  margin-bottom: 0.75rem;
+}
+
+.service-card .price small {
+  font-size: 0.65rem;
+  color: var(--dark-gray);
+  font-weight: 400;
+}
+
+.service-card p {
+  font-size: 0.75rem;
+  line-height: 1.6;
+  color: var(--dark-gray);
+}
+
+.service-card .badge {
+  position: absolute;
+  top: -1px;
+  right: -1px;
+  background: var(--red);
+  color: var(--white);
+  font-size: 0.55rem;
+  text-transform: uppercase;
+  letter-spacing: 0.15em;
+  padding: 4px 10px;
+}
+
+/* ========== CSS ART: SOUP BOWL ========== */
+.soup-art {
+  width: 200px;
+  height: 140px;
+  margin: 2rem auto;
+  position: relative;
+  cursor: pointer;
+}
+
+.soup-bowl {
+  width: 160px;
+  height: 70px;
+  background: var(--white);
+  border: 3px solid var(--black);
+  border-radius: 0 0 80px 80px;
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  overflow: hidden;
+}
+
+.soup-liquid {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 45px;
+  background: var(--red);
+  transition: height 0.5s ease;
+  border-radius: 0 0 75px 75px;
+}
+
+.soup-art:hover .soup-liquid {
+  height: 60px;
+}
+
+/* Steam lines */
+.steam {
+  position: absolute;
+  top: 10px;
+  width: 2px;
+  height: 30px;
+  background: transparent;
+}
+.steam::before {
+  content: '';
+  display: block;
+  width: 2px;
+  height: 30px;
+  background: var(--dark-gray);
+  border-radius: 2px;
+  animation: steam-rise 2s ease-in-out infinite;
+  opacity: 0.4;
+}
+.steam:nth-child(1) { left: 60px; }
+.steam:nth-child(2) { left: 90px; animation-delay: 0.5s; }
+.steam:nth-child(2)::before { animation-delay: 0.5s; }
+.steam:nth-child(3) { left: 120px; animation-delay: 1s; }
+.steam:nth-child(3)::before { animation-delay: 1s; }
+
+@keyframes steam-rise {
+  0% { transform: translateY(0) scaleX(1); opacity: 0; }
+  20% { opacity: 0.4; }
+  50% { transform: translateY(-15px) scaleX(1.5); }
+  100% { transform: translateY(-30px) scaleX(0.5); opacity: 0; }
+}
+
+.soup-bowl-rim {
+  width: 180px;
+  height: 16px;
+  background: var(--black);
+  border-radius: 50%;
+  position: absolute;
+  bottom: 65px;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+/* ========== TESTIMONIALS ========== */
+.testimonial {
+  border-left: 4px solid var(--red);
+  padding: 1rem 1.5rem;
+  margin-bottom: 1.5rem;
+  background: #f0f0ea;
+}
+
+.testimonial blockquote {
+  font-family: 'Crimson Pro', serif;
+  font-size: 1rem;
+  font-style: italic;
+  line-height: 1.6;
+  color: var(--black);
+  margin-bottom: 0.5rem;
+}
+
+.testimonial cite {
+  font-size: 0.7rem;
+  font-style: normal;
+  color: var(--dark-gray);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+/* ========== FAQ ========== */
+.faq-item {
+  border: 1px solid var(--light-gray);
+  margin-bottom: 0.5rem;
+  overflow: hidden;
+}
+
+.faq-q {
+  padding: 1rem;
+  font-weight: 700;
+  font-size: 0.8rem;
+  cursor: pointer;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: var(--white);
+  color: var(--black);
+  border: none;
+  width: 100%;
+  font-family: 'IBM Plex Mono', monospace;
+  text-align: left;
+  transition: background 0.2s;
+}
+
+.faq-q:hover {
+  background: #f0f0ea;
+}
+
+.faq-q .icon {
+  color: var(--red);
+  font-size: 1.2rem;
+  transition: transform 0.3s;
+  flex-shrink: 0;
+  margin-left: 1rem;
+}
+
+.faq-a {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.4s ease, padding 0.4s ease;
+  font-size: 0.75rem;
+  line-height: 1.7;
+  color: var(--dark-gray);
+  padding: 0 1rem;
+  background: var(--white);
+}
+
+.faq-item.open .faq-a {
+  max-height: 300px;
+  padding: 0 1rem 1rem;
+}
+
+.faq-item.open .faq-q .icon {
+  transform: rotate(45deg);
+}
+
+/* ========== DEPTH METER — CSS ART ========== */
+.depth-meter {
+  width: 100%;
+  max-width: 500px;
+  height: 60px;
+  background: var(--black);
+  border: 2px solid var(--black);
+  position: relative;
+  overflow: hidden;
+  margin: 1rem 0 2rem;
+  cursor: crosshair;
+}
+
+.depth-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--red), #e74c3c, var(--red));
+  width: 0%;
+  transition: width 1.5s cubic-bezier(0.22, 1, 0.36, 1);
+  position: relative;
+}
+
+.depth-fill::after {
+  content: '';
+  position: absolute;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  width: 4px;
+  background: var(--white);
+  animation: depth-pulse 1s infinite;
+}
+
+@keyframes depth-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.3; }
+}
+
+.depth-label {
+  position: absolute;
+  top: 50%;
+  left: 1rem;
+  transform: translateY(-50%);
+  color: var(--white);
+  font-size: 0.65rem;
+  text-transform: uppercase;
+  letter-spacing: 0.15em;
+  z-index: 2;
+  pointer-events: none;
+}
+
+/* ========== WAVE DIVIDER — CSS ART ========== */
+.wave-divider {
+  width: 100%;
+  height: 40px;
+  position: relative;
+  margin: 2rem 0;
+  overflow: hidden;
+}
+
+.wave-divider::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: repeating-linear-gradient(
+    90deg,
+    var(--black) 0,
+    var(--black) 10px,
+    transparent 10px,
+    transparent 20px
+  );
+}
+
+.wave-divider::after {
+  content: '~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 200%;
+  font-size: 1.5rem;
+  color: var(--red);
+  animation: wave-scroll 6s linear infinite;
+  white-space: nowrap;
+}
+
+@keyframes wave-scroll {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+
+/* ========== INTERACTIVE SHAPES GRID ========== */
+.shapes-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+  gap: 1rem;
+  margin: 1.5rem 0;
+}
+
+.shape-cell {
+  aspect-ratio: 1;
+  position: relative;
+  cursor: pointer;
+  transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.shape-cell:hover {
+  transform: scale(1.15) rotate(5deg);
+  z-index: 2;
+}
+
+.shape-cell:nth-child(odd) {
+  background: var(--black);
+  clip-path: circle(50%);
+}
+
+.shape-cell:nth-child(even) {
+  background: var(--red);
+  clip-path: polygon(50% 0%, 100% 100%, 0% 100%);
+}
+
+.shape-cell:nth-child(3n) {
+  background: var(--black);
+  clip-path: polygon(50% 0%, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%);
+}
+
+.shape-cell:hover:nth-child(odd) {
+  background: var(--red);
+}
+.shape-cell:hover:nth-child(even) {
+  background: var(--black);
+}
+
+/* ========== FOOTER ========== */
+.footer {
+  border-top: 2px solid var(--black);
+  padding: 2rem 0;
+  margin-top: 3rem;
+  font-size: 0.65rem;
+  color: var(--dark-gray);
+  display: flex;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.footer a {
+  color: var(--red);
+  text-decoration: none;
+}
+
+/* ========== FILING CABINET — CSS ART ========== */
+.filing-cabinet {
+  width: 120px;
+  margin: 1.5rem auto;
+  position: relative;
+}
+
+.drawer {
+  width: 100%;
+  height: 40px;
+  border: 2px solid var(--black);
+  background: var(--white);
+  margin-bottom: -2px;
+  position: relative;
+  cursor: pointer;
+  transition: transform 0.3s ease;
+}
+
+.drawer:hover {
+  transform: translateX(20px);
+}
+
+.drawer::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 24px;
+  height: 6px;
+  border: 2px solid var(--black);
+  border-radius: 3px;
+}
+
+.drawer:nth-child(2)::after { background: var(--red); border-color: var(--red); }
+
+.drawer-label {
+  position: absolute;
+  left: calc(100% + 12px);
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 0.55rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  white-space: nowrap;
+  color: var(--dark-gray);
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+
+.drawer:hover .drawer-label {
+  opacity: 1;
+}
+
+/* ========== SCANNER LINE OVERLAY ========== */
+.scanner-line {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: var(--red);
+  opacity: 0.15;
+  z-index: 100;
+  pointer-events: none;
+  animation: scan 8s linear infinite;
+}
+
+@keyframes scan {
+  0% { top: 0; }
+  100% { top: 100vh; }
+}
+
+/* ========== STAMP ========== */
+.stamp {
+  display: inline-block;
+  border: 3px solid var(--red);
+  color: var(--red);
+  padding: 0.5rem 1rem;
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.2em;
+  font-weight: 700;
+  transform: rotate(-5deg);
+  opacity: 0.8;
+  position: relative;
+}
+
+.stamp::before {
+  content: '';
+  position: absolute;
+  inset: 3px;
+  border: 1px solid var(--red);
+}
+
+/* ========== ANIMATED FISH ========== */
+.fish-container {
+  width: 100%;
+  height: 30px;
+  overflow: hidden;
+  position: relative;
+  margin: 1rem 0;
+}
+
+.fish {
+  position: absolute;
+  left: -40px;
+  top: 50%;
+  transform: translateY(-50%);
+  animation: swim 12s linear infinite;
+  font-size: 0.8rem;
+  color: var(--dark-gray);
+  white-space: nowrap;
+}
+
+@keyframes swim {
+  0% { left: -200px; }
+  100% { left: 110%; }
+}
+
+/* ========== UTILS ========== */
+.text-red { color: var(--red); }
+.text-sm { font-size: 0.75rem; }
+.text-xs { font-size: 0.65rem; }
+.mt-1 { margin-top: 1rem; }
+.mb-1 { margin-bottom: 1rem; }
+.mb-2 { margin-bottom: 2rem; }
+
+/* ========== SCROLLBAR ========== */
+::-webkit-scrollbar { width: 8px; }
+::-webkit-scrollbar-track { background: var(--light-gray); }
+::-webkit-scrollbar-thumb { background: var(--black); }
+
+/* ========== MOBILE NAV TOGGLE ========== */
+@media (max-width: 900px) {
+  .sidebar-nav { flex-direction: row; flex-wrap: wrap; gap: 0; }
+  .sidebar-nav a { border-left: none; border-bottom: 2px solid transparent; padding: 0.4rem 0.6rem; font-size: 0.65rem; }
+  .sidebar-nav a:hover, .sidebar-nav a.active { border-bottom-color: var(--red); border-left-color: transparent; }
+  .sidebar-status { display: none; }
+}
+</style>
+</head>
+<body>
+
+<div class="scanner-line"></div>
+
+<div class="layout">
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="sidebar-logo">
+      FINCH &<br><span>WHISKERS</span><br>
+      <span style="font-family:'IBM Plex Mono',monospace;font-size:0.55rem;font-weight:400;color:var(--gray);letter-spacing:0.1em;">SUBAQUATIC FINANCIAL ADVISORY</span>
+    </div>
+
+    <nav class="sidebar-nav">
+      <a href="#services" class="active">Services</a>
+      <a href="#rates">Soup Rates</a>
+      <a href="#depth">Depth Cert.</a>
+      <a href="#testimonials">Clients</a>
+      <a href="#faq">FAQ</a>
+      <a href="#filing">Case Files</a>
+    </nav>
+
+    <div class="sidebar-status">
+      <span class="dot"></span> Pool session in progress<br>
+      Current depth: 12ft<br>
+      Water temp: 68°F<br>
+      Visibility: murky<br>
+      <br>
+      License: SFAB-2019-00742<br>
+      Barnaby T. Finch, Esq.<br>
+      Admitted to the Underwater Bar,<br>
+      State of New Jersey, 2019
+    </div>
+  </aside>
+
+  <!-- MAIN CONTENT -->
+  <main class="main">
+
+    <!-- HERO CSS ART -->
+    <section class="hero-art" id="hero">
+      <div class="water-layer"></div>
+      <div class="bubble"></div>
+      <div class="bubble"></div>
+      <div class="bubble"></div>
+      <div class="bubble"></div>
+      <div class="bubble"></div>
+      <div class="bubble"></div>
+      <div class="bubble"></div>
+      <div class="bubble"></div>
+
+      <div class="cat-figure">
+        <div class="cat-head">
+          <div class="cat-eye left"></div>
+          <div class="cat-eye right"></div>
+          <div class="cat-nose"></div>
+        </div>
+        <div class="cat-body">
+          <div class="cat-tie"></div>
+          <div class="briefcase"></div>
+        </div>
+      </div>
+
+      <div class="hero-text">
+        <h1>Your money deserves<br>to be <span style="color:var(--red)">underwater.</span></h1>
+        <p>Barnaby T. Finch, Esq. — Licensed financial advisor (subaquatic). All consultations conducted at a minimum depth of 8 feet. Soup-based payment only. No exceptions. No snorkels.</p>
+      </div>
+    </section>
+
+    <!-- SERVICES -->
+    <section class="section" id="services">
+      <h2 class="section-header">Services <span class="tag">Now booking Q3</span></h2>
+
+      <div class="services-grid">
+        <div class="service-card">
+          <div class="badge">Popular</div>
+          <h3>The Deep End Consultation</h3>
+          <div class="price">3.5 soups <small>/session</small></div>
+          <p>Standard 45-minute session at 12ft depth. Includes waterproof portfolio review, gurgled tax advice, and one (1) complimentary nose boop. Goggles not provided.</p>
+        </div>
+
+        <div class="service-card">
+          <h3>Shallow Water Estate Planning</h3>
+          <div class="price">7 soups <small>/will</small></div>
+          <p>We draft your will at a comfortable 4ft. I have personally witnessed 312 underwater will signings. Only 4 became illegible. The ink situation is improving.</p>
+        </div>
+
+        <div class="service-card">
+          <div class="badge">New</div>
+          <h3>The Mariana Trench Package</h3>
+          <div class="price">22 soups <small>/quarter</small></div>
+          <p>Full financial overhaul at maximum depth. Includes retirement projections, aggressive soup portfolio diversification, and a laminated certificate of bravery. I will hold your hand (paw).</p>
+        </div>
+      </div>
+
+      <p class="text-xs" style="color:var(--dark-gray);">All sessions require a signed liability waiver. Finch & Whiskers is not responsible for soggy documents, lost soup, or emotional distress caused by learning your 401(k) balance while submerged. Barnaby does not wear a swimsuit and will not discuss this further.</p>
+    </section>
+
+    <div class="wave-divider"></div>
+
+    <!-- SOUP EXCHANGE RATES -->
+    <section class="section" id="rates">
+      <h2 class="section-header">Live Soup Exchange Rates <span class="tag">Updated hourly</span></h2>
+
+      <table class="soup-table">
+        <thead>
+          <tr>
+            <th>Soup Type</th>
+            <th>USD Equivalent</th>
+            <th>Status</th>
+            <th>Notes</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Tomato (Campbell's, 10.75oz)</td>
+            <td>$47.99</td>
+            <td>Stable</td>
+            <td>Reserve currency</td>
+          </tr>
+          <tr>
+            <td>Chicken Noodle (homemade)</td>
+            <td>$83.50</td>
+            <td>Stable</td>
+            <td>Premium if grandma-sourced</td>
+          </tr>
+          <tr>
+            <td>Clam Chowder (New England)</td>
+            <td>$124.00</td>
+            <td class="volatile">Volatile</td>
+            <td>Clam supply chain issues</td>
+          </tr>
+          <tr>
+            <td>Gazpacho</td>
+            <td>$12.00</td>
+            <td class="volatile">Volatile</td>
+            <td>Cold soup penalty applies</td>
+          </tr>
+          <tr>
+            <td>Miso</td>
+            <td>$67.25</td>
+            <td>Stable</td>
+            <td>Excellent underwater dissolution rate</td>
+          </tr>
+          <tr>
+            <td>French Onion</td>
+            <td>$91.00</td>
+            <td>Stable</td>
+            <td>Cheese crust intact surcharge: +$40</td>
+          </tr>
+          <tr>
+            <td>Cream of Mushroom</td>
+            <td>$0.00</td>
+            <td class="volatile">BANNED</td>
+            <td>Incident of 2021. Do not ask.</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <p class="text-xs" style="color:var(--dark-gray)">Rates fluctuate based on pool temperature, sodium content, and Barnaby's mood. Gazpacho accepted grudgingly.</p>
+    </section>
+
+    <!-- SOUP CSS ART -->
+    <div class="soup-art" title="Hover for more soup">
+      <div class="steam"></div>
+      <div class="steam"></div>
+      <div class="steam"></div>
+      <div class="soup-bowl-rim"></div>
+      <div class="soup-bowl">
+        <div class="soup-liquid"></div>
+      </div>
+    </div>
+
+    <!-- DEPTH CERTIFICATION -->
+    <section class="section" id="depth">
+      <h2 class="section-header">Depth Certification Level</h2>
+      <p class="text-sm mb-1" style="color:var(--dark-gray)">Click the meter to certify your consultation depth tolerance. Required before booking.</p>
+
+      <div class="depth-meter" id="depthMeter">
+        <div class="depth-fill" id="depthFill"></div>
+        <div class="depth-label" id="depthLabel">CLICK TO DESCEND — 0 FT</div>
+      </div>
+
+      <div class="stamp" id="depthStamp" style="display:none;">DEPTH CERTIFIED</div>
+    </section>
+
+    <div class="fish-container">
+      <div class="fish">><(((º>  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;  ><(((º>  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;  ><(((º>  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;  ><(((º></div>
+    </div>
+
+    <!-- INTERACTIVE SHAPES -->
+    <section class="section">
+      <h2 class="section-header">Our Clients' Portfolio Distribution <span class="tag">Visual</span></h2>
+      <p class="text-xs mb-1" style="color:var(--dark-gray)">Each shape represents one (1) soup. Hover to audit. Data reflects Q2 filings.</p>
+
+      <div class="shapes-grid">
+        <div class="shape-cell"></div>
+        <div class="shape-cell"></div>
+        <div class="shape-cell"></div>
+        <div class="shape-cell"></div>
+        <div class="shape-cell"></div>
+        <div class="shape-cell"></div>
+        <div class="shape-cell"></div>
+        <div class="shape-cell"></div>
+        <div class="shape-cell"></div>
+        <div class="shape-cell"></div>
+        <div class="shape-cell"></div>
+        <div class="shape-cell"></div>
+        <div class="shape-cell"></div>
+        <div class="shape-cell"></div>
+        <div class="shape-cell"></div>
+        <div class="shape-cell"></div>
+      </div>
+    </section>
+
+    <div class="wave-divider"></div>
+
+    <!-- TESTIMONIALS -->
+    <section class="section" id="testimonials">
+      <h2 class="section-header">Client Statements <span class="tag">Verified wet</span></h2>
+
+      <div class="testimonial">
+        <blockquote>"I brought a thermos of minestrone to our first session and Barnaby immediately refinanced my mortgage. Underwater. While purring. I saved $340/month and I don't fully understand how."</blockquote>
+        <cite>— Deborah Hutchins, Paramus, NJ (depth-certified to 14ft)</cite>
+      </div>
+
+      <div class="testimonial">
+        <blockquote>"He knocked my soup off the pool ledge once and I had to pay double. His eyes showed no remorse. 5 stars. My Roth IRA has never looked better."</blockquote>
+        <cite>— Greg Tanaka, Hoboken, NJ (3 soups outstanding)</cite>
+      </div>
+
+      <div class="testimonial">
+        <blockquote>"I tried to pay in broth and Barnaby left the pool. Just climbed out, shook himself off, and sat with his back to me for eleven minutes. The retainer agreement clearly states 'soup, not broth.' I should have read it. That's on me."</blockquote>
+        <cite>— Anonymous (legal proceedings pending)</cite>
+      </div>
+    </section>
+
+    <!-- FILING CABINET -->
+    <section class="section" id="filing">
+      <h2 class="section-header">Case Files</h2>
+      <p class="text-xs mb-1" style="color:var(--dark-gray)">Hover to inspect. All files stored in waterproof laminate since the Incident.</p>
+
+      <div class="filing-cabinet">
+        <div class="drawer">
+          <span class="drawer-label">SOUP RECEIPTS 2024</span>
+        </div>
+        <div class="drawer">
+          <span class="drawer-label">ACTIVE RETAINERS</span>
+        </div>
+        <div class="drawer">
+          <span class="drawer-label">POOL INCIDENT REPORTS</span>
+        </div>
+        <div class="drawer">
+          <span class="drawer-label">BANNED SOUPS LIST</span>
+        </div>
+      </div>
+    </section>
+
+    <div class="wave-divider"></div>
+
+    <!-- FAQ -->
+    <section class="section" id="faq">
+      <h2 class="section-header">Frequently Asked Questions</h2>
+
+      <div class="faq-item">
+        <button class="faq-q" onclick="this.parentElement.classList.toggle('open')">
+          Why does the consultation have to be underwater?
+          <span class="icon">+</span>
+        </button>
+        <div class="faq-a">
+          For legal reasons, I cannot practice financial advisory on dry land. My license is specifically issued for subaquatic counsel in the state of New Jersey. I took the underwater bar exam in 2019 (held my breath for 4 minutes and 12 seconds). The surface is not my jurisdiction. Please do not ask me about this again.
+        </div>
+      </div>
+
+      <div class="faq-item">
+        <button class="faq-q" onclick="this.parentElement.classList.toggle('open')">
+          Can I pay in anything other than soup?
+          <span class="icon">+</span>
+        </button>
+        <div class="faq-a">
+          No. This has been firm policy since inception. We briefly accepted stew in Q1 2022, which was a mistake that the board (me) deeply regrets. Stew has chunks. The chunks interfere with the pool filter. We lost two clients in the resulting visibility event. Soup only. Final answer.
+        </div>
+      </div>
+
+      <div class="faq-item">
+        <button class="faq-q" onclick="this.parentElement.classList.toggle('open')">
+          Are you actually a cat?
+          <span class="icon">+</span>
+        </button>
+        <div class="faq-a">
+          I am a licensed financial professional who happens to be a 9-year-old domestic shorthair tabby. My credentials speak for themselves. I graduated third in my class. The valedictorian was a golden retriever and we do not speak.
+        </div>
+      </div>
+
+      <div class="faq-item">
+        <button class="faq-q" onclick="this.parentElement.classList.toggle('open')">
+          What was "the Incident of 2021"?
+          <span class="icon">+</span>
+        </button>
+        <div class="faq-a">
+          Cream of Mushroom is banned and that is all the information that will be provided at this time. My attorney (also a cat, also underwater) has advised me not to elaborate. The pool has been fully re-tiled.
+        </div>
+      </div>
+
+      <div class="faq-item">
+        <button class="faq-q" onclick="this.parentElement.classList.toggle('open')">
+          Do you offer video consultations?
+          <span class="icon">+</span>
+        </button>
+        <div class="faq-a">
+          Absolutely not. I need to see your face when I tell you your savings rate is inadequate. I need to see the bubbles leave your mouth. Financial honesty requires 12 feet of chlorinated water between us. This is non-negotiable. Also my webcam got wet.
+        </div>
+      </div>
+    </section>
+
+    <!-- FOOTER -->
+    <footer class="footer">
+      <div>
+        © 2024 Finch & Whiskers Subaquatic Financial Advisory LLC.<br>
+        Licensed in NJ (underwater only). Member SIPC (Soup Insurance Protection Corporation).
+      </div>
+      <div style="text-align:right;">
+        <a href="#hero">Back to surface</a><br>
+        Pool hours: MWF 6am–2pm (tides permitting)
+      </div>
+    </footer>
+
+  </main>
+</div>
+
+<script>
+// Depth meter interaction
+(function() {
+  var meter = document.getElementById('depthMeter');
+  var fill = document.getElementById('depthFill');
+  var label = document.getElementById('depthLabel');
+  var stamp = document.getElementById('depthStamp');
+  var depth = 0;
+  var maxDepth = 30;
+
+  meter.addEventListener('click', function() {
+    depth = Math.min(depth + 6, maxDepth);
+    var pct = (depth / maxDepth) * 100;
+    fill.style.width = pct + '%';
+    label.textContent = 'CURRENT DEPTH — ' + depth + ' FT';
+
+    if (depth >= maxDepth) {
+      label.textContent = 'MAXIMUM DEPTH — ' + depth + ' FT — CERTIFIED';
+      stamp.style.display = 'inline-block';
+    }
+  });
+})();
+
+// Smooth scroll for nav links
+(function() {
+  var links = document.querySelectorAll('.sidebar-nav a');
+  for (var i = 0; i < links.length; i++) {
+    links[i].addEventListener('click', function(e) {
+      var href = this.getAttribute('href');
+      if (href && href.charAt(0) === '#') {
+        var target = document.querySelector(href);
+        if (target) {
+          e.preventDefault();
+          target.scrollIntoView({ behavior: 'smooth' });
+        }
+      }
+      // Update active state
+      for (var j = 0; j < links.length; j++) {
+        links[j].classList.remove('active');
+      }
+      this.classList.add('active');
+    });
+  }
+})();
+</script>
+</body>
+</html>

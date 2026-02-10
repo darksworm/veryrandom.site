@@ -1,0 +1,571 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Oracle Pipe & Needle Embassy</title>
+  <link rel="stylesheet" href="/assets/css/pico.min.css" />
+  <link rel="stylesheet" href="/assets/css/fonts.css" />
+  <style>
+    :root {
+      --paper: #f2e7d3;
+      --paper-deep: #dbc7a4;
+      --sepia: #7b5a35;
+      --ink: #22170f;
+      --ink-soft: #4a3826;
+      --line: #5e452a;
+      --accent: #9f6f2d;
+      --accent-2: #c48a38;
+      --panel-shadow: #8b69404d;
+      --g-force: 0;
+      --pulse: 1;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 16px;
+      color: var(--ink);
+      background:
+        radial-gradient(circle at 20% 10%, #fff8ea 0%, #f2e7d3 28%, #d9c19d 100%),
+        repeating-linear-gradient(90deg, #f0e0c6 0 2px, #ecd7b8 2px 4px);
+      overflow-x: hidden;
+    }
+
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      background:
+        linear-gradient(130deg, #ffffff1a 0%, #ffffff00 35%),
+        repeating-linear-gradient(0deg, #00000008 0 1px, #00000000 1px 5px);
+      mix-blend-mode: multiply;
+    }
+
+    main {
+      width: min(1400px, 96vw);
+      margin: 1rem auto 3rem;
+    }
+
+    .top {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 1rem;
+      align-items: center;
+      margin-bottom: 1rem;
+      padding: 0.8rem 1rem;
+      border: 2px solid var(--line);
+      background: linear-gradient(160deg, #f5ead8, #e1c7a2);
+      box-shadow: 8px 8px 0 #a27c4e66;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 0.8rem;
+      min-width: 0;
+    }
+
+    .seal {
+      width: 52px;
+      height: 52px;
+      border: 2px solid var(--ink);
+      border-radius: 50%;
+      display: grid;
+      place-items: center;
+      background:
+        conic-gradient(from 0deg, #7b5a35 0 90deg, #d2ad7b 90deg 180deg, #7b5a35 180deg 270deg, #d2ad7b 270deg 360deg);
+      color: #fff;
+    }
+
+    .brand h1 {
+      margin: 0;
+      font-size: clamp(1.1rem, 2.6vw, 1.8rem);
+      line-height: 1.1;
+      letter-spacing: 0.04em;
+    }
+
+    .brand p {
+      margin: 0;
+      font-family: 'IBM Plex Mono', monospace;
+      color: #3d2e1f;
+      font-size: 0.88rem;
+    }
+
+    .actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      justify-content: flex-end;
+    }
+
+    button, .btn {
+      min-height: 44px;
+      border: 2px solid var(--line);
+      background: linear-gradient(150deg, #f6e8d3, #d6b487);
+      color: #1f150d;
+      padding: 0.55rem 0.9rem;
+      font-weight: 700;
+      text-decoration: none;
+      cursor: pointer;
+      transition: transform 180ms ease, background 180ms ease;
+    }
+
+    button:hover, .btn:hover {
+      transform: translate(-1px, -2px);
+      background: linear-gradient(150deg, #fbeedb, #cfa26a);
+    }
+
+    .dashboard {
+      display: grid;
+      grid-template-columns: repeat(12, minmax(0, 1fr));
+      gap: 0.85rem;
+      align-items: stretch;
+    }
+
+    .panel {
+      border: 2px solid var(--line);
+      background: linear-gradient(150deg, #f7ecdb, #e3ccaa);
+      box-shadow: 5px 5px 0 var(--panel-shadow);
+      padding: 0.85rem;
+      position: relative;
+      overflow: hidden;
+      min-height: 120px;
+    }
+
+    .panel h2, .panel h3 {
+      margin: 0 0 0.45rem;
+      font-size: 1rem;
+      letter-spacing: 0.03em;
+      color: #261a11;
+    }
+
+    .panel p, .panel li, .panel small, .panel label {
+      margin: 0;
+      color: #3b2b1d;
+      line-height: 1.35;
+    }
+
+    .hero { grid-column: span 6; min-height: 260px; }
+    .ritual { grid-column: span 3; }
+    .prices { grid-column: span 3; }
+    .dial { grid-column: span 4; }
+    .catlab { grid-column: span 4; }
+    .testimonials { grid-column: span 4; }
+    .faq { grid-column: span 5; }
+    .flash { grid-column: span 4; }
+    .booking { grid-column: span 3; }
+
+    .hero-grid {
+      display: grid;
+      grid-template-columns: 1.3fr 1fr;
+      gap: 0.8rem;
+      height: 100%;
+    }
+
+    .hero-copy p { margin-top: 0.55rem; }
+
+    .riddle-box {
+      margin-top: 0.7rem;
+      padding: 0.55rem;
+      border: 1px dashed var(--line);
+      background: #fdf4e4;
+      font-family: 'IBM Plex Mono', monospace;
+      color: #2a1d12;
+      min-height: 72px;
+    }
+
+    .totem {
+      border: 2px solid var(--ink-soft);
+      background:
+        radial-gradient(circle at 30% 28%, #f9edd9 0 18%, #e3c49a 18% 42%, #b8894f 42% 54%, #2c1d12 54% 57%, #f9edd9 57%),
+        linear-gradient(160deg, #f3dfbf, #cea16a);
+      min-height: 200px;
+      display: grid;
+      place-items: center;
+      position: relative;
+      transform: translateY(calc(var(--g-force) * -0.25px));
+      transition: transform 260ms ease;
+    }
+
+    .totem::before,
+    .totem::after {
+      content: "";
+      position: absolute;
+      width: 76%;
+      height: 42%;
+      border: 2px solid #2f2115;
+      clip-path: polygon(50% 0%, 100% 35%, 84% 100%, 16% 100%, 0% 35%);
+    }
+
+    .totem::before {
+      top: 8%;
+      background: linear-gradient(135deg, #d09f62, #f5dfba);
+      transform: rotate(calc(var(--g-force) * 0.5deg));
+    }
+
+    .totem::after {
+      bottom: 8%;
+      background: repeating-linear-gradient(45deg, #7c552a 0 6px, #ddb984 6px 12px);
+      transform: rotate(calc(var(--g-force) * -0.4deg));
+    }
+
+    .totem-mark {
+      width: 54px;
+      height: 54px;
+      border-radius: 50%;
+      border: 2px solid #2f2115;
+      background: radial-gradient(circle, #24180f 0 22%, #f1dab4 22% 100%);
+      position: relative;
+      z-index: 2;
+      animation: breathe 3s ease-in-out infinite;
+    }
+
+    @keyframes breathe {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(calc(1.02 * var(--pulse))); }
+    }
+
+    ul.clean {
+      list-style: none;
+      padding: 0;
+      display: grid;
+      gap: 0.45rem;
+    }
+
+    .service {
+      display: grid;
+      grid-template-columns: auto 1fr;
+      gap: 0.45rem;
+      align-items: start;
+    }
+
+    .service i { width: 18px; height: 18px; color: #2f2115; }
+
+    .price-line {
+      display: flex;
+      justify-content: space-between;
+      gap: 0.6rem;
+      padding: 0.35rem 0;
+      border-bottom: 1px dotted #6d4e2f;
+      font-family: 'IBM Plex Mono', monospace;
+      color: #24180f;
+    }
+
+    .price-line strong { color: #1c120a; }
+
+    .dial input[type="range"] {
+      width: 100%;
+      margin: 0.55rem 0;
+      accent-color: #8f5e25;
+    }
+
+    .meter {
+      margin-top: 0.4rem;
+      min-height: 38px;
+      border: 1px solid #5c4428;
+      background: repeating-linear-gradient(90deg, #ead3b0 0 12px, #f7e8cf 12px 24px);
+      display: grid;
+      align-items: center;
+      padding: 0.35rem 0.45rem;
+      font-family: 'IBM Plex Mono', monospace;
+      color: #2a1d12;
+    }
+
+    .cat-shelf {
+      display: grid;
+      grid-template-columns: repeat(6, minmax(0, 1fr));
+      gap: 0.35rem;
+      margin: 0.5rem 0;
+      min-height: 96px;
+      align-content: start;
+    }
+
+    .ink-bottle {
+      height: 48px;
+      border: 2px solid #2f2115;
+      background: linear-gradient(180deg, #a56b2b, #3f2a17);
+      clip-path: polygon(25% 0, 75% 0, 85% 15%, 85% 100%, 15% 100%, 15% 15%);
+      transform-origin: bottom center;
+    }
+
+    .review {
+      border-left: 3px solid #6d4e2f;
+      padding-left: 0.5rem;
+      margin-bottom: 0.6rem;
+    }
+
+    details {
+      border-top: 1px solid #704f2f;
+      padding: 0.35rem 0;
+    }
+
+    summary {
+      cursor: pointer;
+      font-weight: 700;
+      color: #24190f;
+    }
+
+    .flash-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 0.45rem;
+      margin-top: 0.55rem;
+    }
+
+    .glyph {
+      min-height: 74px;
+      border: 2px solid #2f2115;
+      background:
+        radial-gradient(circle at 50% 50%, #2f2115 0 18%, #e0bc88 18% 34%, #2f2115 34% 37%, #f3ddbc 37%);
+      clip-path: polygon(50% 0%, 100% 35%, 82% 100%, 18% 100%, 0% 35%);
+      transition: clip-path 240ms ease, transform 240ms ease, filter 240ms ease;
+    }
+
+    .glyph:hover {
+      clip-path: polygon(50% 6%, 92% 24%, 94% 74%, 50% 94%, 6% 74%, 8% 24%);
+      transform: rotate(4deg) scale(1.04);
+      filter: saturate(1.2);
+    }
+
+    .booking .btn {
+      display: inline-grid;
+      place-items: center;
+      width: 100%;
+      text-align: center;
+      margin-top: 0.7rem;
+    }
+
+    .tiny {
+      font-size: 0.82rem;
+      color: #4c3927;
+    }
+
+    .zero-g .panel {
+      animation: drift 5s ease-in-out infinite;
+      animation-delay: calc(var(--g-force) * -12ms);
+    }
+
+    @keyframes drift {
+      0%, 100% { transform: translateY(0px); }
+      50% { transform: translateY(-5px); }
+    }
+
+    @media (max-width: 980px) {
+      .hero, .ritual, .prices, .dial, .catlab, .testimonials, .faq, .flash, .booking {
+        grid-column: span 6;
+      }
+
+      .hero-grid { grid-template-columns: 1fr; }
+    }
+
+    @media (max-width: 720px) {
+      .top { grid-template-columns: 1fr; }
+      .actions { justify-content: flex-start; }
+      .dashboard { grid-template-columns: repeat(6, minmax(0, 1fr)); }
+      .hero, .ritual, .prices, .dial, .catlab, .testimonials, .faq, .flash, .booking {
+        grid-column: span 6;
+      }
+      .flash-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    }
+
+    @media (max-width: 460px) {
+      main { width: 94vw; }
+      .flash-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .cat-shelf { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+    }
+  </style>
+</head>
+<body x-data="site()" :class="{ 'zero-g': zeroG }">
+  <main>
+    <header class="top">
+      <div class="brand">
+        <div class="seal"><i data-lucide="compass"></i></div>
+        <div>
+          <h1>Oracle Pipe & Needle Embassy</h1>
+          <p>By Vesta "P-Trap" Vlachos. I solved one leak in rhyme, now I tattoo destinies.</p>
+        </div>
+      </div>
+      <div class="actions">
+        <button x-on:click="toggleGravity()"><i data-lucide="orbit"></i> Optional Gravity</button>
+        <button x-on:click="nextRiddle()"><i data-lucide="message-circle-question"></i> Ask for a Riddle</button>
+        <button x-on:click="catKnock()"><i data-lucide="cat"></i> Release Shop Cats</button>
+      </div>
+    </header>
+
+    <section class="dashboard">
+      <article class="panel hero">
+        <div class="hero-grid">
+          <div class="hero-copy">
+            <h2>I am Vesta. I solder pipes, speak prophecy, and linework your soul.</h2>
+            <p>At age 12 I repaired my mother's sink by saying, "What bends without knees and still stands?" The pipe stopped crying. So did I.</p>
+            <p>Now I ink gravity-safe sigils while my six cats test every shelf for structural honesty.</p>
+            <div class="riddle-box" x-text="currentRiddle"></div>
+          </div>
+          <div class="totem" id="totem">
+            <div class="totem-mark"></div>
+          </div>
+        </div>
+      </article>
+
+      <article class="panel ritual">
+        <h3>Needle Rituals</h3>
+        <ul class="clean">
+          <li class="service"><i data-lucide="droplets"></i><span><strong>Drain Sigil</strong>: stops bad luck and sink whistles.</span></li>
+          <li class="service"><i data-lucide="wrench"></i><span><strong>P-Trap Promise</strong>: commitment tattoo for people and pipes.</span></li>
+          <li class="service"><i data-lucide="sparkles"></i><span><strong>Levitation Liner</strong>: lines stay straight at any altitude.</span></li>
+          <li class="service"><i data-lucide="shield-check"></i><span><strong>Catproof Seal</strong>: ink bottles tethered to reality.</span></li>
+        </ul>
+      </article>
+
+      <article class="panel prices">
+        <h3>Rates (ink + omen)</h3>
+        <div class="price-line"><span>Single riddle consult</span><strong>$47.99</strong></div>
+        <div class="price-line"><span>Forearm prophecy loop</span><strong>$189</strong></div>
+        <div class="price-line"><span>Full back sewer mandala</span><strong>$711</strong></div>
+        <div class="price-line"><span>Emergency midnight leak verse</span><strong>$129/hr</strong></div>
+        <p class="tiny" style="margin-top:0.6rem;">If a cat knocks your stencil, I redo it free once. Twice means the cat chose your fate.</p>
+      </article>
+
+      <article class="panel dial">
+        <h3>Gravity Calibration Desk</h3>
+        <label for="gravity">Shop Gravity: <strong x-text="gravity + '%'">56%</strong></label>
+        <input id="gravity" type="range" min="0" max="100" x-model="gravity" x-on:input="setGravity()" />
+        <div class="meter" x-text="gravityStatus"></div>
+        <p class="tiny" style="margin-top:0.4rem;">Below 30% we clip clients to the chair with tasteful leather straps.</p>
+      </article>
+
+      <article class="panel catlab">
+        <h3>Cat Compliance Lab</h3>
+        <p>Today's shelf survival forecast: <strong x-text="survivalRate + '%'">62%</strong></p>
+        <div class="cat-shelf" id="catShelf">
+          <template x-for="n in 12" :key="n">
+            <div class="ink-bottle"></div>
+          </template>
+        </div>
+        <button x-on:click="catKnock()">Run Knock Simulation</button>
+      </article>
+
+      <article class="panel testimonials">
+        <h3>Witness Statements</h3>
+        <p class="review">"She fixed my toilet and my fear of intimacy in one sitting."<br><strong>- Mel, regional balloon pilot</strong></p>
+        <p class="review">"I floated off the chair at 12% gravity. Tattoo still perfect."<br><strong>- Officer Brenda, Anti-Gravity Parking</strong></p>
+        <p class="review">"Her cat stole my sandwich but left me a better life motto."<br><strong>- Juniper, former skeptic</strong></p>
+      </article>
+
+      <article class="panel faq">
+        <h3>Questions People Whisper</h3>
+        <details>
+          <summary>Do you really only speak in riddles during tattooing?</summary>
+          <p>Yes. If you understand before I finish shading, you get a free aftercare balm tin.</p>
+        </details>
+        <details>
+          <summary>What if I hate cats?</summary>
+          <p>Then we seat you in Bay 4 behind the reinforced glass. They can smell disrespect.</p>
+        </details>
+        <details>
+          <summary>Can you tattoo over old breakup ink?</summary>
+          <p>I specialize in coverups and emotional plumbing. Bring water, not excuses.</p>
+        </details>
+      </article>
+
+      <article class="panel flash">
+        <h3>Flash Sigils This Week</h3>
+        <p class="tiny">Hover to awaken. Each design tested under spill, spin, and cat paw conditions.</p>
+        <div class="flash-grid">
+          <div class="glyph" title="Silent Drain"></div>
+          <div class="glyph" title="Moon Valve"></div>
+          <div class="glyph" title="Riddle Knot"></div>
+          <div class="glyph" title="Shelf Oath"></div>
+        </div>
+      </article>
+
+      <article class="panel booking">
+        <h3>Book A Chair</h3>
+        <p>Open Tuesday to Saturn's mood swings.<br>Walk-ins welcome if you can answer:<br><strong>"What leaks without water?"</strong></p>
+        <a class="btn" href="#" x-on:click.prevent="nextRiddle()">Reserve by Riddle</a>
+        <p class="tiny" style="margin-top:0.5rem;">389 Copper Alley, Unit 3B, Floating District</p>
+      </article>
+    </section>
+  </main>
+
+  <script defer src="/assets/js/alpine.min.js"></script>
+  <script src="/assets/js/gsap.min.js"></script>
+  <script src="/assets/js/lucide.min.js"></script>
+  <script>
+    function site() {
+      return {
+        zeroG: false,
+        gravity: 56,
+        survivalRate: 62,
+        currentRiddle: "Riddle before needle: What has a mouth, never eats, and still ruins your day? (Your old drain.)",
+        gravityStatus: "56% gravity: stools remain mostly loyal.",
+        riddles: [
+          "What leaks without water? Regret, mostly.",
+          "What bends without knees? Copper when I sing to it.",
+          "What climbs with no legs? My tabby, onto your sterile tray.",
+          "What stings but heals? My needle and your honesty."
+        ],
+        nextRiddle() {
+          const idx = Math.floor(Math.random() * this.riddles.length);
+          this.currentRiddle = this.riddles[idx];
+          if (window.gsap) {
+            gsap.fromTo('.riddle-box',
+              { y: 10, opacity: 0.2 },
+              { y: 0, opacity: 1, duration: 0.45, clearProps: 'transform,opacity' }
+            );
+          }
+        },
+        toggleGravity() {
+          this.zeroG = !this.zeroG;
+          this.gravity = this.zeroG ? 18 : 56;
+          this.setGravity();
+        },
+        setGravity() {
+          const g = Number(this.gravity);
+          document.documentElement.style.setProperty('--g-force', String(g));
+          document.documentElement.style.setProperty('--pulse', (0.95 + g / 220).toFixed(2));
+          if (g < 30) {
+            this.gravityStatus = g + '% gravity: clip straps engaged, cats ecstatic.';
+          } else if (g < 70) {
+            this.gravityStatus = g + '% gravity: normal drift, acceptable ink stability.';
+          } else {
+            this.gravityStatus = g + '% gravity: heavy mode, existential ankles detected.';
+          }
+          if (window.gsap) {
+            gsap.fromTo('#totem',
+              { rotate: -2, scale: 0.98 },
+              { rotate: (g - 50) / 30, scale: 1, duration: 0.5, clearProps: 'transform' }
+            );
+          }
+        },
+        catKnock() {
+          const bottles = document.querySelectorAll('.ink-bottle');
+          this.survivalRate = Math.max(7, Math.floor(Math.random() * 88));
+          if (window.gsap) {
+            bottles.forEach((bottle) => {
+              const tilt = -35 + Math.random() * 70;
+              const hop = -3 - Math.random() * 24;
+              gsap.fromTo(bottle,
+                { rotate: 0, y: 0 },
+                { rotate: tilt, y: hop, duration: 0.28, yoyo: true, repeat: 1, clearProps: 'transform' }
+              );
+            });
+          }
+        }
+      };
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+      if (window.lucide) {
+        lucide.createIcons();
+      }
+      document.documentElement.style.setProperty('--g-force', '56');
+    });
+  </script>
+</body>
+</html>

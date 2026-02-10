@@ -1,0 +1,443 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Ætheric Ledger</title>
+    <link rel="stylesheet" href="/assets/css/pico.min.css">
+    <link rel="stylesheet" href="/assets/css/fonts.css">
+    <script src="/assets/js/alpine.min.js" defer></script>
+    <script src="/assets/js/gsap.min.js"></script>
+    <script src="/assets/js/lucide.min.js"></script>
+
+    <style>
+        :root {
+            --font-heading: 'Space Grotesk', sans-serif;
+            --font-body: 'Crimson Pro', serif;
+            --color-bg: #F8F1E4; /* Sand */
+            --color-text: #3D402B; /* Dark Olive/Brown */
+            --color-accent: #C26B45; /* Terracotta */
+            --color-accent-2: #85926A; /* Muted Olive */
+            --spacing: 1rem;
+            --container-width: 1400px;
+        }
+
+        body {
+            background-color: var(--color-bg);
+            color: var(--color-text);
+            font-family: var(--font-body);
+            font-size: 18px;
+            line-height: 1.7;
+            padding: 0;
+            margin: 0;
+            overflow-x: hidden;
+        }
+
+        h1, h2, h3, h4, h5, h6 {
+            font-family: var(--font-heading);
+            color: var(--color-accent);
+            font-weight: 700;
+            letter-spacing: -0.5px;
+        }
+        
+        h1 {
+            font-size: clamp(2.5rem, 5vw + 1rem, 4.5rem);
+            line-height: 1.1;
+            margin-bottom: 0.5em;
+        }
+
+        h2 {
+            font-size: clamp(2rem, 4vw, 3rem);
+            line-height: 1.2;
+        }
+        
+        h3 {
+            font-size: clamp(1.5rem, 3vw, 2rem);
+            line-height: 1.3;
+        }
+
+        a {
+            color: var(--color-accent);
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+
+        a:hover {
+            color: var(--color-text);
+        }
+
+        .container {
+            max-width: var(--container-width);
+            margin: 0 auto;
+            padding: calc(var(--spacing) * 2);
+        }
+
+        .main-grid {
+            display: grid;
+            grid-template-columns: 1fr 3fr 1fr;
+            gap: calc(var(--spacing) * 3);
+            margin-top: calc(var(--spacing) * 2);
+        }
+
+        header {
+            text-align: center;
+            padding: calc(var(--spacing) * 4) var(--spacing);
+            border-bottom: 2px solid var(--color-text);
+            margin-bottom: calc(var(--spacing) * 2);
+        }
+        
+        .tagline {
+            font-family: var(--font-heading);
+            font-size: clamp(1rem, 2vw, 1.25rem);
+            color: var(--color-accent-2);
+            margin-top: -1rem;
+        }
+
+        nav.main-nav {
+            grid-column: 1 / -1;
+            display: flex;
+            justify-content: center;
+            gap: calc(var(--spacing) * 3);
+            padding: var(--spacing) 0;
+            border-bottom: 1px solid var(--color-text);
+        }
+
+        nav.main-nav a {
+            font-family: var(--font-heading);
+            font-size: 1.1rem;
+            text-transform: uppercase;
+        }
+
+        .main-content {
+            grid-column: 2 / 3;
+        }
+        
+        .main-content article {
+            border: 0;
+            padding: 0;
+            background: transparent;
+        }
+
+        .sidebar {
+            padding-top: var(--spacing);
+        }
+        
+        .sidebar.left {
+            grid-column: 1 / 2;
+        }
+
+        .sidebar.right {
+            grid-column: 3 / 4;
+        }
+
+        .sidebar-widget {
+            margin-bottom: calc(var(--spacing) * 3);
+            padding: var(--spacing);
+            border: 1px solid var(--color-accent-2);
+            position: relative;
+        }
+        
+        .sidebar-widget h4 {
+            font-size: 1.25rem;
+            margin-bottom: var(--spacing);
+            text-align: center;
+            background: var(--color-bg);
+            display: inline-block;
+            padding: 0 10px;
+            position: absolute;
+            top: -18px;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+        
+        .sidebar-widget ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+        
+        .sidebar-widget ul li {
+            font-size: 0.9rem;
+            margin-bottom: 1rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px dashed var(--color-accent-2);
+        }
+        
+        .sidebar-widget ul li:last-child {
+            border-bottom: none;
+            margin-bottom: 0;
+        }
+        
+        .price {
+            font-family: var(--font-heading);
+            font-weight: 700;
+            color: var(--color-text);
+        }
+
+        /* Interactive Elements */
+        .tabs {
+            margin-top: calc(var(--spacing) * 2);
+        }
+        .tab-buttons {
+            display: flex;
+            gap: 5px;
+            border-bottom: 1px solid var(--color-text);
+            margin-bottom: var(--spacing);
+        }
+        .tab-button {
+            padding: 10px 20px;
+            cursor: pointer;
+            border: 1px solid transparent;
+            border-bottom: 0;
+            border-radius: 5px 5px 0 0;
+            font-family: var(--font-heading);
+            background-color: transparent;
+            color: var(--color-text);
+        }
+        .tab-button.active {
+            background-color: var(--color-bg);
+            border-color: var(--color-text);
+            border-bottom-color: var(--color-bg);
+            transform: translateY(1px);
+        }
+        .tab-content {
+            padding: var(--spacing);
+            border: 1px solid var(--color-text);
+            border-top: none;
+        }
+        .tab-content blockquote {
+            margin: 0;
+            border-color: var(--color-accent);
+        }
+
+        .faq-item {
+            border-bottom: 1px solid var(--color-accent-2);
+            padding: var(--spacing) 0;
+        }
+        .faq-question {
+            cursor: pointer;
+            font-weight: bold;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .faq-answer {
+            margin-top: var(--spacing);
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.5s ease-out, padding 0.5s ease-out;
+            padding: 0 var(--spacing);
+        }
+
+        footer {
+            margin-top: calc(var(--spacing) * 4);
+            padding: calc(var(--spacing) * 2);
+            text-align: center;
+            font-size: 0.9rem;
+            color: var(--color-accent-2);
+            border-top: 1px solid var(--color-text);
+        }
+
+        .icon {
+            width: 1em;
+            height: 1em;
+            stroke-width: 2;
+            vertical-align: -0.125em;
+        }
+
+        @media (max-width: 1024px) {
+            .main-grid {
+                grid-template-columns: 1fr;
+            }
+            .main-content, .sidebar.left, .sidebar.right {
+                grid-column: 1 / -1;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            body {
+                font-size: 16px;
+            }
+            .container {
+                padding: var(--spacing);
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div id="wrapper">
+        <header>
+            <h1 id="main-title">The Ætheric Ledger</h1>
+            <p class="tagline">Cryptographically Secure Communiqués for the Modern Epoch</p>
+        </header>
+
+        <div class="container">
+            <div class="main-grid">
+                <nav class="main-nav">
+                    <a href="#charter">Our Charter</a>
+                    <a href="#services">Services</a>
+                    <a href="#dispatches">Dispatches</a>
+                    <a href="#inquiries">Inquiries</a>
+                </nav>
+
+                <aside class="sidebar left">
+                    <div class="sidebar-widget">
+                        <h4>Transmission Tiers</h4>
+                        <ul>
+                            <li>
+                                <strong>Standard Dispatch</strong><br>
+                                Guaranteed delivery, contents subject to minor entropic reassignment.<br>
+                                <span class="price">0.05 ÆTH/kb</span>
+                            </li>
+                            <li>
+                                <strong>Priority Communiqué</strong><br>
+                                Expedited delivery, with premium feline-grade randomization for enhanced privacy.<br>
+                                <span class="price">0.12 ÆTH/kb</span>
+                            </li>
+                            <li>
+                                <strong>Immutable Record</strong><br>
+                                Permanent archival on our proprietary bathtub-cooled servers. Includes a complimentary paw-print of authenticity.<br>
+                                <span class="price">1.50 ÆTH/record</span>
+                            </li>
+                        </ul>
+                    </div>
+                    <div class="sidebar-widget">
+                        <h4>Personnel File</h4>
+                        <p style="text-align: center;">
+                           <strong>Grandma Anya</strong><br>
+                           <em>Chief Systems Architect & Hydro-Operations Manager</em><br><br>
+                           <strong>Mitzy</strong><br>
+                           <em>Feline Integration Officer (FIO) & Chief of Randomization</em>
+                        </p>
+                    </div>
+                </aside>
+
+                <main class="main-content" id="charter">
+                    <article>
+                        <h2>The Case for Feline-Derived Algorithmic Perturbation in Secure Systems</h2>
+                        <p class="article-meta">Posted on 09 FEB 2026</p>
+                        <p>In the contemporary digital landscape, the pursuit of true, unassailable randomness remains the Sisyphean task of cryptographers and security analysts. We rely on pseudo-random number generators (PRNGs), which, for all their mathematical elegance, are deterministic systems. Given the same seed, a PRNG will produce the same sequence of numbers, creating a theoretical, albeit infinitesimal, vector for predictive attacks. This reliance on the predictable masquerading as the unpredictable is the foundational vulnerability of modern data security.</p>
+                        <p>We posit a radical alternative: Feline-Derived Algorithmic Perturbation (FDAP). This methodology eschews the sterile logic of silicon for the sublime, chaotic agency of a biological entity—specifically, <em>Felis catus</em>. The operational principle is straightforward: during the final stages of data packetization and transmission, our Feline Integration Officer (FIO) is given direct, unmediated access to the primary input console. The FIO's subsequent actions—be it reclining upon the keyboard, chasing a cursor, or batting at a dangling network cable—introduce a layer of authentic, non-deterministic chaos that is impossible for a machine to replicate or predict.</p>
+                        <p>Critics argue this "entropic reassignment" corrupts data. We contend it fortifies it. A message that arrives with a few transposed characters or an injected string of 'jjjjjjjjjj' from an errant paw is a message that has been stress-tested by the universe itself. It proves the transmission's resilience and provides a unique, irreproducible signature of its journey. The very "flaws" are the features, a constant, low-level audit against the brittle perfection of purely digital systems. Our bathtub-cooled server array ensures operational stability, while our FIO ensures operational vitality. In an age of digital ghosts, we offer the security of a warm, furry, and profoundly unpredictable body.</p>
+                    </article>
+                    
+                    <section class="tabs" id="dispatches" x-data="{ tab: 'strategist' }">
+                        <h3>Dispatches from the Field</h3>
+                        <div class="tab-buttons">
+                            <button class="tab-button" :class="{ 'active': tab === 'strategist' }" @click="tab = 'strategist'">Quantum Strategist</button>
+                            <button class="tab-button" :class="{ 'active': tab === 'purveyor' }" @click="tab = 'purveyor'">Data Purveyor</button>
+                            <button class="tab-button" :class="{ 'active': tab === 'historian' }" @click="tab = 'historian'">Archival Historian</button>
+                        </div>
+
+                        <div class="tab-content" x-show="tab === 'strategist'">
+                             <blockquote>
+                                <p>"The beauty of the Ledger's service is its inherent resistance to quantum analysis. You can't model a superposition when the primary variable is 'cat naps'. My data arrived creatively re-sequenced, yet strangely more robust. It's the only service we trust for trans-dimensional communiqués."</p>
+                                <footer>— Jaxon K., Lead Quantum Strategist</footer>
+                            </blockquote>
+                        </div>
+
+                        <div class="tab-content" x-show="tab === 'purveyor'">
+                            <blockquote>
+                                <p>"I'll be honest, I was initially displeased. My Q4 sales figures arrived alphabetized, with every instance of the number '4' replaced by the word 'meow'. But after our audit, we discovered this 'corruption' actually uncovered a systemic flaw in our accounting software. I don't understand it, but I respect it. We're now a client for life."</p>
+                                <footer>— Beatrice M., Artisanal Data Purveyor</footer>
+                            </blockquote>
+                        </div>
+                        
+                        <div class="tab-content" x-show="tab === 'historian'">
+                            <blockquote>
+                                <p>"We tasked The Ætheric Ledger with archiving a sensitive oral history. The final file included three minutes of purring appended to the primary audio track. This was, initially, confounding. However, spectral analysis revealed the purr's frequency modulated in a pattern that perfectly nullified a known parasitic data-scraping signal. Accidental genius."</p>
+                                <footer>— Dr. Alistair Finch, Digital Historian</footer>
+                            </blockquote>
+                        </div>
+                    </section>
+
+                </main>
+
+                <aside class="sidebar right">
+                     <div class="sidebar-widget" id="inquiries" x-data="{ open: null }">
+                        <h4>Frequently Queried</h4>
+                        <div class="faq-item">
+                            <h5 class="faq-question" @click="open = (open === 1 ? null : 1)">
+                                <span>Is my data secure?</span>
+                                <i class="icon" :data-lucide="open === 1 ? 'minus' : 'plus'"></i>
+                            </h5>
+                            <div class="faq-answer" x-ref="faq1" :style="open === 1 ? { 'max-height': $refs.faq1.scrollHeight + 'px', 'padding': '1rem' } : {}">
+                                <p>Our security model is unpredictably robust. The system is architected by a veteran cryptographer and audited by a cat. Standard encryption protocols are in place, but the final-mile security is handled by the FIO, whose motives and methods are beyond the comprehension of mortal hackers.</p>
+                            </div>
+                        </div>
+                        <div class="faq-item">
+                            <h5 class="faq-question" @click="open = (open === 2 ? null : 2)">
+                                <span>What is 'entropic reassignment'?</span>
+                                <i class="icon" :data-lucide="open === 2 ? 'minus' : 'plus'"></i>
+                            </h5>
+                            <div class="faq-answer" x-ref="faq2" :style="open === 2 ? { 'max-height': $refs.faq2.scrollHeight + 'px', 'padding': '1rem' } : {}">
+                                <p>It is a feature, not a bug. Our Feline Integration Officer ensures each transmission is uniquely resilient to pattern analysis by introducing minor, non-deterministic alterations. Consider it a mark of authenticity in an artificial world.</p>
+                            </div>
+                        </div>
+                         <div class="faq-item">
+                            <h5 class="faq-question" @click="open = (open === 3 ? null : 3)">
+                                <span>Can I opt out of the cat?</span>
+                                <i class="icon" :data-lucide="open === 3 ? 'minus' : 'plus'"></i>
+                            </h5>
+                            <div class="faq-answer" x-ref="faq3" :style="open === 3 ? { 'max-height': $refs.faq3.scrollHeight + 'px', 'padding': '1rem' } : {}">
+                                <p>The feline element is integral to our value proposition and cannot be decoupled from the service. Opting out would compromise the entire security model and degrade the transmission to a common, predictable, and frankly vulnerable state.</p>
+                            </div>
+                        </div>
+                    </div>
+                </aside>
+
+            </div>
+        </div>
+
+        <footer id="services">
+            <p>&copy; 2026 The Ætheric Ledger. All rights reserved, subject to feline revision.</p>
+            <p>Sub-Aquatic Sector 7, The Mainframe. Do not attempt physical correspondence.</p>
+        </footer>
+
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            lucide.createIcons();
+
+            gsap.from("#main-title", { 
+                duration: 1.5, 
+                y: 30, 
+                opacity: 0, 
+                ease: "power3.out",
+                delay: 0.2
+            });
+            
+            gsap.from(".main-grid > *", {
+                duration: 1,
+                opacity: 0,
+                y: 20,
+                stagger: 0.1,
+                delay: 0.5,
+                ease: "power2.out"
+            });
+            
+            const widgets = document.querySelectorAll('.sidebar-widget');
+            widgets.forEach(widget => {
+                widget.addEventListener('mouseenter', () => {
+                    gsap.to(widget, { 
+                        duration: 0.3, 
+                        y: -5,
+                        boxShadow: '0 10px 20px rgba(0,0,0,0.05)',
+                        ease: 'power2.out'
+                    });
+                });
+                widget.addEventListener('mouseleave', () => {
+                    gsap.to(widget, { 
+                        duration: 0.5, 
+                        y: 0,
+                        boxShadow: '0 0 0 rgba(0,0,0,0)',
+                        ease: 'elastic.out(1, 0.75)'
+                    });
+                });
+            });
+        });
+    </script>
+</body>
+</html>

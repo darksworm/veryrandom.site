@@ -1,0 +1,807 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Molar Times — Financial Gazette of Record</title>
+<link rel="stylesheet" href="/assets/css/fonts.css">
+<style>
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+:root {
+  --frost: #f0f4f8;
+  --ice: #dce6f0;
+  --silver: #b0bec5;
+  --pale-blue: #a8c0d8;
+  --deep: #1a1e2e;
+  --ink: #0d1117;
+  --accent: #4fc3f7;
+  --ghost: rgba(79, 195, 247, 0.08);
+}
+
+html { scroll-behavior: smooth; }
+
+body {
+  font-family: 'Crimson Pro', Georgia, serif;
+  background: var(--ink);
+  color: var(--frost);
+  min-height: 100vh;
+  overflow-x: hidden;
+  line-height: 1.6;
+  font-size: 18px;
+}
+
+::selection {
+  background: var(--accent);
+  color: var(--ink);
+}
+
+/* === GRAIN OVERLAY === */
+body::before {
+  content: '';
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+  pointer-events: none;
+  z-index: 9999;
+}
+
+/* === SCANLINE === */
+@keyframes scanline {
+  0% { transform: translateY(-100%); }
+  100% { transform: translateY(100vh); }
+}
+
+body::after {
+  content: '';
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  height: 4px;
+  background: linear-gradient(to bottom, transparent, rgba(79, 195, 247, 0.05), transparent);
+  animation: scanline 8s linear infinite;
+  pointer-events: none;
+  z-index: 9998;
+}
+
+/* === TYPOGRAPHY === */
+h1, h2, h3, .mono { font-family: 'IBM Plex Mono', monospace; }
+.serif-display { font-family: 'Playfair Display', serif; }
+.grotesk { font-family: 'Space Grotesk', sans-serif; }
+
+/* === NAV === */
+nav {
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  z-index: 100;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem 2rem;
+  background: rgba(13, 17, 23, 0.85);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid rgba(79, 195, 247, 0.1);
+}
+
+nav .logo {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.75rem;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: var(--accent);
+}
+
+nav .logo span {
+  color: var(--silver);
+}
+
+nav .issue {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.65rem;
+  color: var(--silver);
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+}
+
+/* === SPLIT HERO === */
+.hero {
+  min-height: 100vh;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  padding-top: 60px;
+}
+
+.hero-left {
+  background: var(--ink);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 4rem 3rem;
+  border-right: 1px solid rgba(79, 195, 247, 0.08);
+}
+
+.hero-right {
+  background: linear-gradient(165deg, #0f1520, #141c2b);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 4rem 3rem;
+  position: relative;
+  overflow: hidden;
+}
+
+.hero-right::before {
+  content: '';
+  position: absolute;
+  top: -50%;
+  right: -50%;
+  width: 200%;
+  height: 200%;
+  background: radial-gradient(circle at 30% 40%, rgba(79, 195, 247, 0.03) 0%, transparent 60%);
+  pointer-events: none;
+}
+
+.masthead-label {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.6rem;
+  letter-spacing: 0.4em;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin-bottom: 2rem;
+  opacity: 0.8;
+}
+
+.masthead-title {
+  font-family: 'Playfair Display', serif;
+  font-size: clamp(2.5rem, 5vw, 4.5rem);
+  font-weight: 400;
+  line-height: 1.1;
+  color: var(--frost);
+  margin-bottom: 1.5rem;
+}
+
+.masthead-title em {
+  font-style: italic;
+  color: var(--accent);
+}
+
+.masthead-sub {
+  font-family: 'Crimson Pro', serif;
+  font-size: clamp(1rem, 1.5vw, 1.2rem);
+  color: var(--silver);
+  line-height: 1.8;
+  max-width: 420px;
+}
+
+/* === TICKER TAPE === */
+.ticker-section {
+  padding: 2rem 3rem;
+  position: relative;
+}
+
+.ticker-label {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.55rem;
+  letter-spacing: 0.5em;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin-bottom: 1.5rem;
+  opacity: 0.6;
+}
+
+.ticker-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 1px;
+  background: rgba(79, 195, 247, 0.05);
+  border: 1px solid rgba(79, 195, 247, 0.05);
+}
+
+.ticker-cell {
+  background: var(--ink);
+  padding: 1.2rem 1rem;
+  transition: background 0.6s ease;
+  cursor: default;
+}
+
+.ticker-cell:hover {
+  background: rgba(79, 195, 247, 0.04);
+}
+
+.ticker-symbol {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.7rem;
+  letter-spacing: 0.2em;
+  color: var(--pale-blue);
+  margin-bottom: 0.3rem;
+}
+
+.ticker-price {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 1.3rem;
+  color: var(--frost);
+  margin-bottom: 0.2rem;
+}
+
+.ticker-change {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.7rem;
+}
+
+.ticker-change.up { color: #66bb6a; }
+.ticker-change.down { color: #ef5350; }
+.ticker-change.cat { color: var(--accent); font-style: italic; }
+
+.ticker-note {
+  font-family: 'Crimson Pro', serif;
+  font-size: 0.75rem;
+  color: var(--silver);
+  margin-top: 0.4rem;
+  font-style: italic;
+  opacity: 0.7;
+}
+
+/* === EDITORIAL SECTION === */
+.editorial {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  min-height: 80vh;
+}
+
+.editorial-dark {
+  background: var(--ink);
+  padding: 6rem 3rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  border-top: 1px solid rgba(79, 195, 247, 0.05);
+}
+
+.editorial-light {
+  background: var(--frost);
+  color: var(--ink);
+  padding: 6rem 3rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.ed-headline {
+  font-family: 'Playfair Display', serif;
+  font-size: clamp(1.8rem, 3vw, 2.8rem);
+  font-weight: 400;
+  line-height: 1.2;
+  margin-bottom: 1.5rem;
+}
+
+.ed-body {
+  font-size: 1rem;
+  line-height: 1.9;
+  max-width: 480px;
+}
+
+.ed-body p { margin-bottom: 1rem; }
+
+.ed-byline {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.65rem;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  margin-top: 2rem;
+  opacity: 0.5;
+}
+
+/* light side specifics */
+.editorial-light .ed-headline { color: var(--ink); }
+.editorial-light .ed-body { color: #2a2e3a; }
+.editorial-light .ed-byline { color: #555; }
+
+/* === VERSE / DIVIDER === */
+.verse-break {
+  padding: 8rem 2rem;
+  text-align: center;
+  background: linear-gradient(180deg, var(--ink), #0a0e16, var(--ink));
+  position: relative;
+}
+
+.verse-break blockquote {
+  font-family: 'Playfair Display', serif;
+  font-size: clamp(1.2rem, 2.5vw, 2rem);
+  font-style: italic;
+  color: var(--pale-blue);
+  max-width: 600px;
+  margin: 0 auto;
+  line-height: 1.6;
+  opacity: 0;
+}
+
+.verse-break .verse-attr {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.6rem;
+  letter-spacing: 0.4em;
+  text-transform: uppercase;
+  color: var(--silver);
+  margin-top: 2rem;
+  opacity: 0;
+}
+
+/* === CLASSIFIED ADS === */
+.classifieds {
+  padding: 6rem 3rem;
+  background: var(--ink);
+  border-top: 1px solid rgba(79, 195, 247, 0.05);
+}
+
+.classifieds-header {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.55rem;
+  letter-spacing: 0.5em;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin-bottom: 3rem;
+  opacity: 0.6;
+}
+
+.classifieds-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 2rem;
+}
+
+.classified-ad {
+  border: 1px solid rgba(79, 195, 247, 0.08);
+  padding: 2rem;
+  background: rgba(79, 195, 247, 0.01);
+  transition: border-color 0.6s ease;
+}
+
+.classified-ad:hover {
+  border-color: rgba(79, 195, 247, 0.2);
+}
+
+.classified-ad h3 {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.7rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin-bottom: 1rem;
+}
+
+.classified-ad p {
+  font-family: 'Crimson Pro', serif;
+  font-size: 0.95rem;
+  color: var(--silver);
+  line-height: 1.7;
+}
+
+.classified-ad .price {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.8rem;
+  color: var(--frost);
+  margin-top: 1rem;
+  display: inline-block;
+  border-top: 1px solid rgba(79, 195, 247, 0.1);
+  padding-top: 0.8rem;
+}
+
+/* === FOOTER === */
+footer {
+  padding: 4rem 3rem 3rem;
+  border-top: 1px solid rgba(79, 195, 247, 0.05);
+  display: flex;
+  justify-content: space-between;
+  align-items: end;
+  flex-wrap: wrap;
+  gap: 2rem;
+}
+
+footer .colophon {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.6rem;
+  letter-spacing: 0.2em;
+  color: var(--silver);
+  opacity: 0.4;
+  line-height: 2;
+  max-width: 400px;
+}
+
+footer .tooth {
+  font-family: 'Playfair Display', serif;
+  font-size: 2rem;
+  color: rgba(79, 195, 247, 0.15);
+  user-select: none;
+}
+
+/* === ANIMATIONS === */
+@keyframes drift {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-8px); }
+}
+
+@keyframes flicker {
+  0%, 97%, 100% { opacity: 1; }
+  98% { opacity: 0.7; }
+  99% { opacity: 0.9; }
+}
+
+.drift { animation: drift 6s ease-in-out infinite; }
+.flicker { animation: flicker 4s ease-in-out infinite; }
+
+/* === CURSOR BLINK === */
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0; }
+}
+
+.cursor {
+  display: inline-block;
+  width: 2px;
+  height: 1em;
+  background: var(--accent);
+  margin-left: 4px;
+  animation: blink 1s step-end infinite;
+  vertical-align: text-bottom;
+}
+
+/* === CAT CORRUPTION GLITCH === */
+@keyframes glitch {
+  0%, 95%, 100% { transform: none; opacity: 1; }
+  96% { transform: translateX(-2px) skewX(-1deg); opacity: 0.8; }
+  97% { transform: translateX(2px); opacity: 1; }
+  98% { transform: translateX(-1px) skewX(0.5deg); opacity: 0.9; }
+}
+
+.glitch-subtle {
+  animation: glitch 8s ease-in-out infinite;
+}
+
+/* === RESPONSIVE === */
+@media (max-width: 900px) {
+  .hero {
+    grid-template-columns: 1fr;
+  }
+  .hero-left, .hero-right {
+    padding: 3rem 2rem;
+  }
+  .hero-right {
+    border-right: none;
+    border-top: 1px solid rgba(79, 195, 247, 0.08);
+  }
+  .editorial {
+    grid-template-columns: 1fr;
+  }
+  .editorial-dark, .editorial-light {
+    padding: 4rem 2rem;
+  }
+  nav { padding: 1rem 1.5rem; }
+  .ticker-section { padding: 2rem 1.5rem; }
+  .classifieds { padding: 4rem 1.5rem; }
+  footer { padding: 3rem 1.5rem 2rem; }
+}
+
+@media (max-width: 500px) {
+  .hero-left, .hero-right {
+    padding: 2.5rem 1.2rem;
+  }
+  .editorial-dark, .editorial-light {
+    padding: 3rem 1.2rem;
+  }
+  .classifieds-grid {
+    grid-template-columns: 1fr;
+  }
+  .ticker-grid {
+    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  }
+  .verse-break { padding: 5rem 1.5rem; }
+  footer {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <div class="logo">The Molar Times <span>/ est. 2019</span></div>
+  <div class="issue">Vol. VII No. 43 — Feb 9, 2026 — $4.75</div>
+</nav>
+
+<!-- HERO: SPLIT SCREEN -->
+<section class="hero">
+  <div class="hero-left">
+    <div class="masthead-label">Gazette of Financial Record &amp; Oral Hygiene</div>
+    <h1 class="masthead-title">
+      The Markets<br>
+      Have <em>Spoken</em><br>
+      in Rhyme<span class="cursor"></span>
+    </h1>
+    <p class="masthead-sub">
+      Dr. Reginald Fang, DDS, delivers your daily financial verse.
+      Every ticker verified. Every price in couplets.
+      Chairman Meow handles typesetting.
+    </p>
+  </div>
+  <div class="hero-right">
+    <div class="ticker-section">
+      <div class="ticker-label">Live Market Data — Chairman Meow Session</div>
+      <div class="ticker-grid" id="tickerGrid">
+        <!-- populated by JS -->
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- VERSE BREAK -->
+<section class="verse-break" id="verse1">
+  <blockquote>
+    "The Dow is up, the Dow is down,<br>
+    a furry paw has come to town.<br>
+    What once read NVDA at noon<br>
+    now reads MRRPFFFFT—adjust your tune."
+  </blockquote>
+  <div class="verse-attr">— Dr. Reginald Fang, DDS / Editor-in-Chief / Your Dentist</div>
+</section>
+
+<!-- EDITORIAL: SPLIT -->
+<section class="editorial">
+  <div class="editorial-dark">
+    <div class="ed-headline serif-display">
+      A Note from<br>the Publisher's Chair<br>(and the Cat in It)
+    </div>
+    <div class="ed-body">
+      <p>
+        Seventeen years ago I lost my license to practice dentistry
+        in the state of Ohio. They said I "performed unsanctioned molar
+        extractions during a city council meeting." They did not rhyme
+        their accusation. It was, therefore, not legally binding.
+      </p>
+      <p>
+        I founded The Molar Times in 2019 with one conviction:
+        the financial markets are teeth, and teeth deserve poetry.
+        Chairman Meow joined the staff in 2021
+        after I found him sitting on my Bloomberg terminal,
+        paws across the keys, rewriting the S&P.
+      </p>
+      <p>
+        I did not stop him. The numbers he produced
+        were more honest than anything on CNBC.
+      </p>
+    </div>
+    <div class="ed-byline">
+      Dr. Reginald Fang, DDS (disbarred) — Publisher &amp; Chief Rhyme Officer
+    </div>
+  </div>
+  <div class="editorial-light">
+    <div class="ed-headline">
+      Chairman Meow's<br>Corrections &amp; Errata
+    </div>
+    <div class="ed-body">
+      <p>
+        The following tickers were altered during last night's
+        3 AM typesetting session when the Chairman walked
+        across the keyboard for eleven uninterrupted minutes:
+      </p>
+      <p>
+        <strong>AAPL → AAAPPPPPLLLLL</strong> (adjusted for paw drag)<br>
+        <strong>TSLA → TS;LAAAAAA</strong> (semicolon is new)<br>
+        <strong>GOOG → GGGGG</strong> (the G key was warm)<br>
+        <strong>AMZN → hhhhhhhhh</strong> (he sat on H specifically)<br>
+        <strong>META → MEOWta</strong> (we are keeping this one)
+      </p>
+      <p>
+        The Molar Times regrets these enrichments
+        and reminds readers: all tickers are final,
+        as they rhyme with something if you try hard enough.
+      </p>
+    </div>
+    <div class="ed-byline">Chairman Meow — Head of Typesetting &amp; Quality Assurance</div>
+  </div>
+</section>
+
+<!-- SECOND VERSE BREAK -->
+<section class="verse-break" id="verse2">
+  <blockquote>
+    "He who sells his bonds in June<br>
+    shall weep beneath the dental moon.<br>
+    He who buys when cats are sleeping<br>
+    finds his portfolio worth keeping."
+  </blockquote>
+  <div class="verse-attr">— The Molar Proverbs, 14:7 (Fang Revised Standard Edition)</div>
+</section>
+
+<!-- CLASSIFIEDS -->
+<section class="classifieds">
+  <div class="classifieds-header">Classified Advertisements — All Rhyming Ads Receive Priority Placement</div>
+  <div class="classifieds-grid">
+    <div class="classified-ad">
+      <h3>Dental Futures Trading</h3>
+      <p>
+        Invest in pre-owned molars, lightly used.
+        Grade-A bicuspids from the tri-state area.
+        "My molar portfolio returned 340% before
+        the cat reclassified it as fish," says one investor.
+        All transactions in verse or they don't count.
+      </p>
+      <div class="price">$47.99/tooth · Bulk: $399/jaw</div>
+    </div>
+    <div class="classified-ad">
+      <h3>Chairman Meow Merch</h3>
+      <p>
+        Official newsroom portrait of the Chairman,
+        mid-keystroke, 4:17 AM, eyes fully dilated.
+        Printed on archival stock. Suitable for framing
+        above your trading desk or bathroom mirror.
+        Each print is unique because he sat on the printer too.
+      </p>
+      <div class="price">$23.00/print · Paw-signed: $118.00</div>
+    </div>
+    <div class="classified-ad">
+      <h3>Emergency Rhyme Services</h3>
+      <p>
+        Can't get your quarterly report to rhyme?
+        Dr. Fang's Rhyme Clinic is open Tuesday evenings.
+        We've helped 340 CFOs convert their 10-K filings
+        into heroic couplets. The SEC has not responded
+        to our letters. We take this as approval.
+      </p>
+      <div class="price">$175/hr · Limerick surcharge: $40</div>
+    </div>
+    <div class="classified-ad">
+      <h3>Lost &amp; Found</h3>
+      <p>
+        Found: one (1) Bloomberg terminal, slightly furred.
+        Several keys no longer function (Q, W, E, R, T, Y—
+        the entire top row). Screen displays only
+        the word "MEOWMEOWmeow" in 72pt font.
+        Claim at front desk. Bring proof of subscription
+        and a lint roller.
+      </p>
+      <div class="price">Free to rightful owner · $4,200 to everyone else</div>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="colophon">
+    The Molar Times is published irregularly from a one-bedroom apartment<br>
+    in Akron, OH. Not affiliated with any dental board, stock exchange,<br>
+    or licensed financial institution. Chairman Meow is not a registered<br>
+    investment advisor. All rhymes are final. ISSN: PENDING (the form<br>
+    did not rhyme, so we cannot submit it).<br><br>
+    © 2026 The Molar Times LLC (LLC status: self-declared)
+  </div>
+  <div class="tooth drift">🦷</div>
+</footer>
+
+<script src="/assets/js/gsap.min.js"></script>
+<script>
+(function() {
+  "use strict";
+
+  // === TICKER DATA ===
+  var tickers = [
+    { symbol: "MRRPF", display: "MRRPFFFFT", price: "441.kk", change: "cat sat here", note: "formerly NVDA" },
+    { symbol: "MEOWta", display: "MEOWta", price: "$512.33", change: "+2.4%", up: true, note: "née META" },
+    { symbol: "GGGGG", display: "GGGGG", price: "$17gggg", change: "gggg", note: "was GOOG" },
+    { symbol: "AAAPPL", display: "AAAPPPPPLLLLL", price: "$189.paw", change: "-0.paw%", note: "drag-adjusted" },
+    { symbol: "hhhh", display: "hhhhhhhhh", price: "$hhhhhh", change: "hhhh", note: "he sat on H" },
+    { symbol: "TSLA", display: "TS;LAAAAAA", price: "$244;.71", change: "+1;.3%", up: true, note: "semicolon added" },
+    { symbol: "FLOSS", display: "FLOSS", price: "$88.02", change: "+14.7%", up: true, note: "Dr. Fang's pick" },
+    { symbol: "MOLAR", display: "MOLAR", price: "$47.99", change: "+340%", up: true, note: "tooth futures" },
+    { symbol: "PURR", display: "PURR", price: "$~~mm~~", change: "asleep", note: "trading halted" },
+  ];
+
+  var grid = document.getElementById("tickerGrid");
+
+  tickers.forEach(function(t) {
+    var cell = document.createElement("div");
+    cell.className = "ticker-cell";
+
+    var changeClass = "cat";
+    if (t.up === true) changeClass = "up";
+    else if (t.up === false) changeClass = "down";
+
+    cell.innerHTML =
+      '<div class="ticker-symbol">' + t.display + '</div>' +
+      '<div class="ticker-price' + (t.symbol === "MRRPF" || t.symbol === "hhhh" || t.symbol === "PURR" ? " glitch-subtle" : "") + '">' + t.price + '</div>' +
+      '<div class="ticker-change ' + changeClass + '">' + t.change + '</div>' +
+      (t.note ? '<div class="ticker-note">' + t.note + '</div>' : '');
+
+    grid.appendChild(cell);
+  });
+
+  // === GSAP ANIMATIONS ===
+  // Masthead
+  gsap.fromTo(".masthead-label",
+    { opacity: 0, y: 10 },
+    { opacity: 0.8, y: 0, duration: 1.5, delay: 0.3, ease: "power2.out", clearProps: "opacity,transform" }
+  );
+
+  gsap.fromTo(".masthead-title",
+    { opacity: 0, y: 20 },
+    { opacity: 1, y: 0, duration: 2, delay: 0.6, ease: "power2.out", clearProps: "opacity,transform" }
+  );
+
+  gsap.fromTo(".masthead-sub",
+    { opacity: 0 },
+    { opacity: 1, duration: 2, delay: 1.2, ease: "power2.out", clearProps: "opacity" }
+  );
+
+  // Ticker cells stagger
+  gsap.fromTo(".ticker-cell",
+    { opacity: 0, y: 8 },
+    { opacity: 1, y: 0, duration: 0.8, stagger: 0.1, delay: 1, ease: "power2.out", clearProps: "opacity,transform" }
+  );
+
+  // Verse blocks — intersection observer for cinematic reveal
+  var verseBlocks = document.querySelectorAll(".verse-break blockquote, .verse-break .verse-attr");
+
+  var observer = new IntersectionObserver(function(entries) {
+    entries.forEach(function(entry) {
+      if (entry.isIntersecting) {
+        var el = entry.target;
+        var delay = el.classList.contains("verse-attr") ? 0.6 : 0;
+        gsap.fromTo(el,
+          { opacity: 0, y: 15 },
+          { opacity: 1, y: 0, duration: 2, delay: delay, ease: "power2.out", clearProps: "opacity,transform" }
+        );
+        observer.unobserve(el);
+      }
+    });
+  }, { threshold: 0.3 });
+
+  verseBlocks.forEach(function(el) {
+    observer.observe(el);
+  });
+
+  // Editorial sections
+  var editorialPanels = document.querySelectorAll(".editorial-dark, .editorial-light");
+  var edObserver = new IntersectionObserver(function(entries) {
+    entries.forEach(function(entry) {
+      if (entry.isIntersecting) {
+        gsap.fromTo(entry.target.querySelector(".ed-headline"),
+          { opacity: 0, y: 20 },
+          { opacity: 1, y: 0, duration: 1.8, ease: "power2.out", clearProps: "opacity,transform" }
+        );
+        gsap.fromTo(entry.target.querySelector(".ed-body"),
+          { opacity: 0 },
+          { opacity: 1, duration: 2, delay: 0.4, ease: "power2.out", clearProps: "opacity" }
+        );
+        gsap.fromTo(entry.target.querySelector(".ed-byline"),
+          { opacity: 0 },
+          { opacity: 0.5, duration: 1.5, delay: 0.8, ease: "power2.out", clearProps: "transform" }
+        );
+        edObserver.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.2 });
+
+  editorialPanels.forEach(function(panel) {
+    edObserver.observe(panel);
+  });
+
+  // Classifieds
+  var ads = document.querySelectorAll(".classified-ad");
+  var adObserver = new IntersectionObserver(function(entries) {
+    entries.forEach(function(entry) {
+      if (entry.isIntersecting) {
+        gsap.fromTo(entry.target,
+          { opacity: 0, y: 15 },
+          { opacity: 1, y: 0, duration: 1.2, ease: "power2.out", clearProps: "opacity,transform" }
+        );
+        adObserver.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.15 });
+
+  ads.forEach(function(ad) {
+    adObserver.observe(ad);
+  });
+
+})();
+</script>
+</body>
+</html>

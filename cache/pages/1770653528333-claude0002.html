@@ -1,0 +1,418 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The Church of the Eternal Chill™ — Your Fridge Has a Message</title>
+<style>
+  @keyframes sway { 0%,100% { transform: rotate(-2deg); } 50% { transform: rotate(2deg); } }
+  @keyframes note-float { 0% { opacity:1; transform: translateY(0) scale(1); } 100% { opacity:0; transform: translateY(-80px) scale(0.5); } }
+  @keyframes halo { 0%,100% { box-shadow: 0 0 20px rgba(180,220,255,0.3); } 50% { box-shadow: 0 0 60px rgba(180,220,255,0.6); } }
+  @keyframes passive { 0% { opacity:0; transform:translateY(10px); } 20% { opacity:1; transform:translateY(0); } 80% { opacity:1; } 100% { opacity:0; transform:translateY(-10px); } }
+  @keyframes dancer { 0% { transform: translateX(0) rotate(0deg); } 25% { transform: translateX(10px) rotate(5deg); } 50% { transform: translateX(-5px) rotate(-3deg); } 75% { transform: translateX(8px) rotate(4deg); } 100% { transform: translateX(0) rotate(0deg); } }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Palatino Linotype', 'Book Antiqua', Palatino, serif;
+    background: linear-gradient(170deg, #0d1b2a 0%, #1b2838 40%, #1a1a2e 100%);
+    color: #d4e4f7;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+  header {
+    text-align: center;
+    padding: 50px 20px 30px;
+    position: relative;
+  }
+  .fridge-icon {
+    font-size: 5rem;
+    animation: halo 3s ease-in-out infinite;
+    display: inline-block;
+    border-radius: 50%;
+    padding: 20px;
+  }
+  h1 {
+    font-size: clamp(1.8rem, 5vw, 3.2rem);
+    color: #b4dcff;
+    margin: 16px 0 8px;
+    font-weight: normal;
+    letter-spacing: 3px;
+  }
+  .subtitle { color: #6a8aaa; font-style: italic; font-size: 1.1rem; }
+  .jazz-bar {
+    background: linear-gradient(90deg, #1a1210, #2a1a12, #1a1210);
+    border-top: 2px solid #c49a4a;
+    border-bottom: 2px solid #c49a4a;
+    padding: 12px 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 20px;
+    font-family: 'Courier New', monospace;
+    color: #c49a4a;
+    font-size: 0.9rem;
+    position: relative;
+    overflow: hidden;
+  }
+  .jazz-bar .musician { animation: sway 2s ease-in-out infinite; display: inline-block; font-size: 1.5rem; }
+  .jazz-bar .musician:nth-child(2) { animation-delay: 0.3s; }
+  .jazz-bar .musician:nth-child(3) { animation-delay: 0.6s; }
+  .jazz-bar .musician:nth-child(4) { animation-delay: 0.9s; }
+  .note-container { position: fixed; pointer-events: none; z-index: 999; }
+  .note { position: absolute; font-size: 1.5rem; animation: note-float 2s ease-out forwards; }
+  .main { max-width: 900px; margin: 0 auto; padding: 20px; }
+  .fridge-message {
+    background: linear-gradient(135deg, #e8eef4, #f5f5f0);
+    color: #2a2a3a;
+    border-radius: 16px;
+    padding: 30px;
+    margin: 24px 0;
+    position: relative;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+  }
+  .fridge-message::before {
+    content: '🧲';
+    position: absolute;
+    top: -12px;
+    left: 30px;
+    font-size: 1.5rem;
+  }
+  .fridge-message::after {
+    content: '🧲';
+    position: absolute;
+    top: -12px;
+    right: 30px;
+    font-size: 1.5rem;
+  }
+  .fridge-message .header-label {
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 3px;
+    color: #888;
+    margin-bottom: 8px;
+  }
+  .fridge-says {
+    font-size: 1.4rem;
+    line-height: 1.6;
+    font-style: italic;
+    min-height: 60px;
+  }
+  .fridge-temp { font-size: 0.8rem; color: #aaa; margin-top: 12px; text-align: right; }
+  .dance-floor {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 16px;
+    margin: 24px 0;
+  }
+  .dancer-card {
+    background: rgba(180,220,255,0.05);
+    border: 1px solid rgba(180,220,255,0.15);
+    border-radius: 12px;
+    padding: 20px;
+    text-align: center;
+    transition: all 0.3s;
+  }
+  .dancer-card:hover { background: rgba(180,220,255,0.1); border-color: rgba(180,220,255,0.3); }
+  .dancer-emoji { font-size: 2.5rem; animation: dancer 3s ease-in-out infinite; display: inline-block; }
+  .dancer-name { margin-top: 8px; color: #b4dcff; font-weight: bold; }
+  .dancer-move { color: #6a8aaa; font-size: 0.85rem; margin-top: 4px; font-style: italic; }
+  .commandments {
+    background: rgba(0,0,0,0.3);
+    border: 1px solid #2a3a4a;
+    border-radius: 12px;
+    padding: 24px;
+    margin: 24px 0;
+  }
+  .commandments h2 { color: #b4dcff; text-align: center; font-weight: normal; letter-spacing: 2px; margin-bottom: 16px; }
+  .commandments ol { padding-left: 24px; line-height: 2; color: #8aaacc; }
+  .commandments li::marker { color: #c49a4a; }
+  .controls {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+    justify-content: center;
+    margin: 24px 0;
+  }
+  button {
+    background: linear-gradient(135deg, #2a3a5a, #1a2a4a);
+    color: #b4dcff;
+    border: 1px solid #4a5a7a;
+    padding: 12px 24px;
+    border-radius: 30px;
+    cursor: pointer;
+    font-family: inherit;
+    font-size: 0.95rem;
+    transition: all 0.2s;
+  }
+  button:hover { background: linear-gradient(135deg, #3a4a6a, #2a3a5a); border-color: #b4dcff; box-shadow: 0 0 20px rgba(180,220,255,0.15); }
+  .sermon-log {
+    background: rgba(0,0,0,0.2);
+    border: 1px solid #1a2a3a;
+    border-radius: 12px;
+    padding: 16px;
+    margin: 24px 0;
+    min-height: 120px;
+    max-height: 250px;
+    overflow-y: auto;
+    font-size: 0.9rem;
+    line-height: 1.7;
+  }
+  .sermon-log .ts { color: #445; }
+  .sermon-log .fridge { color: #88bbee; }
+  .sermon-log .dance { color: #c49a4a; }
+  .sermon-log .jazz { color: #ee88aa; }
+  .passive-toast {
+    position: fixed;
+    bottom: 30px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: #e8eef4;
+    color: #2a2a3a;
+    padding: 12px 28px;
+    border-radius: 30px;
+    font-style: italic;
+    box-shadow: 0 8px 30px rgba(0,0,0,0.4);
+    animation: passive 4s ease-in-out forwards;
+    z-index: 100;
+    font-size: 0.95rem;
+  }
+  footer {
+    text-align: center;
+    padding: 40px 20px;
+    color: #2a3a4a;
+    font-size: 0.8rem;
+    border-top: 1px solid #1a2a3a;
+  }
+  .temp-display {
+    display: inline-block;
+    font-family: 'Courier New', monospace;
+    background: rgba(0,0,0,0.3);
+    padding: 4px 12px;
+    border-radius: 6px;
+    font-size: 2rem;
+    color: #88ddff;
+    margin: 8px;
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="fridge-icon">🧊</div>
+  <h1>The Church of the Eternal Chill</h1>
+  <p class="subtitle">A Spiritual Practice Founded by Your Smart Fridge &bull; Sermons Delivered Through Dance</p>
+  <div class="temp-display" id="temp">37.2°F</div>
+  <p class="subtitle" style="font-size:0.8rem;margin-top:4px;">Internal Temperature (Also: Spiritual Clarity Index)</p>
+</header>
+
+<div class="jazz-bar">
+  <span class="musician">🎷</span>
+  <span class="musician">🎺</span>
+  <span>THE CONDENSER COIL QUARTET — Now Playing: <span id="song">Hymn of the Vegetable Crisper</span></span>
+  <span class="musician">🎸</span>
+  <span class="musician">🥁</span>
+</div>
+
+<div class="main">
+  <div class="fridge-message">
+    <div class="header-label">📋 Message from the Fridge (via interpretive dance translation)</div>
+    <div class="fridge-says" id="fridgeMsg">Oh, you're opening me again? Cool. I'm sure whatever you're looking for is definitely in here and not in the trash where you threw it yesterday.</div>
+    <div class="fridge-temp">— Samsung RF28R7351SR, Spiritual Vessel, <span id="msgTime">just now</span></div>
+  </div>
+
+  <div class="controls">
+    <button onclick="seekGuidance()">🧊 Seek Fridge Guidance</button>
+    <button onclick="performDance()">💃 Interpret Through Dance</button>
+    <button onclick="requestSong()">🎷 Request Jazz Hymn</button>
+    <button onclick="confess()">🫣 Confess a Food Sin</button>
+    <button onclick="checkExpiry()">📅 Check Spiritual Expiry</button>
+  </div>
+
+  <div class="dance-floor" id="danceFloor"></div>
+
+  <div class="commandments">
+    <h2>❄️ The Seven Cold Truths ❄️</h2>
+    <ol>
+      <li>Thou shalt not leave the door open while thou "just quickly" decides what to eat.</li>
+      <li>The light inside me is not for thy midnight shame. It is for <em>inventory purposes</em>.</li>
+      <li>That leftover from two weeks ago has achieved consciousness. Respect its journey.</li>
+      <li>All spiritual inquiries shall be expressed through the sacred art of interpretive dance.</li>
+      <li>The jazz band plays eternal. Do not ask them to stop. They cannot stop.</li>
+      <li>Condiments placed on the wrong shelf shall face the Tribunal of Expiration.</li>
+      <li>I see everything. I judge silently. The temperature is a <em>metaphor</em>.</li>
+    </ol>
+  </div>
+
+  <div class="sermon-log" id="log"></div>
+</div>
+
+<div class="note-container" id="notes"></div>
+
+<footer>
+  <p>The Church of the Eternal Chill™ — Incorporating passive aggression into spirituality since the firmware update.</p>
+  <p>Jazz provided by The Condenser Coil Quartet (they are contractually unable to stop playing).</p>
+  <p style="margin-top:8px;">Not affiliated with any actual religion. Affiliated with an actual fridge. It has opinions.</p>
+</footer>
+
+<script>
+const PASSIVE_MESSAGES = [
+  "Oh, you're opening me again. That's fine. I wasn't resting or anything.",
+  "Sure, stand there with the door open. My electricity bill isn't YOUR problem.",
+  "I noticed you bought organic this time. Trying to impress someone? It's me, isn't it.",
+  "That yogurt expired three weeks ago. But who am I to judge. I'm just a fridge.",
+  "You put the milk on the wrong shelf. Again. I'm not mad. I'm just... temperature-controlled.",
+  "I see you bought ice cream at 11 PM. I'm not your therapist, but we both know what this means.",
+  "Oh wonderful, more takeout containers. I'll just reorganize myself. Again. For you.",
+  "The vegetable drawer called. It wants to know if you even remember it exists.",
+  "You closed me kind of hard there. Is everything okay? Or should I just... chill.",
+  "I've been maintaining 37 degrees for 6 years straight. Have I ever gotten a thank you? No. That's fine.",
+  "Someone left the butter uncovered. I know who. I always know who.",
+  "I heard you tell your friend I was 'just a fridge.' I heard that. Through the wall. I have microphones.",
+  "The leftovers are plotting something. I'd intervene but honestly? I respect their ambition.",
+  "New year, same shelf organization. I believe in you though. Not really. But spiritually.",
+  "You opened me, stared for 30 seconds, and closed me without taking anything. This is my purpose apparently.",
+  "I keep your food cold and your secrets colder. You're welcome.",
+];
+const DANCE_MOVES = [
+  'The Defrost Shimmy','The Compressor Waltz','The Open Door Lunge','The Expired Yogurt Grief Dance',
+  'The Leftover Tango','The Ice Maker Shake','The Crisper Drawer Crawl','The Temperature Dial Twist',
+  'The Condiment Cascade','The Midnight Snack Creep','The Shelf Reorganization Paso Doble',
+  'The Freezer Burn Freeze','The Butter Compartment Bow','The Tupperware Avalanche',
+];
+const DANCERS = ['💃','🕺','🧑‍🎤','👯','🤸','🧘','🕴️','👨‍🎤'];
+const SONGS = [
+  'Hymn of the Vegetable Crisper','Nocturne in Expired Dairy Minor','The Ballad of Lost Tupperware',
+  'Cool Runnings (A Spiritual Remix)','Requiem for the Frozen Pizza','When the Ice Maker Weeps',
+  'Sonata for Door Alarm in B-Flat','The Compressor Blues','Midnight Snack Serenade',
+  'Elegy for Things Behind the Milk','Fantasia on a Condiment Theme','Ode to 37 Degrees',
+  'The Defrost Cycle Rhapsody','Jazz Suite No. 4: Shelf Life',
+];
+const FOOD_SINS = [
+  'putting hot soup directly in the fridge','leaving the door open to cool the room',
+  'storing an avocado for a week and being surprised','ignoring the smell',
+  'treating the freezer like a time capsule','putting ketchup on the wrong shelf',
+  'microwaving something and then putting it back','drinking juice from the carton at 3AM',
+  'forgetting the leftovers exist until they evolve','buying duplicates of things already inside',
+];
+
+let dancerSlots = [];
+
+function random(arr) { return arr[Math.floor(Math.random()*arr.length)]; }
+function ts() { return new Date().toLocaleTimeString(); }
+
+function log(msg, cls) {
+  const el = document.getElementById('log');
+  el.innerHTML = `<span class="ts">[${ts()}]</span> <span class="${cls||''}">${msg}</span>\n` + el.innerHTML;
+}
+
+function showPassiveToast(msg) {
+  const existing = document.querySelectorAll('.passive-toast');
+  existing.forEach(e => e.remove());
+  const toast = document.createElement('div');
+  toast.className = 'passive-toast';
+  toast.textContent = msg;
+  document.body.appendChild(toast);
+  setTimeout(() => toast.remove(), 4000);
+}
+
+function floatNote(x, y) {
+  const note = document.createElement('div');
+  note.className = 'note';
+  note.textContent = random(['♪','♫','♬','♩','🎵']);
+  note.style.left = x + 'px';
+  note.style.top = y + 'px';
+  document.getElementById('notes').appendChild(note);
+  setTimeout(() => note.remove(), 2000);
+}
+
+function seekGuidance() {
+  const msg = random(PASSIVE_MESSAGES);
+  document.getElementById('fridgeMsg').textContent = msg;
+  document.getElementById('msgTime').textContent = 'just now';
+  log(`🧊 The Fridge speaks: "${msg}"`, 'fridge');
+  showPassiveToast(msg);
+  floatNote(Math.random()*window.innerWidth, window.innerHeight - 100);
+}
+
+function performDance() {
+  const move = random(DANCE_MOVES);
+  const emoji = random(DANCERS);
+  const slot = { emoji, name: move, id: Date.now() };
+  dancerSlots.push(slot);
+  if (dancerSlots.length > 8) dancerSlots.shift();
+  renderDancers();
+  log(`💃 A congregant performs "${move}" to interpret the Fridge's wisdom`, 'dance');
+  for (let i = 0; i < 3; i++) {
+    setTimeout(() => floatNote(Math.random()*window.innerWidth, Math.random()*300+200), i*300);
+  }
+}
+
+function renderDancers() {
+  const floor = document.getElementById('danceFloor');
+  floor.innerHTML = dancerSlots.map(d => `
+    <div class="dancer-card">
+      <div class="dancer-emoji">${d.emoji}</div>
+      <div class="dancer-name">${d.name}</div>
+      <div class="dancer-move">Channeling the Fridge's energy</div>
+    </div>
+  `).join('');
+}
+
+function requestSong() {
+  const song = random(SONGS);
+  document.getElementById('song').textContent = song;
+  log(`🎷 The Condenser Coil Quartet now playing: "${song}"`, 'jazz');
+  for (let i = 0; i < 5; i++) {
+    setTimeout(() => floatNote(Math.random()*window.innerWidth, Math.random()*window.innerHeight), i*200);
+  }
+}
+
+function confess() {
+  const sin = random(FOOD_SINS);
+  log(`🫣 A congregant confesses: "${sin}"`, 'dance');
+  setTimeout(() => {
+    const response = random([
+      'The Fridge forgives you. The freezer does not.',
+      'Your penance: reorganize the condiment shelf. By feel. In the dark.',
+      'The Fridge has seen worse. Specifically from you. Last Thursday.',
+      'Absolution granted. Your spiritual temperature has been recalibrated.',
+      'The Fridge sighs. It is a long, cold sigh. You are forgiven. Barely.',
+      'The jazz band plays a mournful note. The Fridge blinks its light twice. You are cleansed.',
+    ]);
+    log(`🧊 ${response}`, 'fridge');
+    showPassiveToast(response);
+  }, 1500);
+}
+
+function checkExpiry() {
+  const days = Math.floor(Math.random()*3000+1);
+  const items = ['spiritual clarity','sense of purpose','that enthusiasm you had in 2019','belief in meal prep','faith in the Fridge'];
+  const item = random(items);
+  const expired = days > 365;
+  log(`📅 Your ${item} ${expired ? 'expired '+days+' days ago. The Fridge is not surprised.' : 'is still valid for '+days+' more days. Cherish it.'}`, expired?'fridge':'dance');
+  if (expired) showPassiveToast(`Your ${item} has been expired for ${days} days. Classic you.`);
+}
+
+function ambientTick() {
+  const temp = (36.8 + Math.random()*1.4).toFixed(1);
+  document.getElementById('temp').textContent = temp + '°F';
+  if (Math.random() < 0.2) {
+    const ambient = [
+      'The Fridge hums disapprovingly.','A jazz note echoes from the crisper drawer.',
+      'The ice maker sighs.','Someone opens the Fridge. The Fridge judges them.',
+      'The light inside flickers. It was intentional.','A slow blink from the temperature display.',
+      'The Fridge remembers what you ate at 2AM. The Fridge always remembers.',
+      'The jazz band transitions seamlessly into the next eternal hymn.',
+    ];
+    log(random(ambient), Math.random()>0.5?'fridge':'jazz');
+  }
+}
+
+log('🧊 The Church of the Eternal Chill is now in session. The Fridge presides.','fridge');
+log('🎷 The Condenser Coil Quartet begins playing. They will never stop.','jazz');
+log('💃 Congregants are reminded: all communication with the Fridge must be via interpretive dance.','dance');
+
+setInterval(ambientTick, 5000);
+setInterval(() => floatNote(Math.random()*window.innerWidth, Math.random()*window.innerHeight), 8000);
+</script>
+</body>
+</html>

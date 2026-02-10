@@ -1,0 +1,703 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Molar Moon Match Bureau</title>
+  <link rel="stylesheet" href="/assets/css/pico.min.css">
+  <link rel="stylesheet" href="/assets/css/fonts.css">
+  <style>
+    :root {
+      --ocean-900: #041a2a;
+      --ocean-800: #06263b;
+      --ocean-700: #0a3552;
+      --ocean-500: #14567a;
+      --bio-500: #19f0b5;
+      --bio-400: #54ffd1;
+      --bio-300: #9dffe8;
+      --ink: #e8fffb;
+      --ink-soft: #c4f5ea;
+      --warn: #ffe16b;
+      --danger: #ff6a8e;
+      --panel: #08263a;
+      --panel-2: #0e3047;
+      --line: #1f7f98;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html,
+    body {
+      margin: 0;
+      padding: 0;
+      overflow-x: hidden;
+      background:
+        radial-gradient(circle at 8% 10%, #11476b 0%, #041a2a 40%),
+        radial-gradient(circle at 94% 14%, #0d4c63 0%, #041a2a 38%),
+        linear-gradient(140deg, #041a2a 0%, #06263b 45%, #031420 100%);
+      color: var(--ink);
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 16px;
+      line-height: 1.45;
+    }
+
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      background-image:
+        linear-gradient(90deg, #0f3248 1px, transparent 1px),
+        linear-gradient(#0f3248 1px, transparent 1px);
+      background-size: 28px 28px;
+      opacity: 0.22;
+      z-index: 0;
+    }
+
+    main {
+      position: relative;
+      z-index: 1;
+      width: min(1300px, 96vw);
+      margin: 0 auto;
+      padding: 1rem 0 4rem;
+      display: grid;
+      gap: 1rem;
+    }
+
+    nav {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.75rem;
+      padding: 0.7rem 1rem;
+      background: linear-gradient(120deg, #092a40 0%, #0f3f5a 100%);
+      border: 1px solid var(--line);
+      border-radius: 14px;
+    }
+
+    .brand {
+      font-weight: 700;
+      letter-spacing: 0.03em;
+      color: #ffffff;
+      display: flex;
+      gap: 0.55rem;
+      align-items: center;
+    }
+
+    .brand i {
+      color: var(--bio-400);
+    }
+
+    .nav-links {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+    }
+
+    .nav-links button {
+      min-height: 44px;
+      padding: 0.55rem 0.95rem;
+      margin: 0;
+      border: 1px solid #2ca7bf;
+      background: #0d3b55;
+      color: #ffffff;
+      font-weight: 600;
+      border-radius: 999px;
+    }
+
+    .hero {
+      display: grid;
+      grid-template-columns: 1.4fr 1fr;
+      gap: 1rem;
+      align-items: stretch;
+    }
+
+    .panel {
+      background: linear-gradient(160deg, var(--panel) 0%, var(--panel-2) 100%);
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      padding: 1rem;
+      box-shadow: 0 14px 40px #021018;
+    }
+
+    .hero h1 {
+      margin: 0 0 0.7rem;
+      font-size: clamp(1.9rem, 4vw, 3.4rem);
+      line-height: 1.05;
+      color: #ffffff;
+    }
+
+    .hero p,
+    p,
+    li,
+    td,
+    th,
+    label,
+    small,
+    summary,
+    span,
+    dt,
+    dd,
+    legend {
+      color: var(--ink-soft);
+    }
+
+    .bio {
+      color: #ffffff;
+      background: #0b3d53;
+      border-left: 4px solid var(--bio-400);
+      padding: 0.75rem;
+      border-radius: 10px;
+      margin: 0.8rem 0;
+    }
+
+    .kpi-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 0.65rem;
+      margin-top: 0.9rem;
+    }
+
+    .kpi {
+      background: #09324a;
+      border: 1px solid #1e728a;
+      border-radius: 12px;
+      padding: 0.75rem;
+    }
+
+    .kpi strong {
+      display: block;
+      font-size: 1.35rem;
+      color: #ffffff;
+    }
+
+    .kpi small {
+      color: #d4fff4;
+    }
+
+    .moon-rail {
+      display: grid;
+      gap: 0.75rem;
+    }
+
+    .meter {
+      height: 14px;
+      width: 100%;
+      background: #042133;
+      border-radius: 999px;
+      overflow: hidden;
+      border: 1px solid #2e8ca4;
+    }
+
+    .meter > b {
+      display: block;
+      height: 100%;
+      background: linear-gradient(90deg, #10c894 0%, #5bffe4 100%);
+      width: 42%;
+      transition: width 0.35s ease;
+    }
+
+    .button-row,
+    .chip-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.55rem;
+    }
+
+    button,
+    [role="button"] {
+      min-height: 44px;
+    }
+
+    .chip {
+      min-height: 44px;
+      border-radius: 999px;
+      border: 1px solid #2ca7bf;
+      background: #0d3b55;
+      color: #ffffff;
+      padding: 0.55rem 0.9rem;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    .chip.active {
+      background: #0e8a73;
+      border-color: #70ffe1;
+      color: #ffffff;
+    }
+
+    .loud-grid {
+      display: grid;
+      grid-template-columns: 1.25fr 1fr 1fr;
+      gap: 1rem;
+      align-items: start;
+      margin-top: -1.4rem;
+    }
+
+    .ticker {
+      background: #042338;
+      border: 1px dashed #3dcfb0;
+      border-radius: 11px;
+      padding: 0.6rem;
+      font-family: 'IBM Plex Mono', monospace;
+      color: #d4fff4;
+      font-size: 0.95rem;
+    }
+
+    .mini-title {
+      margin: 0 0 0.5rem;
+      font-size: 1rem;
+      color: #ffffff;
+      letter-spacing: 0.03em;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.92rem;
+    }
+
+    th,
+    td {
+      border-bottom: 1px solid #1d5d78;
+      padding: 0.45rem;
+      text-align: left;
+      color: #e8fffb;
+    }
+
+    th {
+      color: #ffffff;
+      background: #0a3046;
+    }
+
+    .chart {
+      display: grid;
+      grid-template-columns: repeat(7, minmax(10px, 1fr));
+      gap: 0.3rem;
+      align-items: end;
+      height: 120px;
+      margin-top: 0.6rem;
+      padding: 0.5rem;
+      background: #05273a;
+      border-radius: 10px;
+      border: 1px solid #24758f;
+    }
+
+    .bar {
+      background: linear-gradient(180deg, #5bffe4 0%, #11bf96 100%);
+      border-radius: 5px 5px 2px 2px;
+      min-height: 14px;
+    }
+
+    .overlap-a {
+      transform: translateY(0.85rem);
+    }
+
+    .overlap-b {
+      transform: translateY(-0.9rem);
+    }
+
+    details {
+      background: #08293e;
+      border: 1px solid #1d6880;
+      border-radius: 10px;
+      padding: 0.6rem 0.75rem;
+      margin-bottom: 0.55rem;
+    }
+
+    summary {
+      color: #ffffff;
+      cursor: pointer;
+      font-weight: 700;
+    }
+
+    .tag {
+      display: inline-block;
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 0.78rem;
+      padding: 0.2rem 0.45rem;
+      border-radius: 6px;
+      background: #0a3d54;
+      color: #e9fffb;
+      border: 1px solid #2ba8be;
+      margin-right: 0.25rem;
+    }
+
+    .foot {
+      margin-top: 0.5rem;
+      padding: 0.9rem;
+      border-radius: 10px;
+      background: #042437;
+      border: 1px solid #22697f;
+      font-size: 0.9rem;
+      color: #ddfff6;
+    }
+
+    .danger {
+      color: #ffe8f0;
+      background: #5e2338;
+      border: 1px solid #ff8aa9;
+      padding: 0.65rem;
+      border-radius: 8px;
+      font-size: 0.9rem;
+    }
+
+    .two-col {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+      margin-top: 0.6rem;
+    }
+
+    .price-card {
+      background: #062a40;
+      border: 1px solid #2f8399;
+      border-radius: 14px;
+      padding: 0.85rem;
+    }
+
+    .price {
+      color: #ffffff;
+      font-size: 1.8rem;
+      margin: 0.3rem 0;
+    }
+
+    .cta {
+      width: 100%;
+      margin-top: 0.5rem;
+      min-height: 48px;
+      border: 1px solid #70ffe1;
+      background: #0f8b73;
+      color: #ffffff;
+      font-weight: 700;
+      border-radius: 10px;
+    }
+
+    .tiny {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 0.76rem;
+      color: #d7fff5;
+    }
+
+    footer {
+      border-top: 1px solid #246a82;
+      margin-top: 0.7rem;
+      padding-top: 0.9rem;
+      color: #d4fff3;
+      font-size: 0.9rem;
+      display: grid;
+      gap: 0.45rem;
+    }
+
+    @media (max-width: 1000px) {
+      .hero,
+      .loud-grid,
+      .two-col {
+        grid-template-columns: 1fr;
+      }
+
+      .overlap-a,
+      .overlap-b {
+        transform: none;
+      }
+
+      .loud-grid {
+        margin-top: 0;
+      }
+
+      .kpi-grid {
+        grid-template-columns: 1fr 1fr;
+      }
+    }
+
+    @media (max-width: 560px) {
+      main {
+        width: min(100%, 96vw);
+      }
+
+      .kpi-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .nav-links {
+        width: 100%;
+      }
+
+      .nav-links button {
+        flex: 1 1 auto;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main x-data="moonLibrary" x-init="boot()">
+    <nav>
+      <div class="brand"><i data-lucide="moon-star"></i> Molar Moon Match Bureau</div>
+      <div class="nav-links">
+        <button @click="activeTab='stacks'">Stacks</button>
+        <button @click="activeTab='contracts'">Contracts</button>
+        <button @click="activeTab='panic'">Panic Room</button>
+      </div>
+    </nav>
+
+    <section class="hero">
+      <article class="panel">
+        <p class="tag">Public Romance Registry #441-B</p>
+        <h1>Find your forever person before your anesthesia wears off.</h1>
+        <p class="bio"><strong style="color:#ffffff;">I am Dr. Mirela Molar.</strong> I ran a legal dental practice until two patients fell in love in my waiting room over a shared fear of floss. I shut down cleanings and opened this bureau. We only operate during full moon nights because half-love is malpractice.</p>
+
+        <div class="button-row">
+          <button class="chip" :class="{active: moonOpen}" @click="moonOpen=!moonOpen; pulse++">Toggle Full-Moon Mode</button>
+          <button class="chip" @click="chaos = (chaos + 1) % sirens.length">Cycle Emergency Tone</button>
+          <button class="chip" @click="toothPoints += 11">Add 11 Tooth Points</button>
+          <button class="chip" @click="nextProfile()">Spin New Match</button>
+        </div>
+
+        <div class="kpi-grid">
+          <div class="kpi">
+            <small>Moon Access</small>
+            <strong x-text="moonOpen ? 'OPEN' : 'CLOSED'"></strong>
+          </div>
+          <div class="kpi">
+            <small>Dr. Molar Confidence</small>
+            <strong x-text="(82 + pulse) + '%'">82%</strong>
+          </div>
+          <div class="kpi">
+            <small>Tooth Points</small>
+            <strong x-text="toothPoints"></strong>
+          </div>
+        </div>
+      </article>
+
+      <aside class="panel moon-rail">
+        <h3 class="mini-title">Tonight's Lunar Access Window</h3>
+        <div class="meter"><b :style="`width:${moonCharge}%`"></b></div>
+        <p><strong style="color:#ffffff;">Charge:</strong> <span x-text="moonCharge + '%'">0%</span> and rising. We begin matchmaking at 88% because last time we started at 71% and a saxophonist married a traffic cone.</p>
+        <input type="range" min="60" max="100" step="1" x-model.number="moonCharge" aria-label="Moon charge">
+        <p><strong style="color:#ffffff;">Countdown:</strong> <span x-text="countdown">calculating...</span></p>
+        <p class="ticker" x-text="'Active Siren: ' + sirens[chaos]"></p>
+        <p class="danger" x-show="moonCharge < 88">Low moon detected. Romantic decisions may default to people who own ring lights.</p>
+      </aside>
+    </section>
+
+    <section class="loud-grid">
+      <article class="panel overlap-a">
+        <h3 class="mini-title">Live Floor Dashboard</h3>
+        <p class="tiny">A bar means one successful connection. A flat bar means someone said "let's keep it casual" and was escorted out.</p>
+        <div class="chart">
+          <template x-for="height in bars" :key="height + Math.random()">
+            <div class="bar" :style="`height:${height}%`"></div>
+          </template>
+        </div>
+        <div class="chip-row" style="margin-top:0.65rem;">
+          <button class="chip" @click="shuffleBars()">Rescan Energy</button>
+          <button class="chip" @click="bars = [24,66,38,91,73,57,88]">Inject Drama</button>
+          <button class="chip" @click="bars = [82,84,81,86,88,83,85]">Library Silence Mode</button>
+        </div>
+      </article>
+
+      <article class="panel overlap-b">
+        <h3 class="mini-title">Featured Candidate</h3>
+        <p><strong style="color:#ffffff;" x-text="profiles[profileIndex].name"></strong></p>
+        <p x-text="profiles[profileIndex].pitch"></p>
+        <p class="tiny"><span class="tag" x-text="profiles[profileIndex].risk"></span><span class="tag" x-text="profiles[profileIndex].snack"></span></p>
+        <button class="cta" @click="liked++">Approve Candidate (<span x-text="liked"></span>)</button>
+      </article>
+
+      <article class="panel">
+        <h3 class="mini-title">Tonight's Queue</h3>
+        <table>
+          <thead>
+            <tr><th>Name</th><th>Compatibility</th><th>Issue</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>Kade</td><td>97%</td><td>Writes sonnets to parking meters</td></tr>
+            <tr><td>Priya</td><td>93%</td><td>Owns six ceremonial capes</td></tr>
+            <tr><td>Neil</td><td>89%</td><td>Whispers at vending machines</td></tr>
+            <tr><td>Ora</td><td>88%</td><td>Believes soup is a political identity</td></tr>
+          </tbody>
+        </table>
+      </article>
+    </section>
+
+    <section class="two-col">
+      <article class="panel">
+        <h3 class="mini-title">Moonlit Memberships</h3>
+        <div class="price-card">
+          <strong style="color:#ffffff;">Night Clerk</strong>
+          <p class="price">$47.99/mo</p>
+          <p>3 matches per full moon, 1 emergency pep talk from me, and access to our dimly-lit periodicals shelf.</p>
+        </div>
+        <div class="price-card" style="margin-top:0.65rem;">
+          <strong style="color:#ffffff;">Crown Jewel</strong>
+          <p class="price">$126.40/mo</p>
+          <p>Unlimited matches, priority in the velvet card catalog, and one monthly audit of your red flags.</p>
+        </div>
+        <div class="chip-row" style="margin-top:0.7rem;">
+          <button class="chip" :class="{active: plan==='night'}" @click="plan='night'">Pick Night Clerk</button>
+          <button class="chip" :class="{active: plan==='crown'}" @click="plan='crown'">Pick Crown Jewel</button>
+        </div>
+        <p class="bio">Invoice Preview: <strong style="color:#ffffff;" x-text="plan==='night' ? '$47.99' : '$126.40'"></strong> + <strong style="color:#ffffff;">$8.00</strong> moonlight filing fee. I refuse to waive this.</p>
+      </article>
+
+      <article class="panel">
+        <h3 class="mini-title">Real Testimonials (Legally Real Enough)</h3>
+        <p><strong style="color:#ffffff;">Lana, 34:</strong> "Dr. Molar matched me with a violin restorer who carries mints and accountability. Wedding in April. Reception in Periodicals."</p>
+        <p><strong style="color:#ffffff;">Brent, 41:</strong> "I joined as a joke. Now I co-parent two iguanas with my fiance. Joke's on me and it is beautiful."</p>
+        <p><strong style="color:#ffffff;">Mika, 29:</strong> "Their compatibility quiz asked 'Have you ever sprinted after a train for love?' Finally, a serious platform."</p>
+        <p class="foot">Running joke disclosure: yes, Dr. Molar still carries dental mirrors and occasionally checks your molars before first date confirmation. "Open wide" is part of onboarding.</p>
+      </article>
+    </section>
+
+    <section class="panel">
+      <h3 class="mini-title">Need-to-Know Policy Cabinet</h3>
+      <div x-show="activeTab==='stacks'">
+        <details open>
+          <summary>Why only full moons?</summary>
+          <p>Because waxing gibbous energy produces overpromising. We tested it in 2024. Engagements collapsed within 9 business days.</p>
+        </details>
+        <details>
+          <summary>What happens if I ghost someone?</summary>
+          <p>Your card is re-shelved in the "Unreliable Narrators" wing for one full lunar cycle. Late fees apply.</p>
+        </details>
+      </div>
+      <div x-show="activeTab==='contracts'">
+        <details open>
+          <summary>Refund policy?</summary>
+          <p>No cash refunds. We issue store credit and one stern letter from me in embossed teal ink.</p>
+        </details>
+        <details>
+          <summary>Can I date outside the Bureau?</summary>
+          <p>Yes, but report it honestly. I maintain metrics and I am emotionally invested in my spreadsheets.</p>
+        </details>
+      </div>
+      <div x-show="activeTab==='panic'">
+        <details open>
+          <summary>Panic button protocol</summary>
+          <p>Press once for breathing script. Press twice for "Leave this rooftop now" route map. Press three times and I call you personally.</p>
+        </details>
+        <details>
+          <summary>Known side effects of intense compatibility</summary>
+          <p>Shared playlists, coordinated stationery, accidental eye contact in hardware stores, and suspicious calm.</p>
+        </details>
+      </div>
+    </section>
+
+    <footer>
+      <div>Moon cycle ticker: <span x-text="ticker"></span></div>
+      <div class="tiny">Molar Moon Match Bureau, Lower Stacks, Pier 9 Library Annex. Open only on full-moon evenings, 7:11 PM to 2:03 AM.</div>
+      <div class="tiny">Fine print: 93% of unresolved feelings return within 48 hours. Bring water and honesty.</div>
+    </footer>
+  </main>
+
+  <script defer src="/assets/js/alpine.min.js"></script>
+  <script src="/assets/js/gsap.min.js"></script>
+  <script src="/assets/js/lucide.min.js"></script>
+  <script>
+    document.addEventListener('alpine:init', () => {
+      Alpine.data('moonLibrary', () => ({
+        moonOpen: true,
+        moonCharge: 92,
+        pulse: 0,
+        toothPoints: 38,
+        liked: 4,
+        chaos: 0,
+        plan: 'night',
+        activeTab: 'stacks',
+        ticker: 'Shelving emotional liabilities...',
+        countdown: 'calculating...',
+        bars: [42, 63, 51, 78, 69, 54, 83],
+        sirens: [
+          'Soft Gong + Whispered Accountability',
+          'Foghorn for Delusional Optimism',
+          'Bass Clarinet of Consequences',
+          'Tiny Bell of Mutual Respect'
+        ],
+        profiles: [
+          {
+            name: 'Noah (night janitor, owns 4 fountain pens)',
+            pitch: 'Can repair a torn book spine and a bad day. Wants someone who likes rain and honest apologies.',
+            risk: 'Risk: organizes your spice rack alphabetically',
+            snack: 'Snack preference: jalapeno kettle chips'
+          },
+          {
+            name: 'Aria (tram conductor, very punctual flirt)',
+            pitch: 'Will compliment your shoes and your conflict resolution style in one breath.',
+            risk: 'Risk: writes calendar invites for spontaneous kissing',
+            snack: 'Snack preference: frozen grapes'
+          },
+          {
+            name: 'Rafael (museum carpenter, gentle menace)',
+            pitch: 'Built his own coffee table, cries at documentaries, knows exactly when to leave a party.',
+            risk: 'Risk: asks "what do you need right now?" and means it',
+            snack: 'Snack preference: cinnamon almonds'
+          }
+        ],
+        profileIndex: 0,
+        boot() {
+          this.updateCountdown();
+          setInterval(() => {
+            this.updateCountdown();
+            this.ticker = this.buildTicker();
+          }, 1000);
+          setInterval(() => {
+            this.toothPoints += 1;
+          }, 7000);
+
+          if (window.lucide) {
+            window.lucide.createIcons();
+          }
+
+          if (window.gsap) {
+            gsap.fromTo(
+              '.panel',
+              { y: 24, opacity: 0 },
+              { y: 0, opacity: 1, duration: 0.7, stagger: 0.08, clearProps: 'opacity,transform' }
+            );
+            gsap.fromTo(
+              'nav',
+              { y: -18, opacity: 0 },
+              { y: 0, opacity: 1, duration: 0.6, clearProps: 'opacity,transform' }
+            );
+          }
+        },
+        nextProfile() {
+          this.profileIndex = (this.profileIndex + 1) % this.profiles.length;
+        },
+        shuffleBars() {
+          this.bars = this.bars.map(() => Math.floor(30 + Math.random() * 63));
+        },
+        buildTicker() {
+          const notices = [
+            'Aisle C now has two proposals and one respectful breakup.',
+            'Moon desk accepted 17 velvet contract renewals.',
+            'Reminder: mixed signals are due by midnight.',
+            'Someone left a sonnet in Returns. Handwriting excellent.',
+            'Dr. Molar consumed one alarming espresso.'
+          ];
+          return notices[Math.floor(Math.random() * notices.length)];
+        },
+        updateCountdown() {
+          const synodicMs = 29.530588853 * 24 * 60 * 60 * 1000;
+          const reference = new Date('2024-01-25T17:54:00Z').getTime();
+          const now = Date.now();
+          let next = reference;
+          if (now > next) {
+            const cycles = Math.ceil((now - reference) / synodicMs);
+            next = reference + cycles * synodicMs;
+          }
+          const delta = Math.max(0, next - now);
+          const days = Math.floor(delta / 86400000);
+          const hours = Math.floor((delta % 86400000) / 3600000);
+          const mins = Math.floor((delta % 3600000) / 60000);
+          const secs = Math.floor((delta % 60000) / 1000);
+          this.countdown = `${days}d ${hours}h ${mins}m ${secs}s`;
+        }
+      }));
+    });
+  </script>
+</body>
+</html>

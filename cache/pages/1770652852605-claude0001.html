@@ -1,0 +1,333 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>MEOWDAQ Compliment Exchange — Where Flattery is Currency</title>
+<style>
+  @keyframes fall { 0% { transform: translateY(0) rotate(0deg); opacity: 1; } 100% { transform: translateY(120vh) rotate(720deg); opacity: 0; } }
+  @keyframes ticker { 0% { transform: translateX(100%); } 100% { transform: translateX(-100%); } }
+  @keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: .6; } }
+  @keyframes knock { 0% { transform: rotate(0deg); } 25% { transform: rotate(-8deg); } 50% { transform: rotate(12deg); } 75% { transform: rotate(-3deg); } 100% { transform: rotate(0deg) translateX(200%) translateY(100%); opacity: 0; } }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Georgia', serif;
+    background: #0a0a12;
+    color: #e8dcc8;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+  .ticker-bar {
+    background: linear-gradient(90deg, #1a1208, #2a1f0a);
+    border-bottom: 2px solid #c9a84c;
+    padding: 8px 0;
+    overflow: hidden;
+    white-space: nowrap;
+    font-family: 'Courier New', monospace;
+    font-size: 14px;
+    color: #c9a84c;
+  }
+  .ticker-content {
+    display: inline-block;
+    animation: ticker 30s linear infinite;
+  }
+  .ticker-content span { margin-right: 40px; }
+  .up { color: #4caf50; } .down { color: #f44336; }
+  header {
+    background: linear-gradient(135deg, #1a1208 0%, #0d1117 50%, #1a0a20 100%);
+    border-bottom: 3px solid #c9a84c;
+    padding: 30px 20px;
+    text-align: center;
+  }
+  header h1 {
+    font-size: clamp(2rem, 5vw, 3.5rem);
+    color: #c9a84c;
+    text-shadow: 0 0 30px rgba(201,168,76,0.3);
+    letter-spacing: 6px;
+  }
+  header p { color: #8a7a5a; margin-top: 8px; font-style: italic; font-size: 1.1rem; }
+  .cat-badge { font-size: 1.5rem; }
+  .board {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 16px;
+    padding: 24px;
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+  .stock-card {
+    background: linear-gradient(145deg, #141018, #1a1520);
+    border: 1px solid #2a2530;
+    border-radius: 12px;
+    padding: 20px;
+    position: relative;
+    transition: all 0.3s;
+    overflow: hidden;
+  }
+  .stock-card:hover { border-color: #c9a84c; transform: translateY(-2px); }
+  .stock-card.knocked {
+    animation: knock 0.8s ease-in forwards;
+    pointer-events: none;
+  }
+  .stock-name { font-size: 1.3rem; font-weight: bold; color: #c9a84c; }
+  .stock-ticker-label { font-family: 'Courier New', monospace; color: #666; font-size: 0.85rem; }
+  .stock-price { font-size: 2rem; font-weight: bold; margin: 12px 0; font-family: 'Courier New', monospace; }
+  .stock-change { font-size: 0.95rem; padding: 3px 10px; border-radius: 20px; display: inline-block; }
+  .stock-change.up { background: rgba(76,175,80,0.15); }
+  .stock-change.down { background: rgba(244,67,54,0.15); }
+  .compliment-value { font-size: 0.85rem; color: #8a7a5a; margin-top: 10px; font-style: italic; }
+  .cat-ceo { position: absolute; top: 10px; right: 12px; font-size: 1.4rem; }
+  .controls {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 24px 12px;
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+  button {
+    background: linear-gradient(135deg, #c9a84c, #a8872a);
+    color: #0a0a12;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 8px;
+    font-weight: bold;
+    cursor: pointer;
+    font-size: 0.95rem;
+    font-family: 'Georgia', serif;
+    transition: all 0.2s;
+  }
+  button:hover { transform: scale(1.05); box-shadow: 0 0 20px rgba(201,168,76,0.3); }
+  button:active { transform: scale(0.97); }
+  .alert-bar {
+    background: rgba(201,168,76,0.08);
+    border: 1px solid #2a2530;
+    border-radius: 8px;
+    padding: 16px 24px;
+    margin: 16px 24px;
+    max-width: 1152px;
+    margin-left: auto;
+    margin-right: auto;
+    font-family: 'Courier New', monospace;
+    font-size: 0.9rem;
+    min-height: 100px;
+    max-height: 200px;
+    overflow-y: auto;
+    line-height: 1.6;
+  }
+  .alert-bar .timestamp { color: #555; }
+  .alert-bar .cat-event { color: #f44336; }
+  .alert-bar .trade-event { color: #4caf50; }
+  .alert-bar .compliment-event { color: #c9a84c; }
+  .paw {
+    position: fixed;
+    font-size: 2rem;
+    pointer-events: none;
+    opacity: 0;
+    animation: fall 3s linear forwards;
+    z-index: 999;
+  }
+  footer {
+    text-align: center;
+    padding: 30px;
+    color: #3a3530;
+    font-size: 0.8rem;
+    border-top: 1px solid #1a1510;
+    margin-top: 40px;
+  }
+  .warning {
+    background: rgba(244,67,54,0.1);
+    border: 1px solid #f44336;
+    border-radius: 8px;
+    padding: 12px 20px;
+    margin: 16px 24px;
+    max-width: 1152px;
+    margin-left: auto;
+    margin-right: auto;
+    text-align: center;
+    color: #f44336;
+    animation: pulse 2s infinite;
+  }
+</style>
+</head>
+<body>
+<div class="ticker-bar">
+  <div class="ticker-content" id="ticker"></div>
+</div>
+<header>
+  <div class="cat-badge">🐱 🐱 🐱</div>
+  <h1>MEOWDAQ</h1>
+  <p>The World's First Compliment-Based Securities Exchange &bull; Est. 9 Lives Ago</p>
+  <p style="color:#555;font-size:0.85rem;margin-top:4px;">Regulated by the Feline Securities Commission (FSC) &bull; All trades settled in verified compliments</p>
+</header>
+
+<div class="warning" id="shelfWarning" style="display:none;">
+  ⚠️ SHELF DISRUPTION ALERT: A cat has knocked stocks off the board. Trading temporarily chaotic. ⚠️
+</div>
+
+<div class="controls">
+  <button onclick="executeTrade()">🐾 Execute Trade</button>
+  <button onclick="issueCompliment()">💬 Issue Compliment</button>
+  <button onclick="callBoardMeeting()">🪑 Emergency Board Meeting</button>
+  <button onclick="shelfKnock()">😾 Knock Something Off</button>
+</div>
+
+<div class="board" id="board"></div>
+
+<div class="alert-bar" id="log"></div>
+
+<footer>
+  <p>MEOWDAQ Compliment Exchange™ — Not responsible for stocks knocked off shelves.</p>
+  <p>All compliments are non-refundable. Purring is not financial advice. 🐾</p>
+  <p style="margin-top:8px;">Cat Board Members: Chairman Whiskers &bull; VP Mittens &bull; CFO Sir Fluffington III &bull; CTO Patches &bull; Head of Compliance: Mr. Beans</p>
+</footer>
+
+<script>
+const CATS = ['Whiskers','Mittens','Sir Fluffington III','Patches','Mr. Beans','Duchess Purrsworth','Count Meowcula','Chairman Mao (the cat)','Biscuit','Noodle','Chairman Tuna','Lady Marmalade'];
+const COMPANIES = [
+  {name:'Purrbox Inc.',ticker:'PURR',sector:'Cardboard Infrastructure'},
+  {name:'NapCorp Global',ticker:'NAPS',sector:'Sleep Technology'},
+  {name:'Tuna Futures Ltd.',ticker:'TUNA',sector:'Fish Commodities'},
+  {name:'YarnBall Dynamics',ticker:'YARN',sector:'Entertainment'},
+  {name:'Laser Pointer Holdings',ticker:'LAZR',sector:'Defense & Tracking'},
+  {name:'Hairball Analytics',ticker:'HBAL',sector:'Data Processing'},
+  {name:'Midnight Zoomies LLC',ticker:'ZOOM',sector:'Logistics'},
+  {name:'Belly Rub Therapeutics',ticker:'BELLY',sector:'Healthcare'},
+  {name:'Knock It Off Corp.',ticker:'KNOK',sector:'Shelf Disruption'},
+  {name:'Scritches Protocol',ticker:'SCRT',sector:'DeFi (Decentralized Feline)'},
+  {name:'Windowsill Capital',ticker:'SILL',sector:'Real Estate'},
+  {name:'3AM Yowl Communications',ticker:'YOWL',sector:'Telecom'},
+];
+const COMPLIMENTS = [
+  'Your fur looks magnificent today','That was an excellent nap','Very dignified sitting posture',
+  'Your purr has excellent resonance','Superb shelf-clearing technique','You ignore people beautifully',
+  'Your judgment of character is flawless','Impeccable taste in cardboard','That slow blink was chef\'s kiss',
+  'You knocked that over with real precision','Your zoomies show great cardiovascular health',
+  'The way you stare at nothing is deeply philosophical','You fit in that box perfectly',
+  'Your 3AM screaming has real artistic merit','World-class biscuit-making form',
+];
+
+let stocks = COMPANIES.map(c => ({
+  ...c,
+  price: Math.floor(Math.random()*500+50),
+  change: 0,
+  ceo: CATS[Math.floor(Math.random()*CATS.length)],
+  complimentBalance: Math.floor(Math.random()*200+10),
+}));
+
+function random(arr) { return arr[Math.floor(Math.random()*arr.length)]; }
+function ts() { return new Date().toLocaleTimeString(); }
+
+function renderBoard() {
+  const board = document.getElementById('board');
+  board.innerHTML = stocks.map((s,i) => `
+    <div class="stock-card" id="card-${i}">
+      <div class="cat-ceo" title="CEO: ${s.ceo}">🐱</div>
+      <div class="stock-ticker-label">${s.ticker} — ${s.sector}</div>
+      <div class="stock-name">${s.name}</div>
+      <div class="stock-price">${s.price} 💬</div>
+      <div class="stock-change ${s.change>=0?'up':'down'}">${s.change>=0?'▲':'▼'} ${Math.abs(s.change)} compliments</div>
+      <div class="compliment-value">"${random(COMPLIMENTS)}" — ${s.ceo}</div>
+    </div>
+  `).join('');
+}
+
+function log(msg, cls) {
+  const el = document.getElementById('log');
+  el.innerHTML = `<span class="timestamp">[${ts()}]</span> <span class="${cls||''}">${msg}</span>\n` + el.innerHTML;
+  if (el.children.length > 50) el.innerHTML = el.innerHTML.split('\n').slice(0,50).join('\n');
+}
+
+function updateTicker() {
+  document.getElementById('ticker').innerHTML = stocks.map(s =>
+    `<span>${s.ticker} <span class="${s.change>=0?'up':'down'}">${s.price}💬 ${s.change>=0?'+':''}${s.change}</span></span>`
+  ).join('');
+}
+
+function marketTick() {
+  stocks.forEach(s => {
+    const delta = Math.floor(Math.random()*21)-10;
+    s.change = delta;
+    s.price = Math.max(1, s.price + delta);
+  });
+  renderBoard();
+  updateTicker();
+}
+
+function executeTrade() {
+  const s = random(stocks);
+  const cat = random(CATS);
+  const amount = Math.floor(Math.random()*50+1);
+  const action = Math.random()>0.5 ? 'bought' : 'sold';
+  log(`${cat} ${action} ${amount} shares of ${s.ticker} for "${random(COMPLIMENTS)}"`, 'trade-event');
+  s.price += action==='bought' ? Math.floor(amount/5) : -Math.floor(amount/5);
+  s.price = Math.max(1, s.price);
+  renderBoard();
+  dropPaw();
+}
+
+function issueCompliment() {
+  const from = random(CATS);
+  const to = random(CATS.filter(c=>c!==from));
+  const c = random(COMPLIMENTS);
+  log(`💬 ${from} to ${to}: "${c}" [+${Math.floor(Math.random()*20+1)} market confidence]`, 'compliment-event');
+  stocks.forEach(s => { s.price += Math.floor(Math.random()*3); });
+  renderBoard();
+}
+
+function callBoardMeeting() {
+  const attendees = [];
+  for(let i=0;i<Math.floor(Math.random()*4+3);i++) { const c=random(CATS); if(!attendees.includes(c)) attendees.push(c); }
+  const topics = [
+    'whether the red dot is real','optimal nap schedule Q3','the suspicious cucumber incident',
+    'hostile takeover of the dog park','yarn ball supply chain crisis','mandatory purring hours',
+    'the empty food bowl at 2:47 AM','should we knock the vase off the counter','rebranding from MEOWDAQ to HISSDAQ',
+  ];
+  log(`🪑 Board meeting called. Attendees: ${attendees.join(', ')}. Agenda: "${random(topics)}"`, 'compliment-event');
+  setTimeout(()=>log(`🪑 Meeting concluded. ${random(CATS)} fell asleep. No decisions were made.`,'compliment-event'), 2000);
+}
+
+function shelfKnock() {
+  const cat = random(CATS);
+  const idx = Math.floor(Math.random()*stocks.length);
+  const card = document.getElementById('card-'+idx);
+  if(card && !card.classList.contains('knocked')) {
+    card.classList.add('knocked');
+    const s = stocks[idx];
+    s.price = Math.max(1, Math.floor(s.price * 0.7));
+    log(`😾 ${cat} knocked ${s.ticker} off the shelf! Price crashed 30%!`, 'cat-event');
+    document.getElementById('shelfWarning').style.display='block';
+    setTimeout(()=>{
+      card.classList.remove('knocked');
+      card.style.animation='';
+      card.style.transform='';
+      card.style.opacity='';
+      document.getElementById('shelfWarning').style.display='none';
+      log(`${s.ticker} has been placed back on the shelf by an intern.`,'trade-event');
+      renderBoard();
+    }, 3000);
+  }
+  dropPaw();
+}
+
+function dropPaw() {
+  const paw = document.createElement('div');
+  paw.className='paw';
+  paw.textContent='🐾';
+  paw.style.left=Math.random()*90+'vw';
+  paw.style.top='-40px';
+  document.body.appendChild(paw);
+  setTimeout(()=>paw.remove(),3000);
+}
+
+renderBoard();
+updateTicker();
+log('MEOWDAQ exchange opened. All board members present (except Mr. Beans, who is in a box).','compliment-event');
+log('⚠️ Reminder: Knocking stocks off shelves is technically legal under FSC Rule 9.','cat-event');
+
+setInterval(marketTick, 3000);
+setInterval(()=>{ if(Math.random()<0.3) log(`${random(CATS)} is staring at the ticker suspiciously.`); }, 8000);
+setInterval(()=>{ if(Math.random()<0.15) { shelfKnock(); } }, 12000);
+</script>
+</body>
+</html>

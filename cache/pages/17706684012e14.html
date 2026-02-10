@@ -1,0 +1,990 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Umbra Ledger Consulting</title>
+  <link rel="stylesheet" href="/assets/css/pico.min.css" />
+  <link rel="stylesheet" href="/assets/css/fonts.css" />
+  <style>
+    :root {
+      --bg: #050505;
+      --panel: #111111;
+      --panel-2: #1a1a1a;
+      --text: #f8f8f8;
+      --ink: #0b0b0b;
+      --paper: #f6f6f1;
+      --red: #d1121b;
+      --red-2: #ff2a34;
+      --line: #2a2a2a;
+      --ok: #18d66b;
+      --warn: #ffd446;
+    }
+
+    * { box-sizing: border-box; }
+
+    html,
+    body {
+      margin: 0;
+      padding: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Space Grotesk', Inter, sans-serif;
+      scroll-behavior: smooth;
+    }
+
+    body {
+      scroll-snap-type: y mandatory;
+      overflow-y: auto;
+      background-image:
+        linear-gradient(90deg, rgba(255,255,255,0.04) 1px, transparent 1px),
+        linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px),
+        radial-gradient(circle at 20% 15%, rgba(209,18,27,0.25), transparent 32%),
+        radial-gradient(circle at 82% 78%, rgba(209,18,27,0.16), transparent 28%);
+      background-size: 24px 24px, 24px 24px, cover, cover;
+    }
+
+    .mono { font-family: 'IBM Plex Mono', monospace; }
+
+    .slide {
+      min-height: 100vh;
+      width: 100%;
+      padding: 1rem;
+      scroll-snap-align: start;
+      border-bottom: 1px solid var(--line);
+      display: grid;
+      align-content: start;
+      gap: 1rem;
+    }
+
+    @media (min-width: 900px) {
+      .slide { padding: 1.4rem 2rem; }
+    }
+
+    .topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+      border: 1px solid var(--line);
+      background: #090909;
+      padding: 0.7rem 0.9rem;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 0.7rem;
+      font-weight: 800;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      color: #ffffff;
+    }
+
+    .brand .dot {
+      width: 0.8rem;
+      height: 0.8rem;
+      border-radius: 50%;
+      background: var(--red-2);
+      box-shadow: 0 0 18px rgba(255, 42, 52, 0.9);
+    }
+
+    .navgrid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 0.45rem;
+      width: 100%;
+      max-width: 560px;
+    }
+
+    @media (min-width: 780px) {
+      .navgrid { grid-template-columns: repeat(6, minmax(0, 1fr)); }
+    }
+
+    .navgrid button {
+      margin: 0;
+      padding: 0.45rem 0.5rem;
+      border-radius: 0;
+      border: 1px solid #4a4a4a;
+      background: #141414;
+      color: #fff;
+      font-size: 0.76rem;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+    }
+
+    .navgrid button:hover,
+    .navgrid button:focus-visible {
+      border-color: var(--red-2);
+      background: #230b0d;
+      color: #ffffff;
+    }
+
+    .ticker {
+      border: 1px solid var(--red);
+      background: #1b0a0c;
+      color: #fff;
+      display: grid;
+      grid-template-columns: 130px 1fr;
+      gap: 0.8rem;
+      padding: 0.45rem 0.7rem;
+      align-items: center;
+      font-size: 0.86rem;
+    }
+
+    .ticker strong {
+      color: #ffffff;
+      text-transform: uppercase;
+      letter-spacing: 0.07em;
+    }
+
+    .hero {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 1rem;
+    }
+
+    @media (min-width: 1000px) {
+      .hero { grid-template-columns: 1.2fr 1fr; }
+    }
+
+    .panel {
+      border: 1px solid var(--line);
+      background: var(--panel);
+      padding: 1rem;
+    }
+
+    .panel.alt {
+      background: var(--panel-2);
+      border-color: #444;
+    }
+
+    h1, h2, h3, h4, p, li, th, td, small, label, strong, em {
+      color: #ffffff;
+    }
+
+    .hero h1 {
+      margin: 0;
+      font-size: clamp(2rem, 6vw, 4.4rem);
+      line-height: 0.95;
+      text-transform: uppercase;
+      letter-spacing: 0.02em;
+    }
+
+    .hero h1 span { color: var(--red-2); }
+
+    .sub {
+      font-size: 1rem;
+      max-width: 72ch;
+      margin-top: 0.8rem;
+      margin-bottom: 0.8rem;
+    }
+
+    .grid-3 {
+      display: grid;
+      grid-template-columns: repeat(1, minmax(0, 1fr));
+      gap: 0.7rem;
+    }
+
+    @media (min-width: 900px) {
+      .grid-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    }
+
+    .metric {
+      border: 1px solid #4a4a4a;
+      background: #0f0f0f;
+      padding: 0.7rem;
+    }
+
+    .metric b {
+      display: block;
+      font-size: 1.55rem;
+      color: #ffffff;
+      line-height: 1;
+    }
+
+    .metric span {
+      color: #ffffff;
+      font-size: 0.8rem;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+    }
+
+    .controls {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 0.45rem;
+      margin-top: 0.8rem;
+    }
+
+    .controls button,
+    .controls input,
+    .controls select {
+      margin: 0;
+      border-radius: 0;
+      border: 1px solid #595959;
+      color: #fff;
+      background: #121212;
+      height: 2.5rem;
+      padding: 0.45rem 0.55rem;
+    }
+
+    .controls button:hover,
+    .controls button:focus-visible {
+      border-color: var(--red-2);
+      background: #2a0d10;
+    }
+
+    .controls input[type="range"] {
+      accent-color: var(--red-2);
+      padding: 0;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 0;
+      font-size: 0.86rem;
+    }
+
+    th, td {
+      border: 1px solid #444;
+      padding: 0.4rem 0.45rem;
+      text-align: left;
+      background: #101010;
+      color: #fff;
+    }
+
+    th {
+      background: #1b1b1b;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      font-size: 0.75rem;
+    }
+
+    .tag {
+      display: inline-block;
+      padding: 0.1rem 0.4rem;
+      border: 1px solid #fff;
+      color: #fff;
+      font-size: 0.72rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .tag.red {
+      border-color: var(--red-2);
+      color: #fff;
+      background: #250b0e;
+    }
+
+    .split {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 0.8rem;
+    }
+
+    @media (min-width: 1100px) {
+      .split { grid-template-columns: 1.15fr 0.85fr; }
+    }
+
+    .bars {
+      display: grid;
+      gap: 0.5rem;
+    }
+
+    .barrow {
+      display: grid;
+      grid-template-columns: 110px 1fr 45px;
+      gap: 0.5rem;
+      align-items: center;
+      font-size: 0.78rem;
+      text-transform: uppercase;
+    }
+
+    .track {
+      height: 0.8rem;
+      border: 1px solid #575757;
+      background: #0f0f0f;
+    }
+
+    .fill {
+      height: 100%;
+      background: linear-gradient(90deg, #7d0f15, #ff2a34);
+      transition: width 0.35s ease;
+    }
+
+    .faq button {
+      width: 100%;
+      text-align: left;
+      margin: 0;
+      border-radius: 0;
+      border: 1px solid #505050;
+      background: #121212;
+      color: #fff;
+      margin-top: 0.5rem;
+      padding: 0.6rem;
+      font-weight: 600;
+    }
+
+    .faq .answer {
+      border: 1px solid #505050;
+      border-top: none;
+      padding: 0.6rem;
+      background: #1a1a1a;
+      color: #fff;
+    }
+
+    .pricing {
+      display: grid;
+      grid-template-columns: repeat(1, minmax(0, 1fr));
+      gap: 0.8rem;
+    }
+
+    @media (min-width: 900px) {
+      .pricing { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    }
+
+    .price-card {
+      border: 1px solid #555;
+      background: #101010;
+      padding: 0.85rem;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .price-card.hot {
+      border-color: var(--red-2);
+      background: #1b0a0d;
+    }
+
+    .price-card h3 {
+      margin: 0;
+      font-size: 1.1rem;
+      text-transform: uppercase;
+    }
+
+    .price {
+      font-size: 2.1rem;
+      font-weight: 800;
+      margin: 0.5rem 0;
+      color: #ffffff;
+    }
+
+    .tiny {
+      font-size: 0.74rem;
+      line-height: 1.35;
+      color: #ffffff;
+    }
+
+    .wall {
+      display: grid;
+      grid-template-columns: repeat(1, minmax(0, 1fr));
+      gap: 0.7rem;
+    }
+
+    @media (min-width: 1000px) {
+      .wall { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+    }
+
+    .quote {
+      border: 1px solid #4d4d4d;
+      background: #121212;
+      padding: 0.75rem;
+    }
+
+    .quote p { margin: 0 0 0.5rem; }
+
+    .quote small { font-size: 0.73rem; }
+
+    .library-card {
+      border: 1px solid #5a5a5a;
+      background: #101010;
+      padding: 0.8rem;
+    }
+
+    .library-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 0.7rem;
+    }
+
+    @media (min-width: 980px) {
+      .library-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+    }
+
+    .kbd {
+      border: 1px solid #666;
+      padding: 0.1rem 0.25rem;
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 0.74rem;
+      background: #0e0e0e;
+      color: #fff;
+    }
+
+    .footnotes {
+      border-top: 1px solid #464646;
+      padding-top: 0.7rem;
+      font-size: 0.72rem;
+      line-height: 1.35;
+      color: #fff;
+    }
+
+    .status-dot {
+      width: 0.6rem;
+      height: 0.6rem;
+      border-radius: 50%;
+      display: inline-block;
+      margin-right: 0.4rem;
+      background: var(--ok);
+    }
+
+    .status-dot.warn { background: var(--warn); }
+
+    .inverted {
+      background: var(--paper);
+      color: var(--ink);
+      border-color: #bbb;
+    }
+
+    .inverted h2,
+    .inverted h3,
+    .inverted p,
+    .inverted li,
+    .inverted td,
+    .inverted th,
+    .inverted small,
+    .inverted strong,
+    .inverted label {
+      color: #090909;
+    }
+
+    .inverted table th { background: #ecece7; }
+    .inverted table td { background: #fff; }
+  </style>
+</head>
+<body x-data="umbraSite()" x-init="init()" :class="{ 'inverted': brightMode }">
+  <section class="slide" id="home">
+    <div class="topbar">
+      <div class="brand">
+        <span class="dot"></span>
+        <span>Umbra Ledger Consulting</span>
+      </div>
+      <div class="navgrid">
+        <button type="button" @click="jump('home')">Intake</button>
+        <button type="button" @click="jump('registry')">Registry</button>
+        <button type="button" @click="jump('pricing')">Retainers</button>
+        <button type="button" @click="jump('briefings')">Briefings</button>
+        <button type="button" @click="jump('vault')">Vault</button>
+        <button type="button" @click="jump('contact')">Counsel</button>
+      </div>
+    </div>
+
+    <div class="ticker mono">
+      <strong>Live Docket</strong>
+      <div x-text="ticker[currentTicker]"></div>
+    </div>
+
+    <div class="hero">
+      <article class="panel">
+        <p class="tag red">Consulting • Enforcement • Mediation</p>
+        <h1 class="reveal">Claim Your <span>Shadow Rights</span> Before Someone Else Does</h1>
+        <p class="sub reveal">
+          We design policy, litigation posture, and licensing models for organizations operating in markets where projected silhouettes, reflected outlines,
+          and penumbral derivatives are recognized as valuable intellectual property.
+        </p>
+
+        <div class="grid-3 reveal">
+          <div class="metric">
+            <span>New Filings This Week</span>
+            <b x-text="newFilings.toLocaleString()"></b>
+          </div>
+          <div class="metric">
+            <span>Recovered Royalty Value</span>
+            <b>$<span x-text="recovered.toLocaleString()"></span>M</b>
+          </div>
+          <div class="metric">
+            <span>Median Defense Delay</span>
+            <b><span x-text="delayDays"></span> days</b>
+          </div>
+        </div>
+
+        <div class="controls reveal">
+          <button type="button" @click="simulateIntake()">Run Emergency Intake</button>
+          <button type="button" @click="brightMode = !brightMode" x-text="brightMode ? 'Switch To Noir' : 'Switch To Paper Mode'"></button>
+          <button type="button" @click="pulse++">Issue Objection Pulse (<span x-text="pulse"></span>)</button>
+          <button type="button" @click="rotateScenario()">Rotate Case Scenario</button>
+        </div>
+
+        <p class="tiny mono" style="margin-top:0.75rem;">
+          Current scenario: <span x-text="scenarios[scenarioIndex]"></span>
+        </p>
+      </article>
+
+      <aside class="panel alt">
+        <h3>Active Policy Rail</h3>
+        <p class="tiny">The Sentinel Rail updates every 3 seconds from internal arbitration logs and pre-filing surveillance notes.</p>
+        <div class="bars mono" style="margin-top:0.6rem;">
+          <template x-for="row in rail" :key="row.name">
+            <div class="barrow">
+              <span x-text="row.name"></span>
+              <div class="track"><div class="fill" :style="`width:${row.value}%`"></div></div>
+              <span x-text="row.value + '%' "></span>
+            </div>
+          </template>
+        </div>
+
+        <div class="panel" style="margin-top:0.85rem; background:#0d0d0d; border-color:#4a4a4a;">
+          <p class="tiny mono" style="margin:0;">
+            <span class="status-dot"></span>Attribution engines synchronized
+            <br />
+            <span class="status-dot warn"></span>2 municipal light ordinances pending review
+            <br />
+            <span class="status-dot"></span>Last adjudication sync: <span x-text="clock"></span>
+          </p>
+        </div>
+      </aside>
+    </div>
+  </section>
+
+  <section class="slide" id="registry">
+    <div class="split">
+      <article class="panel">
+        <h2>Registry Console</h2>
+        <p class="tiny">Cross-jurisdiction scan for duplicate silhouettes, unauthorized contour borrowing, and hostile overcast appropriation.</p>
+
+        <div class="controls" style="grid-template-columns: 1fr 1fr 1fr; margin-bottom:0.6rem;">
+          <select x-model="region">
+            <option value="North Sector">North Sector</option>
+            <option value="River Belt">River Belt</option>
+            <option value="Metro Arc">Metro Arc</option>
+          </select>
+          <select x-model="riskFilter">
+            <option value="All">All Risk Levels</option>
+            <option value="Critical">Critical</option>
+            <option value="Elevated">Elevated</option>
+            <option value="Stable">Stable</option>
+          </select>
+          <button type="button" @click="refreshTable()">Refresh Audit</button>
+        </div>
+
+        <table>
+          <thead>
+            <tr>
+              <th>Account</th>
+              <th>Asset Class</th>
+              <th>Risk</th>
+              <th>Exposure</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+          <tbody>
+            <template x-for="row in filteredRows()" :key="row.account">
+              <tr>
+                <td x-text="row.account"></td>
+                <td x-text="row.asset"></td>
+                <td><span class="tag" :class="row.risk === 'Critical' ? 'red' : ''" x-text="row.risk"></span></td>
+                <td>$<span x-text="row.exposure"></span>K</td>
+                <td x-text="row.action"></td>
+              </tr>
+            </template>
+          </tbody>
+        </table>
+
+        <div class="footnotes mono">
+          <p style="margin:0;">1) Exposure values include projected hallway curvature and unauthorized dusk playback.</p>
+          <p style="margin:0.2rem 0 0;">2) Region filter currently set to <strong x-text="region"></strong>. Litigation caps vary by municipal eclipse window.</p>
+        </div>
+      </article>
+
+      <aside class="panel alt">
+        <h3>Shadow Dilution Estimator</h3>
+        <label for="dilution" class="tiny">Projected Public Illumination (%)</label>
+        <input id="dilution" type="range" min="5" max="95" step="1" x-model="illumination" />
+
+        <div class="metric" style="margin-top:0.8rem;">
+          <span>Estimated Dilution</span>
+          <b><span x-text="dilutionScore"></span>%</b>
+        </div>
+
+        <div class="metric" style="margin-top:0.6rem;">
+          <span>Protective Filing Bundle</span>
+          <b x-text="bundleLabel"></b>
+        </div>
+
+        <button type="button" style="width:100%; margin-top:0.8rem; border-radius:0;" @click="addNotice()">Add Provisional Notice</button>
+
+        <p class="tiny" style="margin-top:0.7rem;">
+          Notices queued today: <strong x-text="notices"></strong>
+          <br />
+          Countdown to district clerk lockout: <span class="mono" x-text="countdown"></span>
+        </p>
+      </aside>
+    </div>
+  </section>
+
+  <section class="slide" id="pricing">
+    <article class="panel">
+      <h2>Retainer Architecture</h2>
+      <p class="tiny">All plans include precedent indexing, hostile lantern response, and emergency corridor interventions.</p>
+
+      <div class="pricing" style="margin-top:0.7rem;">
+        <div class="price-card">
+          <h3>Stack A: Municipal</h3>
+          <p class="price">$28,000<span class="tiny"> / quarter</span></p>
+          <ul>
+            <li>Up to 120 registered silhouettes</li>
+            <li>3 arbitration briefs per cycle</li>
+            <li>Night clerk hotline (<span class="mono">06:00-23:00</span>)</li>
+          </ul>
+          <p class="tiny">Includes one annual amnesty sweep for historic wall-cast ambiguity.</p>
+        </div>
+
+        <div class="price-card hot">
+          <p class="tag red">Most Adopted</p>
+          <h3>Stack B: Enterprise</h3>
+          <p class="price">$94,000<span class="tiny"> / quarter</span></p>
+          <ul>
+            <li>Unlimited silhouette classes</li>
+            <li>Dedicated tribunal architect</li>
+            <li>Counter-shadow simulation lab</li>
+          </ul>
+          <p class="tiny">Includes joint board rehearsal for dawn-hour injunction hearings.</p>
+        </div>
+
+        <div class="price-card">
+          <h3>Stack C: Sovereign</h3>
+          <p class="price">$310,000<span class="tiny"> / quarter</span></p>
+          <ul>
+            <li>Cross-border mirror doctrine</li>
+            <li>24/7 evidentiary courier lanes</li>
+            <li>On-premises umbra archivist team</li>
+          </ul>
+          <p class="tiny">Subject to moon-phase volatility surcharge when relevant statute applies.</p>
+        </div>
+      </div>
+    </article>
+
+    <article class="panel alt">
+      <h3>Quote Lab</h3>
+      <div class="controls" style="grid-template-columns: 1fr 1fr 1fr 1fr;">
+        <input type="number" min="1" max="40" x-model.number="sites" aria-label="Sites" />
+        <input type="number" min="1" max="3000" x-model.number="assets" aria-label="Assets" />
+        <select x-model="urgency">
+          <option value="Standard">Standard</option>
+          <option value="Accelerated">Accelerated</option>
+          <option value="Injunction Night">Injunction Night</option>
+        </select>
+        <button type="button" @click="reprice()">Recalculate</button>
+      </div>
+
+      <div class="grid-3" style="margin-top:0.7rem;">
+        <div class="metric">
+          <span>Sites</span>
+          <b x-text="sites"></b>
+        </div>
+        <div class="metric">
+          <span>Tracked Assets</span>
+          <b x-text="assets.toLocaleString()"></b>
+        </div>
+        <div class="metric">
+          <span>Estimated Quarterly Fee</span>
+          <b>$<span x-text="quote.toLocaleString()"></span></b>
+        </div>
+      </div>
+
+      <p class="tiny" style="margin-top:0.7rem;">
+        Quote model considers stairwell reflection rights, recessed doorway exceptions, and syndicated skyline leakage.
+      </p>
+    </article>
+  </section>
+
+  <section class="slide" id="briefings">
+    <article class="panel">
+      <h2>Client Briefings</h2>
+      <p class="tiny">Verified statements from active licensees and recently settled counterparties.</p>
+      <div class="wall" style="margin-top:0.7rem;">
+        <div class="quote">
+          <p>"We cut unauthorized dusk-use by 71% in one quarter without reducing storefront lighting."</p>
+          <small class="mono">CFO, Halloway Transit Retail Group</small>
+        </div>
+        <div class="quote">
+          <p>"Umbra Ledger reconstructed eight years of hallway silhouette lineage in under ten days."</p>
+          <small class="mono">General Counsel, Norcross Biologics</small>
+        </div>
+        <div class="quote">
+          <p>"Their tribunal team got us an interim freeze before first sunrise. Not optional, essential."</p>
+          <small class="mono">Risk Director, Mariner Cold Chain</small>
+        </div>
+        <div class="quote">
+          <p>"Licensing our own shadows generated a revenue line we can actually forecast."</p>
+          <small class="mono">Controller, 8th Street Public Markets</small>
+        </div>
+      </div>
+    </article>
+
+    <div class="split">
+      <article class="panel alt faq">
+        <h3>Operational FAQ</h3>
+
+        <button type="button" @click="faq = faq === 1 ? 0 : 1">Do you handle retroactive ownership disputes?</button>
+        <div class="answer" x-show="faq === 1">Yes. We run a 3-layer chronology pass: floor texture records, luminaire logs, and witness angle mapping.</div>
+
+        <button type="button" @click="faq = faq === 2 ? 0 : 2">How fast can we file before a merger closes?</button>
+        <div class="answer" x-show="faq === 2">Fastest recorded submission window is 47 minutes after diligence lock, assuming clean corridor scans.</div>
+
+        <button type="button" @click="faq = faq === 3 ? 0 : 3">Can we license to former competitors?</button>
+        <div class="answer" x-show="faq === 3">Yes, through reciprocal silhouette pools with stepped royalties and audit-triggered clawbacks.</div>
+      </article>
+
+      <article class="panel">
+        <h3>Session Dashboard</h3>
+        <table>
+          <thead>
+            <tr>
+              <th>Desk</th>
+              <th>Queue</th>
+              <th>Analyst</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Disputes 04</td>
+              <td x-text="deskA"></td>
+              <td>R. Ko</td>
+              <td><span class="tag">Reviewing</span></td>
+            </tr>
+            <tr>
+              <td>Licensing 02</td>
+              <td x-text="deskB"></td>
+              <td>L. Hsieh</td>
+              <td><span class="tag red">Escalating</span></td>
+            </tr>
+            <tr>
+              <td>Precedent 09</td>
+              <td x-text="deskC"></td>
+              <td>T. Mbaye</td>
+              <td><span class="tag">Indexed</span></td>
+            </tr>
+          </tbody>
+        </table>
+        <button type="button" style="margin-top:0.8rem; border-radius:0;" @click="shuffleDesks()">Redistribute Queue</button>
+      </article>
+    </div>
+  </section>
+
+  <section class="slide" id="vault">
+    <article class="panel">
+      <h2>Stacks & Records Vault</h2>
+      <p class="tiny">Public library protocols adapted for high-volume shadow evidence storage and citation control.</p>
+      <div class="library-grid" style="margin-top:0.7rem;">
+        <div class="library-card">
+          <h4><i data-lucide="archive"></i> Shelf A9</h4>
+          <p class="tiny">Angular silhouettes from court-adjacent stairwells, indexed by banister material.</p>
+        </div>
+        <div class="library-card">
+          <h4><i data-lucide="scan-search"></i> Shelf C2</h4>
+          <p class="tiny">Machine-verified noon distortions with chain-of-custody notarization stamps.</p>
+        </div>
+        <div class="library-card">
+          <h4><i data-lucide="book-lock"></i> Shelf D7</h4>
+          <p class="tiny">Closed settlements, embargoed until post-meridian disclosure window.</p>
+        </div>
+        <div class="library-card">
+          <h4><i data-lucide="shield-alert"></i> Shelf F1</h4>
+          <p class="tiny">Emergency injunction bundles for abrupt municipal lighting redesigns.</p>
+        </div>
+      </div>
+
+      <div class="footnotes mono" style="margin-top:0.7rem;">
+        <p style="margin:0;">Reader conduct: no handheld floodlights past aisle markers. Use <span class="kbd">Ctrl</span> + <span class="kbd">Shift</span> + <span class="kbd">L</span> to request supervised retrieval onsite.</p>
+      </div>
+    </article>
+
+    <article class="panel alt" id="contact">
+      <h3>Outside Counsel Intake</h3>
+      <div class="controls" style="grid-template-columns: 1fr 1fr;">
+        <input type="text" placeholder="Organization" aria-label="Organization" />
+        <input type="text" placeholder="Lead Counsel" aria-label="Lead Counsel" />
+        <input type="email" placeholder="Docket Email" aria-label="Docket Email" />
+        <select>
+          <option>Need: Defensive Filing</option>
+          <option>Need: Revenue Licensing</option>
+          <option>Need: Urgent Injunction</option>
+        </select>
+        <button type="button" @click="submitted++">Queue Intake Packet</button>
+        <button type="button" @click="submitted = 0">Clear Queue Count</button>
+      </div>
+      <p class="tiny" style="margin-top:0.7rem;">Packets queued this session: <strong x-text="submitted"></strong></p>
+
+      <div class="footnotes">
+        <p style="margin:0;">Umbra Ledger Consulting, 17 Reading Room Row, Lower Annex District.</p>
+        <p style="margin:0.2rem 0 0;">Licensed for advisory work in participating jurisdictions. Advisory output is not a substitute for final tribunal orders.</p>
+      </div>
+    </article>
+  </section>
+
+  <script src="/assets/js/alpine.min.js" defer></script>
+  <script src="/assets/js/gsap.min.js"></script>
+  <script src="/assets/js/lucide.min.js"></script>
+  <script>
+    function umbraSite() {
+      return {
+        brightMode: false,
+        newFilings: 12842,
+        recovered: 619,
+        delayDays: 9,
+        pulse: 0,
+        notices: 14,
+        scenarioIndex: 0,
+        scenarios: [
+          'Airport concourse duplicate casting dispute',
+          'Pharmaceutical atrium reflection appropriation',
+          'Museum skylight-derived silhouette syndication',
+          'Municipal underpass penumbra inheritance conflict'
+        ],
+        currentTicker: 0,
+        ticker: [
+          'North Sector Tribunal accepted emergency contour freeze for HelioRail v. City Arcway.',
+          'Three-chain arbitration opened over mirrored lobby replication in River Belt district.',
+          'Precedent update: hallway cast rights now attach at first commercial capture, not publication.',
+          'Desk memo: rotating signage shadows ruled licensable under temporary occupancy doctrine.'
+        ],
+        rail: [
+          { name: 'Litigation Heat', value: 76 },
+          { name: 'Licensing Yield', value: 63 },
+          { name: 'Archive Saturation', value: 48 },
+          { name: 'Injunction Readiness', value: 88 }
+        ],
+        region: 'North Sector',
+        riskFilter: 'All',
+        rows: [
+          { account: 'Vellum Transit', asset: 'Platform Shadows', risk: 'Critical', exposure: 960, action: 'File overnight freeze' },
+          { account: 'Mercator Foods', asset: 'Warehouse Cast', risk: 'Elevated', exposure: 420, action: 'Issue notice bundle' },
+          { account: 'Rooke Labs', asset: 'Atrium Profiles', risk: 'Stable', exposure: 160, action: 'Monitor and reindex' },
+          { account: 'Bramwell Ports', asset: 'Dock Crane Outlines', risk: 'Critical', exposure: 1210, action: 'Escalate to tribunal' },
+          { account: 'Lowen Medical', asset: 'Facade Reflection', risk: 'Elevated', exposure: 510, action: 'Begin licensing talks' }
+        ],
+        illumination: 42,
+        countdownSeconds: 2670,
+        faq: 0,
+        sites: 6,
+        assets: 850,
+        urgency: 'Standard',
+        quote: 0,
+        deskA: 19,
+        deskB: 27,
+        deskC: 13,
+        submitted: 0,
+        clock: '',
+        init() {
+          this.reprice();
+          this.refreshClock();
+          this.countdownTick();
+          setInterval(() => {
+            this.currentTicker = (this.currentTicker + 1) % this.ticker.length;
+            this.newFilings += Math.floor(Math.random() * 7);
+            this.recovered += Math.floor(Math.random() * 3);
+          }, 3200);
+
+          setInterval(() => {
+            this.rail = this.rail.map((item) => {
+              const drift = Math.floor(Math.random() * 9) - 4;
+              const next = Math.max(20, Math.min(95, item.value + drift));
+              return { name: item.name, value: next };
+            });
+            this.delayDays = Math.max(3, Math.min(22, this.delayDays + (Math.random() > 0.5 ? 1 : -1)));
+          }, 3000);
+
+          setInterval(() => {
+            this.refreshClock();
+          }, 1000);
+
+          setInterval(() => {
+            this.countdownTick();
+          }, 1000);
+
+          this.$nextTick(() => {
+            if (window.lucide && typeof window.lucide.createIcons === 'function') {
+              window.lucide.createIcons();
+            }
+
+            if (window.gsap) {
+              window.gsap.from('.reveal', {
+                y: 16,
+                opacity: 0,
+                duration: 0.6,
+                stagger: 0.08,
+                ease: 'power2.out'
+              });
+            }
+          });
+        },
+        get dilutionScore() {
+          return Math.min(98, Math.max(4, Math.round((this.illumination * 0.74) + (this.pulse * 0.9))));
+        },
+        get bundleLabel() {
+          if (this.dilutionScore < 30) return 'Observation Tier';
+          if (this.dilutionScore < 60) return 'Defensive Tier';
+          if (this.dilutionScore < 80) return 'Aggressive Tier';
+          return 'Tribunal Sprint Tier';
+        },
+        get countdown() {
+          const sec = Math.max(0, this.countdownSeconds);
+          const m = Math.floor(sec / 60);
+          const s = sec % 60;
+          return String(m).padStart(2, '0') + ':' + String(s).padStart(2, '0');
+        },
+        jump(id) {
+          const el = document.getElementById(id);
+          if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        },
+        rotateScenario() {
+          this.scenarioIndex = (this.scenarioIndex + 1) % this.scenarios.length;
+        },
+        simulateIntake() {
+          this.newFilings += 37;
+          this.recovered += 8;
+          this.notices += 2;
+          this.shuffleDesks();
+        },
+        filteredRows() {
+          if (this.riskFilter === 'All') return this.rows;
+          return this.rows.filter((r) => r.risk === this.riskFilter);
+        },
+        refreshTable() {
+          this.rows = this.rows.map((r) => {
+            const jitter = Math.floor(Math.random() * 70) - 20;
+            const nextExposure = Math.max(80, r.exposure + jitter);
+            return { ...r, exposure: nextExposure };
+          });
+        },
+        addNotice() {
+          this.notices += 1;
+          this.countdownSeconds = Math.max(300, this.countdownSeconds - 45);
+        },
+        reprice() {
+          const base = 14000;
+          const siteComponent = this.sites * 2400;
+          const assetComponent = this.assets * 21;
+          const urgencyMult = this.urgency === 'Standard' ? 1 : (this.urgency === 'Accelerated' ? 1.22 : 1.47);
+          this.quote = Math.round((base + siteComponent + assetComponent) * urgencyMult);
+        },
+        shuffleDesks() {
+          this.deskA = Math.max(5, this.deskA + (Math.floor(Math.random() * 9) - 4));
+          this.deskB = Math.max(5, this.deskB + (Math.floor(Math.random() * 9) - 4));
+          this.deskC = Math.max(5, this.deskC + (Math.floor(Math.random() * 9) - 4));
+        },
+        refreshClock() {
+          const now = new Date();
+          this.clock = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+        },
+        countdownTick() {
+          this.countdownSeconds = Math.max(0, this.countdownSeconds - 1);
+        }
+      };
+    }
+  </script>
+</body>
+</html>

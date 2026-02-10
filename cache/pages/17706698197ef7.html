@@ -1,0 +1,867 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Paws & Ledger Inn</title>
+  <link rel="stylesheet" href="/assets/css/pico.min.css" />
+  <link rel="stylesheet" href="/assets/css/fonts.css" />
+  <style>
+    :root {
+      --pink: #ff2fae;
+      --blue: #245dff;
+      --lime: #c9ff2f;
+      --ink: #09070f;
+      --paper: #fffdf5;
+      --darkText: #121212;
+      --lightText: #ffffff;
+      --panel: #170d2c;
+    }
+
+    * { box-sizing: border-box; }
+
+    html, body {
+      margin: 0;
+      padding: 0;
+      font-family: 'Space Grotesk', sans-serif;
+      color: var(--lightText);
+      background: var(--ink);
+      scroll-behavior: smooth;
+      scroll-snap-type: y mandatory;
+    }
+
+    body {
+      overflow-y: auto;
+    }
+
+    h1, h2, h3, .serif {
+      font-family: 'Playfair Display', serif;
+      letter-spacing: 0.02em;
+      margin: 0;
+    }
+
+    p, a, li, small, button, input, label {
+      color: inherit;
+    }
+
+    .mono {
+      font-family: 'IBM Plex Mono', monospace;
+    }
+
+    .slide {
+      min-height: 100vh;
+      scroll-snap-align: start;
+      position: relative;
+      overflow: hidden;
+      padding: clamp(1rem, 2vw, 2rem);
+      display: grid;
+      align-items: center;
+    }
+
+    .frame {
+      max-width: 1200px;
+      width: 100%;
+      margin: 0 auto;
+      position: relative;
+      z-index: 2;
+    }
+
+    .top-nav {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 1rem;
+      margin-bottom: 2rem;
+      background: rgba(255,255,255,0.12);
+      border: 2px solid #ffffff;
+      border-radius: 999px;
+      padding: 0.55rem 1rem;
+      backdrop-filter: blur(4px);
+    }
+
+    .brand {
+      font-weight: 800;
+      color: #fff;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      font-size: 0.82rem;
+    }
+
+    .nav-links {
+      display: flex;
+      gap: 1rem;
+      flex-wrap: wrap;
+    }
+
+    .nav-links a {
+      text-decoration: none;
+      color: #fff;
+      background: rgba(0,0,0,0.28);
+      border: 1px solid #fff;
+      border-radius: 999px;
+      padding: 0.2rem 0.75rem;
+      font-size: 0.8rem;
+    }
+
+    .hero {
+      background:
+        radial-gradient(circle at 8% 12%, var(--lime) 0 7%, transparent 8%),
+        radial-gradient(circle at 85% 22%, #ffffff 0 2%, transparent 3%),
+        radial-gradient(circle at 74% 76%, #ffffff 0 2%, transparent 3%),
+        linear-gradient(115deg, var(--blue), var(--pink) 55%, #ff8f31);
+    }
+
+    .hero::before,
+    .hero::after {
+      content: "";
+      position: absolute;
+      pointer-events: none;
+    }
+
+    .hero::before {
+      width: 66vmin;
+      height: 66vmin;
+      border: 4px dashed #ffffff;
+      border-radius: 38% 62% 58% 42% / 46% 38% 62% 54%;
+      right: -12vmin;
+      top: -8vmin;
+      opacity: 0.7;
+      animation: spin 30s linear infinite;
+    }
+
+    .hero::after {
+      width: 90vmax;
+      height: 90vmax;
+      left: -55vmax;
+      top: 35%;
+      background: conic-gradient(from 120deg, transparent 0 10%, rgba(255,255,255,0.2) 13%, transparent 16% 100%);
+      transform: rotate(-12deg);
+    }
+
+    .hero-grid {
+      display: grid;
+      grid-template-columns: 1.2fr 1fr;
+      gap: clamp(1rem, 3vw, 2rem);
+      align-items: stretch;
+    }
+
+    .hero-copy {
+      background: rgba(0,0,0,0.45);
+      border: 2px solid #fff;
+      border-radius: 1.2rem;
+      padding: clamp(1rem, 3vw, 2rem);
+      box-shadow: 0 0 0 4px rgba(0,0,0,0.2);
+    }
+
+    .hero-copy h1 {
+      font-size: clamp(2rem, 7vw, 5rem);
+      line-height: 0.95;
+      margin-bottom: 0.7rem;
+      color: #fff;
+      text-wrap: balance;
+    }
+
+    .hero-copy p {
+      font-size: clamp(1rem, 2vw, 1.2rem);
+      margin: 0.6rem 0;
+      color: #fff;
+      max-width: 48ch;
+    }
+
+    .mini-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: .45rem;
+      font-size: 0.82rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      background: var(--lime);
+      color: #121212;
+      font-weight: 700;
+      border-radius: 999px;
+      padding: .25rem .7rem;
+      margin-bottom: 0.85rem;
+      border: 2px solid #111;
+    }
+
+    .actions {
+      margin-top: 1rem;
+      display: flex;
+      gap: 0.7rem;
+      flex-wrap: wrap;
+    }
+
+    .candy-btn {
+      border: 2px solid #000;
+      font-weight: 800;
+      border-radius: 999px;
+      cursor: pointer;
+      padding: .6rem 1rem;
+      background: var(--lime);
+      color: #111;
+      transition: transform .2s ease, filter .2s ease;
+    }
+
+    .candy-btn.alt {
+      background: #fff;
+      color: #111;
+    }
+
+    .candy-btn:hover {
+      transform: translateY(-3px) scale(1.03);
+      filter: saturate(1.15);
+    }
+
+    .dog-seal {
+      position: relative;
+      display: grid;
+      place-items: center;
+      min-height: 360px;
+      background: #111;
+      border: 2px solid #fff;
+      border-radius: 1.2rem;
+      overflow: hidden;
+    }
+
+    .dog-seal::before {
+      content: "";
+      width: 78%;
+      aspect-ratio: 1;
+      background: radial-gradient(circle at 35% 30%, #fff 0 8%, #ffeec2 9% 28%, #ffb13d 29% 66%, #db5f00 67%);
+      border-radius: 50%;
+      box-shadow: 0 0 0 8px var(--pink), 0 0 0 16px var(--blue), 0 0 0 24px var(--lime);
+      animation: floaty 5s ease-in-out infinite;
+    }
+
+    .dog-face {
+      position: absolute;
+      width: 56%;
+      aspect-ratio: 1;
+      border-radius: 50%;
+      background: radial-gradient(circle at 50% 85%, #ffd88b 0 24%, #ffb953 25% 100%);
+      border: 2px solid #111;
+      display: grid;
+      place-items: center;
+    }
+
+    .dog-face .eyes,
+    .dog-face .snout {
+      position: absolute;
+    }
+
+    .eyes {
+      top: 34%;
+      width: 62%;
+      display: flex;
+      justify-content: space-between;
+    }
+
+    .eyes span {
+      width: 12px;
+      height: 12px;
+      background: #111;
+      border-radius: 50%;
+    }
+
+    .snout {
+      top: 52%;
+      width: 34%;
+      height: 22%;
+      border-radius: 999px;
+      background: #ffe6bf;
+      border: 2px solid #111;
+      display: grid;
+      place-items: center;
+    }
+
+    .snout::before {
+      content: "";
+      width: 12px;
+      height: 9px;
+      border-radius: 50% 50% 60% 60%;
+      background: #111;
+      margin-top: -3px;
+    }
+
+    .ear {
+      position: absolute;
+      width: 26%;
+      aspect-ratio: 0.75;
+      background: #743300;
+      border: 2px solid #111;
+      top: 11%;
+      border-radius: 55% 45% 48% 52%;
+    }
+
+    .ear.left { left: 12%; transform: rotate(-28deg); }
+    .ear.right { right: 12%; transform: rotate(28deg); }
+
+    .ceo-ribbon {
+      position: absolute;
+      top: 14px;
+      left: 14px;
+      background: var(--lime);
+      color: #111;
+      border: 2px solid #111;
+      font-weight: 800;
+      padding: .25rem .55rem;
+      border-radius: 999px;
+      font-size: .76rem;
+      z-index: 3;
+    }
+
+    .rates {
+      background:
+        linear-gradient(180deg, #fef0ff, #fff9d8 50%, #e7fff1);
+      color: var(--darkText);
+    }
+
+    .rates .frame {
+      color: var(--darkText);
+    }
+
+    .rates h2, .rates p, .rates label, .rates small {
+      color: var(--darkText);
+    }
+
+    .section-title {
+      font-size: clamp(2rem, 5vw, 4rem);
+      margin-bottom: 0.5rem;
+    }
+
+    .rate-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0,1fr));
+      gap: 1rem;
+      margin: 1.2rem 0;
+    }
+
+    .rate-card {
+      background: #fff;
+      border: 3px solid #111;
+      border-radius: 1.1rem;
+      padding: 1rem;
+      box-shadow: 7px 7px 0 #111;
+      transition: transform .2s ease, box-shadow .2s ease, background .25s ease;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .rate-card::after {
+      content: "";
+      position: absolute;
+      width: 120px;
+      height: 120px;
+      border-radius: 50%;
+      background: linear-gradient(45deg, rgba(255,47,174,0.28), rgba(36,93,255,0.26));
+      right: -32px;
+      top: -34px;
+      transition: transform .25s ease;
+    }
+
+    .rate-card:hover {
+      transform: translate(-2px, -4px) rotate(-0.6deg);
+      box-shadow: 12px 12px 0 #111;
+      background: #f9ffce;
+    }
+
+    .rate-card:hover::after {
+      transform: scale(1.2);
+    }
+
+    .rate-card h3 {
+      font-size: 1.3rem;
+      margin-bottom: .35rem;
+      color: #111;
+    }
+
+    .big-rate {
+      font-size: 2rem;
+      line-height: 1;
+      color: #111;
+      font-weight: 800;
+      margin: .5rem 0;
+    }
+
+    .ledger-tool {
+      background: #111;
+      color: #fff;
+      border: 3px solid #111;
+      border-radius: 1rem;
+      padding: 1rem;
+      margin-top: 1rem;
+      display: grid;
+      gap: 0.75rem;
+    }
+
+    .ledger-tool input[type="range"] {
+      width: 100%;
+      accent-color: var(--lime);
+    }
+
+    .compliment-meter {
+      height: 18px;
+      border: 2px solid #fff;
+      border-radius: 999px;
+      overflow: hidden;
+      background: #222;
+    }
+
+    .compliment-fill {
+      height: 100%;
+      width: 26%;
+      background: linear-gradient(90deg, var(--pink), var(--blue), var(--lime));
+      transition: width .2s ease;
+    }
+
+    .haiku {
+      background:
+        linear-gradient(140deg, #0e0520, #14004d 46%, #023861);
+      color: #fff;
+    }
+
+    .review-shell {
+      border: 2px solid #fff;
+      border-radius: 1rem;
+      padding: clamp(1rem, 2vw, 1.4rem);
+      background: rgba(255,255,255,0.08);
+      backdrop-filter: blur(4px);
+      position: relative;
+      min-height: 340px;
+      overflow: hidden;
+    }
+
+    .review-glow {
+      position: absolute;
+      width: 380px;
+      height: 380px;
+      right: -170px;
+      top: -130px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(201,255,47,0.37), rgba(201,255,47,0));
+      pointer-events: none;
+    }
+
+    .haiku-card {
+      border: 2px solid #fff;
+      background: rgba(0,0,0,0.45);
+      border-radius: .9rem;
+      padding: 1rem;
+      display: none;
+    }
+
+    .haiku-card.active {
+      display: block;
+    }
+
+    .haiku-card p {
+      font-size: clamp(1.05rem, 2vw, 1.28rem);
+      line-height: 1.4;
+      margin-bottom: .6rem;
+      color: #fff;
+    }
+
+    .haiku-card .guest {
+      color: var(--lime);
+      font-weight: 700;
+      font-size: .92rem;
+      letter-spacing: .03em;
+      text-transform: uppercase;
+    }
+
+    .review-controls {
+      margin-top: 1rem;
+      display: flex;
+      gap: .6rem;
+      flex-wrap: wrap;
+    }
+
+    .review-controls button,
+    .palette button {
+      background: #fff;
+      color: #111;
+      border: 2px solid #111;
+      font-weight: 700;
+      border-radius: 999px;
+      padding: .45rem .75rem;
+      cursor: pointer;
+    }
+
+    .palette {
+      display: flex;
+      gap: .5rem;
+      flex-wrap: wrap;
+      margin-top: 1rem;
+    }
+
+    .faq {
+      background: #f8ffde;
+      color: #111;
+    }
+
+    .faq .frame {
+      color: #111;
+    }
+
+    details {
+      background: #fff;
+      border: 2px solid #111;
+      border-radius: .85rem;
+      padding: .75rem 1rem;
+      margin-bottom: .65rem;
+      box-shadow: 4px 4px 0 #111;
+    }
+
+    summary {
+      cursor: pointer;
+      font-weight: 700;
+      color: #111;
+    }
+
+    footer {
+      background: #130b21;
+      color: #fff;
+      border-top: 2px solid #fff;
+      padding: 1.3rem 1rem;
+      text-align: center;
+    }
+
+    .stamp-row {
+      margin-top: 1rem;
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0,1fr));
+      gap: .65rem;
+    }
+
+    .stamp {
+      border: 2px solid #fff;
+      border-radius: .8rem;
+      min-height: 76px;
+      display: grid;
+      place-items: center;
+      background: linear-gradient(45deg, rgba(255,47,174,0.42), rgba(36,93,255,0.43));
+      color: #fff;
+      font-weight: 700;
+      transform-origin: center;
+      transition: transform .25s ease, filter .25s ease;
+    }
+
+    .stamp:hover {
+      transform: rotate(-4deg) scale(1.04);
+      filter: hue-rotate(35deg) saturate(1.3);
+    }
+
+    .petal {
+      position: absolute;
+      width: 22px;
+      height: 22px;
+      border-radius: 35% 65% 60% 40%;
+      pointer-events: none;
+      z-index: 1;
+      opacity: 0.95;
+      border: 2px solid #111;
+    }
+
+    @keyframes spin {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(360deg); }
+    }
+
+    @keyframes floaty {
+      0%,100% { transform: translateY(0px) rotate(0deg); }
+      50% { transform: translateY(-10px) rotate(2deg); }
+    }
+
+    @media (max-width: 920px) {
+      .hero-grid,
+      .rate-grid,
+      .stamp-row {
+        grid-template-columns: 1fr;
+      }
+      .dog-seal {
+        min-height: 290px;
+      }
+      .top-nav {
+        border-radius: 1rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <section class="slide hero" id="home">
+    <div class="frame">
+      <nav class="top-nav" aria-label="Main">
+        <div class="brand">Paws & Ledger Inn</div>
+        <div class="nav-links">
+          <a href="#suites">Suites</a>
+          <a href="#reviews">Haiku Reviews</a>
+          <a href="#faq">Policies</a>
+        </div>
+      </nav>
+
+      <div class="hero-grid">
+        <article class="hero-copy">
+          <span class="mini-tag"><i data-lucide="badge-check"></i> Board-Certified Good Boy, Chief Executive</span>
+          <h1>Sleep Well. Speak Kindly. Settle Your Bill in Compliments.</h1>
+          <p>At Paws & Ledger Inn, your stay includes breakfast biscuits, warm quilts, and executive tail-wag oversight from Mr. Biscuit, CEO.</p>
+          <p class="mono">No cash accepted. We audit sincerity.</p>
+          <div class="actions">
+            <a href="#suites" class="candy-btn" role="button">Reserve a Suite</a>
+            <button class="candy-btn alt" id="dropPetals" type="button">Send Compliments</button>
+          </div>
+          <div class="palette" aria-label="Color themes">
+            <button type="button" data-palette="classic">Classic Ledger</button>
+            <button type="button" data-palette="sunset">Sunset Filing</button>
+            <button type="button" data-palette="mint">Mint Audit</button>
+          </div>
+        </article>
+
+        <aside class="dog-seal" aria-label="CEO portrait">
+          <div class="ceo-ribbon">CEO ON DUTY</div>
+          <div class="ear left" aria-hidden="true"></div>
+          <div class="ear right" aria-hidden="true"></div>
+          <div class="dog-face">
+            <div class="eyes"><span></span><span></span></div>
+            <div class="snout"></div>
+          </div>
+        </aside>
+      </div>
+    </div>
+  </section>
+
+  <section class="slide rates" id="suites">
+    <div class="frame">
+      <h2 class="section-title">Compliment Rate Sheet</h2>
+      <p>Rates include breakfast, pressed pajamas, and nightly corridor patrols by management.</p>
+
+      <div class="rate-grid">
+        <article class="rate-card">
+          <h3>Standard Snout Suite</h3>
+          <div class="big-rate">12 compliments</div>
+          <p>One queen bed, window fern, evening cocoa.</p>
+        </article>
+        <article class="rate-card">
+          <h3>Executive Pawlor</h3>
+          <div class="big-rate">18 compliments</div>
+          <p>Double room, velvet chair, private biscuit service.</p>
+        </article>
+        <article class="rate-card">
+          <h3>Corner Canine Penthouse</h3>
+          <div class="big-rate">30 compliments</div>
+          <p>Skylight lounge, bath salts, sunrise trumpet wakeup.</p>
+        </article>
+      </div>
+
+      <div class="ledger-tool" aria-live="polite">
+        <label for="compliments"><strong>Your nightly compliment budget:</strong> <span id="complimentCount">16</span></label>
+        <input id="compliments" type="range" min="6" max="40" value="16" />
+        <div class="compliment-meter"><div class="compliment-fill" id="complimentFill"></div></div>
+        <small id="suiteSuggestion">Suggested: Executive Pawlor</small>
+      </div>
+
+      <div class="stamp-row" aria-hidden="true">
+        <div class="stamp">WARM CROISSANTS</div>
+        <div class="stamp">BARKFAST 7AM</div>
+        <div class="stamp">PILLOW MENU</div>
+        <div class="stamp">QUIET HOURS</div>
+      </div>
+    </div>
+  </section>
+
+  <section class="slide haiku" id="reviews">
+    <div class="frame">
+      <h2 class="section-title">Guest Review Ledger</h2>
+      <p>All official testimonials are filed in haiku format.</p>
+
+      <div class="review-shell">
+        <div class="review-glow" aria-hidden="true"></div>
+
+        <article class="haiku-card active">
+          <p>Polished brass at dawn<br>he nods once from the staircase<br>my tea tastes like praise</p>
+          <div class="guest">Leona P. • Book Conservator</div>
+        </article>
+
+        <article class="haiku-card">
+          <p>Rain taps cedar roof<br>the manager leaves a biscuit<br>beside my tax forms</p>
+          <div class="guest">Harold V. • Maritime Auditor</div>
+        </article>
+
+        <article class="haiku-card">
+          <p>Ledger by lamplight<br>he accepts my kindest sentence<br>and extends checkout</p>
+          <div class="guest">Rina K. • Floral Export</div>
+        </article>
+
+        <article class="haiku-card">
+          <p>Lobby smells of mint<br>his velvet tie catches sunlight<br>I sleep without clocks</p>
+          <div class="guest">Dorian S. • String Quartet</div>
+        </article>
+
+        <div class="review-controls">
+          <button type="button" id="prevHaiku">Previous Haiku</button>
+          <button type="button" id="nextHaiku">Next Haiku</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="slide faq" id="faq">
+    <div class="frame">
+      <h2 class="section-title">Policies & House Notes</h2>
+      <details>
+        <summary>How are compliments verified?</summary>
+        <p>Our front desk evaluates tone, originality, and eye contact. Overused phrases may be returned for revision.</p>
+      </details>
+      <details>
+        <summary>Can I prepay with a bundle?</summary>
+        <p>Yes. The ten-compliment starter roll applies to any future weekday booking.</p>
+      </details>
+      <details>
+        <summary>Do you host events?</summary>
+        <p>We host retirement dinners, budget meetings, and moonlight vow renewals on the conservatory terrace.</p>
+      </details>
+      <details>
+        <summary>Pet policy?</summary>
+        <p>Only one resident dog is permitted. He is the owner, chief executive, and final approver.</p>
+      </details>
+    </div>
+  </section>
+
+  <footer>
+    <strong>Paws & Ledger Inn</strong> · 14 Tulip Accounting Way · Open Daily
+  </footer>
+
+  <script src="/assets/js/alpine.min.js" defer></script>
+  <script src="/assets/js/gsap.min.js"></script>
+  <script src="/assets/js/lucide.min.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      if (window.lucide && typeof window.lucide.createIcons === 'function') {
+        window.lucide.createIcons();
+      }
+
+      var paletteMap = {
+        classic: { pink: '#ff2fae', blue: '#245dff', lime: '#c9ff2f' },
+        sunset: { pink: '#ff4f7c', blue: '#372dff', lime: '#ffe14a' },
+        mint: { pink: '#ff4ad1', blue: '#0077ff', lime: '#8cff3f' }
+      };
+
+      var paletteButtons = document.querySelectorAll('[data-palette]');
+      paletteButtons.forEach(function (btn) {
+        btn.addEventListener('click', function () {
+          var key = btn.getAttribute('data-palette');
+          var palette = paletteMap[key];
+          if (!palette) return;
+
+          document.documentElement.style.setProperty('--pink', palette.pink);
+          document.documentElement.style.setProperty('--blue', palette.blue);
+          document.documentElement.style.setProperty('--lime', palette.lime);
+
+          if (window.gsap) {
+            gsap.fromTo('.hero-copy',
+              { scale: 0.98, rotate: -0.5 },
+              { scale: 1, rotate: 0, duration: 0.35, ease: 'power2.out' }
+            );
+          }
+        });
+      });
+
+      var complimentInput = document.getElementById('compliments');
+      var complimentCount = document.getElementById('complimentCount');
+      var complimentFill = document.getElementById('complimentFill');
+      var suiteSuggestion = document.getElementById('suiteSuggestion');
+
+      function updateCompliments() {
+        var value = Number(complimentInput.value);
+        complimentCount.textContent = String(value);
+        var pct = ((value - 6) / 34) * 100;
+        complimentFill.style.width = pct + '%';
+
+        if (value < 14) {
+          suiteSuggestion.textContent = 'Suggested: Standard Snout Suite';
+        } else if (value < 24) {
+          suiteSuggestion.textContent = 'Suggested: Executive Pawlor';
+        } else {
+          suiteSuggestion.textContent = 'Suggested: Corner Canine Penthouse';
+        }
+      }
+
+      complimentInput.addEventListener('input', updateCompliments);
+      updateCompliments();
+
+      var cards = Array.prototype.slice.call(document.querySelectorAll('.haiku-card'));
+      var current = 0;
+
+      function showCard(nextIndex, direction) {
+        if (nextIndex === current) return;
+        var outgoing = cards[current];
+        var incoming = cards[nextIndex];
+
+        outgoing.classList.remove('active');
+        incoming.classList.add('active');
+
+        if (window.gsap) {
+          gsap.fromTo(incoming,
+            { x: direction > 0 ? 24 : -24, opacity: 0 },
+            { x: 0, opacity: 1, duration: 0.35, ease: 'power2.out' }
+          );
+        }
+
+        current = nextIndex;
+      }
+
+      document.getElementById('nextHaiku').addEventListener('click', function () {
+        var next = (current + 1) % cards.length;
+        showCard(next, 1);
+      });
+
+      document.getElementById('prevHaiku').addEventListener('click', function () {
+        var next = (current - 1 + cards.length) % cards.length;
+        showCard(next, -1);
+      });
+
+      var petalBtn = document.getElementById('dropPetals');
+      var hero = document.querySelector('.hero');
+      var colors = ['var(--pink)', 'var(--blue)', 'var(--lime)', '#ffffff'];
+
+      petalBtn.addEventListener('click', function () {
+        for (var i = 0; i < 18; i += 1) {
+          var petal = document.createElement('span');
+          petal.className = 'petal';
+          petal.style.left = Math.random() * 100 + '%';
+          petal.style.top = Math.random() * 55 + 18 + '%';
+          petal.style.background = colors[Math.floor(Math.random() * colors.length)];
+          hero.appendChild(petal);
+
+          if (window.gsap) {
+            gsap.fromTo(petal,
+              { y: 0, rotate: 0, scale: 0.5, opacity: 1 },
+              {
+                y: Math.random() * 300 + 140,
+                x: (Math.random() - 0.5) * 150,
+                rotate: Math.random() * 360,
+                scale: 1.2,
+                opacity: 0,
+                duration: 2.5 + Math.random() * 1.2,
+                ease: 'power1.out',
+                onComplete: function () { this.targets()[0].remove(); }
+              }
+            );
+          } else {
+            setTimeout(function () {
+              if (petal && petal.parentNode) {
+                petal.parentNode.removeChild(petal);
+              }
+            }, 1800);
+          }
+        }
+      });
+
+      if (window.gsap) {
+        gsap.from('.hero-copy', { y: 28, opacity: 0, duration: 0.8, ease: 'power2.out' });
+        gsap.from('.dog-seal', { y: 28, opacity: 0, duration: 0.9, delay: 0.1, ease: 'power2.out' });
+        gsap.from('.rate-card', { y: 22, opacity: 0, stagger: 0.12, duration: 0.7, scrollTrigger: undefined });
+      }
+    });
+  </script>
+</body>
+</html>

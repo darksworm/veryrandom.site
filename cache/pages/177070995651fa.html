@@ -1,0 +1,704 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Pocket Chance Apothecary & Miniature Casino</title>
+  <link rel="stylesheet" href="/assets/css/pico.min.css" />
+  <link rel="stylesheet" href="/assets/css/fonts.css" />
+  <style>
+    :root {
+      --bg1: #ffe3f5;
+      --bg2: #d7f5ff;
+      --bg3: #fff8cc;
+      --bg4: #e8ddff;
+      --ink: #1d1333;
+      --ink-soft: #3f3457;
+      --paper: #fffdfd;
+      --cardA: #ffd6ea;
+      --cardB: #d6f4ff;
+      --cardC: #fff2bf;
+      --cardD: #e6dcff;
+      --hot: #ff3b82;
+      --cool: #2e66ff;
+      --ok: #0e8b57;
+      --warn: #8a4f00;
+      --line: #5a4b7f;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html, body {
+      margin: 0;
+      padding: 0;
+      width: 100%;
+      overflow-x: hidden;
+      background: linear-gradient(120deg, var(--bg1), var(--bg2), var(--bg3), var(--bg4));
+      color: var(--ink);
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 16px;
+      line-height: 1.45;
+    }
+
+    body {
+      min-height: 100vh;
+      background-size: 260% 260%;
+      animation: cloudShift 16s ease-in-out infinite alternate;
+    }
+
+    @keyframes cloudShift {
+      0% { background-position: 0% 50%; }
+      100% { background-position: 100% 50%; }
+    }
+
+    main {
+      max-width: 1500px;
+      margin: 0 auto;
+      padding: clamp(1rem, 1.6vw, 2rem);
+      display: grid;
+      grid-template-columns: repeat(12, minmax(0, 1fr));
+      gap: clamp(0.8rem, 1.2vw, 1.2rem);
+      position: relative;
+    }
+
+    .panel {
+      border: 2px solid var(--line);
+      border-radius: 1.2rem;
+      background: var(--paper);
+      box-shadow: 0.45rem 0.45rem 0 var(--line);
+      padding: clamp(0.85rem, 1.6vw, 1.25rem);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .nav {
+      grid-column: 1 / -1;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.75rem;
+      align-items: center;
+      justify-content: space-between;
+      background: linear-gradient(90deg, var(--cardA), var(--cardB), var(--cardC));
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      font-weight: 700;
+      color: #1d1333;
+      font-size: clamp(1rem, 2.2vw, 1.4rem);
+    }
+
+    .tiny {
+      font-size: 0.82rem;
+      color: #3f3457;
+    }
+
+    .pill-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+    }
+
+    button, .btn {
+      min-height: 44px;
+      border-radius: 999px;
+      border: 2px solid var(--line);
+      background: #ffffff;
+      color: #20163b;
+      font-weight: 700;
+      font-family: 'Space Grotesk', sans-serif;
+      padding: 0.45rem 0.9rem;
+      cursor: pointer;
+      transition: transform 0.15s ease, background 0.15s ease;
+    }
+
+    button:hover, .btn:hover {
+      transform: translateY(-2px);
+      background: #fef3ff;
+    }
+
+    .hero {
+      grid-column: 1 / span 8;
+      background: linear-gradient(135deg, var(--cardA), var(--cardD), var(--cardB));
+      min-height: 280px;
+      transform: rotate(-0.6deg);
+    }
+
+    .hero h1 {
+      font-family: 'Playfair Display', serif;
+      margin: 0 0 0.6rem;
+      font-size: clamp(1.8rem, 4.5vw, 3.2rem);
+      color: #1f1038;
+      line-height: 1.05;
+    }
+
+    .hero p {
+      font-size: clamp(1rem, 1.6vw, 1.15rem);
+      max-width: 60ch;
+      color: #30254f;
+      margin-bottom: 0.8rem;
+    }
+
+    .quote-wall {
+      grid-column: 9 / -1;
+      background: linear-gradient(180deg, var(--cardC), #ffe2f0);
+      transform: rotate(0.8deg);
+    }
+
+    .haiku {
+      border: 2px dashed #8f6ca3;
+      border-radius: 0.8rem;
+      padding: 0.75rem;
+      margin-bottom: 0.6rem;
+      background: #ffffff;
+      color: #25163f;
+      white-space: pre-line;
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 0.92rem;
+    }
+
+    .dashboard {
+      grid-column: 1 / span 5;
+      background: linear-gradient(135deg, #d8f2ff, #f1ddff);
+      margin-top: -8px;
+    }
+
+    .ticker {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 0.55rem;
+      margin-top: 0.8rem;
+    }
+
+    .metric {
+      background: #ffffff;
+      border: 2px solid #5a4b7f;
+      border-radius: 0.8rem;
+      padding: 0.55rem;
+    }
+
+    .metric .label {
+      font-size: 0.78rem;
+      color: #3f3457;
+      text-transform: uppercase;
+      letter-spacing: 0.03em;
+    }
+
+    .metric .value {
+      font-size: 1.35rem;
+      color: #1d1333;
+      font-weight: 800;
+    }
+
+    .tables {
+      grid-column: 6 / -1;
+      background: linear-gradient(120deg, #ffe8ca, #ffe0f2);
+      margin-top: 10px;
+    }
+
+    .table-wrap {
+      overflow-x: auto;
+      border: 2px solid #5a4b7f;
+      border-radius: 0.8rem;
+      background: #ffffff;
+    }
+
+    table {
+      width: 100%;
+      min-width: 500px;
+      border-collapse: collapse;
+      color: #23173c;
+      font-size: 0.92rem;
+    }
+
+    th, td {
+      border-bottom: 1px solid #a291c7;
+      padding: 0.5rem 0.55rem;
+      text-align: left;
+    }
+
+    th {
+      background: #f3ebff;
+      color: #26184b;
+      font-weight: 700;
+    }
+
+    .pricing {
+      grid-column: 1 / span 7;
+      background: linear-gradient(135deg, #ffcfe7, #cff1ff);
+    }
+
+    .price-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 0.6rem;
+    }
+
+    .tier {
+      border: 2px solid #5a4b7f;
+      border-radius: 1rem;
+      background: #ffffff;
+      padding: 0.65rem;
+      color: #23183f;
+    }
+
+    .tier h4 {
+      margin: 0 0 0.3rem;
+      font-size: 1rem;
+      color: #1d1333;
+    }
+
+    .tier p {
+      margin: 0;
+      font-size: 0.88rem;
+      color: #3f3457;
+    }
+
+    .tier strong {
+      display: block;
+      margin: 0.4rem 0;
+      color: #17204a;
+      font-size: 1.2rem;
+    }
+
+    .roulette {
+      grid-column: 8 / -1;
+      background: linear-gradient(150deg, #d8d7ff, #ffd1f6);
+      transform: rotate(-0.4deg);
+    }
+
+    .wheel {
+      width: min(250px, 100%);
+      aspect-ratio: 1;
+      margin: 0.6rem auto;
+      border-radius: 50%;
+      border: 3px solid #4a3a77;
+      background: conic-gradient(#ff85b8 0deg 60deg, #8ed8ff 60deg 120deg, #ffe08f 120deg 180deg, #c7b1ff 180deg 240deg, #96f0d0 240deg 300deg, #ffb3d5 300deg 360deg);
+      position: relative;
+      box-shadow: inset 0 0 0 3px #fff4ff;
+    }
+
+    .needle {
+      width: 0;
+      height: 0;
+      border-left: 12px solid transparent;
+      border-right: 12px solid transparent;
+      border-bottom: 24px solid #1e1638;
+      margin: 0 auto;
+    }
+
+    .faq {
+      grid-column: 1 / span 6;
+      background: linear-gradient(120deg, #fff2c7, #ffd8e7);
+    }
+
+    details {
+      border: 2px solid #5a4b7f;
+      border-radius: 0.7rem;
+      padding: 0.5rem 0.7rem;
+      background: #ffffff;
+      margin-bottom: 0.5rem;
+      color: #22163e;
+    }
+
+    summary {
+      cursor: pointer;
+      font-weight: 700;
+      color: #1e1338;
+    }
+
+    .lab {
+      grid-column: 7 / -1;
+      background: linear-gradient(120deg, #ddf6ff, #e8dfff, #ffdff0);
+    }
+
+    .bars {
+      display: grid;
+      gap: 0.45rem;
+      margin: 0.7rem 0;
+    }
+
+    .bar {
+      background: #ffffff;
+      border: 2px solid #5a4b7f;
+      border-radius: 999px;
+      overflow: hidden;
+      height: 30px;
+      position: relative;
+    }
+
+    .bar > span {
+      display: block;
+      height: 100%;
+      background: linear-gradient(90deg, #ff89bc, #8edcff);
+      color: #1d1333;
+      font-size: 0.8rem;
+      font-weight: 700;
+      padding-left: 0.6rem;
+      line-height: 26px;
+      white-space: nowrap;
+    }
+
+    .foot {
+      grid-column: 1 / -1;
+      background: linear-gradient(90deg, #ffd8f1, #d5eeff, #fff1bd);
+      color: #2e214b;
+      font-size: 0.84rem;
+    }
+
+    .footnotes {
+      columns: 2;
+      column-gap: 1.4rem;
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      padding: 0.22rem 0.55rem;
+      border-radius: 999px;
+      border: 2px solid #5a4b7f;
+      background: #ffffff;
+      color: #241a40;
+      font-size: 0.8rem;
+      margin-right: 0.35rem;
+      margin-top: 0.35rem;
+      font-weight: 700;
+    }
+
+    .mono {
+      font-family: 'IBM Plex Mono', monospace;
+      color: #2a1d48;
+    }
+
+    @media (max-width: 1020px) {
+      .hero, .quote-wall, .dashboard, .tables, .pricing, .roulette, .faq, .lab {
+        grid-column: 1 / -1;
+        transform: none;
+        margin-top: 0;
+      }
+
+      .price-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (max-width: 640px) {
+      .ticker {
+        grid-template-columns: 1fr;
+      }
+
+      .footnotes {
+        columns: 1;
+      }
+
+      table {
+        min-width: 420px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main x-data="tinyCasino()">
+    <section class="panel nav reveal">
+      <div>
+        <div class="brand"><i data-lucide="pill"></i> Pocket Chance Apothecary & Miniature Casino</div>
+        <div class="tiny">Founded by Dr. Mirela Small, PharmD. My first panic attack fit inside a thimble. So does our roulette.</div>
+      </div>
+      <div class="pill-row">
+        <button x-on:click="toggleQuiet()">Quiet Mode: <span x-text="quietMode ? 'ON' : 'OFF'"></span></button>
+        <button x-on:click="dispensePepTalk()">Dispense Pep Talk</button>
+        <button x-on:click="cycleColor()">Repaint Walls</button>
+      </div>
+    </section>
+
+    <section class="panel hero reveal">
+      <h1>Prescription Odds for Existential Dread</h1>
+      <p>
+        I am Dr. Mirela Small. I opened this clinic-casino after realizing full-size despair is illegal in five counties.
+        We treat rumination in <span class="mono">milligrams</span> and celebrate recovery in <span class="mono">millimeters</span>.
+      </p>
+      <div class="pill-row">
+        <span class="badge"><i data-lucide="badge-dollar-sign"></i> Micro-jackpot paid in nickels</span>
+        <span class="badge"><i data-lucide="ruler"></i> All tables under 8cm</span>
+        <span class="badge"><i data-lucide="heart-pulse"></i> FDA: "please stop calling"</span>
+      </div>
+      <p class="mono" x-text="pepTalk"></p>
+    </section>
+
+    <section class="panel quote-wall reveal">
+      <h3>Verified Haiku Reviews</h3>
+      <div class="haiku" x-text="currentHaiku"></div>
+      <button x-on:click="nextHaiku()">Next customer poem</button>
+      <p class="tiny">Policy: all reviews must fit 17 syllables and a co-pay.</p>
+    </section>
+
+    <section class="panel dashboard reveal">
+      <h3>Live Ward Floor</h3>
+      <div class="ticker">
+        <div class="metric"><div class="label">Tiny Slots Active</div><div class="value" x-text="slots"></div></div>
+        <div class="metric"><div class="label">Anxieties Diluted</div><div class="value" x-text="dreadDiluted + ' mg'"></div></div>
+        <div class="metric"><div class="label">Average Hand Tremor</div><div class="value" x-text="tremor + ' mm'"></div></div>
+        <div class="metric"><div class="label">Clinic Uptime</div><div class="value" x-text="uptime"></div></div>
+      </div>
+      <div class="pill-row" style="margin-top: 0.7rem;">
+        <button x-on:click="dose(-1)">-1mg Calm</button>
+        <button x-on:click="dose(1)">+1mg Calm</button>
+        <button x-on:click="simulateRush()">Simulate Lunch Rush</button>
+      </div>
+    </section>
+
+    <section class="panel tables reveal">
+      <h3>Tonight's Miniature Tables</h3>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr><th>Table</th><th>Scale</th><th>Minimum Bet</th><th>Clinical Side Effect</th><th>Status</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>Roulette Lite</td><td>1:24</td><td>$0.09</td><td>temporary optimism</td><td><strong style="color:#0e8b57;">Open</strong></td></tr>
+            <tr><td>Blackjack for Thinkers</td><td>1:18</td><td>$0.11</td><td>mild clarity</td><td><strong style="color:#8a4f00;">Waitlist</strong></td></tr>
+            <tr><td>Craps for Catastrophizers</td><td>1:30</td><td>$0.07</td><td>improved posture</td><td><strong style="color:#0e8b57;">Open</strong></td></tr>
+            <tr><td>Baccarat for Divorcees</td><td>1:22</td><td>$0.13</td><td>texting your ex less</td><td><strong style="color:#0e8b57;">Open</strong></td></tr>
+            <tr><td>Panic Keno</td><td>1:40</td><td>$0.04</td><td>sudden journaling</td><td><strong style="color:#8a4f00;">Sanitizing</strong></td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="tiny">Table felt replaced every 45 minutes due to dramatic sigh damage.</p>
+    </section>
+
+    <section class="panel pricing reveal">
+      <h3>Memberships Prescribed by Me, Personally</h3>
+      <div class="price-grid">
+        <article class="tier">
+          <h4>Starter Spiral</h4>
+          <strong>$47.99/mo</strong>
+          <p>2 micro-bets/day, one guided "it's probably fine" call, and 14 emergency peppermints.</p>
+          <button x-on:click="pickPlan('Starter Spiral', 47.99)">Choose</button>
+        </article>
+        <article class="tier">
+          <h4>Deluxe Doom-Detox</h4>
+          <strong>$88.40/mo</strong>
+          <p>Unlimited tiny roulette, custom anti-rumination playlist, first aid glitter.</p>
+          <button x-on:click="pickPlan('Deluxe Doom-Detox', 88.40)">Choose</button>
+        </article>
+        <article class="tier">
+          <h4>Executive Mini-Miracle</h4>
+          <strong>$149.00/mo</strong>
+          <p>Private table, velvet pill organizer, and I personally clap when you breathe slowly.</p>
+          <button x-on:click="pickPlan('Executive Mini-Miracle', 149.00)">Choose</button>
+        </article>
+      </div>
+      <p class="mono" style="margin-top:0.6rem;">Current plan: <span x-text="chosenPlan"></span> | Monthly invoice: $<span x-text="planPrice.toFixed(2)"></span></p>
+    </section>
+
+    <section class="panel roulette reveal">
+      <h3>Desk Roulette (Therapeutic)</h3>
+      <div class="needle"></div>
+      <div class="wheel" x-ref="wheel"></div>
+      <div class="pill-row">
+        <button x-on:click="spinWheel()">Spin tiny wheel</button>
+        <button x-on:click="microJackpot++">Manual jackpot +1</button>
+      </div>
+      <p><strong>Last outcome:</strong> <span x-text="wheelResult"></span></p>
+      <p><strong>Micro-jackpot units:</strong> <span x-text="microJackpot"></span></p>
+    </section>
+
+    <section class="panel faq reveal">
+      <h3>Questions Asked While Holding a Tiny Dice Cup</h3>
+      <details>
+        <summary>Do you accept insurance?</summary>
+        <p>Yes. We accept Delta Shrug, Blue Cross Blue Mood, and one mysterious envelope of quarters from Gary.</p>
+      </details>
+      <details>
+        <summary>Is this medically valid?</summary>
+        <p>I am medically valid. The casino is emotionally valid. The legal status is in a committed situationship.</p>
+      </details>
+      <details>
+        <summary>Why is everything so small?</summary>
+        <p>My thesis proved panic loses confidence when forced into dollhouse proportions. Peer review called it "disturbingly persuasive."</p>
+      </details>
+      <details>
+        <summary>Can I leave a review in prose?</summary>
+        <p>No. Haiku only. One customer submitted a sonnet and now runs coat check.</p>
+      </details>
+    </section>
+
+    <section class="panel lab reveal">
+      <h3>Mood Lab: Tonight's Compound Ratios</h3>
+      <div class="bars">
+        <div class="bar"><span x-bind:style="'width:' + formulas.calm + '%'">Calm Extract <span x-text="formulas.calm + '%'" style="float:right;padding-right:0.6rem;"></span></span></div>
+        <div class="bar"><span x-bind:style="'width:' + formulas.luck + '%'">Luck Syrup <span x-text="formulas.luck + '%'" style="float:right;padding-right:0.6rem;"></span></span></div>
+        <div class="bar"><span x-bind:style="'width:' + formulas.focus + '%'">Focus Powder <span x-text="formulas.focus + '%'" style="float:right;padding-right:0.6rem;"></span></span></div>
+      </div>
+      <div class="pill-row">
+        <button x-on:click="rebalance()">Rebalance formula</button>
+        <button x-on:click="nightShift = !nightShift">Night Shift: <span x-text="nightShift ? 'ON' : 'OFF'"></span></button>
+      </div>
+      <p class="tiny">Clinical note: if Calm exceeds 72%, guests begin complimenting their own boundaries.</p>
+    </section>
+
+    <section class="panel foot reveal">
+      <p><strong>Legal-ish Footer.</strong> I am Dr. Mirela Small, and yes, I still measure progress with a jeweler's ruler from 2009.</p>
+      <div class="footnotes">
+        <p>[1] 93% of dread returns within 48 hours unless watered, named, and charged a cover fee.</p>
+        <p>[2] Chips are biodegradable peppermint tablets. Do not inhale during winning streaks.</p>
+        <p>[3] Our smallest slot machine was briefly mistaken for a hearing aid and won Employee of the Month.</p>
+        <p>[4] No fixed kiosk in the bottom-right corner. That's where the universe places surprises.</p>
+      </div>
+    </section>
+  </main>
+
+  <script src="/assets/js/alpine.min.js" defer></script>
+  <script src="/assets/js/gsap.min.js" defer></script>
+  <script src="/assets/js/lucide.min.js" defer></script>
+  <script>
+    function tinyCasino() {
+      return {
+        quietMode: false,
+        nightShift: false,
+        pepTalk: 'Today\'s reminder: your thoughts are loud, but our roulette is louder in a supportive way.',
+        currentHaiku: 'Pill bottle whispers\nTiny wheel says maybe yes\nI finally unclench',
+        haikus: [
+          'Pill bottle whispers\nTiny wheel says maybe yes\nI finally unclench',
+          'Pocket-sized blackjack\nDealer nods at my heartbeat\nDebt leaves through side door',
+          'I bet nine cents, won\nEnough courage to call mom\nShe asked for the link',
+          'Dice like sugar cubes\nPharmacist winked, dread shrank twice\nI tipped in nickels',
+          'Scale one to twenty\nMy panic now fits a spoon\nDoctor says: progress'
+        ],
+        haikuIndex: 0,
+        slots: 42,
+        dreadDiluted: 318,
+        tremor: 1.8,
+        elapsed: 0,
+        uptime: '00:00:00',
+        chosenPlan: 'Starter Spiral',
+        planPrice: 47.99,
+        wheelResult: 'Awaiting brave click',
+        microJackpot: 12,
+        formulas: {
+          calm: 54,
+          luck: 28,
+          focus: 63
+        },
+        init() {
+          this.startTickers();
+          this.animateIn();
+          if (window.lucide && typeof window.lucide.createIcons === 'function') {
+            window.lucide.createIcons();
+          }
+        },
+        startTickers() {
+          setInterval(() => {
+            this.elapsed += 1;
+            const h = String(Math.floor(this.elapsed / 3600)).padStart(2, '0');
+            const m = String(Math.floor((this.elapsed % 3600) / 60)).padStart(2, '0');
+            const s = String(this.elapsed % 60).padStart(2, '0');
+            this.uptime = h + ':' + m + ':' + s;
+            this.slots = Math.max(12, this.slots + (Math.random() > 0.5 ? 1 : -1));
+            this.dreadDiluted += Math.floor(Math.random() * 4);
+            const tremorValue = parseFloat(this.tremor);
+            this.tremor = (tremorValue + (Math.random() - 0.5) * 0.2).toFixed(1);
+            this.microJackpot += Math.random() > 0.7 ? 1 : 0;
+          }, 1000);
+        },
+        animateIn() {
+          const panels = document.querySelectorAll('.reveal');
+          panels.forEach((el, idx) => {
+            gsap.fromTo(
+              el,
+              { y: 20, opacity: 0 },
+              { y: 0, opacity: 1, duration: 0.45, delay: idx * 0.05, clearProps: 'opacity,transform' }
+            );
+          });
+        },
+        toggleQuiet() {
+          this.quietMode = !this.quietMode;
+          this.pepTalk = this.quietMode
+            ? 'Quiet mode active. We only panic in lowercase now.'
+            : 'Quiet mode off. Full-volume healing returns, with complimentary mint.';
+        },
+        dispensePepTalk() {
+          const lines = [
+            'You survived every Tuesday so far. Incredible statistic.',
+            'Your dread is valid. Its parking pass is not.',
+            'Breathe in four counts. Exhale eight regrets.',
+            'Catastrophe is a rumor until invoiced.',
+            'You are not behind. You are marinating.'
+          ];
+          this.pepTalk = lines[Math.floor(Math.random() * lines.length)];
+        },
+        cycleColor() {
+          const sets = [
+            ['#ffe3f5', '#d7f5ff', '#fff8cc', '#e8ddff'],
+            ['#ffe9d2', '#d4ffef', '#e4e0ff', '#ffdff2'],
+            ['#ffdce5', '#d8ebff', '#fff1c8', '#e5dfff']
+          ];
+          const current = getComputedStyle(document.documentElement).getPropertyValue('--bg1').trim();
+          const idx = sets.findIndex(set => set[0] === current);
+          const next = sets[(idx + 1) % sets.length];
+          document.documentElement.style.setProperty('--bg1', next[0]);
+          document.documentElement.style.setProperty('--bg2', next[1]);
+          document.documentElement.style.setProperty('--bg3', next[2]);
+          document.documentElement.style.setProperty('--bg4', next[3]);
+        },
+        nextHaiku() {
+          this.haikuIndex = (this.haikuIndex + 1) % this.haikus.length;
+          this.currentHaiku = this.haikus[this.haikuIndex];
+        },
+        dose(delta) {
+          this.dreadDiluted = Math.max(0, this.dreadDiluted + delta * 5);
+          this.formulas.calm = Math.min(90, Math.max(20, this.formulas.calm + delta * 2));
+          this.formulas.luck = Math.min(85, Math.max(10, this.formulas.luck + delta));
+        },
+        simulateRush() {
+          this.slots += 8;
+          this.microJackpot += 3;
+          this.pepTalk = 'Lunch rush: six accountants, one poet, and a ferret in loafers.';
+        },
+        pickPlan(name, price) {
+          this.chosenPlan = name;
+          this.planPrice = price;
+        },
+        spinWheel() {
+          const outcomes = [
+            'Free chamomile chip',
+            'You win 2 deep breaths',
+            'Complimentary pep talk',
+            'Tiny jackpot: +4 units',
+            'One dramatic gong',
+            'Coupon for emotional hydration'
+          ];
+          const result = outcomes[Math.floor(Math.random() * outcomes.length)];
+          this.wheelResult = result;
+          if (result.includes('jackpot')) {
+            this.microJackpot += 4;
+          }
+          const turns = 720 + Math.floor(Math.random() * 720);
+          gsap.fromTo(
+            this.$refs.wheel,
+            { rotate: 0 },
+            { rotate: turns, duration: 1.1, ease: 'power2.out', clearProps: 'transform' }
+          );
+        },
+        rebalance() {
+          const calm = 35 + Math.floor(Math.random() * 45);
+          const luck = 15 + Math.floor(Math.random() * 50);
+          const focus = 100 - Math.floor((calm + luck) / 2);
+          this.formulas.calm = calm;
+          this.formulas.luck = luck;
+          this.formulas.focus = Math.max(18, Math.min(88, focus));
+        }
+      };
+    }
+
+    document.addEventListener('alpine:init', () => {
+      Alpine.data('tinyCasino', tinyCasino);
+    });
+  </script>
+</body>
+</html>

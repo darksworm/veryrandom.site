@@ -1,0 +1,996 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>St. Clawdia Dream Seminary | Detective Marzipan's Bureau</title>
+  <link rel="stylesheet" href="/assets/css/pico.min.css">
+  <link rel="stylesheet" href="/assets/css/fonts.css">
+  <script defer src="/assets/js/alpine.min.js"></script>
+  <script defer src="/assets/js/gsap.min.js"></script>
+  <script defer src="/assets/js/lucide.min.js"></script>
+  <style>
+    :root {
+      --ink-0: #041a25;
+      --ink-1: #072737;
+      --ink-2: #0b3447;
+      --reef: #14d1ad;
+      --reef-hot: #52ffd7;
+      --foam: #d9fff5;
+      --gold: #ffd27a;
+      --alert: #ff7d8b;
+      --text-main: #f4fffc;
+      --text-soft: #d0f2e8;
+      --text-dark: #08393f;
+      --panel: #0e2a3d;
+      --panel-alt: #113a4a;
+      --shadow: 0 16px 38px rgba(1, 11, 19, 0.45);
+      --radius: 22px;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html,
+    body {
+      margin: 0;
+      min-height: 100%;
+      overflow-x: clip;
+      background: radial-gradient(circle at 20% 0%, #0d4a5f 0%, #052334 45%, #021017 100%);
+      color: var(--text-main);
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 16px;
+    }
+
+    body {
+      position: relative;
+      isolation: isolate;
+      line-height: 1.4;
+    }
+
+    body::before,
+    body::after {
+      content: "";
+      position: fixed;
+      width: 42vmax;
+      height: 42vmax;
+      border-radius: 50%;
+      pointer-events: none;
+      z-index: -2;
+      filter: blur(6px);
+    }
+
+    body::before {
+      top: -12vmax;
+      left: -18vmax;
+      background: radial-gradient(circle, #1edcbc 0%, #0a4856 55%, #06212f 100%);
+      opacity: 0.88;
+    }
+
+    body::after {
+      right: -20vmax;
+      top: 22vh;
+      background: radial-gradient(circle, #1a7f88 0%, #0b3a4a 58%, #051926 100%);
+      opacity: 0.86;
+    }
+
+    .grain {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: -1;
+      background-image: radial-gradient(circle at 10% 20%, rgba(255, 255, 255, 0.045) 1px, transparent 2px),
+        radial-gradient(circle at 80% 70%, rgba(255, 255, 255, 0.04) 1px, transparent 2px);
+      background-size: 26px 26px, 31px 31px;
+    }
+
+    .wrap {
+      width: min(1180px, 94vw);
+      margin-inline: auto;
+      padding: clamp(1rem, 1.4vw, 1.2rem);
+      padding-bottom: 4rem;
+    }
+
+    .topbar {
+      margin-top: 1rem;
+      background: linear-gradient(110deg, rgba(11, 49, 64, 0.95), rgba(10, 38, 54, 0.95));
+      border: 1px solid #1ec9a8;
+      border-radius: 999px;
+      padding: 0.45rem 0.6rem 0.45rem 1rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.7rem;
+      box-shadow: var(--shadow);
+      position: sticky;
+      top: 0.7rem;
+      z-index: 20;
+      backdrop-filter: blur(8px);
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 0.65rem;
+      font-weight: 700;
+      letter-spacing: 0.03em;
+      color: var(--foam);
+      min-width: 0;
+    }
+
+    .brand i {
+      width: 1.1rem;
+      height: 1.1rem;
+      color: var(--reef-hot);
+      flex-shrink: 0;
+    }
+
+    .brand span {
+      font-size: clamp(0.82rem, 2.2vw, 0.95rem);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .actions {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+      gap: 0.45rem;
+    }
+
+    .pill {
+      appearance: none;
+      border: 1px solid #41f0cd;
+      background: #0f3144;
+      color: #ffffff;
+      border-radius: 999px;
+      padding: 0.62rem 0.92rem;
+      min-height: 44px;
+      font-weight: 700;
+      font-size: 0.78rem;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      cursor: pointer;
+      transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+    }
+
+    .pill:hover,
+    .pill:focus-visible {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 18px rgba(27, 228, 190, 0.34);
+      background: #155269;
+    }
+
+    .layout {
+      margin-top: 1.2rem;
+      display: grid;
+      grid-template-columns: 1.15fr 0.85fr;
+      gap: clamp(0.9rem, 2vw, 1.35rem);
+      align-items: start;
+    }
+
+    .hero {
+      position: relative;
+      background: linear-gradient(140deg, #0a2f44, #0d3a4f 50%, #0a2e3f);
+      border: 1px solid #2fe5c2;
+      border-radius: var(--radius);
+      padding: clamp(1rem, 2.5vw, 2rem);
+      box-shadow: var(--shadow);
+      overflow: hidden;
+      min-height: 320px;
+    }
+
+    .hero::before {
+      content: "";
+      position: absolute;
+      right: -14%;
+      top: -20%;
+      width: 54%;
+      aspect-ratio: 1;
+      border-radius: 48% 52% 44% 56%;
+      border: 2px solid #47f4cf;
+      transform: rotate(-12deg);
+      opacity: 0.62;
+    }
+
+    .hero::after {
+      content: "";
+      position: absolute;
+      left: -12%;
+      bottom: -28%;
+      width: 52%;
+      aspect-ratio: 1;
+      clip-path: polygon(49% 0%, 60% 26%, 98% 35%, 68% 54%, 74% 94%, 50% 71%, 27% 94%, 34% 54%, 2% 35%, 39% 26%);
+      background: linear-gradient(160deg, #1df0c9, #11706f);
+      opacity: 0.22;
+    }
+
+    .kicker {
+      margin: 0;
+      font-family: 'IBM Plex Mono', monospace;
+      color: #aefcea;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      font-size: 0.75rem;
+    }
+
+    h1,
+    h2,
+    h3,
+    h4,
+    p,
+    small,
+    li,
+    summary,
+    a,
+    strong,
+    span,
+    label {
+      color: var(--text-main);
+      opacity: 1;
+    }
+
+    h1 {
+      margin: 0.35rem 0 0.65rem;
+      font-size: clamp(1.6rem, 5.8vw, 3rem);
+      line-height: 1.03;
+      max-width: 18ch;
+      text-wrap: balance;
+    }
+
+    .lead {
+      margin: 0;
+      max-width: 44ch;
+      color: var(--text-soft);
+      font-size: clamp(1rem, 1.7vw, 1.1rem);
+    }
+
+    .hero-cta {
+      margin-top: 1rem;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.65rem;
+    }
+
+    .hero-cta button,
+    .hero-cta a {
+      min-height: 44px;
+    }
+
+    .big-btn {
+      appearance: none;
+      border: 0;
+      background: linear-gradient(140deg, #2bffd5, #12ab95);
+      color: #03232e;
+      border-radius: 14px;
+      padding: 0.75rem 1.1rem;
+      font-weight: 800;
+      letter-spacing: 0.02em;
+      text-decoration: none;
+      cursor: pointer;
+      transition: transform 0.2s ease;
+    }
+
+    .big-btn:hover,
+    .big-btn:focus-visible {
+      transform: translateY(-2px) scale(1.01);
+    }
+
+    .ghost-btn {
+      appearance: none;
+      border: 1px solid #43e8c5;
+      background: transparent;
+      color: #edfffb;
+      border-radius: 14px;
+      padding: 0.75rem 1.1rem;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .signature {
+      margin-top: 0.75rem;
+      color: #bdfef0;
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 0.82rem;
+    }
+
+    .art-stack {
+      position: relative;
+      display: grid;
+      gap: 0.8rem;
+      min-height: 320px;
+    }
+
+    .cat-emblem,
+    .case-panel,
+    .paw-panel {
+      border: 1px solid #2ce3bf;
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      overflow: hidden;
+      position: relative;
+    }
+
+    .cat-emblem {
+      background: linear-gradient(160deg, #0a3348, #0b263a);
+      min-height: 210px;
+      transform: rotate(-2deg);
+    }
+
+    .cat-face {
+      position: absolute;
+      inset: 12% 16% auto;
+      aspect-ratio: 1;
+      border-radius: 50% 50% 44% 44%;
+      background: radial-gradient(circle at 50% 45%, #1af4cd 0%, #137e82 48%, #0b2d42 100%);
+      border: 2px solid #7dffe1;
+    }
+
+    .cat-face::before,
+    .cat-face::after {
+      content: "";
+      position: absolute;
+      width: 28%;
+      aspect-ratio: 1;
+      background: linear-gradient(170deg, #1ff5cd, #106c7a);
+      clip-path: polygon(50% 0%, 100% 100%, 0% 100%);
+      top: -18%;
+      border: 2px solid #7dffe1;
+    }
+
+    .cat-face::before {
+      left: 8%;
+      transform: rotate(-14deg);
+    }
+
+    .cat-face::after {
+      right: 8%;
+      transform: rotate(14deg);
+    }
+
+    .eyes {
+      position: absolute;
+      inset: 33% 20% auto;
+      display: flex;
+      justify-content: space-between;
+      gap: 1rem;
+    }
+
+    .eye {
+      width: 36%;
+      aspect-ratio: 1.25;
+      border-radius: 50%;
+      border: 2px solid #76ffde;
+      background: radial-gradient(circle at 50% 50%, #ffffff 0%, #8efbe7 12%, #10b69d 26%, #07556a 70%, #063346 100%);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .eye::before {
+      content: "";
+      position: absolute;
+      inset: 24% 44%;
+      border-radius: 999px;
+      background: #05232f;
+      box-shadow: 0 0 0 2px #1ceac4;
+      transition: inset 0.3s ease;
+    }
+
+    .eye.beam::before {
+      inset: 6% 47%;
+    }
+
+    .whiskers {
+      position: absolute;
+      inset: auto 8% 16%;
+      height: 24%;
+    }
+
+    .whiskers span {
+      position: absolute;
+      width: 44%;
+      height: 2px;
+      background: #a9f8e7;
+      left: 4%;
+      top: 34%;
+      box-shadow: 0 16px 0 #a9f8e7;
+      transform-origin: left center;
+    }
+
+    .whiskers span:nth-child(2) {
+      left: auto;
+      right: 4%;
+      transform-origin: right center;
+      box-shadow: 0 16px 0 #a9f8e7;
+    }
+
+    .case-panel {
+      background: linear-gradient(150deg, #0d3044, #123f56);
+      padding: 0.85rem;
+      min-height: 148px;
+      transform: translateX(-10%) rotate(1.8deg);
+    }
+
+    .case-panel h2 {
+      margin: 0;
+      font-size: 1.05rem;
+      color: #f5fffd;
+    }
+
+    .case-panel p {
+      margin: 0.45rem 0 0;
+      color: #d4fff4;
+      font-size: 0.95rem;
+    }
+
+    .paw-panel {
+      background: linear-gradient(120deg, #0c3946, #09525d);
+      min-height: 155px;
+      padding: 0.75rem;
+      transform: translateX(8%) rotate(-1.5deg);
+      display: grid;
+      place-items: center;
+    }
+
+    .paw {
+      width: clamp(140px, 32vw, 200px);
+      aspect-ratio: 1;
+      position: relative;
+      filter: drop-shadow(0 5px 12px rgba(4, 17, 24, 0.6));
+      transition: transform 0.35s ease;
+    }
+
+    .paw:hover {
+      transform: rotate(-5deg) scale(1.05);
+    }
+
+    .pad,
+    .toe {
+      position: absolute;
+      border: 2px solid #86ffe5;
+      background: linear-gradient(145deg, #0f7282, #1dd5b4);
+      border-radius: 55% 45% 50% 50%;
+    }
+
+    .pad {
+      inset: 34% 19% 8%;
+      clip-path: polygon(7% 26%, 26% 5%, 50% 0%, 73% 5%, 94% 26%, 84% 96%, 16% 96%);
+    }
+
+    .toe {
+      width: 20%;
+      aspect-ratio: 1;
+      top: 9%;
+    }
+
+    .toe.t1 { left: 14%; }
+    .toe.t2 { left: 34%; top: 2%; }
+    .toe.t3 { left: 56%; top: 2%; }
+    .toe.t4 { left: 76%; }
+
+    .board {
+      margin-top: 1.2rem;
+      display: grid;
+      grid-template-columns: 0.95fr 1.05fr;
+      gap: clamp(0.8rem, 1.7vw, 1.1rem);
+    }
+
+    .panel {
+      border-radius: var(--radius);
+      border: 1px solid #27d8b6;
+      background: linear-gradient(140deg, #0f2e43, #0e4050);
+      padding: clamp(0.85rem, 1.7vw, 1.1rem);
+      box-shadow: var(--shadow);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .panel::after {
+      content: "";
+      position: absolute;
+      inset: auto -9% -36% auto;
+      width: 58%;
+      aspect-ratio: 1;
+      background: radial-gradient(circle, #2cffd6 0%, #0f6f7d 52%, transparent 72%);
+      opacity: 0.32;
+      pointer-events: none;
+    }
+
+    .panel h3 {
+      margin: 0;
+      font-size: clamp(1.1rem, 2.8vw, 1.45rem);
+      color: #f7fffc;
+    }
+
+    .panel p {
+      margin: 0.45rem 0 0.7rem;
+      color: #ccfff1;
+    }
+
+    .clues {
+      display: grid;
+      gap: 0.6rem;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .clue {
+      min-height: 94px;
+      border: 1px solid #46f6d2;
+      border-radius: 16px;
+      padding: 0.65rem;
+      background: linear-gradient(130deg, #0f4554, #0f3145);
+      transition: transform 0.24s ease, background 0.24s ease;
+      cursor: pointer;
+    }
+
+    .clue:hover {
+      transform: translateY(-3px) rotate(-1deg);
+      background: linear-gradient(130deg, #11637a, #11495d);
+    }
+
+    .clue strong {
+      display: block;
+      color: #ffffff;
+      font-size: 0.93rem;
+    }
+
+    .clue span {
+      display: block;
+      margin-top: 0.35rem;
+      color: #defdf6;
+      font-size: 0.84rem;
+    }
+
+    .ritual-meter {
+      margin-top: 0.7rem;
+      border: 1px solid #48f5d3;
+      border-radius: 999px;
+      background: #0c2938;
+      overflow: hidden;
+      height: 16px;
+    }
+
+    .ritual-meter > i {
+      display: block;
+      height: 100%;
+      width: 14%;
+      background: linear-gradient(90deg, #1cf2c8, #8dffe9);
+      transition: width 0.5s ease;
+    }
+
+    .pricing-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 0.65rem;
+      margin-top: 0.85rem;
+    }
+
+    .price-card {
+      border: 1px solid #3ceece;
+      border-radius: 16px;
+      padding: 0.7rem;
+      background: linear-gradient(150deg, #0f2c41, #115568);
+      transition: transform 0.24s ease;
+    }
+
+    .price-card:hover {
+      transform: translateY(-4px);
+    }
+
+    .price-card h4 {
+      margin: 0;
+      font-size: 0.96rem;
+      color: #f7fffe;
+    }
+
+    .price-card p {
+      margin: 0.22rem 0 0;
+      font-size: 0.82rem;
+      color: #d2fff3;
+    }
+
+    .price {
+      margin-top: 0.48rem;
+      font-weight: 800;
+      font-size: 1.1rem;
+      color: #ffffff;
+    }
+
+    .testimonials {
+      margin-top: 1rem;
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 0.65rem;
+    }
+
+    .quote {
+      border: 1px solid #37e7c5;
+      border-radius: 16px;
+      background: linear-gradient(145deg, #0f3044, #0f3f4f);
+      padding: 0.7rem;
+      min-height: 142px;
+    }
+
+    .quote p {
+      margin: 0;
+      color: #f4fffc;
+      font-size: 0.93rem;
+    }
+
+    .quote small {
+      margin-top: 0.55rem;
+      display: inline-block;
+      color: #c5fff0;
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 0.76rem;
+    }
+
+    details {
+      margin-top: 0.6rem;
+      border: 1px solid #39e8c7;
+      border-radius: 14px;
+      background: #0e3245;
+      padding: 0.6rem 0.75rem;
+    }
+
+    summary {
+      cursor: pointer;
+      font-weight: 700;
+      color: #ffffff;
+      list-style: none;
+      min-height: 44px;
+      display: flex;
+      align-items: center;
+    }
+
+    summary::-webkit-details-marker {
+      display: none;
+    }
+
+    details p {
+      margin: 0.25rem 0 0;
+      color: #dcfff7;
+      font-size: 0.92rem;
+    }
+
+    .beam-lines {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+    }
+
+    .beam {
+      position: absolute;
+      width: 44%;
+      height: 2px;
+      background: linear-gradient(90deg, #c8fff2, #2effd5, #c8fff2);
+      box-shadow: 0 0 14px #20e5c1;
+      left: 28%;
+      transform-origin: center;
+      opacity: 0;
+    }
+
+    .beam.b1 { top: 38%; transform: rotate(8deg); }
+    .beam.b2 { top: 45%; transform: rotate(-5deg); }
+    .beam.b3 { top: 53%; transform: rotate(4deg); }
+
+    .floating {
+      transition: transform 0.7s ease;
+    }
+
+    .gravity-off .floating {
+      animation: drift 4.2s ease-in-out infinite;
+    }
+
+    .gravity-off .floating:nth-child(2n) {
+      animation-duration: 5.2s;
+      animation-direction: alternate-reverse;
+    }
+
+    @keyframes drift {
+      0% { transform: translateY(0) rotate(0deg); }
+      50% { transform: translateY(-10px) rotate(-2deg); }
+      100% { transform: translateY(0) rotate(1deg); }
+    }
+
+    .footer {
+      margin-top: 1.1rem;
+      border-top: 1px solid #3aecc9;
+      padding-top: 0.75rem;
+      color: #d2fff2;
+      font-size: 0.84rem;
+      display: flex;
+      gap: 0.6rem;
+      flex-wrap: wrap;
+      justify-content: space-between;
+    }
+
+    .footer a {
+      color: #ffffff;
+      text-decoration: none;
+      border-bottom: 1px solid #55ffe0;
+    }
+
+    .footer a:hover {
+      color: #d8fff5;
+    }
+
+    @media (max-width: 980px) {
+      .layout,
+      .board {
+        grid-template-columns: 1fr;
+      }
+
+      .art-stack {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      .cat-emblem {
+        grid-column: 1 / -1;
+      }
+
+      .case-panel {
+        transform: none;
+      }
+
+      .paw-panel {
+        transform: none;
+      }
+
+      .pricing-grid,
+      .testimonials {
+        grid-template-columns: 1fr 1fr;
+      }
+    }
+
+    @media (max-width: 620px) {
+      .topbar {
+        border-radius: 20px;
+        align-items: flex-start;
+      }
+
+      .actions {
+        width: 100%;
+        justify-content: flex-start;
+      }
+
+      .actions .pill {
+        flex: 1 1 150px;
+      }
+
+      h1 {
+        max-width: 13ch;
+      }
+
+      .hero-cta {
+        flex-direction: column;
+      }
+
+      .hero-cta button,
+      .hero-cta a {
+        width: 100%;
+        text-align: center;
+      }
+
+      .clues {
+        grid-template-columns: 1fr;
+      }
+
+      .pricing-grid,
+      .testimonials,
+      .art-stack {
+        grid-template-columns: 1fr;
+      }
+
+      .cat-emblem,
+      .case-panel,
+      .paw-panel {
+        transform: none;
+      }
+    }
+  </style>
+</head>
+<body x-data="dreamSeminary()" :class="{ 'gravity-off': gravityOff }">
+  <div class="grain" aria-hidden="true"></div>
+
+  <div class="wrap">
+    <nav class="topbar reveal">
+      <div class="brand">
+        <i data-lucide="cat"></i>
+        <span>St. Clawdia Dream Seminary for Inanimate Pupils</span>
+      </div>
+      <div class="actions">
+        <button class="pill" type="button" @click="toggleGravity()">Toggle Gravity</button>
+        <button class="pill" type="button" @click="shootBeams()">Activate Whisker Beacon</button>
+      </div>
+    </nav>
+
+    <section class="layout">
+      <article class="hero reveal floating">
+        <p class="kicker">Founder Dispatch // 2:13 AM</p>
+        <h1>I am Detective Headmistress Marzipan-9, and your stapler deserves a dream religion.</h1>
+        <p class="lead">I used to track tuna smugglers in monsoon alleys. Now I run midnight classes where lamps, calculators, and one cursed fax machine float upward and whisper the Paw Creed.</p>
+        <div class="hero-cta">
+          <a class="big-btn" href="#enroll">Enroll a Guilty Object</a>
+          <button class="ghost-btn" type="button" @click="confessionOpen = !confessionOpen">Read My Case File</button>
+        </div>
+        <p class="signature">Signed in claw marks, Marzipan-9 // Former Dockside Detective, Current High Priestess of Falling Up</p>
+      </article>
+
+      <aside class="art-stack">
+        <div class="cat-emblem reveal floating" id="catEmblem">
+          <div class="cat-face">
+            <div class="eyes">
+              <div class="eye" :class="{ 'beam': beamsOn }"></div>
+              <div class="eye" :class="{ 'beam': beamsOn }"></div>
+            </div>
+            <div class="whiskers">
+              <span></span>
+              <span></span>
+            </div>
+          </div>
+          <div class="beam-lines" aria-hidden="true">
+            <div class="beam b1"></div>
+            <div class="beam b2"></div>
+            <div class="beam b3"></div>
+          </div>
+        </div>
+        <div class="case-panel reveal floating">
+          <h2>Open Case 047: The Toaster Ascended</h2>
+          <p>Witness says it meowed once, ignored gravity, and baptized three forks in moonlight. I believe every word.</p>
+        </div>
+        <div class="paw-panel reveal floating">
+          <div class="paw" aria-hidden="true">
+            <span class="toe t1"></span>
+            <span class="toe t2"></span>
+            <span class="toe t3"></span>
+            <span class="toe t4"></span>
+            <span class="pad"></span>
+          </div>
+        </div>
+      </aside>
+    </section>
+
+    <section class="board" id="enroll">
+      <article class="panel reveal">
+        <h3>Tonight's Pawcurriculum</h3>
+        <p>Tap a lesson to add zeal. At 100%, your object receives a tiny velvet collar and a legally ambiguous halo.</p>
+        <div class="clues">
+          <button class="clue floating" type="button" @click="raiseFaith(23)">
+            <strong>Levitation Etiquette</strong>
+            <span>How to float past ceiling fans with dignity.</span>
+          </button>
+          <button class="clue floating" type="button" @click="raiseFaith(31)">
+            <strong>Purrsuasive Theology</strong>
+            <span>Converting office chairs without eye contact.</span>
+          </button>
+          <button class="clue floating" type="button" @click="raiseFaith(18)">
+            <strong>Noir Pawtrensics</strong>
+            <span>Sniffing lies from suspicious paperclips.</span>
+          </button>
+          <button class="clue floating" type="button" @click="raiseFaith(28)">
+            <strong>Dream Litter Liturgy</strong>
+            <span>Ritual sand circles. Zero refunds.</span>
+          </button>
+        </div>
+        <div class="ritual-meter" aria-label="Faith meter">
+          <i :style="`width: ${faith}%`"></i>
+        </div>
+        <p style="margin-top:0.45rem;font-family:'IBM Plex Mono',monospace;font-size:0.8rem;color:#d9fff6;">Current faith loadout: <strong x-text="faith + '%'">14%</strong></p>
+      </article>
+
+      <article class="panel reveal">
+        <h3>Monthly Tithes (Fish Accepted)</h3>
+        <p>All plans include one emergency exorcism for haunted blenders and a laminated meowter of authenticity.</p>
+        <div class="pricing-grid">
+          <div class="price-card floating">
+            <h4>Alley Novice</h4>
+            <p>1 object, 2 dream lectures, 1 paw blessing.</p>
+            <div class="price">$19.44/mo</div>
+          </div>
+          <div class="price-card floating">
+            <h4>Velvet Deacon</h4>
+            <p>7 objects, priority floating, secret tuna code.</p>
+            <div class="price">$47.99/mo</div>
+          </div>
+          <div class="price-card floating">
+            <h4>Archmeow Bishop</h4>
+            <p>Unlimited objects, private moon confessional.</p>
+            <div class="price">$133.70/mo</div>
+          </div>
+        </div>
+
+        <div class="testimonials">
+          <blockquote class="quote floating">
+            <p>"My desk lamp now prays in Latin and points at liars. Five paws."</p>
+            <small>- Irene, retired jewel thief</small>
+          </blockquote>
+          <blockquote class="quote floating">
+            <p>"Our stapler floated to HR and forgave everyone. Disturbing. Efficient."</p>
+            <small>- Nolan P., office manager</small>
+          </blockquote>
+          <blockquote class="quote floating">
+            <p>"Marzipan solved my missing sardine case and converted my fax machine."</p>
+            <small>- Captain Boots, marina cat</small>
+          </blockquote>
+        </div>
+      </article>
+    </section>
+
+    <section class="panel reveal" style="margin-top:1rem;">
+      <h3>Confessions & Fine Print</h3>
+      <details x-bind:open="confessionOpen">
+        <summary>Why did I start this seminary?</summary>
+        <p>Because in 2019, gravity dropped me during a stakeout and my evidence box floated away singing hymns. I swore never again.</p>
+      </details>
+      <details>
+        <summary>Is this accredited?</summary>
+        <p>By the Moonlit Association of Suspicious Cats and one very convincing typewriter.</p>
+      </details>
+      <details>
+        <summary>Do object students bite?</summary>
+        <p>Only the staplers. We issue tiny gloves and emotional support sardines.</p>
+      </details>
+    </section>
+
+    <footer class="footer reveal">
+      <span>St. Clawdia Dream Seminary, Pier 13, Coral Noir District. Open nightly from 12:01 AM to "until the moon blinks."</span>
+      <a href="#">Submit anonymous paw tip</a>
+    </footer>
+  </div>
+
+  <script>
+    function dreamSeminary() {
+      return {
+        gravityOff: false,
+        beamsOn: false,
+        faith: 14,
+        confessionOpen: false,
+        toggleGravity() {
+          this.gravityOff = !this.gravityOff;
+          gsap.fromTo('.floating',
+            { y: 8, opacity: 0.96 },
+            { y: 0, opacity: 1, duration: 0.5, stagger: 0.03, clearProps: 'opacity,transform' }
+          );
+        },
+        raiseFaith(step) {
+          this.faith = Math.min(100, this.faith + step);
+          gsap.fromTo('.ritual-meter',
+            { boxShadow: '0 0 0px #2ef5d2' },
+            { boxShadow: '0 0 24px #2ef5d2', duration: 0.25, yoyo: true, repeat: 1, clearProps: 'boxShadow' }
+          );
+        },
+        shootBeams() {
+          this.beamsOn = true;
+          const tl = gsap.timeline({
+            onComplete: () => {
+              this.beamsOn = false;
+            }
+          });
+          tl.fromTo('.beam',
+            { opacity: 0, scaleX: 0.2 },
+            { opacity: 1, scaleX: 1, duration: 0.18, stagger: 0.07 }
+          ).fromTo('.beam',
+            { opacity: 1, scaleX: 1 },
+            { opacity: 0, scaleX: 0.1, duration: 0.28, stagger: 0.05 },
+            '+=0.05'
+          );
+        }
+      };
+    }
+
+    document.addEventListener('DOMContentLoaded', function () {
+      gsap.fromTo('.reveal',
+        { y: 24, opacity: 0 },
+        { y: 0, opacity: 1, duration: 0.65, stagger: 0.08, clearProps: 'opacity,transform' }
+      );
+
+      if (window.lucide && typeof window.lucide.createIcons === 'function') {
+        window.lucide.createIcons();
+      }
+    });
+  </script>
+</body>
+</html>

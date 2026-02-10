@@ -1,0 +1,764 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>The Drowned Ledger | Failure Archive Atelier</title>
+  <link rel="stylesheet" href="/assets/css/pico.min.css" />
+  <link rel="stylesheet" href="/assets/css/fonts.css" />
+  <style>
+    :root {
+      --paper: #efe2c8;
+      --paper-deep: #e5d4b1;
+      --ink: #15120c;
+      --ink-soft: #2a2417;
+      --rule: #6e5b3d;
+      --accent: #8b2e24;
+      --accent-2: #3c5f46;
+      --ad-bg: #ddc7a0;
+      --mono: 'IBM Plex Mono', monospace;
+      --serif: 'Crimson Pro', serif;
+      --sans: 'Space Grotesk', sans-serif;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      background:
+        radial-gradient(circle at 10% 10%, #f6ecd8 0 20%, transparent 21%),
+        radial-gradient(circle at 90% 8%, #f1e3c6 0 17%, transparent 18%),
+        linear-gradient(180deg, var(--paper) 0%, var(--paper-deep) 100%);
+      color: var(--ink);
+      font-family: var(--serif);
+      line-height: 1.5;
+    }
+
+    a,
+    a:visited {
+      color: var(--ink);
+      text-decoration-color: var(--rule);
+    }
+
+    .sheet {
+      max-width: 1280px;
+      margin: 0 auto;
+      padding: 1rem;
+      display: grid;
+      grid-template-columns: 220px minmax(0, 1fr) 220px;
+      gap: 1rem;
+    }
+
+    .masthead {
+      grid-column: 1 / -1;
+      border-top: 4px double var(--ink);
+      border-bottom: 4px double var(--ink);
+      padding: 0.75rem 0;
+      text-align: center;
+      background: rgba(239, 226, 200, 0.9);
+    }
+
+    .edition-line {
+      display: flex;
+      justify-content: space-between;
+      gap: 1rem;
+      font-family: var(--mono);
+      font-size: 0.72rem;
+      color: var(--ink);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      padding: 0.15rem 0.3rem;
+    }
+
+    .brand {
+      margin: 0.2rem 0;
+      font-family: var(--sans);
+      font-size: clamp(2rem, 4.5vw, 3.8rem);
+      letter-spacing: 0.03em;
+      text-transform: uppercase;
+      color: var(--ink);
+      line-height: 1;
+    }
+
+    .tagline {
+      margin: 0;
+      font-family: var(--serif);
+      font-size: 1rem;
+      color: var(--ink);
+      font-style: italic;
+    }
+
+    .main-nav {
+      grid-column: 1 / -1;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.4rem;
+      border-bottom: 2px solid var(--rule);
+      padding-bottom: 0.6rem;
+    }
+
+    .main-nav a {
+      font-family: var(--mono);
+      font-size: 0.78rem;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      padding: 0.25rem 0.45rem;
+      border: 1px solid var(--rule);
+      background: #f3e6cc;
+      text-decoration: none;
+      color: var(--ink);
+    }
+
+    .rail {
+      display: grid;
+      gap: 0.9rem;
+      align-content: start;
+    }
+
+    .ad,
+    .note,
+    .ticker,
+    .card,
+    .strip,
+    .faq,
+    .list-block,
+    .pricing {
+      border: 1px solid var(--rule);
+      background: rgba(255, 249, 237, 0.9);
+      padding: 0.75rem;
+    }
+
+    .ad {
+      background: var(--ad-bg);
+    }
+
+    .ad h3,
+    .note h3,
+    .list-block h3,
+    .faq h3,
+    .pricing h3,
+    .ticker h3,
+    .card h3 {
+      margin: 0 0 0.35rem;
+      font-family: var(--sans);
+      font-size: 1rem;
+      line-height: 1.2;
+      color: var(--ink);
+      text-transform: uppercase;
+    }
+
+    .ad p,
+    .note p,
+    .list-block p,
+    .ticker p,
+    .pricing p,
+    li,
+    small,
+    .meta,
+    .byline {
+      color: var(--ink);
+    }
+
+    .center {
+      display: grid;
+      gap: 1rem;
+      align-content: start;
+    }
+
+    .lead {
+      border: 2px solid var(--ink);
+      background: rgba(247, 238, 219, 0.95);
+      padding: 1rem;
+    }
+
+    .lead h2 {
+      margin: 0;
+      font-family: var(--sans);
+      font-size: clamp(1.8rem, 3.2vw, 2.8rem);
+      color: var(--ink);
+      line-height: 1.05;
+      text-transform: uppercase;
+    }
+
+    .lead p {
+      margin: 0.55rem 0 0;
+      font-size: 1.06rem;
+      color: var(--ink-soft);
+    }
+
+    .byline {
+      font-family: var(--mono);
+      font-size: 0.73rem;
+      text-transform: uppercase;
+      letter-spacing: 0.07em;
+      margin-top: 0.45rem;
+    }
+
+    .tabs {
+      display: flex;
+      gap: 0.45rem;
+      flex-wrap: wrap;
+      border-bottom: 2px solid var(--rule);
+      padding-bottom: 0.6rem;
+    }
+
+    button,
+    [role="button"] {
+      font-family: var(--mono);
+      font-size: 0.76rem;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      border: 1px solid var(--rule);
+      background: #f6e9ce;
+      color: var(--ink);
+      padding: 0.3rem 0.5rem;
+      margin: 0;
+    }
+
+    button.active {
+      background: var(--ink);
+      color: #fff9ee;
+      border-color: var(--ink);
+    }
+
+    .news-columns {
+      column-count: 2;
+      column-gap: 0.9rem;
+    }
+
+    .story {
+      break-inside: avoid;
+      margin-bottom: 0.9rem;
+      border: 1px solid var(--rule);
+      padding: 0.75rem;
+      background: #f8edd6;
+    }
+
+    .story h4 {
+      margin: 0 0 0.25rem;
+      font-family: var(--sans);
+      font-size: 1.08rem;
+      color: var(--ink);
+      text-transform: uppercase;
+      line-height: 1.15;
+    }
+
+    .story p {
+      margin: 0.35rem 0;
+      color: var(--ink-soft);
+    }
+
+    .kicker {
+      font-family: var(--mono);
+      font-size: 0.67rem;
+      text-transform: uppercase;
+      letter-spacing: 0.07em;
+      color: var(--accent);
+      font-weight: 700;
+    }
+
+    .pull {
+      border-left: 4px solid var(--accent);
+      padding-left: 0.7rem;
+      margin: 0.75rem 0;
+      font-size: 1.07rem;
+      font-style: italic;
+      color: var(--ink);
+    }
+
+    .grid-3 {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 0.8rem;
+    }
+
+    .opinion h4,
+    .letters h4,
+    .list-block h4,
+    .pricing h4 {
+      margin: 0;
+      font-family: var(--sans);
+      color: var(--ink);
+      text-transform: uppercase;
+      font-size: 0.95rem;
+    }
+
+    .letters article,
+    .opinion article {
+      border: 1px solid var(--rule);
+      padding: 0.65rem;
+      background: #f8edd5;
+    }
+
+    .pricing table {
+      width: 100%;
+      border-collapse: collapse;
+      font-family: var(--mono);
+      font-size: 0.75rem;
+      color: var(--ink);
+    }
+
+    .pricing th,
+    .pricing td {
+      border-bottom: 1px solid var(--rule);
+      text-align: left;
+      padding: 0.28rem;
+    }
+
+    .classifieds {
+      columns: 2;
+      column-gap: 1rem;
+      font-size: 0.96rem;
+    }
+
+    .classified {
+      break-inside: avoid;
+      border-bottom: 1px dashed var(--rule);
+      margin-bottom: 0.45rem;
+      padding-bottom: 0.4rem;
+    }
+
+    .corrections li {
+      margin-bottom: 0.45rem;
+      color: var(--ink);
+    }
+
+    .footer {
+      grid-column: 1 / -1;
+      border-top: 3px double var(--ink);
+      padding: 0.75rem 0.2rem 1.6rem;
+      display: flex;
+      justify-content: space-between;
+      gap: 1rem;
+      flex-wrap: wrap;
+      font-family: var(--mono);
+      font-size: 0.72rem;
+      text-transform: uppercase;
+      color: var(--ink);
+    }
+
+    .jazz-spot {
+      background: #f6e8cb;
+      border: 1px solid var(--rule);
+      padding: 0.65rem;
+    }
+
+    .jazz-spot ul {
+      margin: 0.35rem 0 0;
+      padding-left: 1rem;
+    }
+
+    details summary {
+      cursor: pointer;
+      font-family: var(--sans);
+      color: var(--ink);
+    }
+
+    .token {
+      display: inline-block;
+      border: 1px solid var(--rule);
+      padding: 0.1rem 0.3rem;
+      font-family: var(--mono);
+      font-size: 0.65rem;
+      text-transform: uppercase;
+      background: #f1dfbc;
+      color: var(--ink);
+    }
+
+    @media (max-width: 1060px) {
+      .sheet {
+        grid-template-columns: 1fr;
+      }
+
+      .news-columns,
+      .classifieds {
+        column-count: 1;
+        columns: 1;
+      }
+
+      .grid-3 {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="sheet" x-data="gazetteApp()">
+    <header class="masthead">
+      <div class="edition-line">
+        <span>Harbor District Edition</span>
+        <span>Monday Trade Window • 06:00-22:00 Tidal Time</span>
+        <span>Vol. 19 • No. 240</span>
+      </div>
+      <h1 class="brand">The Drowned Ledger</h1>
+      <p class="tagline">Official Bulletin of the Failure Archive Atelier &amp; Submerged Exchange</p>
+    </header>
+
+    <nav class="main-nav" aria-label="Primary">
+      <a href="#front">Front Desk</a>
+      <a href="#markets">Abyssal Exchange</a>
+      <a href="#atelier">Atelier Lines</a>
+      <a href="#letters">Letters</a>
+      <a href="#classifieds">Classifieds</a>
+      <a href="#terms">Dock Terms</a>
+    </nav>
+
+    <aside class="rail">
+      <section class="ad">
+        <h3><i data-lucide="waves"></i> Sponsored Notice</h3>
+        <p><strong>Saltproof Receipt Sleeves</strong><br>Archival vellum, pressure-sealed corners, guaranteed legible through forty fathoms.</p>
+        <p><span class="token">2 for 11 barnacles</span></p>
+      </section>
+
+      <section class="note">
+        <h3>Today at the Bandstand</h3>
+        <p>Continuous live quartet from first bell to moon tide. Requests accepted on wax tablets only.</p>
+      </section>
+
+      <section class="ad">
+        <h3><i data-lucide="anchor"></i> Margin Ad</h3>
+        <p><strong>Sunken Credit Union</strong><br>Refinance your regret at a fixed 3.1% silt rate. No surface collateral required.</p>
+      </section>
+
+      <section class="ticker" id="markets">
+        <h3>Abyssal Pairs</h3>
+        <p><strong>FALL/PEARL:</strong> 14.6 (+0.8)</p>
+        <p><strong>RISK/KELP:</strong> 0.92 (-0.04)</p>
+        <p><strong>THREAD/BRINE:</strong> 41.2 (+3.3)</p>
+        <p><strong>JAZZ/BPM:</strong> steady 138</p>
+      </section>
+
+      <section class="note">
+        <h3>Public Service</h3>
+        <p>All settlements must occur below the silver buoy. Surface signatures are ceremonial and non-binding.</p>
+      </section>
+    </aside>
+
+    <main class="center" id="front">
+      <article class="lead">
+        <h2>Winter Collection Clears Customs Through Lower Reef</h2>
+        <p>After three seasons of deliberate missteps, the atelier's "Second Attempt" line arrives in twelve cuts tailored for movement in mild currents and heavy scrutiny.</p>
+        <div class="byline">By Estelle Marino, Commerce Desk • Filed from Dock 7</div>
+      </article>
+
+      <section class="tabs" aria-label="Edition View">
+        <button :class="{ active: desk === 'print' }" @click="desk = 'print'">Print Ledger</button>
+        <button :class="{ active: desk === 'live' }" @click="desk = 'live'">Live Dock Desk</button>
+        <button :class="{ active: desk === 'briefs' }" @click="desk = 'briefs'">Quick Briefs</button>
+      </section>
+
+      <section class="strip" x-show="desk === 'print'">
+        <p><strong>Morning Edition:</strong> Tailoring houses report a sharp uptick in weighted hems. The Municipal Divers Union is revising etiquette for handshakes conducted mid-descent. The band has moved from hard bop to modal for tariff hour.</p>
+      </section>
+
+      <section class="strip" x-show="desk === 'live'">
+        <p><strong>Live Desk:</strong> Pier C auction closes in 12 minutes. Two buyers currently tied for the patent on collapsible formalwear crates. Bass solo entering final stretch; transaction pace is accelerating.</p>
+      </section>
+
+      <section class="strip" x-show="desk === 'briefs'">
+        <p><strong>Briefs:</strong> Salt tax waiver extended through Thursday. Finishing school announces evening class: "Owning the Failed Prototype." New buoy markers painted for safer settlement routes.</p>
+      </section>
+
+      <section>
+        <div class="tabs" aria-label="Category Filters">
+          <button :class="{ active: filter === 'all' }" @click="filter = 'all'">All</button>
+          <button :class="{ active: filter === 'markets' }" @click="filter = 'markets'">Markets</button>
+          <button :class="{ active: filter === 'atelier' }" @click="filter = 'atelier'">Atelier</button>
+          <button :class="{ active: filter === 'culture' }" @click="filter = 'culture'">Culture</button>
+          <button :class="{ active: filter === 'policy' }" @click="filter = 'policy'">Policy</button>
+        </div>
+
+        <div class="news-columns">
+          <template x-for="story in filteredStories" :key="story.id">
+            <article class="story">
+              <div class="kicker" x-text="story.kicker"></div>
+              <h4 x-text="story.title"></h4>
+              <div class="byline" x-text="story.byline"></div>
+              <p x-text="story.excerpt"></p>
+              <p class="pull" x-show="story.quote" x-text="story.quote"></p>
+              <div x-show="expanded[story.id]">
+                <p x-text="story.body"></p>
+              </div>
+              <button @click="expanded[story.id] = !expanded[story.id]" :aria-expanded="expanded[story.id]">
+                <span x-text="expanded[story.id] ? 'Collapse' : 'Continue Reading'"></span>
+              </button>
+            </article>
+          </template>
+        </div>
+      </section>
+
+      <section class="pricing" id="atelier">
+        <h3>Atelier Settlement Menu</h3>
+        <table>
+          <thead>
+            <tr>
+              <th>Line</th>
+              <th>Includes</th>
+              <th>Underwater Settlement</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Misprint Standard</td>
+              <td>Jacket + weighted cuff kit</td>
+              <td>140 pearls</td>
+            </tr>
+            <tr>
+              <td>Revision Formal</td>
+              <td>Three-piece current-rated suit</td>
+              <td>260 pearls</td>
+            </tr>
+            <tr>
+              <td>Archive Ceremony</td>
+              <td>Bespoke fitting + brass nameplate</td>
+              <td>420 pearls</td>
+            </tr>
+            <tr>
+              <td>Collective Ledger</td>
+              <td>Team uniforms (up to 12)</td>
+              <td>900 pearls</td>
+            </tr>
+          </tbody>
+        </table>
+        <p class="byline">Every package includes bandstand access during settlement and one notarized tide chart.</p>
+      </section>
+
+      <section class="opinion">
+        <h3>Opinion Columns</h3>
+        <div class="grid-3">
+          <article>
+            <h4>Stop Calling It Risk, Call It Character</h4>
+            <p class="byline">Lio Ventresca • Guest Editor</p>
+            <p>Perfection has no resale value here. Garments that remember a bad season drape better than untouched cloth, and buyers know the difference.</p>
+          </article>
+          <article>
+            <h4>In Defense of Loud Trumpet at Checkout</h4>
+            <p class="byline">Arden Pike • Music Desk</p>
+            <p>Pricing decisions improve when rhythm is unavoidable. Quiet markets hide doubt; a horn section clarifies who believes in their bid.</p>
+          </article>
+          <article>
+            <h4>Surface Meetings Waste Everyone's Afternoon</h4>
+            <p class="byline">Marta Cline • Municipal Affairs</p>
+            <p>When negotiation includes buoyancy and breath control, small talk disappears and terms get signed faster. Policy should follow physiology.</p>
+          </article>
+        </div>
+      </section>
+
+      <section class="letters" id="letters">
+        <h3>Letters to the Editor</h3>
+        <div class="grid-3">
+          <article>
+            <h4>Keep the 6 A.M. Saxophone</h4>
+            <p>As a wholesale buyer, I complete better math with tenor in my left ear. Removing dawn setlists would reduce civic confidence.</p>
+            <p class="byline">R. Delmonte, Pier Nine</p>
+          </article>
+          <article>
+            <h4>More Hooks in Dressing Rooms</h4>
+            <p>Last week I balanced a raincoat, ledger tube, and helmet on one peg. We can modernize without losing grit.</p>
+            <p class="byline">P. Neve, Apprentice Cutter</p>
+          </article>
+          <article>
+            <h4>Publish Tide Delays Promptly</h4>
+            <p>The late bulletin cost me two crates and a polite argument with customs. Alerts should ring before the first snare hit.</p>
+            <p class="byline">D. Ibarra, Courier</p>
+          </article>
+        </div>
+      </section>
+
+      <section class="list-block" id="classifieds">
+        <h3>Classifieds</h3>
+        <div class="classifieds">
+          <p class="classified"><strong>FOR SALE:</strong> brass abacus, coral-safe, one bead missing, now faster to use. Ask for Nori at Slip B.</p>
+          <p class="classified"><strong>WANTED:</strong> tailor who can hem while treading water. Night shift, meals included.</p>
+          <p class="classified"><strong>LOST:</strong> envelope labeled "Quarterly Regret." If found, return unopened for reward.</p>
+          <p class="classified"><strong>SERVICES:</strong> receipt calligraphy in waterproof ink. Corporate rates for volumes above 200.</p>
+          <p class="classified"><strong>LESSONS:</strong> Intro to buoy etiquette for first-time investors. Thursdays, after cymbal check.</p>
+          <p class="classified"><strong>ROOM SHARE:</strong> dry loft above bandstand, faint trumpet at all hours, reduced rent for drummers.</p>
+          <p class="classified"><strong>TRADE:</strong> one velvet lapel press for three functioning depth gauges.</p>
+          <p class="classified"><strong>HIRING:</strong> corrections clerk with calm handwriting and no fear of public apology.</p>
+        </div>
+      </section>
+
+      <section class="faq" id="terms">
+        <h3>Dock Terms &amp; Questions</h3>
+        <details>
+          <summary>Why must settlement happen underwater?</summary>
+          <p>Our charter requires final exchange below the silver buoy to ensure equal pressure, equal pace, and immediate authenticity checks.</p>
+        </details>
+        <details>
+          <summary>Do you accept surface currency?</summary>
+          <p>Surface currency is accepted for deposits only. Final payment is processed in pearls, ledger credits, or approved shell-backed notes.</p>
+        </details>
+        <details>
+          <summary>Can I attend without buying?</summary>
+          <p>Yes. Spectator passes include standing room near the bandstand and one printed market sheet.</p>
+        </details>
+      </section>
+
+      <section class="list-block corrections">
+        <h3>Corrections &amp; Notices</h3>
+        <ul>
+          <li>Yesterday's profile misstated Dockmaster Hsu's title. Hsu is Director of Submerged Compliance, not Assistant Director.</li>
+          <li>Thread count for the Revision Formal trouser is 280, not 820. We regret the misplaced numeral and resulting excitement.</li>
+          <li>Band roster update: tonight's piano chair is held by J. Morales, replacing the previously printed guest listing.</li>
+          <li>Public holiday on March 3 is "Founder's Tide," not "Founder's Tithe." No additional levy has been introduced.</li>
+        </ul>
+      </section>
+    </main>
+
+    <aside class="rail">
+      <section class="ad">
+        <h3><i data-lucide="music"></i> Paid Placement</h3>
+        <p><strong>Brass Lantern Reeds</strong><br>Now humidity-rated for submerged jazz pits. Buy 5, get one tuning cloth.</p>
+      </section>
+
+      <section class="jazz-spot">
+        <h3>Bandstand Rotation</h3>
+        <ul>
+          <li>06:00-10:00 Harbor Quartet</li>
+          <li>10:00-14:00 Blue Current Five</li>
+          <li>14:00-18:00 Depth Charge Trio</li>
+          <li>18:00-22:00 Midnight Buoy Ensemble</li>
+        </ul>
+      </section>
+
+      <section class="card">
+        <h3>Client Notes</h3>
+        <p>"Their failed prototypes fit better than my successful purchases."</p>
+        <p class="byline">S. Adler, Retail Partner</p>
+        <p>"Signed a six-month uniform contract between drum solos. Fastest negotiation of my career."</p>
+        <p class="byline">K. Molina, Shipping Cooperative</p>
+      </section>
+
+      <section class="ad">
+        <h3><i data-lucide="stamp"></i> Archive Services</h3>
+        <p>Preserve your first rejected sketch in museum-grade sleeves. Includes provenance card and seal.</p>
+      </section>
+
+      <section class="note">
+        <h3>Office Hours</h3>
+        <p>Mon-Sat: 05:30-23:00 tidal time<br>Sun: Open for fittings, closed for settlements.</p>
+      </section>
+    </aside>
+
+    <footer class="footer">
+      <span>Failure Archive Atelier • Lower Wharf, Basin 4</span>
+      <span>Settlement Desk: Bell Channel 12</span>
+      <span>Print Office: ledgers@drownedledger.local</span>
+    </footer>
+  </div>
+
+  <script src="/assets/js/alpine.min.js" defer></script>
+  <script src="/assets/js/gsap.min.js" defer></script>
+  <script src="/assets/js/lucide.min.js" defer></script>
+  <script>
+    function gazetteApp() {
+      return {
+        desk: 'print',
+        filter: 'all',
+        expanded: {},
+        stories: [
+          {
+            id: 's1',
+            category: 'atelier',
+            kicker: 'Atelier Wire',
+            title: 'Pattern Room Releases the "Second Attempt" Capsule',
+            byline: 'Helena Vor • Textile Correspondent',
+            excerpt: 'Designers reopened 43 archived failures and produced six jackets with intentional seam memory.',
+            quote: 'A sleeve that survived criticism survives weather.',
+            body: 'Buyers from three ports attended the preview and requested immediate allocations. The house confirmed all first-run pieces will be settled beneath Dock Basin 4 with a live trio on brass and upright.'
+          },
+          {
+            id: 's2',
+            category: 'markets',
+            kicker: 'Exchange Floor',
+            title: 'Pearl Liquidity Jumps During Afternoon Trumpet Solo',
+            byline: 'Jonas Pell • Markets Desk',
+            excerpt: 'Market depth widened as institutional buyers entered during the fourth chorus of "Low Tide Nocturne."',
+            quote: 'Volume likes confidence, and confidence likes rhythm.',
+            body: 'Dealers report narrower spreads when the band moves above 132 BPM. Compliance teams are documenting whether tempo-sensitive trading should be disclosed in formal risk statements.'
+          },
+          {
+            id: 's3',
+            category: 'policy',
+            kicker: 'Municipal Ledger',
+            title: 'Council Approves New Buoy Lanes for Evening Settlement',
+            byline: 'Marta Cline • Civic Affairs',
+            excerpt: 'The route redesign shortens descent time for small merchants and reduces queue buildup near Pier C.',
+            quote: '',
+            body: 'Starting next week, first-time traders will follow blue lantern markers while wholesale accounts use red channels. Enforcement starts immediately after a two-day grace period.'
+          },
+          {
+            id: 's4',
+            category: 'culture',
+            kicker: 'Culture Desk',
+            title: 'Bandstand Residency Extends Through Storm Season',
+            byline: 'Arden Pike • Culture Reporter',
+            excerpt: 'The Midnight Buoy Ensemble signed a 90-night contract tied to market-open and market-close ceremonies.',
+            quote: 'No silence clauses were requested by either side.',
+            body: 'Venue operators installed new baffles so buyers can hear bid calls while preserving the snare attack that defines opening bell. Merchants praised the decision as operationally precise.'
+          },
+          {
+            id: 's5',
+            category: 'atelier',
+            kicker: 'Fittings',
+            title: 'Weighted Hems Become Standard in Corporate Orders',
+            byline: 'Estelle Marino • Commerce Desk',
+            excerpt: 'Large firms now specify hem ballast in procurement briefs to keep silhouette integrity below five meters.',
+            quote: '',
+            body: 'Tailoring leads say demand doubled in six weeks. Apprentices are training on micro-chain insertion to keep movement fluid while preserving drape lines for formal negotiations.'
+          },
+          {
+            id: 's6',
+            category: 'markets',
+            kicker: 'Numbers',
+            title: 'Brine Credit Index Closes at Three-Month High',
+            byline: 'Nia Rowan • Data Bureau',
+            excerpt: 'Lower default rates and stronger garment exports pushed credit sentiment into expansion territory.',
+            quote: '',
+            body: 'Analysts caution that storm forecasts may pressure transport insurance next week, but baseline demand remains strong across both ceremonial and utility apparel lines.'
+          },
+          {
+            id: 's7',
+            category: 'culture',
+            kicker: 'People',
+            title: 'A Retired Critic Opens a School for Constructive Failure',
+            byline: 'Tobin Hale • Features',
+            excerpt: 'Students submit unfinished garments and leave with repair plans, confidence, and an invoice they can afford.',
+            quote: '',
+            body: 'The curriculum includes archival reading, stitch triage, and public presentation. Evening sessions conclude with a guided listening hour at the bandstand to train composure under noise.'
+          },
+          {
+            id: 's8',
+            category: 'policy',
+            kicker: 'Rules',
+            title: 'New Labeling Standard Requires Depth Rating on Every Suit',
+            byline: 'Editorial Desk',
+            excerpt: 'Beginning this quarter, all garments sold through the exchange must display tested depth tolerance and stitch warranty.',
+            quote: 'Clear labels prevent heroic mistakes.',
+            body: 'Inspectors will audit randomly and publish compliance scores monthly. Atelier owners largely support the move, citing fewer returns and better buyer trust across districts.'
+          }
+        ],
+        get filteredStories() {
+          if (this.filter === 'all') return this.stories;
+          return this.stories.filter((story) => story.category === this.filter);
+        }
+      };
+    }
+
+    document.addEventListener('DOMContentLoaded', function () {
+      if (window.lucide && typeof window.lucide.createIcons === 'function') {
+        window.lucide.createIcons();
+      }
+
+      if (window.gsap) {
+        gsap.from('.masthead', { y: -24, opacity: 0, duration: 0.6, ease: 'power2.out' });
+        gsap.from('.lead', { y: 20, opacity: 0, duration: 0.7, delay: 0.15, ease: 'power2.out' });
+        gsap.from('.story', { y: 14, opacity: 0, duration: 0.5, stagger: 0.06, delay: 0.2, ease: 'power1.out' });
+      }
+    });
+  </script>
+</body>
+</html>

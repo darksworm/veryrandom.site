@@ -1,0 +1,602 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Moonwhisker Nightline Atelier</title>
+  <link rel="stylesheet" href="/assets/css/pico.min.css" />
+  <link rel="stylesheet" href="/assets/css/fonts.css" />
+  <style>
+    :root {
+      --bg: #fbfffc;
+      --panel: #ffffff;
+      --ink: #08120d;
+      --ink-soft: #11251a;
+      --accent: #14a44e;
+      --accent-bright: #21d36a;
+      --accent-dark: #0e7f3d;
+      --line: #1c9a4a;
+      --shadow: 0 20px 45px rgba(4, 52, 24, 0.18);
+      --mono: 'IBM Plex Mono', monospace;
+      --sans: 'Space Grotesk', sans-serif;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background:
+        radial-gradient(circle at 8% 20%, rgba(33, 211, 106, 0.2), transparent 30%),
+        radial-gradient(circle at 90% 10%, rgba(20, 164, 78, 0.14), transparent 26%),
+        repeating-linear-gradient(90deg, rgba(17, 110, 54, 0.08) 0 1px, transparent 1px 34px),
+        linear-gradient(180deg, #fafffb 0%, #f4fff8 100%);
+      color: var(--ink);
+      font-family: var(--sans);
+      overflow-x: hidden;
+    }
+
+    body.phase-veil {
+      --bg: #f4fff9;
+      --panel: #eefef4;
+      --accent: #139149;
+      --accent-bright: #24ea78;
+      --ink: #04110a;
+    }
+
+    body.phase-neon {
+      --bg: #f8fff7;
+      --panel: #ffffff;
+      --accent: #0ea54f;
+      --accent-bright: #4dff9f;
+      --ink: #030f08;
+    }
+
+    .shell {
+      display: grid;
+      grid-template-columns: 280px 1fr;
+      gap: 1.2rem;
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 1rem;
+    }
+
+    .side {
+      background: linear-gradient(160deg, #ffffff 0%, #f2fff6 100%);
+      border: 2px solid var(--line);
+      border-radius: 1rem;
+      box-shadow: var(--shadow);
+      padding: 1rem;
+      position: relative;
+      isolation: isolate;
+    }
+
+    .side::before {
+      content: "";
+      position: absolute;
+      inset: 6px;
+      border: 1px dashed rgba(11, 112, 51, 0.5);
+      border-radius: 0.8rem;
+      pointer-events: none;
+      z-index: -1;
+    }
+
+    .badge {
+      font-family: var(--mono);
+      font-size: 0.74rem;
+      display: inline-block;
+      background: #072012;
+      color: #f5fff9;
+      padding: 0.26rem 0.5rem;
+      border-radius: 999px;
+      letter-spacing: 0.04em;
+      margin-bottom: 0.6rem;
+    }
+
+    .brand {
+      margin: 0;
+      font-size: 1.4rem;
+      line-height: 1.1;
+      text-transform: uppercase;
+      color: #042311;
+    }
+
+    .rhyme {
+      font-family: var(--mono);
+      margin: 0.6rem 0 1rem;
+      color: #072012;
+      font-size: 0.82rem;
+    }
+
+    .side nav a {
+      display: flex;
+      align-items: center;
+      gap: 0.55rem;
+      text-decoration: none;
+      color: #05170d;
+      font-weight: 700;
+      padding: 0.55rem 0.7rem;
+      border: 1px solid #1f964a;
+      border-radius: 0.7rem;
+      margin-bottom: 0.5rem;
+      background: linear-gradient(180deg, #ffffff 0%, #ecfff3 100%);
+      transition: transform 200ms ease, background 200ms ease;
+    }
+
+    .side nav a:hover {
+      transform: translateX(4px);
+      background: linear-gradient(180deg, #e8ffef 0%, #d8ffe6 100%);
+    }
+
+    .phase-switch {
+      margin-top: 1rem;
+      display: grid;
+      gap: 0.5rem;
+    }
+
+    .phase-switch button {
+      width: 100%;
+      font-family: var(--mono);
+      font-size: 0.78rem;
+      color: #03130a;
+      background: #dcffe9;
+      border: 1px solid #168a44;
+      padding: 0.55rem;
+      border-radius: 0.6rem;
+    }
+
+    .phase-switch button:hover {
+      background: #c9ffdd;
+    }
+
+    .main {
+      display: grid;
+      gap: 1rem;
+    }
+
+    .panel {
+      background: var(--panel);
+      border: 2px solid var(--line);
+      border-radius: 1rem;
+      box-shadow: var(--shadow);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .hero {
+      min-height: 320px;
+      display: grid;
+      grid-template-columns: 1.1fr 1fr;
+      gap: 1rem;
+      padding: 1rem;
+      background:
+        linear-gradient(130deg, rgba(20, 164, 78, 0.14), transparent 55%),
+        repeating-linear-gradient(-45deg, rgba(11, 104, 48, 0.09) 0 2px, transparent 2px 17px),
+        #ffffff;
+    }
+
+    .hero h1 {
+      margin: 0;
+      font-size: clamp(1.5rem, 3.6vw, 2.8rem);
+      line-height: 1;
+      text-transform: uppercase;
+      color: #02150c;
+    }
+
+    .hero p {
+      margin: 0.65rem 0;
+      font-family: var(--mono);
+      color: #072012;
+      font-size: 0.92rem;
+      max-width: 45ch;
+    }
+
+    .chip-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.45rem;
+      margin-top: 0.75rem;
+    }
+
+    .chip {
+      border: 1px solid #1d9449;
+      color: #052010;
+      padding: 0.3rem 0.55rem;
+      border-radius: 999px;
+      font-family: var(--mono);
+      font-size: 0.75rem;
+      background: #edfff4;
+    }
+
+    .cat-sigil {
+      place-self: center;
+      width: min(340px, 96%);
+      aspect-ratio: 1;
+      position: relative;
+      border-radius: 28% 72% 54% 46% / 44% 41% 59% 56%;
+      background:
+        radial-gradient(circle at 70% 24%, #effff5 0 17%, transparent 18%),
+        radial-gradient(circle at 32% 64%, #c9ffd7 0 18%, transparent 19%),
+        conic-gradient(from 120deg, #0b4425, #11a14f, #4dff9f, #118542, #0b4425);
+      box-shadow: 0 0 0 4px #ffffff, 0 0 0 6px #1e8f48, 0 22px 35px rgba(6, 61, 29, 0.28);
+      transition: transform 380ms ease, border-radius 450ms ease, filter 350ms ease;
+      overflow: hidden;
+      cursor: pointer;
+    }
+
+    .cat-sigil:hover {
+      transform: rotate(12deg) scale(1.06);
+      border-radius: 50% 50% 42% 58% / 58% 39% 61% 42%;
+      filter: saturate(1.2);
+    }
+
+    .cat-sigil::before,
+    .cat-sigil::after {
+      content: "";
+      position: absolute;
+      background: #f3fff7;
+      border: 3px solid #032010;
+    }
+
+    .cat-sigil::before {
+      width: 56%;
+      height: 44%;
+      left: 22%;
+      top: 26%;
+      border-radius: 50% 50% 48% 52%;
+      box-shadow:
+        -62px -46px 0 -22px #f3fff7,
+        -62px -46px 0 -19px #032010,
+        62px -46px 0 -22px #f3fff7,
+        62px -46px 0 -19px #032010;
+    }
+
+    .cat-sigil::after {
+      width: 14%;
+      height: 8%;
+      left: 43%;
+      top: 58%;
+      border-radius: 38% 62% 50% 50%;
+      box-shadow:
+        -23px -10px 0 -4px #032010,
+        23px -10px 0 -4px #032010,
+        0 16px 0 -3px #032010;
+    }
+
+    .scanline {
+      position: absolute;
+      inset: 0;
+      background: repeating-linear-gradient(180deg, rgba(255, 255, 255, 0.14) 0 2px, transparent 2px 8px);
+      mix-blend-mode: soft-light;
+      pointer-events: none;
+      animation: drift 8s linear infinite;
+    }
+
+    @keyframes drift {
+      from { transform: translateY(0); }
+      to { transform: translateY(24px); }
+    }
+
+    .runway {
+      padding: 1rem;
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 0.8rem;
+      background: linear-gradient(180deg, #ffffff 0%, #f5fff9 100%);
+    }
+
+    .look {
+      padding: 0.9rem;
+      border: 2px solid #1d9148;
+      border-radius: 0.8rem;
+      background:
+        radial-gradient(circle at 88% 10%, rgba(77, 255, 159, 0.2), transparent 30%),
+        linear-gradient(160deg, #ffffff 0%, #ecfff4 100%);
+      color: #03180d;
+      position: relative;
+      overflow: hidden;
+      transition: transform 220ms ease, box-shadow 220ms ease;
+    }
+
+    .look:hover {
+      transform: translateY(-7px) skewX(-1deg);
+      box-shadow: 0 18px 26px rgba(7, 83, 39, 0.22);
+    }
+
+    .look::before {
+      content: "";
+      position: absolute;
+      inset: -30% 40% auto -35%;
+      height: 140%;
+      background: linear-gradient(90deg, rgba(11, 143, 67, 0.36), transparent);
+      transform: rotate(20deg);
+      transition: transform 300ms ease;
+    }
+
+    .look:hover::before {
+      transform: rotate(20deg) translateX(28px);
+    }
+
+    .look h3 {
+      margin: 0 0 0.45rem;
+      font-size: 1rem;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+
+    .look p {
+      margin: 0;
+      font-family: var(--mono);
+      font-size: 0.8rem;
+      color: #062010;
+    }
+
+    .meta-grid {
+      display: grid;
+      grid-template-columns: 1.2fr 1fr;
+      gap: 1rem;
+    }
+
+    .pricing,
+    .voices,
+    .controls {
+      padding: 1rem;
+      background: #ffffff;
+    }
+
+    .section-title {
+      margin: 0 0 0.7rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      font-size: 1rem;
+      color: #03190d;
+    }
+
+    .price-cards {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 0.6rem;
+    }
+
+    .tier {
+      border: 2px solid #1d9348;
+      border-radius: 0.8rem;
+      padding: 0.7rem;
+      background: #eefff5;
+      color: #04170c;
+    }
+
+    .tier strong {
+      font-size: 1.2rem;
+      display: block;
+      margin: 0.3rem 0;
+      color: #03150a;
+    }
+
+    .tier small {
+      font-family: var(--mono);
+      color: #06210f;
+    }
+
+    .voices blockquote {
+      margin: 0 0 0.7rem;
+      padding: 0.7rem;
+      border: 2px dashed #1b8c44;
+      border-radius: 0.7rem;
+      background: #f3fff8;
+      color: #04170c;
+      font-family: var(--mono);
+      font-size: 0.83rem;
+    }
+
+    .controls p {
+      margin: 0 0 0.7rem;
+      font-family: var(--mono);
+      font-size: 0.8rem;
+      color: #03170c;
+    }
+
+    .control-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+    }
+
+    .control-row button {
+      border: 1px solid #177f3e;
+      background: #dfffe9;
+      color: #03130a;
+      font-family: var(--mono);
+      font-size: 0.76rem;
+      padding: 0.45rem 0.65rem;
+      border-radius: 0.55rem;
+    }
+
+    .control-row button:hover {
+      background: #c9ffdb;
+    }
+
+    .status {
+      margin-top: 0.7rem;
+      font-family: var(--mono);
+      font-size: 0.78rem;
+      color: #04160b;
+      background: #ecfff3;
+      border: 1px solid #198945;
+      padding: 0.45rem 0.55rem;
+      border-radius: 0.5rem;
+    }
+
+    @media (max-width: 1024px) {
+      .shell {
+        grid-template-columns: 1fr;
+      }
+
+      .hero,
+      .meta-grid,
+      .runway,
+      .price-cards {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body x-data="nightline()" :class="phase">
+  <div class="shell">
+    <aside class="side panel" aria-label="Control Wing">
+      <span class="badge">LIVE SHIFT: MOONLIT</span>
+      <h2 class="brand">Moonwhisker<br>Nightline Atelier</h2>
+      <p class="rhyme">Cat in command, couture on demand.</p>
+
+      <nav>
+        <a href="#ledger"><i data-lucide="layout-dashboard"></i> Ledger &amp; Tether</a>
+        <a href="#runway"><i data-lucide="sparkles"></i> Runway Relay</a>
+        <a href="#rates"><i data-lucide="receipt"></i> Rates &amp; Traits</a>
+        <a href="#choir"><i data-lucide="mic-vocal"></i> Choir of Hire</a>
+      </nav>
+
+      <div class="phase-switch">
+        <button type="button" @click="phase='phase-clean'">Clean Scene</button>
+        <button type="button" @click="phase='phase-veil'">Veil Trail</button>
+        <button type="button" @click="phase='phase-neon'">Neon Eon</button>
+      </div>
+    </aside>
+
+    <main class="main">
+      <section id="ledger" class="panel hero">
+        <div>
+          <h1>Tailored after midnight, stitched by candlelight.</h1>
+          <p>Our feline director spins the floor, then drafts the score; every hem will rhyme in time, every seam will chime sublime.</p>
+          <div class="chip-row">
+            <span class="chip">Ghost Host Roster</span>
+            <span class="chip">Nocturne Uniform Reform</span>
+            <span class="chip">Hemline Deadline Hotline</span>
+            <span class="chip">Paranormal Formal</span>
+          </div>
+        </div>
+        <div class="cat-sigil" id="sigil" aria-label="Moonwhisker Sigil Art">
+          <div class="scanline"></div>
+        </div>
+      </section>
+
+      <section id="runway" class="panel runway" aria-label="Runway Looks">
+        <article class="look">
+          <h3>Velvet Relic</h3>
+          <p>Sleeve that weaves while lanterns breathe.</p>
+        </article>
+        <article class="look">
+          <h3>Chime-Line Coat</h3>
+          <p>Silver thread for midnight spread.</p>
+        </article>
+        <article class="look">
+          <h3>Phantom Pleat</h3>
+          <p>Cut so neat the dead still greet.</p>
+        </article>
+      </section>
+
+      <section class="meta-grid">
+        <section id="rates" class="panel pricing">
+          <h2 class="section-title">Service Tiers in Rhyme</h2>
+          <div class="price-cards">
+            <article class="tier">
+              <span>Door Floor</span>
+              <strong>$90</strong>
+              <small>One look, one hook, one booked book.</small>
+            </article>
+            <article class="tier">
+              <span>Stage Mage</span>
+              <strong>$290</strong>
+              <small>Three looks, fit by mist and hooks.</small>
+            </article>
+            <article class="tier">
+              <span>Whole Soul Roll</span>
+              <strong>$690</strong>
+              <small>Full label arc with spectral spark.</small>
+            </article>
+          </div>
+        </section>
+
+        <section id="choir" class="panel voices">
+          <h2 class="section-title">Client Choir</h2>
+          <blockquote>"My launch drew cheers for seven years, then climbed two tiers."</blockquote>
+          <blockquote>"Their ghostly crew hemmed every view; the revenue flew."</blockquote>
+          <blockquote>"From club to catwalk, no dead stock; pure clockwork shock."</blockquote>
+        </section>
+      </section>
+
+      <section class="panel controls">
+        <h2 class="section-title">Sigil Console</h2>
+        <p>Press a spell, shift the shell, watch the sigil swell.</p>
+        <div class="control-row">
+          <button type="button" data-spell="pulse">Pulse</button>
+          <button type="button" data-spell="twist">Twist</button>
+          <button type="button" data-spell="glow">Glow</button>
+          <button type="button" data-spell="reset">Reset</button>
+        </div>
+        <div class="status" id="status">Console hums: calm psalm.</div>
+      </section>
+    </main>
+  </div>
+
+  <script defer src="/assets/js/alpine.min.js"></script>
+  <script src="/assets/js/gsap.min.js"></script>
+  <script src="/assets/js/lucide.min.js"></script>
+  <script>
+    function nightline() {
+      return {
+        phase: 'phase-clean'
+      };
+    }
+
+    const sigil = document.getElementById('sigil');
+    const status = document.getElementById('status');
+
+    document.querySelectorAll('[data-spell]').forEach((button) => {
+      button.addEventListener('click', () => {
+        const spell = button.getAttribute('data-spell');
+
+        if (spell === 'pulse') {
+          gsap.fromTo(
+            sigil,
+            { scale: 0.9, rotate: -6 },
+            { scale: 1.08, rotate: 8, duration: 0.45, yoyo: true, repeat: 1, ease: 'power2.inOut' }
+          );
+          status.textContent = 'Console hums: pulse waltz, moon quartz.';
+        }
+
+        if (spell === 'twist') {
+          gsap.to(sigil, {
+            borderRadius: '64% 36% 52% 48% / 38% 64% 36% 62%',
+            rotate: '+=40',
+            duration: 0.7,
+            ease: 'back.inOut(1.6)'
+          });
+          status.textContent = 'Console hums: twist mist, seam kissed.';
+        }
+
+        if (spell === 'glow') {
+          gsap.fromTo(
+            sigil,
+            { filter: 'saturate(1) brightness(1)' },
+            { filter: 'saturate(1.7) brightness(1.2)', duration: 0.35, yoyo: true, repeat: 3, ease: 'sine.inOut' }
+          );
+          status.textContent = 'Console hums: glow flow, green halo.';
+        }
+
+        if (spell === 'reset') {
+          gsap.to(sigil, {
+            clearProps: 'all',
+            duration: 0.5,
+            ease: 'power2.out'
+          });
+          status.textContent = 'Console hums: calm psalm.';
+        }
+      });
+    });
+
+    lucide.createIcons();
+  </script>
+</body>
+</html>

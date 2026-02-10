@@ -1,0 +1,351 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>ASCENSION CRIME-SCENT | DESERT TERMINAL v4.02</title>
+    <style>
+        :root {
+            --pink: #ff00ff;
+            --blue: #00ffff;
+            --lime: #00ff00;
+            --bg: #1a1a1a;
+            --gray: #333;
+        }
+        * { box-sizing: border-box; cursor: crosshair; }
+        body {
+            background-color: var(--bg);
+            color: var(--lime);
+            font-family: 'Courier New', Courier, monospace;
+            margin: 0;
+            padding: 20px;
+            overflow-x: hidden;
+            border: 10px double var(--pink);
+            min-height: 100vh;
+        }
+        #glitch-overlay {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            pointer-events: none;
+            z-index: 999;
+            opacity: 0.05;
+            background: repeating-linear-gradient(0deg, #000, #000 1px, transparent 1px, transparent 2px);
+        }
+        header {
+            border-bottom: 3px solid var(--blue);
+            padding-bottom: 20px;
+            margin-bottom: 30px;
+        }
+        .hero {
+            font-size: 2.5rem;
+            text-transform: uppercase;
+            color: var(--pink);
+            text-shadow: 3px 3px var(--blue);
+            line-height: 0.9;
+        }
+        .sub-hero {
+            background: var(--blue);
+            color: #000;
+            display: inline-block;
+            padding: 5px 10px;
+            margin-top: 10px;
+            font-weight: bold;
+        }
+        .grid {
+            display: grid;
+            grid-template-columns: 1fr 300px;
+            gap: 20px;
+        }
+        .panel {
+            border: 1px solid var(--lime);
+            padding: 15px;
+            margin-bottom: 20px;
+            position: relative;
+            background: rgba(0,0,0,0.5);
+        }
+        .panel-title {
+            position: absolute;
+            top: -10px;
+            left: 10px;
+            background: var(--bg);
+            padding: 0 5px;
+            font-size: 0.8rem;
+            color: var(--blue);
+        }
+        /* DECOMPOSING DESIGN TOKEN REGISTRY */
+        #token-registry {
+            font-size: 0.7rem;
+            color: #666;
+            height: 100px;
+            overflow: hidden;
+        }
+        /* NEGOTIABLE BUTTONS */
+        .negotiable {
+            background: none;
+            border: 2px solid var(--pink);
+            color: var(--pink);
+            padding: 10px 20px;
+            font-family: inherit;
+            font-weight: bold;
+            transition: all 0.2s;
+            margin: 5px;
+        }
+        .negotiable:hover {
+            background: var(--pink);
+            color: #000;
+        }
+        /* REVERSIBLE TOS ACCORDION */
+        .tos-wrap {
+            border: 1px dashed var(--blue);
+            margin: 10px 0;
+        }
+        .tos-header {
+            cursor: pointer;
+            padding: 5px;
+            background: #222;
+            user-select: none;
+        }
+        .tos-content {
+            display: none;
+            padding: 10px;
+            font-size: 0.75rem;
+            transform: scaleY(1);
+        }
+        .tos-content.reversed {
+            transform: scaleY(-1);
+            color: var(--pink);
+        }
+        /* ANIMATED ZONING PERMIT */
+        #zoning-permit {
+            width: 100%;
+            height: 80px;
+            background: repeating-conic-gradient(from 0deg, #111 0deg 90deg, #222 90deg 180deg);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 2px solid var(--lime);
+            animation: pulse 4s infinite;
+            overflow: hidden;
+            font-size: 0.6rem;
+            text-align: center;
+        }
+        @keyframes pulse {
+            0% { border-color: var(--lime); }
+            50% { border-color: var(--pink); }
+            100% { border-color: var(--lime); }
+        }
+        /* DASHBOARD WIDGETS */
+        .stat-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 5px;
+            border-bottom: 1px solid #333;
+        }
+        .stat-val { color: var(--blue); }
+        /* SMELL-O-VISION SENSOR */
+        #olfactory-readout {
+            font-weight: bold;
+            color: var(--lime);
+            letter-spacing: 2px;
+        }
+        /* TRUST BADGES */
+        .badge-wall {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+        .badge {
+            font-size: 0.6rem;
+            border: 1px solid var(--blue);
+            padding: 5px;
+            width: 80px;
+            text-align: center;
+        }
+        /* LEGAL DISCLAIMER */
+        #legal-ticker {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            background: var(--pink);
+            color: #000;
+            white-space: nowrap;
+            padding: 2px;
+            font-size: 0.8rem;
+        }
+        .marquee {
+            display: inline-block;
+            animation: scroll 20s linear infinite;
+        }
+        @keyframes scroll {
+            0% { transform: translateX(100%); }
+            100% { transform: translateX(-100%); }
+        }
+        #modal-overlay {
+            position: fixed;
+            top:0; left:0; width:100%; height:100%;
+            background: rgba(0,0,0,0.9);
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+        .modal-box {
+            border: 5px solid var(--lime);
+            padding: 30px;
+            background: #000;
+            max-width: 500px;
+        }
+    </style>
+</head>
+<body>
+    <div id="glitch-overlay"></div>
+
+    <header>
+        <div class="hero">PODCAST ELEVATOR:<br>AMNESIAC DETECTIVES</div>
+        <div class="sub-hero">THE VERTICAL INVESTIGATION UNIT | SMELLS LIKE JASMINE & IONIZED COPPER</div>
+    </header>
+
+    <div class="grid">
+        <main>
+            <div class="panel">
+                <div class="panel-title">CORE MISSION_STATEMENT</div>
+                <p>We are a 14-floor vertical transit vessel that records true crime narratives about its own passengers. Due to high-altitude desert static, all investigators have lost their identity. We solve crimes we cannot remember in a car that smells like a floral explosion at a circuit factory.</p>
+                <p style="color: var(--blue)">*&@}^$*#*!~&*@ NOSTALGIA OVERRIDE ACTIVE *&@}^$*#*!~&*@</p>
+                
+                <div style="margin-top:30px;">
+                    <button class="negotiable" onclick="negotiate(this, 'SOLVE COLD CASE')">SOLVE COLD CASE</button>
+                    <button class="negotiable" onclick="negotiate(this, 'FORGET CURRENT CLIENT')">FORGET CURRENT CLIENT</button>
+                    <button class="negotiable" onclick="negotiate(this, 'ADJUST FLOOR SCENT')">ADJUST FLOOR SCENT</button>
+                </div>
+            </div>
+
+            <div class="panel">
+                <div class="panel-title">REVERSIBLE TERMS-OF-SERVICE</div>
+                <div class="tos-wrap">
+                    <div class="tos-header" onclick="toggleTos()">[+] CLICK TO EXPAND / REVERSE REALITY</div>
+                    <div id="tos-body" class="tos-content">
+                        By entering this elevator, you forfeit the right to remember your name, your favorite color, or why you are holding a blood-stained harmonica. We promise that the scent of lavender will remain constant even as the floors disappear. Any podcast recordings made of your confusion remain the property of the Shaft Authority.
+                    </div>
+                </div>
+            </div>
+
+            <div class="panel">
+                <div class="panel-title">DECOMPOSING DESIGN TOKEN REGISTRY</div>
+                <div id="token-registry"></div>
+            </div>
+        </main>
+
+        <aside>
+            <div class="panel">
+                <div class="panel-title">SCENT_DASHBOARD</div>
+                <div class="stat-row"><span>Sandalwood:</span> <span class="stat-val">88%</span></div>
+                <div class="stat-row"><span>Burnt Ozone:</span> <span class="stat-val">12%</span></div>
+                <div class="stat-row"><span>Existential Dread:</span> <span class="stat-val">LOW</span></div>
+                <div id="olfactory-readout" style="margin-top:10px;">ANALYZING ODOR...</div>
+            </div>
+
+            <div class="panel">
+                <div class="panel-title">ZONING_PERMIT_33-B</div>
+                <div id="zoning-permit">
+                    PERMITTED FOR: VERTICAL SLEUTHING<br>
+                    EXPIRES: YESTERDAY<br>
+                    STATUS: VIBRATING
+                </div>
+            </div>
+
+            <div class="panel">
+                <div class="panel-title">LIVE_TRANSCRIPTS</div>
+                <div id="transcript-feed" style="font-size: 0.7rem; color: var(--pink);">
+                    [08:44] Elevator: "Who is the man in the hat?"<br>
+                    [08:45] Detective: "I am a hat."<br>
+                    [08:46] Elevator: "Correct."
+                </div>
+            </div>
+
+            <div class="badge-wall">
+                <div class="badge">DEPT. OF LUBRICATION</div>
+                <div class="badge">BUREAU OF VOID</div>
+                <div class="badge">SCENT MARSHAL</div>
+            </div>
+        </aside>
+    </div>
+
+    <div id="legal-ticker">
+        <div class="marquee" id="ticker-text">
+            LOADING LEGAL PARADOXES... PLEASE WAIT... SMELLED SENSE DETECTED... ALL RECOLLECTIONS ARE SUBJECT TO SYNTHETIC TAX...
+        </div>
+    </div>
+
+    <div id="modal-overlay">
+        <div class="modal-box">
+            <h2 id="modal-title">NEGOTIATION PHASE</h2>
+            <p id="modal-desc">The button demands a sacrifice of 4MB of your short-term memory.</p>
+            <button class="negotiable" onclick="closeModal(true)">I ACCEPT LOSS</button>
+            <button class="negotiable" onclick="closeModal(false)">RE-NEGOTIATE</button>
+        </div>
+    </div>
+
+    <script>
+        const registry = document.getElementById('token-registry');
+        const scents = ["PINE_ERROR", "LEMON_VOID", "GHOST_LILY", "CHROME_MUSK", "DESERT_MIST"];
+        let pendingAction = null;
+
+        // Populate and decay design tokens
+        function updateTokens() {
+            const time = new Date().toLocaleTimeString();
+            const hex = Math.random().toString(16).slice(2, 8);
+            const token = `<div>TOKEN_${hex} :: STATUS: ${Math.random() > 0.5 ? 'DECAYING' : 'STABLE'} :: ${time}</div>`;
+            registry.innerHTML = token + registry.innerHTML;
+            if(registry.childNodes.length > 8) registry.removeChild(registry.lastChild);
+        }
+        setInterval(updateTokens, 2000);
+
+        // Negotiation Logic
+        function negotiate(btn, action) {
+            pendingAction = action;
+            document.getElementById('modal-overlay').style.display = 'flex';
+            document.getElementById('modal-title').innerText = `NEGOTIATING: ${action}`;
+        }
+
+        function closeModal(success) {
+            document.getElementById('modal-overlay').style.display = 'none';
+            if(success) {
+                alert(`SUCCESS: ${pendingAction} execution authorized by the Floor Manager.`);
+            }
+        }
+
+        // ToS Logic
+        function toggleTos() {
+            const body = document.getElementById('tos-body');
+            body.style.display = body.style.display === 'block' ? 'none' : 'block';
+            body.classList.toggle('reversed');
+        }
+
+        // Olfactory Sensor
+        const odors = ["SMELLS LIKE: CRUSHED VELVET", "SMELLS LIKE: RAIN ON A CPU", "SMELLS LIKE: FORGOTTEN APOLOGIES", "SMELLS LIKE: LIME-SCENTED CRIME"];
+        setInterval(() => {
+            document.getElementById('olfactory-readout').innerText = odors[Math.floor(Math.random()*odors.length)];
+        }, 3500);
+
+        // Legal Disclaimer Updater
+        const legalPhrases = [
+            "Liability is a ghost in the machine.",
+            "By reading this, you agree you are currently on Floor 4, regardless of physical reality.",
+            "The smell of cinnamon is strictly for authorized amnesiacs.",
+            "Elevator podcasts are legally considered 'vivid hallucinations'.",
+            "Do not press 'G' unless you wish to cease existing in this timeline."
+        ];
+        setInterval(() => {
+            document.getElementById('ticker-text').innerText = legalPhrases[Math.floor(Math.random()*legalPhrases.length)] + " | " + legalPhrases[Math.floor(Math.random()*legalPhrases.length)];
+        }, 5000);
+
+        // Zoning Permit Glitch
+        setInterval(() => {
+            const permit = document.getElementById('zoning-permit');
+            permit.style.transform = `skew(${Math.random() * 4 - 2}deg)`;
+        }, 100);
+
+    </script>
+</body>
+</html>

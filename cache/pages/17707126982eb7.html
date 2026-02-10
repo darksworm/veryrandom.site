@@ -1,0 +1,765 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Pillow Intel Response Group | Dr. Mirela Quince</title>
+  <link rel="stylesheet" href="/assets/css/pico.min.css" />
+  <link rel="stylesheet" href="/assets/css/fonts.css" />
+  <style>
+    :root {
+      --ocean-950: #02141f;
+      --ocean-900: #032133;
+      --ocean-800: #09344a;
+      --ocean-700: #0f4f69;
+      --ocean-500: #1e7892;
+      --bio-500: #00d08f;
+      --bio-400: #2af5b1;
+      --bio-300: #74ffd0;
+      --warning: #ffd166;
+      --danger: #ff4d6d;
+      --ink: #061019;
+      --paper: #f2fffb;
+      --panel: #e8fff7;
+      --panel-strong: #d1ffef;
+      --line: #0e6e73;
+      --text: #04161f;
+      --text-light: #e8fff7;
+      --text-soft: #b9f9df;
+      --mono: "IBM Plex Mono", monospace;
+      --sans: "Space Grotesk", sans-serif;
+      --radius: 14px;
+      --shadow: 0 10px 0 #073040;
+    }
+
+    * { box-sizing: border-box; }
+
+    html, body {
+      margin: 0;
+      padding: 0;
+      width: 100%;
+      overflow-x: hidden;
+      font-family: var(--sans);
+      background:
+        radial-gradient(circle at 10% 8%, #0c6579 0 7%, transparent 7.5%),
+        radial-gradient(circle at 93% 4%, #16a27b 0 6%, transparent 6.5%),
+        linear-gradient(130deg, var(--ocean-950), var(--ocean-800) 45%, #073648 100%);
+      color: var(--text-light);
+      min-height: 100%;
+    }
+
+    body {
+      font-size: 16px;
+      line-height: 1.4;
+    }
+
+    .memphis-shapes {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      background-image:
+        linear-gradient(45deg, transparent 48%, #0f4f69 49%, #0f4f69 51%, transparent 52%),
+        linear-gradient(-45deg, transparent 48%, #0b3b56 49%, #0b3b56 51%, transparent 52%);
+      background-size: 36px 36px;
+      mix-blend-mode: screen;
+    }
+
+    .app {
+      position: relative;
+      min-height: 100vh;
+      display: grid;
+      grid-template-columns: 300px 1fr;
+      gap: 14px;
+      padding: 14px;
+    }
+
+    .sidebar {
+      background: linear-gradient(180deg, #09273c, #0e3f5a);
+      border: 2px solid var(--bio-400);
+      border-radius: var(--radius);
+      padding: 14px;
+      box-shadow: var(--shadow);
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .brand {
+      background: #0a2031;
+      border: 2px solid #25d8a1;
+      border-radius: 12px;
+      padding: 12px;
+    }
+
+    .brand h1 {
+      margin: 0;
+      font-size: clamp(1.1rem, 2vw, 1.4rem);
+      line-height: 1.2;
+      color: #ffffff;
+      letter-spacing: 0.02em;
+    }
+
+    .brand p {
+      margin: 8px 0 0;
+      font-size: 0.85rem;
+      color: #d8fff1;
+    }
+
+    .pill {
+      font-family: var(--mono);
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: #072b3f;
+      color: #baffea;
+      border: 1px solid #3af2bc;
+      border-radius: 999px;
+      padding: 4px 10px;
+      font-size: 0.75rem;
+    }
+
+    .nav-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 8px;
+    }
+
+    .nav-btn,
+    .action,
+    button,
+    input,
+    select {
+      min-height: 44px;
+      font-family: var(--sans);
+    }
+
+    .nav-btn {
+      width: 100%;
+      border: 2px solid #58ffd1;
+      border-radius: 10px;
+      background: #104566;
+      color: #f0fff9;
+      text-align: left;
+      padding: 10px 12px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .nav-btn.active { background: #00a876; color: #002f2a; border-color: #bcffe9; }
+
+    .sidebar .small {
+      color: #d5fff0;
+      font-size: 0.84rem;
+      margin: 0;
+    }
+
+    .main {
+      display: grid;
+      grid-template-rows: auto auto 1fr;
+      gap: 12px;
+      min-width: 0;
+    }
+
+    .topbar {
+      background: linear-gradient(90deg, #0e4f6d, #11886c);
+      border: 2px solid #a4ffe2;
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 10px;
+      display: grid;
+      grid-template-columns: 1.2fr 1fr 1fr;
+      gap: 10px;
+    }
+
+    .panel {
+      background: linear-gradient(180deg, var(--panel), var(--panel-strong));
+      border: 2px solid var(--line);
+      border-radius: 12px;
+      color: var(--text);
+      padding: 12px;
+      box-shadow: 0 7px 0 #0e5f66;
+      min-width: 0;
+    }
+
+    .panel h2,
+    .panel h3,
+    .panel h4 {
+      margin-top: 0;
+      color: #032433;
+    }
+
+    .kpi {
+      display: grid;
+      gap: 4px;
+    }
+
+    .kpi .label {
+      font-family: var(--mono);
+      font-size: 0.78rem;
+      color: #093042;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+
+    .kpi .value {
+      font-size: clamp(1.1rem, 2.1vw, 1.8rem);
+      font-weight: 800;
+      color: #001f26;
+    }
+
+    .workspace {
+      display: grid;
+      grid-template-columns: 1.45fr 1fr;
+      gap: 12px;
+      min-width: 0;
+    }
+
+    .stack { display: grid; gap: 12px; min-width: 0; }
+
+    .hero {
+      background:
+        linear-gradient(160deg, #0b2d44 0%, #096072 52%, #02a979 100%);
+      border: 2px solid #c9ffe7;
+      border-radius: 12px;
+      color: #ffffff;
+      padding: 14px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .hero::after {
+      content: "";
+      position: absolute;
+      right: -40px;
+      top: -20px;
+      width: 180px;
+      height: 180px;
+      border-radius: 24px;
+      transform: rotate(25deg);
+      border: 3px dashed #e4fff5;
+    }
+
+    .hero p { color: #eefff8; max-width: 70ch; }
+
+    .action-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 10px;
+    }
+
+    .action {
+      background: #002f3f;
+      color: #ffffff;
+      border: 2px solid #89ffd9;
+      border-radius: 10px;
+      padding: 10px 14px;
+      font-weight: 800;
+      cursor: pointer;
+    }
+
+    .action.alt { background: #d8fff2; color: #003d3e; border-color: #003d3e; }
+
+    .action.warn { background: #fff4d3; color: #4f3400; border-color: #896100; }
+
+    .grid-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      min-width: 0;
+    }
+
+    .ticker {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 8px;
+    }
+
+    .mini-card {
+      background: #07374b;
+      color: #f4fff8;
+      border: 2px solid #80ffd6;
+      border-radius: 10px;
+      padding: 10px;
+    }
+
+    .mini-card .t {
+      font-size: 0.72rem;
+      text-transform: uppercase;
+      letter-spacing: 0.09em;
+      color: #d7fff2;
+      font-family: var(--mono);
+    }
+
+    .mini-card .v {
+      font-size: 1.2rem;
+      font-weight: 800;
+      color: #ffffff;
+    }
+
+    .meter {
+      height: 16px;
+      border-radius: 999px;
+      background: #c3efe2;
+      border: 2px solid #0f5663;
+      overflow: hidden;
+      margin-top: 8px;
+    }
+
+    .meter > span {
+      display: block;
+      height: 100%;
+      background: linear-gradient(90deg, #11b17b, #00d08f, #26ffc0);
+      width: 35%;
+      transition: width 240ms ease;
+    }
+
+    .table-wrap { overflow: auto; border: 2px solid #0a5666; border-radius: 10px; }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      min-width: 620px;
+      background: #f4fffa;
+      color: #07222b;
+    }
+
+    th, td {
+      border-bottom: 1px solid #0f6a70;
+      padding: 9px 10px;
+      font-size: 0.9rem;
+      white-space: nowrap;
+      text-align: left;
+    }
+
+    th { background: #ccfff0; color: #083744; font-size: 0.8rem; letter-spacing: 0.05em; text-transform: uppercase; }
+
+    .good { color: #005a31; font-weight: 700; }
+    .bad { color: #8d002f; font-weight: 700; }
+    .warn { color: #6a4500; font-weight: 700; }
+
+    .faq button {
+      width: 100%;
+      text-align: left;
+      margin-bottom: 8px;
+      background: #0e4762;
+      color: #f5fffc;
+      border: 2px solid #a7ffe4;
+      border-radius: 10px;
+      padding: 10px 12px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .faq .a {
+      background: #f3fffb;
+      color: #06232b;
+      border: 2px solid #0a5d67;
+      border-radius: 9px;
+      padding: 10px;
+      margin-bottom: 8px;
+    }
+
+    .chart {
+      display: grid;
+      grid-template-columns: repeat(8, minmax(0, 1fr));
+      align-items: end;
+      gap: 6px;
+      height: 130px;
+      padding: 8px;
+      border: 2px solid #0b5967;
+      border-radius: 10px;
+      background: #e9fff8;
+    }
+
+    .bar {
+      border: 2px solid #004f49;
+      border-radius: 7px 7px 0 0;
+      background: linear-gradient(180deg, #00cb8c, #008f8a);
+      min-height: 18px;
+      transition: height 220ms ease;
+    }
+
+    .plan-cards {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 10px;
+    }
+
+    .plan {
+      border: 2px solid #0f5967;
+      border-radius: 10px;
+      padding: 10px;
+      background: #f4fffa;
+      color: #032733;
+    }
+
+    .plan h4 { margin-bottom: 4px; }
+    .price { font-size: 1.5rem; font-weight: 900; color: #00242b; }
+
+    .tag {
+      display: inline-block;
+      font-family: var(--mono);
+      border: 2px solid #08604e;
+      border-radius: 999px;
+      padding: 2px 8px;
+      background: #bcffe7;
+      font-size: 0.72rem;
+      color: #003327;
+      font-weight: 700;
+    }
+
+    .footer-note {
+      padding: 8px 12px;
+      background: #062f42;
+      border: 2px solid #2bf4be;
+      color: #deffef;
+      border-radius: 10px;
+      font-size: 0.84rem;
+    }
+
+    .tiny { font-size: 0.78rem; color: #0e3a44; font-family: var(--mono); }
+
+    .mono { font-family: var(--mono); }
+
+    .inline-control {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    input[type="range"] { width: 170px; }
+
+    @media (max-width: 1080px) {
+      .app { grid-template-columns: 1fr; }
+      .topbar { grid-template-columns: 1fr 1fr; }
+      .workspace { grid-template-columns: 1fr; }
+    }
+
+    @media (max-width: 760px) {
+      .topbar { grid-template-columns: 1fr; }
+      .grid-2 { grid-template-columns: 1fr; }
+      .plan-cards { grid-template-columns: 1fr; }
+      .ticker { grid-template-columns: 1fr; }
+      .hero p { max-width: 100%; }
+      .app { padding: 10px; gap: 10px; }
+      .sidebar, .panel, .hero, .topbar { padding: 10px; }
+    }
+  </style>
+</head>
+<body x-data="pillowOps()">
+  <div class="memphis-shapes" aria-hidden="true"></div>
+  <div class="app">
+    <aside class="sidebar reveal">
+      <section class="brand">
+        <p class="pill"><i data-lucide="moon-star"></i> Since The Pillow Riot of 2019</p>
+        <h1>Pillow Intel Response Group</h1>
+        <p>Founded by Dr. Mirela Quince, former hotel compliance officer, current sleep-truth containment specialist.</p>
+      </section>
+
+      <nav class="nav-grid" aria-label="Control panels">
+        <button class="nav-btn" :class="{active: activePanel==='alerts'}" @click="activePanel='alerts'">Alerts Desk</button>
+        <button class="nav-btn" :class="{active: activePanel==='audits'}" @click="activePanel='audits'">Client Audits</button>
+        <button class="nav-btn" :class="{active: activePanel==='pricing'}" @click="activePanel='pricing'">Containment Plans</button>
+        <button class="nav-btn" :class="{active: activePanel==='faq'}" @click="activePanel='faq'">Founder FAQ</button>
+      </nav>
+
+      <div class="panel">
+        <h4 class="mono">Founder Note</h4>
+        <p class="small">I learned the hard way that memory foam remembers. At 2:14 AM, suite 611 whispered our Q4 margin target back to me. I started this firm at 2:15.</p>
+        <button class="action" @click="rotateMantra">Update Team Mantra</button>
+        <p class="small"><strong>Current mantra:</strong> <span x-text="mantra"></span></p>
+      </div>
+
+      <div class="panel">
+        <h4 class="mono">Shift Counter</h4>
+        <p class="small">Consultants currently awake: <strong x-text="awakeConsultants"></strong></p>
+        <button class="action alt" @click="awakeConsultants++">Call One More Specialist</button>
+        <p class="tiny">We have never hired someone who sleeps on their back. Too trusting.</p>
+      </div>
+    </aside>
+
+    <main class="main">
+      <section class="topbar reveal">
+        <div class="panel kpi">
+          <span class="label">Last Whisper Intercept</span>
+          <span class="value" x-text="clock"></span>
+          <span class="tiny">Local operations time</span>
+        </div>
+        <div class="panel kpi">
+          <span class="label">Monthly Secrets Prevented</span>
+          <span class="value" x-text="secretsPrevented.toLocaleString()"></span>
+          <span class="tiny">Target: 4,800</span>
+        </div>
+        <div class="panel kpi">
+          <span class="label">Average Pillow Confidence</span>
+          <span class="value"><span x-text="confidence"></span>%</span>
+          <span class="tiny">Lower is safer for your board</span>
+        </div>
+      </section>
+
+      <section class="hero reveal">
+        <h2>Confidential adaptation consulting for businesses whose pillows already know too much.</h2>
+        <p>I am Dr. Mirela Quince. I turned one suspicious hotel incident into a national service. We harden bedrooms, executive lounges, and nap pods against conversational bedding. You keep your strategy. Your pillows keep fluff and absolutely nothing else.</p>
+        <div class="action-row">
+          <button class="action" @click="runPurge">Run 90-Second Memory Purge</button>
+          <button class="action alt" @click="simulateIncident">Simulate Leak Event</button>
+          <button class="action warn" @click="confessionOpen = !confessionOpen" x-text="confessionOpen ? 'Hide Confession Feed' : 'Show Confession Feed'"></button>
+        </div>
+        <p class="tiny">Incidents this quarter after purge protocol adoption: <strong x-text="incidentDrop + '% down'">61% down</strong>. My rival says coincidence. My rival sells weighted blankets.</p>
+      </section>
+
+      <section class="workspace">
+        <div class="stack">
+          <article class="panel reveal" x-show="activePanel==='alerts' || activePanel==='audits'" x-transition>
+            <h3>Live Leak Ticker</h3>
+            <div class="ticker">
+              <div class="mini-card">
+                <div class="t">Boardroom Murmur Index</div>
+                <div class="v" x-text="murmurIndex"></div>
+              </div>
+              <div class="mini-card">
+                <div class="t">Unsanctioned Dream Recall</div>
+                <div class="v" x-text="dreamRecall + '%' "></div>
+              </div>
+              <div class="mini-card">
+                <div class="t">Pillow Honesty Rate</div>
+                <div class="v" x-text="honesty + '%' "></div>
+              </div>
+            </div>
+
+            <div class="grid-2" style="margin-top:10px;">
+              <div>
+                <div class="inline-control">
+                  <label for="threat" class="mono">Threat Dial:</label>
+                  <input id="threat" type="range" min="5" max="99" x-model.number="threatDial" />
+                  <strong x-text="threatDial + '%' "></strong>
+                </div>
+                <div class="meter"><span :style="`width:${threatDial}%`"></span></div>
+                <p class="tiny">At 72% and above, we advise replacing decorative cushions with audited rocks.</p>
+              </div>
+              <div>
+                <button class="action" @click="secretsPrevented += 17; confidence = Math.max(3, confidence - 1)">Log 17 Prevented Secrets</button>
+                <button class="action alt" @click="confidence = Math.min(98, confidence + 3)" style="margin-top:8px;">Pressurize Confidence (Demo)</button>
+              </div>
+            </div>
+          </article>
+
+          <article class="panel reveal" x-show="activePanel==='audits' || activePanel==='alerts'" x-transition>
+            <h3>Audit Queue: Clients I Personally Yelled At</h3>
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Client</th>
+                    <th>Primary Risk</th>
+                    <th>Exposure</th>
+                    <th>Status</th>
+                    <th>Next Action</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td>Lakehouse FinTech</td>
+                    <td>Executive nap pods with memory foam v4</td>
+                    <td class="bad">Critical</td>
+                    <td>On-site whisper quarantine</td>
+                    <td>Remove embroidered initials</td>
+                  </tr>
+                  <tr>
+                    <td>Beacon Legal</td>
+                    <td>Trial strategy discussed near lumbar pillow</td>
+                    <td class="warn">Elevated</td>
+                    <td>Nightly white-noise compliance</td>
+                    <td>Install static blankets</td>
+                  </tr>
+                  <tr>
+                    <td>Chonk Beverage Group</td>
+                    <td>CFO nap couch facing investor deck</td>
+                    <td class="bad">High</td>
+                    <td>Under surveillance</td>
+                    <td>Rotate couch 180 degrees</td>
+                  </tr>
+                  <tr>
+                    <td>Northgrain Robotics</td>
+                    <td>Pillowcase monogram leak trail</td>
+                    <td class="good">Contained</td>
+                    <td>Quarterly lint interview complete</td>
+                    <td>Maintain anti-gossip mesh</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            <p class="tiny">If your pillow has a zipper, it has pockets. If it has pockets, it has motives.</p>
+          </article>
+
+          <article class="panel reveal" x-show="activePanel==='pricing'" x-transition>
+            <h3>Containment Plans</h3>
+            <div class="inline-control">
+              <span class="tag">Billing:</span>
+              <button class="action alt" @click="annual=false" :aria-pressed="(!annual).toString()">Monthly</button>
+              <button class="action alt" @click="annual=true" :aria-pressed="annual.toString()">Annual (-11%)</button>
+            </div>
+            <div class="plan-cards" style="margin-top:10px;">
+              <div class="plan">
+                <h4>Starter: "Murmur Maybe"</h4>
+                <div class="price">$<span x-text="annual ? '427' : '47.99'"></span></div>
+                <p>One floor sweep, two stern memos, and a branded lint roller signed by me.</p>
+                <p class="tiny">Best for offices where nobody naps voluntarily.</p>
+              </div>
+              <div class="plan">
+                <h4>Professional: "Foam Firewall"</h4>
+                <div class="price">$<span x-text="annual ? '1680' : '189.00'"></span></div>
+                <p>Weekly containment drills, decoy cushions, and midnight phrase scrambling.</p>
+                <p class="tiny">Most popular with law firms and dramatic founders.</p>
+              </div>
+              <div class="plan">
+                <h4>Enterprise: "Sleep NDA Blacksite"</h4>
+                <div class="price">$<span x-text="annual ? '7310' : '822.00'"></span></div>
+                <p>24/7 whisper desk, emergency feather extraction, and board-level pillow amnesty hearings.</p>
+                <p class="tiny">Includes one annual apology letter drafted by me.</p>
+              </div>
+            </div>
+          </article>
+        </div>
+
+        <div class="stack">
+          <article class="panel reveal" x-show="confessionOpen" x-transition>
+            <h3>Anonymous Confession Feed</h3>
+            <p class="tiny">Submitted by clients who ignored my advice and now whisper into duvets.</p>
+            <ul style="margin:0; padding-left:18px;">
+              <template x-for="item in confessions" :key="item.id">
+                <li style="margin-bottom:8px;"><strong x-text="item.name"></strong>: <span x-text="item.text"></span></li>
+              </template>
+            </ul>
+          </article>
+
+          <article class="panel reveal">
+            <h3>Exposure Pattern (last 8 nights)</h3>
+            <div class="chart" role="img" aria-label="Bar chart showing nightly exposure pattern">
+              <template x-for="(v, i) in chart" :key="i">
+                <div class="bar" :style="`height:${v}%`"></div>
+              </template>
+            </div>
+            <button class="action" style="margin-top:8px;" @click="shuffleChart">Recalculate Pattern</button>
+          </article>
+
+          <article class="panel reveal" x-show="activePanel==='faq' || activePanel==='alerts'" x-transition>
+            <h3>Questions I Am Asked Constantly</h3>
+            <div class="faq">
+              <button @click="faq=faq===1?0:1">Do pillows actually remember numbers?</button>
+              <div class="a" x-show="faq===1" x-transition>Yes. A king-size in Columbus recited a twelve-digit account code between 3:02 and 3:04 AM. We have transcripts and mild trauma.</div>
+
+              <button @click="faq=faq===2?0:2">Can we just flip the pillow?</button>
+              <div class="a" x-show="faq===2" x-transition>That is exactly what my rival from NutriBlanket tells people. Flipping only changes accent, not memory retention.</div>
+
+              <button @click="faq=faq===3?0:3">What if the pillow already knows everything?</button>
+              <div class="a" x-show="faq===3" x-transition>Then we run our Graceful Denial protocol: isolate, compliment, replace, and blame humidity.</div>
+            </div>
+          </article>
+
+          <article class="panel reveal">
+            <h3>What Clients Say (before legal edits)</h3>
+            <p><strong>Rina Holt, COO at Chonk Beverage:</strong> “Dr. Quince made us stop saying merger details near cushions. Three days later, our couch stopped humming numbers.”</p>
+            <p><strong>Dalton Kreb, Founder of Krebly:</strong> “I thought this was fake. Then my throw pillow said ‘Series B at unfavorable terms.’ I pay annual now.”</p>
+            <p><strong>Unnamed Judge:</strong> “I cannot comment publicly. Privately: get the Foam Firewall.”</p>
+          </article>
+        </div>
+      </section>
+
+      <section class="footer-note reveal">
+        <strong>Legal & Practical Disclaimer:</strong> We do not read thoughts, only fillings and stitch tension. Pillow Intel Response Group is not responsible for leaks caused by talking to your mattress like it is your therapist. It is not.
+      </section>
+    </main>
+  </div>
+
+  <script src="/assets/js/alpine.min.js" defer></script>
+  <script src="/assets/js/gsap.min.js" defer></script>
+  <script src="/assets/js/lucide.min.js" defer></script>
+  <script>
+    function pillowOps() {
+      return {
+        activePanel: 'alerts',
+        clock: '00:00:00',
+        secretsPrevented: 4318,
+        confidence: 28,
+        murmurIndex: 61,
+        dreamRecall: 13,
+        honesty: 32,
+        threatDial: 35,
+        annual: false,
+        faq: 0,
+        confessionOpen: true,
+        awakeConsultants: 12,
+        incidentDrop: 61,
+        mantra: 'No whisper left behind.',
+        chart: [34, 52, 48, 64, 39, 71, 44, 56],
+        confessions: [
+          { id: 1, name: 'VP, Logistics', text: 'I said “confidential pivot” into a travel pillow. It repeated it to accounting.' },
+          { id: 2, name: 'General Counsel', text: 'My decorative cushion knew witness order. I cried into a legally safe towel.' },
+          { id: 3, name: 'Startup Founder', text: 'Our nap room pillow guessed valuation within $2M. Disturbingly accurate.' }
+        ],
+        mantras: [
+          'No whisper left behind.',
+          'Fluff is temporary, disclosure is forever.',
+          'Zip covers, zip lips.',
+          'Sleep less. Protect more.'
+        ],
+        init() {
+          this.tickClock();
+          setInterval(() => this.tickClock(), 1000);
+          setInterval(() => this.autoPulse(), 2600);
+          window.addEventListener('load', () => {
+            if (window.lucide) {
+              window.lucide.createIcons();
+            }
+            if (window.gsap) {
+              gsap.fromTo(
+                '.reveal',
+                { y: 18, opacity: 0 },
+                { y: 0, opacity: 1, duration: 0.5, stagger: 0.05, ease: 'power1.out', clearProps: 'opacity,transform' }
+              );
+            }
+          }, { once: true });
+        },
+        tickClock() {
+          const d = new Date();
+          this.clock = d.toLocaleTimeString('en-US', { hour12: false });
+        },
+        autoPulse() {
+          this.murmurIndex = Math.max(12, Math.min(95, this.murmurIndex + Math.floor(Math.random() * 7) - 3));
+          this.dreamRecall = Math.max(2, Math.min(77, this.dreamRecall + Math.floor(Math.random() * 5) - 2));
+          this.honesty = Math.max(8, Math.min(89, this.honesty + Math.floor(Math.random() * 5) - 2));
+        },
+        runPurge() {
+          this.secretsPrevented += 29;
+          this.confidence = Math.max(3, this.confidence - 2);
+          this.incidentDrop = Math.min(93, this.incidentDrop + 1);
+          this.mantra = 'Memory foam, memory gone.';
+        },
+        simulateIncident() {
+          this.secretsPrevented = Math.max(0, this.secretsPrevented - 4);
+          this.confidence = Math.min(98, this.confidence + 2);
+          this.threatDial = Math.min(99, this.threatDial + 7);
+          this.confessions.unshift({
+            id: Date.now(),
+            name: 'Ops Manager',
+            text: 'I whispered “budget freeze” near a neck pillow. The intern quoted it in standup.'
+          });
+          if (this.confessions.length > 5) this.confessions.pop();
+        },
+        rotateMantra() {
+          const current = this.mantras.indexOf(this.mantra);
+          const next = (current + 1) % this.mantras.length;
+          this.mantra = this.mantras[next];
+        },
+        shuffleChart() {
+          this.chart = this.chart.map(() => Math.floor(Math.random() * 65) + 20);
+        }
+      };
+    }
+  </script>
+</body>
+</html>

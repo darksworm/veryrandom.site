@@ -1,0 +1,728 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="neon">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Abyssal Ledger Courier</title>
+  <link rel="stylesheet" href="/assets/css/pico.min.css" />
+  <link rel="stylesheet" href="/assets/css/fonts.css" />
+  <script defer src="/assets/js/alpine.min.js"></script>
+  <script defer src="/assets/js/gsap.min.js"></script>
+  <script defer src="/assets/js/lucide.min.js"></script>
+  <style>
+    :root {
+      --pink: #ff2bb8;
+      --blue: #0c6dff;
+      --lime: #b3ff2f;
+      --ink: #050514;
+      --paper: #fffdf4;
+      --white: #ffffff;
+      --deep: #06062a;
+    }
+
+    html[data-theme="ledger"] {
+      --pink: #ff4b95;
+      --blue: #3186ff;
+      --lime: #d4ff3b;
+      --deep: #120923;
+    }
+
+    html[data-theme="reef"] {
+      --pink: #ff3bb2;
+      --blue: #00a8ff;
+      --lime: #93ff00;
+      --deep: #001b34;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: 'Space Grotesk', sans-serif;
+      color: var(--white);
+      background: radial-gradient(circle at 10% 20%, #1f0047, #040414 45%),
+                  linear-gradient(140deg, #020215, #12062f 40%, #011f36);
+      scroll-snap-type: y mandatory;
+      overflow-y: auto;
+      min-height: 100vh;
+      transition: filter 0.4s ease;
+    }
+
+    body.tide-on {
+      filter: hue-rotate(18deg) saturate(1.18);
+    }
+
+    h1, h2, h3 {
+      font-family: 'Playfair Display', serif;
+      color: var(--white);
+      margin: 0;
+      letter-spacing: 0.02em;
+    }
+
+    p, li, small, a, strong, button {
+      color: var(--white);
+    }
+
+    a { text-decoration: none; }
+
+    .slides { width: 100%; }
+
+    .slide {
+      min-height: 100vh;
+      scroll-snap-align: start;
+      padding: 2rem clamp(1.2rem, 3vw, 3rem);
+      position: relative;
+      overflow: hidden;
+      isolation: isolate;
+      display: grid;
+      align-content: center;
+      gap: 1.5rem;
+    }
+
+    .slide::before,
+    .slide::after {
+      content: "";
+      position: absolute;
+      z-index: -1;
+      pointer-events: none;
+    }
+
+    .hero::before {
+      width: 60vmax;
+      height: 60vmax;
+      right: -20vmax;
+      top: -15vmax;
+      background: conic-gradient(from 120deg, var(--pink), var(--blue), var(--lime), var(--pink));
+      border-radius: 47% 53% 61% 39% / 43% 38% 62% 57%;
+      opacity: 0.8;
+      filter: blur(1px);
+      animation: slowspin 18s linear infinite;
+    }
+
+    .hero::after {
+      width: 36vmax;
+      height: 36vmax;
+      left: -14vmax;
+      bottom: -10vmax;
+      background: radial-gradient(circle, rgba(179,255,47,0.7), rgba(12,109,255,0.06));
+      clip-path: polygon(22% 0%, 100% 16%, 74% 100%, 0% 84%);
+      transform: rotate(-14deg);
+    }
+
+    .services::before {
+      inset: 10% auto auto -10%;
+      width: 40vmax;
+      height: 40vmax;
+      background: repeating-conic-gradient(from 45deg, rgba(255,43,184,0.22) 0 9deg, transparent 9deg 18deg);
+      border-radius: 50%;
+      filter: blur(0.5px);
+    }
+
+    .routes::before {
+      inset: auto -10% -25% auto;
+      width: 48vmax;
+      height: 48vmax;
+      background: linear-gradient(45deg, rgba(12,109,255,0.6), rgba(179,255,47,0.25));
+      clip-path: polygon(50% 0%, 100% 25%, 82% 100%, 20% 82%, 0% 40%);
+    }
+
+    .voices::before {
+      width: 100%;
+      height: 100%;
+      left: 0;
+      top: 0;
+      background: linear-gradient(transparent 88%, rgba(255,43,184,0.24) 88% 90%, transparent 90%),
+                  linear-gradient(90deg, transparent 78%, rgba(179,255,47,0.22) 78% 80%, transparent 80%);
+    }
+
+    .topnav {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.75rem;
+      justify-content: space-between;
+      align-items: center;
+      background: rgba(6, 6, 42, 0.75);
+      border: 2px solid var(--lime);
+      border-radius: 999px;
+      padding: 0.55rem 1rem;
+      backdrop-filter: blur(4px);
+    }
+
+    .brand {
+      font-weight: 700;
+      color: var(--paper);
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      font-size: 0.92rem;
+    }
+
+    .menu {
+      display: flex;
+      gap: 0.9rem;
+      flex-wrap: wrap;
+      font-size: 0.9rem;
+    }
+
+    .menu a {
+      color: #ffffff;
+      border-bottom: 2px solid transparent;
+      transition: border-color 0.2s ease;
+    }
+
+    .menu a:hover { border-color: var(--lime); }
+
+    .hero-grid {
+      display: grid;
+      grid-template-columns: 1.15fr 1fr;
+      gap: clamp(1rem, 3vw, 2rem);
+      align-items: center;
+    }
+
+    .headline {
+      font-size: clamp(2rem, 8vw, 5.3rem);
+      line-height: 0.92;
+      text-shadow: 0 4px 0 #000;
+      max-width: 10ch;
+    }
+
+    .deck {
+      max-width: 44ch;
+      color: #ffffff;
+      background: rgba(0,0,0,0.28);
+      border-left: 4px solid var(--pink);
+      padding: 0.8rem 1rem;
+    }
+
+    .btn-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.7rem;
+      margin-top: 0.8rem;
+    }
+
+    .psy-btn {
+      border: 2px solid #fff;
+      background: linear-gradient(140deg, var(--blue), var(--pink));
+      color: #fff;
+      font-weight: 700;
+      padding: 0.6rem 1rem;
+      border-radius: 999px;
+      cursor: pointer;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+      text-transform: uppercase;
+      letter-spacing: 0.03em;
+    }
+
+    .psy-btn.alt {
+      background: linear-gradient(140deg, var(--lime), #ebffb2);
+      color: #0d0d0d;
+      border-color: #0d0d0d;
+    }
+
+    .psy-btn:hover {
+      transform: translateY(-3px) scale(1.02);
+      box-shadow: 0 10px 0 #000;
+    }
+
+    .ledger-art {
+      position: relative;
+      min-height: 360px;
+      border: 3px solid #fff;
+      border-radius: 1.2rem;
+      background: radial-gradient(circle at 20% 20%, rgba(179,255,47,0.55), rgba(0,0,0,0.25) 32%),
+                  linear-gradient(125deg, rgba(255,43,184,0.52), rgba(12,109,255,0.65));
+      padding: 1rem;
+      box-shadow: inset 0 0 0 3px #0d0d0d, 0 18px 0 rgba(0,0,0,0.55);
+    }
+
+    .bars {
+      position: absolute;
+      inset: 9% 8% auto;
+      height: 52%;
+      border: 3px solid #101010;
+      border-radius: 1rem;
+      background: repeating-linear-gradient(90deg, #ffffff 0 8%, #071541 8% 12%);
+      overflow: hidden;
+    }
+
+    .bars::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(0deg, rgba(255,43,184,0.5), rgba(179,255,47,0.16));
+      mix-blend-mode: multiply;
+      animation: pulse 2.8s ease-in-out infinite;
+    }
+
+    .stamp {
+      position: absolute;
+      right: 10%;
+      bottom: 12%;
+      width: 42%;
+      min-height: 110px;
+      border: 3px dashed #0a0a0a;
+      border-radius: 1rem;
+      background: #fff7b0;
+      color: #070707;
+      font-family: 'Space Grotesk', sans-serif;
+      display: grid;
+      place-items: center;
+      font-weight: 800;
+      letter-spacing: 0.06em;
+      text-align: center;
+      padding: 0.6rem;
+      text-transform: uppercase;
+      transform: rotate(-6deg);
+    }
+
+    .panel {
+      background: rgba(0, 0, 0, 0.33);
+      border: 2px solid #fff;
+      border-radius: 1rem;
+      padding: 1rem;
+    }
+
+    .card-grid {
+      display: grid;
+      gap: 1rem;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+
+    .card {
+      border: 3px solid #fff;
+      border-radius: 1rem;
+      padding: 1rem;
+      background: linear-gradient(160deg, rgba(12,109,255,0.86), rgba(255,43,184,0.6));
+      position: relative;
+      transition: transform 0.25s ease;
+      overflow: hidden;
+    }
+
+    .card:nth-child(2) {
+      background: linear-gradient(160deg, rgba(179,255,47,0.76), rgba(12,109,255,0.74));
+    }
+
+    .card:nth-child(2) h3,
+    .card:nth-child(2) p,
+    .card:nth-child(2) li,
+    .card:nth-child(2) strong {
+      color: #09110a;
+    }
+
+    .card::after {
+      content: "";
+      position: absolute;
+      width: 130px;
+      height: 130px;
+      right: -24px;
+      top: -24px;
+      border-radius: 37% 63% 47% 53% / 57% 43% 57% 43%;
+      background: rgba(255,255,255,0.22);
+      transition: transform 0.35s ease;
+    }
+
+    .card:hover {
+      transform: translateY(-8px) rotate(-1deg);
+    }
+
+    .card:hover::after {
+      transform: scale(1.2) rotate(35deg);
+    }
+
+    .price {
+      font-size: 2.1rem;
+      font-weight: 900;
+      color: #fff;
+    }
+
+    .card:nth-child(2) .price { color: #0d160d; }
+
+    .soup-wrap {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      align-items: center;
+      gap: 1rem;
+      margin-top: 1.3rem;
+    }
+
+    .bowl {
+      width: min(420px, 94%);
+      margin: 0;
+      position: relative;
+      height: 168px;
+      border-radius: 0 0 110px 110px;
+      border: 3px solid #fff;
+      border-top: 12px solid #fff;
+      background: linear-gradient(180deg, #0f2eff 0 30%, #00174b 90%);
+      box-shadow: 0 14px 0 #000;
+      overflow: hidden;
+    }
+
+    .soup-liquid {
+      position: absolute;
+      inset: 16% 6% auto;
+      height: 56%;
+      background: linear-gradient(90deg, #fbff7f, #a7ff2a, #f8ff89);
+      border-radius: 48% 52% 62% 38% / 44% 60% 40% 56%;
+      border: 2px solid #0d0d0d;
+      transform-origin: center;
+    }
+
+    .soup-liquid::before,
+    .soup-liquid::after {
+      content: "";
+      position: absolute;
+      width: 34px;
+      height: 34px;
+      border-radius: 50%;
+      background: #ff2bb8;
+      border: 2px solid #040404;
+      top: 30%;
+      animation: bob 2.8s ease-in-out infinite;
+    }
+
+    .soup-liquid::before { left: 18%; }
+    .soup-liquid::after { right: 16%; animation-delay: 0.5s; }
+
+    .route-grid {
+      display: grid;
+      grid-template-columns: 1.1fr 1fr;
+      gap: 1rem;
+      align-items: stretch;
+    }
+
+    .map-art {
+      border: 3px solid #fff;
+      border-radius: 1rem;
+      min-height: 360px;
+      background:
+        linear-gradient(130deg, rgba(255,43,184,0.75), rgba(12,109,255,0.88)),
+        repeating-linear-gradient(0deg, rgba(255,255,255,0.2) 0 10px, transparent 10px 20px);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .map-art .line {
+      position: absolute;
+      border: 3px solid #fff;
+      border-radius: 999px;
+      filter: drop-shadow(0 3px 0 #000);
+    }
+
+    .line.one { inset: 14% 50% 68% 8%; transform: rotate(-6deg); }
+    .line.two { inset: 36% 22% 38% 14%; transform: rotate(12deg); }
+    .line.three { inset: 66% 8% 12% 44%; transform: rotate(-14deg); }
+
+    .node {
+      position: absolute;
+      width: 22px;
+      height: 22px;
+      border: 3px solid #111;
+      border-radius: 50%;
+      background: var(--lime);
+      box-shadow: 0 0 0 4px rgba(255,255,255,0.36);
+    }
+
+    .node.a { top: 18%; left: 12%; }
+    .node.b { top: 42%; left: 52%; background: var(--pink); }
+    .node.c { top: 72%; right: 18%; background: #fff286; }
+
+    .theme-pills {
+      display: flex;
+      gap: 0.7rem;
+      flex-wrap: wrap;
+      margin-top: 1rem;
+    }
+
+    .color-orb {
+      width: 50px;
+      height: 50px;
+      border-radius: 50%;
+      border: 3px solid #fff;
+      cursor: pointer;
+      box-shadow: 0 4px 0 #000;
+      transition: transform 0.2s ease;
+    }
+
+    .color-orb:hover { transform: translateY(-4px) scale(1.06); }
+    .orb-neon { background: linear-gradient(135deg, #ff2bb8, #0c6dff); }
+    .orb-ledger { background: linear-gradient(135deg, #ff4b95, #d4ff3b); }
+    .orb-reef { background: linear-gradient(135deg, #00a8ff, #93ff00); }
+
+    .testimonial-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 1rem;
+    }
+
+    .quote {
+      background: #fffefa;
+      color: #050505;
+      border: 3px solid #0f0f0f;
+      border-radius: 1rem;
+      padding: 1rem;
+      box-shadow: 0 10px 0 #000;
+      transform: rotate(-1.2deg);
+      transition: transform 0.25s ease, background 0.25s ease;
+    }
+
+    .quote:nth-child(2) { transform: rotate(1.1deg); background: #f8ffbc; }
+    .quote:nth-child(3) { transform: rotate(-0.5deg); background: #e9fdff; }
+
+    .quote:hover {
+      transform: rotate(0deg) translateY(-8px);
+      background: #ffffff;
+    }
+
+    .quote p,
+    .quote small,
+    .quote strong {
+      color: #111;
+    }
+
+    .seal {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.45rem 0.7rem;
+      border-radius: 999px;
+      background: #111;
+      color: #fff;
+      border: 2px solid #fff;
+      font-weight: 700;
+      margin-top: 0.8rem;
+    }
+
+    @media (max-width: 980px) {
+      .hero-grid,
+      .card-grid,
+      .route-grid,
+      .testimonial-grid {
+        grid-template-columns: 1fr;
+      }
+      .headline { max-width: 100%; }
+      .stamp { width: 52%; }
+    }
+
+    @keyframes slowspin {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(360deg); }
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 0.6; }
+      50% { opacity: 0.95; }
+    }
+
+    @keyframes bob {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-7px); }
+    }
+  </style>
+</head>
+<body x-data="site()">
+  <main class="slides">
+    <section class="slide hero">
+      <nav class="topnav reveal">
+        <span class="brand">Abyssal Ledger Courier</span>
+        <div class="menu">
+          <a href="#intake">Intake</a>
+          <a href="#rates">Rates</a>
+          <a href="#routes">Routes</a>
+          <a href="#manifest">Manifest</a>
+        </div>
+      </nav>
+
+      <div class="hero-grid">
+        <div class="drift reveal">
+          <h1 class="headline">Certified Deep Transit for Restricted Typefaces</h1>
+          <p class="deck">We receive impounded glyph families, process their seaworthy docket, and deliver sealed sets across pressure-zones before second tide. Settlement accepted in clear broth, chowder, or concentrated consommé.</p>
+          <div class="btn-row" id="intake">
+            <button class="psy-btn" x-on:click="flipTide()">Toggle Tide Mode</button>
+            <button class="psy-btn alt" x-on:click="stamp()">Seal Manifest</button>
+          </div>
+        </div>
+
+        <div class="ledger-art drift reveal" aria-hidden="true">
+          <div class="bars"></div>
+          <div class="stamp">Font Containment<br/>Transit Cleared</div>
+        </div>
+      </div>
+    </section>
+
+    <section class="slide services" id="rates">
+      <div class="panel reveal">
+        <h2>Courier Schedules</h2>
+        <p>All filings include pressure-safe packaging and clerk signatures from the North Trench Registry.</p>
+      </div>
+
+      <div class="card-grid">
+        <article class="card drift reveal">
+          <h3>Brine Basic</h3>
+          <p class="price">4 L soup</p>
+          <ul>
+            <li>Single font convoy</li>
+            <li>48-hour trench ETA</li>
+            <li>Wet-stamp receipt</li>
+          </ul>
+        </article>
+
+        <article class="card drift reveal">
+          <h3>Ledger Deluxe</h3>
+          <p class="price">9 L soup</p>
+          <ul>
+            <li>Three family transfer</li>
+            <li>Priority kelp lanes</li>
+            <li>Audit-grade chain log</li>
+          </ul>
+        </article>
+
+        <article class="card drift reveal">
+          <h3>Abyss Executive</h3>
+          <p class="price">14 L soup</p>
+          <ul>
+            <li>Unlimited weekend dispatch</li>
+            <li>Pressure-vault escort</li>
+            <li>Night tide accounting</li>
+          </ul>
+        </article>
+      </div>
+
+      <div class="soup-wrap reveal">
+        <figure class="bowl" aria-label="Soup ledger tank">
+          <div class="soup-liquid"></div>
+        </figure>
+        <button class="psy-btn" x-on:click="stirSoup()">Stir Settlement Tank</button>
+      </div>
+    </section>
+
+    <section class="slide routes" id="routes">
+      <div class="route-grid">
+        <div class="map-art drift reveal" aria-hidden="true">
+          <div class="line one"></div>
+          <div class="line two"></div>
+          <div class="line three"></div>
+          <div class="node a"></div>
+          <div class="node b"></div>
+          <div class="node c"></div>
+        </div>
+
+        <div class="panel drift reveal">
+          <h2>Current Underwater Lanes</h2>
+          <p>Ledger Convoys 03, 11, and 22 are operating at full clerical capacity. Choose your routing palette to align route beacons with your filing desk.</p>
+          <div class="theme-pills">
+            <button class="color-orb orb-neon" x-on:click="setTheme('neon')" aria-label="Neon lane"></button>
+            <button class="color-orb orb-ledger" x-on:click="setTheme('ledger')" aria-label="Ledger lane"></button>
+            <button class="color-orb orb-reef" x-on:click="setTheme('reef')" aria-label="Reef lane"></button>
+          </div>
+          <p><strong>Office Hours:</strong> 05:00-22:00 trench time, seven tides weekly.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="slide voices" id="manifest">
+      <div class="panel reveal">
+        <h2>Verified Client Notes</h2>
+      </div>
+      <div class="testimonial-grid">
+        <article class="quote drift reveal">
+          <p>Our confiscated stencil set arrived ahead of docket, neatly cataloged, no sea-silt contamination.</p>
+          <small><strong>Harbor Tax Syndicate, Sector C</strong></small>
+          <span class="seal"><i data-lucide="shield-check"></i> Registered</span>
+        </article>
+        <article class="quote drift reveal">
+          <p>The consommé transfer processed instantly. Courier 11 confirmed every signature in person.</p>
+          <small><strong>Office of Tidal Compliance</strong></small>
+          <span class="seal"><i data-lucide="receipt"></i> Balanced</span>
+        </article>
+        <article class="quote drift reveal">
+          <p>Finally, a delivery bureau that understands bad serif containment and fast trench routing.</p>
+          <small><strong>Dockside Records Authority</strong></small>
+          <span class="seal"><i data-lucide="waves"></i> Cleared</span>
+        </article>
+      </div>
+      <div class="btn-row reveal">
+        <button class="psy-btn alt" x-on:click="stamp()">Issue New Seal</button>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    function site() {
+      return {
+        flipTide() {
+          document.body.classList.toggle('tide-on');
+          gsap.fromTo('.hero .stamp',
+            { rotate: -6, scale: 1 },
+            { rotate: -2, scale: 1.06, duration: 0.25, yoyo: true, repeat: 1 }
+          );
+        },
+        stirSoup() {
+          const tl = gsap.timeline();
+          tl.to('.soup-liquid', {
+            borderRadius: '58% 42% 40% 60% / 60% 44% 56% 40%',
+            duration: 0.28
+          });
+          tl.to('.soup-liquid', {
+            rotate: 10,
+            duration: 0.16,
+            yoyo: true,
+            repeat: 3
+          });
+          tl.to('.soup-liquid', {
+            rotate: 0,
+            borderRadius: '48% 52% 62% 38% / 44% 60% 40% 56%',
+            duration: 0.25
+          });
+        },
+        setTheme(theme) {
+          document.documentElement.setAttribute('data-theme', theme);
+          gsap.fromTo('.color-orb',
+            { scale: 0.88 },
+            { scale: 1, duration: 0.25, stagger: 0.05 }
+          );
+        },
+        stamp() {
+          gsap.fromTo('.seal',
+            { scale: 1, rotate: 0 },
+            { scale: 1.14, rotate: -7, duration: 0.2, yoyo: true, repeat: 3, stagger: 0.04 }
+          );
+        }
+      };
+    }
+
+    document.addEventListener('DOMContentLoaded', function () {
+      if (window.lucide) {
+        lucide.createIcons();
+      }
+
+      gsap.from('.reveal', {
+        y: 34,
+        opacity: 0,
+        duration: 0.8,
+        stagger: 0.08,
+        ease: 'power2.out'
+      });
+
+      document.querySelectorAll('.slide').forEach(function (slide) {
+        slide.addEventListener('mouseenter', function () {
+          gsap.to(slide.querySelectorAll('.drift'), {
+            y: -5,
+            duration: 0.28,
+            stagger: 0.03,
+            overwrite: true
+          });
+        });
+        slide.addEventListener('mouseleave', function () {
+          gsap.to(slide.querySelectorAll('.drift'), {
+            y: 0,
+            duration: 0.28,
+            stagger: 0.03,
+            overwrite: true
+          });
+        });
+      });
+    });
+  </script>
+</body>
+</html>

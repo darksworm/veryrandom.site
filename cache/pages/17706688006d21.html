@@ -1,0 +1,467 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Nocturne Civil Air | Night Routes Bureau</title>
+  <link rel="stylesheet" href="/assets/css/pico.min.css" />
+  <link rel="stylesheet" href="/assets/css/fonts.css" />
+  <style>
+    :root {
+      --ink: #090909;
+      --paper: #f6f6f6;
+      --signal: #cf0000;
+      --panel: #111111;
+      --rule: #2e2e2e;
+      --soft: #ffffff;
+      --maxw: 1120px;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: 'Space Grotesk', sans-serif;
+      color: var(--soft);
+      background:
+        linear-gradient(180deg, rgba(207, 0, 0, 0.08), rgba(0, 0, 0, 0) 35%),
+        repeating-linear-gradient(
+          0deg,
+          #070707 0,
+          #070707 2px,
+          #0b0b0b 2px,
+          #0b0b0b 4px
+        );
+      min-height: 100vh;
+      letter-spacing: 0.01em;
+    }
+
+    body::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      z-index: 0;
+      background: linear-gradient(transparent 0%, rgba(207, 0, 0, 0.06) 50%, transparent 100%);
+      background-size: 100% 180px;
+      animation: drift 14s linear infinite;
+      opacity: 0.65;
+    }
+
+    @keyframes drift {
+      from { background-position: 0 0; }
+      to { background-position: 0 180px; }
+    }
+
+    main,
+    header,
+    footer {
+      position: relative;
+      z-index: 1;
+      width: min(var(--maxw), 92vw);
+      margin: 0 auto;
+    }
+
+    header {
+      padding: 1.25rem 0 0.5rem;
+    }
+
+    .topbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 1rem;
+      border: 1px solid var(--rule);
+      background: #000;
+      padding: 0.7rem 1rem;
+    }
+
+    .sig {
+      display: flex;
+      align-items: center;
+      gap: 0.65rem;
+      font-size: 0.95rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      color: #fff;
+    }
+
+    .sig i { color: var(--signal); }
+
+    nav {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.8rem;
+      justify-content: flex-end;
+    }
+
+    nav a {
+      color: #fff;
+      text-decoration: none;
+      border: 1px solid var(--rule);
+      padding: 0.35rem 0.7rem;
+      font-size: 0.82rem;
+      text-transform: uppercase;
+      background: #090909;
+      transition: border-color 300ms ease, color 300ms ease;
+    }
+
+    nav a:hover {
+      border-color: var(--signal);
+      color: #fff;
+    }
+
+    .hero {
+      margin-top: 1rem;
+      border: 1px solid var(--rule);
+      background: linear-gradient(130deg, #050505 0%, #111 70%, #1a0000 100%);
+      padding: clamp(1.3rem, 3vw, 3rem);
+      overflow: hidden;
+      position: relative;
+    }
+
+    .hero::after {
+      content: "";
+      position: absolute;
+      right: -80px;
+      top: -80px;
+      width: 220px;
+      height: 220px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(207, 0, 0, 0.4) 0%, rgba(207, 0, 0, 0) 70%);
+      filter: blur(4px);
+      animation: pulse 9s ease-in-out infinite alternate;
+    }
+
+    @keyframes pulse {
+      from { transform: scale(0.9); }
+      to { transform: scale(1.15); }
+    }
+
+    .eyebrow {
+      font-family: 'IBM Plex Mono', monospace;
+      color: #fff;
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      margin-bottom: 1rem;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: clamp(2rem, 6vw, 5.2rem);
+      line-height: 0.95;
+      color: #fff;
+      text-transform: uppercase;
+    }
+
+    .signal {
+      color: var(--signal);
+      display: inline-block;
+    }
+
+    .lead {
+      margin-top: 1.1rem;
+      max-width: 62ch;
+      color: #fff;
+      font-size: 1.06rem;
+    }
+
+    .manifest-btn {
+      margin-top: 1.3rem;
+      background: #fff;
+      color: #000;
+      border: 1px solid #fff;
+      font-family: 'IBM Plex Mono', monospace;
+      text-transform: uppercase;
+      font-size: 0.8rem;
+      letter-spacing: 0.08em;
+      padding: 0.65rem 0.9rem;
+      cursor: pointer;
+      transition: transform 300ms ease, background 300ms ease, color 300ms ease;
+    }
+
+    .manifest-btn:hover {
+      transform: translateY(-2px);
+      background: var(--signal);
+      color: #fff;
+      border-color: var(--signal);
+    }
+
+    .manifest {
+      margin-top: 0.85rem;
+      border-left: 3px solid var(--signal);
+      padding: 0.8rem 0.9rem;
+      background: #0a0a0a;
+      color: #fff;
+      max-width: 72ch;
+      display: none;
+    }
+
+    .manifest.show {
+      display: block;
+    }
+
+    .masonry {
+      margin-top: 1rem;
+      column-count: 3;
+      column-gap: 1rem;
+    }
+
+    .card {
+      display: inline-block;
+      width: 100%;
+      margin: 0 0 1rem;
+      border: 1px solid var(--rule);
+      background: var(--panel);
+      padding: 1rem;
+      break-inside: avoid;
+      color: #fff;
+      transition: border-color 500ms ease;
+    }
+
+    .card:hover { border-color: var(--signal); }
+
+    .card.light {
+      background: var(--paper);
+      color: #000;
+      border-color: #c7c7c7;
+    }
+
+    .card h2,
+    .card h3 {
+      margin-top: 0;
+      margin-bottom: 0.7rem;
+      color: inherit;
+      text-transform: uppercase;
+      letter-spacing: 0.03em;
+      font-size: 1rem;
+    }
+
+    .card p,
+    .card li,
+    .card small,
+    .card strong {
+      color: inherit;
+    }
+
+    .route {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      padding: 0.45rem 0;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 0.86rem;
+    }
+
+    .card.light .route {
+      border-bottom: 1px solid rgba(0, 0, 0, 0.2);
+    }
+
+    .price {
+      font-weight: 700;
+      color: var(--signal);
+    }
+
+    .stamp {
+      display: inline-block;
+      border: 1px solid var(--signal);
+      color: #fff;
+      background: #000;
+      padding: 0.2rem 0.5rem;
+      font-size: 0.66rem;
+      text-transform: uppercase;
+      letter-spacing: 0.09em;
+      margin-bottom: 0.6rem;
+    }
+
+    .card.light .stamp {
+      background: #fff;
+      color: #000;
+    }
+
+    blockquote {
+      margin: 0;
+      padding-left: 0.85rem;
+      border-left: 2px solid var(--signal);
+      font-style: italic;
+      color: inherit;
+    }
+
+    .faq dt {
+      font-weight: 700;
+      color: inherit;
+      margin-top: 0.7rem;
+    }
+
+    .faq dd {
+      margin-left: 0;
+      margin-bottom: 0.4rem;
+    }
+
+    footer {
+      margin: 1rem auto 1.4rem;
+      border: 1px solid var(--rule);
+      background: #030303;
+      color: #fff;
+      padding: 0.8rem 1rem;
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 0.76rem;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+    }
+
+    @media (max-width: 980px) {
+      .masonry { column-count: 2; }
+      nav { justify-content: flex-start; }
+      .topbar { flex-direction: column; align-items: flex-start; }
+    }
+
+    @media (max-width: 640px) {
+      .masonry { column-count: 1; }
+      h1 { font-size: clamp(1.9rem, 12vw, 3rem); }
+      .lead { font-size: 1rem; }
+    }
+  </style>
+</head>
+<body>
+  
+
+  <header>
+    <div class="topbar">
+      <div class="sig"><i data-lucide="badge-check"></i> Nocturne Civil Air</div>
+      <nav aria-label="Primary">
+        <a href="#routes">Routes</a>
+        <a href="#cabins">Cabins</a>
+        <a href="#ledger">Ledger Fares</a>
+        <a href="#registry">Registry</a>
+        <a href="#faq">FAQ</a>
+      </nav>
+    </div>
+
+    <section class="hero" aria-labelledby="hero-title">
+      <p class="eyebrow">Night Routes Bureau • Charter License 07-MOON</p>
+      <h1 id="hero-title">Fly where the streetlights <span class="signal">end</span></h1>
+      <p class="lead">
+        Tailored crews, quiet engines, red-eye corridors. We connect municipal rooftops, harbor fog terminals,
+        and forgotten runways between 23:40 and first birdsong.
+      </p>
+      <button class="manifest-btn" id="manifestBtn" type="button">Open Flight Manifest Note</button>
+      <div class="manifest" id="manifestBox">
+        Every cabin carries an empty briefcase in row 1. It is reserved for future weather.
+      </div>
+    </section>
+  </header>
+
+  <main>
+    <section class="masonry" aria-label="Operational Panels">
+      <article class="card light" id="routes">
+        <span class="stamp">Tonight's Departures</span>
+        <h2>Dream Corridor Schedule</h2>
+        <div class="route"><span>Clocktower Annex → Salt Pier</span><span class="price">$129</span></div>
+        <div class="route"><span>Union Attic → Mirror District</span><span class="price">$166</span></div>
+        <div class="route"><span>Museum Roofline → Orchard Ferry</span><span class="price">$141</span></div>
+        <div class="route"><span>Canal Archive → Hillline Yard</span><span class="price">$118</span></div>
+        <small>Boarding opens 17 minutes before moonrise.</small>
+      </article>
+
+      <article class="card" id="cabins">
+        <span class="stamp">Cabin Classes</span>
+        <h3>Suit-Pocket Economy</h3>
+        <p>Compact seat pitch, warm black tea, one overhead folder, and a window polished by hand.</p>
+        <h3>Red-Tie Business</h3>
+        <p>Wider armrests, silent aisle service, stamped correspondence envelope, priority ladder access.</p>
+        <h3>Velvet Night Cabinet</h3>
+        <p>Private row, wool throw, analog map lamp, and a midnight breakfast at descent.</p>
+      </article>
+
+      <article class="card light" id="ledger">
+        <span class="stamp">Ledger Fares</span>
+        <h3>Monthly Flight Plans</h3>
+        <p><strong>Clerk Pass</strong> — $340 / month, 3 crossings, one date move.</p>
+        <p><strong>Director Pass</strong> — $780 / month, 8 crossings, priority queue.</p>
+        <p><strong>Consortium Pass</strong> — $1280 / month, 14 crossings, companion seat rights.</p>
+        <small>All passes include weather indemnity and ink-stamped receipts.</small>
+      </article>
+
+      <article class="card">
+        <span class="stamp">Passenger Record</span>
+        <blockquote>
+          I left City Hall at 00:13 and landed at the harbor before my coffee cooled. The crew adjusted my tie
+          while turbulence hummed like distant radio.
+        </blockquote>
+        <p><strong>Arden Vale</strong>, Maritime Counsel</p>
+      </article>
+
+      <article class="card light">
+        <span class="stamp">Passenger Record</span>
+        <blockquote>
+          The cabin lights are never loud. You arrive feeling as if the meeting already went well.
+        </blockquote>
+        <p><strong>Sora Linden</strong>, Municipal Auditor</p>
+      </article>
+
+      <article class="card" id="registry">
+        <span class="stamp">Registry Office</span>
+        <h3>Documentation Before Boarding</h3>
+        <ul>
+          <li>One identity card, current season.</li>
+          <li>One pressed collar or equivalent formalwear.</li>
+          <li>One declared intention for arrival district.</li>
+        </ul>
+        <p>Paper copies are accepted. Carbon copies preferred.</p>
+      </article>
+
+      <article class="card light" id="faq">
+        <span class="stamp">FAQ</span>
+        <dl class="faq">
+          <dt>Do you operate in daylight?</dt>
+          <dd>No. Operations conclude at first birdsong.</dd>
+          <dt>Can I bring a companion?</dt>
+          <dd>Yes, under Director and Consortium fares.</dd>
+          <dt>Is checked luggage available?</dt>
+          <dd>Yes, two soft cases. Hard shells by prior stamp only.</dd>
+          <dt>How early should I arrive?</dt>
+          <dd>17 minutes before moonrise or 22 minutes before departure, whichever arrives first.</dd>
+        </dl>
+      </article>
+    </section>
+  </main>
+
+  <footer>
+    Nocturne Civil Air • Night Routes Bureau • Terminal Office: 14 Lantern Causeway • Registry Line: NCA-771
+  </footer>
+
+  <script defer src="/assets/js/gsap.min.js"></script>
+  <script defer src="/assets/js/lucide.min.js"></script>
+  <script>
+    window.addEventListener('DOMContentLoaded', function () {
+      if (window.lucide && typeof window.lucide.createIcons === 'function') {
+        window.lucide.createIcons();
+      }
+
+      var manifestBtn = document.getElementById('manifestBtn');
+      var manifestBox = document.getElementById('manifestBox');
+
+      if (manifestBtn && manifestBox) {
+        manifestBtn.addEventListener('click', function () {
+          manifestBox.classList.toggle('show');
+        });
+      }
+
+      if (window.gsap) {
+        gsap.from('.hero', { opacity: 0, y: 22, duration: 1.5, ease: 'power2.out' });
+        gsap.from('.card', {
+          opacity: 0,
+          y: 18,
+          duration: 1.2,
+          stagger: 0.14,
+          delay: 0.25,
+          ease: 'power2.out'
+        });
+      }
+    });
+  </script>
+</body>
+</html>

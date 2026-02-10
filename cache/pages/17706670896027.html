@@ -1,0 +1,821 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Twist Reserve Exchange</title>
+  <link rel="stylesheet" href="/assets/css/pico.min.css" />
+  <link rel="stylesheet" href="/assets/css/fonts.css" />
+  <style>
+    :root {
+      --bg: #eaf4ff;
+      --bg-2: #f7fbff;
+      --panel: #dfeeff;
+      --panel-2: #f2f8ff;
+      --ink: #071224;
+      --ink-2: #0f2442;
+      --line: #9db6d3;
+      --accent: #2c6fff;
+      --accent-2: #00a3d7;
+      --good: #0f6a2c;
+      --warn: #8b4d00;
+      --danger: #8f1023;
+      --dark: #081a31;
+      --dark-ink: #f8fcff;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: 'Space Grotesk', sans-serif;
+      color: var(--ink);
+      background:
+        radial-gradient(circle at 12% 18%, #ffffff 0%, #ffffff 14%, transparent 15%),
+        radial-gradient(circle at 88% 22%, #d3e6ff 0%, #d3e6ff 16%, transparent 17%),
+        radial-gradient(circle at 22% 82%, #c8e0ff 0%, #c8e0ff 13%, transparent 14%),
+        linear-gradient(135deg, var(--bg), var(--bg-2));
+      min-height: 100vh;
+    }
+
+    .shell {
+      display: grid;
+      grid-template-columns: 320px 1fr;
+      min-height: 100vh;
+      gap: 0;
+    }
+
+    aside {
+      background: linear-gradient(180deg, #d9ebff 0%, #cfe3ff 100%);
+      border-right: 2px solid var(--line);
+      padding: 1rem;
+      display: grid;
+      grid-template-rows: auto auto 1fr auto;
+      gap: 1rem;
+    }
+
+    .brand {
+      border: 2px solid var(--ink);
+      background: #f9fcff;
+      padding: 0.9rem;
+    }
+
+    .brand h1 {
+      margin: 0;
+      font-family: 'Playfair Display', serif;
+      font-size: 1.3rem;
+      color: var(--ink);
+      letter-spacing: 0.02em;
+    }
+
+    .brand p {
+      margin: 0.25rem 0 0;
+      color: var(--ink);
+      font-size: 0.88rem;
+    }
+
+    .nav-block,
+    .footnote-stack,
+    .quick {
+      border: 2px solid var(--ink-2);
+      background: #eff6ff;
+      padding: 0.8rem;
+    }
+
+    .nav-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.45rem;
+    }
+
+    .nav-btn,
+    .chip,
+    button,
+    [role="button"] {
+      border-radius: 0;
+    }
+
+    .nav-btn {
+      width: 100%;
+      padding: 0.45rem;
+      border: 2px solid var(--ink-2);
+      background: #ffffff;
+      color: var(--ink);
+      font-weight: 700;
+      font-size: 0.8rem;
+      cursor: pointer;
+    }
+
+    .nav-btn.active,
+    .nav-btn:hover {
+      background: var(--accent);
+      color: #ffffff;
+      border-color: #114ec4;
+    }
+
+    .mono {
+      font-family: 'IBM Plex Mono', monospace;
+    }
+
+    main {
+      padding: 1rem;
+      display: grid;
+      grid-template-rows: auto auto 1fr auto;
+      gap: 1rem;
+    }
+
+    .topbar {
+      background: var(--dark);
+      color: var(--dark-ink);
+      border: 2px solid #001026;
+      padding: 0.8rem;
+      display: grid;
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+      gap: 0.6rem;
+    }
+
+    .kpi {
+      border: 1.5px solid #6ea3ff;
+      padding: 0.5rem;
+      background: #0f2d52;
+      color: #f4fbff;
+    }
+
+    .kpi b {
+      display: block;
+      color: #ffffff;
+      font-size: 1rem;
+    }
+
+    .kpi small {
+      color: #d8ecff;
+      font-weight: 700;
+    }
+
+    .content-grid {
+      display: grid;
+      grid-template-columns: 1.35fr 1fr 1fr;
+      gap: 0.8rem;
+      align-items: start;
+    }
+
+    .panel {
+      border: 2px solid var(--ink-2);
+      background: var(--panel-2);
+      padding: 0.8rem;
+      min-height: 130px;
+      overflow: hidden;
+    }
+
+    .panel.dark {
+      background: linear-gradient(160deg, #102b4d, #0a1f39);
+      color: #f7fcff;
+      border-color: #214f8f;
+    }
+
+    .panel.dark h3,
+    .panel.dark h4,
+    .panel.dark p,
+    .panel.dark small,
+    .panel.dark label,
+    .panel.dark strong,
+    .panel.dark td,
+    .panel.dark th {
+      color: #f7fcff;
+    }
+
+    h2, h3, h4 { margin-top: 0; color: inherit; }
+
+    .hero {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 0.8rem;
+      align-items: center;
+      background: linear-gradient(120deg, #fafdff, #dfedff 70%);
+    }
+
+    .hero h2 {
+      font-family: 'Playfair Display', serif;
+      font-size: 2rem;
+      margin-bottom: 0.35rem;
+      color: #061528;
+    }
+
+    .hero p { margin: 0; color: #061528; }
+
+    .burst {
+      width: 108px;
+      height: 108px;
+      border-radius: 8px;
+      background:
+        repeating-linear-gradient(45deg, #154796 0 8px, #66acff 8px 16px),
+        linear-gradient(180deg, #fff, #f2f8ff);
+      border: 3px solid #001b3d;
+      display: grid;
+      place-items: center;
+      color: #ffffff;
+      font-weight: 800;
+      text-align: center;
+      font-size: 0.85rem;
+      line-height: 1.1;
+      text-shadow: 0 1px 0 #001a3a;
+    }
+
+    .meter {
+      margin-top: 0.5rem;
+      background: #bdd8ff;
+      border: 2px solid #0a2a55;
+      height: 20px;
+      position: relative;
+    }
+
+    .meter > span {
+      display: block;
+      height: 100%;
+      background: linear-gradient(90deg, #0f4ee7, #1ca4ff);
+      border-right: 2px solid #00163a;
+      transition: width 0.3s;
+    }
+
+    .ticker {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.5rem;
+    }
+
+    .tile {
+      border: 1.5px solid var(--line);
+      background: #ffffff;
+      color: #08111f;
+      padding: 0.5rem;
+    }
+
+    .tile strong { color: #051126; }
+
+    .actions {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 0.45rem;
+      margin-top: 0.6rem;
+    }
+
+    .actions button,
+    .panel button,
+    .panel input,
+    .panel select {
+      margin-bottom: 0;
+    }
+
+    .actions button {
+      font-size: 0.8rem;
+      font-weight: 800;
+      background: #ffffff;
+      border: 2px solid #092350;
+      color: #0a1a36;
+      padding: 0.4rem;
+      cursor: pointer;
+    }
+
+    .actions button:hover,
+    .actions button.active {
+      background: #0f4ee7;
+      color: #ffffff;
+    }
+
+    .pricecards {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 0.5rem;
+    }
+
+    .price {
+      border: 2px solid #08214a;
+      background: #f5faff;
+      color: #061427;
+      padding: 0.7rem;
+    }
+
+    .price h4 {
+      margin: 0;
+      font-size: 1rem;
+      color: #051325;
+    }
+
+    .price b {
+      font-size: 1.4rem;
+      color: #001f52;
+    }
+
+    .table-wrap {
+      overflow: auto;
+      border: 2px solid #1b3d70;
+      background: #ffffff;
+      max-height: 250px;
+    }
+
+    table {
+      width: 100%;
+      margin: 0;
+      font-size: 0.82rem;
+      color: #061224;
+    }
+
+    th {
+      position: static;
+      background: #d7e8ff;
+      color: #061224;
+      border-bottom: 2px solid #1b3d70;
+    }
+
+    td { color: #061224; }
+
+    .spark {
+      height: 62px;
+      border: 2px solid #163869;
+      background: repeating-linear-gradient(
+        90deg,
+        #edf5ff 0,
+        #edf5ff 12px,
+        #d7e8ff 12px,
+        #d7e8ff 24px
+      );
+      position: relative;
+      overflow: hidden;
+    }
+
+    .spark::before {
+      content: '';
+      position: absolute;
+      left: -10%;
+      right: -10%;
+      top: 38%;
+      height: 2px;
+      background: #15335e;
+      transform: rotate(-4deg);
+    }
+
+    .spark::after {
+      content: '';
+      position: absolute;
+      left: -5%;
+      right: -5%;
+      top: 52%;
+      height: 2px;
+      background: #0a5fc0;
+      transform: rotate(6deg);
+    }
+
+    .faq-item {
+      border-top: 2px solid #123363;
+      padding-top: 0.5rem;
+      margin-top: 0.5rem;
+    }
+
+    .faq-item button {
+      width: 100%;
+      text-align: left;
+      font-weight: 800;
+      background: #ffffff;
+      border: 2px solid #123363;
+      color: #061224;
+      padding: 0.45rem;
+    }
+
+    .faq-body {
+      margin-top: 0.3rem;
+      background: #eaf4ff;
+      border: 1.5px solid #163869;
+      padding: 0.45rem;
+      color: #061224;
+    }
+
+    .feed {
+      background: #ffffff;
+      border: 2px solid #163869;
+      max-height: 170px;
+      overflow: auto;
+      padding: 0.45rem;
+    }
+
+    .feed p {
+      margin: 0 0 0.35rem;
+      color: #071224;
+      font-size: 0.82rem;
+    }
+
+    .foot {
+      border: 2px solid #123363;
+      background: #dcecff;
+      color: #061224;
+      padding: 0.7rem;
+      font-size: 0.8rem;
+    }
+
+    .tag {
+      display: inline-block;
+      background: #0f4ee7;
+      color: #ffffff;
+      border: 1px solid #092350;
+      padding: 0.12rem 0.35rem;
+      font-size: 0.7rem;
+      font-weight: 800;
+      margin-right: 0.2rem;
+    }
+
+    input,
+    select {
+      background: #ffffff;
+      color: #071224;
+      border: 2px solid #0f2f5e;
+    }
+
+    label { color: inherit; font-weight: 700; }
+
+    @media (max-width: 1120px) {
+      .shell { grid-template-columns: 1fr; }
+      .content-grid { grid-template-columns: 1fr; }
+      .topbar { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .pricecards { grid-template-columns: 1fr; }
+      .actions { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <div class="shell" x-data="treasuryApp()" x-init="init()">
+    <aside>
+      <section class="brand">
+        <h1>Twist Reserve Exchange</h1>
+        <p>Licensed Bread Tie Treasury Custodian • Clearing District 7</p>
+      </section>
+
+      <section class="nav-block">
+        <strong style="display:block; margin-bottom:.4rem; color:#061224;">Navigation Matrix</strong>
+        <div class="nav-grid">
+          <template x-for="tab in tabs" :key="tab">
+            <button class="nav-btn" :class="{active: activeTab === tab}" x-text="tab" @click="activeTab = tab"></button>
+          </template>
+        </div>
+      </section>
+
+      <section class="quick">
+        <strong style="display:block; margin-bottom:.4rem; color:#061224;">Real-Time Controls</strong>
+        <button @click="mintPulse()" style="width:100%; background:#0f4ee7; border:2px solid #092350; color:#fff; font-weight:800;">Mint Reserve Pulse</button>
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:.4rem; margin-top:.5rem;">
+          <button @click="riskMode='Conservative'" :class="{active:riskMode==='Conservative'}" class="nav-btn">Conservative</button>
+          <button @click="riskMode='Aggressive'" :class="{active:riskMode==='Aggressive'}" class="nav-btn">Aggressive</button>
+        </div>
+        <p class="mono" style="margin:.55rem 0 0; font-size:.75rem; color:#061224;">Node time: <span x-text="clock"></span></p>
+      </section>
+
+      <section class="footnote-stack mono" style="font-size:.72rem; color:#061224;">
+        <p style="margin:0 0 .3rem;"><strong>F-117:</strong> All denominations shown are net of static cling.</p>
+        <p style="margin:0 0 .3rem;"><strong>F-203:</strong> Weekend redemptions settle on first available bakery sunrise.</p>
+        <p style="margin:0;"><strong>F-998:</strong> Tie braid above 7 strands requires manual audit.</p>
+      </section>
+    </aside>
+
+    <main>
+      <section class="topbar">
+        <article class="kpi">
+          <small>Total Ties Under Custody</small>
+          <b x-text="formatNum(totalTies)"></b>
+        </article>
+        <article class="kpi">
+          <small>Spot Rate (USD/Tie)</small>
+          <b x-text="'$' + spot.toFixed(2)"></b>
+        </article>
+        <article class="kpi">
+          <small>Next Settlement</small>
+          <b x-text="countdown"></b>
+        </article>
+        <article class="kpi">
+          <small>Market Sentiment</small>
+          <b x-text="sentiment"></b>
+        </article>
+        <article class="kpi">
+          <small>Intraday Volatility</small>
+          <b x-text="volatility + '%' "></b>
+        </article>
+      </section>
+
+      <section class="panel hero">
+        <div>
+          <h2>Institutional Tie Liquidity, Frost-Cleared Daily</h2>
+          <p>Open reserve accounts, lock conversion bands, and route wholesale tie flow through audited bakery corridors. Settlement rails run continuously.</p>
+          <div class="actions">
+            <button :class="{active: mode==='Auction'}" @click="mode='Auction'">Auction Engine</button>
+            <button :class="{active: mode==='Treasury'}" @click="mode='Treasury'">Treasury Desk</button>
+            <button :class="{active: mode==='Clearing'}" @click="mode='Clearing'">Clearing Ops</button>
+          </div>
+          <div class="meter" aria-label="liquidity meter">
+            <span :style="`width:${liquidity}%`"></span>
+          </div>
+          <small style="display:block; margin-top:.25rem; color:#061224;">Liquidity pressure <strong x-text="liquidity + '%' "></strong> • <span x-text="mode"></span> mode online</small>
+        </div>
+        <div class="burst">FROST<br/>VAULT<br/><span x-text="riskMode"></span></div>
+      </section>
+
+      <section class="content-grid">
+        <article class="panel" style="grid-row: span 2;">
+          <h3>Regional Clearing Tape</h3>
+          <div style="display:grid; grid-template-columns:1fr auto; gap:.4rem; align-items:end; margin-bottom:.5rem;">
+            <label for="filter" style="margin:0;">Filter region</label>
+            <select id="filter" x-model="regionFilter" style="margin:0;">
+              <option value="All">All</option>
+              <option value="North Crust">North Crust</option>
+              <option value="Harbor Loaf">Harbor Loaf</option>
+              <option value="Frost Belt">Frost Belt</option>
+              <option value="Sourdough Plain">Sourdough Plain</option>
+            </select>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Desk</th>
+                  <th>Region</th>
+                  <th>Grade</th>
+                  <th>Volume</th>
+                  <th>Yield</th>
+                </tr>
+              </thead>
+              <tbody>
+                <template x-for="row in filteredRows()" :key="row.id">
+                  <tr>
+                    <td x-text="row.desk"></td>
+                    <td x-text="row.region"></td>
+                    <td><span class="tag" x-text="row.grade"></span></td>
+                    <td class="mono" x-text="formatNum(row.volume)"></td>
+                    <td class="mono" x-text="row.yield + '%' "></td>
+                  </tr>
+                </template>
+              </tbody>
+            </table>
+          </div>
+          <div style="margin-top:.6rem; display:grid; grid-template-columns:1fr 1fr; gap:.5rem;">
+            <button @click="shuffleRows()" style="background:#0f4ee7; color:#fff; border:2px solid #092350; font-weight:800;">Rebalance Tape</button>
+            <button @click="boostYields()" style="background:#fff; color:#071224; border:2px solid #092350; font-weight:800;">Stress Yield +0.4</button>
+          </div>
+          <p class="mono" style="margin:.55rem 0 0; font-size:.75rem; color:#061224;">Rows visible: <strong x-text="filteredRows().length"></strong></p>
+        </article>
+
+        <article class="panel dark">
+          <h3>Live Price Ladder</h3>
+          <div class="ticker">
+            <div class="tile">
+              <strong>AA White</strong>
+              <div class="mono" x-text="'$' + prices.aa.toFixed(2)"></div>
+            </div>
+            <div class="tile">
+              <strong>Blue Strip</strong>
+              <div class="mono" x-text="'$' + prices.blue.toFixed(2)"></div>
+            </div>
+            <div class="tile">
+              <strong>Poly Mix</strong>
+              <div class="mono" x-text="'$' + prices.poly.toFixed(2)"></div>
+            </div>
+            <div class="tile">
+              <strong>Archive Lot</strong>
+              <div class="mono" x-text="'$' + prices.archive.toFixed(2)"></div>
+            </div>
+          </div>
+          <div class="spark" style="margin-top:.55rem;"></div>
+          <p style="margin:.5rem 0 0; font-size:.8rem;">Tape refreshes every second from in-house floor scanners.</p>
+        </article>
+
+        <article class="panel">
+          <h3>Valuation Console</h3>
+          <label for="qty">Tie quantity</label>
+          <input id="qty" type="range" min="100" max="50000" step="100" x-model.number="calcQty" />
+          <div class="mono" style="margin-bottom:.3rem; color:#061224;" x-text="formatNum(calcQty) + ' units'"></div>
+          <label for="grade">Grade channel</label>
+          <select id="grade" x-model="calcGrade">
+            <option value="aa">AA White</option>
+            <option value="blue">Blue Strip</option>
+            <option value="poly">Poly Mix</option>
+            <option value="archive">Archive Lot</option>
+          </select>
+          <p style="margin:.5rem 0 .3rem; color:#061224;">Projected notional:</p>
+          <h4 class="mono" x-text="'$' + projectedValue().toLocaleString(undefined, {maximumFractionDigits:2})"></h4>
+          <button @click="lockQuote()" style="width:100%; background:#0f4ee7; color:#fff; border:2px solid #092350; font-weight:800;">Lock 90s Quote</button>
+          <small class="mono" style="display:block; margin-top:.35rem; color:#061224;" x-text="quoteNote"></small>
+        </article>
+
+        <article class="panel">
+          <h3>Membership Plans</h3>
+          <div class="pricecards">
+            <div class="price">
+              <h4>Counterparty</h4>
+              <b>$29</b>
+              <p style="margin:.2rem 0 0;">per month</p>
+              <small>2 vault lanes, daily tape</small>
+            </div>
+            <div class="price">
+              <h4>Clearing Plus</h4>
+              <b>$89</b>
+              <p style="margin:.2rem 0 0;">per month</p>
+              <small>priority batches, route insurance</small>
+            </div>
+            <div class="price">
+              <h4>Custodian Prime</h4>
+              <b>$240</b>
+              <p style="margin:.2rem 0 0;">per month</p>
+              <small>dedicated settlement operator</small>
+            </div>
+          </div>
+          <div style="margin-top:.55rem; display:grid; grid-template-columns:1fr auto; gap:.4rem; align-items:center;">
+            <input x-model="email" type="email" placeholder="operations@firm.co" aria-label="email" />
+            <button @click="submitLead()" style="background:#0f4ee7; color:#fff; border:2px solid #092350; font-weight:800;">Request Desk Call</button>
+          </div>
+          <small class="mono" style="color:#061224;" x-text="leadNote"></small>
+        </article>
+
+        <article class="panel dark">
+          <h3>Operator Feed</h3>
+          <div class="feed">
+            <template x-for="item in feed" :key="item.id">
+              <p><strong x-text="item.time"></strong> <span x-text="item.msg"></span></p>
+            </template>
+          </div>
+          <div style="display:grid; grid-template-columns:1fr 1fr; gap:.4rem; margin-top:.55rem;">
+            <button @click="addFeed('Manual reserve sweep completed on Vault C.')" style="background:#fff; border:2px solid #2f6cc5; color:#081932; font-weight:800;">Log Sweep</button>
+            <button @click="addFeed('Emergency tray conversion drill passed.')" style="background:#fff; border:2px solid #2f6cc5; color:#081932; font-weight:800;">Run Drill</button>
+          </div>
+        </article>
+
+        <article class="panel">
+          <h3>Testimonials</h3>
+          <p><strong>“We rolled out tie-backed payroll hedges in 9 days.”</strong> — Willow Dock Freight</p>
+          <p><strong>“The Frost Belt tape is cleaner than our bond feed.”</strong> — Helix Pantry Treasury</p>
+          <p><strong>“Finally, an asset that respects shelf life and settlement discipline.”</strong> — Lantern Foods Group</p>
+        </article>
+      </section>
+
+      <section class="panel">
+        <h3>Compliance & Questions</h3>
+        <div class="faq-item" x-data="{open:true}">
+          <button @click="open=!open">How quickly can I redeem physical tie reserves?</button>
+          <div class="faq-body" x-show="open">Most requests settle in 6 to 14 operational hours depending on district weather seal status.</div>
+        </div>
+        <div class="faq-item" x-data="{open:false}">
+          <button @click="open=!open">Is there an inactivity fee?</button>
+          <div class="faq-body" x-show="open">Accounts idle for 45 days incur one sanitation levy equal to 0.8% of idle tray volume.</div>
+        </div>
+        <div class="faq-item" x-data="{open:false}">
+          <button @click="open=!open">Do you accept braided mixed-origin ties?</button>
+          <div class="faq-body" x-show="open">Yes, after tri-color verification and standard anti-fray stamping protocol.</div>
+        </div>
+      </section>
+
+      <footer class="foot mono">
+        Twist Reserve Exchange • 18 Glacier Arcade, Ledger Quay • Member BTRA 402-11 • Disclosures D-44 through D-59 apply in all markets.
+      </footer>
+    </main>
+  </div>
+
+  <script src="/assets/js/alpine.min.js" defer></script>
+  <script src="/assets/js/gsap.min.js"></script>
+  <script src="/assets/js/lucide.min.js"></script>
+  <script>
+    function treasuryApp() {
+      return {
+        tabs: ['Desk', 'Vaults', 'Tape', 'Clients', 'FX', 'Legal'],
+        activeTab: 'Desk',
+        riskMode: 'Conservative',
+        mode: 'Auction',
+        totalTies: 1844200,
+        spot: 3.78,
+        countdown: '00:00:00',
+        sentiment: 'Stable',
+        volatility: 2.9,
+        liquidity: 62,
+        clock: '',
+        regionFilter: 'All',
+        calcQty: 8800,
+        calcGrade: 'aa',
+        quoteNote: 'No quote locked.',
+        email: '',
+        leadNote: 'Ops desk responds in under 2 business hours.',
+        feed: [
+          { id: 1, time: '09:02', msg: 'North Crust window opened with +4.2% tray depth.' },
+          { id: 2, time: '09:09', msg: 'Harbor Loaf corridor confirmed cold-chain integrity.' },
+          { id: 3, time: '09:16', msg: 'Bulk transfer lot 447 routed through lane Beta.' }
+        ],
+        rows: [
+          { id: 1, desk: 'N-11', region: 'North Crust', grade: 'AA', volume: 242000, yield: 3.8 },
+          { id: 2, desk: 'H-02', region: 'Harbor Loaf', grade: 'BS', volume: 188300, yield: 4.1 },
+          { id: 3, desk: 'F-77', region: 'Frost Belt', grade: 'PM', volume: 310440, yield: 4.6 },
+          { id: 4, desk: 'S-09', region: 'Sourdough Plain', grade: 'AA', volume: 166220, yield: 3.5 },
+          { id: 5, desk: 'N-08', region: 'North Crust', grade: 'AR', volume: 126910, yield: 5.2 },
+          { id: 6, desk: 'F-22', region: 'Frost Belt', grade: 'BS', volume: 97010, yield: 4.9 },
+          { id: 7, desk: 'H-14', region: 'Harbor Loaf', grade: 'AA', volume: 154280, yield: 3.9 }
+        ],
+        prices: {
+          aa: 3.78,
+          blue: 4.04,
+          poly: 3.31,
+          archive: 5.42
+        },
+        init() {
+          this.updateClock();
+          this.tickSettlement();
+          setInterval(() => {
+            this.updateClock();
+            this.tickMarket();
+            this.tickSettlement();
+          }, 1000);
+
+          setInterval(() => {
+            const msgs = [
+              'Tray wash completed on Route Delta.',
+              'Primary custodian passed random tie braid check.',
+              'Municipal bakery node reopened after audit.',
+              'Cross-district swap volume exceeded morning band.'
+            ];
+            this.addFeed(msgs[Math.floor(Math.random() * msgs.length)]);
+          }, 7000);
+
+          if (window.gsap) {
+            gsap.from('.panel, .kpi', {
+              y: 18,
+              opacity: 0,
+              duration: 0.5,
+              stagger: 0.04,
+              ease: 'power2.out'
+            });
+          }
+
+          if (window.lucide) {
+            lucide.createIcons();
+          }
+        },
+        updateClock() {
+          const now = new Date();
+          this.clock = now.toLocaleTimeString();
+        },
+        tickMarket() {
+          const move = () => (Math.random() * 0.16 - 0.08);
+          this.prices.aa = Math.max(1, this.prices.aa + move());
+          this.prices.blue = Math.max(1, this.prices.blue + move());
+          this.prices.poly = Math.max(1, this.prices.poly + move());
+          this.prices.archive = Math.max(1, this.prices.archive + move());
+          this.spot = (this.prices.aa + this.prices.blue + this.prices.poly) / 3;
+          this.volatility = Math.max(1.2, Math.min(9.5, this.volatility + (Math.random() * 0.6 - 0.3))).toFixed(1);
+          this.liquidity = Math.max(20, Math.min(96, this.liquidity + Math.floor(Math.random() * 7 - 3)));
+          this.sentiment = this.spot > 3.9 ? 'Expansionary' : this.spot < 3.5 ? 'Defensive' : 'Stable';
+          this.totalTies += Math.floor(Math.random() * 2600 - 600);
+        },
+        tickSettlement() {
+          const now = new Date();
+          const target = new Date(now.getTime());
+          target.setHours(now.getHours() + 1, 0, 0, 0);
+          const diff = target - now;
+          const h = String(Math.floor(diff / 3600000)).padStart(2, '0');
+          const m = String(Math.floor((diff % 3600000) / 60000)).padStart(2, '0');
+          const s = String(Math.floor((diff % 60000) / 1000)).padStart(2, '0');
+          this.countdown = `${h}:${m}:${s}`;
+        },
+        projectedValue() {
+          return this.calcQty * this.prices[this.calcGrade];
+        },
+        lockQuote() {
+          this.quoteNote = `Quote locked at ${new Date().toLocaleTimeString()} for ${this.formatNum(this.calcQty)} units.`;
+        },
+        submitLead() {
+          if (!this.email || !this.email.includes('@')) {
+            this.leadNote = 'Enter a valid operations email to schedule a desk call.';
+            return;
+          }
+          this.leadNote = `Desk callback queued for ${this.email}. Confirmation window: 14 minutes.`;
+          this.email = '';
+        },
+        mintPulse() {
+          this.totalTies += 12500;
+          this.liquidity = Math.min(99, this.liquidity + 8);
+          this.addFeed('Reserve pulse minted and routed to District 7 custody.');
+        },
+        addFeed(message) {
+          const now = new Date();
+          const stamp = now.toTimeString().slice(0, 5);
+          this.feed.unshift({ id: now.getTime() + Math.random(), time: stamp, msg: message });
+          if (this.feed.length > 12) this.feed.pop();
+        },
+        filteredRows() {
+          if (this.regionFilter === 'All') return this.rows;
+          return this.rows.filter((r) => r.region === this.regionFilter);
+        },
+        shuffleRows() {
+          this.rows = [...this.rows].sort(() => Math.random() - 0.5);
+        },
+        boostYields() {
+          this.rows = this.rows.map((r) => ({ ...r, yield: +(r.yield + 0.4).toFixed(1) }));
+          this.addFeed('Yield stress profile +0.4 applied to visible desks.');
+        },
+        formatNum(n) {
+          return Number(n).toLocaleString();
+        }
+      }
+    }
+  </script>
+</body>
+</html>

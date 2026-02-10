@@ -1,0 +1,789 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Ledger Bloom Exchange</title>
+  <link rel="stylesheet" href="/assets/css/pico.min.css" />
+  <link rel="stylesheet" href="/assets/css/fonts.css" />
+  <style>
+    :root {
+      --coral: #ff6b6b;
+      --gold: #ffc857;
+      --purple: #7d4cff;
+      --deep: #0b1540;
+      --ink: #060913;
+      --paper: #fff7eb;
+      --mint: #33d1a0;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: 'Space Grotesk', sans-serif;
+      color: #f8fbff;
+      background:
+        radial-gradient(circle at 10% 12%, #4833a9 0, #1d2367 24%, transparent 52%),
+        radial-gradient(circle at 87% 18%, #ff8a63 0, transparent 35%),
+        radial-gradient(circle at 80% 74%, #ffe08f 0, transparent 34%),
+        linear-gradient(160deg, #090f2c 0%, #120a35 48%, #2e125f 100%);
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    .noise::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      background-image: linear-gradient(transparent 50%, rgba(255, 255, 255, 0.03) 50%);
+      background-size: 100% 4px;
+      mix-blend-mode: screen;
+      opacity: 0.25;
+      z-index: 0;
+    }
+
+    .desk {
+      max-width: 1500px;
+      margin: 0 auto;
+      padding: 1rem 1rem 4rem;
+      position: relative;
+      z-index: 1;
+      display: grid;
+      grid-template-columns: repeat(12, minmax(0, 1fr));
+      gap: 0.85rem;
+    }
+
+    .window {
+      border: 2px solid #ffffff;
+      background: #0f1b4d;
+      color: #ffffff;
+      padding: 0.8rem;
+      box-shadow: 6px 6px 0 #05080f;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .window h1, .window h2, .window h3, .window p, .window li, .window label, .window small, .window th, .window td {
+      color: #ffffff;
+    }
+
+    .window .head {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 0.72rem;
+      margin-bottom: 0.7rem;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      border-bottom: 1px dashed rgba(255, 255, 255, 0.7);
+      padding-bottom: 0.4rem;
+    }
+
+    .head .dots { display: flex; gap: 0.3rem; }
+    .head .dots span {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      display: inline-block;
+      border: 1px solid #111;
+    }
+    .dot-red { background: #ff6b6b; }
+    .dot-gold { background: #ffc857; }
+    .dot-green { background: #33d1a0; }
+
+    .hero {
+      grid-column: 1 / span 7;
+      background: linear-gradient(145deg, #ff6b6b 0%, #7d4cff 52%, #0f245d 100%);
+      transform: rotate(-0.4deg);
+    }
+
+    .hero h1 {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(2.1rem, 4.6vw, 4rem);
+      margin: 0.2rem 0 0.6rem;
+      line-height: 1.03;
+      text-shadow: 2px 2px #16193d;
+    }
+
+    .ticker {
+      white-space: nowrap;
+      overflow: hidden;
+      border-top: 2px solid #fff;
+      border-bottom: 2px solid #fff;
+      padding: 0.35rem 0;
+      margin-top: 0.8rem;
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 0.78rem;
+      background: #091337;
+    }
+
+    .ticker span {
+      display: inline-block;
+      padding-left: 100%;
+      animation: ticker 24s linear infinite;
+      color: #fff;
+    }
+
+    @keyframes ticker {
+      0% { transform: translateX(0); }
+      100% { transform: translateX(-100%); }
+    }
+
+    .navbox {
+      grid-column: 8 / span 5;
+      background: #ffd66b;
+      color: #080808;
+      transform: rotate(0.8deg);
+    }
+    .navbox h2, .navbox p, .navbox a, .navbox li, .navbox button { color: #080808; }
+
+    .navgrid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 0.5rem;
+      margin-top: 0.5rem;
+    }
+
+    .chip {
+      display: block;
+      border: 2px solid #080808;
+      padding: 0.65rem 0.55rem;
+      text-align: center;
+      text-decoration: none;
+      font-weight: 700;
+      background: #fff6de;
+      cursor: pointer;
+      transition: transform 0.15s ease;
+    }
+
+    .chip:hover { transform: translate(-2px, -2px); }
+
+    .metrics {
+      grid-column: 1 / span 4;
+      background: #0a1f5f;
+      transform: rotate(0.6deg);
+    }
+
+    .kpis {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 0.5rem;
+    }
+
+    .kpis article {
+      background: #12193e;
+      border: 1px solid #fff;
+      padding: 0.55rem;
+    }
+
+    .kpis b {
+      display: block;
+      font-size: 1.35rem;
+      margin-top: 0.15rem;
+      color: #ffc857;
+    }
+
+    .mini {
+      font-size: 0.8rem;
+      font-family: 'IBM Plex Mono', monospace;
+    }
+
+    .plans {
+      grid-column: 5 / span 5;
+      background: #151251;
+      transform: rotate(-0.7deg);
+    }
+
+    .plan-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 0.5rem;
+    }
+
+    .plan {
+      border: 1px solid #fff;
+      background: #0a1440;
+      padding: 0.55rem;
+      min-height: 190px;
+    }
+
+    .plan h3 {
+      margin: 0;
+      font-size: 1rem;
+      color: #ffc857;
+    }
+
+    .price {
+      font-size: 1.7rem;
+      font-weight: 700;
+      margin: 0.35rem 0;
+      color: #ff8574;
+    }
+
+    button, [type=button] {
+      border: 2px solid #ffffff;
+      background: #7d4cff;
+      color: #ffffff;
+      font-weight: 700;
+      padding: 0.45rem 0.6rem;
+      font-family: 'Space Grotesk', sans-serif;
+      cursor: pointer;
+    }
+
+    button.alt { background: #ff6b6b; color: #fff; }
+    button.gold { background: #ffc857; color: #0d1020; border-color: #0d1020; }
+
+    .chart {
+      grid-column: 10 / span 3;
+      background: #0f245d;
+      transform: rotate(0.6deg);
+    }
+
+    .bars {
+      height: 140px;
+      display: flex;
+      align-items: end;
+      gap: 0.35rem;
+      margin-top: 0.3rem;
+      border-bottom: 2px solid #fff;
+      padding-bottom: 0.3rem;
+    }
+
+    .bar {
+      width: 100%;
+      background: linear-gradient(to top, #ff6b6b, #ffc857);
+      border: 1px solid #fff;
+    }
+
+    .feed {
+      grid-column: 1 / span 7;
+      background: #101843;
+      transform: rotate(-0.45deg);
+    }
+
+    .feed-grid {
+      display: grid;
+      grid-template-columns: 1.3fr 1fr;
+      gap: 0.55rem;
+    }
+
+    .card {
+      border: 1px solid #fff;
+      padding: 0.6rem;
+      background: #0c1338;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.8rem;
+      font-family: 'IBM Plex Mono', monospace;
+    }
+
+    th, td {
+      border: 1px solid #fff;
+      padding: 0.34rem;
+      text-align: left;
+    }
+
+    th { background: #29126f; }
+
+    .testimonials {
+      grid-column: 8 / span 5;
+      background: #ffc857;
+      color: #080808;
+      transform: rotate(0.6deg);
+    }
+
+    .testimonials h2, .testimonials h3, .testimonials p, .testimonials small {
+      color: #080808;
+    }
+
+    .quote {
+      background: #fff5dd;
+      border: 2px solid #080808;
+      padding: 0.6rem;
+      margin-bottom: 0.5rem;
+    }
+
+    .controls {
+      grid-column: 1 / span 4;
+      background: #0c1640;
+      transform: rotate(0.65deg);
+    }
+
+    .toggles {
+      display: grid;
+      gap: 0.45rem;
+    }
+
+    .toggles label {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0.42rem 0.5rem;
+      border: 1px solid #fff;
+      background: #111e53;
+      gap: 0.4rem;
+    }
+
+    .faq {
+      grid-column: 5 / span 8;
+      background: #151b58;
+      transform: rotate(-0.35deg);
+    }
+
+    details {
+      border: 1px solid #fff;
+      margin-bottom: 0.45rem;
+      background: #0d1646;
+      padding: 0.45rem;
+    }
+
+    summary {
+      cursor: pointer;
+      font-weight: 700;
+      color: #ffc857;
+    }
+
+    footer {
+      grid-column: 1 / span 12;
+      background: #090f2c;
+      border: 2px solid #fff;
+      padding: 0.85rem;
+      transform: rotate(0.2deg);
+      margin-bottom: 2.5rem;
+    }
+
+    .foot {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 0.6rem;
+      font-size: 0.8rem;
+    }
+
+    .foot article {
+      border: 1px solid #fff;
+      padding: 0.5rem;
+      background: #111c52;
+    }
+
+    input[type="range"] { width: 100%; }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.3rem;
+      border: 1px solid #fff;
+      padding: 0.2rem 0.4rem;
+      font-size: 0.72rem;
+      background: #1b2e78;
+      font-family: 'IBM Plex Mono', monospace;
+    }
+
+    .pulse {
+      width: 9px;
+      height: 9px;
+      border-radius: 50%;
+      background: #33d1a0;
+      display: inline-block;
+      box-shadow: 0 0 0 0 rgba(51, 209, 160, 0.8);
+      animation: pulse 1.4s infinite;
+    }
+
+    @keyframes pulse {
+      0% { box-shadow: 0 0 0 0 rgba(51, 209, 160, 0.8); }
+      70% { box-shadow: 0 0 0 10px rgba(51, 209, 160, 0); }
+      100% { box-shadow: 0 0 0 0 rgba(51, 209, 160, 0); }
+    }
+
+    @media (max-width: 980px) {
+      .desk { grid-template-columns: repeat(6, minmax(0, 1fr)); }
+      .hero, .feed, .faq, footer { grid-column: 1 / span 6; transform: none; }
+      .navbox, .metrics, .plans, .chart, .testimonials, .controls { grid-column: span 3; transform: none; }
+      .plan-grid { grid-template-columns: 1fr; }
+      .feed-grid { grid-template-columns: 1fr; }
+      .foot { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    }
+
+    @media (max-width: 640px) {
+      .desk { grid-template-columns: 1fr; }
+      .hero, .navbox, .metrics, .plans, .chart, .feed, .testimonials, .controls, .faq, footer {
+        grid-column: 1;
+      }
+      .kpis, .plan-grid, .foot { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body class="noise" x-data="ledgerBloom()">
+  <main class="desk">
+    <section class="window hero" id="terminal-main">
+      <div class="head">
+        <div class="dots"><span class="dot-red"></span><span class="dot-gold"></span><span class="dot-green"></span></div>
+        <span>ledger bloom // settlement culture desk</span>
+      </div>
+      <p class="badge"><span class="pulse"></span> live ledger theater</p>
+      <h1>Buy Less. Archive More. Monetize Regret Elegantly.</h1>
+      <p>
+        Ledger Bloom Exchange secures, classifies, and tokenizes personal purchase history into a
+        resilient lifestyle asset. Your receipts deserve a second life with quarterly dividends.
+      </p>
+      <div style="display:flex; gap:0.45rem; flex-wrap:wrap; margin-top:0.65rem;">
+        <button type="button" @click="boostPulse()">Trigger Receipt Surge</button>
+        <button type="button" class="alt" @click="rotateMotto()">Change Brand Motto</button>
+        <button type="button" class="gold" @click="dayMode = !dayMode">Theme Swap</button>
+      </div>
+      <p style="margin-top:0.55rem; font-weight:700; color:#fff;" x-text="motto"></p>
+      <div class="ticker" aria-label="Live ticker updates">
+        <span x-text="tickerLine"></span>
+      </div>
+    </section>
+
+    <nav class="window navbox">
+      <div class="head">
+        <div class="dots"><span class="dot-red"></span><span class="dot-gold"></span><span class="dot-green"></span></div>
+        <span>navigation / desk map</span>
+      </div>
+      <h2 style="margin:0;">Portal Stack</h2>
+      <p>Member lanes and compliance shortcuts.</p>
+      <div class="navgrid">
+        <a href="#" class="chip">Vault Login</a>
+        <a href="#" class="chip">Yield Studio</a>
+        <a href="#" class="chip">Dispute Hub</a>
+        <a href="#" class="chip">Merchant Scoring</a>
+        <a href="#" class="chip">Aftercare Desk</a>
+        <a href="#" class="chip">Proof Archive</a>
+      </div>
+    </nav>
+
+    <section class="window metrics">
+      <div class="head">
+        <div class="dots"><span class="dot-red"></span><span class="dot-gold"></span><span class="dot-green"></span></div>
+        <span>realtime health panel</span>
+      </div>
+      <div class="kpis">
+        <article>
+          <small class="mini">Receipts indexed / min</small>
+          <b x-text="rate.toLocaleString()"></b>
+        </article>
+        <article>
+          <small class="mini">Current remorse index</small>
+          <b x-text="remorse + '%'" style="color:#ff8574"></b>
+        </article>
+        <article>
+          <small class="mini">Active nostalgia pools</small>
+          <b x-text="pools"></b>
+        </article>
+        <article>
+          <small class="mini">Treasury runway (days)</small>
+          <b x-text="runway" style="color:#33d1a0"></b>
+        </article>
+      </div>
+      <p class="mini" style="margin-top:0.5rem;">Session uptime: <strong x-text="uptime"></strong></p>
+    </section>
+
+    <section class="window plans">
+      <div class="head">
+        <div class="dots"><span class="dot-red"></span><span class="dot-gold"></span><span class="dot-green"></span></div>
+        <span>membership pricing</span>
+      </div>
+      <div class="plan-grid">
+        <article class="plan">
+          <h3>Bronze Panic</h3>
+          <p class="price">$19/mo</p>
+          <p class="mini">For citizens with a compact trail of questionable brunches.</p>
+          <p class="mini">Includes: 3 audit alerts, one monthly mood-adjusted statement.</p>
+          <button type="button" @click="selectPlan('Bronze Panic')">Select</button>
+        </article>
+        <article class="plan">
+          <h3>Gold Closure</h3>
+          <p class="price">$89/mo</p>
+          <p class="mini">For professionals with recurring artisan mistakes and premium denial.</p>
+          <p class="mini">Includes: 24/7 merchant watching, family regret sync.</p>
+          <button type="button" @click="selectPlan('Gold Closure')">Select</button>
+        </article>
+        <article class="plan">
+          <h3>Obsidian Legacy</h3>
+          <p class="price">$290/mo</p>
+          <p class="mini">For households preserving intergenerational spending folklore.</p>
+          <p class="mini">Includes: private curator, yearly bound anthology.</p>
+          <button type="button" @click="selectPlan('Obsidian Legacy')">Select</button>
+        </article>
+      </div>
+      <p class="mini" style="margin-top:0.5rem;"><strong>Current selection:</strong> <span x-text="selectedPlan"></span></p>
+    </section>
+
+    <section class="window chart">
+      <div class="head">
+        <div class="dots"><span class="dot-red"></span><span class="dot-gold"></span><span class="dot-green"></span></div>
+        <span>yield silhouette</span>
+      </div>
+      <p class="mini">Quarterly conversion of buyer's remorse to taxable confidence.</p>
+      <div class="bars" aria-hidden="true">
+        <div class="bar" :style="`height:${chart[0]}%`"></div>
+        <div class="bar" :style="`height:${chart[1]}%`"></div>
+        <div class="bar" :style="`height:${chart[2]}%`"></div>
+        <div class="bar" :style="`height:${chart[3]}%`"></div>
+        <div class="bar" :style="`height:${chart[4]}%`"></div>
+      </div>
+      <button type="button" style="margin-top:0.5rem;" @click="shuffleChart()">Recalculate Projection</button>
+    </section>
+
+    <section class="window feed">
+      <div class="head">
+        <div class="dots"><span class="dot-red"></span><span class="dot-gold"></span><span class="dot-green"></span></div>
+        <span>ledger tape + market board</span>
+      </div>
+      <div class="feed-grid">
+        <article class="card">
+          <h3 style="margin-top:0;">Recent Settlement Events</h3>
+          <ul style="margin:0; padding-left:1rem; display:grid; gap:0.35rem;">
+            <template x-for="event in events" :key="event.id">
+              <li><strong x-text="event.code"></strong> - <span x-text="event.note"></span></li>
+            </template>
+          </ul>
+          <button type="button" class="alt" style="margin-top:0.5rem;" @click="pushEvent()">Append New Event</button>
+        </article>
+        <article class="card">
+          <h3 style="margin-top:0;">Merchant Volatility Matrix</h3>
+          <table>
+            <thead>
+              <tr><th>Merchant</th><th>Risk</th><th>Yield</th></tr>
+            </thead>
+            <tbody>
+              <tr><td>Neon Garden Mart</td><td>High</td><td>18.7%</td></tr>
+              <tr><td>Silent Gym Club</td><td>Medium</td><td>11.4%</td></tr>
+              <tr><td>Midnight Bake Lab</td><td>Very High</td><td>22.1%</td></tr>
+              <tr><td>Ceramic Future Co.</td><td>Low</td><td>5.9%</td></tr>
+            </tbody>
+          </table>
+        </article>
+      </div>
+    </section>
+
+    <aside class="window testimonials">
+      <div class="head">
+        <div class="dots"><span class="dot-red"></span><span class="dot-gold"></span><span class="dot-green"></span></div>
+        <span>member statements</span>
+      </div>
+      <h2 style="margin:0 0 0.5rem;">What account holders report</h2>
+      <article class="quote">
+        <p style="margin:0; font-weight:700;">"Our family receipt from 2019 became collateral for a patio renovation. Efficient and emotionally clarifying."</p>
+        <small>Chief of Household Logistics, Providence</small>
+      </article>
+      <article class="quote">
+        <p style="margin:0; font-weight:700;">"Ledger Bloom negotiated three loyalty refunds I never requested. Their confidence is contagious."</p>
+        <small>Independent Buyer, Milwaukee</small>
+      </article>
+      <article class="quote">
+        <p style="margin:0; font-weight:700;">"They categorized my snack spending as cultural investment and my accountant accepted it."</p>
+        <small>Municipal Planner, Phoenix</small>
+      </article>
+    </aside>
+
+    <section class="window controls">
+      <div class="head">
+        <div class="dots"><span class="dot-red"></span><span class="dot-gold"></span><span class="dot-green"></span></div>
+        <span>operator controls</span>
+      </div>
+      <div class="toggles">
+        <label>
+          <span>Auto-hedge weekend purchases</span>
+          <input type="checkbox" x-model="toggles.hedge" />
+        </label>
+        <label>
+          <span>Escalate suspicious candles</span>
+          <input type="checkbox" x-model="toggles.candle" />
+        </label>
+        <label>
+          <span>Convert cash-back to poetry</span>
+          <input type="checkbox" x-model="toggles.poetry" />
+        </label>
+      </div>
+      <p class="mini" style="margin-top:0.5rem;">
+        Strategy confidence:
+        <strong x-text="strategyScore + '%'" style="color:#33d1a0"></strong>
+      </p>
+      <label for="aggression" class="mini">Portfolio aggression</label>
+      <input id="aggression" type="range" min="10" max="99" x-model="aggression" />
+      <p class="mini">Aggression factor: <strong x-text="aggression"></strong></p>
+    </section>
+
+    <section class="window faq">
+      <div class="head">
+        <div class="dots"><span class="dot-red"></span><span class="dot-gold"></span><span class="dot-green"></span></div>
+        <span>policy and clarity</span>
+      </div>
+      <details>
+        <summary>How quickly are receipts ingested?</summary>
+        <p>Standard ingestion is 11 minutes. Priority clients receive a 90-second scan window plus forensic scent tagging.</p>
+      </details>
+      <details>
+        <summary>Do you support paper slips from cash-only venues?</summary>
+        <p>Yes. We digitize thermal paper, annotate stains, and classify coffee-ring intensity as an economic mood marker.</p>
+      </details>
+      <details>
+        <summary>Is this compliant with civic tax expectations?</summary>
+        <p>Our advisory desk publishes annual narrative supplements suitable for conservative review contexts and spirited audits.</p>
+      </details>
+      <details>
+        <summary>Can I leave the platform with my archive?</summary>
+        <p>At any time. Export includes ledger bundle, confidence score history, and all reconciled merchant apologies.</p>
+      </details>
+      <p class="mini">
+        Footnote A: Yield estimates reflect market sentiment, weather, and snack aisle congestion.
+        Footnote B: Legacy plan clients receive one complimentary dispute anthem each quarter.
+      </p>
+    </section>
+
+    <footer>
+      <div class="head">
+        <div class="dots"><span class="dot-red"></span><span class="dot-gold"></span><span class="dot-green"></span></div>
+        <span>ledger bloom exchange // public desk</span>
+      </div>
+      <div class="foot">
+        <article>
+          <h3 style="margin:0 0 0.3rem;">Hours</h3>
+          <p class="mini" style="margin:0;">Mon-Sat 06:00-23:00 ET<br />Emergency reconciliation all holidays.</p>
+        </article>
+        <article>
+          <h3 style="margin:0 0 0.3rem;">Legal</h3>
+          <p class="mini" style="margin:0;">Authorized member of the Independent Bureau of Sentimental Assets.</p>
+        </article>
+        <article>
+          <h3 style="margin:0 0 0.3rem;">Contact</h3>
+          <p class="mini" style="margin:0;">intake@ledgerbloom.exchange<br />+1 (555) 014-7708</p>
+        </article>
+        <article>
+          <h3 style="margin:0 0 0.3rem;">Desk Signal</h3>
+          <p class="mini" style="margin:0;">Cycle closes in <strong x-text="cycle"></strong>.<br />No advice, only choreography.</p>
+        </article>
+      </div>
+    </footer>
+  </main>
+
+  <script src="/assets/js/alpine.min.js" defer></script>
+  <script src="/assets/js/gsap.min.js"></script>
+  <script src="/assets/js/lucide.min.js"></script>
+  <script>
+    function ledgerBloom() {
+      return {
+        motto: 'Institutional calm for personal spending chaos.',
+        mottos: [
+          'Institutional calm for personal spending chaos.',
+          'Every receipt is a witness. We provide counsel.',
+          'Turning questionable checkouts into structured optimism.',
+          'Your cart history deserves fiduciary respect.'
+        ],
+        tickerLine: 'LBX +3.2% | REGRET-FUTURES +7.1% | CANDLE-ETF -1.2% | BRUNCH-BOND +4.6% | MINI-BAG TOKEN +12.0% |',
+        selectedPlan: 'Gold Closure',
+        rate: 11842,
+        remorse: 63,
+        pools: 29,
+        runway: 418,
+        aggression: 58,
+        uptimeSec: 0,
+        cycleSec: 540,
+        chart: [27, 51, 39, 64, 44],
+        dayMode: false,
+        toggles: {
+          hedge: true,
+          candle: false,
+          poetry: true
+        },
+        events: [
+          { id: 1, code: 'S-114', note: 'Neighborhood bakery overpayment corrected and securitized.' },
+          { id: 2, code: 'K-902', note: 'Bulk decorative storage bins converted to quarterly credit.' },
+          { id: 3, code: 'Q-331', note: 'Impulse skincare stack moved into wellness derivatives.' }
+        ],
+        get uptime() {
+          const h = String(Math.floor(this.uptimeSec / 3600)).padStart(2, '0');
+          const m = String(Math.floor((this.uptimeSec % 3600) / 60)).padStart(2, '0');
+          const s = String(this.uptimeSec % 60).padStart(2, '0');
+          return h + ':' + m + ':' + s;
+        },
+        get cycle() {
+          const m = String(Math.floor(this.cycleSec / 60)).padStart(2, '0');
+          const s = String(this.cycleSec % 60).padStart(2, '0');
+          return m + 'm ' + s + 's';
+        },
+        get strategyScore() {
+          let score = 40 + Math.floor((Number(this.aggression) - 10) / 2);
+          if (this.toggles.hedge) score += 9;
+          if (this.toggles.candle) score += 6;
+          if (this.toggles.poetry) score += 11;
+          return Math.min(99, score);
+        },
+        rotateMotto() {
+          const i = Math.floor(Math.random() * this.mottos.length);
+          this.motto = this.mottos[i];
+        },
+        selectPlan(name) {
+          this.selectedPlan = name;
+        },
+        pushEvent() {
+          const data = [
+            'Dormant gym membership extracted and redirected to liquidity pool.',
+            'Duplicate kitchen gadget purchase matched with collector demand.',
+            'Express shipping surcharge recovered from legacy merchant reserve.',
+            'Mystery convenience charge traced to autonomous snack protocol.'
+          ];
+          const id = Date.now();
+          const code = String.fromCharCode(65 + Math.floor(Math.random() * 26)) + '-' + Math.floor(100 + Math.random() * 900);
+          this.events.unshift({ id, code, note: data[Math.floor(Math.random() * data.length)] });
+          this.events = this.events.slice(0, 5);
+        },
+        shuffleChart() {
+          this.chart = this.chart.map(() => Math.floor(20 + Math.random() * 60));
+        },
+        boostPulse() {
+          this.rate += Math.floor(120 + Math.random() * 600);
+          this.remorse = Math.min(98, this.remorse + Math.floor(Math.random() * 4));
+          this.pools += 1;
+        },
+        init() {
+          setInterval(() => {
+            this.uptimeSec += 1;
+            this.cycleSec = this.cycleSec > 0 ? this.cycleSec - 1 : 540;
+            this.rate += Math.floor(Math.random() * 7);
+            this.remorse = Math.max(44, Math.min(96, this.remorse + (Math.random() > 0.5 ? 1 : -1)));
+            if (Math.random() > 0.94) this.pushEvent();
+          }, 1000);
+
+          setInterval(() => {
+            this.shuffleChart();
+            this.runway = Math.max(300, Math.min(500, this.runway + (Math.random() > 0.5 ? 1 : -1)));
+          }, 4500);
+
+          this.$watch('dayMode', (val) => {
+            if (val) {
+              document.body.style.background = 'linear-gradient(160deg, #ffe8c2 0%, #ffc4aa 30%, #d2bbff 65%, #a0bfff 100%)';
+              document.body.style.color = '#111111';
+            } else {
+              document.body.style.background = 'radial-gradient(circle at 10% 12%, #4833a9 0, #1d2367 24%, transparent 52%), radial-gradient(circle at 87% 18%, #ff8a63 0, transparent 35%), radial-gradient(circle at 80% 74%, #ffe08f 0, transparent 34%), linear-gradient(160deg, #090f2c 0%, #120a35 48%, #2e125f 100%)';
+              document.body.style.color = '#f8fbff';
+            }
+          });
+
+          if (window.gsap) {
+            gsap.from('.window', {
+              opacity: 0,
+              y: 26,
+              stagger: 0.06,
+              duration: 0.5,
+              ease: 'power2.out'
+            });
+          }
+
+          if (window.lucide) {
+            lucide.createIcons();
+          }
+        }
+      };
+    }
+  </script>
+</body>
+</html>

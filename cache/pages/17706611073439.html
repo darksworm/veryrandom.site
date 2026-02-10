@@ -1,0 +1,954 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>The Sentient IKEA Shelf Cooking Show (Goldfish Founder, Medieval Armor Dress Code)</title>
+<style>
+:root{
+  --ocean-1:#051b2e;
+  --ocean-2:#07304a;
+  --ocean-3:#0a4568;
+  --bio-1:#00ffcc;
+  --bio-2:#39ff7a;
+  --bio-3:#9dffea;
+  --brutal-1:#0f0f0f;
+  --brutal-2:#1b1b1b;
+  --brutal-3:#2a2a2a;
+  --carnival-1:#ff2e63;
+  --carnival-2:#ffcc00;
+  --carnival-3:#7c00ff;
+  --ink:#e7f6ff;
+  --muted:#a7c7d9;
+  --gold:#ffb84d;
+  --steel:#8aa0b8;
+  --shadow:rgba(0,0,0,0.45);
+  --glass:rgba(255,255,255,0.08);
+}
+*{box-sizing:border-box;}
+html,body{height:100%;}
+body{
+  margin:0;
+  font-family: "Times New Roman", Georgia, "Trebuchet MS", serif;
+  color:var(--ink);
+  background:
+    radial-gradient(1200px 600px at 20% 10%, rgba(57,255,122,0.25), transparent 60%),
+    radial-gradient(900px 700px at 90% 20%, rgba(0,255,204,0.18), transparent 55%),
+    linear-gradient(135deg, var(--ocean-1), var(--ocean-3));
+  overflow-x:hidden;
+}
+
+/* desktop chaos */
+#desktop{
+  position:relative;
+  min-height:200vh;
+  height:200vh;
+  padding:16px 16px 120px;
+  overflow:hidden;
+}
+
+.window{
+  position:absolute;
+  width: clamp(260px, 36vw, 520px);
+  min-height:220px;
+  background:linear-gradient(180deg, rgba(9,27,44,0.92), rgba(6,18,30,0.85));
+  border:2px solid var(--bio-1);
+  box-shadow:0 18px 40px var(--shadow), inset 0 0 0 1px rgba(255,255,255,0.08);
+  border-radius:10px;
+  backdrop-filter: blur(2px);
+  overflow:hidden;
+}
+.window:before{
+  content:"";
+  position:absolute;
+  inset:0;
+  background:
+    linear-gradient(120deg, rgba(255,46,99,0.07), transparent 30%),
+    repeating-linear-gradient(0deg, rgba(255,255,255,0.03) 0 2px, transparent 2px 4px);
+  pointer-events:none;
+}
+.window .titlebar{
+  padding:10px 12px;
+  background:linear-gradient(90deg, var(--brutal-2), var(--ocean-2));
+  border-bottom:2px solid var(--bio-2);
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:8px;
+  position:relative;
+  z-index:1;
+  cursor:grab;
+  user-select:none;
+}
+.window .titlebar:active{cursor:grabbing;}
+.window.dragging{z-index:9999!important;box-shadow:0 24px 60px rgba(0,255,204,0.3), 0 18px 40px var(--shadow);}
+.titlebar .dots span{
+  display:inline-block;
+  width:12px;height:12px;border-radius:50%;
+  margin-right:4px;
+  background:var(--carnival-1);
+  box-shadow:0 0 8px rgba(255,46,99,0.8);
+}
+.titlebar .dots span:nth-child(2){background:var(--carnival-2);box-shadow:0 0 8px rgba(255,204,0,0.8);} 
+.titlebar .dots span:nth-child(3){background:var(--bio-1);box-shadow:0 0 8px rgba(0,255,204,0.8);} 
+.titlebar h3{
+  margin:0;
+  font-size:14px;
+  letter-spacing:1px;
+  text-transform:uppercase;
+}
+.window .content{padding:12px; position:relative; z-index:1;}
+
+/* windows positions */
+#win-hero{top:20px; left:20px; width: min(92vw, 720px);}
+#win-live{top:40px; right:18px; width: min(92vw, 520px);} 
+#win-shelf{top:360px; left:40px;} 
+#win-goldfish{top:380px; right:50px;} 
+#win-stats{top:730px; left:22px; width:min(92vw, 680px);} 
+#win-kitchen{top:780px; right:36px; width:min(92vw, 560px);} 
+#win-wardrobe{top:1150px; left:40px; width:min(92vw, 620px);} 
+#win-market{top:1180px; right:26px; width:min(92vw, 520px);} 
+#win-credits{top:1520px; left:18px; width:min(92vw, 520px);} 
+#win-lore{top:1540px; right:26px; width:min(92vw, 620px);} 
+
+/* hero */
+.hero{
+  display:grid;
+  grid-template-columns:1.2fr 1fr;
+  gap:16px;
+  align-items:center;
+}
+.hero h1{margin:0 0 8px; font-size:28px; text-transform:uppercase; letter-spacing:2px;}
+.hero p{margin:8px 0; color:var(--muted);} 
+.badge-row{display:flex; flex-wrap:wrap; gap:8px;}
+.badge{
+  padding:6px 10px;
+  border:1px solid var(--bio-2);
+  background:rgba(0,255,204,0.1);
+  font-size:12px;
+  text-transform:uppercase;
+  letter-spacing:1px;
+}
+
+/* stacked cards */
+.stack{
+  display:grid;
+  gap:10px;
+}
+.card{
+  padding:10px;
+  background:linear-gradient(180deg, rgba(255,255,255,0.06), rgba(0,0,0,0.2));
+  border:1px dashed rgba(0,255,204,0.5);
+  box-shadow:0 4px 18px rgba(0,0,0,0.4);
+}
+.card h4{margin:0 0 6px; font-size:14px; letter-spacing:1px; text-transform:uppercase;}
+
+/* panels */
+.panel{
+  background:rgba(8,24,38,0.85);
+  border:1px solid rgba(57,255,122,0.4);
+  padding:8px;
+  margin-top:8px;
+}
+
+/* interactive controls */
+.controls{
+  display:flex; flex-wrap:wrap; gap:8px; margin-top:8px;
+}
+button, .toggle{
+  background:linear-gradient(90deg, var(--carnival-1), var(--carnival-3));
+  border:0; color:#fff; padding:8px 10px; cursor:pointer;
+  text-transform:uppercase; letter-spacing:1px; font-size:12px;
+  box-shadow:0 6px 20px rgba(255,46,99,0.3);
+}
+button.secondary{background:linear-gradient(90deg, var(--ocean-2), var(--bio-1)); color:#02121f;}
+button.ghost{background:transparent; border:1px solid var(--bio-1); color:var(--bio-3);} 
+button:active{transform:translateY(1px);} 
+
+/* live ticker */
+.ticker{
+  display:flex; align-items:center; gap:8px; font-size:12px; text-transform:uppercase;
+  background:rgba(0,0,0,0.35); padding:6px; border:1px solid rgba(255,255,255,0.1);
+}
+.pill{padding:4px 8px; border-radius:999px; background:rgba(0,255,204,0.2); border:1px solid var(--bio-1);} 
+
+/* charts */
+.chart{
+  display:grid; grid-template-columns:repeat(12, 1fr); gap:4px; align-items:end; height:120px;
+  background:rgba(0,0,0,0.25); padding:8px; border:1px solid rgba(255,255,255,0.08);
+}
+.bar{background:linear-gradient(180deg, var(--bio-1), var(--carnival-2)); box-shadow:0 4px 10px rgba(0,255,204,0.25);} 
+.bar span{display:block; font-size:10px; text-align:center; margin-top:4px;} 
+
+/* radar ring */
+.radar{
+  position:relative; height:180px; border-radius:50%;
+  background:radial-gradient(circle at center, rgba(0,255,204,0.2), rgba(0,255,204,0.02) 60%, transparent 61%),
+             conic-gradient(from 0deg, rgba(0,255,204,0.3), rgba(0,255,204,0) 30%, rgba(255,46,99,0.3) 60%, rgba(0,255,204,0.2));
+  border:2px solid rgba(0,255,204,0.5);
+  overflow:hidden;
+}
+.radar:before{
+  content:""; position:absolute; inset:-20px; border:1px dashed rgba(0,255,204,0.4);
+  border-radius:50%; animation:spin 10s linear infinite;
+}
+@keyframes spin{to{transform:rotate(360deg);} }
+.dot{position:absolute; width:8px; height:8px; border-radius:50%; background:var(--carnival-2); box-shadow:0 0 12px rgba(255,204,0,0.9);} 
+
+/* recipe cards */
+.recipe{display:grid; grid-template-columns:1fr 1fr; gap:8px;}
+.recipe .meta{font-size:12px; color:var(--muted);} 
+
+/* table */
+.table{width:100%; border-collapse:collapse; font-size:12px;}
+.table th, .table td{border:1px solid rgba(255,255,255,0.1); padding:6px; text-align:left;} 
+.table th{background:rgba(0,255,204,0.15);} 
+
+/* ledger */
+.ledger{display:grid; grid-template-columns:1fr 1fr; gap:10px;} 
+.ledger .line{padding:6px; background:rgba(255,255,255,0.05); border-left:3px solid var(--bio-2);} 
+
+/* armor gallery */
+.armor-grid{display:grid; grid-template-columns:repeat(3, 1fr); gap:6px;} 
+.armor{padding:8px; border:1px solid rgba(255,255,255,0.1); background:linear-gradient(135deg, rgba(138,160,184,0.25), rgba(0,0,0,0.3)); font-size:12px;} 
+.armor.active{outline:2px solid var(--carnival-2); box-shadow:0 0 12px rgba(255,204,0,0.6);} 
+
+/* floating notes */
+.note{
+  background:rgba(255,255,255,0.06); border:1px dotted rgba(255,204,0,0.4);
+  padding:6px; font-size:11px; color:var(--muted);
+}
+
+/* footer */
+footer{margin-top:18px; font-size:12px; color:var(--muted);} 
+
+/* responsive */
+@media (max-width:900px){
+  .hero{grid-template-columns:1fr;}
+  .armor-grid{grid-template-columns:1fr 1fr;}
+}
+
+/* chaos overlays */
+#confetti{
+  position:fixed; inset:0; pointer-events:none; overflow:hidden; opacity:0.9; z-index:999;
+}
+.confetti-piece{
+  position:absolute; width:10px; height:10px; background:var(--carnival-1); animation:fall 3s linear infinite;
+}
+@keyframes fall{from{transform:translateY(-10vh) rotate(0deg);} to{transform:translateY(110vh) rotate(360deg);} }
+
+/* spotlight */
+#spotlight{
+  position:fixed; inset:0; pointer-events:none; background:radial-gradient(200px 200px at var(--sx,50%) var(--sy,50%), rgba(255,255,255,0.12), rgba(0,0,0,0.7) 60%);
+  mix-blend-mode:screen; opacity:0.35; z-index:50;
+}
+
+/* draggable headline */
+#draggable{
+  cursor:grab; user-select:none; display:inline-block; padding:6px 10px; background:rgba(255,255,255,0.06); border:1px solid var(--bio-1);
+}
+
+/* blinking counters */
+.blink{animation:blink 1.2s steps(2) infinite;} 
+@keyframes blink{50%{opacity:0.2;}} 
+
+/* toast */
+#toast{
+  position:fixed; bottom:16px; right:16px; padding:10px 12px; background:var(--brutal-2); border:1px solid var(--bio-1);
+  box-shadow:0 8px 24px rgba(0,0,0,0.4); opacity:0; transform:translateY(10px); transition:all 0.3s ease; z-index:1000;
+}
+#toast.show{opacity:1; transform:translateY(0);} 
+
+/* power saver effect */
+body.power-save{
+  filter:grayscale(0.8) contrast(0.9) brightness(0.8);
+}
+
+/* mini windows inside */
+.miniwin{padding:8px; border:1px solid rgba(255,255,255,0.1); background:rgba(0,0,0,0.25);} 
+
+/* css-only chart labels */
+.axis{display:flex; justify-content:space-between; font-size:10px; color:var(--muted); margin-top:4px;} 
+
+/* marquee */
+.marquee{white-space:nowrap; overflow:hidden; border-top:1px dashed rgba(255,255,255,0.2); border-bottom:1px dashed rgba(255,255,255,0.2); padding:6px 0;}
+.marquee span{display:inline-block; padding-left:100%; animation:marquee 18s linear infinite;}
+@keyframes marquee{from{transform:translateX(0);} to{transform:translateX(-100%);} }
+</style>
+</head>
+<body>
+<div id="spotlight"></div>
+<div id="confetti"></div>
+<div id="toast"></div>
+
+<div id="desktop">
+  <section class="window" id="win-hero">
+    <div class="titlebar"><div class="dots"><span></span><span></span><span></span></div><h3>MAIN STAGE // SHELF-COOK 9000</h3><div class="pill" id="time-pill">00:00:00</div></div>
+    <div class="content">
+      <div class="hero">
+        <div>
+          <h1>"THE SHELF WHO WHISPERED TO STEW"</h1>
+          <p>Welcome to the most over-engineered cooking show in the archipelago of good taste. Hosted by a sentient IKEA shelf named <span id="shelf-name">KALLAXIS PRIME</span>, financed by a goldfish who wears a tiny crown and absolute confidence. Dress code: medieval armor only, no exceptions, chainmail brunch is real.</p>
+          <div class="badge-row">
+            <span class="badge">Brutalist Carnival Finance</span>
+            <span class="badge">Ocean Blue / Biolume Green</span>
+            <span class="badge">Armor Required</span>
+            <span class="badge">Shelf Sentient</span>
+            <span class="badge">Goldfish CEO</span>
+          </div>
+          <div class="controls">
+            <button id="btn-show-intro">Toggle Intro Flair</button>
+            <button class="secondary" id="btn-boost">Boost Shelf Ego</button>
+            <button class="ghost" id="btn-power">Power Saver</button>
+          </div>
+          <div class="panel" id="intro-panel">
+            <p><strong>Tonight's motto:</strong> "Measure twice, splinter once." The set is a carnival of spreadsheets, the food is suspiciously laminated, and the audience applauds in Morse code.</p>
+            <p class="note">Footnote 3.14: the shelf is unionized and takes breaks for shelf reflection.</p>
+          </div>
+        </div>
+        <div class="stack">
+          <div class="card">
+            <h4>Live Ratings Heat</h4>
+            <div class="chart" id="ratings-chart">
+              <div class="bar" style="height:40%"></div>
+              <div class="bar" style="height:55%"></div>
+              <div class="bar" style="height:65%"></div>
+              <div class="bar" style="height:35%"></div>
+              <div class="bar" style="height:80%"></div>
+              <div class="bar" style="height:45%"></div>
+              <div class="bar" style="height:70%"></div>
+              <div class="bar" style="height:50%"></div>
+              <div class="bar" style="height:90%"></div>
+              <div class="bar" style="height:60%"></div>
+              <div class="bar" style="height:75%"></div>
+              <div class="bar" style="height:85%"></div>
+            </div>
+            <div class="axis"><span>Cold Open</span><span>Chew</span><span>Credits</span></div>
+          </div>
+          <div class="card">
+            <h4>Studio Pulse</h4>
+            <div class="ticker">
+              <span class="pill" id="pulse">132 bpm</span>
+              <span>Audience is wearing <strong id="armor-count">208</strong> suits of armor.</span>
+              <span class="pill">Sizzle Index: <span id="sizzle">87</span></span>
+            </div>
+            <p class="note">Disclaimer: audience armor certified by the Bureau of Metallic Compliments.</p>
+          </div>
+        </div>
+      </div>
+      <div class="marquee"><span>BREAKING: The goldfish approves the roux; the shelf approves the tax deduction; the audience approves the anvil bread.</span></div>
+    </div>
+  </section>
+
+  <section class="window" id="win-live">
+    <div class="titlebar"><div class="dots"><span></span><span></span><span></span></div><h3>LIVE DESKTOP CHAOS</h3><div class="pill blink">ON AIR</div></div>
+    <div class="content">
+      <div class="panel">
+        <div class="ticker">
+          <span>Timer: <strong id="show-timer">00:00</strong></span>
+          <span>Segments Done: <strong id="segments">0</strong></span>
+          <span>Fish Confidence: <strong id="confidence">99%</strong></span>
+        </div>
+        <div class="controls">
+          <button id="btn-next-seg">Advance Segment</button>
+          <button class="secondary" id="btn-fish">Compliment Goldfish</button>
+          <button class="ghost" id="btn-chaos">Release Confetti</button>
+        </div>
+      </div>
+      <div class="panel">
+        <h4>Segment Queue</h4>
+        <ol id="queue">
+          <li>Forged Cutlery Reveal</li>
+          <li>Steam-Punked Mussel Choir</li>
+          <li>Shelf Meditation (Sponsored by Wood Polish)</li>
+          <li>Goldfish Fiscal Forecast</li>
+        </ol>
+        <p class="note">Footnote 8: segment order may be influenced by lunar tides and tax season.</p>
+      </div>
+      <div class="panel">
+        <h4>Audience Reactions</h4>
+        <div id="reactions" class="miniwin">"The shelf said my name and I legally blushed."</div>
+      </div>
+    </div>
+  </section>
+
+  <section class="window" id="win-shelf">
+    <div class="titlebar"><div class="dots"><span></span><span></span><span></span></div><h3>SENTIENT SHELF PROFILE</h3><div class="pill">Wooden, but woke</div></div>
+    <div class="content">
+      <p id="draggable">Drag me: the shelf insists on a movable monologue.</p>
+      <div class="ledger">
+        <div class="line">Species: Flat-pack oracle.</div>
+        <div class="line">Hobby: Whispering to spices in a Scandinavian accent.</div>
+        <div class="line">Catchphrase: "I am load-bearing, not a burden."</div>
+        <div class="line">Legal status: Assembly required, sentience optional.</div>
+        <div class="line">Favorite utensil: The ceremonial ladle of receipts.</div>
+        <div class="line">Greatest fear: Moisture, debt, and passive-aggressive Allen keys.</div>
+      </div>
+      <div class="controls">
+        <button id="btn-rename">Rename Shelf</button>
+        <button class="secondary" id="btn-confess">Shelf Confession</button>
+      </div>
+      <div class="panel" id="confession">"Sometimes I wish I was a stool."</div>
+    </div>
+  </section>
+
+  <section class="window" id="win-goldfish">
+    <div class="titlebar"><div class="dots"><span></span><span></span><span></span></div><h3>FOUNDER: GILBERT THE GOLDFISH</h3><div class="pill">CEO / CFO / fin fish</div></div>
+    <div class="content">
+      <div class="recipe">
+        <div>
+          <h4>Bio</h4>
+          <p>Gilbert claims to have invented "liquid equity" and insists the studio aquarium is a tax-advantaged vault. He smiles with 100% confidence and 0% idea what a spreadsheet is.</p>
+          <p class="meta">Witty truth #1: his crown is made of recycled foil and ambition.</p>
+          <p class="meta">Witty truth #2: he pays dividends in bubbles.</p>
+        </div>
+        <div class="panel">
+          <h4>Confidence Dial</h4>
+          <div class="radar" id="confidence-radar">
+            <div class="dot" style="top:30%; left:60%"></div>
+            <div class="dot" style="top:65%; left:35%"></div>
+            <div class="dot" style="top:50%; left:50%"></div>
+          </div>
+          <div class="controls">
+            <button id="btn-confidence">Increase Confidence</button>
+            <button class="ghost" id="btn-swim">Reposition Dots</button>
+          </div>
+        </div>
+      </div>
+      <div class="panel">
+        <h4>Investor Tweets (carved in stone)</h4>
+        <ul id="tweets">
+          <li>"I like the shelf, it has good posture."</li>
+          <li>"Armor is the new apron."</li>
+          <li>"Where can I short a casserole?"</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <section class="window" id="win-stats">
+    <div class="titlebar"><div class="dots"><span></span><span></span><span></span></div><h3>STUDIO STATS & LEDGER</h3><div class="pill">Fiscal Sizzle</div></div>
+    <div class="content">
+      <div class="ledger">
+        <div class="line">Ingredient Burn Rate: <strong id="burn">$4,208</strong> / episode</div>
+        <div class="line">Armor Rental Liability: <strong id="liability">$12,901</strong></div>
+        <div class="line">Estimated Applause per Minute: <strong id="apm">1,433 clanks</strong></div>
+        <div class="line">Shelf Sentience Tax Credit: <strong id="credit">$2,001</strong></div>
+      </div>
+      <div class="panel">
+        <h4>Biolume Profit Waterfall</h4>
+        <div class="chart" id="profit-chart">
+          <div class="bar" style="height:75%"></div>
+          <div class="bar" style="height:68%"></div>
+          <div class="bar" style="height:72%"></div>
+          <div class="bar" style="height:60%"></div>
+          <div class="bar" style="height:55%"></div>
+          <div class="bar" style="height:62%"></div>
+          <div class="bar" style="height:70%"></div>
+          <div class="bar" style="height:66%"></div>
+          <div class="bar" style="height:73%"></div>
+          <div class="bar" style="height:58%"></div>
+          <div class="bar" style="height:64%"></div>
+          <div class="bar" style="height:69%"></div>
+        </div>
+        <div class="controls">
+          <button id="btn-reroll-profit">Reroll Profits</button>
+          <button class="secondary" id="btn-add-fee">Add Mystic Fee</button>
+        </div>
+      </div>
+      <div class="panel">
+        <h4>Armor Compliance Table</h4>
+        <table class="table">
+          <thead><tr><th>Guild</th><th>Compliance</th><th>Notes</th></tr></thead>
+          <tbody id="armor-table">
+            <tr><td>Knights of Casserole</td><td>98%</td><td>Helmets steamed for hygiene.</td></tr>
+            <tr><td>Order of Spatula</td><td>84%</td><td>One rogue apron incident.</td></tr>
+            <tr><td>Pantry Paladins</td><td>91%</td><td>Shield used as serving tray.</td></tr>
+            <tr><td>Soup Squires</td><td>77%</td><td>Too many spoons, not enough chainmail.</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <section class="window" id="win-kitchen">
+    <div class="titlebar"><div class="dots"><span></span><span></span><span></span></div><h3>KITCHEN OF DOOM (AND DELIGHTS)</h3><div class="pill">Hot Plates, Cold Margins</div></div>
+    <div class="content">
+      <div class="panel">
+        <h4>Recipe Synthesizer</h4>
+        <div class="recipe">
+          <div>
+            <p><strong>Base:</strong> <span id="base">Anchovy Oat Loaf</span></p>
+            <p><strong>Seasoning:</strong> <span id="seasoning">Lemon Chainmail Dust</span></p>
+            <p><strong>Finish:</strong> <span id="finish">Biolume Glaze</span></p>
+            <p class="meta">Witty truth #3: the glaze has a LinkedIn profile.</p>
+            <p class="meta">Witty truth #4: the loaf signed a consent form.</p>
+          </div>
+          <div class="panel">
+            <p><strong>Serving Vibe:</strong> <span id="vibe">Seafloor Renaissance</span></p>
+            <div class="controls">
+              <button id="btn-remix">Remix Recipe</button>
+              <button class="secondary" id="btn-plate">Plate in Armor</button>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="panel">
+        <h4>Ingredient Ledger (live)</h4>
+        <ul id="ingredients">
+          <li>Stardust Salt — 2 tablespoons</li>
+          <li>Seafoam Butter — 1 noisy stick</li>
+          <li>Ledger Parsley — 4 sprigs</li>
+        </ul>
+        <div class="controls">
+          <button id="btn-add-ingredient">Add Ingredient</button>
+          <button class="ghost" id="btn-clear-ingredients">Clear List</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="window" id="win-wardrobe">
+    <div class="titlebar"><div class="dots"><span></span><span></span><span></span></div><h3>ARMOR WARDROBE (DRESS CODE)</h3><div class="pill">Medieval Chic</div></div>
+    <div class="content">
+      <p>All guests must armor up. Aprons are outlawed unless forged by a wizard accountant.</p>
+      <div class="armor-grid" id="armor-grid">
+        <div class="armor">Chainmail Apron (illegal but beloved)</div>
+        <div class="armor">Spatula Gauntlets</div>
+        <div class="armor">Helm of Sourdough</div>
+        <div class="armor">Greaves of Gravy</div>
+        <div class="armor">Pauldron of Parsnip</div>
+        <div class="armor">Cuirass of Cumin</div>
+        <div class="armor">Visor of Vinegar</div>
+        <div class="armor">Bracers of Brine</div>
+        <div class="armor">Tassets of Thyme</div>
+      </div>
+      <div class="controls">
+        <button id="btn-shuffle-armor">Shuffle Armor</button>
+        <button class="secondary" id="btn-highlight-armor">Highlight Compliance</button>
+      </div>
+      <div class="note">Witty truth #5: the armor clinks to the beat of the theme song.</div>
+      <div class="note">Witty truth #6: no one knows why the shelf demands jousting.</div>
+    </div>
+  </section>
+
+  <section class="window" id="win-market">
+    <div class="titlebar"><div class="dots"><span></span><span></span><span></span></div><h3>MARKETPLACE OF QUESTIONABLE VALUES</h3><div class="pill">Aqua Finance</div></div>
+    <div class="content">
+      <div class="panel">
+        <h4>Real-ish Time Indexes</h4>
+        <table class="table">
+          <thead><tr><th>Index</th><th>Value</th><th>Pulse</th></tr></thead>
+          <tbody id="market-table">
+            <tr><td>SPATULA-500</td><td>4,321</td><td>+0.6%</td></tr>
+            <tr><td>BRINE-DAQ</td><td>12,098</td><td>-0.4%</td></tr>
+            <tr><td>ARMOR-30</td><td>3,300</td><td>+1.9%</td></tr>
+            <tr><td>GILBERT-7</td><td>701</td><td>+7.0%</td></tr>
+          </tbody>
+        </table>
+        <div class="controls">
+          <button id="btn-market-flip">Flip Market Mood</button>
+          <button class="ghost" id="btn-audit">Run Magical Audit</button>
+        </div>
+      </div>
+      <div class="panel">
+        <h4>Disclaimer Wall</h4>
+        <p>Witty truth #7: none of these numbers are edible.</p>
+        <p>Witty truth #8: past performance is no guarantee of future casserole.</p>
+        <p>Witty truth #9: this financial advice was whispered by a shelf, and you should not fight it.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="window" id="win-credits">
+    <div class="titlebar"><div class="dots"><span></span><span></span><span></span></div><h3>CREDITS & DISCLAIMERS</h3><div class="pill">Totally Official</div></div>
+    <div class="content">
+      <div class="panel">
+        <p>Witty truth #10: the show is filmed in an abandoned spreadsheet.</p>
+        <p>Witty truth #11: the soup signed a waiver, the waiver signed back.</p>
+        <p>Witty truth #12: all flames are unionized, all water is at-will.</p>
+        <p>Witty truth #13: the goldfish is technically a submarine founder.</p>
+        <p>Witty truth #14: armor rentals are reimbursed in compliments.</p>
+        <p>Witty truth #15: the shelf wrote this disclaimer, and also this one.</p>
+      </div>
+      <footer>
+        <p>Footnote 21: The set is insured by the Guild of Overconfident Aquatics.</p>
+        <p>Footnote 22: If you are reading this, you are now part of the audience and must provide clanking.</p>
+      </footer>
+    </div>
+  </section>
+
+  <section class="window" id="win-lore">
+    <div class="titlebar"><div class="dots"><span></span><span></span><span></span></div><h3>LORE DATABASE (EXTREMELY TRUSTED)</h3><div class="pill">Canon-ish</div></div>
+    <div class="content">
+      <div class="panel">
+        <h4>Seasonal Mythos</h4>
+        <p>Witty truth #16: the shelf once judged a pie like it was a legal contract.</p>
+        <p>Witty truth #17: the goldfish invested in an onion because it had layers.</p>
+        <p>Witty truth #18: the armor dress code started after a ladle duel.</p>
+        <p>Witty truth #19: their theme song is in 7/8 clank time.</p>
+        <p>Witty truth #20: every episode ends with a tiny, ceremonial varnish.</p>
+      </div>
+      <div class="panel">
+        <h4>Interactive Lore Spinner</h4>
+        <p id="lore-line">"The shelf learned to saute by watching the moon blink."</p>
+        <div class="controls">
+          <button id="btn-lore">Spin Lore</button>
+          <button class="secondary" id="btn-glow">Toggle Biolume Glow</button>
+        </div>
+      </div>
+      <div class="panel">
+        <h4>Cluttered Desktop Windows</h4>
+        <div class="miniwin">Memo: remove crumbs from visor.</div>
+        <div class="miniwin">Reminder: check if fish is actually literate.</div>
+        <div class="miniwin">Todo: ask shelf about tax deductions.</div>
+      </div>
+    </div>
+  </section>
+</div>
+
+<script>
+(() => {
+  const $ = (sel, root=document) => root.querySelector(sel);
+  const $$ = (sel, root=document) => Array.from(root.querySelectorAll(sel));
+
+  const timePill = $('#time-pill');
+  const showTimer = $('#show-timer');
+  const pulse = $('#pulse');
+  const sizzle = $('#sizzle');
+  const armorCount = $('#armor-count');
+  const segments = $('#segments');
+  const confidence = $('#confidence');
+  const confession = $('#confession');
+  const shelfName = $('#shelf-name');
+  const reactions = $('#reactions');
+  const toast = $('#toast');
+  const confetti = $('#confetti');
+  const spotlight = $('#spotlight');
+
+  let start = Date.now();
+  let segCount = 0;
+  let conf = 99;
+  let glowOn = false;
+  let powerSave = false;
+
+  function pad(n){return String(n).padStart(2,'0');}
+  function clock(){
+    const now = new Date();
+    timePill.textContent = `${pad(now.getHours())}:${pad(now.getMinutes())}:${pad(now.getSeconds())}`;
+  }
+  function timer(){
+    const t = Math.floor((Date.now()-start)/1000);
+    const m = Math.floor(t/60);
+    const s = t%60;
+    showTimer.textContent = `${pad(m)}:${pad(s)}`;
+  }
+  function rand(min,max){return Math.floor(Math.random()*(max-min+1))+min;}
+
+  setInterval(()=>{
+    clock();
+    timer();
+    pulse.textContent = `${rand(120,168)} bpm`;
+    sizzle.textContent = rand(70,99);
+    armorCount.textContent = rand(180,260);
+  }, 1000);
+
+  const introPanel = $('#intro-panel');
+  $('#btn-show-intro').addEventListener('click', () => {
+    introPanel.style.display = introPanel.style.display === 'none' ? 'block' : 'none';
+    showToast(introPanel.style.display === 'none' ? 'Intro hidden behind a barrel.' : 'Intro reloaded with extra varnish.');
+  });
+
+  $('#btn-boost').addEventListener('click', () => {
+    const phrases = [
+      'Shelf ego +3: now believes it can toast the ocean.',
+      'Shelf ego +5: claims to be a floating cathedral.',
+      'Shelf ego +8: whispers tax codes to the basil.',
+      'Shelf ego +13: wants a solo cooking tour.'
+    ];
+    confession.textContent = phrases[rand(0, phrases.length-1)];
+  });
+
+  $('#btn-power').addEventListener('click', () => {
+    powerSave = !powerSave;
+    document.body.classList.toggle('power-save', powerSave);
+    showToast(powerSave ? 'Power saver engaged: chaos muted.' : 'Power saver disabled: chaos restored.');
+  });
+
+  $('#btn-next-seg').addEventListener('click', () => {
+    segCount++;
+    segments.textContent = segCount;
+    const queue = $('#queue');
+    const item = queue.firstElementChild;
+    if (item){
+      queue.appendChild(item);
+    }
+    reactions.textContent = randomReaction();
+  });
+
+  $('#btn-fish').addEventListener('click', () => {
+    conf = Math.min(130, conf + rand(1,6));
+    confidence.textContent = `${conf}%`;
+    showToast('Goldfish nods approvingly, bubbles form a pie chart.');
+  });
+
+  $('#btn-chaos').addEventListener('click', () => {
+    createConfetti(40);
+  });
+
+  $('#btn-rename').addEventListener('click', () => {
+    const names = ['BILLYDRIP','KALLAXIS PRIME','HEMNESIA','IVAR THE UNYIELDING','EKETRON'];
+    shelfName.textContent = names[rand(0, names.length-1)];
+    showToast('Shelf rebranded with heavy font and heavier feelings.');
+  });
+
+  $('#btn-confess').addEventListener('click', () => {
+    const lines = [
+      '"I once shelved a secret recipe and cried."',
+      '"My screws are metric but my heart is imperial."',
+      '"I crave a life beyond stacked bowls."',
+      '"I have a small crush on the spice rack."'
+    ];
+    confession.textContent = lines[rand(0, lines.length-1)];
+  });
+
+  $('#btn-confidence').addEventListener('click', () => {
+    conf = Math.min(200, conf + rand(4,12));
+    confidence.textContent = `${conf}%`;
+    showToast('Confidence inflated with artisanal oxygen.');
+  });
+
+  $('#btn-swim').addEventListener('click', () => {
+    $$('#confidence-radar .dot').forEach(d => {
+      d.style.top = rand(10,80)+'%';
+      d.style.left = rand(10,80)+'%';
+    });
+  });
+
+  $('#btn-reroll-profit').addEventListener('click', () => {
+    $$('#profit-chart .bar').forEach(b => b.style.height = rand(40,90)+'%');
+    showToast('Profit bars tumbled down the stairs.');
+  });
+
+  $('#btn-add-fee').addEventListener('click', () => {
+    const credit = $('#credit');
+    const val = parseInt(credit.textContent.replace(/[^\d]/g,''),10) + rand(20,140);
+    credit.textContent = `$${val}`;
+  });
+
+  const bases = ['Anchovy Oat Loaf','Pickled Thunder Risotto','Foam-Glazed Beet Bricks','Seagrass Lasagna','Debt-Free Dumplings'];
+  const seasonings = ['Lemon Chainmail Dust','Minty Ledger Powder','Smoked Kale Confetti','Rustic Tax Paprika','Briny Ledger Zest'];
+  const finishes = ['Biolume Glaze','Crown-Gold Drizzle','Armor Polish Mist','Sea-Salt Aurora','Fiscal Reduction Foam'];
+  const vibes = ['Seafloor Renaissance','Brutalist Picnic','Gothic Buffet','Carnival Spreadsheet','Knightly Nibble'];
+
+  $('#btn-remix').addEventListener('click', () => {
+    $('#base').textContent = bases[rand(0,bases.length-1)];
+    $('#seasoning').textContent = seasonings[rand(0,seasonings.length-1)];
+    $('#finish').textContent = finishes[rand(0,finishes.length-1)];
+    $('#vibe').textContent = vibes[rand(0,vibes.length-1)];
+  });
+
+  $('#btn-plate').addEventListener('click', () => {
+    const list = $('#ingredients');
+    const li = document.createElement('li');
+    li.textContent = `Armor-Plated Garnish — ${rand(1,4)} knights`; 
+    list.appendChild(li);
+  });
+
+  $('#btn-add-ingredient').addEventListener('click', () => {
+    const weird = ['Golem Garlic','Pearl Onion','Cursed Croutons','Minted Mechani-peas','Sourdough Shavings'];
+    const li = document.createElement('li');
+    li.textContent = `${weird[rand(0,weird.length-1)]} — ${rand(1,5)} units`;
+    $('#ingredients').appendChild(li);
+  });
+
+  $('#btn-clear-ingredients').addEventListener('click', () => {
+    $('#ingredients').innerHTML = '';
+    showToast('Ingredient ledger cleared by a stern scribe.');
+  });
+
+  $('#btn-shuffle-armor').addEventListener('click', () => {
+    const grid = $('#armor-grid');
+    const items = $$('#armor-grid .armor');
+    items.sort(()=>Math.random()-0.5).forEach(i => grid.appendChild(i));
+  });
+
+  $('#btn-highlight-armor').addEventListener('click', () => {
+    $$('#armor-grid .armor').forEach(a => a.classList.remove('active'));
+    const pick = $$('#armor-grid .armor')[rand(0, $$('#armor-grid .armor').length-1)];
+    pick.classList.add('active');
+  });
+
+  $('#btn-market-flip').addEventListener('click', () => {
+    $$('#market-table tr').forEach((row, idx) => {
+      if (idx === 0) return;
+      const cells = row.children;
+      const val = rand(300,14000);
+      const delta = (Math.random() > 0.5 ? '+' : '-') + (Math.random()*2).toFixed(1) + '%';
+      cells[1].textContent = val.toLocaleString();
+      cells[2].textContent = delta;
+    });
+  });
+
+  $('#btn-audit').addEventListener('click', () => {
+    const notes = [
+      'Audit complete: fish is solvent, shelf is fragrant.',
+      'Audit note: armor depreciation faster than soup evaporation.',
+      'Audit result: all ledgers now in haiku format.'
+    ];
+    showToast(notes[rand(0, notes.length-1)]);
+  });
+
+  $('#btn-lore').addEventListener('click', () => {
+    const lines = [
+      '"The shelf won a duel with a rolling pin."',
+      '"The goldfish signed a treaty with the teapot."',
+      '"A spoon once tried to unionize the pantry."',
+      '"The oven is rumored to be a knight."'
+    ];
+    $('#lore-line').textContent = lines[rand(0, lines.length-1)];
+  });
+
+  $('#btn-glow').addEventListener('click', () => {
+    glowOn = !glowOn;
+    document.body.style.background = glowOn
+      ? 'radial-gradient(1200px 600px at 20% 10%, rgba(57,255,122,0.35), transparent 60%), radial-gradient(900px 700px at 90% 20%, rgba(0,255,204,0.25), transparent 55%), linear-gradient(135deg, #021522, #0b4c6e)'
+      : '';
+  });
+
+  function randomReaction(){
+    const reactions = [
+      '"That ladle has better screen time than I do."',
+      '"I clanked so hard my visor fogged."',
+      '"The shelf gave me a side-eye splinter."',
+      '"I would invest in this casserole."',
+      '"The goldfish winked and my mortgage changed."'
+    ];
+    return reactions[rand(0, reactions.length-1)];
+  }
+
+  function createConfetti(count){
+    confetti.innerHTML = '';
+    for (let i=0;i<count;i++){
+      const c = document.createElement('div');
+      c.className = 'confetti-piece';
+      c.style.left = rand(0,100)+'%';
+      c.style.animationDelay = (Math.random()*1.5)+'s';
+      c.style.background = [
+        'var(--carnival-1)','var(--carnival-2)','var(--bio-1)','var(--bio-2)','var(--carnival-3)'
+      ][rand(0,4)];
+      confetti.appendChild(c);
+    }
+    setTimeout(()=>confetti.innerHTML='', 3500);
+  }
+
+  function showToast(msg){
+    toast.textContent = msg;
+    toast.classList.add('show');
+    setTimeout(()=>toast.classList.remove('show'), 1400);
+  }
+
+  // spotlight follows mouse
+  document.addEventListener('mousemove', (e) => {
+    spotlight.style.setProperty('--sx', e.clientX + 'px');
+    spotlight.style.setProperty('--sy', e.clientY + 'px');
+  });
+
+  // === WINDOW DRAG + BOUNCE PHYSICS ===
+  const windows = $$('.window');
+  let topZ = 100;
+  const winState = new Map();
+
+  // initialize each window with position and velocity
+  windows.forEach(win => {
+    const rect = win.getBoundingClientRect();
+    const state = {
+      x: win.offsetLeft,
+      y: win.offsetTop,
+      vx: (Math.random() - 0.5) * 1.2,
+      vy: (Math.random() - 0.5) * 1.2,
+      dragging: false,
+      dragOffX: 0,
+      dragOffY: 0,
+    };
+    // clear right-positioned windows to left-based
+    win.style.right = 'auto';
+    win.style.left = state.x + 'px';
+    win.style.top = state.y + 'px';
+    winState.set(win, state);
+  });
+
+  // drag via titlebar
+  document.addEventListener('mousedown', (e) => {
+    const titlebar = e.target.closest('.titlebar');
+    if (!titlebar) return;
+    const win = titlebar.closest('.window');
+    if (!win) return;
+    const state = winState.get(win);
+    state.dragging = true;
+    state.dragOffX = e.clientX - state.x;
+    state.dragOffY = e.clientY - state.y;
+    win.classList.add('dragging');
+    topZ++;
+    win.style.zIndex = topZ;
+    e.preventDefault();
+  });
+
+  document.addEventListener('mousemove', (e) => {
+    winState.forEach((state, win) => {
+      if (!state.dragging) return;
+      state.x = e.clientX - state.dragOffX;
+      state.y = e.clientY - state.dragOffY;
+      win.style.left = state.x + 'px';
+      win.style.top = state.y + 'px';
+    });
+  });
+
+  document.addEventListener('mouseup', () => {
+    winState.forEach((state, win) => {
+      if (!state.dragging) return;
+      state.dragging = false;
+      win.classList.remove('dragging');
+      // give it a new random drift after release
+      state.vx = (Math.random() - 0.5) * 1.6;
+      state.vy = (Math.random() - 0.5) * 1.6;
+    });
+  });
+
+  // bounce animation loop
+  function bounce() {
+    const desktop = document.getElementById('desktop');
+    const dw = desktop.offsetWidth;
+    // use a tall bound so windows can roam the full scroll area
+    const dh = Math.max(desktop.offsetHeight, window.innerHeight);
+
+    winState.forEach((state, win) => {
+      if (state.dragging) return;
+
+      state.x += state.vx;
+      state.y += state.vy;
+
+      const ww = win.offsetWidth;
+      const wh = win.offsetHeight;
+
+      // bounce off edges
+      if (state.x <= 0) { state.x = 0; state.vx = Math.abs(state.vx); }
+      if (state.y <= 0) { state.y = 0; state.vy = Math.abs(state.vy); }
+      if (state.x + ww >= dw) { state.x = dw - ww; state.vx = -Math.abs(state.vx); }
+      if (state.y + wh >= dh) { state.y = dh - wh; state.vy = -Math.abs(state.vy); }
+
+      win.style.left = state.x + 'px';
+      win.style.top = state.y + 'px';
+    });
+
+    requestAnimationFrame(bounce);
+  }
+  requestAnimationFrame(bounce);
+
+  // initialize clock
+  clock();
+  timer();
+})();
+</script>
+</body>
+</html>

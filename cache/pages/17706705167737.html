@@ -1,0 +1,740 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Crayon Convoy Relief Guild</title>
+  <link rel="stylesheet" href="/assets/css/pico.min.css" />
+  <link rel="stylesheet" href="/assets/css/fonts.css" />
+  <script defer src="/assets/js/alpine.min.js"></script>
+  <script src="/assets/js/gsap.min.js"></script>
+  <script src="/assets/js/lucide.min.js"></script>
+  <style>
+    :root {
+      --sand: #f3e4c8;
+      --ink: #1e170f;
+      --terracotta: #b85f3a;
+      --olive: #4e5a2b;
+      --moss: #87914f;
+      --paper: #fff4db;
+      --pressure: 42;
+      --grain: rgba(30, 23, 15, 0.12);
+    }
+
+    * {
+      font-family: 'IBM Plex Mono', monospace;
+    }
+
+    body {
+      margin: 0;
+      color: var(--ink);
+      background:
+        radial-gradient(circle at 10% 20%, #ffe8c3 0 18%, transparent 19%),
+        radial-gradient(circle at 87% 12%, #c56d46 0 12%, transparent 13%),
+        linear-gradient(160deg, #e3cfac 0%, #d7be94 32%, #c8ad81 100%);
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    .scan {
+      position: relative;
+      isolation: isolate;
+    }
+
+    .scan::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      background:
+        repeating-linear-gradient(
+          to bottom,
+          transparent 0,
+          transparent 5px,
+          rgba(0, 0, 0, 0.04) 6px,
+          transparent 7px
+        );
+      pointer-events: none;
+      z-index: -1;
+    }
+
+    main {
+      width: min(1100px, 92vw);
+      margin: 0 auto;
+      padding: 1rem 0 4rem;
+      display: grid;
+      gap: 1rem;
+    }
+
+    nav {
+      background: var(--paper);
+      border: 3px solid var(--ink);
+      border-radius: 0;
+      padding: 0.7rem 1rem;
+      box-shadow: 6px 6px 0 #6d7750;
+    }
+
+    nav ul {
+      display: flex;
+      gap: 1rem;
+      list-style: none;
+      margin: 0;
+      padding: 0;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+
+    nav a,
+    nav strong,
+    .tag {
+      color: var(--ink);
+      text-decoration: none;
+      font-weight: 700;
+    }
+
+    .tag {
+      margin-left: auto;
+      padding: 0.2rem 0.5rem;
+      background: #d9e5af;
+      border: 2px solid var(--ink);
+    }
+
+    .panel {
+      background: var(--paper);
+      border: 3px solid var(--ink);
+      box-shadow: 8px 8px 0 #8c5034;
+      padding: 1rem;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .hero {
+      display: grid;
+      grid-template-columns: 1.15fr 1fr;
+      gap: 1rem;
+      align-items: stretch;
+    }
+
+    h1,
+    h2,
+    h3,
+    p,
+    small,
+    label,
+    summary,
+    a,
+    li,
+    button {
+      color: var(--ink);
+    }
+
+    h1 {
+      font-size: clamp(1.4rem, 3.3vw, 2.4rem);
+      margin: 0 0 0.5rem;
+      line-height: 1.2;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+
+    .lead {
+      font-size: 1rem;
+      margin: 0.3rem 0;
+      font-weight: 700;
+    }
+
+    .scene {
+      background:
+        radial-gradient(circle at 75% 18%, #f7d9a3 0 18%, transparent 19%),
+        linear-gradient(180deg, #d7c299 0%, #ccb183 55%, #b79067 100%);
+      min-height: 330px;
+      border: 3px solid var(--ink);
+      position: relative;
+      overflow: hidden;
+      cursor: crosshair;
+    }
+
+    .scene::before,
+    .scene::after {
+      content: "";
+      position: absolute;
+      inset: auto 0 0 0;
+      height: 44%;
+      background: linear-gradient(180deg, transparent 0%, rgba(0, 0, 0, 0.18) 100%);
+      mix-blend-mode: multiply;
+      pointer-events: none;
+    }
+
+    .sun {
+      position: absolute;
+      width: 130px;
+      height: 130px;
+      border: 4px solid var(--ink);
+      border-radius: 42% 58% 36% 64% / 58% 45% 55% 42%;
+      right: 1rem;
+      top: 0.5rem;
+      background: linear-gradient(135deg, #ffdd95 0%, #e98b45 100%);
+      box-shadow: 0 0 0 6px rgba(243, 179, 86, 0.35);
+      transition: transform 0.55s ease, border-radius 0.55s ease;
+    }
+
+    .hill {
+      position: absolute;
+      bottom: -20px;
+      left: -10%;
+      width: 130%;
+      height: 220px;
+      background: linear-gradient(180deg, #6f7b3f 0%, #3f4722 100%);
+      clip-path: polygon(0 65%, 8% 59%, 18% 63%, 31% 53%, 42% 58%, 54% 48%, 68% 57%, 80% 49%, 91% 60%, 100% 57%, 100% 100%, 0 100%);
+      border-top: 3px solid var(--ink);
+    }
+
+    .track {
+      position: absolute;
+      bottom: 32px;
+      left: 10%;
+      width: 78%;
+      height: 12px;
+      background: repeating-linear-gradient(90deg, #262015 0 16px, #7a6244 16px 28px);
+      border: 2px solid var(--ink);
+      transform: skewX(-16deg);
+    }
+
+    .crate {
+      position: absolute;
+      width: 62px;
+      height: 62px;
+      background: #bb6a44;
+      border: 3px solid var(--ink);
+      box-shadow: inset 0 0 0 4px #eaa47e;
+      clip-path: polygon(0 8%, 8% 0, 92% 0, 100% 8%, 100% 92%, 92% 100%, 8% 100%, 0 92%);
+    }
+
+    .crate::before,
+    .crate::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      border: 2px dashed rgba(30, 23, 15, 0.5);
+    }
+
+    .crate-a { left: 18%; bottom: 54px; }
+    .crate-b { left: 44%; bottom: 64px; }
+    .crate-c { left: 68%; bottom: 50px; }
+
+    .scene:hover .sun {
+      transform: rotate(20deg) scale(1.1);
+      border-radius: 60% 40% 55% 45% / 45% 65% 35% 55%;
+    }
+
+    .scene:hover .track {
+      filter: saturate(1.35);
+    }
+
+    .controls {
+      display: grid;
+      gap: 0.8rem;
+      align-content: start;
+    }
+
+    .terminal {
+      background: #21180f;
+      color: #fff7e9;
+      border: 3px solid #0c0905;
+      padding: 0.8rem;
+      box-shadow: inset 0 0 0 3px #53482f;
+    }
+
+    .terminal p,
+    .terminal li,
+    .terminal label,
+    .terminal small,
+    .terminal h2,
+    .terminal h3 {
+      color: #fff7e9;
+    }
+
+    .terminal button,
+    .theme-switches button,
+    .donate {
+      background: #d6e49f;
+      color: #17120c;
+      border: 2px solid #17120c;
+      font-weight: 700;
+      border-radius: 0;
+      padding: 0.45rem 0.7rem;
+    }
+
+    .terminal button:hover,
+    .theme-switches button:hover,
+    .donate:hover {
+      background: #ffe2a9;
+      transform: translate(-1px, -1px);
+      box-shadow: 3px 3px 0 #734a31;
+    }
+
+    .theme-switches {
+      display: flex;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+    }
+
+    .log {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 1rem;
+    }
+
+    .tile {
+      min-height: 170px;
+      background:
+        linear-gradient(130deg, rgba(214, 110, 64, 0.95), rgba(84, 96, 43, 0.95)),
+        repeating-linear-gradient(-35deg, rgba(255, 247, 232, 0.25) 0 6px, transparent 6px 16px);
+      border: 3px solid var(--ink);
+      padding: 0.9rem;
+      position: relative;
+      overflow: hidden;
+      transition: transform 0.35s ease;
+    }
+
+    .tile::before {
+      content: "";
+      position: absolute;
+      width: 130px;
+      height: 130px;
+      right: -30px;
+      bottom: -42px;
+      background: #f7e6be;
+      opacity: 0.85;
+      border: 3px solid var(--ink);
+      clip-path: polygon(50% 0%, 100% 25%, 82% 100%, 18% 100%, 0% 25%);
+      transition: transform 0.45s ease, clip-path 0.45s ease;
+    }
+
+    .tile:hover {
+      transform: translateY(-6px) rotate(-1.4deg);
+    }
+
+    .tile:hover::before {
+      transform: rotate(28deg) scale(1.1);
+      clip-path: polygon(21% 0, 79% 0, 100% 24%, 100% 77%, 78% 100%, 22% 100%, 0 77%, 0 25%);
+    }
+
+    .tile p,
+    .tile h3 {
+      color: #fffaf1;
+      position: relative;
+      z-index: 2;
+      margin: 0;
+    }
+
+    .route-list {
+      display: grid;
+      gap: 0.5rem;
+      margin-top: 0.6rem;
+    }
+
+    .route {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.7rem;
+      border: 2px solid #fff7e9;
+      padding: 0.4rem;
+      background: rgba(255, 255, 255, 0.04);
+    }
+
+    .route-bar {
+      flex: 1;
+      height: 12px;
+      border: 2px solid #fff7e9;
+      position: relative;
+      background: rgba(255, 255, 255, 0.1);
+    }
+
+    .route-fill {
+      position: absolute;
+      left: 0;
+      top: 0;
+      bottom: 0;
+      width: 45%;
+      background: #f8d99b;
+      transition: width 0.4s ease;
+    }
+
+    .split {
+      display: grid;
+      grid-template-columns: 1.1fr 0.9fr;
+      gap: 1rem;
+      align-items: start;
+    }
+
+    .wireframe {
+      border: 3px solid var(--ink);
+      min-height: 300px;
+      background: #151008;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .wireframe svg {
+      width: 100%;
+      height: 100%;
+      display: block;
+    }
+
+    .donation-box {
+      background: #fff0d4;
+      border: 3px solid var(--ink);
+      padding: 1rem;
+      display: grid;
+      gap: 0.8rem;
+    }
+
+    .donation-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 0.6rem;
+    }
+
+    .donate-card {
+      border: 2px solid var(--ink);
+      background: #f9dfb6;
+      padding: 0.55rem;
+      text-align: center;
+      transition: transform 0.35s ease, background 0.35s ease;
+    }
+
+    .donate-card:hover {
+      transform: skew(-3deg) scale(1.04);
+      background: #dae6aa;
+    }
+
+    .mission {
+      display: grid;
+      gap: 0.4rem;
+      background: #f7eddb;
+      border: 2px solid var(--ink);
+      padding: 0.6rem;
+    }
+
+    .volunteer-list {
+      display: grid;
+      gap: 0.5rem;
+      margin: 0;
+      padding: 0;
+      list-style: none;
+    }
+
+    .volunteer-list li {
+      background: #e5d1ad;
+      border: 2px solid var(--ink);
+      padding: 0.45rem 0.6rem;
+      font-weight: 700;
+    }
+
+    details {
+      border: 2px solid #1a130b;
+      background: #eadab8;
+      padding: 0.45rem 0.6rem;
+    }
+
+    details + details {
+      margin-top: 0.5rem;
+    }
+
+    footer {
+      border: 3px solid var(--ink);
+      background: #1d150d;
+      color: #fff8e9;
+      padding: 1rem;
+      margin-top: 0.6rem;
+    }
+
+    footer p,
+    footer a,
+    footer small {
+      color: #fff8e9;
+      margin: 0.2rem 0;
+    }
+
+    input[type="range"] {
+      accent-color: #d99c59;
+    }
+
+    @media (max-width: 900px) {
+      .hero,
+      .split,
+      .log {
+        grid-template-columns: 1fr;
+      }
+
+      .donation-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .tag {
+        margin-left: 0;
+      }
+    }
+  </style>
+</head>
+<body x-data="guildApp()" class="scan">
+  <main>
+    <nav>
+      <ul>
+        <li><strong>CRAYON CONVOY RELIEF GUILD</strong></li>
+        <li><a href="#mission">Mission</a></li>
+        <li><a href="#routes">Routes</a></li>
+        <li><a href="#volunteer">Volunteer</a></li>
+        <li><a href="#donate">Donate</a></li>
+        <li class="tag">NON-PROFIT // RHYME-LINE</li>
+      </ul>
+    </nav>
+
+    <section class="hero">
+      <article class="panel">
+        <h1>From barred old halls we haul warm shawls, in chalky rhyme we rise in time.</h1>
+        <p class="lead">We route kind coats with olive notes, so every road can hold and bode.</p>
+        <p class="lead">Our crayons map each care-pack wrap, each line we sign becomes a spine.</p>
+        <div class="theme-switches" aria-label="Palette selector">
+          <button type="button" data-swatch="dawn" x-on:click="setTheme('dawn')">Dawn Crate</button>
+          <button type="button" data-swatch="dusk" x-on:click="setTheme('dusk')">Dusk Freight</button>
+          <button type="button" data-swatch="field" x-on:click="setTheme('field')">Field Slate</button>
+        </div>
+      </article>
+
+      <aside class="scene" id="scene" aria-label="Animated crayon convoy art">
+        <div class="sun"></div>
+        <div class="hill"></div>
+        <div class="track"></div>
+        <div class="crate crate-a art-crate"></div>
+        <div class="crate crate-b art-crate"></div>
+        <div class="crate crate-c art-crate"></div>
+      </aside>
+    </section>
+
+    <section class="log">
+      <article class="tile">
+        <h3>Mission Rhyme</h3>
+        <p id="mission">We mend through thread and daily bread; we serve with grace in every place.</p>
+      </article>
+      <article class="tile" id="routes">
+        <h3>Convoy Line</h3>
+        <p>Crate by crate we navigate, from gate to gate we share first-rate.</p>
+      </article>
+      <article class="tile">
+        <h3>Ledger Chime</h3>
+        <p>Each aid we send is penned and signed, in waxy lines that keep us kind.</p>
+      </article>
+    </section>
+
+    <section class="split">
+      <article class="terminal">
+        <h2><i data-lucide="map"></i> Route Console</h2>
+        <label for="pressure">Crayon pressure: <strong id="pressureValue" x-text="pressure"></strong></label>
+        <input id="pressure" type="range" min="10" max="90" step="1" x-model="pressure" />
+        <div class="route-list">
+          <template x-for="route in routes" :key="route.name">
+            <div class="route">
+              <small x-text="route.name"></small>
+              <div class="route-bar">
+                <span class="route-fill" :style="`width:${route.fill}%`"></span>
+              </div>
+            </div>
+          </template>
+        </div>
+        <button id="shuffleBtn" type="button" style="margin-top:0.7rem;">Shuffle Supply Line</button>
+      </article>
+
+      <article class="wireframe" aria-label="Crayon waveform art">
+        <svg viewBox="0 0 640 360" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Routed crayon lines">
+          <defs>
+            <linearGradient id="g1" x1="0" y1="0" x2="1" y2="1">
+              <stop offset="0%" stop-color="#ffe0a6"/>
+              <stop offset="100%" stop-color="#bf673f"/>
+            </linearGradient>
+          </defs>
+          <rect width="640" height="360" fill="#161007"/>
+          <path class="crayon-line" d="M12 250 C110 180, 165 310, 260 225 C355 140, 455 280, 628 170" stroke="url(#g1)" stroke-width="7" stroke-linecap="round" />
+          <path class="crayon-line" d="M10 130 C90 70, 170 170, 260 120 C350 70, 460 170, 630 95" stroke="#d5e5a6" stroke-width="5" stroke-linecap="round" stroke-dasharray="12 10"/>
+          <circle cx="80" cy="250" r="16" fill="#f4dda8" stroke="#f4dda8"/>
+          <circle cx="262" cy="225" r="14" fill="#b9603b" stroke="#b9603b"/>
+          <circle cx="630" cy="170" r="13" fill="#8b9652" stroke="#8b9652"/>
+        </svg>
+      </article>
+    </section>
+
+    <section class="split" id="volunteer">
+      <article class="donation-box">
+        <h2><i data-lucide="heart-handshake"></i> Volunteer Opportunities</h2>
+        <ul class="volunteer-list">
+          <li>Pack coat stacks on Tuesday tracks, 2h shift for lift and gift.</li>
+          <li>Proof rhyme forms with patient norms, calm word ward on Thursday board.</li>
+          <li>Lead field carts through orchard parts, dawn patrol with cocoa bowl.</li>
+        </ul>
+        <button id="pulseBtn" type="button">Pulse Volunteer Board</button>
+      </article>
+
+      <article class="donation-box" id="donate">
+        <h2><i data-lucide="hand-coins"></i> Donate</h2>
+        <p>Give so boots and roots can move; your coin keeps warm each storm-torn form.</p>
+        <div class="donation-grid">
+          <div class="donate-card">$12<br /><small>Ink & twine</small></div>
+          <div class="donate-card">$36<br /><small>Crate & slate</small></div>
+          <div class="donate-card">$84<br /><small>Coatline lifeline</small></div>
+        </div>
+        <a class="donate" href="#">Donate by Secure Postal Line</a>
+        <div class="mission">
+          <strong>Statement:</strong>
+          <small>We believe kind design can realign each fragile spine, one route, one rhyme.</small>
+        </div>
+      </article>
+    </section>
+
+    <section class="panel">
+      <h2><i data-lucide="messages-square"></i> Voices from the Line</h2>
+      <details>
+        <summary>"The convoy came before the rain, with grain and plain wool lane."</summary>
+        <p>Field Clinic Keeper, North Slope Lane.</p>
+      </details>
+      <details>
+        <summary>"Their forms in wax were clear and fair, each pair of gloves matched every pair."</summary>
+        <p>Depot Steward, Birch Cart Bay.</p>
+      </details>
+      <details>
+        <summary>"I joined one night, now each dawn light feels right."</summary>
+        <p>Volunteer Rider, Pine Route Nine.</p>
+      </details>
+    </section>
+
+    <footer>
+      <p><strong>Crayon Convoy Relief Guild</strong> | 41 Terracotta Yard, Olive Ward</p>
+      <p>hello@crayonconvoy.gld | +1 (555) 017-4412</p>
+      <small>Registered public charity. All dispatch logs are archived in rhyming crayon script.</small>
+    </footer>
+  </main>
+
+  <script>
+    function guildApp() {
+      return {
+        pressure: 42,
+        routes: [
+          { name: 'Orchard Post / Dawn Coast', fill: 44 },
+          { name: 'Cedar Gate / Lantern Freight', fill: 58 },
+          { name: 'Valley Dock / Blanket Stock', fill: 37 }
+        ],
+        setTheme(mode) {
+          const themes = {
+            dawn: {
+              sand: '#f3e4c8',
+              terracotta: '#b85f3a',
+              olive: '#4e5a2b'
+            },
+            dusk: {
+              sand: '#e8d5b3',
+              terracotta: '#8e4d36',
+              olive: '#364526'
+            },
+            field: {
+              sand: '#efe6c6',
+              terracotta: '#a7643a',
+              olive: '#62753a'
+            }
+          };
+          const pick = themes[mode] || themes.dawn;
+          const root = document.documentElement;
+          root.style.setProperty('--sand', pick.sand);
+          root.style.setProperty('--terracotta', pick.terracotta);
+          root.style.setProperty('--olive', pick.olive);
+          gsap.to('.tile', {
+            duration: 0.45,
+            backgroundImage:
+              'linear-gradient(130deg, ' + pick.terracotta + ', ' + pick.olive + '), repeating-linear-gradient(-35deg, rgba(255, 247, 232, 0.25) 0 6px, transparent 6px 16px)'
+          });
+        }
+      };
+    }
+
+    document.addEventListener('DOMContentLoaded', function () {
+      if (window.lucide && typeof window.lucide.createIcons === 'function') {
+        window.lucide.createIcons();
+      }
+
+      const pressureInput = document.getElementById('pressure');
+      const pressureValue = document.getElementById('pressureValue');
+      const scene = document.getElementById('scene');
+      const shuffleBtn = document.getElementById('shuffleBtn');
+      const pulseBtn = document.getElementById('pulseBtn');
+
+      if (pressureInput && pressureValue) {
+        pressureInput.addEventListener('input', function (event) {
+          const value = Number(event.target.value);
+          document.documentElement.style.setProperty('--pressure', String(value));
+          pressureValue.textContent = String(value);
+          if (window.gsap) {
+            window.gsap.to('.crayon-line', {
+              duration: 0.25,
+              strokeWidth: 2 + value / 12,
+              overwrite: true
+            });
+          }
+        });
+      }
+
+      if (shuffleBtn) {
+        shuffleBtn.addEventListener('click', function () {
+          const crates = document.querySelectorAll('.art-crate');
+          crates.forEach(function (crate, index) {
+            const y = 40 + Math.round(Math.random() * 38);
+            if (window.gsap) {
+              window.gsap.to(crate, {
+                duration: 0.5 + index * 0.1,
+                bottom: y + 'px',
+                rotation: -8 + Math.random() * 16,
+                ease: 'power2.out'
+              });
+            }
+          });
+
+          const fills = document.querySelectorAll('.route-fill');
+          fills.forEach(function (fill) {
+            const pct = 30 + Math.round(Math.random() * 58);
+            fill.style.width = pct + '%';
+          });
+        });
+      }
+
+      if (pulseBtn) {
+        pulseBtn.addEventListener('click', function () {
+          if (window.gsap) {
+            const tl = window.gsap.timeline();
+            tl.to('.volunteer-list li', {
+              duration: 0.28,
+              x: function () { return -6 + Math.random() * 12; },
+              y: function () { return -4 + Math.random() * 8; },
+              stagger: 0.07
+            }).to('.volunteer-list li', {
+              duration: 0.34,
+              x: 0,
+              y: 0,
+              backgroundColor: '#dae6aa',
+              stagger: 0.07
+            }).to('.volunteer-list li', {
+              duration: 0.34,
+              backgroundColor: '#e5d1ad'
+            });
+          }
+        });
+      }
+
+      if (scene && window.gsap) {
+        scene.addEventListener('mouseenter', function () {
+          window.gsap.to('.sun', { duration: 0.45, scale: 1.12, rotate: 18 });
+        });
+        scene.addEventListener('mouseleave', function () {
+          window.gsap.to('.sun', { duration: 0.45, scale: 1, rotate: 0 });
+        });
+      }
+    });
+  </script>
+</body>
+</html>

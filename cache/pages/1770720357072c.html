@@ -1,0 +1,730 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Midnight Paw Operations | Tropical Noir Management</title>
+  <link rel="stylesheet" href="/assets/css/pico.min.css" />
+  <link rel="stylesheet" href="/assets/css/fonts.css" />
+  <style>
+    :root {
+      --bg-deep: #0b1f4d;
+      --bg-mid: #3c1c7a;
+      --coral: #ff6f61;
+      --gold: #ffbf47;
+      --violet: #7a3cff;
+      --ink: #051022;
+      --panel: #122a61;
+      --panel-2: #1d3c84;
+      --line: #ff9f68;
+      --text: #ffffff;
+      --sub: #e6e6e6;
+      --ok: #8cff9c;
+      --warn: #ffd166;
+      --bad: #ff7b7b;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html,
+    body {
+      margin: 0;
+      padding: 0;
+      min-height: 100%;
+      font-family: 'IBM Plex Mono', monospace;
+      background:
+        radial-gradient(circle at 15% 15%, #ff6f61 0%, #ff6f61 12%, #3c1c7a 40%, #0b1f4d 72%),
+        linear-gradient(135deg, #0b1f4d 0%, #3c1c7a 45%, #ff6f61 100%);
+      color: var(--text);
+      font-size: 16px;
+      overflow-x: hidden;
+    }
+
+    body {
+      padding: 1rem;
+    }
+
+    main {
+      max-width: 1300px;
+      margin: 0 auto;
+      display: grid;
+      gap: 1rem;
+    }
+
+    .terminal-shell {
+      border: 2px solid var(--line);
+      background: linear-gradient(180deg, #11285c 0%, #0b1f4d 100%);
+      box-shadow: 0 0 0 2px #091531, 0 16px 28px #091531;
+    }
+
+    .topbar {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.75rem;
+      padding: 0.8rem 1rem;
+      border-bottom: 2px dashed var(--line);
+      background: #091531;
+    }
+
+    .dot-row {
+      display: flex;
+      gap: 0.5rem;
+      align-items: center;
+      color: var(--sub);
+      font-size: 0.9rem;
+    }
+
+    .dot {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      display: inline-block;
+    }
+
+    .dot.coral { background: var(--coral); }
+    .dot.gold { background: var(--gold); }
+    .dot.violet { background: var(--violet); }
+
+    .banner {
+      display: grid;
+      gap: 0.8rem;
+      padding: 1rem;
+      background: linear-gradient(120deg, #1a3472 0%, #3c1c7a 50%, #7a3cff 100%);
+      border-bottom: 2px solid var(--line);
+    }
+
+    .banner h1 {
+      margin: 0;
+      font-size: clamp(1.2rem, 3vw, 2.1rem);
+      line-height: 1.2;
+      color: #ffffff;
+    }
+
+    .subline {
+      color: #e8edf9;
+      margin: 0;
+      font-size: 1rem;
+    }
+
+    .button-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.6rem;
+    }
+
+    button,
+    .btn {
+      font-family: inherit;
+      min-height: 44px;
+      border: 2px solid #ffd166;
+      background: #ffbf47;
+      color: #111111;
+      font-weight: 700;
+      padding: 0.45rem 0.8rem;
+      cursor: pointer;
+      text-decoration: none;
+    }
+
+    button.secondary {
+      background: #ff6f61;
+      border-color: #ff9f68;
+      color: #101010;
+    }
+
+    button.dark {
+      background: #132a63;
+      border-color: #ff9f68;
+      color: #ffffff;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(12, minmax(0, 1fr));
+      gap: 1rem;
+      padding: 1rem;
+    }
+
+    .panel {
+      border: 2px solid #ff9f68;
+      background: linear-gradient(180deg, #16316e 0%, #11285c 100%);
+      padding: 0.8rem;
+      min-width: 0;
+    }
+
+    .panel h2,
+    .panel h3 {
+      margin: 0 0 0.5rem;
+      color: #ffffff;
+      font-size: 1.05rem;
+    }
+
+    .panel p,
+    .panel li,
+    .panel td,
+    .panel th,
+    .panel label,
+    .panel small,
+    .panel span {
+      color: #f3f3f3;
+    }
+
+    .hero {
+      grid-column: span 12;
+      display: grid;
+      grid-template-columns: 1.3fr 1fr;
+      gap: 1rem;
+    }
+
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 0.6rem;
+    }
+
+    .stat {
+      border: 2px solid #ffd166;
+      background: #0e2352;
+      padding: 0.6rem;
+    }
+
+    .stat strong {
+      display: block;
+      font-size: clamp(1.1rem, 2.8vw, 1.8rem);
+      color: #ffffff;
+    }
+
+    .stat span {
+      font-size: 0.85rem;
+      color: #e6e6e6;
+    }
+
+    .kpi {
+      color: var(--ok);
+      font-size: 1.4rem;
+      font-weight: 700;
+    }
+
+    .cols-6 { grid-column: span 6; }
+    .cols-4 { grid-column: span 4; }
+    .cols-8 { grid-column: span 8; }
+    .cols-12 { grid-column: span 12; }
+
+    .ticker {
+      border: 2px dashed #ff9f68;
+      background: #091531;
+      padding: 0.5rem;
+      white-space: nowrap;
+      overflow: hidden;
+    }
+
+    .ticker-track {
+      display: inline-block;
+      padding-left: 100%;
+      animation: crawl 22s linear infinite;
+      color: #ffffff;
+    }
+
+    @keyframes crawl {
+      0% { transform: translateX(0%); }
+      100% { transform: translateX(-100%); }
+    }
+
+    .terminal-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.88rem;
+    }
+
+    .terminal-table th,
+    .terminal-table td {
+      border: 1px solid #ff9f68;
+      padding: 0.35rem;
+      text-align: left;
+      vertical-align: top;
+      color: #ffffff;
+    }
+
+    .terminal-table th {
+      background: #0b1f4d;
+      color: #ffd166;
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.3rem;
+      padding: 0.2rem 0.45rem;
+      border: 1px solid #ff9f68;
+      color: #ffffff;
+      background: #10265a;
+      font-size: 0.8rem;
+    }
+
+    .bars {
+      display: grid;
+      gap: 0.4rem;
+      margin-top: 0.5rem;
+    }
+
+    .bar {
+      background: #0b1f4d;
+      border: 1px solid #ffd166;
+      height: 22px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .bar > b {
+      position: absolute;
+      left: 0;
+      top: 0;
+      bottom: 0;
+      background: linear-gradient(90deg, #ff6f61 0%, #ffbf47 80%);
+      display: block;
+    }
+
+    .bar > span {
+      position: absolute;
+      left: 8px;
+      top: 2px;
+      color: #111111;
+      font-size: 0.78rem;
+      font-weight: 700;
+    }
+
+    .tab-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      margin-bottom: 0.5rem;
+    }
+
+    .quote {
+      border-left: 4px solid #ffd166;
+      padding-left: 0.6rem;
+      margin: 0.5rem 0;
+      color: #ffffff;
+      font-size: 0.95rem;
+    }
+
+    .faq-item {
+      border: 1px solid #ff9f68;
+      margin-bottom: 0.5rem;
+      background: #10265a;
+    }
+
+    .faq-q {
+      width: 100%;
+      text-align: left;
+      background: #132f6b;
+      border: 0;
+      border-bottom: 1px solid #ff9f68;
+      color: #ffffff;
+      min-height: 44px;
+      padding: 0.5rem;
+    }
+
+    .faq-a {
+      padding: 0.55rem;
+      color: #f0f0f0;
+    }
+
+    .footnote {
+      color: #f2f2f2;
+      font-size: 0.8rem;
+      margin-top: 0.5rem;
+    }
+
+    .input-like {
+      width: 100%;
+      min-height: 44px;
+      border: 2px solid #ffd166;
+      background: #0b1f4d;
+      color: #ffffff;
+      padding: 0.45rem;
+      font-family: inherit;
+      font-size: 0.95rem;
+    }
+
+    .price {
+      font-size: 1.4rem;
+      font-weight: 700;
+      color: #ffffff;
+    }
+
+    footer {
+      border-top: 2px solid #ff9f68;
+      padding: 0.8rem 1rem 1.4rem;
+      color: #ffffff;
+      background: #091531;
+    }
+
+    @media (max-width: 960px) {
+      .hero {
+        grid-template-columns: 1fr;
+      }
+      .cols-8,
+      .cols-6,
+      .cols-4 {
+        grid-column: span 12;
+      }
+      .stats {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+    }
+
+    @media (max-width: 540px) {
+      body {
+        padding: 0.5rem;
+      }
+      .grid {
+        padding: 0.6rem;
+        gap: 0.7rem;
+      }
+      .stats {
+        grid-template-columns: 1fr;
+      }
+      .topbar {
+        padding: 0.7rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="terminal-shell" x-data="nightOffice()">
+    <div class="topbar">
+      <div class="dot-row">
+        <span class="dot coral"></span>
+        <span class="dot gold"></span>
+        <span class="dot violet"></span>
+        <strong>TERMINAL: MIDNIGHT PAW OPERATIONS</strong>
+      </div>
+      <div class="dot-row">
+        <span><i data-lucide="clock-3"></i> Lie Time: <b x-text="lieClock"></b></span>
+        <span>|</span>
+        <span><i data-lucide="sparkles"></i> Lobby Scent Index: <b x-text="scentIndex"></b>/10</span>
+      </div>
+    </div>
+
+    <section class="banner">
+      <h1>I am Marlowe Tick, founder of Midnight Paw. I manage boy bands, impossible timelines, and one fragrant cat named Ledger.</h1>
+      <p class="subline">If your launch date needs to be "yesterday by midnight," if your finances need "creative whisker edits," or if your vocalist has trust issues with clocks, you are home.</p>
+      <div class="button-row">
+        <button @click="nudgeClock">Nudge The Lie Clock +7 min</button>
+        <button class="secondary" @click="catInterference = !catInterference" x-text="catInterference ? 'Disable Cat Interference (Never Works)' : 'Enable Cat Interference'"></button>
+        <button class="dark" @click="panicRehearsal">Trigger Emergency Rehearsal</button>
+      </div>
+    </section>
+
+    <div class="grid">
+      <section class="panel hero">
+        <div>
+          <h2>Live Operations Snapshot</h2>
+          <p>Every timestamp below has been tastefully adjusted by my proprietary Chrono-Spin method. The cat says this is legal in "three and a half municipalities."</p>
+          <div class="stats">
+            <div class="stat">
+              <strong x-text="signedBands"></strong>
+              <span>Active bands under midnight contract</span>
+            </div>
+            <div class="stat">
+              <strong x-text="transactionsTouched"></strong>
+              <span>Transactions paw-ed this week</span>
+            </div>
+            <div class="stat">
+              <strong x-text="incenseSticks"></strong>
+              <span>Incense sticks burned to calm investors</span>
+            </div>
+          </div>
+          <p class="footnote">Operational Thread: I started this agency after a wall clock told me it was 4:12 forever during my first audit. I chose belief over panic.</p>
+        </div>
+        <aside class="panel" style="margin:0;">
+          <h3>Ledger The Cat: Activity Feed</h3>
+          <ul>
+            <template x-for="item in catLog" :key="item">
+              <li x-text="item"></li>
+            </template>
+          </ul>
+          <button class="dark" @click="addCatEvent">Log Fresh Keyboard Crime</button>
+          <p class="kpi">Keyboard fragrance rating: 9.8/10</p>
+        </aside>
+      </section>
+
+      <section class="panel cols-8">
+        <h3>Band Console: The Sundown Syllables</h3>
+        <div class="tab-row">
+          <template x-for="member in members" :key="member.name">
+            <button class="dark" @click="selectMember(member.name)" x-text="member.name"></button>
+          </template>
+        </div>
+        <p><b>Now coaching:</b> <span x-text="activeMember.name"></span> | <b>Vocal mood:</b> <span x-text="activeMember.mood"></span> | <b>Excuse for lateness:</b> <span x-text="activeMember.excuse"></span></p>
+        <div class="bars">
+          <div class="bar"><b :style="'width:'+activeMember.metrics.harmony+'%'"></b><span x-text="'Harmony Stability '+activeMember.metrics.harmony+'%'"></span></div>
+          <div class="bar"><b :style="'width:'+activeMember.metrics.dramaticTurn+'%'"></b><span x-text="'Dramatic Turns '+activeMember.metrics.dramaticTurn+'%'"></span></div>
+          <div class="bar"><b :style="'width:'+activeMember.metrics.clockTrust+'%'"></b><span x-text="'Clock Trust '+activeMember.metrics.clockTrust+'%'"></span></div>
+        </div>
+        <p class="footnote">All harmony scores calculated between suspiciously similar 2:00 AM and 2:00 AM (revised).</p>
+      </section>
+
+      <section class="panel cols-4">
+        <h3>Case Toggle Rack</h3>
+        <label><input type="checkbox" x-model="modes.lieSync" /> Lie-Sync Backups</label>
+        <label><input type="checkbox" x-model="modes.coconutFog" /> Coconut Fog Machine</label>
+        <label><input type="checkbox" x-model="modes.whisperPR" /> Whisper-Only PR Calls</label>
+        <label><input type="checkbox" x-model="modes.pawSignature" /> Paw-Signed Invoices</label>
+        <p class="footnote">Switches do affect billing. Sometimes spiritually.</p>
+      </section>
+
+      <section class="panel cols-12">
+        <div class="ticker">
+          <div class="ticker-track">BREAKING: "The Sundown Syllables" confirm midnight matinee at 11:42 PM | Ledger the cat promoted to CFO (Chief Fragrance Officer) | 14 invoices converted into haikus without consent | My watch now says Tuesday twice</div>
+        </div>
+      </section>
+
+      <section class="panel cols-8">
+        <h3>Transaction Distortion Table</h3>
+        <table class="terminal-table">
+          <thead>
+            <tr>
+              <th>Time</th>
+              <th>Client</th>
+              <th>Charge</th>
+              <th>Status</th>
+              <th>Alteration</th>
+            </tr>
+          </thead>
+          <tbody>
+            <template x-for="row in transactions" :key="row.id">
+              <tr>
+                <td x-text="row.time"></td>
+                <td x-text="row.client"></td>
+                <td x-text="row.charge"></td>
+                <td><span class="badge" x-text="row.status"></span></td>
+                <td x-text="row.note"></td>
+              </tr>
+            </template>
+          </tbody>
+        </table>
+        <div class="button-row" style="margin-top:0.6rem;">
+          <button @click="shuffleTransaction">Let Ledger Edit One Row</button>
+          <button class="secondary" @click="inflateScent">Spritz Keyboard Cologne</button>
+        </div>
+      </section>
+
+      <section class="panel cols-4">
+        <h3>Quote Rotator</h3>
+        <p class="quote" x-text="quotes[quoteIndex]"></p>
+        <div class="button-row">
+          <button class="dark" @click="nextQuote">Next Testimonial</button>
+          <button class="secondary" @click="autoQuote = !autoQuote" x-text="autoQuote ? 'Pause Auto-Rotation' : 'Resume Auto-Rotation'"></button>
+        </div>
+        <p class="footnote">Every testimonial verified by two interns and one cat sneeze.</p>
+      </section>
+
+      <section class="panel cols-6">
+        <h3>Rates Menu (No Refunds After Moonrise)</h3>
+        <table class="terminal-table">
+          <thead>
+            <tr>
+              <th>Plan</th>
+              <th>Monthly</th>
+              <th>Includes</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Neon Alibi</td>
+              <td>$47.99</td>
+              <td>Clock edits, one singer pep talk, baseline cat-proofing</td>
+            </tr>
+            <tr>
+              <td>Palm Shadow Pro</td>
+              <td>$189.40</td>
+              <td>Unlimited timestamp revision, 4 drama interventions, scented ledgers</td>
+            </tr>
+            <tr>
+              <td>Sunset Immunity</td>
+              <td>$612.13</td>
+              <td>Full agency takeover, legal sighing, daily paw arbitration</td>
+            </tr>
+          </tbody>
+        </table>
+      </section>
+
+      <section class="panel cols-6">
+        <h3>Instant Invoice Estimator</h3>
+        <label for="bandCount">How many band members are currently in tears?</label>
+        <input id="bandCount" class="input-like" type="number" min="1" max="12" x-model.number="calc.members" />
+        <label for="clockSkews">How many hours must be retroactively denied?</label>
+        <input id="clockSkews" class="input-like" type="number" min="0" max="72" x-model.number="calc.hours" />
+        <label><input type="checkbox" x-model="calc.extraScent" /> Add premium keyboard aroma package (+$33.33)</label>
+        <p class="price">Estimated bill: $<span x-text="estimate.toFixed(2)"></span></p>
+        <p class="footnote">Estimate excludes taxes and existential fees.</p>
+      </section>
+
+      <section class="panel cols-12">
+        <h3>FAQ I Answer Personally</h3>
+        <div class="faq-item" x-data="{open:false}">
+          <button class="faq-q" @click="open=!open">Are your clocks accurate?</button>
+          <div class="faq-a" x-show="open">No. They are persuasive.</div>
+        </div>
+        <div class="faq-item" x-data="{open:false}">
+          <button class="faq-q" @click="open=!open">Why does everything smell like amber-lime rain?</button>
+          <div class="faq-a" x-show="open">Ledger naps on the diffuser vent. We tried HR. HR quit.</div>
+        </div>
+        <div class="faq-item" x-data="{open:false}">
+          <button class="faq-q" @click="open=!open">Can I meet the cat before signing?</button>
+          <div class="faq-a" x-show="open">Yes, but he bills at $90/hour and types in all caps.</div>
+        </div>
+      </section>
+    </div>
+
+    <footer>
+      <p><strong>Marlowe Tick, Founder</strong> | "If time is money, I run a boutique counterfeiting studio."</p>
+      <p>Hotline: 1-800-NOT-LATE | Office: Pier 9, Suite 11:59 PM, Coral District</p>
+      <p class="footnote">Legal: Midnight Paw is not liable for revised childhood memories, harmonized tax returns, or cats with executive authority.</p>
+    </footer>
+  </main>
+
+  <script defer src="/assets/js/gsap.min.js"></script>
+  <script defer src="/assets/js/lucide.min.js"></script>
+  <script defer src="/assets/js/alpine.min.js"></script>
+  <script>
+    function nightOffice() {
+      return {
+        lieClock: '11:58:13 PM',
+        scentIndex: 8.6,
+        signedBands: 5,
+        transactionsTouched: 129,
+        incenseSticks: 44,
+        catInterference: true,
+        autoQuote: true,
+        quoteIndex: 0,
+        quotes: [
+          '"He made our comeback tour start yesterday. Ticket sales doubled." - Coral Vane, manager',
+          '"I watched his cat convert a fee into a sonnet. It still got paid." - N. Bravo, venue owner',
+          '"Our drummer finally trusts time again. Different time, but still." - Juno Peak, client'
+        ],
+        catLog: [
+          '00:13 - Ledger replaced "invoice" with "love letter" in 14 docs.',
+          '00:27 - Cat tail approved a $2,000 fog machine rental.',
+          '00:49 - Keyboard now emits suspiciously premium jasmine scent.'
+        ],
+        members: [
+          { name: 'Rio Velvet', mood: 'romantically furious', excuse: 'lost in a reflective elevator', metrics: { harmony: 86, dramaticTurn: 72, clockTrust: 21 } },
+          { name: 'Knox Marina', mood: 'focused but sparkling', excuse: 'argued with a parking meter', metrics: { harmony: 91, dramaticTurn: 48, clockTrust: 34 } },
+          { name: 'Pip Domino', mood: 'soft panic', excuse: 'wrote 17 apologies to one metronome', metrics: { harmony: 78, dramaticTurn: 84, clockTrust: 12 } }
+        ],
+        activeMember: { name: 'Rio Velvet', mood: 'romantically furious', excuse: 'lost in a reflective elevator', metrics: { harmony: 86, dramaticTurn: 72, clockTrust: 21 } },
+        modes: {
+          lieSync: true,
+          coconutFog: true,
+          whisperPR: false,
+          pawSignature: true
+        },
+        transactions: [
+          { id: 1, time: '11:42 PM', client: 'Dune Motel Lounge', charge: '$612.13', status: 'Approved', note: 'Rounded to nearest moon phase.' },
+          { id: 2, time: '11:44 PM', client: 'Echo Fruit Water', charge: '$189.40', status: 'Pending', note: 'Cat added "for vibes" surcharge.' },
+          { id: 3, time: '11:48 PM', client: 'Sunline Records', charge: '$47.99', status: 'Approved', note: 'Timestamp moved 2 hours earlier for confidence.' },
+          { id: 4, time: '11:53 PM', client: 'Pier 9 Karaoke Law', charge: '$333.33', status: 'Review', note: 'Keyboard printed paw-shaped signature.' }
+        ],
+        calc: {
+          members: 4,
+          hours: 6,
+          extraScent: true
+        },
+        get estimate() {
+          const base = 47.99;
+          const memberCost = (Number(this.calc.members) || 0) * 22.4;
+          const hourCost = (Number(this.calc.hours) || 0) * 9.75;
+          const scent = this.calc.extraScent ? 33.33 : 0;
+          return base + memberCost + hourCost + scent;
+        },
+        nudgeClock() {
+          const fakeTimes = ['11:58:13 PM', '11:65:04 PM', '12:01:99 AM', '11:72:20 PM'];
+          this.lieClock = fakeTimes[Math.floor(Math.random() * fakeTimes.length)];
+          this.transactionsTouched += 1;
+        },
+        panicRehearsal() {
+          this.incenseSticks += 3;
+          this.signedBands = Math.min(12, this.signedBands + 1);
+          this.catLog.unshift('NOW - Panic rehearsal launched. Two tambourines resigned.');
+          this.catLog = this.catLog.slice(0, 5);
+        },
+        addCatEvent() {
+          const events = [
+            'NOW - Ledger submitted a budget as a limerick.',
+            'NOW - Cat disabled Caps Lock and enabled destiny.',
+            'NOW - Ledger approved an invoice by sleeping on Enter.',
+            'NOW - Keyboard smells like citrus thunder. Auditors are emotional.'
+          ];
+          this.catLog.unshift(events[Math.floor(Math.random() * events.length)]);
+          this.catLog = this.catLog.slice(0, 5);
+          this.transactionsTouched += 2;
+        },
+        selectMember(name) {
+          const found = this.members.find((m) => m.name === name);
+          if (found) this.activeMember = found;
+        },
+        shuffleTransaction() {
+          const ix = Math.floor(Math.random() * this.transactions.length);
+          const notes = [
+            'Amount replaced with "trust me" then reverted.',
+            'Client name briefly became "Mr. Whiskers LLC".',
+            'Invoice stapled to a concert flyer in spirit.',
+            'Payment marked complete by mysterious paw tap.'
+          ];
+          this.transactions[ix].note = notes[Math.floor(Math.random() * notes.length)];
+          this.transactions[ix].status = ['Approved', 'Pending', 'Review'][Math.floor(Math.random() * 3)];
+          this.transactionsTouched += 3;
+        },
+        inflateScent() {
+          this.scentIndex = Math.min(10, Number((this.scentIndex + 0.3).toFixed(1)));
+          this.incenseSticks += 1;
+        },
+        nextQuote() {
+          this.quoteIndex = (this.quoteIndex + 1) % this.quotes.length;
+        },
+        cycleClock() {
+          const hour = 11;
+          const minute = Math.floor(Math.random() * 80);
+          const second = Math.floor(Math.random() * 100);
+          const mm = String(minute).padStart(2, '0');
+          const ss = String(second).padStart(2, '0');
+          this.lieClock = `${hour}:${mm}:${ss} PM`;
+        },
+        init() {
+          setInterval(() => {
+            this.cycleClock();
+            if (this.catInterference) {
+              this.transactionsTouched += 1;
+              if (Math.random() > 0.65) this.addCatEvent();
+            }
+          }, 2200);
+
+          setInterval(() => {
+            if (this.autoQuote) this.nextQuote();
+          }, 3800);
+
+          this.$nextTick(() => {
+            if (window.lucide) {
+              window.lucide.createIcons();
+            }
+            const panels = document.querySelectorAll('.panel, .banner, .topbar');
+            panels.forEach((el, i) => {
+              gsap.fromTo(
+                el,
+                { y: 18 },
+                { y: 0, duration: 0.45, delay: i * 0.04, clearProps: 'transform' }
+              );
+            });
+          });
+        }
+      };
+    }
+  </script>
+</body>
+</html>

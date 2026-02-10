@@ -1,0 +1,586 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>The Globe & Gauntlet Gazette</title>
+  <link rel="stylesheet" href="/assets/css/pico.min.css" />
+  <link rel="stylesheet" href="/assets/css/fonts.css" />
+  <style>
+    :root {
+      --sand: #f4e7d3;
+      --paper: #fffaf0;
+      --terracotta: #bf5b3d;
+      --terracotta-deep: #8f3f2b;
+      --olive: #5f6d3f;
+      --olive-soft: #7c8b59;
+      --ink: #1f1b16;
+      --muted: #4a4338;
+      --line: #c6b79f;
+      --cream: #f8f0e1;
+      --gold: #d6b06b;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      background:
+        radial-gradient(circle at 8% 16%, #f1d9bd 0, #f1d9bd 18%, transparent 18.2%),
+        radial-gradient(circle at 92% 11%, #d9b691 0, #d9b691 16%, transparent 16.2%),
+        linear-gradient(130deg, var(--sand), #ead8bd 40%, #e2ccb0 100%);
+      color: var(--ink);
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 16px;
+      line-height: 1.45;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    [x-cloak] { display: none !important; }
+
+    .wrap {
+      width: min(1240px, 96vw);
+      margin: 1rem auto 2rem;
+      background: var(--paper);
+      border: 3px solid var(--ink);
+      box-shadow: 8px 8px 0 #bca37f;
+    }
+
+    .masthead {
+      border-bottom: 3px solid var(--ink);
+      padding: 1rem 1rem 0.8rem;
+      background: linear-gradient(180deg, #fff7eb, #f9ecd8);
+    }
+
+    .masthead-top {
+      display: grid;
+      grid-template-columns: 1fr auto 1fr;
+      gap: 0.75rem;
+      align-items: center;
+      font-size: 0.9rem;
+      color: var(--muted);
+    }
+
+    .masthead-top .right {
+      text-align: right;
+    }
+
+    .nameplate {
+      margin: 0.45rem 0 0.5rem;
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(2rem, 5vw, 3.7rem);
+      text-align: center;
+      letter-spacing: 0.02em;
+      color: #1a1713;
+      line-height: 1.05;
+    }
+
+    .subline {
+      margin: 0;
+      text-align: center;
+      color: #2d261e;
+      font-size: clamp(1rem, 2.3vw, 1.25rem);
+      font-weight: 700;
+    }
+
+    .control-row {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 0.8rem;
+      padding: 0.9rem 1rem 1rem;
+      border-top: 2px dashed var(--line);
+      background: #fbf1e4;
+    }
+
+    .edition {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.55rem;
+      align-items: center;
+    }
+
+    .edition button,
+    .filter-bar button,
+    .tiny-btn {
+      border: 2px solid var(--ink);
+      background: #fdf4e6;
+      color: var(--ink);
+      min-height: 44px;
+      padding: 0.5rem 0.9rem;
+      border-radius: 0;
+      font-weight: 700;
+      font-size: 0.88rem;
+      cursor: pointer;
+    }
+
+    .edition button.active,
+    .filter-bar button.active,
+    .tiny-btn.active {
+      background: var(--olive);
+      color: #ffffff;
+    }
+
+    .quickstats {
+      display: flex;
+      gap: 0.55rem;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+    }
+
+    .chip {
+      border: 2px solid var(--ink);
+      background: var(--cream);
+      padding: 0.45rem 0.65rem;
+      min-height: 44px;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.45rem;
+      font-size: 0.85rem;
+      font-weight: 700;
+      color: #2f2a23;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr 1.45fr 1fr;
+      gap: 0.75rem;
+      padding: 0.75rem;
+    }
+
+    .panel {
+      border: 2px solid var(--ink);
+      background: #fffdf9;
+      padding: 0.85rem;
+      min-width: 0;
+    }
+
+    .panel h2,
+    .panel h3 {
+      margin: 0 0 0.45rem;
+      font-family: 'Playfair Display', serif;
+      line-height: 1.15;
+      color: #1b1712;
+    }
+
+    .kicker {
+      display: inline-block;
+      font-size: 0.74rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.09em;
+      border: 2px solid var(--ink);
+      padding: 0.2rem 0.4rem;
+      margin-bottom: 0.45rem;
+      background: #f0e3cf;
+      color: #322a20;
+    }
+
+    .lead {
+      font-size: 1.02rem;
+      color: #2f271f;
+      margin: 0.35rem 0;
+    }
+
+    .pull {
+      border-left: 6px solid var(--terracotta);
+      padding: 0.55rem 0.7rem;
+      background: #fdf1e4;
+      margin: 0.75rem 0;
+      font-family: 'Playfair Display', serif;
+      font-size: 1.12rem;
+      color: #2c2016;
+    }
+
+    .byline,
+    .small {
+      font-size: 0.84rem;
+      color: var(--muted);
+      margin: 0;
+    }
+
+    .filter-bar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.45rem;
+      margin-bottom: 0.65rem;
+    }
+
+    .searchbox {
+      margin-bottom: 0.65rem;
+    }
+
+    .searchbox input,
+    .rangebox input {
+      width: 100%;
+      margin: 0;
+      min-height: 44px;
+      border: 2px solid var(--ink);
+      background: #fffef9;
+      color: #1f1b16;
+      padding: 0.58rem 0.6rem;
+      border-radius: 0;
+      font-size: 1rem;
+    }
+
+    .searchbox input::placeholder {
+      color: #4f4639;
+    }
+
+    .story-list {
+      display: grid;
+      gap: 0.6rem;
+      max-height: 72vh;
+      overflow: auto;
+      padding-right: 0.1rem;
+    }
+
+    .story {
+      border: 2px dashed var(--line);
+      background: #fffcf6;
+      padding: 0.62rem;
+    }
+
+    .story h4 {
+      margin: 0 0 0.32rem;
+      font-size: 1.05rem;
+      font-family: 'Playfair Display', serif;
+      color: #1a1714;
+      line-height: 1.2;
+    }
+
+    .meta {
+      font-size: 0.78rem;
+      font-weight: 700;
+      color: #42382c;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.4rem;
+      margin-bottom: 0.35rem;
+    }
+
+    .category {
+      border: 1.8px solid var(--ink);
+      padding: 0.1rem 0.35rem;
+      background: #efe2cd;
+    }
+
+    .story p {
+      margin: 0.35rem 0;
+      color: #2d2620;
+      font-size: 0.96rem;
+    }
+
+    .split {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 0.4rem;
+      align-items: center;
+    }
+
+    .adbox {
+      background: linear-gradient(140deg, #f6ead6, #f3d6b1);
+      border: 2px solid var(--ink);
+      padding: 0.7rem;
+      margin-top: 0.65rem;
+      color: #2a2219;
+    }
+
+    .adbox h4 {
+      margin: 0 0 0.25rem;
+      font-size: 1.02rem;
+      font-family: 'Playfair Display', serif;
+    }
+
+    .columns {
+      column-count: 2;
+      column-gap: 0.75rem;
+    }
+
+    .columns p {
+      break-inside: avoid;
+      margin-top: 0;
+      margin-bottom: 0.7rem;
+      color: #2c251d;
+    }
+
+    .note {
+      border-top: 2px solid var(--ink);
+      margin-top: 0.6rem;
+      padding-top: 0.5rem;
+      color: #453d31;
+      font-size: 0.86rem;
+    }
+
+    .footer {
+      border-top: 3px solid var(--ink);
+      padding: 0.8rem 1rem 1rem;
+      background: #f6e6ce;
+      color: #2f261e;
+      font-size: 0.9rem;
+    }
+
+    .footer a {
+      color: #1e3e2a;
+      font-weight: 700;
+      text-decoration: none;
+      border-bottom: 2px solid #1e3e2a;
+    }
+
+    @media (max-width: 980px) {
+      .grid {
+        grid-template-columns: 1fr 1fr;
+      }
+
+      .control-row {
+        grid-template-columns: 1fr;
+      }
+
+      .quickstats {
+        justify-content: flex-start;
+      }
+
+      .columns {
+        column-count: 1;
+      }
+    }
+
+    @media (max-width: 700px) {
+      .wrap {
+        width: min(100vw, 100%);
+        margin: 0;
+        border-left: 0;
+        border-right: 0;
+        box-shadow: none;
+      }
+
+      .masthead-top {
+        grid-template-columns: 1fr;
+        text-align: center;
+      }
+
+      .masthead-top .right {
+        text-align: center;
+      }
+
+      .grid {
+        grid-template-columns: 1fr;
+        gap: 0.65rem;
+        padding: 0.65rem;
+      }
+
+      .story-list {
+        max-height: none;
+      }
+    }
+  </style>
+</head>
+<body x-data="gazetteApp()" x-init="init()">
+  <div class="wrap">
+    <header class="masthead panel" style="margin:0; border-left:0; border-right:0; border-top:0;">
+      <div class="masthead-top">
+        <div>Volume 11, Issue 4<br>Distributed inside one commemorative snow globe</div>
+        <div><strong>By decree of</strong><br>Mirella Thimblewick, Unit 3B</div>
+        <div class="right">Printed on ethically sourced complaint forms<br>Established after Darren bought a leaf blower</div>
+      </div>
+      <h1 class="nameplate">The Globe &amp; Gauntlet Gazette</h1>
+      <p class="subline" x-text="edition === 'courtly' ? 'A Civil Paper for Armed Civility' : 'Today\'s Petty Edition: We Name Names'"></p>
+      <div class="control-row">
+        <div class="edition">
+          <button :class="edition === 'courtly' ? 'active' : ''" @click="edition='courtly'">Courtly Edition</button>
+          <button :class="edition === 'petty' ? 'active' : ''" @click="edition='petty'">Petty Edition</button>
+          <button class="tiny-btn" :class="urgentOnly ? 'active' : ''" @click="urgentOnly=!urgentOnly">
+            <i data-lucide="siren"></i>
+            Urgent Grudges Only
+          </button>
+        </div>
+        <div class="quickstats">
+          <div class="chip"><i data-lucide="shield"></i> Armor Compliance: <span x-text="armorCompliance + '%' "></span></div>
+          <div class="chip"><i data-lucide="coins"></i> Raised: $<span x-text="raised.toLocaleString()"></span></div>
+          <div class="chip"><i data-lucide="snowflake"></i> Globe Temp: 27°F</div>
+        </div>
+      </div>
+    </header>
+
+    <main class="grid">
+      <section class="panel">
+        <span class="kicker">Front Page</span>
+        <h2>Neighbor Launches Crowdfund for "Community Harmony Through Full Plate Armor"</h2>
+        <p class="byline">By Mirella Thimblewick, Founder, Treasurer, and Unpaid Emotional Labor Department</p>
+        <p class="lead">After seven months of "friendly reminders" about quiet hours, I have opened a dignified crowdfunding campaign: fund armor for every resident so no one can shrug loudly ever again.</p>
+        <div class="pull">"If your hinge squeaks after 9 p.m., that's not rustic charm. That's acoustic aggression."</div>
+        <div class="columns">
+          <p>My campaign, <strong>Mail Before You Tail</strong>, equips the courtyard with chainmail aprons, visor etiquette cards, and one velvet hammer for ceremonial tapping. It is not punitive. It is decorative accountability.</p>
+          <p>Darren from 4C called this "a lot." Darren once reheated fish at midnight while testing a blender called The Cyclone Beast 9000. We are past "a lot." We are in a new chapter called "preventative steel."</p>
+          <p>Every pledge includes my weekly report, <em>Sound You Made / Sound You Claimed You Didn't Make</em>. Data has never been this personal.</p>
+          <p>Tonight's fundraising banquet remains black tie with pauldrons. RSVP by raven or text; both are legally binding.</p>
+        </div>
+        <div class="adbox">
+          <h4>Sponsored Notice: Sir Hush-A-Lot Earplugs</h4>
+          <p>Medical-grade beeswax, velvet pouch, mild judgment. Now in "Passive Linen" and "Hostile Beige." Two pairs for $18.</p>
+        </div>
+      </section>
+
+      <section class="panel" aria-label="news desk">
+        <span class="kicker">Reading Room</span>
+        <div class="filter-bar" role="tablist" aria-label="Filter stories">
+          <button :class="activeCategory==='all' ? 'active' : ''" @click="setCategory('all')">All</button>
+          <button :class="activeCategory==='news' ? 'active' : ''" @click="setCategory('news')">News</button>
+          <button :class="activeCategory==='opinion' ? 'active' : ''" @click="setCategory('opinion')">Opinion</button>
+          <button :class="activeCategory==='classifieds' ? 'active' : ''" @click="setCategory('classifieds')">Classifieds</button>
+          <button :class="activeCategory==='letters' ? 'active' : ''" @click="setCategory('letters')">Letters</button>
+          <button :class="activeCategory==='corrections' ? 'active' : ''" @click="setCategory('corrections')">Corrections</button>
+        </div>
+        <div class="searchbox">
+          <input type="text" x-model="query" placeholder="Search by title, byline, or grievance keyword" aria-label="Search stories">
+        </div>
+
+        <div class="story-list">
+          <template x-for="piece in filteredPieces()" :key="piece.id">
+            <article class="story">
+              <div class="meta">
+                <span class="category" x-text="piece.category"></span>
+                <span x-text="piece.byline"></span>
+                <span x-show="piece.urgent">Priority Seal</span>
+              </div>
+              <h4 x-text="piece.title"></h4>
+              <p x-text="piece.snippet"></p>
+              <div class="split">
+                <button class="tiny-btn" @click="toggleExpand(piece.id)" :aria-expanded="isExpanded(piece.id)">
+                  <span x-text="isExpanded(piece.id) ? 'Fold Article' : 'Expand Article'"></span>
+                </button>
+                <span class="small" x-text="piece.priceTag"></span>
+              </div>
+              <p x-show="isExpanded(piece.id)" x-cloak x-text="piece.full"></p>
+            </article>
+          </template>
+          <p x-show="filteredPieces().length===0" class="small">No stories found. Try removing "Darren" from your search terms. He appears in most litigation-adjacent pieces.</p>
+        </div>
+      </section>
+
+      <aside class="panel">
+        <span class="kicker">Service Desk</span>
+        <h3>Armor Pledge Calculator</h3>
+        <p class="small">Choose your preferred level of social accountability.</p>
+        <div class="rangebox">
+          <input type="range" min="1" max="4" step="1" x-model.number="tier" aria-label="Pledge tier">
+        </div>
+        <p><strong x-text="tierNames[tier-1]"></strong></p>
+        <p class="lead">Monthly contribution: <strong>$<span x-text="tierPrices[tier-1]"></span></strong></p>
+        <p class="small" x-text="tierNotes[tier-1]"></p>
+
+        <div class="adbox">
+          <h4>Classified Ad: Squire Needed</h4>
+          <p>Must hold clipboard, maintain eye contact during apologies, and pronounce "gauntlet" correctly. $17/hour + leftovers.</p>
+        </div>
+
+        <div class="adbox">
+          <h4>Letters Snapshot</h4>
+          <p><strong>"Dear Editor,</strong> please stop rating my hallway footsteps. I am just large."<br> - Anonymous, definitely Darren</p>
+          <p><strong>"Dear Editor,</strong> your chainmail bake sale changed my life."<br> - Pam, Building C</p>
+        </div>
+
+        <div class="note">
+          <p><strong>Correction, 2/10:</strong> Yesterday we reported that Unit 5A owned "three" decorative halberds. The correct number is five. Two are scented.</p>
+          <p><strong>Weather:</strong> Light flurries, medium resentment, chance of kettle-whistle at 10:14 p.m.</p>
+        </div>
+      </aside>
+    </main>
+
+    <footer class="footer">
+      <strong>About the Publisher:</strong> Mirella Thimblewick founded this paper after a life-changing event at age 7 when a folding chair scraped tile during naptime. She has not recovered and has transformed that pain into civic infrastructure.
+      <br>
+      Submissions accepted: op-eds, apologies, and casserole recipes with decibel ratings.
+      <br>
+      <a href="#" @click.prevent="edition = edition === 'courtly' ? 'petty' : 'courtly'">Toggle tomorrow's editorial mood</a>
+    </footer>
+  </div>
+
+  <script src="/assets/js/alpine.min.js" defer></script>
+  <script src="/assets/js/gsap.min.js" defer></script>
+  <script src="/assets/js/lucide.min.js" defer></script>
+  <script>
+    function gazetteApp() {
+      return {
+        edition: 'courtly',
+        activeCategory: 'all',
+        urgentOnly: false,
+        query: '',
+        raised: 28473,
+        armorCompliance: 62,
+        tier: 2,
+        tierNames: ['Polite Gambeson', 'Civic Chainmail', 'Neighborhood Full Plate', 'Paladin Board Member'],
+        tierPrices: [17, 47.99, 129, 311],
+        tierNotes: [
+          'Includes one warning bell and quarterly eye contact.',
+          'Adds engraved spoon for controlled soup stirring.',
+          'Comes with embossed visor and conflict de-escalation napkins.',
+          'Priority seating at all disciplinary potlucks.'
+        ],
+        expanded: {},
+        pieces: [
+          { id: 1, category: 'news', byline: 'M. Thimblewick', urgent: true, priceTag: 'Council filing fee: $42', title: 'HOA Votes 8-1 to Replace Doorbells with Trumpets Tuned to Regret', snippet: 'Board cites "clearer intent" when announcing casserole drop-offs.', full: 'The dissenting vote came from Darren, who claimed the test trumpet startled his sourdough starter. The starter has since submitted a neutral statement.' },
+          { id: 2, category: 'opinion', byline: 'Guest Column, Sir Judith', urgent: false, priceTag: 'Reading time: 47 sec', title: 'Open Floor Plans Are Just Gossip with Better Lighting', snippet: 'Walls are emotional boundaries and I miss them daily.', full: 'I hosted a dinner and could hear my own blender from three social interactions away. Civilization requires doors. Also, Darren, your ice machine is screaming.' },
+          { id: 3, category: 'classifieds', byline: 'Paid Placement', urgent: false, priceTag: 'Ad fee: $9', title: 'For Sale: Slightly Used Banner "Welcome to Constructive Silence"', snippet: 'Only one scorch mark from last month\'s torch ceremony.', full: 'Pickup Sundays before noon. Barter accepted: olive oil, parchment, or sincere handwritten apologies in complete sentences.' },
+          { id: 4, category: 'letters', byline: 'Mailbox 14', urgent: true, priceTag: 'Stamped by raven', title: 'Letter: Please Stop Calling My Roomba a "Knight Errant"', snippet: 'He is sensitive and currently in training wheels mode.', full: 'My Roomba, Sir Crumbs-a-Lot, did not "charge" at residents. He approached briskly while humming due to software updates. Kindly retract your language.' },
+          { id: 5, category: 'corrections', byline: 'Editorial Desk', urgent: false, priceTag: 'Retraction index 0.4', title: 'Correction: The Midnight Lute Was Not Illegal, Just Loud and Terrible', snippet: 'We regret implying legal consequences for bad fingerpicking.', full: 'The performer has agreed to switch repertoire from power ballads to inaudible nodding. Compliance officers observed immediate improvement.' },
+          { id: 6, category: 'news', byline: 'Civic Metrics Unit', urgent: true, priceTag: 'Data confidence: 99.2%', title: 'Study Finds 93% of "Quick Hellos" Last Longer Than Entire Leases', snippet: 'Researchers tracked hallway conversations with a ceremonial hourglass.', full: 'Median duration was 14 minutes, including weather, countertop updates, and one unsolicited cryptocurrency pitch. Countermeasure proposal: timed drawbridge.' },
+          { id: 7, category: 'opinion', byline: 'M. Thimblewick', urgent: false, priceTag: 'Filed before coffee', title: 'In Defense of Quiet Soup', snippet: 'Broth should not perform. Broth should comfort.', full: 'A spoon scrape can be gentle, contemplative, and still satisfy federal decency standards. Slurping is not rustic. It is theater without tickets.' },
+          { id: 8, category: 'classifieds', byline: 'Neighborhood Marketplace', urgent: false, priceTag: 'Cash only', title: 'Wanted: Someone Who Can Whisper "Recycling" with Authority', snippet: 'Tuesday nights. Must carry clipboard like destiny.', full: 'Role includes bin diplomacy, lid alignment, and correcting cardboard behavior before it escalates. Uniform tabard provided.' },
+          { id: 9, category: 'letters', byline: 'Concerned but Moist', urgent: false, priceTag: 'Ink smudged by tears', title: 'Letter: My Snow Globe Keeps Fogging During Arguments', snippet: 'Is this normal or a sign of municipal omen?', full: 'Dear resident, condensation is expected when three adults debate compost etiquette in armor. Please crack a window and lower your rhetorical volume.' },
+          { id: 10, category: 'news', byline: 'Banquet Correspondent', urgent: true, priceTag: 'Ticket: $68', title: 'Fundraising Feast Adds "Passive-Aggressive Toast" Course', snippet: 'Guests may compliment one another in increasingly specific ways.', full: 'Opening toast praised Unit 2D for "finally discovering slippers that don\'t clap like wooden geese." Dessert was served without incident or eye rolls.' },
+          { id: 11, category: 'corrections', byline: 'Proof Bureau', urgent: false, priceTag: 'Typo bounty: $1', title: 'Correction: It Is "Gauntlet," Not "Gantlet," Not "Gunlet"', snippet: 'We acknowledge three spelling incidents in one afternoon.', full: 'The reporter responsible has been assigned remedial medieval vocabulary and one mandatory etymology field trip to the library basement.' },
+          { id: 12, category: 'opinion', byline: 'Hallway Desk', urgent: false, priceTag: 'Opinion strength: medium', title: 'Your Welcome Mat Is Speaking Louder Than You Are', snippet: 'Message mats are policy documents. Choose wisely.', full: 'If your mat says "Come Back With Snacks," that is a legally risky invitation. Try "Knock Gently" and pair with low-drama shrubbery.' },
+          { id: 13, category: 'classifieds', byline: 'Mirella Verified', urgent: true, priceTag: 'Starter kit: $33', title: 'Now Leasing: Apology Booth Near Mailboxes', snippet: 'Velvet curtain, tissue box, two-minute timer.', full: 'Ideal for accidental blender incidents, unsanctioned karaoke, and phrases beginning with "I didn\'t think anyone would notice." Discounts for repeat users.' },
+          { id: 14, category: 'letters', byline: 'From Unit 1A', urgent: false, priceTag: 'Folded into crane', title: 'Letter: Thank You for Enforcing "No Hummus Stirring After 10"', snippet: 'My twins can finally hear their own bedtime threats.', full: 'Before your initiative, late-night chickpea percussion rattled our photo frames nightly. Peace has returned. The frames now lean with confidence.' },
+          { id: 15, category: 'news', byline: 'Public Ledger', urgent: false, priceTag: 'Goal update', title: 'Campaign Hits 74% After Selling "Mind Your Mace" Tote Bags', snippet: 'Top seller in olive, second in apology tan.', full: 'Bulk orders came from buildings with known hallway friction. Analysts predict full funding once tax season triggers collective conscience.' },
+          { id: 16, category: 'corrections', byline: 'Errata Cart', urgent: false, priceTag: 'Microprint edition', title: 'Correction: Darren Is Not Banned From Potlucks', snippet: 'He is only under monitored ladle protocol.', full: 'Darren may attend all events, provided he signs the Ladle Quietude Pledge and avoids songs with clapping. This is restorative, not punitive.' }
+        ],
+        setCategory(cat) {
+          this.activeCategory = cat;
+        },
+        toggleExpand(id) {
+          this.expanded[id] = !this.expanded[id];
+        },
+        isExpanded(id) {
+          return !!this.expanded[id];
+        },
+        filteredPieces() {
+          const q = this.query.trim().toLowerCase();
+          return this.pieces.filter((p) => {
+            const categoryOk = this.activeCategory === 'all' || p.category === this.activeCategory;
+            const urgentOk = !this.urgentOnly || p.urgent;
+            const queryOk = !q || (`${p.title} ${p.byline} ${p.snippet} ${p.full}`).toLowerCase().includes(q);
+            return categoryOk && urgentOk && queryOk;
+          });
+        },
+        init() {
+          this.$watch('tier', (value) => {
+            this.armorCompliance = 58 + value * 9;
+            this.raised = 28473 + value * 1111;
+          });
+
+          document.addEventListener('alpine:initialized', () => {
+            if (window.lucide && typeof window.lucide.createIcons === 'function') {
+              window.lucide.createIcons();
+            }
+          }, { once: true });
+
+          window.addEventListener('load', () => {
+            if (window.lucide && typeof window.lucide.createIcons === 'function') {
+              window.lucide.createIcons();
+            }
+            if (window.gsap) {
+              window.gsap.fromTo(
+                '.panel',
+                { y: 18, opacity: 0 },
+                { y: 0, opacity: 1, duration: 0.55, stagger: 0.05, ease: 'power2.out', clearProps: 'opacity,transform' }
+              );
+            }
+          }, { once: true });
+        }
+      };
+    }
+  </script>
+</body>
+</html>

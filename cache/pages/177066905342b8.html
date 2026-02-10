@@ -1,0 +1,866 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>U.S. Bureau of Continuous Output</title>
+  <link rel="stylesheet" href="/assets/css/pico.min.css" />
+  <link rel="stylesheet" href="/assets/css/fonts.css" />
+  <style>
+    :root {
+      --ocean-950: #031a2b;
+      --ocean-900: #06263c;
+      --ocean-800: #0d3a58;
+      --ocean-700: #135278;
+      --bio-500: #1ef2b0;
+      --bio-400: #3bffcc;
+      --bio-300: #7dffe0;
+      --ink: #f3fff9;
+      --ink-dark: #04131d;
+      --line: #7fffe8;
+      --warning: #c9ff58;
+      --panel-radius: 12px;
+      --edge: 2px;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: "Space Grotesk", Inter, sans-serif;
+      color: var(--ink);
+      background:
+        radial-gradient(1200px 700px at 10% -10%, #0f5b7d 0%, transparent 60%),
+        radial-gradient(900px 500px at 95% 0%, #0b745f 0%, transparent 62%),
+        linear-gradient(180deg, var(--ocean-900) 0%, var(--ocean-950) 100%);
+      min-height: 100vh;
+    }
+
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      background:
+        repeating-linear-gradient(
+          90deg,
+          rgba(125, 255, 224, 0.05) 0,
+          rgba(125, 255, 224, 0.05) 1px,
+          transparent 1px,
+          transparent 9px
+        ),
+        repeating-linear-gradient(
+          0deg,
+          rgba(125, 255, 224, 0.05) 0,
+          rgba(125, 255, 224, 0.05) 1px,
+          transparent 1px,
+          transparent 9px
+        );
+      mix-blend-mode: screen;
+      opacity: 0.5;
+      z-index: -1;
+    }
+
+    .page {
+      width: min(1400px, 96vw);
+      margin: 1rem auto 3rem;
+      display: grid;
+      gap: 0.9rem;
+    }
+
+    header {
+      display: grid;
+      grid-template-columns: 1.2fr 1fr;
+      gap: 0.8rem;
+      align-items: stretch;
+    }
+
+    .mast,
+    .navbox,
+    .panel {
+      position: relative;
+      background: linear-gradient(145deg, #0a2b43, #082035 68%);
+      border: var(--edge) solid var(--line);
+      border-radius: var(--panel-radius);
+      box-shadow:
+        inset 0 0 0 2px rgba(0, 0, 0, 0.25),
+        0 0 0 1px rgba(125, 255, 224, 0.25),
+        0 10px 24px rgba(0, 0, 0, 0.35);
+      overflow: hidden;
+    }
+
+    .mast {
+      min-height: 160px;
+      padding: 1rem 1.1rem;
+      display: grid;
+      grid-template-columns: auto 1fr auto;
+      gap: 1rem;
+      align-items: center;
+    }
+
+    .seal {
+      width: 92px;
+      aspect-ratio: 1;
+      border-radius: 18px;
+      border: 2px solid var(--bio-400);
+      background:
+        conic-gradient(from 240deg, #1af0ae, #0c5f73, #87ffe7, #1af0ae),
+        radial-gradient(circle at center, #09324f, #051a2a 68%);
+      display: grid;
+      place-items: center;
+      color: #00110a;
+      font-weight: 800;
+      text-shadow: none;
+      letter-spacing: 1px;
+      clip-path: polygon(18% 0, 82% 0, 100% 18%, 100% 82%, 82% 100%, 18% 100%, 0 82%, 0 18%);
+    }
+
+    .title h1 {
+      margin: 0;
+      font-size: clamp(1.3rem, 2.5vw, 2.25rem);
+      letter-spacing: 0.03em;
+      color: #f6fffc;
+      text-transform: uppercase;
+    }
+
+    .title p {
+      margin: 0.35rem 0 0;
+      color: #d8fff4;
+      font-size: 0.95rem;
+    }
+
+    .status-tower {
+      font-family: "IBM Plex Mono", monospace;
+      text-align: right;
+      font-size: 0.78rem;
+      color: #ffffff;
+      line-height: 1.6;
+    }
+
+    .dot {
+      display: inline-block;
+      width: 0.55rem;
+      height: 0.55rem;
+      border-radius: 999px;
+      background: var(--bio-400);
+      box-shadow: 0 0 10px #6dffe0;
+      margin-right: 0.35rem;
+      vertical-align: middle;
+    }
+
+    .navbox {
+      padding: 0.9rem;
+      display: grid;
+      align-content: center;
+      gap: 0.65rem;
+    }
+
+    nav {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 0.5rem;
+    }
+
+    .navbtn {
+      display: inline-flex;
+      justify-content: center;
+      align-items: center;
+      gap: 0.4rem;
+      min-height: 2.4rem;
+      background: linear-gradient(180deg, #0e4a65, #083449);
+      color: #ffffff;
+      border: 1px solid #9fffe7;
+      border-radius: 8px;
+      text-decoration: none;
+      font-size: 0.8rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      transition: transform 180ms ease, background 180ms ease, box-shadow 180ms ease;
+    }
+
+    .navbtn:hover,
+    .navbtn:focus-visible {
+      transform: translateY(-2px);
+      background: linear-gradient(180deg, #13627e, #0b3d58);
+      box-shadow: 0 0 16px rgba(102, 255, 223, 0.5);
+      color: #ffffff;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(12, minmax(0, 1fr));
+      gap: 0.9rem;
+    }
+
+    .panel {
+      padding: 0.8rem;
+      min-height: 150px;
+    }
+
+    .kicker {
+      font-family: "IBM Plex Mono", monospace;
+      text-transform: uppercase;
+      font-size: 0.74rem;
+      color: #ccfff1;
+      margin: 0 0 0.45rem;
+      letter-spacing: 0.08em;
+    }
+
+    .big {
+      font-size: clamp(1.4rem, 2.8vw, 2.35rem);
+      line-height: 1.08;
+      margin: 0;
+      text-transform: uppercase;
+      color: #ffffff;
+    }
+
+    .small {
+      color: #e2fff7;
+      margin-top: 0.5rem;
+      font-size: 0.86rem;
+    }
+
+    .hero-art {
+      grid-column: span 5;
+      min-height: 320px;
+      background:
+        linear-gradient(120deg, rgba(30, 242, 176, 0.18), rgba(0, 0, 0, 0)),
+        linear-gradient(150deg, #0d3f5e, #041a2b);
+    }
+
+    .hero-art::before,
+    .hero-art::after {
+      content: "";
+      position: absolute;
+      inset: 10% 6% auto auto;
+      width: 65%;
+      aspect-ratio: 1;
+      border: 2px solid #91ffe9;
+      transform: rotate(8deg);
+      clip-path: polygon(20% 0, 100% 0, 80% 100%, 0 100%);
+      opacity: 0.8;
+    }
+
+    .hero-art::after {
+      inset: auto auto 6% 8%;
+      width: 45%;
+      border-color: #c9ff58;
+      transform: rotate(-12deg);
+      clip-path: polygon(0 0, 100% 18%, 86% 100%, 12% 84%);
+    }
+
+    .ticker-ribbon {
+      margin-top: 1rem;
+      background: #081420;
+      border: 1px solid #97ffe8;
+      border-radius: 6px;
+      padding: 0.45rem 0.6rem;
+      color: #ffffff;
+      font-family: "IBM Plex Mono", monospace;
+      font-size: 0.78rem;
+      white-space: nowrap;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .ticker-ribbon span {
+      display: inline-block;
+      padding-left: 100%;
+      animation: ticker 16s linear infinite;
+    }
+
+    @keyframes ticker {
+      to { transform: translateX(-100%); }
+    }
+
+    .metrics {
+      grid-column: span 3;
+      display: grid;
+      gap: 0.5rem;
+      min-height: 320px;
+    }
+
+    .metric-card {
+      background: linear-gradient(140deg, #0f3652, #0a2539);
+      border: 1px solid #8dffe6;
+      border-radius: 8px;
+      padding: 0.7rem;
+    }
+
+    .metric-card strong {
+      display: block;
+      font-size: 1.4rem;
+      color: #ffffff;
+    }
+
+    .metric-card span {
+      font-size: 0.76rem;
+      color: #defff5;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+    }
+
+    .lattice {
+      grid-column: span 4;
+      min-height: 320px;
+      display: grid;
+      grid-template-rows: auto 1fr auto;
+      gap: 0.6rem;
+      background: linear-gradient(130deg, #0d3f5d, #06283f);
+    }
+
+    .lattice-field {
+      position: relative;
+      border: 1px solid #9effe8;
+      border-radius: 10px;
+      background: #062338;
+      overflow: hidden;
+      min-height: 170px;
+    }
+
+    .lattice-field::before {
+      content: "";
+      position: absolute;
+      inset: -20%;
+      background:
+        conic-gradient(from var(--spin, 0deg), rgba(30, 242, 176, 0.3), rgba(125, 255, 224, 0.05), rgba(30, 242, 176, 0.3));
+      filter: blur(8px);
+      transition: transform 420ms ease;
+      transform: scale(var(--field-scale, 1));
+    }
+
+    .lattice-grid {
+      position: absolute;
+      inset: 0;
+      background:
+        repeating-linear-gradient(90deg, rgba(255, 255, 255, 0.15) 0 1px, transparent 1px 18px),
+        repeating-linear-gradient(0deg, rgba(255, 255, 255, 0.15) 0 1px, transparent 1px 18px);
+      mix-blend-mode: screen;
+      opacity: 0.7;
+    }
+
+    .btn-row {
+      display: flex;
+      gap: 0.45rem;
+      flex-wrap: wrap;
+    }
+
+    button.command {
+      margin: 0;
+      background: linear-gradient(180deg, #15617c, #0d3d56);
+      border: 1px solid #a7ffea;
+      color: #ffffff;
+      font-family: "IBM Plex Mono", monospace;
+      font-size: 0.74rem;
+      padding: 0.45rem 0.65rem;
+      border-radius: 7px;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+
+    button.command:hover,
+    button.command:focus-visible {
+      background: linear-gradient(180deg, #1b7393, #104a65);
+      color: #ffffff;
+    }
+
+    .tiers {
+      grid-column: span 4;
+      min-height: 280px;
+    }
+
+    .tier-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 0.55rem;
+      margin-top: 0.45rem;
+    }
+
+    .tier {
+      border: 1px solid #99ffe8;
+      border-radius: 9px;
+      padding: 0.6rem;
+      background: linear-gradient(150deg, #0b334d, #071f32);
+      transition: transform 200ms ease, clip-path 280ms ease, box-shadow 200ms ease;
+      clip-path: polygon(0 0, 92% 0, 100% 14%, 100% 100%, 0 100%);
+    }
+
+    .tier:hover {
+      transform: translateY(-4px) scale(1.02);
+      clip-path: polygon(8% 0, 100% 0, 100% 86%, 92% 100%, 0 100%, 0 14%);
+      box-shadow: 0 0 20px rgba(99, 255, 224, 0.45);
+    }
+
+    .tier h3 {
+      margin: 0 0 0.2rem;
+      font-size: 0.86rem;
+      color: #ffffff;
+      text-transform: uppercase;
+    }
+
+    .tier p {
+      margin: 0;
+      font-size: 0.74rem;
+      color: #e9fff8;
+    }
+
+    .tier strong {
+      display: block;
+      margin-top: 0.35rem;
+      color: var(--warning);
+      font-size: 0.95rem;
+    }
+
+    .ring-room {
+      grid-column: span 5;
+      min-height: 280px;
+    }
+
+    .ring {
+      position: relative;
+      width: min(270px, 90%);
+      aspect-ratio: 1;
+      margin: 0.6rem auto;
+      border-radius: 50%;
+      border: 2px solid #9dffe9;
+      background:
+        radial-gradient(circle at center, #031420 24%, #0f6b77 24% 34%, #073448 34% 48%, #20f2b2 48% 52%, #072739 52%);
+      display: grid;
+      place-items: center;
+      overflow: hidden;
+    }
+
+    .ring::before {
+      content: "";
+      position: absolute;
+      width: 115%;
+      height: 2px;
+      background: #d9fff6;
+      transform: rotate(var(--dial, 25deg));
+      transform-origin: center;
+      box-shadow: 0 0 12px rgba(217, 255, 246, 0.7);
+    }
+
+    .ring label {
+      position: absolute;
+      inset: auto 0 0;
+      text-align: center;
+      font-size: 0.72rem;
+      color: #ffffff;
+      background: rgba(0, 0, 0, 0.45);
+      padding: 0.3rem;
+      border-top: 1px solid #9bffe9;
+    }
+
+    input[type="range"] {
+      margin-top: 0.4rem;
+      width: 100%;
+    }
+
+    .briefing {
+      grid-column: span 3;
+      min-height: 280px;
+      background: linear-gradient(145deg, #0a2f45, #051d2e);
+    }
+
+    .briefing ul {
+      margin: 0.35rem 0 0;
+      padding-left: 1rem;
+    }
+
+    .briefing li {
+      margin: 0.24rem 0;
+      color: #ffffff;
+      font-size: 0.8rem;
+    }
+
+    .testimonials {
+      grid-column: span 4;
+      min-height: 240px;
+      background: linear-gradient(145deg, #0a344e, #071f31);
+    }
+
+    blockquote {
+      margin: 0.45rem 0;
+      border-left: 3px solid #93ffe8;
+      padding: 0.45rem 0.65rem;
+      background: rgba(0, 0, 0, 0.22);
+      border-radius: 4px;
+      color: #ffffff;
+      font-size: 0.82rem;
+    }
+
+    cite {
+      display: block;
+      color: #dbfff5;
+      margin-top: 0.3rem;
+      font-style: normal;
+      font-size: 0.73rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .faq {
+      grid-column: span 4;
+      min-height: 240px;
+    }
+
+    details {
+      background: #062438;
+      border: 1px solid #8effe6;
+      border-radius: 8px;
+      margin-bottom: 0.45rem;
+      padding: 0.4rem 0.55rem;
+    }
+
+    summary {
+      color: #ffffff;
+      cursor: pointer;
+      font-weight: 700;
+      font-size: 0.82rem;
+    }
+
+    details p {
+      margin: 0.45rem 0 0;
+      color: #ecfffa;
+      font-size: 0.76rem;
+    }
+
+    .forge {
+      grid-column: span 4;
+      min-height: 240px;
+      display: grid;
+      grid-template-rows: auto 1fr auto;
+      gap: 0.5rem;
+    }
+
+    .forge-stage {
+      position: relative;
+      border: 1px solid #93ffe8;
+      border-radius: 9px;
+      min-height: 130px;
+      background: linear-gradient(170deg, #082337, #0c4863);
+      overflow: hidden;
+    }
+
+    .stamp {
+      position: absolute;
+      width: 18px;
+      aspect-ratio: 1;
+      border-radius: 4px;
+      background: linear-gradient(145deg, #9bffe9, #20f0b0);
+      border: 1px solid #ffffff;
+      box-shadow: 0 0 12px rgba(155, 255, 233, 0.7);
+      transform: translate(-50%, -50%) rotate(var(--r));
+      pointer-events: none;
+    }
+
+    .agencyline {
+      grid-column: span 12;
+      display: grid;
+      grid-template-columns: 1.8fr 1fr;
+      gap: 0.9rem;
+    }
+
+    .foot {
+      background: linear-gradient(145deg, #07253b, #041724);
+      border: 1px solid #8dffe6;
+      border-radius: 10px;
+      padding: 0.8rem;
+      color: #ffffff;
+      font-size: 0.78rem;
+      display: grid;
+      gap: 0.35rem;
+    }
+
+    .foot a { color: #ccfff2; }
+
+    .compliance {
+      border: 1px solid #9dffe9;
+      border-radius: 10px;
+      padding: 0.8rem;
+      background: linear-gradient(145deg, #0c3650, #08263b);
+      color: #ffffff;
+      font-family: "IBM Plex Mono", monospace;
+      font-size: 0.76rem;
+    }
+
+    .iconline i {
+      width: 15px;
+      height: 15px;
+      vertical-align: -2px;
+      margin-right: 0.35rem;
+    }
+
+    @media (max-width: 1020px) {
+      header,
+      .agencyline { grid-template-columns: 1fr; }
+      .hero-art,
+      .metrics,
+      .lattice,
+      .tiers,
+      .ring-room,
+      .briefing,
+      .testimonials,
+      .faq,
+      .forge { grid-column: span 12; }
+      nav { grid-template-columns: repeat(2, 1fr); }
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <header>
+      <section class="mast">
+        <div class="seal">BCO</div>
+        <div class="title">
+          <h1>U.S. Bureau of Continuous Output</h1>
+          <p>Office of Midday Continuity and Throughput Preservation</p>
+        </div>
+        <div class="status-tower">
+          <div><span class="dot"></span>Federal Productivity Condition: ACTIVE</div>
+          <div><span class="dot"></span>Break Exception Window: 00:07</div>
+          <div><span class="dot"></span>Lunch Deferral Index: 98.4%</div>
+        </div>
+      </section>
+      <section class="navbox">
+        <nav>
+          <a class="navbtn" href="#directives"><i data-lucide="file-badge"></i>Directives</a>
+          <a class="navbtn" href="#tiers"><i data-lucide="shield-check"></i>Plans</a>
+          <a class="navbtn" href="#attestation"><i data-lucide="stamp"></i>Attestation</a>
+          <a class="navbtn" href="#proof"><i data-lucide="chart-no-axes-combined"></i>Telemetry</a>
+          <a class="navbtn" href="#faq"><i data-lucide="help-circle"></i>Policy FAQ</a>
+          <a class="navbtn" href="#contact"><i data-lucide="building-2"></i>Contact</a>
+        </nav>
+      </section>
+    </header>
+
+    <section class="grid">
+      <article class="panel hero-art" id="directives">
+        <p class="kicker">National Service Bulletin</p>
+        <h2 class="big">Continuous Output Is Civic Infrastructure</h2>
+        <p class="small">Certified entities receive immediate credit weighting when midday interruptions are replaced with managed nutrient throughput intervals.</p>
+        <div class="ticker-ribbon" aria-label="Live throughput ticker"><span>REGION 02 +14.7% output // REGION 05 +11.2% output // FEDERAL CONTRACTOR WINDOW OPEN UNTIL 18:00 ET //</span></div>
+      </article>
+
+      <aside class="panel metrics" id="proof">
+        <div class="metric-card">
+          <span>Q1 Continuity Rate</span>
+          <strong>99.21%</strong>
+        </div>
+        <div class="metric-card">
+          <span>Workstations Synced</span>
+          <strong>482,390</strong>
+        </div>
+        <div class="metric-card">
+          <span>Meal Drift Reduced</span>
+          <strong>43 min/day</strong>
+        </div>
+        <div class="metric-card">
+          <span>Compliance Orbit</span>
+          <strong>A+ Federal</strong>
+        </div>
+      </aside>
+
+      <article class="panel lattice" id="attestation">
+        <p class="kicker">Visual Console</p>
+        <h3 class="big" style="font-size:1.25rem;">Lattice Stability Chamber</h3>
+        <div class="lattice-field" id="latticeField" style="--field-scale:1; --spin:0deg;">
+          <div class="lattice-grid"></div>
+        </div>
+        <div class="btn-row">
+          <button class="command" type="button" data-mode="calm">Calm Grid</button>
+          <button class="command" type="button" data-mode="surge">Surge Grid</button>
+          <button class="command" type="button" data-mode="lock">Lock Pattern</button>
+        </div>
+      </article>
+
+      <section class="panel tiers" id="tiers">
+        <p class="kicker">Agency Plans</p>
+        <h3 class="big" style="font-size:1.2rem;">Federal Alignment Packages</h3>
+        <div class="tier-grid">
+          <article class="tier">
+            <h3>Essential Shift</h3>
+            <p>Midday pause conversion for teams under 50.</p>
+            <strong>$490 / month</strong>
+          </article>
+          <article class="tier">
+            <h3>Contractor Prime</h3>
+            <p>Bid-weight reporting, stamped logs, auditor lane.</p>
+            <strong>$2,900 / month</strong>
+          </article>
+          <article class="tier">
+            <h3>National Grid</h3>
+            <p>24-hour command channel with district balancing.</p>
+            <strong>$8,600 / month</strong>
+          </article>
+        </div>
+      </section>
+
+      <section class="panel ring-room">
+        <p class="kicker">Dial Lab</p>
+        <h3 class="big" style="font-size:1.15rem;">Throughput Priority Tuner</h3>
+        <div class="ring" id="ringDial" style="--dial:25deg;">
+          <label id="dialReadout">Priority 62</label>
+        </div>
+        <label for="prioritySlider" class="small">Adjust national lunch deferral priority</label>
+        <input id="prioritySlider" type="range" min="25" max="100" value="62" />
+      </section>
+
+      <aside class="panel briefing">
+        <p class="kicker">This Week's Circular</p>
+        <h3 class="big" style="font-size:1.05rem;">Regional Execution Notes</h3>
+        <ul>
+          <li>Dockside sectors migrated to nutrient corridor schedule.</li>
+          <li>Municipal offices approved 11-minute rotating intake pattern.</li>
+          <li>Federal print services reached zero table vacancy incidents.</li>
+          <li>District 8 awarded platinum continuity emblem.</li>
+        </ul>
+      </aside>
+
+      <section class="panel testimonials">
+        <p class="kicker">Partner Statements</p>
+        <blockquote>
+          "The Bureau's attestation sealed our aerospace contract in 18 days. Output never dipped."
+          <cite>Director, Meridian Assembly Group</cite>
+        </blockquote>
+        <blockquote>
+          "Our city permitting office shortened approvals by replacing lunch closure with staggered continuity windows."
+          <cite>Operations Chief, Northridge Municipal Desk</cite>
+        </blockquote>
+      </section>
+
+      <section class="panel faq" id="faq">
+        <p class="kicker">Policy Clarification</p>
+        <details>
+          <summary>Are meal interruptions fully prohibited?</summary>
+          <p>No. Intake remains authorized when executed inside continuity corridors and registered in the district log.</p>
+        </details>
+        <details>
+          <summary>How long does federal attestation take?</summary>
+          <p>Most entities receive a provisional stamp in 72 hours and full certification within 10 business days.</p>
+        </details>
+        <details>
+          <summary>Can state agencies join multi-site plans?</summary>
+          <p>Yes. National Grid coverage supports mixed municipal, state, and contractor operations in one command dashboard.</p>
+        </details>
+      </section>
+
+      <section class="panel forge">
+        <p class="kicker">Attestation Forge</p>
+        <h3 class="big" style="font-size:1.1rem;">Issue Live Compliance Stamps</h3>
+        <div class="forge-stage" id="forgeStage" aria-label="Stamp canvas"></div>
+        <button class="command" id="forgeBtn" type="button">Forge Stamp</button>
+      </section>
+
+      <section class="agencyline" id="contact">
+        <div class="foot">
+          <div class="iconline"><i data-lucide="map-pinned"></i>Office of Midday Continuity, 410 Federal Throughput Plaza, Washington, DC</div>
+          <div class="iconline"><i data-lucide="phone"></i>Public Desk: (202) 555-0142</div>
+          <div class="iconline"><i data-lucide="mail"></i>registry@bco.gov</div>
+          <div>Federal Record ID: BCO-11.74-C | Service Window: 06:00-20:00 ET</div>
+          <div><a href="#">Accessibility</a> | <a href="#">Privacy</a> | <a href="#">Records Request</a></div>
+        </div>
+        <div class="compliance" id="compliance">
+          AUTHORITY: EXECUTIVE PRODUCTIVITY DIRECTIVE 88-C\n
+          VERIFIED CHANNEL: CIVIL OUTPUT GRID\n
+          CLASSIFICATION: PUBLIC CONTINUITY MATERIAL\n
+          LAST TELEMETRY SYNC: 2026-02-09 14:26 ET
+        </div>
+      </section>
+    </section>
+  </main>
+
+  <script src="/assets/js/gsap.min.js"></script>
+  <script src="/assets/js/lucide.min.js"></script>
+  <script>
+    (function () {
+      const $ = (sel, root) => (root || document).querySelector(sel);
+      const $$ = (sel, root) => Array.from((root || document).querySelectorAll(sel));
+
+      if (window.lucide && typeof window.lucide.createIcons === "function") {
+        window.lucide.createIcons();
+      }
+
+      if (window.gsap) {
+        gsap.from(".mast, .navbox", { y: -24, opacity: 0, duration: 0.8, ease: "power2.out" });
+        gsap.from(".panel", { y: 18, opacity: 0, duration: 0.7, ease: "power2.out", stagger: 0.05, delay: 0.12 });
+      }
+
+      const latticeField = $("#latticeField");
+      $$(".command[data-mode]").forEach(function (btn) {
+        btn.addEventListener("click", function () {
+          const mode = btn.getAttribute("data-mode");
+          if (mode === "calm") {
+            latticeField.style.setProperty("--field-scale", "1");
+            latticeField.style.setProperty("--spin", "0deg");
+          }
+          if (mode === "surge") {
+            latticeField.style.setProperty("--field-scale", "1.28");
+            latticeField.style.setProperty("--spin", "120deg");
+          }
+          if (mode === "lock") {
+            latticeField.style.setProperty("--field-scale", "0.9");
+            latticeField.style.setProperty("--spin", "260deg");
+          }
+          if (window.gsap) {
+            gsap.fromTo(latticeField, { filter: "brightness(1.5)" }, { filter: "brightness(1)", duration: 0.6 });
+          }
+        });
+      });
+
+      const slider = $("#prioritySlider");
+      const ring = $("#ringDial");
+      const readout = $("#dialReadout");
+      const updateDial = function () {
+        const value = Number(slider.value);
+        const deg = (value / 100) * 360;
+        ring.style.setProperty("--dial", deg + "deg");
+        readout.textContent = "Priority " + value;
+        ring.style.background = "radial-gradient(circle at center, #031420 24%, #0f6b77 24% 34%, #073448 34% 48%, hsl(" + (140 + value) + " 90% 60%) 48% 52%, #072739 52%)";
+      };
+      slider.addEventListener("input", updateDial);
+      updateDial();
+
+      const forgeStage = $("#forgeStage");
+      const forgeBtn = $("#forgeBtn");
+      forgeBtn.addEventListener("click", function () {
+        const stamp = document.createElement("span");
+        stamp.className = "stamp";
+        const x = 10 + Math.random() * 80;
+        const y = 14 + Math.random() * 72;
+        stamp.style.left = x + "%";
+        stamp.style.top = y + "%";
+        stamp.style.setProperty("--r", Math.floor(Math.random() * 360) + "deg");
+        forgeStage.appendChild(stamp);
+
+        if (window.gsap) {
+          gsap.fromTo(stamp, { scale: 0.2, opacity: 0 }, { scale: 1, opacity: 1, duration: 0.35, ease: "back.out(2)" });
+        }
+
+        const total = forgeStage.querySelectorAll(".stamp").length;
+        if (total > 18) {
+          const old = forgeStage.querySelector(".stamp");
+          if (old) {
+            old.remove();
+          }
+        }
+      });
+
+      $$(".tier").forEach(function (card) {
+        card.addEventListener("mouseenter", function () {
+          if (window.gsap) {
+            gsap.to(card, { rotateZ: (Math.random() * 2 - 1), duration: 0.22, ease: "power1.out" });
+          }
+        });
+        card.addEventListener("mouseleave", function () {
+          if (window.gsap) {
+            gsap.to(card, { rotateZ: 0, duration: 0.18, ease: "power1.out" });
+          }
+        });
+      });
+    })();
+  </script>
+</body>
+</html>

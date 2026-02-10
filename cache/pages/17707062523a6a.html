@@ -1,0 +1,681 @@
+<!doctype html>
+<html lang="en" x-data="app()" :data-theme="themeName">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Puddle PPO - Pre-Approved Splash Wealth</title>
+  <link rel="stylesheet" href="/assets/css/pico.min.css" />
+  <link rel="stylesheet" href="/assets/css/fonts.css" />
+  <style>
+    :root {
+      --bg-a: #ff53b6;
+      --bg-b: #2d7bff;
+      --bg-c: #c8ff2e;
+      --ink: #111122;
+      --panel: #ffffff;
+      --line: #101d58;
+      --accent: #0047ff;
+      --accent-2: #e4008d;
+      --success: #056e34;
+      --shadow: 0 14px 0 #101d58, 0 24px 28px #0b0f2c;
+    }
+
+    [data-theme="mint"] {
+      --bg-a: #5fffd1;
+      --bg-b: #1f4cff;
+      --bg-c: #ff66cc;
+      --accent: #1f4cff;
+      --accent-2: #008a4a;
+      --line: #081b6d;
+      --shadow: 0 14px 0 #081b6d, 0 24px 28px #0f163a;
+    }
+
+    [data-theme="sunset"] {
+      --bg-a: #ff8a33;
+      --bg-b: #3f1dff;
+      --bg-c: #8bff57;
+      --accent: #3f1dff;
+      --accent-2: #a8005f;
+      --line: #2b124d;
+      --shadow: 0 14px 0 #2b124d, 0 24px 28px #181026;
+    }
+
+    * { box-sizing: border-box; }
+
+    html, body {
+      margin: 0;
+      min-height: 100%;
+      overflow-x: hidden;
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 16px;
+      color: var(--ink);
+      background:
+        radial-gradient(circle at 14% 16%, #ffffff 0 12%, transparent 13%),
+        radial-gradient(circle at 84% 22%, #ffe86a 0 10%, transparent 11%),
+        radial-gradient(circle at 35% 88%, #77ffc4 0 13%, transparent 14%),
+        linear-gradient(125deg, var(--bg-a), var(--bg-b) 55%, var(--bg-c));
+    }
+
+    body::before,
+    body::after {
+      content: '';
+      position: fixed;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    body::before {
+      width: 44vmin;
+      height: 44vmin;
+      left: -8vmin;
+      top: -8vmin;
+      border-radius: 44% 56% 67% 33% / 52% 29% 71% 48%;
+      background: linear-gradient(160deg, #ffffff, #ffe8fb);
+      border: 3px solid #111122;
+      box-shadow: 10px 10px 0 #111122;
+    }
+
+    body::after {
+      width: 30vmin;
+      height: 30vmin;
+      left: 8%;
+      bottom: 6%;
+      clip-path: polygon(50% 0%, 61% 36%, 98% 35%, 68% 57%, 80% 95%, 50% 72%, 20% 95%, 32% 57%, 2% 35%, 39% 36%);
+      background: #ffe900;
+      border: 3px solid #111122;
+      box-shadow: 8px 8px 0 #111122;
+    }
+
+    main {
+      position: relative;
+      z-index: 1;
+      width: min(1200px, calc(100% - 2rem));
+      margin: 1rem auto 2rem;
+      padding-bottom: 1rem;
+    }
+
+    .topbar {
+      display: flex;
+      gap: 0.8rem;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      background: #ffffff;
+      border: 3px solid var(--line);
+      border-radius: 18px;
+      padding: 0.7rem 1rem;
+      box-shadow: 6px 6px 0 var(--line);
+    }
+
+    .brand {
+      margin: 0;
+      font-weight: 800;
+      letter-spacing: 0.02em;
+      color: #101018;
+      font-size: clamp(1.2rem, 2vw, 1.6rem);
+      display: flex;
+      align-items: center;
+      gap: 0.55rem;
+    }
+
+    .brand small {
+      font-size: 0.78rem;
+      color: #1e2960;
+      font-family: 'IBM Plex Mono', monospace;
+      border: 2px solid #1e2960;
+      border-radius: 999px;
+      padding: 0.2rem 0.45rem;
+      background: #d5ff54;
+    }
+
+    .top-actions {
+      display: flex;
+      gap: 0.6rem;
+      flex-wrap: wrap;
+    }
+
+    button {
+      min-height: 44px;
+      border-radius: 12px;
+      border: 2px solid var(--line);
+      font-weight: 700;
+      color: #ffffff;
+      background: var(--accent);
+      padding: 0.55rem 0.9rem;
+      cursor: pointer;
+      font-family: 'Space Grotesk', sans-serif;
+    }
+
+    button.secondary {
+      background: var(--accent-2);
+    }
+
+    .board {
+      margin-top: 1rem;
+      position: relative;
+      min-height: 860px;
+      border: 4px solid var(--line);
+      border-radius: 20px;
+      background:
+        linear-gradient(90deg, #ffffff 2px, transparent 2px) 0 0 / 26px 26px,
+        linear-gradient(#ffffff 2px, transparent 2px) 0 0 / 26px 26px,
+        linear-gradient(145deg, #fce8ff, #d9f8ff 35%, #f6ffd8 70%, #ffd6ec);
+      box-shadow: var(--shadow);
+      overflow: hidden;
+      padding: 0.5rem;
+    }
+
+    .window {
+      position: absolute;
+      border: 3px solid var(--line);
+      border-radius: 16px;
+      background: var(--panel);
+      color: #131626;
+      padding: 0;
+      box-shadow: 8px 8px 0 var(--line);
+      overflow: hidden;
+      transition: transform 0.25s ease, box-shadow 0.25s ease;
+    }
+
+    .window:hover {
+      transform: translateY(-4px) rotate(-0.2deg);
+      box-shadow: 10px 10px 0 var(--line);
+    }
+
+    .titlebar {
+      background: linear-gradient(90deg, #1f45ff, #ff35aa 62%, #deff4e);
+      border-bottom: 3px solid var(--line);
+      padding: 0.45rem 0.65rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .titlebar strong {
+      color: #ffffff;
+      font-size: 0.92rem;
+      letter-spacing: 0.02em;
+    }
+
+    .dots {
+      display: flex;
+      gap: 0.35rem;
+    }
+
+    .dot {
+      width: 11px;
+      height: 11px;
+      border-radius: 999px;
+      border: 2px solid #111122;
+    }
+
+    .dot.a { background: #ffef59; }
+    .dot.b { background: #5cff72; }
+    .dot.c { background: #ff76d1; }
+
+    .pane {
+      padding: 0.85rem;
+    }
+
+    h1, h2, h3, p {
+      margin: 0;
+      color: #121428;
+    }
+
+    .hero h1 {
+      font-size: clamp(1.4rem, 3.2vw, 2.4rem);
+      line-height: 1.05;
+      margin-bottom: 0.35rem;
+    }
+
+    .hero p {
+      color: #18264e;
+      font-size: 1rem;
+      margin-bottom: 0.8rem;
+    }
+
+    .kpis {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 0.45rem;
+    }
+
+    .kpi {
+      border: 2px solid #12206d;
+      border-radius: 10px;
+      background: #eef2ff;
+      padding: 0.5rem;
+    }
+
+    .kpi b {
+      display: block;
+      color: #101018;
+      font-size: 1.05rem;
+    }
+
+    .kpi span {
+      color: #21326e;
+      font-size: 0.84rem;
+    }
+
+    .ascii-puddle {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 0.84rem;
+      background: #0f2056;
+      color: #e7f0ff;
+      border-radius: 12px;
+      border: 2px solid #4154a1;
+      padding: 0.7rem;
+      white-space: pre;
+      overflow: auto;
+    }
+
+    .tagline {
+      margin-top: 0.6rem;
+      display: inline-block;
+      border: 2px dashed #21326e;
+      border-radius: 999px;
+      padding: 0.24rem 0.65rem;
+      font-size: 0.78rem;
+      color: #1c2d69;
+      background: #f4f7ff;
+    }
+
+    .plan-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 0.55rem;
+    }
+
+    .plan {
+      border: 2px solid #111b5e;
+      border-radius: 12px;
+      padding: 0.65rem;
+      background: linear-gradient(160deg, #ffffff, #edfbff);
+      transition: clip-path 0.25s ease, background 0.25s ease;
+      clip-path: polygon(0 0, 100% 0, 100% 90%, 92% 100%, 0 100%);
+    }
+
+    .plan:hover {
+      background: linear-gradient(160deg, #fff4fa, #dbffe8);
+      clip-path: polygon(4% 0, 100% 0, 96% 90%, 88% 100%, 0 96%);
+    }
+
+    .plan h3 {
+      font-size: 0.95rem;
+      margin-bottom: 0.2rem;
+    }
+
+    .plan p {
+      font-size: 0.85rem;
+      color: #1d2f5f;
+      margin-bottom: 0.3rem;
+    }
+
+    .price {
+      font-weight: 800;
+      font-size: 1.1rem;
+      color: #0f1e58;
+      margin-bottom: 0.25rem;
+    }
+
+    .tiny {
+      font-size: 0.78rem;
+      color: #1f2f62;
+    }
+
+    .quote {
+      border: 2px solid #102067;
+      border-radius: 12px;
+      background: #f8fbff;
+      padding: 0.65rem;
+      margin-bottom: 0.45rem;
+    }
+
+    .quote p {
+      font-size: 0.9rem;
+      color: #111a3f;
+      margin-bottom: 0.3rem;
+    }
+
+    .quote b {
+      font-size: 0.8rem;
+      color: #1b2e67;
+    }
+
+    .faq-item {
+      border: 2px solid #1d2f65;
+      border-radius: 10px;
+      margin-bottom: 0.45rem;
+      overflow: hidden;
+      background: #f6f8ff;
+    }
+
+    .faq-item button {
+      width: 100%;
+      border: 0;
+      border-radius: 0;
+      background: #1e3eff;
+      text-align: left;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0.6rem 0.7rem;
+      color: #ffffff;
+      min-height: 44px;
+    }
+
+    .faq-item p {
+      padding: 0.6rem 0.7rem;
+      color: #13224d;
+      font-size: 0.9rem;
+    }
+
+    .claim-box {
+      border: 2px dashed #1f3270;
+      border-radius: 12px;
+      padding: 0.65rem;
+      background: #f2f6ff;
+      display: grid;
+      gap: 0.55rem;
+    }
+
+    .claim-code {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 1rem;
+      border: 2px solid #11215a;
+      border-radius: 10px;
+      padding: 0.55rem;
+      background: #ffffff;
+      color: #111c4c;
+      text-align: center;
+      letter-spacing: 0.06em;
+    }
+
+    .dent {
+      position: relative;
+      height: 170px;
+      border-top: 3px solid #11215a;
+      background: linear-gradient(180deg, #f1f6ff, #ffffff);
+      overflow: hidden;
+    }
+
+    .tooth {
+      position: absolute;
+      bottom: -30px;
+      width: 120px;
+      height: 170px;
+      border: 3px solid #111b5d;
+      background: #ffffff;
+      border-radius: 46% 46% 32% 32% / 54% 54% 42% 42%;
+      box-shadow: inset 0 -15px 0 #d8e0ff;
+    }
+
+    .tooth.one { left: 8%; transform: rotate(-8deg); }
+    .tooth.two { left: 36%; }
+    .tooth.three { left: 64%; transform: rotate(8deg); }
+
+    .wave {
+      position: absolute;
+      width: 180%;
+      height: 85px;
+      top: 10px;
+      left: -30%;
+      background: radial-gradient(circle at 25% 40%, #00e5ff 0 12%, transparent 13%),
+        radial-gradient(circle at 40% 55%, #3e80ff 0 14%, transparent 15%),
+        radial-gradient(circle at 55% 42%, #73f261 0 12%, transparent 13%),
+        radial-gradient(circle at 70% 58%, #ff4cc5 0 13%, transparent 14%);
+      animation: drift 16s linear infinite;
+      border-bottom: 3px solid #111d60;
+    }
+
+    @keyframes drift {
+      from { transform: translateX(0); }
+      to { transform: translateX(20%); }
+    }
+
+    .hero-window { top: 22px; left: 22px; width: min(560px, calc(100% - 44px)); z-index: 3; }
+    .plans-window { top: 260px; left: 36px; width: min(520px, calc(100% - 72px)); z-index: 2; }
+    .quotes-window { top: 120px; right: 28px; width: min(360px, calc(100% - 56px)); z-index: 4; }
+    .faq-window { top: 445px; right: 24px; width: min(430px, calc(100% - 48px)); z-index: 3; }
+    .art-window { bottom: 20px; left: 60px; width: min(460px, calc(100% - 80px)); z-index: 1; }
+
+    .footer-note {
+      margin-top: 0.7rem;
+      background: #ffffff;
+      border: 3px solid #1a2b6b;
+      border-radius: 14px;
+      padding: 0.75rem;
+      box-shadow: 6px 6px 0 #1a2b6b;
+      font-size: 0.86rem;
+      color: #182857;
+      font-family: 'IBM Plex Mono', monospace;
+    }
+
+    @media (max-width: 900px) {
+      .board {
+        min-height: 0;
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 0.85rem;
+        padding: 0.85rem;
+      }
+
+      .window {
+        position: static;
+        width: 100%;
+      }
+
+      .hero-window,
+      .plans-window,
+      .quotes-window,
+      .faq-window,
+      .art-window { width: 100%; }
+
+      .plan-grid { grid-template-columns: 1fr; }
+      .kpis { grid-template-columns: 1fr 1fr; }
+      .tooth { width: 30%; height: 145px; }
+    }
+
+    @media (max-width: 520px) {
+      main { width: calc(100% - 1rem); }
+      .topbar { padding: 0.6rem; }
+      .brand small { display: none; }
+      .kpis { grid-template-columns: 1fr; }
+      .tooth { height: 130px; }
+      .quote p { font-size: 0.86rem; }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <nav class="topbar" aria-label="Main navigation">
+      <h1 class="brand"><i data-lucide="waves"></i>Puddle PPO <small>Dr. G. Quibble, Founder</small></h1>
+      <div class="top-actions">
+        <button type="button" @click="shakePremiums">Shake Premiums</button>
+        <button type="button" class="secondary" @click="cycleTheme">Palette Panic</button>
+      </div>
+    </nav>
+
+    <section class="board" aria-label="Puddle PPO dashboard">
+      <article class="window hero-window" id="heroWindow">
+        <div class="titlebar">
+          <strong>FOUNDER MEMO.TXT</strong>
+          <div class="dots"><span class="dot a"></span><span class="dot b"></span><span class="dot c"></span></div>
+        </div>
+        <div class="pane hero">
+          <h1>I am Dr. Glenda Quibble, former orthodontist, current puddle underwriter.</h1>
+          <p>I lost my dental license in 2019 for billing rain as "liquid braces." So I built Puddle PPO: the first lifestyle insurance club where every puddle is pre-approved revenue.</p>
+          <div class="kpis">
+            <div class="kpi"><b x-text="premiumRate + '%'">47%</b><span>Average splash yield</span></div>
+            <div class="kpi"><b>$17.40</b><span>Median curbside claim</span></div>
+            <div class="kpi"><b>94 sec</b><span>To issue code + whistle</span></div>
+          </div>
+          <span class="tagline">Recurring truth: if it reflects a cloud, it can fund your week.</span>
+        </div>
+      </article>
+
+      <article class="window plans-window">
+        <div class="titlebar">
+          <strong>PLAN MATRIX</strong>
+          <div class="dots"><span class="dot a"></span><span class="dot b"></span><span class="dot c"></span></div>
+        </div>
+        <div class="pane">
+          <div class="plan-grid">
+            <section class="plan">
+              <h3>Sidewalk Starter</h3>
+              <p>For civilians with one pair of brave loafers.</p>
+              <div class="price">$47.99/mo</div>
+              <p class="tiny">Includes 12 pre-authorized splashes + one motivational fax from me.</p>
+            </section>
+            <section class="plan">
+              <h3>Orthodontic Drizzle Pro</h3>
+              <p>My old clients. My new mission. Same clipboard.</p>
+              <div class="price">$129/mo</div>
+              <p class="tiny">Adds molar-aligned puddle maps and emergency umbrella arbitration.</p>
+            </section>
+            <section class="plan">
+              <h3>Parking Lot Sovereign</h3>
+              <p>Built for people who negotiate with storm drains.</p>
+              <div class="price">$349/mo</div>
+              <p class="tiny">Personal claim trumpet, velvet boot bag, and legal nodding.</p>
+            </section>
+          </div>
+
+          <div class="claim-box" style="margin-top:0.65rem;">
+            <p class="tiny">Generate your live pre-authorization code before touching any suspiciously profitable water:</p>
+            <div class="claim-code" id="claimCode" x-text="claimCode"></div>
+            <button type="button" @click="newCode">Mint New Claim Code</button>
+          </div>
+        </div>
+      </article>
+
+      <article class="window quotes-window">
+        <div class="titlebar">
+          <strong>MEMBER INCIDENTS</strong>
+          <div class="dots"><span class="dot a"></span><span class="dot b"></span><span class="dot c"></span></div>
+        </div>
+        <div class="pane">
+          <section class="quote">
+            <p>"Glenda taught me to invoice my own driveway. We paid for a cappuccino machine in three thunderstorms."</p>
+            <b>- Marla P., Cul-de-sac affiliate</b>
+          </section>
+          <section class="quote">
+            <p>"I slipped, remained dignified, and got reimbursed in twelve minutes. Unreal service."</p>
+            <b>- T.J. Bean, regional puddle captain</b>
+          </section>
+          <section class="quote">
+            <p>"I came for passive income. I stayed for the ceremonial whistle at claim approval."</p>
+            <b>- Vee Lark, ex-skeptic</b>
+          </section>
+          <div class="ascii-puddle">      ~ ~ ~ ~ ~
+   ~      PUDDLE        ~
+ ~  PREAUTH OR PERISH    ~
+   ~ ~ ~ ~ ~ ~ ~ ~ ~</div>
+        </div>
+      </article>
+
+      <article class="window faq-window">
+        <div class="titlebar">
+          <strong>FAQ (LITIGATION-SAFE)</strong>
+          <div class="dots"><span class="dot a"></span><span class="dot b"></span><span class="dot c"></span></div>
+        </div>
+        <div class="pane">
+          <div class="faq-item" x-data="{open:true}">
+            <button type="button" @click="open=!open">Is this dental insurance?<i data-lucide="chevron-down"></i></button>
+            <p x-show="open">Spiritually yes. Legally no. Structurally it is a puddle outcomes cooperative with exceptional paperwork.</p>
+          </div>
+          <div class="faq-item" x-data="{open:false}">
+            <button type="button" @click="open=!open">What happened in 2019?<i data-lucide="chevron-down"></i></button>
+            <p x-show="open">The board called my rain-based orthodontics "imaginative." I called it "ahead of market." We agreed to disagree forever.</p>
+          </div>
+          <div class="faq-item" x-data="{open:false}">
+            <button type="button" @click="open=!open">Can I submit dry pavement?<i data-lucide="chevron-down"></i></button>
+            <p x-show="open">No. We respect moisture. We monetize only verified reflective surfaces, category B through deluxe B+.</p>
+          </div>
+        </div>
+      </article>
+
+      <article class="window art-window">
+        <div class="titlebar">
+          <strong>VISUAL CLAIM LAB</strong>
+          <div class="dots"><span class="dot a"></span><span class="dot b"></span><span class="dot c"></span></div>
+        </div>
+        <div class="dent" id="artLab">
+          <div class="wave"></div>
+          <div class="tooth one"></div>
+          <div class="tooth two"></div>
+          <div class="tooth three"></div>
+        </div>
+      </article>
+    </section>
+
+    <footer class="footer-note">
+      Puddle PPO, LLC | Registered in a strip-mall suite behind an urgent care | Helpline: 1-800-WET-ROI | "Every puddle is a tiny mirror and a larger invoice." - Dr. Quibble
+    </footer>
+  </main>
+
+  <script src="/assets/js/alpine.min.js"></script>
+  <script src="/assets/js/gsap.min.js"></script>
+  <script src="/assets/js/lucide.min.js"></script>
+  <script>
+    function app() {
+      return {
+        themes: ['default', 'mint', 'sunset'],
+        themeIndex: 0,
+        themeName: 'default',
+        claimCode: 'PPO-RAIN-4471',
+        premiumRate: 47,
+        cycleTheme() {
+          this.themeIndex = (this.themeIndex + 1) % this.themes.length;
+          this.themeName = this.themes[this.themeIndex];
+          if (window.gsap) {
+            gsap.fromTo('.board',
+              { scale: 0.985, rotate: -0.3 },
+              { scale: 1, rotate: 0, duration: 0.35, clearProps: 'transform' }
+            );
+          }
+        },
+        newCode() {
+          var digits = Math.floor(1000 + Math.random() * 9000);
+          var tags = ['RAIN', 'SPLSH', 'CURB', 'DENT', 'WET'];
+          var t = tags[Math.floor(Math.random() * tags.length)];
+          this.claimCode = 'PPO-' + t + '-' + digits;
+          if (window.gsap) {
+            gsap.fromTo('#claimCode',
+              { y: 12, scale: 0.94, backgroundColor: '#d9ff66' },
+              { y: 0, scale: 1, backgroundColor: '#ffffff', duration: 0.45, clearProps: 'transform,backgroundColor' }
+            );
+          }
+        },
+        shakePremiums() {
+          this.premiumRate = 40 + Math.floor(Math.random() * 15);
+          if (window.gsap) {
+            gsap.fromTo('.window',
+              { x: -2, y: 0, rotate: -0.4 },
+              { x: 2, y: -1, rotate: 0.4, duration: 0.08, repeat: 5, yoyo: true, clearProps: 'x,y,rotate' }
+            );
+            gsap.fromTo('#artLab .tooth',
+              { y: 0 },
+              { y: -10, duration: 0.12, stagger: 0.05, repeat: 1, yoyo: true, clearProps: 'y' }
+            );
+          }
+        }
+      };
+    }
+
+    document.addEventListener('DOMContentLoaded', function () {
+      if (window.lucide) {
+        lucide.createIcons();
+      }
+      if (window.gsap) {
+        gsap.fromTo('.window',
+          { y: 22 },
+          { y: 0, duration: 0.6, stagger: 0.07, clearProps: 'transform' }
+        );
+      }
+    });
+  </script>
+</body>
+</html>

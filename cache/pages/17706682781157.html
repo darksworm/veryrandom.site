@@ -1,0 +1,776 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Lunaire House | Moonlight Restoration Suites</title>
+  <link rel="stylesheet" href="/assets/css/pico.min.css" />
+  <link rel="stylesheet" href="/assets/css/fonts.css" />
+  <style>
+    :root {
+      --bg-deep: #140022;
+      --bg-mid: #2b0a57;
+      --magenta: #ff2ea6;
+      --cyan: #1af5ff;
+      --chrome: #d9e2ff;
+      --ink: #08060f;
+      --text: #f6f8ff;
+      --safe-zone: 220px;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html,
+    body {
+      margin: 0;
+      min-height: 100%;
+      font-family: 'Space Grotesk', sans-serif;
+      color: var(--text);
+      background: radial-gradient(circle at 20% 15%, #4c13a5 0%, transparent 32%),
+        radial-gradient(circle at 82% 18%, #0a6ba0 0%, transparent 29%),
+        linear-gradient(130deg, var(--bg-deep), #1f0846 50%, #0f1b52 100%);
+      overflow-x: hidden;
+    }
+
+    body.theme-aurora {
+      background: radial-gradient(circle at 16% 20%, #6f17d5 0%, transparent 30%),
+        radial-gradient(circle at 78% 10%, #00c8ff 0%, transparent 34%),
+        linear-gradient(125deg, #10001e, #31105f 48%, #00274b);
+    }
+
+    body.theme-eclipse {
+      background: radial-gradient(circle at 50% 0%, #66194d 0%, transparent 35%),
+        radial-gradient(circle at 8% 55%, #156397 0%, transparent 36%),
+        linear-gradient(155deg, #080014, #2f0845 45%, #11113f);
+    }
+
+    .desktop {
+      position: relative;
+      min-height: 100vh;
+      padding: 1rem;
+      padding-bottom: 4rem;
+      isolation: isolate;
+    }
+
+    .desktop::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      background-image: linear-gradient(rgba(255, 255, 255, 0.06) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255, 255, 255, 0.06) 1px, transparent 1px);
+      background-size: 32px 32px;
+      mix-blend-mode: screen;
+      opacity: 0.2;
+    }
+
+    .desktop::after {
+      content: '';
+      position: absolute;
+      right: 0;
+      bottom: 0;
+      width: var(--safe-zone);
+      height: 180px;
+      pointer-events: none;
+      background: transparent;
+      z-index: 30;
+    }
+
+    nav.dock {
+      position: relative;
+      z-index: 5;
+      display: flex;
+      align-items: center;
+      gap: 0.8rem;
+      padding: 0.6rem 0.8rem;
+      margin: 0 0 0.8rem;
+      border: 2px solid #ffffff;
+      background: linear-gradient(180deg, #5f26c4, #2f0c7d);
+      box-shadow: 0 0 0 2px #000;
+      flex-wrap: wrap;
+    }
+
+    .brand {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(1.1rem, 2.4vw, 1.5rem);
+      letter-spacing: 0.03em;
+      color: #ffffff;
+      margin-right: auto;
+      text-shadow: 1px 1px 0 #000;
+    }
+
+    .dock button {
+      margin: 0;
+      border: 2px solid #fff;
+      border-radius: 0;
+      background: linear-gradient(180deg, #ff4ac0, #c20474);
+      color: #fff;
+      font-weight: 700;
+      box-shadow: inset 1px 1px 0 rgba(255, 255, 255, 0.45), 2px 2px 0 #000;
+      padding: 0.4rem 0.65rem;
+      min-height: auto;
+      line-height: 1.2;
+    }
+
+    .dock button:hover {
+      background: linear-gradient(180deg, #30ebff, #0096d1);
+      color: #041020;
+    }
+
+    .window-layer {
+      position: relative;
+      height: min(980px, calc(100vh - 112px));
+      min-height: 760px;
+      margin-right: var(--safe-zone);
+    }
+
+    .win {
+      position: absolute;
+      width: min(520px, 94vw);
+      border: 2px solid #fff;
+      background: linear-gradient(135deg, #2b0f59, #1e0e44);
+      box-shadow: 0 0 0 2px #000, 8px 10px 0 rgba(0, 0, 0, 0.4);
+      color: #fff;
+      overflow: hidden;
+      transition: transform 0.2s ease;
+    }
+
+    .win:hover {
+      transform: translateY(-3px);
+    }
+
+    .titlebar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0.35rem 0.55rem;
+      font-size: 0.85rem;
+      font-weight: 700;
+      border-bottom: 2px solid #fff;
+      background: linear-gradient(90deg, #18d7ff, #d31cff 62%, #7910c4);
+      color: #091028;
+      text-shadow: none;
+    }
+
+    .titlebar .actions {
+      display: flex;
+      gap: 0.2rem;
+    }
+
+    .titlebar .dot {
+      width: 14px;
+      height: 14px;
+      border: 1px solid #000;
+      background: #fff;
+      box-shadow: inset -1px -1px 0 #8e8e8e;
+    }
+
+    .pane {
+      padding: 0.8rem;
+      background: linear-gradient(180deg, #2a1558, #130631);
+    }
+
+    h1,
+    h2,
+    h3,
+    p,
+    li,
+    small,
+    label,
+    strong,
+    span,
+    dt,
+    dd {
+      color: #ffffff;
+    }
+
+    h1,
+    h2,
+    h3 {
+      margin: 0 0 0.45rem;
+      font-family: 'Playfair Display', serif;
+      line-height: 1.1;
+    }
+
+    p {
+      margin: 0.3rem 0 0.75rem;
+      line-height: 1.45;
+      font-size: 0.94rem;
+    }
+
+    .hero {
+      left: 2%;
+      top: 1%;
+      z-index: 3;
+    }
+
+    .art {
+      left: 39%;
+      top: 6%;
+      width: min(560px, 95vw);
+      z-index: 2;
+    }
+
+    .menu {
+      left: 4%;
+      top: 47%;
+      width: min(360px, 92vw);
+      z-index: 4;
+    }
+
+    .rituals {
+      left: 33%;
+      top: 52%;
+      width: min(380px, 93vw);
+      z-index: 5;
+    }
+
+    .rates {
+      left: 60%;
+      top: 43%;
+      width: min(360px, 92vw);
+      z-index: 6;
+    }
+
+    .note {
+      left: 69%;
+      top: 8%;
+      width: min(320px, 90vw);
+      z-index: 7;
+    }
+
+    .stage {
+      position: relative;
+      height: 280px;
+      border: 2px solid #fff;
+      background: linear-gradient(170deg, #29004f, #05284f);
+      overflow: hidden;
+    }
+
+    .moon {
+      position: absolute;
+      width: 160px;
+      height: 160px;
+      left: 50%;
+      top: 50%;
+      transform: translate(-50%, -50%);
+      border-radius: 50%;
+      background: radial-gradient(circle at 28% 28%, #ffffff, #9ff8ff 30%, #ff84dd 61%, #7830e3 100%);
+      box-shadow: 0 0 35px #66efff, 0 0 55px #ff2ea6;
+      cursor: pointer;
+      transition: border-radius 0.4s ease, filter 0.4s ease;
+    }
+
+    .moon::before,
+    .moon::after {
+      content: '';
+      position: absolute;
+      inset: -22px;
+      border-radius: inherit;
+      border: 2px dashed rgba(255, 255, 255, 0.85);
+      animation: spin 9s linear infinite;
+    }
+
+    .moon::after {
+      inset: -45px;
+      border-style: solid;
+      border-color: rgba(26, 245, 255, 0.8);
+      clip-path: polygon(0 47%, 100% 0, 100% 53%, 0 100%);
+      animation-direction: reverse;
+      animation-duration: 12s;
+    }
+
+    .moon.morph {
+      border-radius: 37% 63% 50% 50% / 60% 42% 58% 40%;
+      filter: hue-rotate(80deg) saturate(1.25);
+    }
+
+    .ray {
+      position: absolute;
+      inset: 50% auto auto 50%;
+      width: 4px;
+      height: 124px;
+      background: linear-gradient(180deg, rgba(255, 255, 255, 0), rgba(26, 245, 255, 0.95));
+      transform-origin: top center;
+      opacity: 0.5;
+    }
+
+    .ray:nth-child(2) { transform: translate(-50%, -50%) rotate(40deg); }
+    .ray:nth-child(3) { transform: translate(-50%, -50%) rotate(85deg); }
+    .ray:nth-child(4) { transform: translate(-50%, -50%) rotate(130deg); }
+    .ray:nth-child(5) { transform: translate(-50%, -50%) rotate(175deg); }
+    .ray:nth-child(6) { transform: translate(-50%, -50%) rotate(220deg); }
+    .ray:nth-child(7) { transform: translate(-50%, -50%) rotate(265deg); }
+    .ray:nth-child(8) { transform: translate(-50%, -50%) rotate(310deg); }
+
+    .chrome-ribbon {
+      height: 72px;
+      margin-top: 0.65rem;
+      background: linear-gradient(110deg, #8ca1ff 0%, #f9ffff 19%, #59eaff 36%, #ffd3f6 50%, #40a6ff 73%, #f0fbff 100%);
+      border: 2px solid #fff;
+      clip-path: polygon(0 17%, 16% 7%, 30% 16%, 47% 0, 69% 13%, 82% 3%, 100% 18%, 100% 81%, 86% 94%, 67% 83%, 50% 100%, 30% 85%, 13% 96%, 0 84%);
+      filter: contrast(1.1) saturate(1.05);
+    }
+
+    .cards {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 0.45rem;
+    }
+
+    .card {
+      border: 1px solid #fff;
+      background: linear-gradient(180deg, #15285a, #250a4f);
+      padding: 0.45rem;
+      min-height: 100px;
+    }
+
+    .card strong {
+      display: block;
+      font-size: 0.86rem;
+      margin-bottom: 0.35rem;
+    }
+
+    .ticker {
+      display: flex;
+      gap: 1.1rem;
+      white-space: nowrap;
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 0.76rem;
+      margin-top: 0.6rem;
+      border-top: 1px solid #ffffff;
+      padding-top: 0.5rem;
+      animation: floattext 14s linear infinite;
+    }
+
+    .list-clean {
+      margin: 0;
+      padding-left: 1rem;
+    }
+
+    .list-clean li {
+      margin: 0.28rem 0;
+    }
+
+    .quote {
+      border-left: 3px solid #1af5ff;
+      padding-left: 0.55rem;
+      margin-bottom: 0.5rem;
+      font-size: 0.88rem;
+    }
+
+    .quote small {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 0.72rem;
+      color: #ffffff;
+    }
+
+    .chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.35rem;
+      margin-top: 0.5rem;
+    }
+
+    .chip {
+      border: 1px solid #fff;
+      background: #081f50;
+      padding: 0.2rem 0.45rem;
+      font-size: 0.78rem;
+      color: #fff;
+    }
+
+    .win button,
+    .win [role='button'] {
+      border: 2px solid #fff;
+      border-radius: 0;
+      box-shadow: 2px 2px 0 #000;
+      font-weight: 700;
+      min-height: auto;
+      padding: 0.35rem 0.56rem;
+      font-size: 0.82rem;
+      color: #fff;
+      background: linear-gradient(180deg, #ff45b8, #9e0b79);
+    }
+
+    .win button:hover,
+    .win [role='button']:hover {
+      background: linear-gradient(180deg, #25ecff, #007fbf);
+      color: #041025;
+    }
+
+    .price-row {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      border-bottom: 1px solid #fff;
+      margin: 0.35rem 0;
+      padding-bottom: 0.35rem;
+    }
+
+    .price {
+      color: #ffffff;
+      font-weight: 800;
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 0.97rem;
+    }
+
+    .faq {
+      border: 1px solid #fff;
+      margin-top: 0.45rem;
+      background: #0f1f4c;
+    }
+
+    .faq summary {
+      cursor: pointer;
+      padding: 0.4rem 0.45rem;
+      color: #ffffff;
+      font-weight: 700;
+    }
+
+    .faq p {
+      padding: 0 0.45rem 0.5rem;
+      margin: 0;
+    }
+
+    footer {
+      position: relative;
+      z-index: 4;
+      margin-top: 1.1rem;
+      margin-right: var(--safe-zone);
+      border: 2px solid #fff;
+      background: linear-gradient(180deg, #2f0f77, #1a0a3e);
+      box-shadow: 0 0 0 2px #000;
+      padding: 0.65rem 0.8rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.7rem;
+      flex-wrap: wrap;
+    }
+
+    footer p,
+    footer small {
+      margin: 0;
+      color: #ffffff;
+      font-size: 0.78rem;
+    }
+
+    .icon-row {
+      display: flex;
+      gap: 0.5rem;
+      align-items: center;
+    }
+
+    .icon-row i {
+      width: 16px;
+      height: 16px;
+      color: #ffffff;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    @keyframes floattext {
+      from { transform: translateX(0); }
+      to { transform: translateX(-45%); }
+    }
+
+    @media (max-width: 1000px) {
+      .window-layer {
+        margin-right: 0;
+        min-height: auto;
+        height: auto;
+        display: grid;
+        gap: 0.8rem;
+      }
+
+      .win {
+        position: relative;
+        left: auto;
+        top: auto;
+        width: 100%;
+        transform: none !important;
+      }
+
+      footer {
+        margin-right: 0;
+      }
+
+      .desktop::after {
+        display: none;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="desktop" x-data="retreatApp()">
+    <nav class="dock" aria-label="Main">
+      <div class="brand">Lunaire House</div>
+      <button type="button" @click="cycleTheme">Cycle Sky</button>
+      <button type="button" @click="shuffleWindows">Shuffle Layout</button>
+      <button type="button" @click="ritualPulse">Lamp Ritual</button>
+    </nav>
+
+    <section class="window-layer" id="windowLayer">
+      <article class="win hero" data-window>
+        <div class="titlebar">
+          <span>Welcome Panel</span>
+          <div class="actions" aria-hidden="true"><span class="dot"></span><span class="dot"></span><span class="dot"></span></div>
+        </div>
+        <div class="pane">
+          <h1>Moonlight Restoration Suites</h1>
+          <p>Private recovery rooms, dawn fasting tables, and nightly lamp-tracing rituals for guests who prefer celestial power over ordinary sleep.</p>
+          <div class="cards">
+            <div class="card">
+              <strong>Signature Stay</strong>
+              <p>Three nights, guided quiet hours, and copper steam canopy access.</p>
+            </div>
+            <div class="card">
+              <strong>Midnight Atelier</strong>
+              <p>Moon-surface journaling with in-house therapists and tea sommeliers.</p>
+            </div>
+            <div class="card">
+              <strong>Cloud Desk</strong>
+              <p>Monitored digital detox lockers and analog concierge service.</p>
+            </div>
+          </div>
+          <div class="ticker" aria-label="Current notices">
+            <span>CHECK-IN 15:00</span>
+            <span>GLASSHOUSE SAUNA 18:10</span>
+            <span>LAMP AUDIT 22:00</span>
+            <span>SKY TERRACE OPENS 05:20</span>
+            <span>QUIET TEA SERVICE 06:00</span>
+          </div>
+        </div>
+      </article>
+
+      <article class="win art" data-window>
+        <div class="titlebar">
+          <span>Luminous Atrium</span>
+          <div class="actions" aria-hidden="true"><span class="dot"></span><span class="dot"></span><span class="dot"></span></div>
+        </div>
+        <div class="pane">
+          <div class="stage" id="stageArt" aria-label="Interactive moon installation">
+            <div class="ray"></div>
+            <div class="ray"></div>
+            <div class="ray"></div>
+            <div class="ray"></div>
+            <div class="ray"></div>
+            <div class="ray"></div>
+            <div class="ray"></div>
+            <div class="moon" id="moonOrb" title="Tap the lamp"></div>
+          </div>
+          <div class="chrome-ribbon" id="ribbon"></div>
+        </div>
+      </article>
+
+      <article class="win menu" data-window>
+        <div class="titlebar">
+          <span>Daily Flow</span>
+          <div class="actions" aria-hidden="true"><span class="dot"></span><span class="dot"></span><span class="dot"></span></div>
+        </div>
+        <div class="pane">
+          <ul class="list-clean">
+            <li>Sunset mineral soak in chromed cedar basin.</li>
+            <li>Silent terrace walk under supervised moonlight.</li>
+            <li>Zero-device supper with citrus smoke infusion.</li>
+            <li>Late lamp acceptance session with breath coach.</li>
+          </ul>
+          <div class="chips">
+            <span class="chip">no phones on site</span>
+            <span class="chip">night concierge</span>
+            <span class="chip">private transit</span>
+          </div>
+        </div>
+      </article>
+
+      <article class="win rituals" data-window>
+        <div class="titlebar">
+          <span>Guest Notes</span>
+          <div class="actions" aria-hidden="true"><span class="dot"></span><span class="dot"></span><span class="dot"></span></div>
+        </div>
+        <div class="pane">
+          <div class="quote">"I arrived with insomnia and left with ceremonial bedtime discipline."<br /><small>Marina H., perfume buyer</small></div>
+          <div class="quote">"Our couple suite ritual made even silence feel tailored."<br /><small>Owen &amp; Sam, Seattle</small></div>
+          <div class="quote">"The moon ledger reset my workweek anxiety in two nights."<br /><small>Priya N., litigator</small></div>
+        </div>
+      </article>
+
+      <article class="win rates" data-window>
+        <div class="titlebar">
+          <span>Suites &amp; Reservations</span>
+          <div class="actions" aria-hidden="true"><span class="dot"></span><span class="dot"></span><span class="dot"></span></div>
+        </div>
+        <div class="pane">
+          <div class="price-row"><span>House Room</span><span class="price">$390/night</span></div>
+          <div class="price-row"><span>Atrium Suite</span><span class="price">$640/night</span></div>
+          <div class="price-row"><span>Moon Ledger Package</span><span class="price">$1,280 / 3 nights</span></div>
+          <button type="button" @click="bookFlash">Request Itinerary</button>
+          <details class="faq">
+            <summary>Is there Wi-Fi?</summary>
+            <p>Only in the arrival lounge. Guest floors stay signal-soft for uninterrupted recovery.</p>
+          </details>
+          <details class="faq">
+            <summary>Do you accept group retreats?</summary>
+            <p>Yes, up to fourteen guests. Each group receives a private moon steward.</p>
+          </details>
+        </div>
+      </article>
+
+      <article class="win note" data-window>
+        <div class="titlebar">
+          <span>Contact Ledger</span>
+          <div class="actions" aria-hidden="true"><span class="dot"></span><span class="dot"></span><span class="dot"></span></div>
+        </div>
+        <div class="pane">
+          <p><strong>Lunaire House</strong><br />1904 Silver Basin Road<br />Marrow Bay, CA</p>
+          <p>reservations@lunaire.house<br />+1 (415) 555-0114</p>
+          <p><small>Shuttle departures nightly at 16:40 from city terminal.</small></p>
+        </div>
+      </article>
+    </section>
+
+    <footer>
+      <p>Member of the Northern Quiet Hospitality Circle</p>
+      <div class="icon-row" aria-hidden="true">
+        <i data-lucide="moon-star"></i>
+        <i data-lucide="sparkles"></i>
+        <i data-lucide="hotel"></i>
+      </div>
+      <small>Concierge desk hours: 07:00-23:00</small>
+    </footer>
+  </main>
+
+  <script src="/assets/js/alpine.min.js" defer></script>
+  <script src="/assets/js/gsap.min.js"></script>
+  <script src="/assets/js/lucide.min.js"></script>
+  <script>
+    function retreatApp() {
+      return {
+        themes: ['theme-aurora', 'theme-eclipse'],
+        themeIndex: -1,
+        zCounter: 10,
+
+        init() {
+          this.enableWindowFocus();
+          this.initArt();
+        },
+
+        enableWindowFocus() {
+          document.querySelectorAll('[data-window]').forEach((win) => {
+            win.addEventListener('pointerdown', () => {
+              this.zCounter += 1;
+              win.style.zIndex = String(this.zCounter);
+              gsap.fromTo(win, { rotate: -0.8 }, { rotate: 0, duration: 0.28, ease: 'power2.out' });
+            });
+          });
+        },
+
+        initArt() {
+          gsap.to('.ray', {
+            opacity: 0.95,
+            duration: 1.6,
+            yoyo: true,
+            repeat: -1,
+            stagger: 0.14,
+            ease: 'sine.inOut'
+          });
+
+          gsap.to('#ribbon', {
+            filter: 'hue-rotate(70deg) contrast(1.18)',
+            duration: 3.2,
+            repeat: -1,
+            yoyo: true,
+            ease: 'sine.inOut'
+          });
+
+          const orb = document.getElementById('moonOrb');
+          if (orb) {
+            orb.addEventListener('click', () => {
+              orb.classList.toggle('morph');
+              gsap.fromTo(orb, { scale: 0.92 }, { scale: 1.05, duration: 0.28, yoyo: true, repeat: 1, ease: 'power2.out' });
+            });
+          }
+        },
+
+        cycleTheme() {
+          document.body.classList.remove(...this.themes);
+          this.themeIndex = (this.themeIndex + 1) % (this.themes.length + 1);
+          if (this.themeIndex < this.themes.length) {
+            document.body.classList.add(this.themes[this.themeIndex]);
+          }
+        },
+
+        shuffleWindows() {
+          if (window.innerWidth < 1000) {
+            return;
+          }
+          const windows = Array.from(document.querySelectorAll('[data-window]'));
+          windows.forEach((win) => {
+            const maxX = Math.max(20, window.innerWidth - win.offsetWidth - 260);
+            const maxY = Math.max(20, window.innerHeight - win.offsetHeight - 120);
+            const x = Math.floor(Math.random() * maxX);
+            const y = Math.floor(Math.random() * maxY);
+            gsap.to(win, {
+              left: x,
+              top: y,
+              duration: 0.6,
+              ease: 'power2.inOut'
+            });
+          });
+        },
+
+        ritualPulse() {
+          const tl = gsap.timeline();
+          tl.to('#stageArt', {
+            background: 'linear-gradient(170deg, #120028, #014764)',
+            duration: 0.4,
+            ease: 'power1.inOut'
+          })
+          .to('#moonOrb', {
+            boxShadow: '0 0 45px #ffffff, 0 0 70px #1af5ff, 0 0 100px #ff2ea6',
+            duration: 0.5,
+            ease: 'power2.out'
+          }, 0)
+          .to('.ray', {
+            height: 170,
+            opacity: 1,
+            duration: 0.45,
+            stagger: 0.04
+          }, 0)
+          .to('#ribbon', {
+            clipPath: 'polygon(0 50%, 9% 0, 22% 51%, 35% 8%, 49% 57%, 66% 3%, 78% 51%, 91% 5%, 100% 50%, 90% 100%, 76% 52%, 64% 97%, 50% 43%, 36% 100%, 20% 49%, 8% 100%)',
+            duration: 0.5
+          }, 0)
+          .to('#stageArt', {
+            background: 'linear-gradient(170deg, #29004f, #05284f)',
+            duration: 0.45,
+            ease: 'power1.inOut'
+          })
+          .to('.ray', {
+            height: 124,
+            duration: 0.3,
+            stagger: 0.03
+          }, '<');
+        },
+
+        bookFlash() {
+          gsap.fromTo('.rates', { x: -6 }, { x: 6, duration: 0.08, repeat: 5, yoyo: true, ease: 'none' });
+        }
+      };
+    }
+
+    document.addEventListener('alpine:init', () => {
+      Alpine.data('retreatApp', retreatApp);
+    });
+
+    document.addEventListener('DOMContentLoaded', () => {
+      lucide.createIcons();
+    });
+  </script>
+</body>
+</html>

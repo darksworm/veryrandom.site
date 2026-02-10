@@ -1,0 +1,329 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Compliment Tub Conservancy</title>
+    <link rel="stylesheet" href="/assets/css/pico.min.css">
+    <link rel="stylesheet" href="/assets/css/fonts.css">
+    <style>
+        :root {
+            --parchment: #f5f0e8;
+            --ink-black: #2a2a2a;
+            --sepia-brown: #5a3d2b;
+            --faded-green: #5a7d5a;
+            --glitch-p-1: #00ff00;
+            --glitch-p-2: #ff00ff;
+            --font-mono: 'IBM Plex Mono', monospace;
+        }
+
+        body {
+            background-color: var(--parchment);
+            color: var(--ink-black);
+            font-family: var(--font-mono);
+            font-size: 16px;
+            line-height: 1.7;
+            padding: 0;
+            margin: 0;
+        }
+
+        /* Override Pico framework styles */
+        body, input, textarea, button, select {
+            font-family: var(--font-mono);
+        }
+        h1, h2, h3, h4, h5, h6, strong {
+            color: var(--sepia-brown);
+        }
+        a {
+            color: var(--faded-green);
+            text-decoration: underline;
+            transition: color 0.3s ease;
+        }
+        a:hover {
+            color: var(--ink-black);
+            background-color: var(--faded-green);
+        }
+
+        .container {
+            max-width: 960px;
+            padding: 1rem 2rem;
+        }
+
+        /* Terminal Aesthetic */
+        .terminal-window {
+            border: 2px solid var(--ink-black);
+            background: var(--parchment);
+            margin: 2rem 0;
+            box-shadow: 5px 5px 0px var(--sepia-brown);
+        }
+        .terminal-header {
+            background: var(--ink-black);
+            color: var(--parchment);
+            padding: 0.5rem 1rem;
+            font-weight: bold;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .terminal-body {
+            padding: 1.5rem;
+        }
+
+        /* Glitchy Heading */
+        .glitch {
+            font-size: 2.5rem;
+            font-weight: 700;
+            position: relative;
+            display: inline-block;
+        }
+        .glitch::before,
+        .glitch::after {
+            content: attr(data-text);
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: var(--parchment);
+            overflow: hidden;
+        }
+        .glitch::before {
+            left: 2px;
+            text-shadow: -2px 0 var(--glitch-p-1);
+            animation: glitch-anim-1 2s infinite linear alternate-reverse;
+        }
+        .glitch::after {
+            left: -2px;
+            text-shadow: -2px 0 var(--glitch-p-2);
+            animation: glitch-anim-2 2s infinite linear alternate-reverse;
+        }
+
+        @keyframes glitch-anim-1 {
+            0% { clip-path: inset(10% 0 80% 0); }
+            100% { clip-path: inset(40% 0 30% 0); }
+        }
+        @keyframes glitch-anim-2 {
+            0% { clip-path: inset(70% 0 10% 0); }
+            100% { clip-path: inset(20% 0 50% 0); }
+        }
+
+        /* Main Nav */
+        nav {
+            border-bottom: 2px solid var(--ink-black);
+            padding: 0.5rem 0;
+        }
+        nav ul {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 1rem;
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        /* Donate Button */
+        .donate-button {
+            background-color: var(--faded-green);
+            color: var(--parchment);
+            border: 2px solid var(--ink-black);
+            padding: 1rem 2rem;
+            font-size: 1.2rem;
+            font-weight: bold;
+            text-align: center;
+            display: inline-block;
+            text-decoration: none;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        .donate-button:hover {
+            background-color: var(--sepia-brown);
+            color: var(--parchment);
+            transform: translate(-3px, -3px);
+            box-shadow: 3px 3px 0px var(--ink-black);
+        }
+        
+        /* Interactive Elements */
+        [x-cloak] { display: none !important; }
+        .tab-buttons {
+            display: flex;
+            border-bottom: 2px solid var(--ink-black);
+        }
+        .tab-button {
+            padding: 0.75rem 1.5rem;
+            cursor: pointer;
+            border: none;
+            background: transparent;
+            font-family: var(--font-mono);
+            font-size: 1rem;
+            font-weight: bold;
+        }
+        .tab-button.active {
+            background: var(--ink-black);
+            color: var(--parchment);
+        }
+        .faq-item summary {
+            font-weight: bold;
+            cursor: pointer;
+            padding: 0.5rem 0;
+        }
+        
+        /* Footer */
+        footer {
+            text-align: center;
+            font-size: 0.9rem;
+            padding: 2rem;
+            border-top: 2px solid var(--ink-black);
+            margin-top: 2rem;
+        }
+        .social-icons a { text-decoration: none; }
+        .social-icons i {
+            width: 32px;
+            height: 32px;
+        }
+
+        @media (max-width: 768px) {
+            .container { padding: 1rem; }
+            .glitch { font-size: 2rem; }
+            .tab-buttons { flex-direction: column; }
+            .tab-button { width: 100%; border-bottom: 1px solid var(--ink-black); }
+        }
+    </style>
+</head>
+<body x-data>
+    <header class="container">
+        <div style="text-align: center; padding: 2rem 0;">
+            <h1 class="glitch" data-text="CTC">CTC</h1>
+            <h2>The Compliment Tub Conservancy</h2>
+            <p>A 501(c)(3) Non-Profit Monetizing Kindness, One Hamster at a Time.</p>
+        </div>
+        <nav>
+            <ul>
+                <li><a href="#mission">Mission</a></li>
+                <li><a href="#programs">Programs</a></li>
+                <li><a href="#team">Our Team</a></li>
+                <li><a href="#faq">FAQ</a></li>
+                <li><a href="#donate">Donate</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <main class="container">
+        <section id="mission" class="terminal-window">
+            <header class="terminal-header">
+                <span>FILE: /USR/MISSION.TXT</span>
+                <span>[READ-ONLY]</span>
+            </header>
+            <div class="terminal-body">
+                <h3>Our Mandate</h3>
+                <p>The Compliment Tub Conservancy is dedicated to the systematic recalibration of global economic frameworks. We replace volatile, speculative fiat currencies with stable, affirmation-backed assets. Our proprietary Hamster-based Algorithmic Trading (HAT) system—operated entirely from a sanitized, standard-capacity porcelain tub—identifies and leverages undervalued pockets of positivity in the global emotional market.</p>
+                <p>We believe that a "good job" is more valuable than a gold standard. Our work proves it.</p>
+            </div>
+        </section>
+
+        <section id="programs" class="terminal-window" x-data="{ tab: 'trading-floor' }">
+            <header class="terminal-header"><span>PROGRAMS.EXE</span></header>
+            <div class="tab-buttons">
+                <button :class="{ 'active': tab === 'trading-floor' }" @click="tab = 'trading-floor'">[1] The Trading Floor</button>
+                <button :class="{ 'active': tab === 'currency' }" @click="tab = 'currency'">[2] The Currency</button>
+                <button :class="{ 'active': tab === 'outreach' }" @click="tab = 'outreach'">[3] Community Outreach</button>
+            </div>
+            <div class="terminal-body">
+                <div x-show="tab === 'trading-floor'" x-cloak>
+                    <h4>The Epicenter of Affirmation Arbitrage</h4>
+                    <p>Our certified Emotional Arbitrage Traders (EATs), primarily of Syrian and Dwarf hamster descent, execute thousands of micro-transactions daily. Their compensation is not in seeds, but in gentle, whispered affirmations. We maintain a strict 1:1 ratio of "good boy" to "excellent trade execution." The trading floor itself—a standard 60x30 inch porcelain tub—is maintained at a constant 78°F to ensure optimal napping and trading conditions.</p>
+                    <blockquote>"Bartholomew once leveraged a single 'you've got this' into a portfolio worth three 'I'm proud of you's'. It was breathtaking." - Witness Account</blockquote>
+                </div>
+                <div x-show="tab === 'currency'" x-cloak>
+                    <h4>Understanding Compliment-Asset-Backed Securities (CAbS)</h4>
+                    <p>The base unit of our economy is the 'Well-Done' (WD). Each WD is algorithmically weighted against sincerity, delivery, and potential for positive ripple effects. A simple "nice hat" is a micro-unit (μWD), while "you have fundamentally altered my perspective on life for the better" can be a high-value Affirmation Bond (AB).</p>
+                    <p><strong>Example Valuation:</strong><br>
+                    1 'Thanks for holding the door' ≈ 0.82 μWD<br>
+                    1 'This meeting could have been an email' (sincere) ≈ 45 WD<br>
+                    1 'Your child is remarkably well-behaved in this grocery store' ≈ 1.2 AB</p>
+                </div>
+                <div x-show="tab === 'outreach'" x-cloak>
+                    <h4>Project: Warm Fuzzy</h4>
+                    <p>Our 'Warm Fuzzy' initiative sends trained volunteers into high-tension environments (e.g., DMV waiting areas, online political forums) to deploy strategic compliments and stabilize the local emotional economy. Field agents are equipped with pre-approved, high-yield affirmations to de-escalate conflicts and generate goodwill.</p>
+                    <p>Results from our pilot program in the comments section of a local news article show a 14% reduction in passive-aggression and a 22% increase in the use of the heart emoji within two fiscal quarters.</p>
+                </div>
+            </div>
+        </section>
+
+        <section id="team" class="terminal-window">
+            <header class="terminal-header"><span>STAFF_BIOS.DAT</span></header>
+            <div class="terminal-body">
+                <h3>Our Professionals</h3>
+                <article>
+                    <h4>Bartholomew // Chief Trading Officer</h4>
+                    <p>A veteran of the wheel and a master of seed-based risk assessment, Bartholomew pioneered the 'Nuzzle-and-Hold' strategy which has since become the gold standard in affirmation arbitrage. His uncanny ability to predict emotional market swings after a nap is the stuff of legend. He communicates exclusively through interpretive nose wiggles.</p>
+                </article>
+                <hr>
+                <article>
+                    <h4>Agnes P. Fitzwilliam // Head of Custodial Operations & Tub Integrity</h4>
+                    <p>With a PhD in Micro-Soaps and a passion for philanthropic hygiene, Agnes ensures our trading floor remains a beacon of cleanliness and ethical conduct. She single-handedly developed our patented pH-neutral bubble bath solution that enhances trader morale by 8% without causing eye irritation.</p>
+                </article>
+            </div>
+        </section>
+
+        <section id="faq" class="terminal-window" x-data="{ open: null }">
+            <header class="terminal-header"><span>HELP_INDEX.HLP</span></header>
+            <div class="terminal-body">
+                <h3>Frequently Asked Questions</h3>
+                <details class="faq-item" @toggle="open = $el.open ? 1 : null">
+                    <summary>> Is this legal?</summary>
+                    <p>We operate in the jurisdiction of goodwill, which is currently unregulated. All compliment-assets are ethically sourced and fair-trade certified by our internal review board, 'The Council of Kind Regards'.</p>
+                </details>
+                <details class="faq-item" @toggle="open = $el.open ? 2 : null">
+                    <summary>> Do the hamsters get bathroom breaks?</summary>
+                    <p>The operational environment is the bathroom. We are pioneers in seamless work-life integration. Our traders view the entire ecosystem as their domain.</p>
+                </details>
+                <details class="faq-item" @toggle="open = $el.open ? 3 : null">
+                    <summary>> Can I invest my own compliments?</summary>
+                    <p>Direct public investment is not yet available as it could destabilize the market. However, you can support our mission through a tax-deductible donation. Your contribution helps us acquire essential resources, like smaller, more ergonomic trading wheels and artisanal water droplets.</p>
+                </details>
+                 <details class="faq-item" @toggle="open = $el.open ? 4 : null">
+                    <summary>> What is your return policy on negative feedback?</summary>
+                    <p>We do not accept returns. All transactions are final. We convert all criticism into a low-grade, long-term energy source for the tub's water heater.</p>
+                </details>
+            </div>
+        </section>
+
+        <section id="donate" class="container" style="text-align: center; padding: 3rem 1rem;">
+            <h2>Support the Affirmation Economy</h2>
+            <p>Your donation fuels a revolution in kindness. Every dollar helps us generate and reinvest compliments where they're needed most. We have a 98% efficiency rating (2% is lost to spilled water).</p>
+            <div style="margin: 2rem 0;">
+                <a href="#" class="donate-button">DONATE $25.00</a>
+            </div>
+            <p>A gift of <strong>$25</strong> provides one week of organic, cruelty-free bedding for our traders. <br> A gift of <strong>$100</strong> funds a 'Compliment Bomb' deployment in a critically cynical urban center.</p>
+        </section>
+
+    </main>
+
+    <footer>
+        <div class="social-icons">
+            <a href="#" title="CLASSIFIED"><i data-lucide="twitter"></i></a>
+            <a href="#" title="REDACTED"><i data-lucide="instagram"></i></a>
+            <a href="#" title="LEVEL 7 CLEARANCE ONLY"><i data-lucide="linkedin"></i></a>
+        </div>
+        <p>The Compliment Tub Conservancy is a registered 501(c)(3) organization.</p>
+        <p>Do not attempt to replicate our trading environment without proper certification. The hamsters are professionals.</p>
+        <p>&copy; 2026 CTC. All Rights Reserved. FILE REF: 17706738553AF5</p>
+    </footer>
+
+    <script src="/assets/js/alpine.min.js"></script>
+    <script src="/assets/js/gsap.min.js"></script>
+    <script src="/assets/js/lucide.min.js"></script>
+    <script>
+        lucide.createIcons();
+        gsap.from("header, main > *", { 
+            opacity: 0, 
+            y: 25, 
+            duration: 0.8, 
+            stagger: 0.15,
+            ease: "power2.out"
+        });
+    </script>
+</body>
+</html>

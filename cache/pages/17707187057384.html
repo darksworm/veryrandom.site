@@ -1,0 +1,514 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>RAMP SIGNAL WEEKLY | By Nora Kline</title>
+  <link rel="stylesheet" href="/assets/css/pico.min.css" />
+  <link rel="stylesheet" href="/assets/css/fonts.css" />
+  <style>
+    :root {
+      --bg: #fbfffc;
+      --paper: #f4fff7;
+      --ink: #0f1a12;
+      --muted: #2f4737;
+      --line: #8fb59d;
+      --accent: #00a84f;
+      --accent-dark: #0b7f41;
+      --warn: #c72f2f;
+    }
+
+    * { box-sizing: border-box; }
+
+    html, body {
+      margin: 0;
+      padding: 0;
+      background: var(--bg);
+      color: var(--ink);
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 16px;
+      line-height: 1.45;
+      overflow-x: hidden;
+    }
+
+    [x-cloak] { display: none !important; }
+
+    .scanlines {
+      background-image: linear-gradient(to bottom, #ffffff 0%, #f6fff8 100%);
+      min-height: 100vh;
+      padding: clamp(0.8rem, 2vw, 1.5rem);
+    }
+
+    .newspaper {
+      max-width: 1200px;
+      margin: 0 auto;
+      border: 2px solid var(--line);
+      background: var(--paper);
+      box-shadow: 0 8px 30px #d9ebde;
+    }
+
+    .masthead {
+      border-bottom: 3px double var(--line);
+      padding: 1rem;
+      display: grid;
+      gap: 0.6rem;
+    }
+
+    .topline {
+      display: flex;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 0.6rem;
+      font-size: 0.85rem;
+      color: var(--muted);
+      border-bottom: 1px solid var(--line);
+      padding-bottom: 0.5rem;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: clamp(1.8rem, 6vw, 3.8rem);
+      letter-spacing: 0.08em;
+      line-height: 1;
+      text-transform: uppercase;
+    }
+
+    .tagline {
+      margin: 0;
+      color: var(--muted);
+      font-size: 0.98rem;
+    }
+
+    .controls {
+      display: grid;
+      gap: 0.8rem;
+      border-bottom: 1px solid var(--line);
+      padding: 0.9rem 1rem;
+      background: #effff3;
+    }
+
+    .chip-row,
+    .section-tabs {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+    }
+
+    button,
+    .chip {
+      font-family: inherit;
+      border: 1px solid var(--line);
+      background: #ffffff;
+      color: var(--ink);
+      padding: 0.5rem 0.75rem;
+      min-height: 44px;
+      border-radius: 0;
+      cursor: pointer;
+      font-size: 0.9rem;
+    }
+
+    button:hover,
+    .chip:hover { border-color: var(--accent); }
+
+    .active {
+      background: var(--accent);
+      border-color: var(--accent-dark);
+      color: #ffffff;
+      font-weight: 700;
+    }
+
+    .brief {
+      display: grid;
+      gap: 0.5rem;
+      grid-template-columns: repeat(12, minmax(0, 1fr));
+      border-bottom: 1px solid var(--line);
+      padding: 0.75rem 1rem;
+      font-size: 0.88rem;
+    }
+
+    .brief b { color: var(--accent-dark); }
+
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 0;
+    }
+
+    .main,
+    .sidebar,
+    .rail {
+      padding: 1rem;
+      border-top: 1px solid var(--line);
+    }
+
+    .section-title {
+      font-size: 0.86rem;
+      text-transform: uppercase;
+      letter-spacing: 0.09em;
+      margin: 0 0 0.7rem 0;
+      color: var(--muted);
+    }
+
+    .story {
+      border: 1px solid var(--line);
+      padding: 0.8rem;
+      margin-bottom: 0.8rem;
+      background: #ffffff;
+    }
+
+    .story h3 {
+      margin: 0 0 0.4rem 0;
+      font-size: 1.06rem;
+      line-height: 1.25;
+    }
+
+    .story p,
+    .story li,
+    .story blockquote,
+    .story small {
+      color: #1a2a1f;
+    }
+
+    .meta {
+      font-size: 0.8rem;
+      color: var(--muted);
+      margin-bottom: 0.45rem;
+    }
+
+    .pull {
+      border-left: 4px solid var(--accent);
+      padding-left: 0.7rem;
+      margin: 0.6rem 0;
+      font-size: 1.02rem;
+      color: #10331e;
+    }
+
+    .ad {
+      border: 2px dashed var(--accent-dark);
+      background: #ecfff1;
+      padding: 0.75rem;
+      margin-bottom: 0.8rem;
+    }
+
+    .ad h4 {
+      margin: 0 0 0.4rem 0;
+      font-size: 0.95rem;
+      text-transform: uppercase;
+    }
+
+    .ad p { margin: 0.25rem 0; font-size: 0.88rem; }
+
+    .classified {
+      border-bottom: 1px dotted var(--line);
+      padding: 0.5rem 0;
+      font-size: 0.9rem;
+    }
+
+    .classified b { color: #0e5e34; }
+
+    details {
+      border: 1px solid var(--line);
+      background: #ffffff;
+      margin-bottom: 0.65rem;
+      padding: 0.55rem;
+    }
+
+    summary {
+      cursor: pointer;
+      font-weight: 700;
+      color: #13301f;
+    }
+
+    .letter,
+    .correction {
+      border: 1px solid var(--line);
+      background: #ffffff;
+      padding: 0.75rem;
+      margin-bottom: 0.65rem;
+    }
+
+    .danger {
+      border-color: var(--warn);
+      background: #fff4f4;
+      color: #5e1616;
+      font-weight: 700;
+      padding: 0.5rem;
+      font-size: 0.9rem;
+    }
+
+    .footer {
+      border-top: 2px solid var(--line);
+      padding: 1rem;
+      display: flex;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 0.7rem;
+      font-size: 0.82rem;
+      color: var(--muted);
+    }
+
+    @media (min-width: 768px) {
+      .grid {
+        grid-template-columns: 1.8fr 1fr;
+      }
+      .sidebar { border-left: 1px solid var(--line); }
+    }
+
+    @media (min-width: 1080px) {
+      .grid {
+        grid-template-columns: 2fr 1fr 0.9fr;
+      }
+      .rail { border-left: 1px solid var(--line); }
+    }
+  </style>
+</head>
+<body>
+  <div class="scanlines" x-data="newsDesk()">
+    <main class="newspaper">
+      <header class="masthead anim-in">
+        <div class="topline">
+          <span>Vol. 19 / Issue 04 / Tuesday Edition</span>
+          <span>Editor-in-Chief: Nora "No-Lift" Kline (Escalator Survivor, age 34)</span>
+          <span><i data-lucide="clock-3"></i> Updated every time a stair appears</span>
+        </div>
+        <h1>RAMP SIGNAL WEEKLY</h1>
+        <p class="tagline">Lifestyle journalism for people who believe vertical travel should involve dignity, wheels, and no calf betrayal.</p>
+      </header>
+
+      <section class="controls anim-in">
+        <div class="section-tabs">
+          <button :class="activeSection==='front' ? 'active' : ''" @click="activeSection='front'">Front Page</button>
+          <button :class="activeSection==='opinions' ? 'active' : ''" @click="activeSection='opinions'">Opinions</button>
+          <button :class="activeSection==='classifieds' ? 'active' : ''" @click="activeSection='classifieds'">Classifieds</button>
+          <button :class="activeSection==='mail' ? 'active' : ''" @click="activeSection='mail'">Letters + Corrections</button>
+        </div>
+        <div class="chip-row" x-show="activeSection==='front' || activeSection==='opinions'" x-cloak>
+          <button :class="activeTag==='all' ? 'active' : ''" @click="activeTag='all'">All Beats</button>
+          <button :class="activeTag==='policy' ? 'active' : ''" @click="activeTag='policy'">Policy</button>
+          <button :class="activeTag==='style' ? 'active' : ''" @click="activeTag='style'">Style</button>
+          <button :class="activeTag==='gear' ? 'active' : ''" @click="activeTag='gear'">Gear</button>
+          <button :class="activeTag==='gossip' ? 'active' : ''" @click="activeTag='gossip'">Gossip</button>
+        </div>
+        <label>
+          <input type="checkbox" x-model="inclineAlert" /> Activate incline emergency banner
+        </label>
+        <div class="danger" x-show="inclineAlert" x-cloak>
+          CITYWIDE ALERT: 14 unauthorized staircases spotted near artisanal coffee corridors. Stretch first. Document everything.
+        </div>
+      </section>
+
+      <section class="brief anim-in">
+        <div style="grid-column: span 4;"><b>Transit:</b> 11 new curb cuts approved after Nora mailed city council a 47-page zine titled "My knees are not your topography."</div>
+        <div style="grid-column: span 4;"><b>Markets:</b> Foldable titanium ramp futures up 8.2% after celebrity dog Mr. Pickles refused penthouse stairs on live TV.</div>
+        <div style="grid-column: span 4;"><b>Sports:</b> Indoor mall walkers unionize, demand escalator apology plaque where Nora's left sneaker was "nearly consumed."</div>
+      </section>
+
+      <div class="grid">
+        <section class="main">
+          <div x-show="activeSection==='front'" x-cloak>
+            <h2 class="section-title">Front Page Dispatches</h2>
+
+            <article class="story anim-in" x-show="activeTag==='all' || activeTag==='policy'" x-cloak>
+              <div class="meta">Policy Desk | by Nora Kline</div>
+              <h3>City Hall Replaces "Grand Staircase" With "Reasonable Slope Corridor" After 3-Month Sit-In and One Flute Solo</h3>
+              <p>I lived inside permit office cabinet B-14 for seventy-two days. Today, they passed the Slope Equity Act 2.0.</p>
+              <p class="pull">"If your venue requires lunges, it's not inclusive. It's cosplay cardio."</p>
+              <button @click="toggle('a1')" :class="expanded.a1 ? 'active' : ''">Read field notes</button>
+              <p x-show="expanded.a1" x-cloak>The vote was 8-1. Councilmember Trent objected "for architectural nostalgia" then tripped on his own decorative step. Motion carried while paramedics offered ice and perspective.</p>
+            </article>
+
+            <article class="story anim-in" x-show="activeTag==='all' || activeTag==='style'" x-cloak>
+              <div class="meta">Style Bureau | by Jules "Wheels" Moreno</div>
+              <h3>Spring Footwear Forecast: Velcro Returns, Laces Declared "Situationally Reckless"</h3>
+              <p>The new season says: stable heel, reflective trim, emotional closure. We tested 22 shoes on municipal inclines and one haunted parking garage.</p>
+              <button @click="toggle('a2')" :class="expanded.a2 ? 'active' : ''">Open style guide</button>
+              <ul x-show="expanded.a2" x-cloak>
+                <li>Top pick: <b>Curb Whisperer 5</b> in Clinic Mint.</li>
+                <li>Unexpected flop: cork wedges marketed as "stair diplomacy."</li>
+                <li>Mandatory accessory: ankle whistle for sudden elevation events.</li>
+              </ul>
+            </article>
+
+            <article class="story anim-in" x-show="activeTag==='all' || activeTag==='gear'" x-cloak>
+              <div class="meta">Gear Lab | by Nora Kline</div>
+              <h3>Review: FoldMate R9 Personal Ramp, the Convertible That Saved Date Night at Bistro Le Vertical</h3>
+              <p>Collapsed length: 22 inches. Deployed confidence: infinite. My date cried when I unfolded it before the host could say "two steps up."</p>
+              <button @click="toggle('a3')" :class="expanded.a3 ? 'active' : ''">See test results</button>
+              <p x-show="expanded.a3" x-cloak>Load test: me, two tote bags, one emotional support cantaloupe. Passed. Minor complaint: makes a dramatic "thunk" that can expose your intentions to former lovers.</p>
+            </article>
+
+            <article class="story anim-in" x-show="activeTag==='all' || activeTag==='gossip'" x-cloak>
+              <div class="meta">Society & Rumors | by Sia Patel</div>
+              <h3>Escalator Influencer @StepDaddyOfficial Seen Entering Yoga Studio Through Side Ramp "For Brand Research"</h3>
+              <p>Witnesses report he looked "haunted but hydrated." His publicist says this does not signal ideological change, only a "temporary ankle narrative."</p>
+            </article>
+
+            <article class="story anim-in" x-show="activeTag==='all' || activeTag==='policy'" x-cloak>
+              <div class="meta">Transit Beat | by Nora Kline</div>
+              <h3>Interview: The Mayor's New "No Surprise Steps" Pledge Includes Wedding Venues and Jazz Basements</h3>
+              <p>"People deserve romance without sudden quadricep negotiations," the mayor said, standing on a legally compliant incline of exactly 1:12.</p>
+            </article>
+          </div>
+
+          <div x-show="activeSection==='opinions'" x-cloak>
+            <h2 class="section-title">Opinion + Culture</h2>
+
+            <article class="story" x-show="activeTag==='all' || activeTag==='gossip' || activeTag==='style'" x-cloak>
+              <div class="meta">Column | Nora's Notebook</div>
+              <h3>I Don't Trust Homes With "Just Three Cute Steps"</h3>
+              <p>Three steps is never three steps. It's a personality test disguised as architecture. If your foyer needs a warning label, I am not removing my shoes.</p>
+            </article>
+
+            <article class="story" x-show="activeTag==='all' || activeTag==='policy'" x-cloak>
+              <div class="meta">Guest Op-Ed | Dr. Lenora Crisp, Urban Anthropologist</div>
+              <h3>Stairs Are Just Gossip Frozen Into Concrete</h3>
+              <p>Elevation creates hierarchy. Hierarchy creates weird dinner parties. The slope is not just practical, it's democratic flirtation with gravity.</p>
+            </article>
+
+            <article class="story" x-show="activeTag==='all' || activeTag==='gear'" x-cloak>
+              <div class="meta">Consumer Watch</div>
+              <h3>Stop Buying "Decorative Ladders" and Calling It Interior Design</h3>
+              <p>We counted 41 decorative ladders in one neighborhood and exactly zero emergency exits. Choose safety, not rustic denial.</p>
+            </article>
+
+            <article class="story" x-show="activeTag==='all' || activeTag==='style'" x-cloak>
+              <div class="meta">Culture Minute</div>
+              <h3>This Week's Horoscope: Gemini, You Will Fall For Someone With Ground-Floor Boundaries</h3>
+              <p>Scorpio: cancel that rooftop date. Virgo: stop saying "I love a challenge" near staircases. Pisces: your soulmate owns a level entryway and a label maker.</p>
+            </article>
+          </div>
+
+          <div x-show="activeSection==='classifieds'" x-cloak>
+            <h2 class="section-title">Classifieds</h2>
+            <div class="classified"><b>FOR SALE:</b> Lightly used StairMaster. Bought during breakup optimism. Free if you can carry it out (ironic).</div>
+            <div class="classified"><b>SEEKING:</b> Roommate for ramp-access loft. Must respect quiet hours and my anti-step podcast recording schedule.</div>
+            <div class="classified"><b>LOST:</b> Left kneepad, mint green, embroidered "Nora Was Right." Last seen at a wine bar with a hidden mezzanine.</div>
+            <div class="classified"><b>SERVICES:</b> "Grandpa Pete's Portable Inclines". Weddings, graduations, passive-aggressive HOA meetings. Flat fee: $47.99/hr.</div>
+            <div class="classified"><b>WANTED:</b> Serious relationship with someone who says "take the ramp" before I ask. Non-smoker, good playlists.</div>
+            <div class="classified"><b>GIG:</b> Mystery Shopper for boutique hotels. Rate each lobby on surprise elevation events. Pay: $120 + snacks.</div>
+            <div class="classified"><b>TRADE:</b> Two premium stair climber tickets for one calm afternoon and a very long bench.</div>
+          </div>
+
+          <div x-show="activeSection==='mail'" x-cloak>
+            <h2 class="section-title">Letters To The Editor</h2>
+            <div class="letter">
+              <b>"Your paper saved my engagement party."</b>
+              <p>I read your emergency incline checklist, rented two FoldMate ramps, and my grandmother finally made it to the cake table. She called you "that nice angry woman." - Priya, District 7</p>
+            </div>
+            <div class="letter">
+              <b>"Please stop reviewing my staircase café."</b>
+              <p>Every Friday your interns arrive with protractors and disappointed expressions. Business is down. Respectfully, this is harassment. - Marco, owner of The Tiny Step</p>
+            </div>
+            <div class="letter">
+              <b>"I used to mock you."</b>
+              <p>Then I tore a hamstring carrying a fiddle case up six stairs. I apologize. I subscribed. My wife says I'm calmer. - Devin, former skeptic</p>
+            </div>
+
+            <h2 class="section-title">Corrections</h2>
+            <div class="correction">Correction (Monday): We stated actor Glen Dorsey "leapt" over four steps. Video confirms it was two-and-a-hop.</div>
+            <div class="correction">Correction (Sunday): The phrase "stair propaganda" was accidentally printed as "stair parmesan." We stand by both.</div>
+            <div class="correction">Correction (Weekend Special): Nora's first escalator incident occurred in 2003, not 2004. The sneaker remains missing.</div>
+          </div>
+        </section>
+
+        <aside class="sidebar">
+          <h2 class="section-title">Margin Ads</h2>
+
+          <div class="ad anim-in">
+            <h4><i data-lucide="badge-check"></i> Ramp+ Membership</h4>
+            <p>$11/month gets you our "No Steps, No Surprises" map, weekly legal templates, and 15% off emergency shin wraps.</p>
+            <p><b>Hotline:</b> text "SLOPE" to 40404</p>
+          </div>
+
+          <div class="ad anim-in">
+            <h4><i data-lucide="heart"></i> Nora's Personal Ad</h4>
+            <p>Seeking patient co-host for my podcast <b>Love in the Time of Inclines</b>. Must enjoy decaf, municipal code, and direct communication.</p>
+          </div>
+
+          <div class="ad anim-in">
+            <h4><i data-lucide="megaphone"></i> Public Notice</h4>
+            <p>Saturday 10:00 AM: peaceful demonstration outside Carlton Museum's "historic staircase experience." Bring signs, knees, and citrus water.</p>
+          </div>
+
+          <details>
+            <summary>Subscriber Perks (tap to expand)</summary>
+            <p>1. Monthly "Stair Spotter" zine.</p>
+            <p>2. 24/7 venue verification line staffed by my cousin Blake.</p>
+            <p>3. Priority access to the annual Slope Gala (flat floor, obviously).</p>
+          </details>
+
+          <details>
+            <summary>FAQ: "Are you anti-fitness?"</summary>
+            <p>No. I do Pilates. I'm anti-surprise altitude. Consent includes architecture.</p>
+          </details>
+
+          <details>
+            <summary>FAQ: "Did an escalator hurt you?"</summary>
+            <p>Yes. Food court, 2003. It ate a sneaker and gave me purpose.</p>
+          </details>
+        </aside>
+
+        <aside class="rail">
+          <h2 class="section-title">Ticker + Mini Pieces</h2>
+          <div class="story">
+            <h3>Micro Review</h3>
+            <p>Protein bar marketed for "mountain stairs." Tasted like drywall and emotional debt. Score: 2/10.</p>
+          </div>
+          <div class="story">
+            <h3>Three Good Entrances This Week</h3>
+            <p>1) Night Pharmacy on 8th. 2) The Green Lotus laundromat. 3) My ex's apartment, finally.</p>
+          </div>
+          <div class="story">
+            <h3>Quote Board</h3>
+            <blockquote>"Flat paths, full hearts, can't lose knees."</blockquote>
+            <small>- Nora, during zoning hearing snack break</small>
+          </div>
+          <div class="story">
+            <h3>Tomorrow's Front</h3>
+            <p>Investigative feature: who keeps adding one ceremonial step to luxury spas and why do they all smell like eucalyptus guilt?</p>
+          </div>
+        </aside>
+      </div>
+
+      <footer class="footer">
+        <span>RAMP SIGNAL WEEKLY / Printed on chlorine-free stubbornness</span>
+        <span>Contact: tips@rampsignal.local | Legal: "stair" is a strong word, use carefully</span>
+      </footer>
+    </main>
+  </div>
+
+  <script defer src="/assets/js/alpine.min.js"></script>
+  <script src="/assets/js/gsap.min.js"></script>
+  <script src="/assets/js/lucide.min.js"></script>
+  <script>
+    function newsDesk() {
+      return {
+        activeSection: 'front',
+        activeTag: 'all',
+        inclineAlert: false,
+        expanded: { a1: false, a2: false, a3: false },
+        toggle(key) {
+          this.expanded[key] = !this.expanded[key];
+        }
+      };
+    }
+
+    document.addEventListener('DOMContentLoaded', function () {
+      if (window.lucide && typeof window.lucide.createIcons === 'function') {
+        window.lucide.createIcons();
+      }
+
+      if (window.gsap) {
+        var items = document.querySelectorAll('.anim-in');
+        items.forEach(function (el, idx) {
+          gsap.fromTo(
+            el,
+            { y: 18, opacity: 0 },
+            { y: 0, opacity: 1, duration: 0.55, delay: idx * 0.05, ease: 'power2.out', clearProps: 'opacity,transform' }
+          );
+        });
+      }
+    });
+  </script>
+</body>
+</html>

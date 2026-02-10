@@ -1,0 +1,614 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Institute for Sock Migration Studies</title>
+  <link rel="stylesheet" href="/assets/css/pico.min.css" />
+  <link rel="stylesheet" href="/assets/css/fonts.css" />
+  <style>
+    :root {
+      --bg-deep: #170327;
+      --bg-plum: #2a0a4b;
+      --magenta: #ff2fa8;
+      --cyan: #00e7ff;
+      --chrome: #e7edf4;
+      --ink: #ffffff;
+      --ink-soft: #e0e0e0;
+      --panel: #21063a;
+      --line: #5f27a4;
+      --focus: #ffe66d;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 16px;
+      line-height: 1.5;
+      color: var(--ink);
+      background:
+        radial-gradient(circle at 15% 20%, #4b1083 0%, #2a0a4b 32%, #170327 70%),
+        linear-gradient(130deg, #19022c 0%, #2f0d57 45%, #140222 100%);
+      overflow-x: hidden;
+    }
+
+    .grain {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      background-image: radial-gradient(#ffffff 0.6px, transparent 0.6px);
+      background-size: 3px 3px;
+      mix-blend-mode: soft-light;
+      opacity: 0.2;
+      z-index: 0;
+    }
+
+    .split {
+      position: relative;
+      z-index: 1;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      min-height: 100vh;
+    }
+
+    .left,
+    .right {
+      padding: clamp(1.2rem, 2.4vw, 2.4rem);
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      border-right: 1px solid var(--line);
+    }
+
+    .right {
+      border-right: 0;
+      border-left: 1px solid var(--line);
+      background: linear-gradient(160deg, #130021 0%, #25053f 55%, #180229 100%);
+    }
+
+    nav {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.8rem;
+    }
+
+    .brand {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.55rem;
+      color: var(--chrome);
+      text-decoration: none;
+      font-weight: 700;
+      letter-spacing: 0.02em;
+      font-size: clamp(0.95rem, 1.2vw, 1.08rem);
+    }
+
+    .brand i { color: var(--cyan); }
+
+    .nav-links {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+    }
+
+    .pill {
+      border: 1px solid #7f42cb;
+      border-radius: 999px;
+      padding: 0.42rem 0.9rem;
+      min-height: 44px;
+      display: inline-flex;
+      align-items: center;
+      color: var(--ink);
+      text-decoration: none;
+      font-size: 0.9rem;
+      background: #2b0b4a;
+      transition: transform 360ms ease, border-color 360ms ease, background 360ms ease;
+    }
+
+    .pill:hover,
+    .pill:focus-visible {
+      transform: translateY(-2px);
+      border-color: var(--cyan);
+      background: #3a0e63;
+      outline: none;
+    }
+
+    .donate {
+      border-color: #ff6ac4;
+      background: linear-gradient(120deg, #7f1b6e 0%, #c02585 100%);
+      font-weight: 700;
+    }
+
+    .donate:hover,
+    .donate:focus-visible {
+      border-color: #ffd1ef;
+      background: linear-gradient(120deg, #9a237f 0%, #e02d9a 100%);
+    }
+
+    .hero {
+      margin-top: clamp(1.8rem, 5vh, 4.6rem);
+      max-width: 44ch;
+    }
+
+    .eyebrow {
+      font-family: 'IBM Plex Mono', monospace;
+      color: var(--cyan);
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      font-size: 0.75rem;
+      margin-bottom: 0.8rem;
+    }
+
+    h1,
+    h2,
+    h3,
+    p,
+    li,
+    small,
+    summary,
+    label,
+    a,
+    blockquote,
+    dt,
+    dd {
+      color: var(--ink);
+    }
+
+    h1 {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(2.1rem, 5.2vw, 4.2rem);
+      line-height: 1.02;
+      margin-bottom: 1rem;
+      text-wrap: balance;
+    }
+
+    .subhead {
+      font-size: clamp(1.03rem, 1.45vw, 1.25rem);
+      color: var(--ink-soft);
+      max-width: 37ch;
+      margin: 0;
+    }
+
+    .founder-note {
+      margin-top: 2rem;
+      border-left: 3px solid var(--magenta);
+      padding-left: 1rem;
+      max-width: 38ch;
+      color: var(--ink-soft);
+    }
+
+    .founder-note strong {
+      color: var(--magenta);
+      display: block;
+      margin-bottom: 0.2rem;
+    }
+
+    .mission {
+      margin-top: clamp(1.4rem, 2vw, 2rem);
+      border: 1px solid #7032bc;
+      padding: 1rem;
+      border-radius: 0.9rem;
+      background: #22053d;
+      max-width: 40ch;
+    }
+
+    .mission h2 {
+      margin: 0 0 0.5rem;
+      font-size: 1.2rem;
+    }
+
+    .mission p {
+      margin: 0;
+      color: var(--ink-soft);
+    }
+
+    .data-strip {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.7rem;
+      margin-top: 1.4rem;
+    }
+
+    .chip {
+      border: 1px solid #6f30bb;
+      background: #210639;
+      border-radius: 999px;
+      padding: 0.45rem 0.8rem;
+      font-size: 0.86rem;
+      color: var(--chrome);
+      min-height: 40px;
+      display: inline-flex;
+      align-items: center;
+    }
+
+    .right-inner {
+      max-width: 40rem;
+      margin-inline: auto;
+      width: 100%;
+    }
+
+    .panel {
+      border: 1px solid #6130a3;
+      border-radius: 1rem;
+      padding: clamp(0.9rem, 1.8vw, 1.3rem);
+      margin-top: 1rem;
+      background: linear-gradient(145deg, #21063b 0%, #150225 100%);
+      transition: border-color 420ms ease, transform 420ms ease;
+    }
+
+    .panel:hover {
+      border-color: var(--cyan);
+      transform: translateY(-2px);
+    }
+
+    .panel h2,
+    .panel h3 {
+      margin-top: 0;
+      margin-bottom: 0.5rem;
+      font-size: clamp(1.2rem, 2.2vw, 1.55rem);
+    }
+
+    .panel p {
+      margin: 0.2rem 0 0.8rem;
+      color: var(--ink-soft);
+      max-width: 55ch;
+    }
+
+    .opps {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 0.8rem;
+      margin-top: 0.8rem;
+    }
+
+    .opp {
+      border: 1px solid #6635ab;
+      border-radius: 0.8rem;
+      padding: 0.8rem;
+      background: #1f0537;
+      min-height: 130px;
+    }
+
+    .opp h3 {
+      margin: 0;
+      font-size: 1rem;
+      color: var(--cyan);
+    }
+
+    .opp p {
+      margin: 0.45rem 0 0;
+      font-size: 0.94rem;
+    }
+
+    .quote {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(1.2rem, 2.2vw, 1.5rem);
+      line-height: 1.3;
+      color: var(--chrome);
+      margin: 0;
+    }
+
+    .quote-credit {
+      margin-top: 0.65rem;
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 0.82rem;
+      color: var(--cyan);
+      letter-spacing: 0.04em;
+    }
+
+    details {
+      border-top: 1px solid #5e2c9f;
+      padding-top: 0.6rem;
+      margin-top: 0.6rem;
+    }
+
+    summary {
+      cursor: pointer;
+      font-weight: 700;
+      color: var(--chrome);
+      list-style: none;
+    }
+
+    summary::-webkit-details-marker { display: none; }
+
+    summary:focus-visible {
+      outline: 2px solid var(--focus);
+      outline-offset: 2px;
+    }
+
+    .tiny {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 0.77rem;
+      color: var(--ink-soft);
+      margin-top: 1.2rem;
+    }
+
+    .reveal {
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 800ms ease;
+    }
+
+    .reveal.open {
+      max-height: 8rem;
+    }
+
+    .signal {
+      font-family: 'IBM Plex Mono', monospace;
+      color: var(--magenta);
+      font-size: 0.85rem;
+      margin-top: 0.8rem;
+      min-height: 2.3rem;
+    }
+
+    .button-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.6rem;
+      margin-top: 1rem;
+    }
+
+    .button-row button,
+    .button-row a {
+      min-height: 44px;
+      border-radius: 0.7rem;
+      border: 1px solid #7540bf;
+      padding: 0.52rem 0.95rem;
+      background: #2a0849;
+      color: var(--ink);
+      text-decoration: none;
+      font-weight: 700;
+      transition: transform 280ms ease, background 280ms ease, border-color 280ms ease;
+    }
+
+    .button-row button:hover,
+    .button-row button:focus-visible,
+    .button-row a:hover,
+    .button-row a:focus-visible {
+      transform: translateY(-2px);
+      background: #38125f;
+      border-color: var(--cyan);
+      outline: none;
+    }
+
+    .button-row .primary {
+      background: linear-gradient(110deg, #a52379, #d62f95);
+      border-color: #ff91d3;
+    }
+
+    .button-row .primary:hover,
+    .button-row .primary:focus-visible {
+      background: linear-gradient(110deg, #bb2a88, #f036a7);
+      border-color: #ffd3ee;
+    }
+
+    footer {
+      margin-top: 1.2rem;
+      padding-top: 0.8rem;
+      border-top: 1px solid #5f2da1;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.8rem;
+      justify-content: space-between;
+      font-size: 0.85rem;
+      color: var(--ink-soft);
+    }
+
+    .mobile-divider {
+      display: none;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, #7a44c3, transparent);
+      margin: 0.3rem 0 0.8rem;
+    }
+
+    @media (max-width: 980px) {
+      .split {
+        grid-template-columns: 1fr;
+      }
+
+      .left,
+      .right {
+        border-right: 0;
+        border-left: 0;
+      }
+
+      .right {
+        border-top: 1px solid #5e2d9f;
+      }
+
+      .mobile-divider {
+        display: block;
+      }
+
+      .opps {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (max-width: 520px) {
+      .pill { font-size: 0.84rem; }
+      .hero { margin-top: 1.3rem; }
+      .chip { font-size: 0.79rem; }
+      .button-row button,
+      .button-row a { width: 100%; justify-content: center; display: inline-flex; align-items: center; }
+    }
+  </style>
+</head>
+<body>
+  <div class="grain" aria-hidden="true"></div>
+  <main class="split">
+    <section class="left" aria-labelledby="hero-title">
+      <div>
+        <nav aria-label="Primary">
+          <a href="#" class="brand" aria-label="Institute home">
+            <i data-lucide="orbit"></i>
+            Institute for Sock Migration Studies
+          </a>
+          <div class="nav-links">
+            <a class="pill" href="#mission">Mission</a>
+            <a class="pill" href="#volunteer">Volunteer</a>
+            <a class="pill donate" href="#donate">Donate</a>
+          </div>
+        </nav>
+
+        <div class="hero">
+          <p class="eyebrow">Nonprofit Since 1978</p>
+          <h1 id="hero-title">We track every sock that leaves home to find a truer life.</h1>
+          <p class="subhead">
+            I am Dr. Lorna S. Hemm, founder, former tax preparer, and the first person to submit a 14-page grief statement for a single missing ankle sock.
+          </p>
+          <p class="founder-note">
+            <strong>Founder note:</strong>
+            On April 12, 1977, my left striped tube sock vanished during Schedule C season. I knew then: this was not laundry error. This was migration.
+          </p>
+        </div>
+
+        <section class="mission" id="mission" aria-label="Mission statement">
+          <h2>Mission Statement</h2>
+          <p>
+            We provide safe transit corridors, emotional counseling, and legal paperwork for socks choosing to relocate from domestic drawers to independent communities.
+          </p>
+        </section>
+
+        <div class="data-strip" aria-label="Key impact facts">
+          <span class="chip">11,804 socks escorted safely in 2025</span>
+          <span class="chip">63% leave a polite note</span>
+          <span class="chip">$47.99 funds one migration map kit</span>
+        </div>
+      </div>
+
+      <div class="tiny">
+        IRS status: 501(c)(3) pending one clarifying question about "textile destiny".
+      </div>
+    </section>
+
+    <section class="right">
+      <div class="mobile-divider" aria-hidden="true"></div>
+      <div class="right-inner">
+        <article class="panel" id="volunteer" aria-labelledby="volunteer-title">
+          <h2 id="volunteer-title">Volunteer With The Night Shift</h2>
+          <p>
+            We walk quiet hallways with clipboards and soft jazz, documenting sock departures without judgment. Training includes whispering, ledger work, and reflective vest care.
+          </p>
+          <div class="opps">
+            <div class="opp">
+              <h3>Drawer Liaison</h3>
+              <p>Host calm conversations between socks and bewildered humans. Thursdays, 7:40 p.m.</p>
+            </div>
+            <div class="opp">
+              <h3>Lint Archivist</h3>
+              <p>Catalog farewell lint spirals in our chrome vault. Protective goggles provided.</p>
+            </div>
+            <div class="opp">
+              <h3>Migration Driver</h3>
+              <p>Operate Van 03 "The Cardigan" along approved laundry-adjacent routes.</p>
+            </div>
+            <div class="opp">
+              <h3>Tax Form Comforter</h3>
+              <p>Read 1970s deduction poetry to new arrivals still nervous about leaving.</p>
+            </div>
+          </div>
+        </article>
+
+        <article class="panel" id="donate" aria-labelledby="donate-title">
+          <h2 id="donate-title">Donate</h2>
+          <p>
+            Your gift buys travel satchels, legal stamps, and cinnamon tea for reunion meetings where humans accept that sometimes love means letting the sock go.
+          </p>
+          <div class="button-row">
+            <a class="primary" href="#" aria-label="Donate 12 dollars">Donate $12</a>
+            <a href="#" aria-label="Donate 47.99 dollars">Donate $47.99</a>
+            <button type="button" id="revealBtn" aria-expanded="false" aria-controls="donorReveal">Read where your money goes</button>
+          </div>
+          <div class="reveal" id="donorReveal" aria-live="polite">
+            <p class="signal" id="signalText">$12 buys one reflective ankle cuff. $47.99 sponsors a complete migration intake + goodbye stamp.</p>
+          </div>
+        </article>
+
+        <article class="panel" aria-label="Testimonial">
+          <blockquote class="quote">
+            "I fought the program. Then my argyle son sent a postcard from a cooperative in Tucson. He is thriving. I am healing." 
+          </blockquote>
+          <p class="quote-credit">MARTA K., PARENT OF 1 FORMERLY MATCHED PAIR</p>
+        </article>
+
+        <article class="panel" aria-label="Frequently asked questions">
+          <h3>Questions we get at every fundraiser</h3>
+          <details>
+            <summary>Are you saying my dryer is innocent?</summary>
+            <p>Not always. We simply oppose scapegoating without migration evidence and witness lint.</p>
+          </details>
+          <details>
+            <summary>Can I request my sock to come home?</summary>
+            <p>You may write a respectful letter. We deliver all letters unless they contain guilt phrases.</p>
+          </details>
+          <details>
+            <summary>Why the 1970s tax aesthetic?</summary>
+            <p>Because migration records began in a den full of calculators, incense, and unresolved deductions.</p>
+          </details>
+        </article>
+
+        <footer>
+          <span>Institute for Sock Migration Studies, Unit B, Lower Filing Annex</span>
+          <span>Hotline: (555) 018-SOCK</span>
+        </footer>
+      </div>
+    </section>
+  </main>
+
+  <script src="/assets/js/gsap.min.js"></script>
+  <script src="/assets/js/lucide.min.js"></script>
+  <script>
+    (function () {
+      lucide.createIcons();
+
+      var panels = document.querySelectorAll('.panel');
+      panels.forEach(function (panel, index) {
+        gsap.fromTo(
+          panel,
+          { y: 26, opacity: 0 },
+          {
+            y: 0,
+            opacity: 1,
+            duration: 0.9,
+            delay: 0.18 + (index * 0.12),
+            ease: 'power2.out',
+            clearProps: 'opacity,transform'
+          }
+        );
+      });
+
+      var heroBits = document.querySelectorAll('.hero > * , .mission, .data-strip');
+      gsap.fromTo(
+        heroBits,
+        { y: 18, opacity: 0 },
+        {
+          y: 0,
+          opacity: 1,
+          duration: 1.1,
+          stagger: 0.15,
+          ease: 'power2.out',
+          clearProps: 'opacity,transform'
+        }
+      );
+
+      var revealBtn = document.getElementById('revealBtn');
+      var donorReveal = document.getElementById('donorReveal');
+      var signalText = document.getElementById('signalText');
+
+      revealBtn.addEventListener('click', function () {
+        var isOpen = donorReveal.classList.toggle('open');
+        revealBtn.setAttribute('aria-expanded', String(isOpen));
+        signalText.textContent = isOpen
+          ? 'Recent spending: 200 route maps, 900 goodbye stamps, and one replacement kettle for the Night Shift.'
+          : '$12 buys one reflective ankle cuff. $47.99 sponsors a complete migration intake + goodbye stamp.';
+      });
+    })();
+  </script>
+</body>
+</html>

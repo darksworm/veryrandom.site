@@ -1,0 +1,851 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Old Comet Pawn & Tide Canteen</title>
+  <link rel="stylesheet" href="/assets/css/pico.min.css" />
+  <link rel="stylesheet" href="/assets/css/fonts.css" />
+  <script defer src="/assets/js/alpine.min.js"></script>
+  <script defer src="/assets/js/gsap.min.js"></script>
+  <script defer src="/assets/js/lucide.min.js"></script>
+  <style>
+    :root {
+      --bg: #030305;
+      --panel: #090914;
+      --ink: #f9fbff;
+      --hot-pink: #ff2fb9;
+      --acid: #b8ff2b;
+      --cyan: #38f7ff;
+      --gold: #ffd14a;
+      --violet: #8b5bff;
+      --line: #2c2d48;
+    }
+
+    * { box-sizing: border-box; }
+
+    html, body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--ink);
+      font-family: 'Space Grotesk', sans-serif;
+      scroll-behavior: smooth;
+    }
+
+    body {
+      background-image:
+        radial-gradient(circle at 15% 10%, #3e0f6e 0, transparent 22%),
+        radial-gradient(circle at 80% 25%, #004e70 0, transparent 24%),
+        radial-gradient(circle at 65% 80%, #5a0030 0, transparent 28%),
+        repeating-linear-gradient(90deg, #070711 0 2px, transparent 2px 120px);
+      scroll-snap-type: y mandatory;
+    }
+
+    main > section {
+      min-height: 100vh;
+      scroll-snap-align: start;
+      padding: 1.25rem;
+      border-bottom: 1px solid var(--line);
+      display: grid;
+      align-content: start;
+      gap: 1rem;
+    }
+
+    .chrome {
+      border: 2px solid var(--hot-pink);
+      background: linear-gradient(145deg, #080811, #101026);
+      box-shadow: 0 0 0.9rem #ff2fb966, 0 0 1.3rem #38f7ff3f inset;
+      padding: 0.9rem;
+    }
+
+    .grid-2 {
+      display: grid;
+      gap: 1rem;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    }
+
+    .grid-3 {
+      display: grid;
+      gap: 1rem;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    }
+
+    .brand {
+      font-family: 'Playfair Display', serif;
+      letter-spacing: 0.04em;
+      color: var(--gold);
+      text-shadow: 0 0 10px #ffd14a99;
+      margin: 0;
+    }
+
+    .astro {
+      font-family: 'IBM Plex Mono', monospace;
+      color: var(--cyan);
+      text-shadow: 0 0 8px #38f7ff88;
+    }
+
+    nav.chrome {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.8rem;
+      background: #05050e;
+    }
+
+    nav a {
+      color: #ffffff;
+      border: 1px solid var(--cyan);
+      padding: 0.35rem 0.55rem;
+      text-decoration: none;
+      font-size: 0.84rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      background: #0b1227;
+    }
+
+    .ticker {
+      border: 1px solid var(--acid);
+      background: #111707;
+      color: #ffffff;
+      padding: 0.45rem 0.65rem;
+      font-family: 'IBM Plex Mono', monospace;
+      overflow: hidden;
+      white-space: nowrap;
+      text-overflow: ellipsis;
+    }
+
+    .hero-title {
+      font-size: clamp(2.1rem, 5.6vw, 4.7rem);
+      line-height: 0.95;
+      margin: 0;
+      color: #ffffff;
+      text-shadow: 0 0 12px #ff2fb9aa;
+    }
+
+    .tag {
+      display: inline-block;
+      border: 1px solid var(--line);
+      padding: 0.2rem 0.45rem;
+      margin-right: 0.4rem;
+      margin-bottom: 0.4rem;
+      font-size: 0.78rem;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      color: #ffffff;
+      background: #180e2c;
+    }
+
+    .panel {
+      background: var(--panel);
+      border: 1px solid #30345f;
+      padding: 0.8rem;
+    }
+
+    .panel h3, .panel h4, .panel p, .panel li, .panel td, .panel th, .panel small, .panel label {
+      color: #ffffff;
+    }
+
+    .number {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 1.3rem;
+      color: var(--acid);
+      text-shadow: 0 0 10px #b8ff2b77;
+    }
+
+    .pill {
+      border: 1px solid var(--violet);
+      background: #180f31;
+      color: #ffffff;
+      font-size: 0.8rem;
+      padding: 0.18rem 0.5rem;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.3rem;
+    }
+
+    .btn-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.45rem;
+    }
+
+    button, [role="button"] {
+      color: #ffffff;
+      border-color: #ffffff;
+    }
+
+    button.alt {
+      background: #1d0722;
+      border: 1px solid var(--hot-pink);
+      color: #ffffff;
+    }
+
+    button.cyan {
+      background: #061d25;
+      border: 1px solid var(--cyan);
+      color: #ffffff;
+    }
+
+    button.gold {
+      background: #2b1f04;
+      border: 1px solid var(--gold);
+      color: #ffffff;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.9rem;
+      background: #0b0c1b;
+    }
+
+    th, td {
+      border: 1px solid #2f3460;
+      padding: 0.45rem;
+      color: #ffffff;
+    }
+
+    th { background: #151736; }
+
+    .bars {
+      display: grid;
+      grid-template-columns: repeat(12, 1fr);
+      gap: 0.3rem;
+      align-items: end;
+      min-height: 170px;
+      border: 1px solid #284b55;
+      padding: 0.5rem;
+      background: #031217;
+    }
+
+    .bar {
+      background: linear-gradient(180deg, var(--cyan), #077a93);
+      border: 1px solid #9ef8ff;
+      min-height: 8px;
+    }
+
+    .faq button {
+      width: 100%;
+      text-align: left;
+      background: #0e0f23;
+      border: 1px solid #3a3f74;
+      color: #ffffff;
+      margin-bottom: 0.4rem;
+    }
+
+    .faq .answer {
+      border: 1px solid #3a3f74;
+      background: #15163a;
+      padding: 0.5rem;
+      margin-bottom: 0.65rem;
+      color: #ffffff;
+    }
+
+    .quote-card {
+      border: 1px solid #5d356f;
+      background: #1c1030;
+      padding: 0.7rem;
+      color: #ffffff;
+    }
+
+    .disclaimer {
+      border: 1px dashed var(--gold);
+      background: #1f1808;
+      color: #ffffff;
+      padding: 0.6rem;
+      font-size: 0.83rem;
+    }
+
+    .mono { font-family: 'IBM Plex Mono', monospace; }
+
+    input, select, textarea {
+      background: #0e1026;
+      border: 1px solid #3a437a;
+      color: #ffffff;
+    }
+
+    input::placeholder, textarea::placeholder {
+      color: #ffffff;
+    }
+
+    [data-theme="lantern"] {
+      --bg: #130902;
+      --panel: #241005;
+      --line: #684621;
+    }
+
+    footer {
+      border-top: 1px solid #3e2f4b;
+      padding-top: 0.5rem;
+      color: #ffffff;
+      font-size: 0.86rem;
+    }
+
+    @media (max-width: 760px) {
+      .hero-title { font-size: clamp(1.9rem, 12vw, 3rem); }
+    }
+  </style>
+</head>
+<body x-data="pawnSite" :data-theme="lanternMode ? 'lantern' : ''">
+  <main>
+    <section id="harbor">
+      <nav class="chrome">
+        <h1 class="brand">Old Comet Pawn & Tide Canteen</h1>
+        <div class="btn-row">
+          <a href="#harbor">Dock Notice</a>
+          <a href="#rates">Rates</a>
+          <a href="#ledgers">Ledgers</a>
+          <a href="#voices">References</a>
+          <a href="#night">Night Terms</a>
+        </div>
+      </nav>
+
+      <div class="ticker mono">
+        <strong>WIRE:</strong>
+        <span x-text="tickerItems[tickerIndex]"></span>
+      </div>
+
+      <div class="grid-2">
+        <article class="chrome panel">
+          <p class="astro">EST. before lighthouse records, supervised by Master Clove (age: disputed, claws: certified)</p>
+          <h2 class="hero-title">Collateral Accepted While Premises Are In Motion</h2>
+          <p>Pawn windows, salvage dining, and emergency buyback agreements for sailors, archivists, and neighborhood ghosts. Current berth: <strong x-text="districts[districtIndex]"></strong>.</p>
+
+          <div>
+            <span class="tag">No appointment</span>
+            <span class="tag">Tide-indexed menu</span>
+            <span class="tag">Cat-inspected goods</span>
+            <span class="tag">Receipts stamped nightly</span>
+          </div>
+
+          <div class="btn-row">
+            <button class="cyan" x-on:click="cycleDistrict()">Track Building Drift</button>
+            <button class="alt" x-on:click="lanternMode = !lanternMode" x-text="lanternMode ? 'Switch to Neon Hull' : 'Switch to Lantern Deck'"></button>
+            <button class="gold" x-on:click="ringBell()">Ring Counter Bell</button>
+          </div>
+
+          <p class="pill"><i data-lucide="cat"></i> Bell rings logged: <span class="mono" x-text="bellRings"></span></p>
+        </article>
+
+        <div class="grid-2">
+          <article class="panel chrome">
+            <h3>Live Dock State</h3>
+            <p class="number" x-text="currentClock"></p>
+            <p><strong>Tide Shift:</strong> <span x-text="activeTide.name"></span></p>
+            <p><strong>Menu resets in:</strong> <span class="mono" x-text="nextShift"></span></p>
+          </article>
+
+          <article class="panel chrome">
+            <h3>Counter Telemetry</h3>
+            <p><strong>In-shop visitors:</strong> <span class="number" x-text="visitors"></span></p>
+            <p><strong>Open claims today:</strong> <span class="number" x-text="claims"></span></p>
+            <p><strong>Pending lantern polish:</strong> <span class="number" x-text="lanterns"></span></p>
+          </article>
+
+          <article class="panel chrome">
+            <h3>Quick Haggler</h3>
+            <p>Negotiating for: <strong x-text="selectedItem.name"></strong></p>
+            <p class="number" x-text="selectedItem.offer + ' shells'"></p>
+            <div class="btn-row">
+              <button x-on:click="adjustOffer(-3)">-3</button>
+              <button x-on:click="adjustOffer(-1)">-1</button>
+              <button x-on:click="adjustOffer(1)">+1</button>
+              <button x-on:click="adjustOffer(5)">+5</button>
+              <button class="gold" x-on:click="nextItem()">Next Item</button>
+            </div>
+          </article>
+
+          <article class="panel chrome">
+            <h3>Accepted This Hour</h3>
+            <ul>
+              <template x-for="note in intakeNotes" :key="note">
+                <li x-text="note"></li>
+              </template>
+            </ul>
+          </article>
+        </div>
+      </div>
+
+      <p class="disclaimer">Docking disclaimer A-17: If the building passes your alley twice in one evening, keep your ticket visible and wave slowly.</p>
+    </section>
+
+    <section id="rates">
+      <h2 class="brand">Tide Menu & Pawn Rates</h2>
+      <div class="grid-2">
+        <article class="chrome panel">
+          <h3>Menu Changes With Water Height</h3>
+          <div class="btn-row">
+            <template x-for="(t, i) in tides" :key="t.name">
+              <button x-on:click="manualTide(i)" :class="activeTide.name === t.name ? 'gold' : 'cyan'" x-text="t.name"></button>
+            </template>
+            <button class="alt" x-on:click="autoTide = !autoTide" x-text="autoTide ? 'Auto Tide: ON' : 'Auto Tide: OFF'"></button>
+          </div>
+
+          <table>
+            <thead>
+              <tr>
+                <th>Kitchen Item</th>
+                <th>Portion</th>
+                <th>Price</th>
+              </tr>
+            </thead>
+            <tbody>
+              <template x-for="meal in activeTide.menu" :key="meal.item">
+                <tr>
+                  <td x-text="meal.item"></td>
+                  <td x-text="meal.size"></td>
+                  <td x-text="meal.price"></td>
+                </tr>
+              </template>
+            </tbody>
+          </table>
+
+          <p class="pill"><i data-lucide="waves"></i> Kitchen lock status: <span x-text="autoTide ? 'Auto-synced to harbor clock' : 'Manual override by clerk'"></span></p>
+        </article>
+
+        <article class="chrome panel">
+          <h3>Collateral Index Snapshot</h3>
+          <div class="bars">
+            <template x-for="(v, idx) in barData" :key="idx">
+              <div class="bar" :style="'height:' + v + '%'"></div>
+            </template>
+          </div>
+          <p class="mono">Index sample updates every 4 seconds from counter slips and buoy notes.</p>
+
+          <table>
+            <thead>
+              <tr>
+                <th>Category</th>
+                <th>Base Loan</th>
+                <th>Buyback Window</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr><td>Pocket compasses</td><td>22 shells</td><td>8 nights</td></tr>
+              <tr><td>Folding astrolabes</td><td>37 shells</td><td>11 nights</td></tr>
+              <tr><td>Whale-bone harmonicas</td><td>16 shells</td><td>6 nights</td></tr>
+              <tr><td>Mirror shards (clean)</td><td>9 shells</td><td>4 nights</td></tr>
+              <tr><td>Family map tins</td><td>44 shells</td><td>15 nights</td></tr>
+            </tbody>
+          </table>
+        </article>
+      </div>
+
+      <div class="grid-3">
+        <article class="chrome panel">
+          <h4>Membership Tier</h4>
+          <p>Set your monthly berth pass:</p>
+          <input type="range" min="1" max="4" step="1" x-model.number="tier" />
+          <p><strong x-text="tiers[tier - 1].name"></strong> - <span x-text="tiers[tier - 1].price"></span></p>
+          <p x-text="tiers[tier - 1].benefit"></p>
+        </article>
+
+        <article class="chrome panel">
+          <h4>Loan Quote Tool</h4>
+          <label for="principal">Requested shells</label>
+          <input id="principal" type="number" min="1" x-model.number="principal" />
+          <label for="nights">Nights</label>
+          <input id="nights" type="number" min="1" x-model.number="nights" />
+          <p>Repayment estimate: <span class="number" x-text="repayment + ' shells'"></span></p>
+          <small>Rate includes moving-structure handling and sea-salt wrap.</small>
+        </article>
+
+        <article class="chrome panel">
+          <h4>Claim Queue Dial</h4>
+          <p>Priority lane: <strong x-text="priorityLane"></strong></p>
+          <div class="btn-row">
+            <button x-on:click="setLane('Standard')">Standard</button>
+            <button x-on:click="setLane('Night Watch')">Night Watch</button>
+            <button x-on:click="setLane('Storm Return')">Storm Return</button>
+          </div>
+          <p class="mono">Queue wait: <span x-text="queueWait"></span> minutes</p>
+        </article>
+      </div>
+    </section>
+
+    <section id="ledgers">
+      <h2 class="brand">Ledger Room</h2>
+      <div class="grid-2">
+        <article class="chrome panel">
+          <h3>Recent Tickets</h3>
+          <table>
+            <thead>
+              <tr>
+                <th>Ticket</th>
+                <th>Item</th>
+                <th>Status</th>
+                <th>Hold</th>
+              </tr>
+            </thead>
+            <tbody>
+              <template x-for="row in ledgerRows" :key="row.id">
+                <tr>
+                  <td x-text="row.id"></td>
+                  <td x-text="row.item"></td>
+                  <td x-text="row.status"></td>
+                  <td x-text="row.hold"></td>
+                </tr>
+              </template>
+            </tbody>
+          </table>
+          <div class="btn-row">
+            <button class="cyan" x-on:click="shuffleLedger()">Reshuffle Desk Stack</button>
+            <button class="alt" x-on:click="markReleased()">Mark Top Ticket Released</button>
+          </div>
+        </article>
+
+        <article class="chrome panel">
+          <h3>Buoy-Signal Board</h3>
+          <p><strong>Signal strength:</strong> <span class="number" x-text="signal + '%'"></span></p>
+          <progress :value="signal" max="100"></progress>
+          <p><strong>Night freight notices:</strong> <span x-text="freightNotices"></span></p>
+          <div class="btn-row">
+            <button class="gold" x-on:click="boostSignal()">Boost Signal</button>
+            <button class="cyan" x-on:click="decaySignal()">Bleed Off</button>
+          </div>
+          <p class="disclaimer">Signal surge may attract cormorants carrying unsigned contracts.</p>
+        </article>
+      </div>
+
+      <article class="chrome panel">
+        <h3>Operational Footnotes</h3>
+        <p>1. If the front steps are absent, use side ladder marked with three glowing sardines.</p>
+        <p>2. Vault room humidity guarantees are void during eclipse drizzle.</p>
+        <p>3. Counter cat has final say on porcelain, telescopes, and ceremonial spoons.</p>
+        <p>4. Tidal menu substitutions happen without warning and without apology.</p>
+      </article>
+    </section>
+
+    <section id="voices">
+      <h2 class="brand">Harbor References</h2>
+      <div class="grid-3">
+        <article class="quote-card">
+          <p>"Recovered my grandfather's sextant and got eel broth while waiting. Paperwork was brisk, cat was fair."</p>
+          <strong>- S. Mora, tug pilot</strong>
+        </article>
+        <article class="quote-card">
+          <p>"Their rates are printed clearly, even when the staircase drifts. Better terms than inland brokers."</p>
+          <strong>- Lintel & Co. chandlery</strong>
+        </article>
+        <article class="quote-card">
+          <p>"Signed at dusk, redeemed at dawn, building had moved two blocks. Ticket still honored."</p>
+          <strong>- Captain Dree</strong>
+        </article>
+      </div>
+
+      <div class="grid-2">
+        <article class="chrome panel faq">
+          <h3>Frequently Asked Dock Questions</h3>
+          <template x-for="(item, i) in faqs" :key="i">
+            <div>
+              <button x-on:click="toggleFaq(i)">
+                <span x-text="item.q"></span>
+              </button>
+              <div class="answer" x-show="item.open" x-transition>
+                <span x-text="item.a"></span>
+              </div>
+            </div>
+          </template>
+        </article>
+
+        <article class="chrome panel">
+          <h3>Leave a Counter Note</h3>
+          <label for="name">Name</label>
+          <input id="name" type="text" x-model="newNote.name" placeholder="Your name" />
+          <label for="note">Message</label>
+          <textarea id="note" x-model="newNote.text" placeholder="What was redeemed, pawned, or tasted"></textarea>
+          <div class="btn-row">
+            <button class="gold" x-on:click="addNote()">Post Note</button>
+            <button class="alt" x-on:click="clearNote()">Clear</button>
+          </div>
+          <ul>
+            <template x-for="(n, i) in guestNotes" :key="i">
+              <li><strong x-text="n.name"></strong>: <span x-text="n.text"></span></li>
+            </template>
+          </ul>
+        </article>
+      </div>
+    </section>
+
+    <section id="night">
+      <h2 class="brand">Night Terms & Dock Contact</h2>
+      <div class="grid-2">
+        <article class="chrome panel">
+          <h3>After-Hours Collection</h3>
+          <p>Lantern gate opens when buoy code displays <strong class="astro" x-text="nightCode"></strong>.</p>
+          <p>Code rotates every minute. Keep your ticket dry and visible.</p>
+          <p class="number" x-text="minutePulse"></p>
+        </article>
+
+        <article class="chrome panel">
+          <h3>Counter Channels</h3>
+          <p><i data-lucide="map-pin"></i> Floating between Brine Alley and Old Observatory Quay</p>
+          <p><i data-lucide="phone"></i> Bell Line: +01 771-PAWN-CAT</p>
+          <p><i data-lucide="clock-3"></i> Window service: sunrise to third moonbell</p>
+          <p><i data-lucide="anchor"></i> Freight hatch service: request in ledger room</p>
+        </article>
+      </div>
+
+      <footer>
+        <p>Old Comet Pawn & Tide Canteen, licensed by the Harbor Mediation Office.</p>
+        <p>All claims tagged, all soups ladled, all timestamps final unless tide tribunal says otherwise.</p>
+      </footer>
+    </section>
+  </main>
+
+  <script>
+    document.addEventListener('alpine:init', () => {
+      Alpine.data('pawnSite', () => ({
+        lanternMode: false,
+        districts: ['Brine Alley Slip 9', 'Cartographer Steps', 'North Jetty Lantern Row', 'Old Observatory Quay'],
+        districtIndex: 0,
+        tickerItems: [
+          'Moonpool calm. Brass compasses up 4%. Cat asleep on legal stamp pad.',
+          'Kitchen note: kelp pie batch shifted to high tide menu.',
+          'Harbor office confirms moving-structure permits renewed through winter.',
+          'Reminder: porcelain accepted only with padded wrapping and witness mark.'
+        ],
+        tickerIndex: 0,
+        bellRings: 0,
+        visitors: 14,
+        claims: 31,
+        lanterns: 7,
+        currentClock: '--:--:--',
+        nextShift: '00:00:00',
+        autoTide: true,
+        tideIndex: 0,
+        tides: [
+          {
+            name: 'Low Tide Ledger',
+            menu: [
+              { item: 'Anchovy flatbread', size: '1 wedge', price: '4 shells' },
+              { item: 'Rust-tea tonic', size: 'tin cup', price: '2 shells' },
+              { item: 'Pickled kelp strands', size: 'small bowl', price: '3 shells' }
+            ]
+          },
+          {
+            name: 'Rising Tide Shift',
+            menu: [
+              { item: 'Mackerel hand pie', size: 'full', price: '6 shells' },
+              { item: 'Star-anise chowder', size: 'deep mug', price: '7 shells' },
+              { item: 'Salt plum tart', size: 'half moon', price: '5 shells' }
+            ]
+          },
+          {
+            name: 'High Tide Table',
+            menu: [
+              { item: 'Blackfin stew', size: 'iron bowl', price: '10 shells' },
+              { item: 'Moon fennel salad', size: 'platter', price: '8 shells' },
+              { item: 'Candied eel strip', size: '2 lengths', price: '9 shells' }
+            ]
+          },
+          {
+            name: 'Falling Tide Supper',
+            menu: [
+              { item: 'Charred clam toast', size: '2 slices', price: '6 shells' },
+              { item: 'Smoked onion broth', size: 'crock', price: '5 shells' },
+              { item: 'Pepper kelp noodles', size: 'heaped plate', price: '7 shells' }
+            ]
+          }
+        ],
+        selectedIndex: 0,
+        items: [
+          { name: 'Pocket compass', offer: 22 },
+          { name: 'Tin sextant', offer: 35 },
+          { name: 'Porcelain gull', offer: 11 },
+          { name: 'Signal lantern', offer: 18 }
+        ],
+        intakeNotes: [
+          'Map tube, initials B.T., cleaned and tagged',
+          'Accordion with tide stains, keys intact',
+          'Silver ring from beacon keeper, appraisal pending',
+          'Three brass weights, bundled as one ticket'
+        ],
+        barData: [31, 44, 57, 40, 68, 52, 61, 49, 72, 66, 58, 47],
+        tier: 2,
+        tiers: [
+          { name: 'Dock Pass', price: '5 shells/mo', benefit: 'One expedited ticket each moon-cycle.' },
+          { name: 'Lantern Pass', price: '11 shells/mo', benefit: 'Two expedited tickets + broth refill.' },
+          { name: 'Harbormaster', price: '18 shells/mo', benefit: 'Priority lane + midnight pickup access.' },
+          { name: 'Comet Circle', price: '29 shells/mo', benefit: 'All lanes + appraisal seal wax included.' }
+        ],
+        principal: 30,
+        nights: 8,
+        priorityLane: 'Standard',
+        queueWait: 22,
+        ledgerRows: [
+          { id: 'C-4412', item: 'Ivory scope tube', status: 'Held', hold: '5 nights' },
+          { id: 'C-4413', item: 'Reed violin', status: 'Redeem-ready', hold: '2 nights' },
+          { id: 'C-4414', item: 'Copper lockbox', status: 'Awaiting witness', hold: '7 nights' },
+          { id: 'C-4415', item: 'Travel icon set', status: 'Held', hold: '4 nights' },
+          { id: 'C-4416', item: 'Bone whistle', status: 'Released', hold: '0 nights' }
+        ],
+        signal: 62,
+        freightNotices: 4,
+        faqs: [
+          { q: 'Do you honor claim tickets after relocation?', a: 'Yes. Ticket and item tag are valid regardless of berth shift.', open: true },
+          { q: 'Can I redeem after moonbell?', a: 'Night gate access is available with code and prior notice.', open: false },
+          { q: 'Are kitchen purchases tied to pawn activity?', a: 'No. Dining counter serves all visitors while stock lasts.', open: false },
+          { q: 'Who resolves pricing disputes?', a: 'Clerk first, harbor mediator second, cat final.', open: false }
+        ],
+        newNote: { name: '', text: '' },
+        guestNotes: [
+          { name: 'M. Thread', text: 'Counter was efficient, stew excellent, ticket dry.' },
+          { name: 'J. Pike', text: 'Fair valuation on brass chronometer.' }
+        ],
+        nightCode: '---',
+        minutePulse: '00',
+
+        get activeTide() {
+          return this.tides[this.tideIndex];
+        },
+
+        get selectedItem() {
+          return this.items[this.selectedIndex];
+        },
+
+        get repayment() {
+          const p = Number(this.principal) || 0;
+          const n = Number(this.nights) || 0;
+          const laneFactor = this.priorityLane === 'Storm Return' ? 0.16 : this.priorityLane === 'Night Watch' ? 0.13 : 0.1;
+          return Math.max(0, Math.round(p + (p * laneFactor) + (n * 0.9)));
+        },
+
+        init() {
+          this.tick();
+          setInterval(() => this.tick(), 1000);
+          setInterval(() => {
+            this.tickerIndex = (this.tickerIndex + 1) % this.tickerItems.length;
+          }, 3600);
+          setInterval(() => {
+            this.rotateBars();
+          }, 4000);
+        },
+
+        tick() {
+          const now = new Date();
+          this.currentClock = now.toLocaleTimeString();
+
+          const totalSeconds = now.getHours() * 3600 + now.getMinutes() * 60 + now.getSeconds();
+          const shiftSpan = 6 * 3600;
+          const idx = Math.floor(totalSeconds / shiftSpan) % 4;
+          if (this.autoTide) this.tideIndex = idx;
+
+          const nextBoundary = (Math.floor(totalSeconds / shiftSpan) + 1) * shiftSpan;
+          const remain = nextBoundary - totalSeconds;
+          this.nextShift = this.formatDuration(remain);
+
+          this.visitors = 9 + ((now.getMinutes() * 3 + now.getSeconds()) % 26);
+          this.claims = 18 + ((now.getHours() * 7 + now.getMinutes()) % 40);
+          this.lanterns = 3 + (now.getSeconds() % 14);
+
+          const mm = String(now.getMinutes()).padStart(2, '0');
+          this.minutePulse = mm;
+          const codeSeed = now.getHours() + now.getMinutes();
+          this.nightCode = 'C' + String((codeSeed * 73) % 997).padStart(3, '0');
+        },
+
+        formatDuration(sec) {
+          const h = String(Math.floor(sec / 3600)).padStart(2, '0');
+          const m = String(Math.floor((sec % 3600) / 60)).padStart(2, '0');
+          const s = String(sec % 60).padStart(2, '0');
+          return `${h}:${m}:${s}`;
+        },
+
+        cycleDistrict() {
+          this.districtIndex = (this.districtIndex + 1) % this.districts.length;
+        },
+
+        ringBell() {
+          this.bellRings += 1;
+          this.intakeNotes.unshift('Bell ring logged at ' + this.currentClock + '. Clerk acknowledged.');
+          this.intakeNotes = this.intakeNotes.slice(0, 5);
+        },
+
+        adjustOffer(n) {
+          const min = 1;
+          this.items[this.selectedIndex].offer = Math.max(min, this.items[this.selectedIndex].offer + n);
+        },
+
+        nextItem() {
+          this.selectedIndex = (this.selectedIndex + 1) % this.items.length;
+        },
+
+        manualTide(i) {
+          this.tideIndex = i;
+          this.autoTide = false;
+        },
+
+        rotateBars() {
+          this.barData = this.barData.map((v, i) => {
+            const delta = ((i % 3) - 1) * 4 + Math.floor(Math.random() * 5);
+            const next = v + delta;
+            return Math.max(16, Math.min(95, next));
+          });
+        },
+
+        setLane(name) {
+          this.priorityLane = name;
+          this.queueWait = name === 'Storm Return' ? 9 : name === 'Night Watch' ? 14 : 22;
+        },
+
+        shuffleLedger() {
+          this.ledgerRows = [...this.ledgerRows].sort(() => Math.random() - 0.5);
+        },
+
+        markReleased() {
+          if (this.ledgerRows.length > 0) {
+            this.ledgerRows[0].status = 'Released';
+            this.ledgerRows[0].hold = '0 nights';
+          }
+        },
+
+        boostSignal() {
+          this.signal = Math.min(100, this.signal + 9);
+          this.freightNotices += 1;
+        },
+
+        decaySignal() {
+          this.signal = Math.max(0, this.signal - 12);
+          this.freightNotices = Math.max(0, this.freightNotices - 1);
+        },
+
+        toggleFaq(i) {
+          this.faqs[i].open = !this.faqs[i].open;
+        },
+
+        addNote() {
+          const name = this.newNote.name.trim();
+          const text = this.newNote.text.trim();
+          if (!name || !text) return;
+          this.guestNotes.unshift({ name, text });
+          this.guestNotes = this.guestNotes.slice(0, 6);
+          this.clearNote();
+        },
+
+        clearNote() {
+          this.newNote.name = '';
+          this.newNote.text = '';
+        }
+      }));
+    });
+
+    window.addEventListener('DOMContentLoaded', () => {
+      if (window.lucide && typeof window.lucide.createIcons === 'function') {
+        window.lucide.createIcons();
+      }
+
+      if (window.gsap) {
+        gsap.from('.chrome', {
+          duration: 0.9,
+          y: 22,
+          opacity: 0,
+          stagger: 0.05,
+          ease: 'power2.out'
+        });
+      }
+    });
+  </script>
+</body>
+</html>

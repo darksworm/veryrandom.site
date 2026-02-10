@@ -1,0 +1,672 @@
+<!doctype html>
+<html lang="en" x-data="windDesk()">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Sigh Exchange by Elara Quince</title>
+  <link rel="stylesheet" href="/assets/css/pico.min.css" />
+  <link rel="stylesheet" href="/assets/css/fonts.css" />
+  <style>
+    :root {
+      --ice-0: #f7fbff;
+      --ice-1: #eaf4ff;
+      --ice-2: #d3e7ff;
+      --ice-3: #b4d3f4;
+      --steel: #6d89a8;
+      --ink: #0f2336;
+      --ink-soft: #2b435a;
+      --line: #9db8d6;
+      --glow: #d8edff;
+      --gust: 38;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      position: relative;
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 16px;
+      color: var(--ink);
+      background:
+        radial-gradient(1200px 700px at 110% -20%, #d1e6ff 0%, #f7fbff 60%),
+        radial-gradient(800px 400px at -10% 20%, #e2f1ff 0%, #f7fbff 62%),
+        linear-gradient(130deg, #f9fcff 0%, #edf6ff 48%, #e5f1ff 100%);
+      overflow-x: hidden;
+    }
+
+    body::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      background-image:
+        linear-gradient(90deg, #dcecff 1px, transparent 1px),
+        linear-gradient(#dcecff 1px, transparent 1px);
+      background-size: 28px 28px;
+      opacity: 0.5;
+      z-index: -1;
+    }
+
+    .site {
+      width: min(1240px, calc(100% - 2rem));
+      margin: 1rem auto 2rem;
+    }
+
+    .topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+      padding: 0.8rem 1rem;
+      border: 2px solid var(--line);
+      border-radius: 14px;
+      background: linear-gradient(180deg, #ffffff 0%, #f0f7ff 100%);
+      box-shadow: 0 8px 24px #bdd8f280;
+      margin-bottom: 1rem;
+      flex-wrap: wrap;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 0.7rem;
+      font-weight: 700;
+      color: var(--ink);
+      font-size: clamp(1rem, 2.4vw, 1.25rem);
+      letter-spacing: 0.01em;
+    }
+
+    .brand .mark {
+      width: 36px;
+      height: 36px;
+      border-radius: 9px;
+      border: 2px solid #88abd0;
+      background:
+        conic-gradient(from 120deg, #cbe4ff, #8bb6df, #d9eeff, #9bc4ea, #cbe4ff);
+      animation: spin 6s linear infinite;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    .top-links {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.45rem;
+      align-items: center;
+    }
+
+    .top-links a,
+    .top-links button {
+      margin: 0;
+      border: 2px solid #96b6d7;
+      background: #ffffff;
+      color: #14324a;
+      padding: 0.5rem 0.8rem;
+      border-radius: 10px;
+      text-decoration: none;
+      font-size: 0.9rem;
+      min-height: 44px;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      cursor: pointer;
+    }
+
+    .top-links a:hover,
+    .top-links button:hover {
+      transform: translateY(-1px);
+      background: #ecf6ff;
+    }
+
+    .masonry {
+      display: grid;
+      grid-template-columns: repeat(12, minmax(0, 1fr));
+      grid-auto-rows: minmax(120px, auto);
+      gap: 0.95rem;
+    }
+
+    .card {
+      position: relative;
+      border: 2px solid var(--line);
+      border-radius: 16px;
+      background: linear-gradient(170deg, #ffffff 0%, #f1f8ff 70%, #e8f3ff 100%);
+      box-shadow: 0 10px 26px #c3dbf38f;
+      overflow: hidden;
+      padding: 1rem;
+      color: var(--ink);
+    }
+
+    .card h1,
+    .card h2,
+    .card h3,
+    .card p,
+    .card li,
+    .card small,
+    .card label,
+    .card strong,
+    .card span,
+    .card a,
+    .card button {
+      color: var(--ink);
+    }
+
+    .hero { grid-column: span 8; min-height: 330px; }
+    .ticker { grid-column: span 4; }
+    .products { grid-column: span 4; }
+    .simulator { grid-column: span 4; }
+    .price { grid-column: span 4; }
+    .testimonials { grid-column: span 5; }
+    .faq { grid-column: span 4; }
+    .poster { grid-column: span 3; }
+    .footer-card { grid-column: span 12; }
+
+    .headline {
+      max-width: 34ch;
+      margin-bottom: 1rem;
+    }
+
+    .headline h1 {
+      font-size: clamp(1.7rem, 4.3vw, 3.3rem);
+      line-height: 1.03;
+      margin: 0;
+      letter-spacing: -0.02em;
+      font-weight: 700;
+    }
+
+    .headline p {
+      margin-top: 0.8rem;
+      font-size: clamp(1rem, 2.2vw, 1.2rem);
+      color: #1f4059;
+    }
+
+    .signature {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 0.85rem;
+      border-top: 2px dashed #9fbddc;
+      padding-top: 0.6rem;
+      color: #23435d;
+    }
+
+    .wind-sculpture {
+      position: absolute;
+      right: -30px;
+      bottom: -20px;
+      width: min(44vw, 440px);
+      aspect-ratio: 1 / 1;
+      pointer-events: none;
+    }
+
+    .wind-sculpture::before,
+    .wind-sculpture::after {
+      content: "";
+      position: absolute;
+      border-radius: 39% 61% 42% 58% / 58% 37% 63% 42%;
+      transition: transform 450ms ease, filter 450ms ease;
+    }
+
+    .wind-sculpture::before {
+      inset: 18% 18% 10% 10%;
+      border: 3px solid #8cb0d3;
+      background: radial-gradient(circle at 30% 30%, #e9f6ff 0%, #cae4fb 50%, #adcfee 100%);
+      box-shadow: inset 0 0 0 12px #ddf0ff;
+    }
+
+    .wind-sculpture::after {
+      inset: 0%;
+      border: 2px dashed #81a8ce;
+      animation: orbit 10s linear infinite;
+    }
+
+    @keyframes orbit {
+      to { transform: rotate(360deg); }
+    }
+
+    .hero:hover .wind-sculpture::before {
+      transform: scale(1.08) rotate(8deg);
+      filter: saturate(1.15);
+    }
+
+    .chip-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      margin-top: 0.7rem;
+    }
+
+    .chip {
+      border: 2px solid #97b8d8;
+      background: #f3f9ff;
+      border-radius: 999px;
+      padding: 0.35rem 0.65rem;
+      font-size: 0.8rem;
+      color: #1f3d56;
+      font-family: 'IBM Plex Mono', monospace;
+    }
+
+    .ticker .big {
+      font-size: clamp(1.9rem, 7vw, 2.5rem);
+      font-weight: 700;
+      line-height: 1;
+      margin: 0.45rem 0;
+      color: #10293f;
+    }
+
+    .ticker .label {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 0.86rem;
+      color: #284761;
+    }
+
+    .wind-flag {
+      width: 88px;
+      height: 58px;
+      border: 2px solid #88acd1;
+      border-radius: 10px;
+      margin-top: 0.8rem;
+      background: linear-gradient(120deg, #e8f5ff 0%, #cbe5fb 60%, #b6d5f2 100%);
+      display: grid;
+      place-items: center;
+      transform-origin: left center;
+    }
+
+    .products ul,
+    .price ul {
+      margin: 0.6rem 0 0;
+      padding-left: 1rem;
+    }
+
+    .products li,
+    .price li,
+    .faq summary,
+    .faq p,
+    .testimonials p,
+    .footer-card p {
+      color: #1e3e57;
+    }
+
+    .products .swirl {
+      width: 100%;
+      height: 90px;
+      margin-top: 0.7rem;
+      border-radius: 12px;
+      border: 2px solid #96b8d9;
+      background:
+        repeating-linear-gradient(135deg, #d6eafe 0 12px, #f2f9ff 12px 24px),
+        radial-gradient(circle at 20% 50%, #ffffff, #d9ecff);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .products .swirl::before {
+      content: "";
+      position: absolute;
+      inset: 8px;
+      border-radius: 10px;
+      border: 2px dashed #7ca3ca;
+      transform: rotate(calc(var(--gust) * 0.5deg));
+      transition: transform 220ms linear;
+    }
+
+    .simulator input[type="range"] {
+      width: 100%;
+      margin: 0.5rem 0 0.2rem;
+    }
+
+    .sim-meter {
+      margin-top: 0.7rem;
+      border: 2px solid #95b7d8;
+      border-radius: 14px;
+      height: 74px;
+      position: relative;
+      background: linear-gradient(180deg, #fafdff 0%, #e5f2ff 100%);
+      overflow: hidden;
+    }
+
+    .sim-meter .wave {
+      position: absolute;
+      inset: auto -10% -35% -10%;
+      height: calc(20% + (var(--gust) * 1%));
+      background: radial-gradient(circle at 50% 0%, #a8cff4 0%, #7eb0e0 55%, #6799c9 100%);
+      border-radius: 50% 50% 0 0;
+      transition: height 220ms ease;
+    }
+
+    .sim-meter .needle {
+      position: absolute;
+      width: 3px;
+      height: 56px;
+      background: #1f3f58;
+      left: 50%;
+      top: 8px;
+      transform-origin: bottom center;
+      transform: rotate(calc((var(--gust) - 50) * 1deg));
+      transition: transform 220ms ease;
+    }
+
+    .price-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 0.5rem;
+      margin-top: 0.6rem;
+    }
+
+    .tier {
+      border: 2px solid #9abadd;
+      border-radius: 12px;
+      padding: 0.55rem;
+      background: #f6fbff;
+    }
+
+    .tier strong {
+      display: block;
+      font-size: 1.05rem;
+      margin-bottom: 0.2rem;
+    }
+
+    .tier small {
+      font-family: 'IBM Plex Mono', monospace;
+      color: #24435d;
+    }
+
+    .testimonials blockquote {
+      margin: 0.8rem 0 0;
+      border-left: 3px solid #90b1d2;
+      padding: 0.2rem 0 0.2rem 0.7rem;
+      font-size: 1rem;
+      color: #173650;
+    }
+
+    .faq details {
+      border: 2px solid #99bbdc;
+      border-radius: 12px;
+      padding: 0.55rem 0.7rem;
+      margin-bottom: 0.55rem;
+      background: #f7fbff;
+    }
+
+    .faq summary {
+      cursor: pointer;
+      font-weight: 600;
+      color: #173751;
+    }
+
+    .poster {
+      display: grid;
+      place-items: center;
+      min-height: 280px;
+      background:
+        linear-gradient(145deg, #e9f5ff 0%, #d6ebff 50%, #c1ddf8 100%);
+    }
+
+    .kite {
+      width: 150px;
+      aspect-ratio: 1 / 1;
+      clip-path: polygon(50% 0, 100% 50%, 50% 100%, 0 50%);
+      border: 3px solid #719bc2;
+      background:
+        linear-gradient(45deg, #f8fcff 0%, #cae3fa 50%, #8db5dd 100%);
+      box-shadow: 0 10px 24px #89add080;
+      transition: transform 300ms ease, filter 300ms ease;
+      position: relative;
+    }
+
+    .kite::after {
+      content: "";
+      position: absolute;
+      left: 50%;
+      top: 100%;
+      width: 2px;
+      height: 90px;
+      background: repeating-linear-gradient(
+        180deg,
+        #6f96bd 0 8px,
+        #d5e9fc 8px 16px
+      );
+      transform: translateX(-50%);
+    }
+
+    .poster:hover .kite {
+      transform: rotate(15deg) scale(1.08);
+      filter: saturate(1.2);
+    }
+
+    .footer-card {
+      display: flex;
+      gap: 1rem;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      min-height: 90px;
+    }
+
+    .footer-card form {
+      display: flex;
+      gap: 0.6rem;
+      flex-wrap: wrap;
+      margin: 0;
+    }
+
+    .footer-card input,
+    .footer-card button {
+      margin: 0;
+      min-height: 44px;
+    }
+
+    .morph:hover {
+      border-color: #729bc4;
+      box-shadow: 0 14px 30px #adc9e690;
+    }
+
+    @media (max-width: 980px) {
+      .hero { grid-column: span 12; }
+      .ticker, .products, .simulator, .price { grid-column: span 6; }
+      .testimonials, .faq, .poster { grid-column: span 12; }
+      .price-grid { grid-template-columns: 1fr; }
+      .wind-sculpture { width: min(60vw, 340px); }
+    }
+
+    @media (max-width: 700px) {
+      .site { width: min(100%, calc(100% - 1rem)); }
+      .masonry { grid-template-columns: 1fr; }
+      .hero, .ticker, .products, .simulator, .price, .testimonials, .faq, .poster, .footer-card { grid-column: span 1; }
+      .card { padding: 0.85rem; }
+      .headline h1 { font-size: clamp(1.6rem, 9vw, 2.3rem); }
+      .top-links { width: 100%; }
+      .top-links a, .top-links button { flex: 1 1 auto; justify-content: center; }
+      .wind-sculpture { position: relative; right: auto; bottom: auto; width: 75%; margin: 1rem auto 0; }
+    }
+  </style>
+</head>
+<body>
+  <div class="site">
+    <header class="topbar">
+      <div class="brand">
+        <div class="mark" aria-hidden="true"></div>
+        <span>SIGH EXCHANGE</span>
+      </div>
+      <nav class="top-links" aria-label="Primary">
+        <a href="#products"><i data-lucide="shopping-bag"></i> Objects</a>
+        <a href="#rates"><i data-lucide="banknote"></i> Rates</a>
+        <a href="#proof"><i data-lucide="badge-check"></i> Witnesses</a>
+        <button type="button" id="bell" @click="ringBell"><i data-lucide="bell"></i><span x-text="bellLabel"></span></button>
+      </nav>
+    </header>
+
+    <main class="masonry">
+      <section class="card hero morph">
+        <div class="headline">
+          <h1>I am Elara Quince. I securitized the breeze after my third divorce.</h1>
+          <p>Wind is just the earth sighing. I package those sighs into garments, instruments, and emotionally stable home goods.</p>
+        </div>
+        <div class="chip-row">
+          <span class="chip">NASDAQ: WHOOF</span>
+          <span class="chip">founded in a marina parking lot</span>
+          <span class="chip">audited by my cousin Trent</span>
+        </div>
+        <p class="signature">Every order includes a hand-numbered receipt and one note that says "calm down" in fountain pen.</p>
+        <div class="wind-sculpture" aria-hidden="true"></div>
+      </section>
+
+      <section class="card ticker morph" id="rates">
+        <h2>Today's Sigh Rate</h2>
+        <p class="label">Commoditized exhale per unit</p>
+        <p class="big" x-text="'$' + rate.toFixed(2)"></p>
+        <p class="label" x-text="marketOpen ? 'Market open until moonrise.' : 'Market paused for dramatic effect.'"></p>
+        <button type="button" @click="toggleMarket">Toggle Market Mood</button>
+        <div class="wind-flag" id="flagBox"><i data-lucide="wind" style="width:28px;height:28px;color:#20415a"></i></div>
+      </section>
+
+      <section class="card products morph" id="products">
+        <h2>Objects I Stand Behind</h2>
+        <ul>
+          <li><strong>Quarterly Wind Coat</strong> - $219.00. Lined with regret-proof satin.</li>
+          <li><strong>Portfolio Kite 4B</strong> - $88.40. Flies only when spoken to respectfully.</li>
+          <li><strong>Board Meeting Chime</strong> - $63.12. Rings once when someone lies about synergy.</li>
+        </ul>
+        <div class="swirl" aria-hidden="true"></div>
+      </section>
+
+      <section class="card simulator morph">
+        <h2>Sigh Intensity Console</h2>
+        <label for="gust">Move the slider until it feels like your last apology.</label>
+        <input id="gust" type="range" min="5" max="95" x-model.number="gust" @input="syncGust" />
+        <p><strong x-text="gust"></strong> knots of emotional weather.</p>
+        <div class="sim-meter" aria-hidden="true">
+          <div class="needle"></div>
+          <div class="wave"></div>
+        </div>
+      </section>
+
+      <section class="card price morph">
+        <h2>Memberships</h2>
+        <p>I priced these after consulting my therapist and one pirate.</p>
+        <div class="price-grid">
+          <article class="tier">
+            <strong>Drift</strong>
+            <small>$17.99/mo</small>
+            <p>One sigh parcel, no eye contact.</p>
+          </article>
+          <article class="tier">
+            <strong>Gale</strong>
+            <small>$47.99/mo</small>
+            <p>Priority shipping and apology templates.</p>
+          </article>
+          <article class="tier">
+            <strong>Monsoon CFO</strong>
+            <small>$119.00/mo</small>
+            <p>I text you "hold steady" during hard meetings.</p>
+          </article>
+        </div>
+      </section>
+
+      <section class="card testimonials morph" id="proof" x-data="{i:0,items:[
+        {q:'The Wind Coat hugged me tighter than my family.',n:'Mara P., yacht accountant'},
+        {q:'I brought the Board Meeting Chime to city council. Three resignations.',n:'Devon L., municipal menace'},
+        {q:'Elara called my bluff and my sinus pressure dropped 40%.',n:'Rico T., former skeptic'}
+      ]}">
+        <h2>Independent Witnesses</h2>
+        <blockquote x-text="items[i].q"></blockquote>
+        <p><strong x-text="items[i].n"></strong></p>
+        <button type="button" @click="i=(i+1)%items.length">Next witness</button>
+      </section>
+
+      <section class="card faq morph">
+        <h2>Questions Asked Under Oath</h2>
+        <details>
+          <summary>Is the wind ethically sourced?</summary>
+          <p>Yes. We collect only naturally occurring sighs, never forced panting.</p>
+        </details>
+        <details>
+          <summary>Why does my invoice include "Emotional Hedging Fee"?</summary>
+          <p>Because your vibe is volatile and I still believe in you.</p>
+        </details>
+        <details>
+          <summary>Can I return a kite?</summary>
+          <p>Within 30 days, unless it has seen your true personality.</p>
+        </details>
+      </section>
+
+      <section class="card poster morph" aria-label="Kite icon card">
+        <div class="kite"></div>
+      </section>
+
+      <section class="card footer-card morph">
+        <div>
+          <h3 style="margin-bottom:0.35rem">Receive my quarterly letter, "Dear Atmosphere"</h3>
+          <p style="margin:0">One market update, one confession, one coupon for oat milk.</p>
+        </div>
+        <form @submit.prevent>
+          <input type="email" placeholder="you@calm.biz" aria-label="Email" />
+          <button type="submit">Subscribe For $0.00</button>
+        </form>
+      </section>
+    </main>
+  </div>
+
+  <script src="/assets/js/alpine.min.js" defer></script>
+  <script src="/assets/js/gsap.min.js"></script>
+  <script src="/assets/js/lucide.min.js"></script>
+  <script>
+    function windDesk() {
+      return {
+        gust: 38,
+        rate: 84.12,
+        marketOpen: true,
+        bellLabel: 'Ring Closing Bell',
+        syncGust() {
+          document.documentElement.style.setProperty('--gust', this.gust);
+          this.rate = 60 + (this.gust * 0.63);
+        },
+        toggleMarket() {
+          this.marketOpen = !this.marketOpen;
+          this.bellLabel = this.marketOpen ? 'Ring Closing Bell' : 'Reopen Market';
+          const box = document.getElementById('flagBox');
+          if (box) {
+            gsap.to(box, {
+              rotate: this.marketOpen ? 0 : -7,
+              x: this.marketOpen ? 0 : 4,
+              duration: 0.35,
+              clearProps: 'transform'
+            });
+          }
+        },
+        ringBell() {
+          const bell = document.getElementById('bell');
+          if (!bell) return;
+          gsap.fromTo(
+            bell,
+            { rotate: -12 },
+            { rotate: 12, duration: 0.09, yoyo: true, repeat: 5, clearProps: 'transform' }
+          );
+        }
+      };
+    }
+
+    document.addEventListener('DOMContentLoaded', function () {
+      lucide.createIcons();
+
+      document.documentElement.style.setProperty('--gust', 38);
+
+      gsap.fromTo(
+        '.card',
+        { y: 22, opacity: 0 },
+        { y: 0, opacity: 1, duration: 0.62, stagger: 0.07, ease: 'power2.out', clearProps: 'opacity,transform' }
+      );
+
+      const cards = document.querySelectorAll('.morph');
+      cards.forEach(function (card) {
+        card.addEventListener('mouseenter', function () {
+          gsap.to(card, { y: -3, duration: 0.22, clearProps: 'transform' });
+        });
+        card.addEventListener('mouseleave', function () {
+          gsap.to(card, { y: 0, duration: 0.22, clearProps: 'transform' });
+        });
+      });
+    });
+  </script>
+</body>
+</html>

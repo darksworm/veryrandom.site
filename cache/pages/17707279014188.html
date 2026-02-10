@@ -1,0 +1,1081 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tiny Paws Capital — Financial Advice From Inside The Globe</title>
+    <link rel="stylesheet" href="/assets/css/fonts.css">
+    <script defer src="/assets/js/alpine.min.js"></script>
+    <script src="/assets/js/gsap.min.js"></script>
+    <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+        :root {
+            --neon-green: #39ff14;
+            --neon-pink: #ff2d6b;
+            --neon-blue: #00f0ff;
+            --neon-yellow: #f0ff00;
+            --black: #000000;
+            --off-black: #0a0a0a;
+            --dark-gray: #111111;
+            --text-primary: #ffffff;
+            --text-secondary: #cccccc;
+            --text-muted: #aaaaaa;
+        }
+
+        html { scroll-behavior: smooth; }
+
+        body {
+            background: var(--black);
+            color: var(--text-primary);
+            font-family: 'Space Grotesk', sans-serif;
+            overflow-x: hidden;
+            line-height: 1.6;
+            font-size: 17px;
+        }
+
+        ::selection {
+            background: var(--neon-green);
+            color: var(--black);
+        }
+
+        /* Snow particles */
+        .snow-container {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            pointer-events: none;
+            z-index: 1;
+            overflow: hidden;
+        }
+
+        .snowflake {
+            position: absolute;
+            color: #ffffff;
+            font-size: 10px;
+            opacity: 0.25;
+            animation: snowfall linear infinite;
+            user-select: none;
+        }
+
+        @keyframes snowfall {
+            0% { transform: translateY(-10vh) translateX(0) rotate(0deg); }
+            100% { transform: translateY(110vh) translateX(40px) rotate(360deg); }
+        }
+
+        /* Globe overlay — subtle vignette */
+        .globe-vignette {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            pointer-events: none;
+            z-index: 2;
+            background: radial-gradient(ellipse at center, transparent 50%, rgba(0,0,0,0.6) 100%);
+        }
+
+        /* NAV */
+        nav {
+            position: fixed;
+            top: 0; left: 0; right: 0;
+            z-index: 100;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1.2rem 2rem;
+            background: rgba(0,0,0,0.85);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid #1a1a1a;
+        }
+
+        .nav-logo {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.1rem;
+            color: var(--neon-green);
+            letter-spacing: 0.05em;
+            text-decoration: none;
+        }
+
+        .nav-logo span {
+            color: var(--text-muted);
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 0.65rem;
+            display: block;
+            letter-spacing: 0.15em;
+            text-transform: uppercase;
+            margin-top: 2px;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 2rem;
+            list-style: none;
+        }
+
+        .nav-links a {
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-size: 0.8rem;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            font-family: 'IBM Plex Mono', monospace;
+            transition: color 0.3s;
+        }
+
+        .nav-links a:hover { color: var(--neon-green); }
+
+        /* SECTIONS */
+        section {
+            position: relative;
+            z-index: 5;
+        }
+
+        /* HERO — split screen */
+        .hero {
+            min-height: 100vh;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            padding-top: 80px;
+        }
+
+        .hero-left {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            padding: 4rem 3rem;
+            border-right: 1px solid #1a1a1a;
+        }
+
+        .hero-right {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 4rem 3rem;
+            position: relative;
+        }
+
+        .hero-tag {
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 0.7rem;
+            color: var(--neon-pink);
+            letter-spacing: 0.2em;
+            text-transform: uppercase;
+            margin-bottom: 2rem;
+        }
+
+        .hero h1 {
+            font-family: 'Playfair Display', serif;
+            font-size: clamp(2.5rem, 5vw, 4.5rem);
+            line-height: 1.1;
+            color: var(--text-primary);
+            margin-bottom: 1.5rem;
+            font-weight: 400;
+        }
+
+        .hero h1 em {
+            color: var(--neon-green);
+            font-style: italic;
+        }
+
+        .hero-subtitle {
+            font-size: 1rem;
+            color: var(--text-secondary);
+            max-width: 400px;
+            line-height: 1.7;
+            margin-bottom: 2rem;
+        }
+
+        /* Globe ASCII art */
+        .globe-art {
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: clamp(0.45rem, 0.8vw, 0.65rem);
+            line-height: 1.3;
+            color: var(--neon-green);
+            white-space: pre;
+            opacity: 0.7;
+            text-align: center;
+            transition: opacity 1s ease;
+        }
+
+        .globe-art:hover {
+            opacity: 1;
+        }
+
+        /* MORSE section */
+        .morse-section {
+            padding: 8rem 3rem;
+            text-align: center;
+            border-top: 1px solid #1a1a1a;
+        }
+
+        .morse-text {
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 1.5rem;
+            color: var(--neon-green);
+            letter-spacing: 0.5em;
+            margin-bottom: 2rem;
+            opacity: 0.6;
+        }
+
+        .morse-translation {
+            font-family: 'Crimson Pro', serif;
+            font-size: clamp(1.3rem, 3vw, 2rem);
+            color: var(--text-secondary);
+            font-style: italic;
+            max-width: 600px;
+            margin: 0 auto;
+            line-height: 1.6;
+        }
+
+        /* SPLIT INFO */
+        .split-section {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            min-height: 80vh;
+            border-top: 1px solid #1a1a1a;
+        }
+
+        .split-dark {
+            background: var(--black);
+            padding: 6rem 3rem;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .split-neon {
+            background: var(--neon-green);
+            color: var(--black);
+            padding: 6rem 3rem;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .split-neon h2 {
+            font-family: 'Playfair Display', serif;
+            font-size: clamp(2rem, 4vw, 3.5rem);
+            font-weight: 400;
+            margin-bottom: 2rem;
+            color: var(--black);
+        }
+
+        .split-neon p {
+            color: #0a2200;
+            font-size: 0.95rem;
+            line-height: 1.8;
+            max-width: 450px;
+        }
+
+        .portfolio-item {
+            border-bottom: 1px solid #1a1a1a;
+            padding: 1.8rem 0;
+        }
+
+        .portfolio-item:last-child { border-bottom: none; }
+
+        .portfolio-name {
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 0.75rem;
+            letter-spacing: 0.15em;
+            text-transform: uppercase;
+            color: var(--neon-pink);
+            margin-bottom: 0.5rem;
+        }
+
+        .portfolio-desc {
+            font-family: 'Crimson Pro', serif;
+            font-size: 1.1rem;
+            color: var(--text-secondary);
+            line-height: 1.6;
+        }
+
+        .portfolio-return {
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 0.8rem;
+            color: var(--neon-green);
+            margin-top: 0.5rem;
+        }
+
+        /* TESTIMONIALS */
+        .testimonials {
+            padding: 8rem 3rem;
+            border-top: 1px solid #1a1a1a;
+        }
+
+        .testimonial-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        .testimonial {
+            border: 1px solid #1a1a1a;
+            padding: 2rem;
+            position: relative;
+        }
+
+        .testimonial::before {
+            content: '🐾';
+            position: absolute;
+            top: -12px;
+            left: 20px;
+            font-size: 1.2rem;
+        }
+
+        .testimonial-text {
+            font-family: 'Crimson Pro', serif;
+            font-size: 1.05rem;
+            color: var(--text-secondary);
+            line-height: 1.7;
+            margin-bottom: 1.5rem;
+            font-style: italic;
+        }
+
+        .testimonial-author {
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 0.7rem;
+            color: var(--neon-green);
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+        }
+
+        .testimonial-detail {
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 0.65rem;
+            color: var(--text-muted);
+            margin-top: 0.3rem;
+        }
+
+        /* PRICING */
+        .pricing-section {
+            padding: 8rem 3rem;
+            border-top: 1px solid #1a1a1a;
+            text-align: center;
+        }
+
+        .pricing-section h2 {
+            font-family: 'Playfair Display', serif;
+            font-size: clamp(1.8rem, 3vw, 2.5rem);
+            font-weight: 400;
+            margin-bottom: 1rem;
+            color: var(--text-primary);
+        }
+
+        .pricing-subtitle {
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            letter-spacing: 0.1em;
+            margin-bottom: 4rem;
+        }
+
+        .pricing-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+            gap: 1.5rem;
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .price-card {
+            border: 1px solid #1a1a1a;
+            padding: 2.5rem 2rem;
+            text-align: left;
+            transition: border-color 0.5s ease;
+        }
+
+        .price-card:hover {
+            border-color: var(--neon-green);
+        }
+
+        .price-card.featured {
+            border-color: var(--neon-pink);
+            position: relative;
+        }
+
+        .price-card.featured::after {
+            content: 'MOST PURRCHASED';
+            position: absolute;
+            top: -10px;
+            right: 20px;
+            background: var(--neon-pink);
+            color: var(--black);
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 0.6rem;
+            padding: 3px 8px;
+            letter-spacing: 0.1em;
+        }
+
+        .price-tier {
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 0.7rem;
+            letter-spacing: 0.15em;
+            text-transform: uppercase;
+            color: var(--neon-green);
+            margin-bottom: 1rem;
+        }
+
+        .price-amount {
+            font-family: 'Playfair Display', serif;
+            font-size: 2.5rem;
+            color: var(--text-primary);
+            margin-bottom: 0.3rem;
+        }
+
+        .price-amount span {
+            font-size: 0.9rem;
+            color: var(--text-muted);
+            font-family: 'IBM Plex Mono', monospace;
+        }
+
+        .price-note {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            margin-bottom: 1.5rem;
+            font-family: 'IBM Plex Mono', monospace;
+        }
+
+        .price-features {
+            list-style: none;
+        }
+
+        .price-features li {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            padding: 0.4rem 0;
+            border-bottom: 1px solid #0f0f0f;
+        }
+
+        .price-features li::before {
+            content: '🐱 ';
+        }
+
+        /* FAQ */
+        .faq-section {
+            padding: 8rem 3rem;
+            border-top: 1px solid #1a1a1a;
+            max-width: 700px;
+            margin: 0 auto;
+        }
+
+        .faq-section h2 {
+            font-family: 'Playfair Display', serif;
+            font-size: clamp(1.8rem, 3vw, 2.5rem);
+            font-weight: 400;
+            margin-bottom: 3rem;
+            color: var(--text-primary);
+        }
+
+        .faq-item {
+            border-bottom: 1px solid #1a1a1a;
+            padding: 1.5rem 0;
+            cursor: pointer;
+        }
+
+        .faq-question {
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 0.85rem;
+            color: var(--neon-green);
+            margin-bottom: 0.8rem;
+            letter-spacing: 0.02em;
+        }
+
+        .faq-answer {
+            font-family: 'Crimson Pro', serif;
+            font-size: 1rem;
+            color: var(--text-secondary);
+            line-height: 1.7;
+            overflow: hidden;
+        }
+
+        /* FOOTER */
+        footer {
+            padding: 4rem 3rem;
+            border-top: 1px solid #1a1a1a;
+            text-align: center;
+        }
+
+        .footer-paw {
+            font-size: 2rem;
+            margin-bottom: 1rem;
+            opacity: 0.4;
+        }
+
+        .footer-text {
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 0.65rem;
+            color: var(--text-muted);
+            letter-spacing: 0.1em;
+            line-height: 2;
+        }
+
+        .footer-legal {
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 0.55rem;
+            color: #666666;
+            max-width: 600px;
+            margin: 2rem auto 0;
+            line-height: 1.8;
+        }
+
+        /* Paw print trail animation */
+        .paw-trail {
+            position: fixed;
+            bottom: 20px;
+            left: 20px;
+            font-size: 0.8rem;
+            opacity: 0.15;
+            z-index: 3;
+            pointer-events: none;
+            font-family: 'IBM Plex Mono', monospace;
+            color: var(--neon-green);
+        }
+
+        /* Slow pulse animation for elements */
+        @keyframes slowPulse {
+            0%, 100% { opacity: 0.4; }
+            50% { opacity: 0.8; }
+        }
+
+        .pulse { animation: slowPulse 4s ease-in-out infinite; }
+
+        /* Hover reveal */
+        .reveal-on-hover {
+            position: relative;
+            cursor: pointer;
+        }
+
+        .reveal-on-hover .hidden-text {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: var(--black);
+            color: var(--neon-pink);
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 0.8rem;
+            opacity: 0;
+            transition: opacity 0.6s ease;
+            padding: 1rem;
+            text-align: center;
+        }
+
+        .reveal-on-hover:hover .hidden-text {
+            opacity: 1;
+        }
+
+        /* Section label */
+        .section-label {
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 0.65rem;
+            letter-spacing: 0.2em;
+            text-transform: uppercase;
+            color: var(--text-muted);
+            margin-bottom: 3rem;
+        }
+
+        /* CTA */
+        .cta-button {
+            display: inline-block;
+            padding: 14px 32px;
+            border: 1px solid var(--neon-green);
+            color: var(--neon-green);
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 0.75rem;
+            letter-spacing: 0.15em;
+            text-transform: uppercase;
+            text-decoration: none;
+            transition: all 0.4s ease;
+            cursor: pointer;
+            background: transparent;
+        }
+
+        .cta-button:hover {
+            background: var(--neon-green);
+            color: var(--black);
+        }
+
+        /* Ambient glow */
+        .ambient-glow {
+            position: fixed;
+            width: 300px;
+            height: 300px;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(57,255,20,0.04) 0%, transparent 70%);
+            pointer-events: none;
+            z-index: 0;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+
+        /* Miniature indicator */
+        .mini-badge {
+            display: inline-block;
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 0.5rem;
+            letter-spacing: 0.2em;
+            text-transform: uppercase;
+            color: var(--black);
+            background: var(--neon-yellow);
+            padding: 2px 8px;
+            margin-left: 8px;
+            vertical-align: middle;
+        }
+
+        /* RESPONSIVE */
+        @media (max-width: 768px) {
+            nav {
+                padding: 1rem 1.2rem;
+            }
+
+            .nav-links {
+                display: none;
+            }
+
+            .hero {
+                grid-template-columns: 1fr;
+                min-height: auto;
+            }
+
+            .hero-left {
+                padding: 6rem 1.5rem 3rem;
+                border-right: none;
+                border-bottom: 1px solid #1a1a1a;
+            }
+
+            .hero-right {
+                padding: 3rem 1.5rem;
+            }
+
+            .globe-art {
+                font-size: 0.35rem;
+            }
+
+            .split-section {
+                grid-template-columns: 1fr;
+                min-height: auto;
+            }
+
+            .split-dark, .split-neon {
+                padding: 4rem 1.5rem;
+            }
+
+            .morse-section {
+                padding: 5rem 1.5rem;
+            }
+
+            .morse-text {
+                font-size: 1rem;
+                letter-spacing: 0.2em;
+            }
+
+            .testimonials {
+                padding: 5rem 1.5rem;
+            }
+
+            .testimonial-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .pricing-section {
+                padding: 5rem 1.5rem;
+            }
+
+            .pricing-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .faq-section {
+                padding: 5rem 1.5rem;
+            }
+
+            footer {
+                padding: 3rem 1.5rem;
+            }
+
+            .paw-trail { display: none; }
+        }
+
+        @media (max-width: 480px) {
+            .hero h1 {
+                font-size: 2rem;
+            }
+
+            .globe-art {
+                font-size: 0.3rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Ambient -->
+    <div class="ambient-glow"></div>
+    <div class="globe-vignette"></div>
+
+    <!-- Snow -->
+    <div class="snow-container" id="snow"></div>
+
+    <!-- Paw trail -->
+    <div class="paw-trail pulse">🐾 🐾 🐾</div>
+
+    <!-- Nav -->
+    <nav>
+        <a href="#" class="nav-logo">
+            Tiny Paws Capital
+            <span>Est. 1997 · 0.003 sq ft office</span>
+        </a>
+        <ul class="nav-links">
+            <li><a href="#philosophy">Purrlosophy</a></li>
+            <li><a href="#portfolios">Purrfolios</a></li>
+            <li><a href="#clients">Clients</a></li>
+            <li><a href="#pricing">Pricing</a></li>
+            <li><a href="#faq">FAQ</a></li>
+        </ul>
+    </nav>
+
+    <!-- HERO -->
+    <section class="hero">
+        <div class="hero-left" id="hero-content">
+            <div class="hero-tag">Miniaturized Wealth Management Since 1997</div>
+            <h1>Your money<br>deserves<br><em>nine lives.</em></h1>
+            <p class="hero-subtitle">
+                I'm Nana Whiskers. Retired NSA cryptanalyst. 2.3 inches tall.
+                Operating from inside a snow globe on my granddaughter's desk in Topeka.
+                I can see your entire financial future from here.
+                It's small. Like me. But we can fix that.
+            </p>
+            <div style="margin-top: 1rem;">
+                <a href="#portfolios" class="cta-button">Tap the glass to begin</a>
+            </div>
+        </div>
+        <div class="hero-right">
+            <div class="globe-art" id="globe-ascii">
+                  .-""""""-.
+               .'          '.
+              /   O    O     \
+             :      ____      :
+             |     /    \     |
+             :    |  ^_^ |    :
+              \   | /|  |    /
+               '.  \_\__/  .'
+                 '-......-'
+             ~~~~~~~~~~~~~~~~~~~
+              \  .  *  . * .  /
+               \ * Nana  .  /
+                \ .  is . * /
+                 \ * here  /
+                  \  .  . /
+                   '-----'
+            </div>
+        </div>
+    </section>
+
+    <!-- MORSE INTERLUDE -->
+    <section class="morse-section" id="philosophy">
+        <div class="morse-text">
+            - .- .--. / - .... . / --. .-.. .- ... ...
+        </div>
+        <div class="morse-translation">
+            "The glass isn't a prison. It's a tax shelter."
+        </div>
+        <div style="margin-top: 3rem; font-family: 'IBM Plex Mono', monospace; font-size: 0.7rem; color: #666666;">
+            — Dorothy "Dot" Katz, CFA, CPA, 2.3"
+        </div>
+    </section>
+
+    <!-- SPLIT: PHILOSOPHY / PORTFOLIOS -->
+    <section class="split-section" id="portfolios">
+        <div class="split-dark">
+            <div class="section-label">The Nine Lives Purrfolio™</div>
+            <div class="portfolio-item">
+                <div class="portfolio-name">Life 1 — The Kitten Fund</div>
+                <div class="portfolio-desc">Conservative bonds and treasury notes. For those still learning to land on their feet.</div>
+                <div class="portfolio-return">Avg. return: 4.2% · Risk: a light tumble</div>
+            </div>
+            <div class="portfolio-item">
+                <div class="portfolio-name">Life 4 — The Alley Cat</div>
+                <div class="portfolio-desc">Mid-cap equities with a feral edge. You've seen some things. Your money should too.</div>
+                <div class="portfolio-return">Avg. return: 11.7% · Risk: a hiss and a scratch</div>
+            </div>
+            <div class="portfolio-item">
+                <div class="portfolio-name">Life 9 — Curiosity Killed It</div>
+                <div class="portfolio-desc">Leveraged crypto, miniature real estate, and snow globe futures. You're out of lives anyway.</div>
+                <div class="portfolio-return">Avg. return: ???% · Risk: catastrophic (cat-astrophic)</div>
+            </div>
+        </div>
+        <div class="split-neon">
+            <h2>Why miniature?</h2>
+            <p>
+                Since the incident in '97, I see markets from a 1:87 scale.
+                Turns out, when you're 2.3 inches tall, a penny looks like a manhole cover
+                and a dollar bill is a queen-sized mattress.
+                <br><br>
+                That perspective changes everything. I don't see "small caps."
+                I see skyscrapers. Your $47 emergency fund? To me, that's generational wealth.
+                <br><br>
+                I've managed $340M in assets from inside this globe.
+                My overhead is literally zero. My office is a ceramic park bench
+                next to a tiny ceramic Christmas tree. I pay no rent. I am
+                the most efficient financial advisor in North America.
+            </p>
+        </div>
+    </section>
+
+    <!-- TESTIMONIALS -->
+    <section class="testimonials" id="clients">
+        <div class="section-label" style="text-align: center; margin-bottom: 4rem;">
+            What Our Clients Whisker About Us
+        </div>
+        <div class="testimonial-grid">
+            <div class="testimonial">
+                <div class="testimonial-text">
+                    "I put my life savings into the Alley Cat fund because a 2-inch woman
+                    inside a snow globe told me to. Best decision I ever made. I bought a boat."
+                </div>
+                <div class="testimonial-author">Gerald Mittens, 54</div>
+                <div class="testimonial-detail">Retired Postal Worker · Boat Owner · Des Moines, IA</div>
+            </div>
+            <div class="testimonial reveal-on-hover">
+                <div class="testimonial-text">
+                    "My financial advisor is smaller than my thumb. She communicates
+                    in morse code by tapping on glass. She outperformed my last three
+                    human-sized advisors combined."
+                </div>
+                <div class="testimonial-author">Patricia Clawford</div>
+                <div class="testimonial-detail">CFO, MeowTech Industries · Net worth: classified</div>
+                <div class="hidden-text">Patricia has since tried to acquire the snow globe. We declined. — Legal Dept.</div>
+            </div>
+            <div class="testimonial">
+                <div class="testimonial-text">
+                    "I shook the globe once by accident. She didn't speak to me for six weeks.
+                    My portfolio dropped 23%. Correlation is not causation but I will never
+                    touch that globe again."
+                </div>
+                <div class="testimonial-author">Kevin Tabby-Williams</div>
+                <div class="testimonial-detail">Software Engineer · Trembling · Austin, TX</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- PRICING -->
+    <section class="pricing-section" id="pricing">
+        <h2>Fur-nancial Plans</h2>
+        <div class="pricing-subtitle">All fees are miniaturized. Except they're not.</div>
+        <div class="pricing-grid">
+            <div class="price-card">
+                <div class="price-tier">Stray</div>
+                <div class="price-amount">$47.99<span>/mo</span></div>
+                <div class="price-note">Billed in pennies slid under the globe</div>
+                <ul class="price-features">
+                    <li>Weekly morse code market update</li>
+                    <li>One portfolio (Lives 1-3 only)</li>
+                    <li>Email support (she types with a toothpick)</li>
+                    <li>Complimentary snow globe shake (1/year)</li>
+                </ul>
+            </div>
+            <div class="price-card featured">
+                <div class="price-tier">Housecat</div>
+                <div class="price-amount">$199<span>/mo</span></div>
+                <div class="price-note">Direct glass-tapping hotline</div>
+                <ul class="price-features">
+                    <li>Daily market briefing via tiny semaphore flags</li>
+                    <li>All nine portfolio lives</li>
+                    <li>Priority morse — she taps louder</li>
+                    <li>Access to the Litter Box (our dark pool)</li>
+                    <li>Quarterly "Nana's Nap Notes" newsletter</li>
+                </ul>
+            </div>
+            <div class="price-card">
+                <div class="price-tier">Apex Purredator</div>
+                <div class="price-amount">$899<span>/mo</span></div>
+                <div class="price-note">She'll press her face to the glass for you</div>
+                <ul class="price-features">
+                    <li>24/7 globe-side concierge</li>
+                    <li>Custom miniature portfolio sculpture</li>
+                    <li>Annual visit (bring a magnifying glass)</li>
+                    <li>Nana reads your tarot (she learned inside)</li>
+                    <li>Access to Life 10 (unofficial, theoretical)</li>
+                </ul>
+            </div>
+        </div>
+    </section>
+
+    <!-- FAQ -->
+    <section class="faq-section" id="faq" x-data="{ open: null }">
+        <h2>Frequently Asked Purrestions</h2>
+
+        <div class="faq-item" x-on:click="open = open === 1 ? null : 1">
+            <div class="faq-question">Q: Is Nana actually inside a snow globe?</div>
+            <div class="faq-answer" x-show="open === 1" x-transition>
+                Yes. It's a 4-inch Hallmark globe from 1996, "Winter Wonderland" edition.
+                The ceramic bench is uncomfortable but she's had 29 years to get used to it.
+                The snow never settles. She has accepted this.
+            </div>
+        </div>
+
+        <div class="faq-item" x-on:click="open = open === 2 ? null : 2">
+            <div class="faq-question">Q: How did she get miniaturized?</div>
+            <div class="faq-answer" x-show="open === 2" x-transition>
+                Lab accident. 1997. Fort Meade. She won't elaborate and we respect that.
+                Her NDA is also miniature but still legally binding.
+            </div>
+        </div>
+
+        <div class="faq-item" x-on:click="open = open === 3 ? null : 3">
+            <div class="faq-question">Q: Can she actually see my finances from in there?</div>
+            <div class="faq-answer" x-show="open === 3" x-transition>
+                The curvature of the glass creates a natural fisheye lens. Combined with
+                her NSA training and 20/5 vision (a side effect of the shrinking),
+                she can read a bank statement from across the room. She describes it as
+                "like being inside a crystal ball, but with better interest rates."
+            </div>
+        </div>
+
+        <div class="faq-item" x-on:click="open = open === 4 ? null : 4">
+            <div class="faq-question">Q: What happens if the globe breaks?</div>
+            <div class="faq-answer" x-show="open === 4" x-transition>
+                The globe is insured for $4.2 million through a policy Nana wrote herself.
+                It is stored inside a locked Faraday cage in my granddaughter's bedroom.
+                The cat is not allowed in that room. The cat knows this. The cat disagrees.
+            </div>
+        </div>
+
+        <div class="faq-item" x-on:click="open = open === 5 ? null : 5">
+            <div class="faq-question">Q: Why is everything cat-themed?</div>
+            <div class="faq-answer" x-show="open === 5" x-transition>
+                Before the incident, Nana had 14 cats. She can no longer have cats.
+                A single cat hair is now the size of a telephone pole to her.
+                The branding is therapeutic. Please don't bring this up on calls.
+            </div>
+        </div>
+
+        <div class="faq-item" x-on:click="open = open === 6 ? null : 6">
+            <div class="faq-question">Q: Do you accept clients outside of Topeka?</div>
+            <div class="faq-answer" x-show="open === 6" x-transition>
+                Nana serves clients in all 50 states. She doesn't travel (obviously)
+                but she can see surprisingly far through the glass. International clients
+                require the Apex Purredator tier because the time zone math gives her a headache.
+            </div>
+        </div>
+    </section>
+
+    <!-- FOOTER -->
+    <footer>
+        <div class="footer-paw">🐾</div>
+        <div class="footer-text">
+            TINY PAWS CAPITAL · TOPEKA, KS · INSIDE THE GLOBE<br>
+            SEC-REGISTERED* · FINRA MEMBER** · FDIC INSURED***
+        </div>
+        <div class="footer-legal">
+            *Registration pending due to applicant height not meeting minimum physical requirements.
+            **Nana's FINRA membership photo is 12 pixels by 16 pixels and they accepted it.
+            ***The snow globe itself is not FDIC insured. The globe is insured separately.
+            Past purrformance does not guarantee future results. The snow inside the globe
+            is not real snow. Nana is real. The ceramic bench is real. The tiny Christmas tree
+            has a working LED. Do not shake the globe.
+            <br><br>
+            © 2025 Tiny Paws Capital LLC. All rights reserved.
+            Built by a woman smaller than your thumb.
+        </div>
+    </footer>
+
+    <script>
+        // Snow particles
+        (function() {
+            var container = document.getElementById('snow');
+            var flakes = 30;
+            for (var i = 0; i < flakes; i++) {
+                var flake = document.createElement('div');
+                flake.className = 'snowflake';
+                flake.textContent = '·';
+                flake.style.left = (Math.random() * 100) + '%';
+                flake.style.animationDuration = (8 + Math.random() * 12) + 's';
+                flake.style.animationDelay = (Math.random() * 10) + 's';
+                flake.style.fontSize = (6 + Math.random() * 8) + 'px';
+                container.appendChild(flake);
+            }
+        })();
+
+        // GSAP animations — entrance
+        document.addEventListener('DOMContentLoaded', function() {
+            // Hero content
+            gsap.fromTo('#hero-content .hero-tag',
+                { y: 20, opacity: 0 },
+                { y: 0, opacity: 1, duration: 1, delay: 0.3, clearProps: 'opacity,transform' }
+            );
+            gsap.fromTo('#hero-content h1',
+                { y: 30, opacity: 0 },
+                { y: 0, opacity: 1, duration: 1, delay: 0.6, clearProps: 'opacity,transform' }
+            );
+            gsap.fromTo('#hero-content .hero-subtitle',
+                { y: 20, opacity: 0 },
+                { y: 0, opacity: 1, duration: 1, delay: 0.9, clearProps: 'opacity,transform' }
+            );
+            gsap.fromTo('#hero-content .cta-button',
+                { y: 20, opacity: 0 },
+                { y: 0, opacity: 1, duration: 1, delay: 1.2, clearProps: 'opacity,transform' }
+            );
+
+            // Globe art — slow fade
+            gsap.fromTo('#globe-ascii',
+                { opacity: 0 },
+                { opacity: 0.7, duration: 3, delay: 1.5, clearProps: 'none' }
+            );
+
+            // Ambient glow slow drift
+            gsap.to('.ambient-glow', {
+                x: 50,
+                y: -30,
+                duration: 8,
+                repeat: -1,
+                yoyo: true,
+                ease: 'sine.inOut'
+            });
+
+            // Morse text slow reveal
+            gsap.fromTo('.morse-text',
+                { opacity: 0, letterSpacing: '1em' },
+                {
+                    opacity: 0.6,
+                    letterSpacing: '0.5em',
+                    duration: 2,
+                    clearProps: 'none',
+                    scrollTrigger: null
+                }
+            );
+
+            // Intersection observer for scroll animations
+            var observerOptions = { threshold: 0.15 };
+            var observer = new IntersectionObserver(function(entries) {
+                entries.forEach(function(entry) {
+                    if (entry.isIntersecting) {
+                        var el = entry.target;
+                        gsap.fromTo(el,
+                            { y: 30, opacity: 0 },
+                            { y: 0, opacity: 1, duration: 1, clearProps: 'opacity,transform' }
+                        );
+                        observer.unobserve(el);
+                    }
+                });
+            }, observerOptions);
+
+            // Observe sections
+            var animTargets = document.querySelectorAll(
+                '.portfolio-item, .testimonial, .price-card, .faq-item, .morse-translation'
+            );
+            animTargets.forEach(function(el) {
+                el.style.opacity = '0';
+                observer.observe(el);
+            });
+        });
+    </script>
+</body>
+</html>

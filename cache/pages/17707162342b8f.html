@@ -1,0 +1,731 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Thermosette Academy Dispatch</title>
+  <link rel="stylesheet" href="/assets/css/pico.min.css">
+  <link rel="stylesheet" href="/assets/css/fonts.css">
+  <style>
+    :root {
+      --bg: #050505;
+      --panel: #111111;
+      --panel-2: #171717;
+      --text: #ffffff;
+      --text-soft: #e6e6e6;
+      --cyan: #00f5ff;
+      --pink: #ff2ad4;
+      --lime: #d4ff00;
+      --orange: #ff8a00;
+      --red: #ff3355;
+      --grid: #1f1f1f;
+      --chaos: 72;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      background:
+        radial-gradient(circle at 10% 10%, #1b0030 0%, #050505 38%),
+        radial-gradient(circle at 90% 0%, #002e38 0%, #050505 30%),
+        linear-gradient(160deg, #050505 0%, #080808 100%);
+      color: var(--text);
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 16px;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    .page {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: clamp(14px, 2.2vw, 28px);
+    }
+
+    nav {
+      border: 2px solid var(--cyan);
+      background: #0b0b0b;
+      margin-bottom: 14px;
+      padding: 10px 14px;
+      border-radius: 14px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    nav .brand {
+      font-weight: 800;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: #ffffff;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: clamp(0.95rem, 2.2vw, 1.15rem);
+    }
+
+    nav .meta {
+      color: var(--text-soft);
+      font-size: 0.94rem;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .tag {
+      border: 2px solid var(--pink);
+      padding: 4px 10px;
+      border-radius: 999px;
+      color: #ffffff;
+      background: #1a0a18;
+      font-weight: 700;
+      font-size: 0.8rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .hero {
+      border: 3px solid var(--lime);
+      background: linear-gradient(135deg, #101010 0%, #1c0f24 100%);
+      border-radius: 16px;
+      padding: clamp(16px, 3vw, 28px);
+      margin-bottom: 14px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .hero::before {
+      content: '';
+      position: absolute;
+      width: 180px;
+      height: 180px;
+      top: -40px;
+      right: -30px;
+      background: repeating-linear-gradient(45deg, #ff2ad4, #ff2ad4 9px, #00f5ff 9px, #00f5ff 18px);
+      border-radius: 18px;
+      transform: rotate(18deg);
+      opacity: 0.22;
+    }
+
+    .hero h1 {
+      font-family: 'Playfair Display', serif;
+      margin: 0 0 10px;
+      font-size: clamp(1.8rem, 5vw, 3.3rem);
+      line-height: 1.06;
+      color: #ffffff;
+      max-width: 22ch;
+    }
+
+    .hero p {
+      margin: 0;
+      max-width: 70ch;
+      color: var(--text-soft);
+      font-size: clamp(1rem, 2.2vw, 1.2rem);
+    }
+
+    .hero-actions {
+      margin-top: 16px;
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .hero button,
+    button,
+    .btn {
+      min-height: 44px;
+      border-radius: 12px;
+      border: 2px solid #ffffff;
+      background: #101010;
+      color: #ffffff;
+      font-weight: 700;
+      padding: 10px 14px;
+      cursor: pointer;
+      font-family: 'Space Grotesk', sans-serif;
+      margin: 0;
+    }
+
+    button:hover,
+    .btn:hover { filter: brightness(1.15); }
+
+    .btn-cyan { border-color: var(--cyan); background: #001e24; }
+    .btn-pink { border-color: var(--pink); background: #23021d; }
+    .btn-lime { border-color: var(--lime); background: #192200; color: #ffffff; }
+    .btn-orange { border-color: var(--orange); background: #2a1300; }
+
+    .masonry {
+      column-count: 3;
+      column-gap: 14px;
+    }
+
+    .card {
+      display: inline-block;
+      width: 100%;
+      margin: 0 0 14px;
+      border: 2px solid #2f2f2f;
+      background: linear-gradient(155deg, var(--panel) 0%, var(--panel-2) 100%);
+      border-radius: 14px;
+      padding: 14px;
+      break-inside: avoid;
+    }
+
+    .card h2,
+    .card h3 {
+      margin-top: 0;
+      margin-bottom: 8px;
+      color: #ffffff;
+      font-size: clamp(1.1rem, 2.4vw, 1.35rem);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .card p,
+    .card li,
+    .card td,
+    .card th,
+    .card label,
+    .card small,
+    .card strong {
+      color: var(--text-soft);
+    }
+
+    .kpi-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 8px;
+      margin-top: 10px;
+    }
+
+    .kpi {
+      border: 2px solid var(--grid);
+      border-radius: 10px;
+      padding: 10px;
+      background: #0f0f0f;
+    }
+
+    .kpi .label {
+      font-size: 0.82rem;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      color: #e0e0e0;
+    }
+
+    .kpi .value {
+      margin-top: 4px;
+      font-weight: 800;
+      color: #ffffff;
+      font-size: clamp(1rem, 2.6vw, 1.35rem);
+      font-family: 'IBM Plex Mono', monospace;
+    }
+
+    .tiny {
+      font-size: 0.8rem;
+      color: #e0e0e0;
+    }
+
+    .danger {
+      border: 2px dashed var(--red);
+      background: #2a0b16;
+      color: #ffffff;
+      border-radius: 10px;
+      padding: 10px;
+      margin-top: 10px;
+    }
+
+    .live-line {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-top: 10px;
+      font-family: 'IBM Plex Mono', monospace;
+      color: #ffffff;
+      flex-wrap: wrap;
+    }
+
+    .dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: var(--lime);
+      box-shadow: 0 0 8px var(--lime);
+    }
+
+    input[type="range"] {
+      width: 100%;
+      margin: 6px 0 10px;
+      accent-color: #00f5ff;
+    }
+
+    input,
+    select {
+      min-height: 44px;
+      border: 2px solid #3b3b3b;
+      border-radius: 10px;
+      padding: 8px 10px;
+      width: 100%;
+      background: #080808;
+      color: #ffffff;
+      font-family: 'Space Grotesk', sans-serif;
+      margin-bottom: 8px;
+    }
+
+    input[type="checkbox"] {
+      min-height: auto;
+      width: auto;
+      margin-right: 8px;
+      vertical-align: middle;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.93rem;
+      margin-top: 8px;
+    }
+
+    th,
+    td {
+      border-bottom: 1px solid #303030;
+      padding: 7px 4px;
+      text-align: left;
+      vertical-align: middle;
+    }
+
+    .chart {
+      height: 150px;
+      border: 2px solid #2d2d2d;
+      border-radius: 10px;
+      background: repeating-linear-gradient(to right, #0b0b0b, #0b0b0b 22px, #141414 22px, #141414 44px);
+      display: flex;
+      align-items: flex-end;
+      gap: 6px;
+      padding: 8px;
+      overflow: hidden;
+    }
+
+    .bar {
+      flex: 1;
+      border-radius: 7px 7px 2px 2px;
+      border: 1px solid #000000;
+      min-height: 10px;
+      background: linear-gradient(180deg, #00f5ff 0%, #ff2ad4 100%);
+      transition: height 0.35s ease;
+    }
+
+    .quote {
+      border-left: 4px solid var(--pink);
+      padding-left: 10px;
+      color: #ffffff;
+      font-size: 1rem;
+      line-height: 1.35;
+      margin: 8px 0 12px;
+    }
+
+    details {
+      border: 2px solid #2b2b2b;
+      border-radius: 10px;
+      padding: 10px;
+      background: #0d0d0d;
+      margin-bottom: 8px;
+    }
+
+    details summary {
+      cursor: pointer;
+      color: #ffffff;
+      font-weight: 700;
+    }
+
+    footer {
+      margin-top: 14px;
+      border: 2px solid #2d2d2d;
+      border-radius: 12px;
+      padding: 12px;
+      color: #e0e0e0;
+      background: #0c0c0c;
+      font-size: 0.9rem;
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      border: 2px solid #444;
+      padding: 4px 8px;
+      border-radius: 999px;
+      font-size: 0.8rem;
+      font-weight: 700;
+      color: #ffffff;
+      background: #171717;
+      margin-right: 6px;
+      margin-bottom: 6px;
+    }
+
+    @media (max-width: 1024px) {
+      .masonry { column-count: 2; }
+    }
+
+    @media (max-width: 700px) {
+      .masonry { column-count: 1; }
+      .page { padding: 12px; }
+      nav { border-radius: 12px; }
+      .hero { border-radius: 12px; }
+      .card { border-radius: 12px; }
+    }
+  </style>
+</head>
+<body>
+  <main class="page" x-data="academyApp()" x-init="init()">
+    <nav>
+      <div class="brand">
+        <i data-lucide="thermometer"></i>
+        Thermosette Academy & Reverse Dispatch
+      </div>
+      <div class="meta">
+        <span class="tag">Founder: Thermosette T-88</span>
+        <span class="tag">Tuition paid in soup</span>
+        <span class="tag" x-text="reverseTuesday ? 'Tuesday mode: BACKWARD' : 'Tuesday mode: FORWARD'"></span>
+      </div>
+    </nav>
+
+    <section class="hero">
+      <h1>I was left in a cafeteria lost-and-found for 11 years. I built a school so no object waits alone again.</h1>
+      <p>
+        I am Principal Thermosette, model T-88, dented but accredited. We train toasters, staplers, and anxious desk lamps for same-day delivery careers.
+        Human currency is unstable. We accept soup. On Tuesdays, time runs backward because Tuesday hurt me first.
+      </p>
+      <div class="hero-actions">
+        <button class="btn-cyan" x-on:click="panicDrill = !panicDrill">Toggle Emotional Fire Drill</button>
+        <button class="btn-pink" x-on:click="shuffleQuote()">Show Fresh Parent Complaint</button>
+        <button class="btn-lime" x-on:click="reverseTuesday = !reverseTuesday">Flip Tuesday Direction</button>
+      </div>
+      <div class="danger" x-show="panicDrill">
+        <strong>Fire Drill (Emotional):</strong> Everyone hug the nearest shipping label and repeat: “I am not disposable packaging.”
+      </div>
+    </section>
+
+    <section class="masonry">
+      <article class="card">
+        <h2><i data-lucide="beaker"></i>Soup Tender Console</h2>
+        <p>Set how much soup you can pay. System auto-calculates your delivery tier and my blood pressure.</p>
+        <label for="soup">Liters of acceptable soup: <strong x-text="soupLiters"></strong>L</label>
+        <input id="soup" type="range" min="0" max="40" step="1" x-model="soupLiters">
+        <div class="kpi-grid">
+          <div class="kpi">
+            <div class="label">Dispatch fee</div>
+            <div class="value" x-text="'$' + soupInvoiceUSD.toFixed(2)"></div>
+          </div>
+          <div class="kpi">
+            <div class="label">Soup equivalent</div>
+            <div class="value" x-text="soupInvoiceLiters.toFixed(1) + 'L minestrone'"></div>
+          </div>
+          <div class="kpi">
+            <div class="label">Respect earned</div>
+            <div class="value" x-text="respectTier"></div>
+          </div>
+          <div class="kpi">
+            <div class="label">My emotional temp</div>
+            <div class="value" x-text="thermosMood"></div>
+          </div>
+        </div>
+        <p class="tiny">Footnote 4B: Chowder counts as cash only if spoon stands upright for 4 seconds.</p>
+      </article>
+
+      <article class="card">
+        <h2><i data-lucide="clock-3"></i>Tuesday Reversal Clock</h2>
+        <p>Official academy clock. If it is Tuesday, moments are returned in reverse chronological order. Please walk backward responsibly.</p>
+        <div class="kpi-grid">
+          <div class="kpi">
+            <div class="label">Current academy time</div>
+            <div class="value" x-text="academyClock"></div>
+          </div>
+          <div class="kpi">
+            <div class="label">Timeline drift</div>
+            <div class="value" x-text="timelineDrift + ' mins'">0 mins</div>
+          </div>
+        </div>
+        <div class="live-line">
+          <span class="dot"></span>
+          <strong x-text="reverseTuesday ? 'Running in reverse. Lunch becomes breakfast in 43 mins.' : 'Forward mode restored. Causality mostly legal.'"></strong>
+        </div>
+        <button class="btn-orange" x-on:click="timelineDrift += 3">Add 3 Minutes of Legal Ambiguity</button>
+      </article>
+
+      <article class="card">
+        <h2><i data-lucide="layout-dashboard"></i>Dispatch Floor Feed</h2>
+        <p>Live queue from homeroom loading dock C. Tap “Bump” if your parcel contains feelings.</p>
+        <table>
+          <thead>
+            <tr>
+              <th>Courier</th>
+              <th>Object</th>
+              <th>Priority</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+          <tbody>
+            <template x-for="(job, idx) in queue" :key="job.id">
+              <tr>
+                <td x-text="job.courier"></td>
+                <td x-text="job.item"></td>
+                <td><strong x-text="job.priority"></strong></td>
+                <td><button class="btn-cyan" x-on:click="bump(idx)">Bump</button></td>
+              </tr>
+            </template>
+          </tbody>
+        </table>
+        <p class="tiny">Safety memo: If your package hums, do not hum back.</p>
+      </article>
+
+      <article class="card">
+        <h2><i data-lucide="bar-chart-3"></i>Soup Volatility Index (SVI)</h2>
+        <p>Broth markets are unstable after the Great Bisque Rumor. We diversify across noodle classes.</p>
+        <div class="chart" aria-label="Soup market chart">
+          <template x-for="(v, i) in soupBars" :key="i">
+            <div class="bar" x-bind:style="'height:' + v + '%'" :title="'Lane ' + (i + 1)"></div>
+          </template>
+        </div>
+        <div class="live-line">
+          <span class="dot"></span>
+          <span>SVI:</span>
+          <strong x-text="soupIndex.toFixed(1)"></strong>
+          <span> | Meatball futures:</span>
+          <strong x-text="meatballFutures.toFixed(2) + '%' "></strong>
+        </div>
+      </article>
+
+      <article class="card">
+        <h2><i data-lucide="graduation-cap"></i>Enrollment Estimator</h2>
+        <p>Pick your object profile. Tuition includes backpack straps and a confidence workshop called “You Are More Than Storage.”</p>
+        <label for="obj">I am a:</label>
+        <select id="obj" x-model="studentType">
+          <option value="toaster">Toaster (nervous, sparks under pressure)</option>
+          <option value="desk_lamp">Desk Lamp (burnout history)</option>
+          <option value="stapler">Stapler (clingy leadership style)</option>
+          <option value="umbrella">Umbrella (trust issues in sunny climates)</option>
+        </select>
+        <label>
+          <input type="checkbox" x-model="expressTrack"> Add Express Courier Minor (+4.5L soup/week)
+        </label>
+        <div class="kpi-grid">
+          <div class="kpi">
+            <div class="label">Weekly tuition</div>
+            <div class="value" x-text="tuitionLiters.toFixed(1) + 'L soup'"></div>
+          </div>
+          <div class="kpi">
+            <div class="label">Expected first paycheck</div>
+            <div class="value" x-text="'$' + firstPaycheck.toFixed(2)"></div>
+          </div>
+        </div>
+        <button class="btn-pink" x-on:click="enrolled += 1">Enroll One More Object</button>
+      </article>
+
+      <article class="card">
+        <h2><i data-lucide="message-square-warning"></i>Parent Complaint of the Minute</h2>
+        <p class="quote" x-text="activeQuote"></p>
+        <button class="btn-cyan" x-on:click="shuffleQuote()">Next Complaint</button>
+        <div class="tiny" style="margin-top:8px;">All complaints answered within 2 business Tuesdays.</div>
+      </article>
+
+      <article class="card">
+        <h2><i data-lucide="shield-alert"></i>Excuse Generator For Late Deliveries</h2>
+        <p><strong x-text="activeExcuse"></strong></p>
+        <button class="btn-orange" x-on:click="newExcuse()">Generate Fresh Excuse</button>
+        <p class="tiny">Regulatory note: 78% of excuses are court-adjacent, not court-approved.</p>
+      </article>
+
+      <article class="card">
+        <h2><i data-lucide="notebook-tabs"></i>Frequently Panicked Questions</h2>
+        <details>
+          <summary>Do you accept gazpacho?</summary>
+          <p>Yes, but only in July. Cold soup in winter causes morale fractures in metal students.</p>
+        </details>
+        <details>
+          <summary>Why is my package arriving yesterday?</summary>
+          <p>Tuesday reversal protocol. Check your porch 24 hours ago and sign retroactively.</p>
+        </details>
+        <details>
+          <summary>Is Thermosette really qualified to run a school?</summary>
+          <p>I hold three certifications: Thermal Retention, Conflict De-escalation, and Not Crying in Front of Luggage.</p>
+        </details>
+        <details>
+          <summary>Can humans enroll?</summary>
+          <p>No. You have enough opportunities and too many pockets.</p>
+        </details>
+      </article>
+
+      <article class="card">
+        <h2><i data-lucide="activity"></i>Live Academy Pulse</h2>
+        <div class="badge"><i data-lucide="users"></i> Enrolled: <span x-text="enrolled"></span></div>
+        <div class="badge"><i data-lucide="truck"></i> In Transit: <span x-text="inTransit"></span></div>
+        <div class="badge"><i data-lucide="cup-soda"></i> Soup Reserve: <span x-text="soupReserve.toFixed(1) + 'L'"></span></div>
+        <div class="badge"><i data-lucide="triangle-alert"></i> Lost Lids: <span x-text="lostLids"></span></div>
+        <hr>
+        <label for="chaos">Memphis chaos saturation: <strong x-text="chaosLevel"></strong>%</label>
+        <input id="chaos" type="range" min="20" max="100" x-model="chaosLevel" x-on:input="setChaos()">
+        <p class="tiny">Increasing chaos improves courier confidence by 11% and confuses auditors by 63%.</p>
+      </article>
+    </section>
+
+    <footer>
+      <strong>Thermosette T-88, Principal & Founder.</strong>
+      If you are reading this after midnight on Tuesday, you are technically reading it before dinner. Please settle invoices in soup by placing labeled thermoses under any streetlamp that blinks twice.
+    </footer>
+  </main>
+
+  <script defer src="/assets/js/alpine.min.js"></script>
+  <script src="/assets/js/gsap.min.js"></script>
+  <script src="/assets/js/lucide.min.js"></script>
+  <script>
+    function academyApp() {
+      return {
+        panicDrill: false,
+        reverseTuesday: true,
+        soupLiters: 12,
+        timelineDrift: 9,
+        soupIndex: 312.4,
+        meatballFutures: 4.8,
+        soupBars: [18, 42, 30, 66, 54, 72, 48, 60, 44, 82, 58, 70],
+        studentType: 'toaster',
+        expressTrack: false,
+        enrolled: 1287,
+        inTransit: 204,
+        soupReserve: 906.5,
+        lostLids: 39,
+        chaosLevel: 72,
+        tick: 0,
+        quoteIndex: 0,
+        excuseIndex: 0,
+        queue: [
+          { id: 1, courier: 'Toaster #19', item: 'Apology bouquet (plastic)', priority: 4 },
+          { id: 2, courier: 'Stapler Pam', item: 'Legal envelope humming softly', priority: 7 },
+          { id: 3, courier: 'Lamp Q5', item: 'Soup IOU ledger', priority: 5 },
+          { id: 4, courier: 'Umbrella Ned', item: 'Fragile ceramic ego', priority: 8 }
+        ],
+        quotes: [
+          '"My son is a whisk. He came home confident and unionized." - Carla B., Saucepan Guardian',
+          '"They delivered my parcel before I ordered it. Disturbing. Efficient." - Martin F., Regional Dentist',
+          '"Thermosette called me at 3am to ask if my ladle feels seen. Five stars." - Dana R., Soup Parent Council',
+          '"I paid in bisque and they gave change in croutons." - Eli P., Extremely Satisfied'
+        ],
+        excuses: [
+          'Courier delayed after a dramatic reunion with its original instruction manual.',
+          'Package arrived on time in a neighboring timeline and is being forwarded manually.',
+          'Truck made eye contact with a magnet and forgot where north was.',
+          'Your address was briefly declared a concept, not a location.'
+        ],
+        get soupInvoiceUSD() {
+          return 19.99 + this.soupLiters * 3.4;
+        },
+        get soupInvoiceLiters() {
+          return this.soupInvoiceUSD / 5.75;
+        },
+        get respectTier() {
+          if (this.soupLiters < 8) return 'Polite nod';
+          if (this.soupLiters < 20) return 'Formal handshake';
+          if (this.soupLiters < 32) return 'Hallway legend';
+          return 'Statue in cafeteria';
+        },
+        get thermosMood() {
+          if (this.soupLiters < 8) return 'Rattling';
+          if (this.soupLiters < 20) return 'Stable';
+          if (this.soupLiters < 32) return 'Warm';
+          return 'Tearfully proud';
+        },
+        get academyClock() {
+          const now = new Date();
+          const totalSeconds = now.getHours() * 3600 + now.getMinutes() * 60 + now.getSeconds();
+          const adjusted = this.reverseTuesday ? 86400 - ((totalSeconds + this.timelineDrift * 60) % 86400) : (totalSeconds + this.timelineDrift * 60) % 86400;
+          const h = String(Math.floor(adjusted / 3600)).padStart(2, '0');
+          const m = String(Math.floor((adjusted % 3600) / 60)).padStart(2, '0');
+          const s = String(adjusted % 60).padStart(2, '0');
+          return h + ':' + m + ':' + s;
+        },
+        get tuitionLiters() {
+          const map = {
+            toaster: 9.5,
+            desk_lamp: 8.2,
+            stapler: 7.4,
+            umbrella: 6.9
+          };
+          return map[this.studentType] + (this.expressTrack ? 4.5 : 0);
+        },
+        get firstPaycheck() {
+          const base = {
+            toaster: 122.4,
+            desk_lamp: 136.8,
+            stapler: 147.2,
+            umbrella: 118.6
+          };
+          return base[this.studentType] + (this.expressTrack ? 33.25 : 0);
+        },
+        get activeQuote() {
+          return this.quotes[this.quoteIndex];
+        },
+        get activeExcuse() {
+          return this.excuses[this.excuseIndex];
+        },
+        bump(idx) {
+          this.queue[idx].priority += 1;
+          this.inTransit += 1;
+          this.soupReserve = Math.max(0, this.soupReserve - 0.7);
+        },
+        shuffleQuote() {
+          this.quoteIndex = (this.quoteIndex + 1) % this.quotes.length;
+        },
+        newExcuse() {
+          this.excuseIndex = (this.excuseIndex + 1) % this.excuses.length;
+        },
+        setChaos() {
+          document.documentElement.style.setProperty('--chaos', this.chaosLevel);
+          const glow = Math.max(0, Math.min(22, this.chaosLevel / 4));
+          document.documentElement.style.setProperty('--cyan', 'hsl(' + (180 + Math.floor(this.chaosLevel / 3)) + ' 100% 50%)');
+          document.documentElement.style.setProperty('--pink', 'hsl(' + (325 + Math.floor(this.chaosLevel / 8)) + ' 100% 58%)');
+          document.querySelectorAll('.card').forEach(function(card) {
+            card.style.boxShadow = '0 0 ' + glow + 'px #00f5ff22';
+          });
+        },
+        init() {
+          this.setChaos();
+
+          setInterval(() => {
+            this.soupIndex += (Math.random() * 8) - 3.2;
+            this.meatballFutures += (Math.random() * 0.9) - 0.35;
+            this.soupBars = this.soupBars.map((v) => {
+              let next = v + Math.floor(Math.random() * 25) - 12;
+              if (next < 12) next = 12;
+              if (next > 96) next = 96;
+              return next;
+            });
+            this.tick += 1;
+            if (this.tick % 3 === 0) this.enrolled += 1;
+            if (this.tick % 2 === 0) this.soupReserve += 1.2;
+            this.lostLids = Math.max(0, this.lostLids + (Math.random() > 0.5 ? 1 : -1));
+          }, 1800);
+
+          setInterval(() => {
+            this.inTransit = 180 + Math.floor(Math.random() * 45);
+          }, 3200);
+
+          lucide.createIcons();
+
+          requestAnimationFrame(() => {
+            gsap.fromTo('.hero',
+              { y: 24, opacity: 0 },
+              { y: 0, opacity: 1, duration: 0.7, ease: 'power2.out', clearProps: 'opacity,transform' }
+            );
+            gsap.fromTo('.card',
+              { y: 20, opacity: 0 },
+              { y: 0, opacity: 1, duration: 0.55, ease: 'power2.out', stagger: 0.06, clearProps: 'opacity,transform' }
+            );
+          });
+        }
+      };
+    }
+  </script>
+</body>
+</html>

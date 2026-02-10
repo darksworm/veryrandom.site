@@ -1,0 +1,691 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>National Puddle Commerce Administration | Field Ledger</title>
+  <link rel="stylesheet" href="/assets/css/pico.min.css" />
+  <link rel="stylesheet" href="/assets/css/fonts.css" />
+  <style>
+    :root {
+      --ink: #111111;
+      --paper: #ffffff;
+      --accent: #0d8f63;
+      --accent-dark: #066948;
+      --panel: #f4fff9;
+      --line: #1d1d1d;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: 'Space Grotesk', sans-serif;
+      color: var(--ink);
+      background: linear-gradient(180deg, #ffffff 0%, #eefcf5 100%);
+    }
+
+    .shell {
+      min-height: 100vh;
+      display: grid;
+      grid-template-columns: 240px minmax(0, 1fr) 300px;
+      gap: 1rem;
+      padding: 1rem;
+    }
+
+    .sidebar,
+    .rail,
+    .main {
+      border: 2px solid var(--line);
+      background: var(--paper);
+      box-shadow: 4px 4px 0 #c9eadb;
+    }
+
+    .sidebar {
+      padding: 1rem;
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+
+    .brand {
+      border: 2px solid var(--line);
+      padding: 0.75rem;
+      background: var(--panel);
+    }
+
+    .brand h1 {
+      margin: 0;
+      font-family: 'Playfair Display', serif;
+      font-size: 1.1rem;
+      line-height: 1.2;
+      color: #0b0b0b;
+    }
+
+    .brand p {
+      margin: 0.5rem 0 0;
+      font-size: 0.78rem;
+      color: #111111;
+    }
+
+    .side-nav button,
+    .filters button,
+    .tabs button,
+    .toggle-btn,
+    .expand-btn {
+      width: 100%;
+      margin: 0 0 0.5rem;
+      border: 2px solid var(--line);
+      background: #ffffff;
+      color: #111111;
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 0.78rem;
+      text-align: left;
+      padding: 0.45rem 0.6rem;
+      cursor: pointer;
+    }
+
+    .side-nav button.active,
+    .filters button.active,
+    .tabs button.active,
+    .toggle-btn.active {
+      background: var(--accent);
+      color: #ffffff;
+      border-color: #0a553c;
+    }
+
+    .main {
+      padding: 1rem;
+    }
+
+    .masthead {
+      border: 2px solid var(--line);
+      padding: 1rem;
+      background: #ffffff;
+      margin-bottom: 1rem;
+    }
+
+    .kicker {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 0.72rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: #111111;
+      margin-bottom: 0.4rem;
+    }
+
+    .masthead h2 {
+      margin: 0;
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(1.8rem, 4vw, 3.1rem);
+      line-height: 1.05;
+      color: #0b0b0b;
+    }
+
+    .subline {
+      margin-top: 0.8rem;
+      font-size: 1rem;
+      color: #111111;
+      max-width: 72ch;
+    }
+
+    .ticker {
+      margin-top: 1rem;
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 0.5rem;
+    }
+
+    .ticker div {
+      border: 2px solid var(--line);
+      padding: 0.45rem;
+      background: var(--panel);
+      color: #111111;
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 0.75rem;
+    }
+
+    .toolbar {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.75rem;
+      margin-bottom: 1rem;
+    }
+
+    .toolbar .box {
+      border: 2px solid var(--line);
+      padding: 0.75rem;
+      background: #ffffff;
+    }
+
+    .toolbar label {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.5rem;
+      margin: 0;
+      color: #111111;
+      font-size: 0.85rem;
+    }
+
+    .toolbar input[type="checkbox"] {
+      width: 1.1rem;
+      height: 1.1rem;
+      accent-color: var(--accent);
+    }
+
+    .tabs,
+    .filters {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      margin-bottom: 0.75rem;
+    }
+
+    .tabs button,
+    .filters button {
+      width: auto;
+      margin: 0;
+    }
+
+    .pane { display: none; }
+    .pane.active { display: block; }
+
+    .news-grid {
+      column-count: 2;
+      column-gap: 1rem;
+    }
+
+    .news-grid.compact .story p { font-size: 0.9rem; }
+
+    .story {
+      break-inside: avoid;
+      border: 2px solid var(--line);
+      margin: 0 0 1rem;
+      background: #ffffff;
+    }
+
+    .story-header {
+      padding: 0.8rem;
+      border-bottom: 2px solid var(--line);
+      background: #f8fffb;
+    }
+
+    .story-header h3 {
+      margin: 0;
+      font-family: 'Playfair Display', serif;
+      font-size: 1.25rem;
+      color: #0b0b0b;
+      line-height: 1.2;
+    }
+
+    .byline {
+      margin-top: 0.35rem;
+      font-size: 0.78rem;
+      font-family: 'IBM Plex Mono', monospace;
+      color: #111111;
+    }
+
+    .story-body {
+      padding: 0.8rem;
+      color: #111111;
+    }
+
+    .story-body p {
+      margin: 0 0 0.75rem;
+      line-height: 1.45;
+      color: #111111;
+    }
+
+    .pull {
+      border-left: 5px solid var(--accent);
+      padding: 0.55rem 0.7rem;
+      margin: 0.75rem 0;
+      background: #f1fff8;
+      font-family: 'Playfair Display', serif;
+      font-size: 1.05rem;
+      color: #0d2a20;
+    }
+
+    .story-extra[hidden] { display: none; }
+
+    .rail {
+      padding: 1rem;
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+
+    .panel {
+      border: 2px solid var(--line);
+      background: #ffffff;
+      padding: 0.8rem;
+    }
+
+    .panel h4 {
+      margin: 0 0 0.65rem;
+      font-size: 0.92rem;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      font-family: 'IBM Plex Mono', monospace;
+      color: #0b0b0b;
+    }
+
+    .panel p,
+    .panel li,
+    .panel small {
+      color: #111111;
+      font-size: 0.9rem;
+      margin: 0 0 0.45rem;
+    }
+
+    .ad {
+      background: var(--accent);
+      color: #ffffff;
+      border: 2px solid #063e2a;
+      padding: 0.75rem;
+    }
+
+    .ad strong,
+    .ad p,
+    .ad small { color: #ffffff; }
+
+    .mono {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 0.8rem;
+      color: #111111;
+    }
+
+    .footer {
+      margin-top: 1rem;
+      border: 2px solid var(--line);
+      padding: 0.75rem;
+      background: #f5fff9;
+      color: #111111;
+      font-size: 0.83rem;
+    }
+
+    @media (max-width: 1100px) {
+      .shell {
+        grid-template-columns: 1fr;
+      }
+
+      .news-grid { column-count: 1; }
+    }
+  </style>
+</head>
+<body>
+  <div class="shell">
+    <aside class="sidebar">
+      <div class="brand reveal">
+        <h1>National Puddle Commerce Administration</h1>
+        <p>U.S. Department of Surface Liquidity</p>
+      </div>
+
+      <nav class="side-nav reveal" aria-label="Primary">
+        <button class="active"><i data-lucide="newspaper"></i> Field Ledger</button>
+        <button><i data-lucide="stamp"></i> Permit Desk</button>
+        <button><i data-lucide="gavel"></i> Auction Board</button>
+        <button><i data-lucide="shield-check"></i> Runoff Compliance</button>
+        <button><i data-lucide="map"></i> Basin Registry</button>
+      </nav>
+
+      <div class="panel reveal">
+        <h4>Edition Desk</h4>
+        <p class="mono">Issue: Vol. 14 / No. 42</p>
+        <p class="mono">Date: <span id="issueDate">Monday, February 9, 2026</span></p>
+        <p class="mono">Press Window: 05:45 ET</p>
+      </div>
+
+      <div class="panel reveal">
+        <h4>Public Notice</h4>
+        <p>Applications for boutique curbside basin franchises close at 16:00 local time on Friday.</p>
+      </div>
+    </aside>
+
+    <main class="main">
+      <header class="masthead reveal">
+        <div class="kicker">Official Bulletin • Federal Circulation</div>
+        <h2 id="mainHeadline">Agency Expands Premium Rain Rights to Six New Metro Corridors</h2>
+        <p class="subline" id="mainDek">Analysts report a sharp rise in licensed puddle valuation as commuters prioritize certified curbside reflections with traceable water provenance.</p>
+
+        <div class="ticker">
+          <div>Spot Puddle Index: <strong>+2.4%</strong></div>
+          <div>Median Permit Fee: <strong>$118 / sq. meter</strong></div>
+          <div>Unclaimed Runoff Lots: <strong>31</strong></div>
+        </div>
+      </header>
+
+      <section class="toolbar reveal" aria-label="Controls">
+        <div class="box">
+          <label for="editionToggle">Weekend investigative edition
+            <input id="editionToggle" type="checkbox" />
+          </label>
+          <small>Switches top-line copy and sponsor block for long-form Saturday readers.</small>
+        </div>
+        <div class="box">
+          <button id="densityToggle" class="toggle-btn" type="button">Compact Reading Mode</button>
+          <small>Condenses body text and tightens article rhythm for rapid desk review.</small>
+        </div>
+      </section>
+
+      <section class="reveal">
+        <div class="tabs" role="tablist" aria-label="Section tabs">
+          <button class="active" data-tab="desk" type="button">Desk Report</button>
+          <button data-tab="opinion" type="button">Opinion</button>
+          <button data-tab="notices" type="button">Notices & Corrections</button>
+        </div>
+
+        <div class="pane active" id="pane-desk">
+          <div class="filters" aria-label="Category filters">
+            <button class="active" data-filter="all" type="button">All</button>
+            <button data-filter="policy" type="button">Policy</button>
+            <button data-filter="market" type="button">Market</button>
+            <button data-filter="field" type="button">Field</button>
+          </div>
+
+          <div class="news-grid" id="newsGrid">
+            <article class="story" data-category="policy">
+              <div class="story-header">
+                <h3>Licensing Board Approves Tiered Splash Access for Peak Hours</h3>
+                <div class="byline">By Marta Keene, Senior Permits Correspondent</div>
+              </div>
+              <div class="story-body">
+                <p>After a seven-hour hearing, commissioners adopted a three-band access model that prices curb puddles by mirror clarity, footfall, and curb temperament.</p>
+                <p class="pull">"Scarcity is not a weather problem. Scarcity is a scheduling problem."</p>
+                <div class="story-extra" hidden>
+                  <p>Under the rule, retailers may reserve prime reflection windows between 07:10 and 08:40 with a certified drainage monitor on site. Residential blocks receive a guaranteed community interval each evening.</p>
+                </div>
+                <button class="expand-btn" type="button">Read full brief</button>
+              </div>
+            </article>
+
+            <article class="story" data-category="market">
+              <div class="story-header">
+                <h3>Quarterly Auction Closes With Record Price for District 9 Crosswalk Pool</h3>
+                <div class="byline">By Leon Briggs, Markets Desk</div>
+              </div>
+              <div class="story-body">
+                <p>The district's best-known rain pocket sold at 14 times last year's floor, driven by demand from fashion houses seeking controlled reflection rights for morning launches.</p>
+                <div class="story-extra" hidden>
+                  <p>Two unsuccessful bidders cited concerns about on-site umbrella traffic. The winning consortium pledged immediate repainting and a public viewing lane every third Thursday.</p>
+                </div>
+                <button class="expand-btn" type="button">Read full brief</button>
+              </div>
+            </article>
+
+            <article class="story" data-category="field">
+              <div class="story-header">
+                <h3>Inspector's Notebook: Quiet Wealth in Suburban Gutter Channels</h3>
+                <div class="byline">By Ren Park, Field Notes</div>
+              </div>
+              <div class="story-body">
+                <p>In low-traffic neighborhoods, narrow gutters are producing steady yields for cooperatives that specialize in low-disturbance collection and next-day resale to municipal landscapers.</p>
+                <div class="story-extra" hidden>
+                  <p>Three counties now certify household-scale skimmer kits. Compliance teams report near-perfect labeling rates where homeowner associations include runoff literacy in welcome packets.</p>
+                </div>
+                <button class="expand-btn" type="button">Read full brief</button>
+              </div>
+            </article>
+
+            <article class="story" data-category="policy">
+              <div class="story-header">
+                <h3>Committee Weighs National Standard for "Boutique Mist" Labeling</h3>
+                <div class="byline">By Halima Price, Regulation Beat</div>
+              </div>
+              <div class="story-body">
+                <p>Draft guidance would require sellers to disclose collection altitude, rooftop age, and transit vessel material before claiming premium atmospheric origin.</p>
+                <div class="story-extra" hidden>
+                  <p>Trade groups requested a 90-day transition period. Consumer advocates asked for font-size minimums and tasting-room scent neutrality during demonstrations.</p>
+                </div>
+                <button class="expand-btn" type="button">Read full brief</button>
+              </div>
+            </article>
+
+            <article class="story" data-category="market">
+              <div class="story-header">
+                <h3>Morning Ledger: Five Signals Traders Watch Before First Drizzle</h3>
+                <div class="byline">By Desk Staff</div>
+              </div>
+              <div class="story-body">
+                <p>1) Winds over loading bays. 2) Transit delay bulletins. 3) Sidewalk sodium readings. 4) Umbrella density near schools. 5) City memo traffic after 05:00.</p>
+                <p>Local desks say the old rule still holds: puddles move fastest when forecasts disagree.</p>
+              </div>
+            </article>
+
+            <article class="story" data-category="field">
+              <div class="story-header">
+                <h3>Port Authority Trials Reflective Safety Vests for Basin Brokers</h3>
+                <div class="byline">By Nolan Chae, Infrastructure</div>
+              </div>
+              <div class="story-body">
+                <p>Operators at the east freight gate now wear dual-tone vests that indicate licensing class and extraction privileges at a glance.</p>
+                <p class="pull">"A visible credential reduces arguments and speeds settlement."</p>
+              </div>
+            </article>
+          </div>
+        </div>
+
+        <div class="pane" id="pane-opinion">
+          <div class="news-grid">
+            <article class="story">
+              <div class="story-header">
+                <h3>Opinion: Let Municipalities Keep Their Signature Puddles</h3>
+                <div class="byline">By Dr. Amina Sol, Civic Hydrology Fellow</div>
+              </div>
+              <div class="story-body">
+                <p>Federal coordination works best when local texture survives. A town's best puddle is often the one residents can describe by smell, not metric.</p>
+                <p>National markets need guardrails, not flattening. Keep interstate standards strict; keep neighborhood character intact.</p>
+              </div>
+            </article>
+
+            <article class="story">
+              <div class="story-header">
+                <h3>Editorial Board: End Anonymous Splash Purchasing</h3>
+                <div class="byline">The Field Ledger Board</div>
+              </div>
+              <div class="story-body">
+                <p>Anonymous shell bids distort values and punish compliant operators. Every bid over 500 liters should carry a beneficial ownership disclosure.</p>
+                <p>The market has matured enough for sunlight.</p>
+              </div>
+            </article>
+
+            <article class="story">
+              <div class="story-header">
+                <h3>From the Archive: 1987 and the Great Corporate Umbrella Panic</h3>
+                <div class="byline">By Saul Tinney, Historian-at-Large</div>
+              </div>
+              <div class="story-body">
+                <p>Executives bought imported umbrellas by the crate to "capture every drop," only to discover that unmanaged runoff voided half their claims.</p>
+                <p>Regulation followed. So did common sense.</p>
+              </div>
+            </article>
+          </div>
+        </div>
+
+        <div class="pane" id="pane-notices">
+          <div class="news-grid">
+            <article class="story">
+              <div class="story-header">
+                <h3>Letters to the Editor</h3>
+                <div class="byline">Selected from district mail sacks</div>
+              </div>
+              <div class="story-body">
+                <p><strong>Ward 3:</strong> "Please publish clear curb markings for school pickup zones. Parents can negotiate almost anything except uncertainty."</p>
+                <p><strong>North Basin Co-op:</strong> "Thank you for printing permit forms with larger checkboxes. Wet gloves are not precision instruments."</p>
+                <p><strong>Retired Surveyor, Tulsa:</strong> "I still trust a wooden stick more than a dashboard, but both can agree on depth when calibrated."</p>
+              </div>
+            </article>
+
+            <article class="story">
+              <div class="story-header">
+                <h3>Corrections</h3>
+                <div class="byline">For transparency and record integrity</div>
+              </div>
+              <div class="story-body">
+                <p>On page B2 yesterday, we misstated the opening bid for Lot 11-C. The correct opening figure was $4,800, not $4,080.</p>
+                <p>Last week we identified a contractor as "provisional." The contractor has held full certification since June 2024.</p>
+                <p>The phrase "silent runoff" in Sunday's feature should have read "passive runoff." We regret the confusion.</p>
+              </div>
+            </article>
+
+            <article class="story">
+              <div class="story-header">
+                <h3>Classifieds</h3>
+                <div class="byline">Licensed postings only</div>
+              </div>
+              <div class="story-body">
+                <p><strong>For Lease:</strong> Two-bay curb platform with brass depth gauges. Near light rail. Night access included.</p>
+                <p><strong>Seeking:</strong> Junior runoff analyst, weekend shift, must read radar maps and handwriting equally well.</p>
+                <p><strong>For Sale:</strong> Vintage municipal squeegee, walnut handle, documented city hall provenance.</p>
+                <p><strong>Services:</strong> Independent puddle appraisals for estate planning and merger due diligence.</p>
+              </div>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <footer class="footer reveal">
+        Filed under the Public Surface Liquidity Act. Reprint permission available through agency syndication office. Accessibility hotline: 1-800-555-RAIN.
+      </footer>
+    </main>
+
+    <aside class="rail">
+      <div class="panel reveal">
+        <h4>Bulletin Strip</h4>
+        <p><strong>06:10</strong> Midwest district opens emergency mirror auctions after overnight hail melt.</p>
+        <p><strong>07:05</strong> Coastal office certifies first carbon-neutral rain barrel courier fleet.</p>
+        <p><strong>08:25</strong> Senate subcommittee schedules hearing on basin anti-monopoly thresholds.</p>
+      </div>
+
+      <div class="ad reveal" id="sponsorBlock">
+        <strong>Certified Ad Placement</strong>
+        <p id="adCopy">Velvet Gutter Group invites bids for runway-adjacent reflection rights. Evening appointments only.</p>
+        <small>Ad No. NPCA-77-14 • Paid through authorized treasury channel</small>
+      </div>
+
+      <div class="panel reveal">
+        <h4>Public FAQ</h4>
+        <p><strong>Can I reserve a puddle?</strong> Yes, with district permit and reflective safety cones.</p>
+        <p><strong>Are home driveways included?</strong> Only if runoff enters a public valuation map.</p>
+        <p><strong>Do licenses transfer?</strong> Transfer allowed after seasonal compliance audit.</p>
+      </div>
+
+      <div class="panel reveal">
+        <h4>Reader Testimonials</h4>
+        <p>"Our cooperative stopped guessing and started profiting after subscribing to the Ledger alerts."</p>
+        <small>J. Ortega, Basin Operator, Phoenix District</small>
+        <p>"The permit explainer saved us two appeals and a week of legal fees."</p>
+        <small>Mireline Retail Association</small>
+      </div>
+    </aside>
+  </div>
+
+  <script src="/assets/js/gsap.min.js"></script>
+  <script src="/assets/js/lucide.min.js"></script>
+  <script>
+    (function () {
+      const headline = document.getElementById('mainHeadline');
+      const dek = document.getElementById('mainDek');
+      const adCopy = document.getElementById('adCopy');
+      const editionToggle = document.getElementById('editionToggle');
+      const densityToggle = document.getElementById('densityToggle');
+      const grid = document.getElementById('newsGrid');
+
+      const daily = {
+        headline: 'Agency Expands Premium Rain Rights to Six New Metro Corridors',
+        dek: 'Analysts report a sharp rise in licensed puddle valuation as commuters prioritize certified curbside reflections with traceable water provenance.',
+        ad: 'Velvet Gutter Group invites bids for runway-adjacent reflection rights. Evening appointments only.'
+      };
+
+      const weekend = {
+        headline: 'Weekend Inquiry: Inside the Quiet Cartels of Interstate Runoff Futures',
+        dek: 'A four-city investigation finds that control of storm-drain timing now shapes both neighborhood pricing and national liquidity confidence.',
+        ad: 'House of Meridian seeks archivist for private rain cellar. Familiarity with pre-1980 drainage ledgers preferred.'
+      };
+
+      if (editionToggle) {
+        editionToggle.addEventListener('change', function () {
+          const mode = this.checked ? weekend : daily;
+          if (headline) headline.textContent = mode.headline;
+          if (dek) dek.textContent = mode.dek;
+          if (adCopy) adCopy.textContent = mode.ad;
+        });
+      }
+
+      if (densityToggle && grid) {
+        densityToggle.addEventListener('click', function () {
+          const next = grid.classList.toggle('compact');
+          densityToggle.classList.toggle('active', next);
+          densityToggle.textContent = next ? 'Standard Reading Mode' : 'Compact Reading Mode';
+        });
+      }
+
+      const filterButtons = Array.from(document.querySelectorAll('[data-filter]'));
+      const stories = Array.from(document.querySelectorAll('.story[data-category]'));
+      filterButtons.forEach(function (btn) {
+        btn.addEventListener('click', function () {
+          const key = btn.getAttribute('data-filter');
+          filterButtons.forEach(function (b) { b.classList.remove('active'); });
+          btn.classList.add('active');
+          stories.forEach(function (story) {
+            const show = key === 'all' || story.getAttribute('data-category') === key;
+            story.style.display = show ? '' : 'none';
+          });
+        });
+      });
+
+      const tabs = Array.from(document.querySelectorAll('[data-tab]'));
+      const panes = {
+        desk: document.getElementById('pane-desk'),
+        opinion: document.getElementById('pane-opinion'),
+        notices: document.getElementById('pane-notices')
+      };
+
+      tabs.forEach(function (tab) {
+        tab.addEventListener('click', function () {
+          const target = tab.getAttribute('data-tab');
+          tabs.forEach(function (t) { t.classList.remove('active'); });
+          tab.classList.add('active');
+          Object.keys(panes).forEach(function (name) {
+            if (!panes[name]) return;
+            panes[name].classList.toggle('active', name === target);
+          });
+        });
+      });
+
+      const expandButtons = Array.from(document.querySelectorAll('.expand-btn'));
+      expandButtons.forEach(function (btn) {
+        btn.addEventListener('click', function () {
+          const wrap = btn.closest('.story-body');
+          if (!wrap) return;
+          const extra = wrap.querySelector('.story-extra');
+          if (!extra) return;
+          const isHidden = extra.hasAttribute('hidden');
+          if (isHidden) {
+            extra.removeAttribute('hidden');
+            btn.textContent = 'Collapse brief';
+          } else {
+            extra.setAttribute('hidden', '');
+            btn.textContent = 'Read full brief';
+          }
+        });
+      });
+
+      if (window.lucide && typeof window.lucide.createIcons === 'function') {
+        window.lucide.createIcons();
+      }
+
+      if (window.gsap && typeof window.gsap.from === 'function') {
+        window.gsap.from('.reveal', {
+          y: 16,
+          opacity: 0,
+          duration: 0.45,
+          ease: 'power2.out',
+          stagger: 0.06
+        });
+      }
+    })();
+  </script>
+</body>
+</html>

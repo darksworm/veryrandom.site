@@ -1,0 +1,709 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Stack Seven Gazette | The Reading Room Above Aisle 14</title>
+  <link rel="stylesheet" href="/assets/css/pico.min.css" />
+  <link rel="stylesheet" href="/assets/css/fonts.css" />
+  <script defer src="/assets/js/alpine.min.js"></script>
+  <script defer src="/assets/js/gsap.min.js"></script>
+  <script defer src="/assets/js/lucide.min.js"></script>
+  <style>
+    :root {
+      --coral: #ff6f61;
+      --gold: #f5b642;
+      --purple: #6e3cbc;
+      --deep-blue: #0b1f4f;
+      --paper: #fff9ed;
+      --ink: #111111;
+      --panel-dark: #142a67;
+      --line: #1b1b1b;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: 'Space Grotesk', sans-serif;
+      background:
+        radial-gradient(circle at 10% 10%, rgba(255,111,97,0.22), transparent 40%),
+        radial-gradient(circle at 80% 0%, rgba(245,182,66,0.20), transparent 36%),
+        linear-gradient(145deg, #071233 0%, #0b1f4f 52%, #3a1a6b 100%);
+      color: #f8f8ff;
+      min-height: 100vh;
+    }
+
+    .noise {
+      background-image: linear-gradient(transparent 96%, rgba(255,255,255,0.05) 97%);
+      background-size: 100% 3px;
+    }
+
+    .page-wrap {
+      max-width: 1320px;
+      margin: 1.2rem auto 2rem;
+      padding: 0.8rem;
+    }
+
+    .portal-bar {
+      background: #09173d;
+      border: 2px solid var(--gold);
+      color: #ffffff;
+      padding: 0.6rem 0.8rem;
+      display: flex;
+      gap: 1rem;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 0.86rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+
+    .portal-links {
+      display: flex;
+      gap: 0.8rem;
+      flex-wrap: wrap;
+    }
+
+    .portal-links a {
+      color: #ffffff;
+      text-decoration: none;
+      border: 1px solid #ffffff;
+      padding: 0.18rem 0.4rem;
+      background: rgba(255,255,255,0.08);
+    }
+
+    .masthead {
+      margin-top: 0.8rem;
+      background: var(--paper);
+      color: var(--ink);
+      border: 3px solid var(--line);
+      padding: 1rem;
+      box-shadow: 0 8px 0 #00000040;
+    }
+
+    .kicker {
+      font-size: 0.74rem;
+      font-weight: 700;
+      letter-spacing: 0.13em;
+      text-transform: uppercase;
+      background: var(--gold);
+      display: inline-block;
+      padding: 0.2rem 0.45rem;
+      border: 1px solid #000;
+      color: #000;
+    }
+
+    .title-row {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 1rem;
+      align-items: end;
+      margin-top: 0.4rem;
+    }
+
+    h1 {
+      margin: 0;
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(2rem, 4.6vw, 4rem);
+      line-height: 0.95;
+      letter-spacing: 0.02em;
+      color: #000;
+    }
+
+    .issue {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 0.82rem;
+      color: #000;
+      text-align: right;
+    }
+
+    .grid {
+      margin-top: 1rem;
+      display: grid;
+      grid-template-columns: 290px minmax(0, 1fr) 270px;
+      gap: 1rem;
+      align-items: start;
+    }
+
+    .window {
+      border: 2px solid #000;
+      box-shadow: 6px 6px 0 rgba(0,0,0,0.55);
+      overflow: hidden;
+    }
+
+    .window-header {
+      padding: 0.35rem 0.6rem;
+      font-size: 0.76rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      font-weight: 700;
+      border-bottom: 2px solid #000;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .left-col .window:nth-child(2) { transform: rotate(-1.1deg); }
+    .left-col .window:nth-child(3) { transform: rotate(0.9deg); margin-top: -0.35rem; }
+    .main-col .window:nth-child(1) { transform: rotate(-0.35deg); }
+    .main-col .window:nth-child(2) { transform: rotate(0.55deg); margin-top: -0.2rem; }
+    .right-col .window:nth-child(2) { transform: rotate(-0.75deg); }
+
+    .panel-light { background: var(--paper); color: #101010; }
+    .panel-dark { background: var(--panel-dark); color: #ffffff; }
+    .panel-coral { background: var(--coral); color: #1f0b0b; }
+    .panel-gold { background: var(--gold); color: #111; }
+
+    .panel-body { padding: 0.8rem; }
+
+    .hero-headline {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(1.5rem, 2.7vw, 2.4rem);
+      line-height: 1.08;
+      margin: 0.2rem 0 0.5rem;
+      color: #090909;
+    }
+
+    .byline {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 0.78rem;
+      text-transform: uppercase;
+      letter-spacing: 0.07em;
+      margin-bottom: 0.6rem;
+      color: #111;
+    }
+
+    .columns {
+      column-count: 2;
+      column-gap: 1.2rem;
+      font-size: 0.98rem;
+      color: #111;
+    }
+
+    .pull-quote {
+      border-left: 4px solid var(--purple);
+      background: #f7edd8;
+      padding: 0.6rem;
+      margin: 0.8rem 0;
+      font-family: 'Playfair Display', serif;
+      font-size: 1.1rem;
+      color: #1a1231;
+    }
+
+    .tabs {
+      display: flex;
+      gap: 0.4rem;
+      flex-wrap: wrap;
+      margin-bottom: 0.7rem;
+    }
+
+    .tabs button,
+    .chip {
+      margin: 0;
+      padding: 0.35rem 0.56rem;
+      border: 1px solid #000;
+      background: #fff;
+      color: #000;
+      font-size: 0.76rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      cursor: pointer;
+    }
+
+    .tabs button.active,
+    .chip.active {
+      background: var(--purple);
+      color: #ffffff;
+      border-color: #000;
+    }
+
+    .brief {
+      border-top: 1px solid #252525;
+      padding: 0.6rem 0;
+      color: #111;
+    }
+
+    .brief-title {
+      margin: 0;
+      font-weight: 700;
+      font-size: 0.98rem;
+      color: #111;
+    }
+
+    .brief-meta {
+      margin: 0.2rem 0;
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 0.75rem;
+      color: #111;
+    }
+
+    .mono {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 0.82rem;
+      color: inherit;
+    }
+
+    .ad {
+      border: 2px dashed #000;
+      padding: 0.6rem;
+      margin-bottom: 0.8rem;
+      background: #fff2cf;
+      color: #111;
+    }
+
+    .ad h4 {
+      margin: 0 0 0.3rem;
+      font-family: 'Playfair Display', serif;
+      font-size: 1rem;
+      color: #111;
+    }
+
+    .price-grid {
+      display: grid;
+      gap: 0.6rem;
+    }
+
+    .tier {
+      border: 1px solid #000;
+      padding: 0.55rem;
+      background: #fff;
+      color: #000;
+    }
+
+    .tier strong { color: #000; }
+
+    .letter,
+    .class-item,
+    .testimonial,
+    .faq-item {
+      border-top: 1px solid #1f1f1f;
+      padding-top: 0.55rem;
+      margin-top: 0.55rem;
+    }
+
+    .expand-btn {
+      margin-top: 0.5rem;
+      background: #000;
+      color: #fff;
+      border: 1px solid #000;
+      font-size: 0.72rem;
+      padding: 0.26rem 0.5rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .subhead {
+      margin: 0 0 0.45rem;
+      font-family: 'Playfair Display', serif;
+      font-size: 1.3rem;
+      color: inherit;
+    }
+
+    .events li,
+    .faq-item p,
+    .testimonial p,
+    .class-item p,
+    .letter p {
+      color: inherit;
+    }
+
+    footer {
+      margin-top: 1rem;
+      background: #09173d;
+      color: #ffffff;
+      border: 2px solid var(--gold);
+      padding: 0.9rem;
+      font-size: 0.85rem;
+    }
+
+    @media (max-width: 1050px) {
+      .grid { grid-template-columns: 1fr; }
+      .columns { column-count: 1; }
+      .left-col .window,
+      .main-col .window,
+      .right-col .window { transform: none !important; margin-top: 0; }
+    }
+  </style>
+</head>
+<body class="noise" x-data="newsroom()">
+  <div class="page-wrap">
+    <div class="portal-bar" aria-label="site navigation">
+      <div class="mono">Municipal Culture Node // Stack Seven District</div>
+      <nav class="portal-links">
+        <a href="#edition">Front Page</a>
+        <a href="#membership">Membership</a>
+        <a href="#classifieds">Classifieds</a>
+        <a href="#letters">Letters</a>
+        <a href="#faq">Entry Riddle FAQ</a>
+      </nav>
+    </div>
+
+    <header class="masthead" id="edition">
+      <span class="kicker">Daily Print Since the First Flat-Pack Awakening</span>
+      <div class="title-row">
+        <h1>Stack Seven Gazette</h1>
+        <div class="issue">
+          Issue 8,442<br />
+          Monday Late Edition<br />
+          The Reading Room Above Aisle 14
+        </div>
+      </div>
+    </header>
+
+    <main class="grid">
+      <aside class="left-col">
+        <section class="window panel-gold">
+          <div class="window-header">
+            <span><i data-lucide="sparkles"></i> Margin Notes</span>
+            <span>Curated</span>
+          </div>
+          <div class="panel-body">
+            <div class="ad">
+              <h4>Ad // Quiet Trumpet Mutes</h4>
+              <p>Engineered for indoor jazz at all hours. Approved by mezzanine acoustics board.</p>
+              <p class="mono">From 19.00 krone-equivalent</p>
+            </div>
+            <div class="ad">
+              <h4>Ad // Anti-Squeak Shelf Wax</h4>
+              <p>For timber joints under emotional pressure during dramatic chapter reveals.</p>
+              <p class="mono">Bundle with dusting cloth: 12 credits</p>
+            </div>
+            <div class="ad">
+              <h4>Public Notice</h4>
+              <p>Patrons who solved yesterday's riddle in under 11 seconds are reminded to let others speak first.</p>
+            </div>
+          </div>
+        </section>
+
+        <section class="window panel-light" id="membership">
+          <div class="window-header">
+            <span><i data-lucide="badge-check"></i> Membership Tariff</span>
+            <span>2026</span>
+          </div>
+          <div class="panel-body">
+            <p class="mono">All memberships include uninterrupted live jazz and one weekly clue packet.</p>
+            <div class="price-grid">
+              <article class="tier">
+                <strong>Reader Access</strong>
+                <p>29 credits / month</p>
+                <p>Entry after one solved riddle, standard chair, archive access.</p>
+              </article>
+              <article class="tier">
+                <strong>Annotator Access</strong>
+                <p>59 credits / month</p>
+                <p>Priority clue queue, brass lamp desk, margin-note pinboard rights.</p>
+              </article>
+              <article class="tier">
+                <strong>Night Shift Patron</strong>
+                <p>99 credits / month</p>
+                <p>After-midnight sonata table, unlimited refills, quarterly hardback locker.</p>
+              </article>
+            </div>
+          </div>
+        </section>
+
+        <section class="window panel-dark">
+          <div class="window-header">
+            <span><i data-lucide="music-4"></i> Continuous Setlist</span>
+            <button class="chip" :class="showSetlist ? 'active' : ''" @click="showSetlist = !showSetlist" type="button" x-text="showSetlist ? 'Hide Set' : 'Show Set'"></button>
+          </div>
+          <div class="panel-body" x-show="showSetlist" x-transition>
+            <ul class="events">
+              <li>06:00 "Blue in Birch Veneer" - Trio</li>
+              <li>10:30 "Index Card Waltz" - Quartet</li>
+              <li>14:00 "Minor Key Flat-Pack" - House Band</li>
+              <li>18:40 "Aisle 14 Nocturne" - Sextet</li>
+              <li>23:55 "Last Lamp Improvisation" - Rotating Guests</li>
+            </ul>
+          </div>
+        </section>
+      </aside>
+
+      <section class="main-col">
+        <article class="window panel-light">
+          <div class="window-header">
+            <span><i data-lucide="newspaper"></i> Lead Story</span>
+            <span>Metro Desk</span>
+          </div>
+          <div class="panel-body">
+            <p class="hero-headline">Chairwoman BILLY-7 Opens Winter Reading Session, Announces Two-Riddle Entry Nights for Peak Attendance</p>
+            <p class="byline">By Mara Ellison, Senior Shelf Correspondent</p>
+            <div class="columns">
+              <p>Under the warm spill of task lamps and tenor saxophone, Chairwoman BILLY-7 addressed a packed mezzanine and reaffirmed the room's founding covenant: literature first, ego last, and every visitor through the riddle gate. The statement came after three weekends of overflow crowds that formed lines near kitchen storage and attempted to barter bookmarks for immediate entry.</p>
+              <p>Administrators say the new two-riddle protocol will be used only on nights when the brass section extends into a fifth encore. "The jazz is permanent," said the house steward. "The bottleneck is human certainty." A second clue allows guests who miss the first answer to continue with dignity instead of wandering toward lamps in philosophical distress.</p>
+              <p>Membership data show a sharp rise in weekday attendance since the launch of annotated table service. Readers can now request side-by-side editions, red pencil sets, and low-volume clarinet seating. The Gazette observed at least six debates conducted entirely through margin notes, with no raised voices and one shared pastry.</p>
+              <p>Meanwhile, logistics teams confirmed that all shelves remain structurally content. Night crews completed a successful brace calibration at 03:10 while the quartet maintained tempo. No volumes were displaced. One atlas was rehoused after declaring itself "mis-shelved by destiny."</p>
+            </div>
+            <aside class="pull-quote">"A good clue should open a door and close an argument."</aside>
+            <button class="expand-btn" type="button" @click="leadExpanded = !leadExpanded" x-text="leadExpanded ? 'Collapse Analysis' : 'Expand Analysis'"></button>
+            <div x-show="leadExpanded" x-transition>
+              <p>Analysts expect riddle wait times to normalize within ten days. The transit desk also recommends arriving before the 18:40 set if you prefer table space near the dictionary tower. Civic educators from nearby districts have requested a replicable copy of the gate rubric, citing reduced hallway disputes when clues prioritize interpretation over speed.</p>
+            </div>
+          </div>
+        </article>
+
+        <section class="window panel-light">
+          <div class="window-header">
+            <span><i data-lucide="layout-grid"></i> News Desk Router</span>
+            <span>Interactive</span>
+          </div>
+          <div class="panel-body">
+            <div class="tabs" role="tablist" aria-label="sections">
+              <button type="button" :class="section==='front' ? 'active' : ''" @click="section='front'">Latest Briefs</button>
+              <button type="button" :class="section==='opinion' ? 'active' : ''" @click="section='opinion'">Opinion</button>
+              <button type="button" :class="section==='letters' ? 'active' : ''" @click="section='letters'" id="letters">Letters</button>
+              <button type="button" :class="section==='classifieds' ? 'active' : ''" @click="section='classifieds'" id="classifieds">Classifieds</button>
+              <button type="button" :class="section==='corrections' ? 'active' : ''" @click="section='corrections'">Corrections</button>
+            </div>
+
+            <div x-show="section==='front'" x-transition>
+              <div class="tabs" aria-label="brief category filters">
+                <button type="button" :class="category==='all' ? 'active' : ''" @click="category='all'">All</button>
+                <button type="button" :class="category==='policy' ? 'active' : ''" @click="category='policy'">Policy</button>
+                <button type="button" :class="category==='culture' ? 'active' : ''" @click="category='culture'">Culture</button>
+                <button type="button" :class="category==='facilities' ? 'active' : ''" @click="category='facilities'">Facilities</button>
+                <button type="button" :class="category==='music' ? 'active' : ''" @click="category='music'">Music</button>
+              </div>
+              <template x-for="item in filteredBriefs" :key="item.id">
+                <article class="brief">
+                  <p class="brief-title" x-text="item.title"></p>
+                  <p class="brief-meta" x-text="item.meta"></p>
+                  <p x-text="item.text"></p>
+                </article>
+              </template>
+            </div>
+
+            <div x-show="section==='opinion'" x-transition>
+              <article class="brief">
+                <p class="brief-title">Opinion: The Riddle Is Not a Barrier. It Is the First Conversation.</p>
+                <p class="brief-meta">By Lise Corvin, Civic Columnist</p>
+                <p>Complaints that the gate favors wordplay over sincerity miss the point. A well-built clue tests patience, listening, and humility before any coat is hung. In a city of rapid takes, one minute of thinking is not exclusion; it is repair.</p>
+              </article>
+              <article class="brief">
+                <p class="brief-title">Essay: In Praise of Permanent Jazz During Administrative Tasks</p>
+                <p class="brief-meta">By Thom Reed, Office of Quiet Efficiency</p>
+                <p>Form approvals improve when a ride cymbal marks the hour. Filing disputes drop when bass lines remain visible in the floorboards. Silence has its uses, but not while deciding where to shelve translated poetry.</p>
+              </article>
+              <article class="brief">
+                <p class="brief-title">Editorial Board: Stop Pretending Folding Chairs Are Temporary</p>
+                <p class="brief-meta">Unsigned, with unanimous table tap</p>
+                <p>If a chair has hosted three seasons of chapter debate and one respectful apology, it is no longer temporary furniture. Register it, maintain it, and give it a number.</p>
+              </article>
+            </div>
+
+            <div x-show="section==='letters'" x-transition>
+              <article class="letter">
+                <p class="brief-title">Letter: Keep the Late Clarinet Window Open</p>
+                <p class="brief-meta">From J. Patel, Night Bus Driver</p>
+                <p>I finish my route at 00:20 and arrive in uniform. The clarinet line through the stairwell has become my clock-out ritual. Please protect this slot even when demand for trumpet-heavy sets spikes.</p>
+              </article>
+              <article class="letter">
+                <p class="brief-title">Letter: Thank You for Larger Margin Widths</p>
+                <p class="brief-meta">From E. Navarro, Teacher</p>
+                <p>The new editions with wider outer margins are a public service. My students now argue with authors respectfully and legibly. We returned every borrowed pen.</p>
+              </article>
+              <article class="letter">
+                <p class="brief-title">Letter: A Gentle Plea to the Crossword Table</p>
+                <p class="brief-meta">From "Two Seats Over"</p>
+                <p>Your teamwork is inspiring. Your celebratory shouts at 07:12 are less so. Might I propose celebratory finger snaps while the sonata is in progress?</p>
+              </article>
+            </div>
+
+            <div x-show="section==='classifieds'" x-transition>
+              <article class="class-item">
+                <p class="brief-title">FOR TRADE</p>
+                <p>One near-mint brass bookmark shaped like a comet. Seeking first-edition detective novella with intact map insert.</p>
+              </article>
+              <article class="class-item">
+                <p class="brief-title">WANTED</p>
+                <p>Volunteer page-turner for Thursday epic readings. Must keep pace with adagio piano and own comfortable shoes.</p>
+              </article>
+              <article class="class-item">
+                <p class="brief-title">SERVICES</p>
+                <p>Index card calligraphy while you wait. Serif or sans. Ribbon ink surcharge after midnight.</p>
+              </article>
+              <article class="class-item">
+                <p class="brief-title">LOST & FOUND</p>
+                <p>Recovered: one scarf, two fountain pens, and a note reading "answer is on the ceiling." Claim at desk with matching description.</p>
+              </article>
+            </div>
+
+            <div x-show="section==='corrections'" x-transition>
+              <article class="brief">
+                <p class="brief-title">Corrections & Clarifications</p>
+                <p>Yesterday's edition incorrectly stated that the mezzanine trio performs in C minor every Tuesday. The trio performs in rotating keys based on humidity and reader turnout. We regret the rigidity.</p>
+              </article>
+              <article class="brief">
+                <p class="brief-title">Archive Desk Note</p>
+                <p>A previous brief misidentified the chairwoman as "unit BILLY-8." The correct designation is BILLY-7, confirmed by plaque and voiceprint.</p>
+              </article>
+            </div>
+          </div>
+        </section>
+      </section>
+
+      <aside class="right-col">
+        <section class="window panel-coral">
+          <div class="window-header">
+            <span><i data-lucide="message-square-heart"></i> Patron Wire</span>
+            <span>Testimonials</span>
+          </div>
+          <div class="panel-body">
+            <article class="testimonial">
+              <p class="brief-title">"Finally, a club that respects footnotes."</p>
+              <p>My partner solved the gate clue; I solved where to sit for the alto break. We left with three recommendations and a better marriage.</p>
+              <p class="mono">- Nila & Ro, District North</p>
+            </article>
+            <article class="testimonial">
+              <p class="brief-title">"The shelf remembered my reading pace."</p>
+              <p>I was greeted by name and handed exactly the sequel I needed. The trumpet did not judge me for crying in chapter nine.</p>
+              <p class="mono">- Devin K., apprentice electrician</p>
+            </article>
+            <article class="testimonial">
+              <p class="brief-title">"No dead air, no dead ends."</p>
+              <p>I failed the first riddle, got the second, and was still in time for the blue set. Efficient and humane.</p>
+              <p class="mono">- Farah M., municipal planner</p>
+            </article>
+          </div>
+        </section>
+
+        <section class="window panel-light" id="faq">
+          <div class="window-header">
+            <span><i data-lucide="help-circle"></i> Entry Riddle FAQ</span>
+            <span>Desk Policy</span>
+          </div>
+          <div class="panel-body">
+            <article class="faq-item">
+              <p class="brief-title">Do I need to solve a riddle every visit?</p>
+              <p>Yes. Members may attempt the priority clue lane, but each entry remains clue-governed.</p>
+            </article>
+            <article class="faq-item">
+              <p class="brief-title">Are hints available?</p>
+              <p>After 45 seconds, a steward can provide one contextual hint. No rhyming hints after 21:00.</p>
+            </article>
+            <article class="faq-item">
+              <p class="brief-title">Is the jazz band ever off duty?</p>
+              <p>No. Sets rotate continuously with scheduled instrument maintenance between tunes.</p>
+            </article>
+            <article class="faq-item">
+              <p class="brief-title">Can I reserve a quiet table?</p>
+              <p>Yes, request a lamp-marked table in the north stacks. Quiet table still includes ambient bass.</p>
+            </article>
+          </div>
+        </section>
+
+        <section class="window panel-dark">
+          <div class="window-header">
+            <span><i data-lucide="calendar-days"></i> Desk Calendar</span>
+            <span>Week View</span>
+          </div>
+          <div class="panel-body">
+            <ul>
+              <li>Tuesday: Public clue-writing workshop, 19:00</li>
+              <li>Wednesday: Editorial lunch, bring annotations</li>
+              <li>Friday: Long-form reading marathon, 22:00</li>
+              <li>Saturday: Family hour, softer percussion mix</li>
+              <li>Sunday: Open archive, first coffee refills included</li>
+            </ul>
+          </div>
+        </section>
+      </aside>
+    </main>
+
+    <footer>
+      <strong>Stack Seven Gazette & Reading Room Registry</strong><br />
+      Aisle 14 Mezzanine, Civic Furniture Complex, Open continuously. Entry handled at the riddle desk. Music handled at all times.
+    </footer>
+  </div>
+
+  <script>
+    function newsroom() {
+      return {
+        section: 'front',
+        category: 'all',
+        showSetlist: true,
+        leadExpanded: false,
+        briefs: [
+          {
+            id: 1,
+            category: 'policy',
+            title: 'Council approves clue difficulty bands for holiday weekends',
+            meta: 'Policy Ledger // 08:10',
+            text: 'Three tiers will be used: novice, reflective, and stubbornly poetic. Families can request novice mode before noon.'
+          },
+          {
+            id: 2,
+            category: 'culture',
+            title: 'Poetry table reports record attendance after lamp upgrade',
+            meta: 'Culture Wire // 09:25',
+            text: 'The new warm bulbs reduced eye strain and doubled spontaneous recitations, according to floor staff.'
+          },
+          {
+            id: 3,
+            category: 'facilities',
+            title: 'East stair rail polished after brass section overflow',
+            meta: 'Facilities Desk // 10:42',
+            text: 'No injuries were reported; patrons are asked not to dance on landings during up-tempo passages.'
+          },
+          {
+            id: 4,
+            category: 'music',
+            title: 'Resident drummer introduces low-volume brush protocol',
+            meta: 'Bandstand // 11:05',
+            text: 'The move keeps rhythm clear while preserving long-form reading concentration in the historical wing.'
+          },
+          {
+            id: 5,
+            category: 'policy',
+            title: 'Newcomer hour extends to 16:00 on rain days',
+            meta: 'Policy Ledger // 11:40',
+            text: 'Stewards observed that wet umbrellas correlate with slower clue confidence and granted extra onboarding time.'
+          },
+          {
+            id: 6,
+            category: 'culture',
+            title: 'Serialized mystery club reaches chapter 52 without spoilers',
+            meta: 'Culture Wire // 12:12',
+            text: 'Participants signed a silence charter and now communicate twists only through approved eyebrow signals.'
+          },
+          {
+            id: 7,
+            category: 'facilities',
+            title: 'North archive receives twelve new ladder stools',
+            meta: 'Facilities Desk // 13:00',
+            text: 'Each stool is tagged, balanced, and acoustically tested against upright bass resonance.'
+          },
+          {
+            id: 8,
+            category: 'music',
+            title: 'Band seeks guest vibraphonist for dawn shift',
+            meta: 'Bandstand // 13:45',
+            text: 'Sight-reading required. Applicants should remain calm during sudden riddle queue surges.'
+          }
+        ],
+        get filteredBriefs() {
+          if (this.category === 'all') return this.briefs;
+          return this.briefs.filter((item) => item.category === this.category);
+        }
+      };
+    }
+
+    document.addEventListener('DOMContentLoaded', function () {
+      if (window.lucide && typeof window.lucide.createIcons === 'function') {
+        window.lucide.createIcons();
+      }
+      if (window.gsap) {
+        window.gsap.from('.window', {
+          y: 26,
+          opacity: 0,
+          duration: 0.65,
+          stagger: 0.06,
+          ease: 'power2.out'
+        });
+      }
+    });
+  </script>
+</body>
+</html>

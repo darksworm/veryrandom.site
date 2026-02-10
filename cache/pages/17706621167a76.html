@@ -1,0 +1,628 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>The Full-Moon Mime Detective Union</title>
+<style>
+  :root {
+    --ink: #0b0b0b;
+    --paper: #f2f2f2;
+    --fog: #d9d9d9;
+    --shadow: rgba(0,0,0,0.35);
+    --glow: rgba(255,255,255,0.5);
+    --accent: #ff2b2b;
+    --accent-dim: rgba(255,43,43,0.2);
+  }
+
+  * { box-sizing: border-box; }
+  html, body { height: 100%; }
+  body {
+    margin: 0;
+    font-family: "Georgia", "Times New Roman", serif;
+    background:
+      radial-gradient(1200px 800px at 80% -10%, #ffffff 0%, #e6e6e6 50%, #bfbfbf 100%),
+      linear-gradient(120deg, #111 0%, #333 45%, #111 100%);
+    color: var(--ink);
+    overflow-x: hidden;
+  }
+
+  .app {
+    min-height: 100vh;
+    display: grid;
+    grid-template-columns: 280px 1fr;
+    gap: 0;
+  }
+
+  .sidebar {
+    position: sticky;
+    top: 0;
+    height: 100vh;
+    background: linear-gradient(180deg, #0e0e0e 0%, #1a1a1a 50%, #0e0e0e 100%);
+    color: #eaeaea;
+    padding: 28px 22px;
+    border-right: 2px solid #1f1f1f;
+    box-shadow: 4px 0 20px var(--shadow);
+  }
+
+  .brand {
+    font-family: "Palatino", "Times New Roman", serif;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    font-size: 14px;
+    margin-bottom: 24px;
+  }
+
+  .brand .accent {
+    color: var(--accent);
+  }
+
+  .nav {
+    display: grid;
+    gap: 10px;
+    font-size: 13px;
+  }
+
+  .nav a {
+    color: #cfcfcf;
+    text-decoration: none;
+    padding: 8px 10px;
+    border: 1px solid #2a2a2a;
+    border-radius: 8px;
+    background: linear-gradient(180deg, #151515 0%, #0d0d0d 100%);
+    transition: transform 0.3s ease, border-color 0.3s ease;
+  }
+
+  .nav a:hover {
+    transform: translateX(4px);
+    border-color: var(--accent);
+  }
+
+  .moon-panel {
+    margin-top: 26px;
+    padding: 14px;
+    border: 1px solid #2b2b2b;
+    border-radius: 14px;
+    background: radial-gradient(circle at 70% 20%, #222 0%, #111 50%, #0b0b0b 100%);
+    position: relative;
+    overflow: hidden;
+  }
+
+  .moon {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    margin: 6px 0 12px;
+    background: radial-gradient(circle at 30% 30%, #fff 0%, #dcdcdc 50%, #a8a8a8 100%);
+    box-shadow: 0 0 20px var(--glow), inset 0 0 10px rgba(0,0,0,0.3);
+    position: relative;
+    animation: floaty 6s ease-in-out infinite;
+  }
+
+  .moon::after {
+    content: "";
+    position: absolute;
+    inset: 12px;
+    border-radius: 50%;
+    border: 1px dashed rgba(255,255,255,0.5);
+    opacity: 0.4;
+  }
+
+  .moon-label {
+    font-size: 12px;
+    color: #c9c9c9;
+    line-height: 1.4;
+  }
+
+  .toggle {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 12px;
+    margin-top: 10px;
+  }
+
+  .toggle button {
+    border: 1px solid #3a3a3a;
+    background: #111;
+    color: #f2f2f2;
+    padding: 6px 10px;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background 0.3s ease, border-color 0.3s ease;
+  }
+
+  .toggle button:hover {
+    background: #1f1f1f;
+    border-color: var(--accent);
+  }
+
+  .main {
+    padding: 48px 56px 120px;
+    background:
+      linear-gradient(90deg, rgba(0,0,0,0.06) 0 1px, transparent 1px 100%),
+      linear-gradient(180deg, #f7f7f7 0%, #e9e9e9 40%, #dedede 100%);
+    background-size: 24px 24px, 100% 100%;
+  }
+
+  .hero {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 220px;
+    gap: 30px;
+    margin-bottom: 40px;
+    align-items: start;
+  }
+
+  .hero h1 {
+    font-size: 38px;
+    margin: 0 0 14px;
+    letter-spacing: 0.02em;
+  }
+
+  .hero h1 .accent {
+    color: var(--accent);
+    text-shadow: 0 0 10px var(--accent-dim);
+  }
+
+  .hero p {
+    font-size: 16px;
+    line-height: 1.7;
+    margin: 0;
+  }
+
+  .badge {
+    border: 1px solid #1b1b1b;
+    background: #0f0f0f;
+    color: #f2f2f2;
+    padding: 14px;
+    border-radius: 14px;
+    box-shadow: 0 12px 30px var(--shadow);
+    text-transform: uppercase;
+    font-size: 11px;
+    letter-spacing: 0.08em;
+  }
+
+  .badge .accent {
+    color: var(--accent);
+  }
+
+  .section {
+    margin: 36px 0 0;
+    padding: 28px;
+    background: #fdfdfd;
+    border: 1px solid #d4d4d4;
+    border-radius: 18px;
+    box-shadow: 0 16px 40px rgba(0,0,0,0.12);
+    position: relative;
+    overflow: hidden;
+  }
+
+  .section::before {
+    content: "";
+    position: absolute;
+    right: -40px;
+    top: -40px;
+    width: 160px;
+    height: 160px;
+    border-radius: 50%;
+    background: radial-gradient(circle, var(--accent-dim) 0%, transparent 70%);
+  }
+
+  .section h2 {
+    margin: 0 0 10px;
+    font-size: 22px;
+  }
+
+  .section p {
+    line-height: 1.7;
+    margin: 0 0 12px;
+  }
+
+  .editorial {
+    columns: 2;
+    column-gap: 30px;
+  }
+
+  .editorial p {
+    margin: 0 0 14px;
+  }
+
+  .callout {
+    background: #0f0f0f;
+    color: #f5f5f5;
+    padding: 16px 18px;
+    border-radius: 12px;
+    border: 1px solid #2a2a2a;
+    box-shadow: inset 0 0 12px rgba(255,255,255,0.08);
+    margin: 16px 0 10px;
+  }
+
+  .callout strong { color: var(--accent); }
+
+  .quote {
+    border-left: 3px solid var(--accent);
+    padding-left: 12px;
+    margin: 10px 0 0;
+    font-style: italic;
+  }
+
+  .deck {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 16px;
+    margin-top: 16px;
+  }
+
+  .card {
+    padding: 16px;
+    border-radius: 12px;
+    background: #fafafa;
+    border: 1px solid #d0d0d0;
+    box-shadow: 0 12px 24px rgba(0,0,0,0.1);
+    position: relative;
+    min-height: 170px;
+  }
+
+  .card h3 {
+    margin: 0 0 8px;
+    font-size: 16px;
+  }
+
+  .stamp {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    font-size: 11px;
+    border: 1px dashed #111;
+    padding: 4px 6px;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+  }
+
+  .button-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 12px;
+  }
+
+  .ghost-btn {
+    background: #0e0e0e;
+    color: #f0f0f0;
+    border: 1px solid #2c2c2c;
+    padding: 8px 12px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+  }
+
+  .ghost-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 18px rgba(0,0,0,0.2);
+  }
+
+  .reveal {
+    opacity: 0.08;
+    filter: blur(3px);
+    transition: opacity 0.6s ease, filter 0.6s ease;
+  }
+
+  .reveal:hover {
+    opacity: 1;
+    filter: blur(0);
+  }
+
+  .panel {
+    margin-top: 18px;
+    padding: 14px;
+    border-radius: 12px;
+    background: #111;
+    color: #f2f2f2;
+    border: 1px solid #2b2b2b;
+    display: none;
+  }
+
+  .panel.active { display: block; }
+
+  .story-step {
+    border-top: 1px solid #d0d0d0;
+    margin-top: 18px;
+    padding-top: 18px;
+  }
+
+  .footer {
+    margin-top: 60px;
+    padding: 30px;
+    border-radius: 16px;
+    background: #0e0e0e;
+    color: #e6e6e6;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .footer::before {
+    content: "";
+    position: absolute;
+    inset: -20% 40% auto -10%;
+    height: 140px;
+    background: linear-gradient(90deg, transparent, var(--accent-dim), transparent);
+    transform: skewY(-6deg);
+  }
+
+  .moon-line {
+    display: inline-block;
+    border-bottom: 2px solid var(--accent);
+    padding-bottom: 2px;
+  }
+
+  .story-progress {
+    margin-top: 12px;
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+  }
+
+  .indicator {
+    height: 6px;
+    border-radius: 999px;
+    background: #222;
+    margin-top: 8px;
+    overflow: hidden;
+  }
+
+  .indicator span {
+    display: block;
+    height: 100%;
+    width: 0;
+    background: linear-gradient(90deg, var(--accent), #ff8a8a);
+    transition: width 0.4s ease;
+  }
+
+  .gravity {
+    position: absolute;
+    right: 30px;
+    top: 30px;
+    width: 120px;
+    height: 120px;
+    border-radius: 18px;
+    border: 1px solid #1d1d1d;
+    background: linear-gradient(145deg, #0f0f0f 0%, #1f1f1f 100%);
+    box-shadow: inset 0 0 12px rgba(255,255,255,0.08);
+    display: grid;
+    place-items: center;
+    transform: rotate(-2deg);
+  }
+
+  .gravity span {
+    color: #f0f0f0;
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    text-align: center;
+  }
+
+  .floaty {
+    animation: floaty 5s ease-in-out infinite;
+  }
+
+  @keyframes floaty {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-8px); }
+  }
+
+  @media (max-width: 980px) {
+    .app { grid-template-columns: 1fr; }
+    .sidebar { position: relative; height: auto; }
+    .main { padding: 32px 22px 80px; }
+    .hero { grid-template-columns: 1fr; }
+    .editorial { columns: 1; }
+  }
+</style>
+</head>
+<body>
+  <div class="app">
+    <aside class="sidebar">
+      <div class="brand">Union of Quiet Cases <span class="accent">#13</span></div>
+      <nav class="nav">
+        <a href="#beginning">Opening Statement</a>
+        <a href="#middle">The Middle Shift</a>
+        <a href="#end">Closing Arguments</a>
+        <a href="#letters">Letters & Evidence</a>
+      </nav>
+
+      <div class="moon-panel">
+        <div class="moon" id="moonOrb"></div>
+        <div class="moon-label" id="moonLabel">Status: Full enough to justify opening the agency.</div>
+        <div class="toggle">
+          <button id="moonToggle">Toggle Moon</button>
+          <span>Office hours depend on it.</span>
+        </div>
+      </div>
+    </aside>
+
+    <main class="main">
+      <section class="hero" id="beginning">
+        <div>
+          <h1>The Mime Union Leader Opens a <span class="accent">Detective Agency</span></h1>
+          <p>
+            The city was quiet enough to hear the paperwork breathe. So was the founder, a mime union leader with
+            enough seniority to freeze an entire picket line mid-glance. She opened her office on the thirteenth floor
+            of a building with no elevators, because gravity here is optional and the stairs were mostly a vibe.
+            Her union card now doubled as a private investigator badge, embossed in ink that glinted like a warning.
+          </p>
+        </div>
+        <div class="badge">
+          OPERATIONS<br/>FULL MOON ONLY<br/><span class="accent">NO SPEAKING</span>
+        </div>
+      </section>
+
+      <section class="section" id="middle">
+        <div class="gravity floaty"><span>Gravity<br/>Optional</span></div>
+        <h2>Beginning: The Case of the Missing Gravity Clause</h2>
+        <div class="editorial">
+          <p>
+            The mime union’s charter had always included a small line about gravity being “negotiable,” but someone
+            had crossed it out with a red pen and a sigh. That meant the building’s lawyers were suddenly walking
+            instead of gliding, and morale was trapped between two floors like a bored elevator.
+          </p>
+          <p>
+            She took the case in the usual way: by placing her hand on an invisible wall and waiting for the city to
+            notice. The city did. A courier delivered a dossier written entirely in impeccable silence and stapled
+            with the kind of staple that looked like it would hold together a solar system.
+          </p>
+          <p>
+            “You’re the only investigator who can interrogate a suspect without letting the rumor leak,” said the
+            Commissioner, through a translator holding a whiteboard. “You also have the union votes. We need both.”
+          </p>
+          <p>
+            She nodded. The narrative shifted. A full moon rose like a spotlight in rehearsal, reminding her that
+            the agency’s operating hours were a legal agreement and also a dramatic choice.
+          </p>
+        </div>
+        <div class="callout">
+          <strong>Agency Rule 1:</strong> Every case begins with a bow, ends with a receipt, and pauses when the moon
+          is anything less than theatrical.
+        </div>
+        <div class="button-row">
+          <button class="ghost-btn" data-panel="panel-one">Open the First File</button>
+          <button class="ghost-btn" data-panel="panel-two">Read the Translator's Notes</button>
+        </div>
+        <div class="panel" id="panel-one">
+          File 01 — The gravity clause wasn’t stolen. It walked away during negotiations, wearing a trench coat
+          borrowed from an accountant. The coat is still missing.
+        </div>
+        <div class="panel" id="panel-two">
+          Translator’s Note — The mime asked no questions, yet everyone confessed. There is a procedural loop
+          here: in silence, the truth is too loud to ignore.
+        </div>
+        <div class="story-progress">
+          Investigation progress
+          <div class="indicator"><span id="progressBar"></span></div>
+        </div>
+      </section>
+
+      <section class="section" id="letters">
+        <h2>Middle: Letters, Testimonials, and a Hovered Secret</h2>
+        <div class="deck">
+          <article class="card">
+            <div class="stamp">Letter</div>
+            <h3>From the Curtain Guild</h3>
+            <p>
+              “She asked for the stage directions and held them like they were a newborn. When gravity vanished,
+              she didn’t panic. She pinned it to the wall and labeled it ‘Maybe.’”
+            </p>
+          </article>
+          <article class="card">
+            <div class="stamp">Testimonial</div>
+            <h3>From a Former Suspect</h3>
+            <p>
+              “I tried to flee upward. She caught me with an invisible lasso and a polite eyebrow. I have not stolen
+              anything since. I cannot even steal attention now.”
+            </p>
+          </article>
+          <article class="card reveal">
+            <div class="stamp">Hover</div>
+            <h3>The Secret Memo</h3>
+            <p>
+              “The red pen belonged to the Treasurer. He marked the gravity clause as ‘optional’ because he wanted
+              to save on stair maintenance. He did not account for dramatic exits.”
+            </p>
+          </article>
+        </div>
+        <div class="story-step">
+          <p>
+            Outside, the full moon hung like a union vote: decisive, cold, and impossible to ignore. The mime leader
+            checked her pocket watch — it had no hands, only a tiny stage and a spotlight that flicked on at midnight.
+          </p>
+          <p class="quote">
+            “If gravity is optional,” she signed in air, “then so is guilt.”
+          </p>
+        </div>
+      </section>
+
+      <section class="section" id="end">
+        <h2>End: The Night the Agency Floated Open</h2>
+        <p>
+          At the appointed hour, the agency opened. The door sighed like a velvet curtain. Gravity left the room
+          without filing a grievance. The mime stepped into the corridor and conducted the building like an orchestra,
+          each tenant drifting into their own confession. By dawn, the clause returned, embarrassed but intact.
+        </p>
+        <p>
+          The Treasurer signed a memorandum agreeing to never negotiate with lunar events again. The union ratified
+          the agency’s founding charter: full moons only, silence always, and investigations conducted with the dignity
+          of someone who can trap a lie inside an invisible box.
+        </p>
+        <div class="callout">
+          <strong>Closing Argument:</strong> In a world where gravity is optional, accountability is the only weight
+          that matters. The mime lifted it with one hand.
+        </div>
+      </section>
+
+      <section class="footer">
+        <h2>Postscript: The Agency Ledger</h2>
+        <p>
+          The ledger is kept in a minimalist lockbox that floats when it wants to. Each case is recorded in ink the
+          color of a siren. The last entry reads: “Full moon tomorrow.” But the calendar is smudged, so the agency
+          keeps its door on a chain and its lights ready. If you want to hire them, bring a flashlight and the courage
+          to sit in a chair that may or may not be under you.
+        </p>
+        <p>
+          <span class="moon-line">This is a full-moon establishment</span>, but it prefers the drama of uncertainty.
+        </p>
+      </section>
+    </main>
+  </div>
+
+<script>
+  const moonToggle = document.getElementById("moonToggle");
+  const moonLabel = document.getElementById("moonLabel");
+  const moonOrb = document.getElementById("moonOrb");
+  const progressBar = document.getElementById("progressBar");
+  const panels = document.querySelectorAll(".panel");
+  const buttons = document.querySelectorAll(".ghost-btn");
+
+  let isFull = true;
+  let progress = 0;
+
+  moonToggle.addEventListener("click", () => {
+    isFull = !isFull;
+    if (isFull) {
+      moonLabel.textContent = "Status: Full enough to justify opening the agency.";
+      moonOrb.style.boxShadow = "0 0 20px rgba(255,255,255,0.6), inset 0 0 10px rgba(0,0,0,0.3)";
+      moonOrb.style.background = "radial-gradient(circle at 30% 30%, #fff 0%, #dcdcdc 50%, #a8a8a8 100%)";
+    } else {
+      moonLabel.textContent = "Status: Quarter moon. Agency closes, suspects relax.";
+      moonOrb.style.boxShadow = "0 0 8px rgba(255,43,43,0.4), inset 0 0 12px rgba(0,0,0,0.5)";
+      moonOrb.style.background = "radial-gradient(circle at 20% 30%, #f2f2f2 0%, #8a8a8a 55%, #2b2b2b 100%)";
+    }
+  });
+
+  buttons.forEach((btn) => {
+    btn.addEventListener("click", () => {
+      const target = document.getElementById(btn.dataset.panel);
+      panels.forEach(p => p.classList.remove("active"));
+      target.classList.add("active");
+      progress = Math.min(progress + 50, 100);
+      progressBar.style.width = progress + "%";
+    });
+  });
+
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        entry.target.style.transform = "translateY(0)";
+        entry.target.style.opacity = "1";
+      }
+    });
+  }, { threshold: 0.2 });
+
+  document.querySelectorAll(".section").forEach(section => {
+    section.style.transform = "translateY(20px)";
+    section.style.opacity = "0";
+    section.style.transition = "transform 0.7s ease, opacity 0.7s ease";
+    observer.observe(section);
+  });
+</script>
+</body>
+</html>

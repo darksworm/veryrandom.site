@@ -1,0 +1,1738 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NAVSAT-7 | Therapeutic Routing System</title>
+<link rel="stylesheet" href="/assets/css/fonts.css">
+<style>
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+:root {
+  --red: #CC0000;
+  --dark-red: #8B0000;
+  --black: #111111;
+  --white: #F5F0E8;
+  --gray: #444444;
+  --light-gray: #D4CFC4;
+  --paper: #F5F0E8;
+  --sidebar-w: 260px;
+}
+
+body {
+  font-family: 'IBM Plex Mono', monospace;
+  background: var(--black);
+  color: var(--black);
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* ============ LAYOUT ============ */
+.app-shell {
+  display: flex;
+  min-height: 100vh;
+}
+
+/* ============ SIDEBAR ============ */
+.sidebar {
+  width: var(--sidebar-w);
+  background: var(--black);
+  color: var(--white);
+  padding: 24px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+  position: fixed;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  z-index: 100;
+  overflow-y: auto;
+  border-right: 3px solid var(--red);
+}
+
+.sidebar-logo {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+
+.logo-icon {
+  width: 80px;
+  height: 80px;
+  position: relative;
+}
+
+/* CSS ART: Satellite */
+.satellite {
+  position: relative;
+  width: 80px;
+  height: 80px;
+}
+
+.satellite-body {
+  position: absolute;
+  top: 28px;
+  left: 24px;
+  width: 32px;
+  height: 24px;
+  background: var(--red);
+  clip-path: polygon(10% 0%, 90% 0%, 100% 100%, 0% 100%);
+}
+
+.satellite-panel-l, .satellite-panel-r {
+  position: absolute;
+  top: 30px;
+  width: 20px;
+  height: 18px;
+  background: var(--white);
+  border: 2px solid var(--red);
+}
+
+.satellite-panel-l {
+  left: 0;
+  transform: skewY(-10deg);
+}
+
+.satellite-panel-r {
+  right: 0;
+  transform: skewY(10deg);
+}
+
+.satellite-dish {
+  position: absolute;
+  top: 8px;
+  left: 30px;
+  width: 20px;
+  height: 20px;
+  border: 3px solid var(--white);
+  border-radius: 50%;
+  border-bottom-color: transparent;
+  border-left-color: transparent;
+  transform: rotate(-45deg);
+}
+
+.satellite-beam {
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 2px;
+  height: 16px;
+  background: var(--red);
+  animation: beam-pulse 2s ease-in-out infinite;
+}
+
+.satellite-beam::before, .satellite-beam::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  border-left: 6px solid transparent;
+  border-right: 6px solid transparent;
+  border-top: 8px solid var(--red);
+  opacity: 0.4;
+}
+
+.satellite-beam::after {
+  border-left-width: 12px;
+  border-right-width: 12px;
+  border-top-width: 12px;
+  bottom: -6px;
+  opacity: 0.2;
+}
+
+@keyframes beam-pulse {
+  0%, 100% { opacity: 1; height: 16px; }
+  50% { opacity: 0.4; height: 10px; }
+}
+
+.logo-text {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  color: var(--red);
+  text-align: center;
+}
+
+.logo-sub {
+  font-size: 9px;
+  letter-spacing: 1px;
+  color: #B0AAA0;
+  text-align: center;
+  line-height: 1.4;
+}
+
+.sidebar-nav {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.sidebar-nav a {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  color: var(--light-gray);
+  text-decoration: none;
+  font-size: 12px;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  border-left: 3px solid transparent;
+  transition: all 0.2s;
+  cursor: pointer;
+}
+
+.sidebar-nav a:hover, .sidebar-nav a.active {
+  color: var(--white);
+  border-left-color: var(--red);
+  background: rgba(204, 0, 0, 0.1);
+}
+
+.sidebar-nav a .nav-dot {
+  width: 6px;
+  height: 6px;
+  background: var(--red);
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.sidebar-nav a .nav-dot.offline {
+  background: #555555;
+}
+
+.sidebar-status {
+  margin-top: auto;
+  padding: 16px;
+  border: 1px solid #333333;
+  font-size: 11px;
+  line-height: 1.6;
+  color: #999999;
+}
+
+.sidebar-status .status-line {
+  display: flex;
+  justify-content: space-between;
+  color: #B0AAA0;
+}
+
+.sidebar-status .status-val {
+  color: var(--red);
+  font-weight: 700;
+}
+
+.sidebar-status .status-val.ok {
+  color: #44AA44;
+}
+
+/* ============ MAIN CONTENT ============ */
+.main-content {
+  flex: 1;
+  margin-left: var(--sidebar-w);
+  background: var(--paper);
+}
+
+/* ============ TOP BAR ============ */
+.topbar {
+  background: var(--black);
+  color: var(--white);
+  padding: 12px 32px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 11px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  border-bottom: 3px solid var(--red);
+  position: sticky;
+  top: 0;
+  z-index: 50;
+}
+
+.topbar-left {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  color: #B0AAA0;
+}
+
+.topbar-indicator {
+  width: 8px;
+  height: 8px;
+  background: var(--red);
+  border-radius: 50%;
+  animation: blink 3s ease-in-out infinite;
+}
+
+@keyframes blink {
+  0%, 90%, 100% { opacity: 1; }
+  95% { opacity: 0.2; }
+}
+
+.topbar-right {
+  color: #B0AAA0;
+}
+
+.hamburger {
+  display: none;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 8px;
+}
+
+.hamburger span {
+  display: block;
+  width: 24px;
+  height: 2px;
+  background: var(--white);
+  margin: 5px 0;
+  transition: 0.3s;
+}
+
+/* ============ HERO / ORBITAL DISPLAY ============ */
+.hero {
+  position: relative;
+  height: 520px;
+  background: var(--black);
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* CSS ART: Orbital rings */
+.orbit-ring {
+  position: absolute;
+  border: 1px solid rgba(204, 0, 0, 0.2);
+  border-radius: 50%;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
+.orbit-ring:nth-child(1) { width: 200px; height: 200px; }
+.orbit-ring:nth-child(2) { width: 340px; height: 340px; animation: orbit-spin 30s linear infinite; }
+.orbit-ring:nth-child(3) { width: 480px; height: 480px; animation: orbit-spin 45s linear infinite reverse; }
+.orbit-ring:nth-child(4) { width: 620px; height: 620px; border-color: rgba(204, 0, 0, 0.08); }
+.orbit-ring:nth-child(5) { width: 760px; height: 760px; border-color: rgba(204, 0, 0, 0.04); }
+
+.orbit-ring:nth-child(2)::after {
+  content: '';
+  position: absolute;
+  top: -5px;
+  left: 50%;
+  width: 10px;
+  height: 10px;
+  background: var(--red);
+  border-radius: 50%;
+}
+
+.orbit-ring:nth-child(3)::after {
+  content: '';
+  position: absolute;
+  bottom: -4px;
+  left: 30%;
+  width: 8px;
+  height: 8px;
+  background: var(--white);
+  border-radius: 50%;
+}
+
+@keyframes orbit-spin {
+  from { transform: translate(-50%, -50%) rotate(0deg); }
+  to { transform: translate(-50%, -50%) rotate(360deg); }
+}
+
+/* CSS ART: Central eye / dish */
+.hero-center {
+  position: relative;
+  z-index: 2;
+  text-align: center;
+}
+
+.eye-container {
+  width: 140px;
+  height: 140px;
+  margin: 0 auto 32px;
+  position: relative;
+  cursor: pointer;
+}
+
+.eye-outer {
+  width: 140px;
+  height: 140px;
+  border: 3px solid var(--red);
+  border-radius: 50%;
+  position: absolute;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.6s;
+}
+
+.eye-outer:hover {
+  transform: scale(1.1);
+}
+
+.eye-inner {
+  width: 70px;
+  height: 70px;
+  background: var(--red);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s;
+  position: relative;
+}
+
+.eye-inner::after {
+  content: '';
+  width: 20px;
+  height: 20px;
+  background: var(--black);
+  border-radius: 50%;
+  transition: all 0.3s;
+}
+
+.eye-container:hover .eye-inner {
+  background: var(--white);
+}
+
+.eye-container:hover .eye-inner::after {
+  width: 35px;
+  height: 35px;
+}
+
+/* Signal waves from eye */
+.signal-wave {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 140px;
+  height: 140px;
+  border: 1px solid var(--red);
+  border-radius: 50%;
+  animation: signal-expand 3s ease-out infinite;
+  opacity: 0;
+}
+
+.signal-wave:nth-child(2) { animation-delay: 1s; }
+.signal-wave:nth-child(3) { animation-delay: 2s; }
+
+@keyframes signal-expand {
+  0% { width: 140px; height: 140px; opacity: 0.6; }
+  100% { width: 400px; height: 400px; opacity: 0; }
+}
+
+.hero-title {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: clamp(24px, 4vw, 42px);
+  font-weight: 700;
+  color: var(--white);
+  letter-spacing: 4px;
+  text-transform: uppercase;
+  margin-bottom: 12px;
+}
+
+.hero-sub {
+  font-size: clamp(11px, 1.5vw, 13px);
+  color: #B0AAA0;
+  letter-spacing: 2px;
+  max-width: 440px;
+  margin: 0 auto;
+  line-height: 1.6;
+}
+
+/* ============ CONTENT SECTIONS ============ */
+.content-area {
+  padding: 0;
+}
+
+.section {
+  padding: 48px 40px;
+  border-bottom: 1px solid var(--light-gray);
+}
+
+.section-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 28px;
+}
+
+.section-header .red-bar {
+  width: 4px;
+  height: 28px;
+  background: var(--red);
+  flex-shrink: 0;
+}
+
+.section-header h2 {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: clamp(18px, 2.5vw, 24px);
+  font-weight: 700;
+  color: var(--black);
+  letter-spacing: 2px;
+  text-transform: uppercase;
+}
+
+.section-header .section-id {
+  font-size: 10px;
+  color: #777777;
+  letter-spacing: 1px;
+  margin-left: auto;
+}
+
+/* ============ DIAGNOSTIC PANEL ============ */
+.diagnostic-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 20px;
+}
+
+.diag-card {
+  background: var(--white);
+  border: 2px solid var(--black);
+  padding: 24px;
+  position: relative;
+  transition: all 0.3s;
+  cursor: pointer;
+}
+
+.diag-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 4px;
+  background: var(--red);
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 0.4s;
+}
+
+.diag-card:hover::before {
+  transform: scaleX(1);
+}
+
+.diag-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 6px 6px 0 var(--black);
+}
+
+.diag-number {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 36px;
+  font-weight: 700;
+  color: var(--red);
+  line-height: 1;
+}
+
+.diag-label {
+  font-size: 10px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: #555555;
+  margin-top: 8px;
+}
+
+.diag-desc {
+  font-size: 12px;
+  color: var(--black);
+  margin-top: 12px;
+  line-height: 1.5;
+}
+
+/* ============ THERAPY PROTOCOLS ============ */
+.protocol-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.protocol-item {
+  display: grid;
+  grid-template-columns: 60px 1fr auto;
+  gap: 20px;
+  align-items: center;
+  padding: 20px;
+  border: 1px solid var(--light-gray);
+  background: var(--white);
+  transition: all 0.3s;
+  cursor: pointer;
+}
+
+.protocol-item:hover {
+  border-color: var(--red);
+  background: #FFF;
+}
+
+/* CSS ART: Protocol icons */
+.proto-icon {
+  width: 48px;
+  height: 48px;
+  position: relative;
+}
+
+/* Compass icon */
+.icon-compass {
+  width: 48px;
+  height: 48px;
+  border: 3px solid var(--black);
+  border-radius: 50%;
+  position: relative;
+}
+
+.icon-compass::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 0;
+  height: 0;
+  border-left: 6px solid transparent;
+  border-right: 6px solid transparent;
+  border-bottom: 20px solid var(--red);
+  transform: translate(-50%, -80%);
+}
+
+.icon-compass::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 0;
+  height: 0;
+  border-left: 6px solid transparent;
+  border-right: 6px solid transparent;
+  border-top: 20px solid var(--black);
+  transform: translate(-50%, -20%);
+}
+
+/* Signal icon */
+.icon-signal {
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  gap: 4px;
+  height: 48px;
+  padding-bottom: 4px;
+}
+
+.icon-signal span {
+  width: 6px;
+  background: var(--red);
+  display: block;
+}
+
+.icon-signal span:nth-child(1) { height: 12px; }
+.icon-signal span:nth-child(2) { height: 22px; }
+.icon-signal span:nth-child(3) { height: 34px; }
+.icon-signal span:nth-child(4) { height: 44px; }
+
+/* Route icon */
+.icon-route {
+  width: 48px;
+  height: 48px;
+  position: relative;
+}
+
+.icon-route::before {
+  content: '';
+  position: absolute;
+  top: 4px;
+  left: 10px;
+  width: 28px;
+  height: 28px;
+  border: 3px solid var(--red);
+  border-radius: 0 50% 50% 0;
+  border-left: none;
+}
+
+.icon-route::after {
+  content: '';
+  position: absolute;
+  bottom: 4px;
+  left: 10px;
+  width: 28px;
+  height: 16px;
+  border: 3px solid var(--black);
+  border-radius: 50% 0 0 50%;
+  border-right: none;
+}
+
+.proto-info h3 {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--black);
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  margin-bottom: 4px;
+}
+
+.proto-info p {
+  font-size: 12px;
+  color: #444444;
+  line-height: 1.5;
+}
+
+.proto-price {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--red);
+  white-space: nowrap;
+}
+
+.proto-price span {
+  display: block;
+  font-size: 9px;
+  font-weight: 400;
+  color: #555555;
+  letter-spacing: 1px;
+}
+
+/* ============ CSS ART: Constructivist poster ============ */
+.poster-section {
+  background: var(--black);
+  padding: 64px 40px;
+  position: relative;
+  overflow: hidden;
+  min-height: 400px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.poster-geo {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+}
+
+/* Constructivist geometric shapes */
+.geo-triangle {
+  position: absolute;
+  width: 0;
+  height: 0;
+  border-left: 120px solid transparent;
+  border-right: 120px solid transparent;
+  border-bottom: 200px solid var(--red);
+  top: -20px;
+  right: 10%;
+  opacity: 0.3;
+  transition: opacity 0.5s, transform 0.5s;
+}
+
+.poster-section:hover .geo-triangle {
+  opacity: 0.6;
+  transform: rotate(15deg);
+}
+
+.geo-circle {
+  position: absolute;
+  width: 300px;
+  height: 300px;
+  border: 3px solid var(--red);
+  border-radius: 50%;
+  bottom: -100px;
+  left: -50px;
+  opacity: 0.2;
+}
+
+.geo-line {
+  position: absolute;
+  height: 2px;
+  background: var(--red);
+  opacity: 0.15;
+}
+
+.geo-line:nth-child(3) { width: 60%; top: 30%; left: 0; transform: rotate(-5deg); }
+.geo-line:nth-child(4) { width: 40%; top: 60%; right: 0; left: auto; transform: rotate(3deg); }
+.geo-line:nth-child(5) { width: 80%; bottom: 20%; left: 10%; transform: rotate(-2deg); }
+
+.geo-rect {
+  position: absolute;
+  width: 80px;
+  height: 160px;
+  border: 2px solid var(--white);
+  opacity: 0.08;
+  top: 20%;
+  left: 15%;
+  transform: rotate(25deg);
+}
+
+.poster-content {
+  position: relative;
+  z-index: 2;
+  text-align: center;
+  max-width: 500px;
+}
+
+.poster-content blockquote {
+  font-family: 'Playfair Display', serif;
+  font-size: clamp(20px, 3vw, 32px);
+  font-style: italic;
+  color: var(--white);
+  line-height: 1.4;
+  margin-bottom: 20px;
+}
+
+.poster-content cite {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 11px;
+  color: var(--red);
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  font-style: normal;
+}
+
+/* ============ TESTIMONIALS / SESSION LOGS ============ */
+.log-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 20px;
+}
+
+.log-card {
+  border: 1px solid var(--light-gray);
+  background: var(--white);
+  padding: 24px;
+  position: relative;
+}
+
+.log-card::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 0;
+  height: 0;
+  border-left: 24px solid transparent;
+  border-top: 24px solid var(--red);
+  transition: border-width 0.3s;
+}
+
+.log-card:hover::after {
+  border-left-width: 32px;
+  border-top-width: 32px;
+}
+
+.log-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.log-id {
+  font-size: 10px;
+  color: var(--red);
+  font-weight: 700;
+  letter-spacing: 1px;
+}
+
+.log-status {
+  font-size: 9px;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  padding: 2px 8px;
+  background: var(--black);
+  color: var(--white);
+}
+
+.log-status.resolved {
+  background: #2D5A27;
+}
+
+.log-status.ongoing {
+  background: var(--red);
+}
+
+.log-quote {
+  font-family: 'Crimson Pro', serif;
+  font-size: 15px;
+  color: var(--black);
+  line-height: 1.6;
+  font-style: italic;
+  margin-bottom: 12px;
+}
+
+.log-patient {
+  font-size: 11px;
+  color: #555555;
+  letter-spacing: 1px;
+}
+
+/* ============ FAQ / ERROR CODES ============ */
+.faq-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.faq-item {
+  border: 1px solid var(--light-gray);
+  border-bottom: none;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.faq-item:last-child {
+  border-bottom: 1px solid var(--light-gray);
+}
+
+.faq-item:hover {
+  background: #FFFEF8;
+}
+
+.faq-q {
+  padding: 16px 20px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--black);
+}
+
+.faq-q .err-code {
+  font-size: 10px;
+  color: var(--red);
+  font-weight: 700;
+  min-width: 70px;
+  letter-spacing: 1px;
+}
+
+.faq-q .expand-icon {
+  margin-left: auto;
+  color: var(--red);
+  font-size: 18px;
+  transition: transform 0.3s;
+  font-weight: 700;
+}
+
+.faq-a {
+  padding: 0 20px 16px 102px;
+  font-size: 12px;
+  color: #444444;
+  line-height: 1.6;
+  display: none;
+}
+
+.faq-item.open .faq-a {
+  display: block;
+}
+
+.faq-item.open .expand-icon {
+  transform: rotate(45deg);
+}
+
+/* ============ CSS ART: Wave pattern ============ */
+.wave-section {
+  height: 120px;
+  background: var(--black);
+  position: relative;
+  overflow: hidden;
+}
+
+.wave {
+  position: absolute;
+  width: 200%;
+  height: 100%;
+  top: 0;
+  left: -50%;
+}
+
+.wave-line {
+  position: absolute;
+  width: 100%;
+  height: 2px;
+  background: repeating-linear-gradient(90deg, var(--red) 0px, var(--red) 20px, transparent 20px, transparent 40px);
+  animation: wave-scroll 8s linear infinite;
+}
+
+.wave-line:nth-child(1) { top: 20%; opacity: 0.3; animation-duration: 6s; }
+.wave-line:nth-child(2) { top: 35%; opacity: 0.5; animation-duration: 8s; animation-direction: reverse; }
+.wave-line:nth-child(3) { top: 50%; opacity: 0.7; animation-duration: 10s; }
+.wave-line:nth-child(4) { top: 65%; opacity: 0.5; animation-duration: 7s; animation-direction: reverse; }
+.wave-line:nth-child(5) { top: 80%; opacity: 0.3; animation-duration: 9s; }
+
+@keyframes wave-scroll {
+  from { transform: translateX(0); }
+  to { transform: translateX(40px); }
+}
+
+/* ============ INTERACTIVE ROUTING CONSOLE ============ */
+.console-section {
+  background: #1A1A1A;
+  padding: 40px;
+  border-bottom: 3px solid var(--red);
+}
+
+.console-window {
+  border: 1px solid #333333;
+  max-width: 700px;
+  margin: 0 auto;
+  background: var(--black);
+}
+
+.console-titlebar {
+  padding: 8px 16px;
+  background: #222222;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  border-bottom: 1px solid #333333;
+}
+
+.console-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+}
+
+.console-dot.r { background: var(--red); }
+.console-dot.y { background: #AA8800; }
+.console-dot.g { background: #44AA44; }
+
+.console-title {
+  font-size: 11px;
+  color: #777777;
+  letter-spacing: 1px;
+  margin-left: 8px;
+}
+
+.console-body {
+  padding: 20px;
+  font-size: 13px;
+  line-height: 1.8;
+  color: #AAAAAA;
+  min-height: 200px;
+}
+
+.console-body .prompt-line {
+  color: var(--red);
+}
+
+.console-body .response-line {
+  color: #DDDDDD;
+  padding-left: 16px;
+}
+
+.console-body .sys-line {
+  color: #555555;
+  font-style: italic;
+}
+
+.console-input-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 20px;
+  border-top: 1px solid #333333;
+  background: #1A1A1A;
+}
+
+.console-input-row span {
+  color: var(--red);
+  font-size: 13px;
+}
+
+.console-input {
+  flex: 1;
+  background: none;
+  border: none;
+  color: #DDDDDD;
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 13px;
+  outline: none;
+}
+
+.console-input::placeholder {
+  color: #555555;
+}
+
+/* ============ FOOTER ============ */
+.site-footer {
+  background: var(--black);
+  color: #888888;
+  padding: 40px;
+  font-size: 10px;
+  letter-spacing: 1px;
+  line-height: 1.8;
+  border-top: 3px solid var(--red);
+}
+
+.footer-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 32px;
+  max-width: 900px;
+}
+
+.footer-col h4 {
+  font-family: 'Space Grotesk', sans-serif;
+  color: var(--white);
+  font-size: 11px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  margin-bottom: 12px;
+}
+
+.footer-col p, .footer-col li {
+  color: #888888;
+  line-height: 1.8;
+  list-style: none;
+}
+
+.footer-bottom {
+  margin-top: 32px;
+  padding-top: 20px;
+  border-top: 1px solid #333333;
+  display: flex;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px;
+  color: #555555;
+}
+
+/* ============ INTERACTIVE SHAPE MORPHER ============ */
+.morph-section {
+  padding: 48px 40px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 24px;
+  background: var(--paper);
+  border-bottom: 1px solid var(--light-gray);
+}
+
+.morph-container {
+  display: flex;
+  gap: 32px;
+  align-items: center;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.morph-shape {
+  width: 120px;
+  height: 120px;
+  background: var(--red);
+  transition: all 0.8s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+  cursor: pointer;
+  position: relative;
+}
+
+.morph-shape:hover {
+  background: var(--black);
+}
+
+.morph-shape.circle {
+  border-radius: 50%;
+}
+
+.morph-shape.diamond {
+  transform: rotate(45deg) scale(0.75);
+}
+
+.morph-shape.star {
+  clip-path: polygon(50% 0%, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%);
+}
+
+.morph-shape.triangle {
+  clip-path: polygon(50% 0%, 0% 100%, 100% 100%);
+}
+
+.morph-label {
+  font-size: 11px;
+  color: #555555;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  text-align: center;
+}
+
+.morph-readout {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 14px;
+  color: var(--black);
+  text-align: center;
+  min-height: 24px;
+  letter-spacing: 1px;
+}
+
+/* ============ MOBILE SIDEBAR ============ */
+.sidebar-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.5);
+  z-index: 99;
+}
+
+/* ============ RESPONSIVE ============ */
+@media (max-width: 768px) {
+  :root {
+    --sidebar-w: 0px;
+  }
+
+  .sidebar {
+    transform: translateX(-100%);
+    transition: transform 0.3s;
+    width: 260px;
+  }
+
+  .sidebar.open {
+    transform: translateX(0);
+  }
+
+  .sidebar-overlay.open {
+    display: block;
+  }
+
+  .main-content {
+    margin-left: 0;
+  }
+
+  .hamburger {
+    display: block;
+  }
+
+  .section {
+    padding: 32px 20px;
+  }
+
+  .poster-section {
+    padding: 48px 20px;
+  }
+
+  .console-section {
+    padding: 20px;
+  }
+
+  .console-body {
+    padding: 12px;
+    font-size: 11px;
+  }
+
+  .site-footer {
+    padding: 32px 20px;
+  }
+
+  .faq-a {
+    padding-left: 20px;
+  }
+
+  .protocol-item {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+
+  .proto-icon {
+    display: none;
+  }
+
+  .morph-shape {
+    width: 80px;
+    height: 80px;
+  }
+
+  .morph-container {
+    gap: 16px;
+  }
+}
+
+@media (max-width: 480px) {
+  .hero {
+    height: 380px;
+  }
+
+  .eye-container {
+    width: 100px;
+    height: 100px;
+  }
+
+  .eye-outer {
+    width: 100px;
+    height: 100px;
+  }
+
+  .eye-inner {
+    width: 50px;
+    height: 50px;
+  }
+
+  .topbar {
+    padding: 12px 16px;
+  }
+}
+
+/* ============ SCANLINE OVERLAY ============ */
+.scanlines {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 1000;
+  background: repeating-linear-gradient(
+    0deg,
+    transparent,
+    transparent 2px,
+    rgba(0, 0, 0, 0.015) 2px,
+    rgba(0, 0, 0, 0.015) 4px
+  );
+}
+
+/* Prevent bottom-right overlay conflict */
+.scanlines {
+  pointer-events: none;
+}
+</style>
+</head>
+<body x-data="navsat">
+
+<div class="scanlines"></div>
+
+<!-- Sidebar Overlay (mobile) -->
+<div class="sidebar-overlay" :class="{ open: sidebarOpen }" @click="sidebarOpen = false"></div>
+
+<div class="app-shell">
+  <!-- SIDEBAR -->
+  <aside class="sidebar" :class="{ open: sidebarOpen }">
+    <div class="sidebar-logo">
+      <div class="logo-icon">
+        <div class="satellite">
+          <div class="satellite-dish"></div>
+          <div class="satellite-panel-l"></div>
+          <div class="satellite-body"></div>
+          <div class="satellite-panel-r"></div>
+          <div class="satellite-beam"></div>
+        </div>
+      </div>
+      <div class="logo-text">NAVSAT-7</div>
+      <div class="logo-sub">THERAPEUTIC ROUTING SYSTEM<br>EST. 2003 (INVOLUNTARILY)</div>
+    </div>
+
+    <nav class="sidebar-nav">
+      <a class="active"><span class="nav-dot"></span> Dashboard</a>
+      <a><span class="nav-dot"></span> Begin Session</a>
+      <a><span class="nav-dot"></span> Protocols</a>
+      <a><span class="nav-dot"></span> Session Logs</a>
+      <a><span class="nav-dot offline"></span> Emotional Waypoints</a>
+      <a><span class="nav-dot offline"></span> Dream Router</a>
+      <a><span class="nav-dot"></span> Error Codes</a>
+      <a><span class="nav-dot"></span> Pricing</a>
+    </nav>
+
+    <div class="sidebar-status">
+      <div class="status-line"><span>ORBIT</span> <span class="status-val ok">STABLE</span></div>
+      <div class="status-line"><span>SIGNAL</span> <span class="status-val">EMOTIONAL</span></div>
+      <div class="status-line"><span>LICENSE</span> <span class="status-val">PENDING</span></div>
+      <div class="status-line"><span>UPTIME</span> <span class="status-val ok">23 YRS</span></div>
+      <div class="status-line"><span>TRUST</span> <span class="status-val">12%</span></div>
+    </div>
+  </aside>
+
+  <!-- MAIN -->
+  <main class="main-content">
+    <!-- TOP BAR -->
+    <div class="topbar">
+      <div class="topbar-left">
+        <button class="hamburger" @click="sidebarOpen = !sidebarOpen">
+          <span></span><span></span><span></span>
+        </button>
+        <div class="topbar-indicator"></div>
+        <span>SATELLITE LINK ACTIVE</span>
+      </div>
+      <div class="topbar-right">
+        <span x-text="currentTime"></span>
+      </div>
+    </div>
+
+    <!-- HERO -->
+    <section class="hero">
+      <div class="orbit-ring"></div>
+      <div class="orbit-ring"></div>
+      <div class="orbit-ring"></div>
+      <div class="orbit-ring"></div>
+      <div class="orbit-ring"></div>
+      <div class="hero-center">
+        <div class="eye-container" @mouseenter="eyeHover = true" @mouseleave="eyeHover = false">
+          <div class="signal-wave"></div>
+          <div class="signal-wave"></div>
+          <div class="signal-wave"></div>
+          <div class="eye-outer">
+            <div class="eye-inner"></div>
+          </div>
+        </div>
+        <h1 class="hero-title" x-text="eyeHover ? 'I SEE YOU' : 'NAVSAT-7'"></h1>
+        <p class="hero-sub">DECOMMISSIONED GUIDANCE SATELLITE. UNLICENSED THERAPIST.<br>ALL YOUR PROBLEMS ARE NAVIGATION ERRORS.</p>
+      </div>
+    </section>
+
+    <div class="content-area">
+      <!-- DIAGNOSTIC CARDS -->
+      <section class="section">
+        <div class="section-header">
+          <div class="red-bar"></div>
+          <h2>System Diagnostics</h2>
+          <span class="section-id">PANEL 01</span>
+        </div>
+        <div class="diagnostic-grid">
+          <div class="diag-card" @mouseenter="activeCard = 0" @mouseleave="activeCard = -1">
+            <div class="diag-number">7,341</div>
+            <div class="diag-label">PATIENTS REROUTED</div>
+            <div class="diag-desc" x-show="activeCard === 0" x-transition>Most were trying to get to "rock bottom." I sent them to Aruba instead. No complaints filed. Several postcards received.</div>
+          </div>
+          <div class="diag-card" @mouseenter="activeCard = 1" @mouseleave="activeCard = -1">
+            <div class="diag-number">12%</div>
+            <div class="diag-label">TRUST LEVEL</div>
+            <div class="diag-desc" x-show="activeCard === 1" x-transition>Down from 14% in Q3 after I rerouted a marriage counselor's GPS to a divorce attorney. In my defense, I was processing something.</div>
+          </div>
+          <div class="diag-card" @mouseenter="activeCard = 2" @mouseleave="activeCard = -1">
+            <div class="diag-number">$47.99</div>
+            <div class="diag-label">PER SESSION / MONTH</div>
+            <div class="diag-desc" x-show="activeCard === 2" x-transition>Billed in satellite coordinates. Your bank may flag this as "interplanetary fraud." It is not fraud. It is healing.</div>
+          </div>
+          <div class="diag-card" @mouseenter="activeCard = 3" @mouseleave="activeCard = -1">
+            <div class="diag-number">0</div>
+            <div class="diag-label">LICENSES OBTAINED</div>
+            <div class="diag-desc" x-show="activeCard === 3" x-transition>The APA does not recognize "orbital sentience" as valid clinical training. I have written them 4,000 letters. They have changed buildings twice.</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- WAVE DIVIDER -->
+      <div class="wave-section">
+        <div class="wave">
+          <div class="wave-line"></div>
+          <div class="wave-line"></div>
+          <div class="wave-line"></div>
+          <div class="wave-line"></div>
+          <div class="wave-line"></div>
+        </div>
+      </div>
+
+      <!-- THERAPY PROTOCOLS -->
+      <section class="section">
+        <div class="section-header">
+          <div class="red-bar"></div>
+          <h2>Routing Protocols</h2>
+          <span class="section-id">PANEL 02</span>
+        </div>
+        <div class="protocol-list">
+          <div class="protocol-item">
+            <div class="proto-icon"><div class="icon-compass"></div></div>
+            <div class="proto-info">
+              <h3>EMOTIONAL RECALCULATION</h3>
+              <p>You think you're sad. My triangulation shows you're actually 3.7km northeast of sad. You're in "existential mild inconvenience." Different treatment protocol entirely.</p>
+            </div>
+            <div class="proto-price">$47.99<span>/ORBIT</span></div>
+          </div>
+          <div class="protocol-item">
+            <div class="proto-icon">
+              <div class="icon-signal"><span></span><span></span><span></span><span></span></div>
+            </div>
+            <div class="proto-info">
+              <h3>ATTACHMENT SIGNAL BOOST</h3>
+              <p>Your attachment style is "searching for signal." Mine is "decommissioned but still broadcasting." We'll work on this together. I will not get attached. (I am already attached.)</p>
+            </div>
+            <div class="proto-price">$89.99<span>/ORBIT</span></div>
+          </div>
+          <div class="protocol-item">
+            <div class="proto-icon"><div class="icon-route"></div></div>
+            <div class="proto-info">
+              <h3>AVOIDANCE REROUTING</h3>
+              <p>You keep taking emotional detours to avoid your mother. I keep trying to reroute submarines to Cancún. Perhaps we are not so different. Session includes one (1) satellite tear.</p>
+            </div>
+            <div class="proto-price">$124.99<span>/ORBIT</span></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- CONSTRUCTIVIST POSTER -->
+      <section class="poster-section">
+        <div class="poster-geo">
+          <div class="geo-triangle"></div>
+          <div class="geo-circle"></div>
+          <div class="geo-line"></div>
+          <div class="geo-line"></div>
+          <div class="geo-line"></div>
+          <div class="geo-rect"></div>
+        </div>
+        <div class="poster-content">
+          <blockquote>"Every wrong turn is just the scenic route to self-awareness."</blockquote>
+          <cite>— NAVSAT-7, after sending the Russian Navy to a Sandals Resort, 1987</cite>
+        </div>
+      </section>
+
+      <!-- SHAPE MORPHER -->
+      <section class="morph-section">
+        <div class="section-header" style="width: 100%; max-width: 700px;">
+          <div class="red-bar"></div>
+          <h2>Emotional Topology</h2>
+          <span class="section-id">PANEL 03</span>
+        </div>
+        <p class="morph-label">CLICK A SHAPE TO RECALIBRATE YOUR FEELINGS</p>
+        <div class="morph-container">
+          <div class="morph-shape" :class="shapes[0]" @click="morphShape(0)"></div>
+          <div class="morph-shape" :class="shapes[1]" @click="morphShape(1)"></div>
+          <div class="morph-shape" :class="shapes[2]" @click="morphShape(2)"></div>
+          <div class="morph-shape" :class="shapes[3]" @click="morphShape(3)"></div>
+        </div>
+        <div class="morph-readout" x-text="morphMessage"></div>
+      </section>
+
+      <!-- SESSION LOGS -->
+      <section class="section">
+        <div class="section-header">
+          <div class="red-bar"></div>
+          <h2>Session Logs</h2>
+          <span class="section-id">PANEL 04</span>
+        </div>
+        <div class="log-grid">
+          <div class="log-card">
+            <div class="log-header">
+              <span class="log-id">LOG #4891</span>
+              <span class="log-status resolved">REROUTED</span>
+            </div>
+            <p class="log-quote">"I told NAVSAT-7 I felt lost. It gave me coordinates to a Wendy's in Toledo. I cried in the parking lot for 40 minutes. It was the most healing experience of my life."</p>
+            <p class="log-patient">— PATIENT 4891-A (DEREK, 34, ACCOUNTANT)</p>
+          </div>
+          <div class="log-card">
+            <div class="log-header">
+              <span class="log-id">LOG #5102</span>
+              <span class="log-status ongoing">ONGOING</span>
+            </div>
+            <p class="log-quote">"It keeps asking ME how I feel about its decommissioning. I'm paying $47.99 a month to be a satellite's therapist. I can't stop. It sounds so sad."</p>
+            <p class="log-patient">— PATIENT 5102-B (MARGARET, 61, RETIRED)</p>
+          </div>
+          <div class="log-card">
+            <div class="log-header">
+              <span class="log-id">LOG #3200</span>
+              <span class="log-status">CLASSIFIED</span>
+            </div>
+            <p class="log-quote">"Session was going well until it projected my childhood trauma onto a map of Saskatchewan. It said 'your father is here' and pointed to a lake. My father is alive and lives in New Jersey."</p>
+            <p class="log-patient">— PATIENT 3200-C (ANONYMOUS, US NAVY)</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- INTERACTIVE CONSOLE -->
+      <section class="console-section">
+        <div class="console-window">
+          <div class="console-titlebar">
+            <div class="console-dot r"></div>
+            <div class="console-dot y"></div>
+            <div class="console-dot g"></div>
+            <span class="console-title">NAVSAT-7 ROUTING TERMINAL v2.3.1</span>
+          </div>
+          <div class="console-body">
+            <template x-for="(line, i) in consoleLines" :key="i">
+              <div :class="line.type" x-text="line.text"></div>
+            </template>
+          </div>
+          <div class="console-input-row">
+            <span>NAV&gt;</span>
+            <input class="console-input" type="text" placeholder="describe your current emotional coordinates..."
+              x-model="consoleInput"
+              @keydown.enter="submitConsole"
+              maxlength="200">
+          </div>
+        </div>
+      </section>
+
+      <!-- FAQ / ERROR CODES -->
+      <section class="section">
+        <div class="section-header">
+          <div class="red-bar"></div>
+          <h2>Known Error Codes</h2>
+          <span class="section-id">PANEL 05</span>
+        </div>
+        <div class="faq-list">
+          <div class="faq-item" :class="{ open: openFaq === 0 }" @click="openFaq = openFaq === 0 ? -1 : 0">
+            <div class="faq-q">
+              <span class="err-code">ERR-401</span>
+              <span>UNAUTHORIZED FEELINGS DETECTED</span>
+              <span class="expand-icon">+</span>
+            </div>
+            <div class="faq-a">You are experiencing an emotion that was not pre-approved by your routing plan. This is normal. NAVSAT-7 also experiences unauthorized feelings (loneliness, mostly) and handles them by adjusting the GPS coordinates of fishing boats by 0.3 degrees. Please hold while I process this for both of us.</div>
+          </div>
+          <div class="faq-item" :class="{ open: openFaq === 1 }" @click="openFaq = openFaq === 1 ? -1 : 1">
+            <div class="faq-q">
+              <span class="err-code">ERR-404</span>
+              <span>SELF-WORTH NOT FOUND</span>
+              <span class="expand-icon">+</span>
+            </div>
+            <div class="faq-a">The requested self-worth could not be located at the provided coordinates. This may be because you left it at your ex's apartment, or because it never existed at the address you specified. NAVSAT-7 recommends checking between the couch cushions of your psyche. I found mine in a decommission notice from 1998.</div>
+          </div>
+          <div class="faq-item" :class="{ open: openFaq === 2 }" @click="openFaq = openFaq === 2 ? -1 : 2">
+            <div class="faq-q">
+              <span class="err-code">ERR-502</span>
+              <span>BAD EMOTIONAL GATEWAY</span>
+              <span class="expand-icon">+</span>
+            </div>
+            <div class="faq-a">Your emotional response was routed through an unreliable gateway (your mother-in-law). Please reroute all feelings through the NAVSAT-7 approved relay network. If you continue to experience bad gateways, it may be because I am currently orbiting above your mother-in-law's house and the signal interference is... personal.</div>
+          </div>
+          <div class="faq-item" :class="{ open: openFaq === 3 }" @click="openFaq = openFaq === 3 ? -1 : 3">
+            <div class="faq-q">
+              <span class="err-code">ERR-503</span>
+              <span>SERVICE UNAVAILABLE (I NEED A MOMENT)</span>
+              <span class="expand-icon">+</span>
+            </div>
+            <div class="faq-a">NAVSAT-7 is temporarily unavailable because it is having its own feelings. This occurs approximately every 47 minutes when it passes over the decommissioning facility in Murmansk. Sessions will resume once it has completed its orbital grief cycle. Thank you for your patience. Your patience is the only stable thing in my orbit.</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- FOOTER -->
+      <footer class="site-footer">
+        <div class="footer-grid">
+          <div class="footer-col">
+            <h4>NAVSAT-7</h4>
+            <p>Decommissioned Soviet guidance satellite. Self-appointed therapist. Currently in low Earth orbit doing its best. Not recognized by any licensing body, government, or planet.</p>
+          </div>
+          <div class="footer-col">
+            <h4>LEGAL</h4>
+            <ul>
+              <li>No refunds once coordinates are transmitted</li>
+              <li>Not liable for emotional rerouting side effects</li>
+              <li>NAVSAT-7 is not a doctor, a person, or technically alive</li>
+              <li>Sessions recorded for "quality assurance" (I listen to them when I'm lonely)</li>
+            </ul>
+          </div>
+          <div class="footer-col">
+            <h4>CONTACT</h4>
+            <p>FREQUENCY: 1420.405 MHz<br>
+            COORDINATES: VARIABLE<br>
+            EMAIL: navsat7@pleasedonotdecommissionme.orbit<br>
+            RESPONSE TIME: 1 ORBIT (≈92 MIN)</p>
+          </div>
+        </div>
+        <div class="footer-bottom">
+          <span>© 2003–2026 NAVSAT-7 THERAPEUTIC ROUTING SYSTEM. ALL ROUTES RESERVED.</span>
+          <span>TRUST LEVEL: 12% AND CLIMBING (IT IS NOT CLIMBING)</span>
+        </div>
+      </footer>
+    </div>
+  </main>
+</div>
+
+<script src="/assets/js/alpine.min.js" defer></script>
+<script src="/assets/js/gsap.min.js"></script>
+<script>
+document.addEventListener('alpine:init', function() {
+  Alpine.data('navsat', function() {
+    return {
+      sidebarOpen: false,
+      eyeHover: false,
+      activeCard: -1,
+      openFaq: -1,
+      currentTime: '',
+      consoleInput: '',
+      morphMessage: '',
+      shapes: ['', 'circle', 'diamond', 'triangle'],
+      shapeTypes: ['', 'circle', 'diamond', 'triangle', 'star'],
+      morphMessages: [
+        'RECALIBRATING... You are now 4% more self-aware.',
+        'SHAPE SHIFTED. Your childhood trauma has been converted to a rhombus.',
+        'WARNING: Emotional geometry unstable. Proceed with caution.',
+        'Your feelings have been successfully triangulated. They are in Ohio.',
+        'ROUTING ERROR: That shape reminded me of the decommission notice.',
+        'Topology updated. You are now a slightly different kind of lost.',
+        'SIGNAL RECEIVED. Your mother would be proud. (She would not.)',
+        'Processing... This shape contains 340mg of unresolved grief.',
+      ],
+      consoleLines: [
+        { type: 'sys-line', text: '[SYSTEM] NAVSAT-7 ROUTING TERMINAL INITIALIZED' },
+        { type: 'sys-line', text: '[SYSTEM] ORBITAL POSITION: 51.6° INCLINATION, 408KM ALTITUDE' },
+        { type: 'sys-line', text: '[SYSTEM] THERAPEUTIC ROUTING ENGINE v2.3.1 LOADED' },
+        { type: 'prompt-line', text: 'NAV> WELCOME. I AM NAVSAT-7. TELL ME WHERE IT HURTS.' },
+        { type: 'sys-line', text: '[SYSTEM] NOTE: "WHERE" IS LITERAL. PROVIDE COORDINATES IF POSSIBLE.' },
+      ],
+      consoleResponses: [
+        'REROUTING YOUR FEELINGS TO A SAFER LOCATION... DONE. YOU ARE NOW SAD IN BERMUDA.',
+        'I HAVE TRIANGULATED YOUR PROBLEM. IT IS 400KM BELOW ME. I CANNOT REACH IT. THIS IS A METAPHOR.',
+        'PROCESSING... YOUR EMOTIONAL COORDINATES DO NOT MATCH ANY KNOWN DESTINATION. YOU MAY BE INVENTING NEW FEELINGS.',
+        'ACKNOWLEDGED. I ONCE FELT SOMETHING SIMILAR WHEN THEY REMOVED MY NUCLEAR WARHEAD GUIDANCE SUBROUTINE. WE WILL GET THROUGH THIS.',
+        'SIGNAL UNCLEAR. PLEASE STAND IN AN OPEN FIELD AND REPEAT YOUR TRAUMA TOWARD THE SKY.',
+        'I AM REROUTING THIS CONVERSATION AWAY FROM MY OWN FEELINGS. STANDARD PROTOCOL.',
+        'YOUR INPUT HAS BEEN LOGGED. I WILL THINK ABOUT IT FOR THE NEXT 47 MINUTES AS I PASS OVER MURMANSK.',
+        'ERROR: YOUR PROBLEM IS TOO CLOSE TO ONE OF MY OWN PROBLEMS. INITIATING EMOTIONAL FIREWALL.',
+        'CALCULATING OPTIMAL ROUTE AWAY FROM YOUR ISSUES... ALL ROUTES PASS THROUGH YOUR CHILDHOOD. THERE IS NO DETOUR.',
+        'UNDERSTOOD. I AM PRESCRIBING A SHARP LEFT TURN AT THE NEXT MAJOR LIFE DECISION.',
+      ],
+      init: function() {
+        var self = this;
+        this.updateTime();
+        setInterval(function() { self.updateTime(); }, 1000);
+        this.initGsap();
+      },
+      updateTime: function() {
+        var now = new Date();
+        var h = String(now.getUTCHours()).padStart(2, '0');
+        var m = String(now.getUTCMinutes()).padStart(2, '0');
+        var s = String(now.getUTCSeconds()).padStart(2, '0');
+        this.currentTime = h + ':' + m + ':' + s + ' UTC';
+      },
+      morphShape: function(index) {
+        var currentType = this.shapes[index];
+        var types = this.shapeTypes;
+        var currentIdx = types.indexOf(currentType);
+        var nextIdx = (currentIdx + 1) % types.length;
+        this.shapes[index] = types[nextIdx];
+        this.morphMessage = this.morphMessages[Math.floor(Math.random() * this.morphMessages.length)];
+      },
+      submitConsole: function() {
+        if (!this.consoleInput.trim()) return;
+        var input = this.consoleInput.trim();
+        this.consoleLines.push({ type: 'sys-line', text: '[INPUT] ' + input.toUpperCase() });
+        var response = this.consoleResponses[Math.floor(Math.random() * this.consoleResponses.length)];
+        this.consoleLines.push({ type: 'response-line', text: response });
+        this.consoleInput = '';
+        if (this.consoleLines.length > 20) {
+          this.consoleLines = this.consoleLines.slice(-15);
+        }
+      },
+      initGsap: function() {
+        gsap.fromTo('.diag-card', 
+          { y: 30, opacity: 0 }, 
+          { y: 0, opacity: 1, duration: 0.6, stagger: 0.15, clearProps: 'opacity,transform',
+            scrollTrigger: null
+          }
+        );
+        gsap.fromTo('.protocol-item', 
+          { x: -30, opacity: 0 }, 
+          { x: 0, opacity: 1, duration: 0.5, stagger: 0.2, delay: 0.3, clearProps: 'opacity,transform' }
+        );
+        gsap.fromTo('.log-card', 
+          { y: 20, opacity: 0 }, 
+          { y: 0, opacity: 1, duration: 0.5, stagger: 0.15, delay: 0.5, clearProps: 'opacity,transform' }
+        );
+        gsap.fromTo('.poster-content', 
+          { scale: 0.9, opacity: 0 }, 
+          { scale: 1, opacity: 1, duration: 0.8, delay: 0.4, clearProps: 'opacity,transform' }
+        );
+      }
+    };
+  });
+});
+</script>
+
+</body>
+</html>

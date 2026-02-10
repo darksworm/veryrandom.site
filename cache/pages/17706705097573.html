@@ -1,0 +1,754 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Feline Institute for Boredom Remediation | Nonprofit Research Network</title>
+  <link rel="stylesheet" href="/assets/css/pico.min.css" />
+  <link rel="stylesheet" href="/assets/css/fonts.css" />
+  <script defer src="/assets/js/alpine.min.js"></script>
+  <script defer src="/assets/js/gsap.min.js"></script>
+  <script defer src="/assets/js/lucide.min.js"></script>
+  <style>
+    :root {
+      --ink: #0a0a0a;
+      --paper: #ffffff;
+      --red: #d31224;
+      --red-deep: #8a0a16;
+      --panel: #f3f3f3;
+      --line: #1f1f1f;
+      --mono: 'IBM Plex Mono', monospace;
+      --sans: 'Space Grotesk', sans-serif;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: var(--sans);
+      color: var(--ink);
+      background: repeating-linear-gradient(
+        -45deg,
+        #ffffff,
+        #ffffff 10px,
+        #f7f7f7 10px,
+        #f7f7f7 20px
+      );
+    }
+
+    .split {
+      display: grid;
+      grid-template-columns: minmax(300px, 43%) minmax(320px, 57%);
+      min-height: 100vh;
+    }
+
+    .left, .right {
+      padding: 1rem;
+    }
+
+    .left {
+      background: #ffffff;
+      border-right: 5px solid var(--ink);
+    }
+
+    .right {
+      background: #090909;
+      color: #ffffff;
+    }
+
+    .nav-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 0.5rem;
+      margin-bottom: 1rem;
+    }
+
+    .nav-grid a {
+      display: block;
+      text-align: center;
+      padding: 0.45rem;
+      text-decoration: none;
+      color: #ffffff;
+      background: var(--ink);
+      border: 2px solid var(--ink);
+      font-family: var(--mono);
+      font-size: 0.78rem;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+
+    .nav-grid a:hover,
+    .nav-grid a:focus-visible {
+      background: var(--red);
+      border-color: var(--red);
+      color: #ffffff;
+    }
+
+    .mast {
+      border: 4px solid var(--ink);
+      background: linear-gradient(135deg, #fff 0%, #fff 58%, #ffe7ea 58%, #ffe7ea 100%);
+      padding: 1rem;
+      margin-bottom: 1rem;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .mast::before,
+    .mast::after {
+      content: "🐾";
+      position: absolute;
+      font-size: 2rem;
+      color: var(--red);
+    }
+
+    .mast::before { top: -0.5rem; right: 0.5rem; }
+    .mast::after { bottom: -0.6rem; left: 0.8rem; }
+
+    h1 {
+      margin: 0;
+      font-size: clamp(1.6rem, 2.5vw, 2.4rem);
+      line-height: 1.05;
+      letter-spacing: 0.02em;
+      color: #000000;
+    }
+
+    .tagline {
+      margin: 0.5rem 0 0;
+      font-family: var(--mono);
+      font-size: 0.86rem;
+      color: #000000;
+      background: #fff;
+      display: inline-block;
+      border: 2px solid var(--ink);
+      padding: 0.25rem 0.4rem;
+    }
+
+    .panel {
+      border: 3px solid var(--ink);
+      background: var(--panel);
+      padding: 0.7rem;
+      margin-bottom: 0.8rem;
+      color: #000000;
+    }
+
+    .panel h2,
+    .panel h3,
+    .panel p,
+    .panel li,
+    .panel label,
+    .panel small,
+    .panel strong,
+    .panel td,
+    .panel th {
+      color: #000000;
+    }
+
+    .panel strong.red,
+    .red {
+      color: var(--red-deep);
+    }
+
+    .catalog {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.7rem;
+    }
+
+    .kpi {
+      border: 2px solid var(--ink);
+      background: #ffffff;
+      padding: 0.6rem;
+    }
+
+    .kpi .n {
+      font-size: 1.4rem;
+      font-weight: 800;
+      color: #000000;
+    }
+
+    .kpi .l {
+      font-family: var(--mono);
+      font-size: 0.73rem;
+      text-transform: uppercase;
+      color: #000000;
+    }
+
+    .ticker {
+      font-family: var(--mono);
+      font-size: 0.78rem;
+      border: 2px dashed var(--red);
+      background: #ffffff;
+      padding: 0.4rem;
+      margin-top: 0.5rem;
+      color: #000000;
+      min-height: 2.25rem;
+      display: flex;
+      align-items: center;
+    }
+
+    .btn-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.45rem;
+    }
+
+    .btn-row button,
+    .donate-btn {
+      margin: 0;
+      border-radius: 0;
+      border: 2px solid #000000;
+      background: #ffffff;
+      color: #000000;
+      font-family: var(--mono);
+      font-weight: 700;
+      padding: 0.45rem 0.6rem;
+    }
+
+    .btn-row button:hover,
+    .donate-btn:hover,
+    .btn-row button:focus-visible,
+    .donate-btn:focus-visible {
+      background: var(--red);
+      border-color: var(--red);
+      color: #ffffff;
+    }
+
+    .donate-btn {
+      background: var(--red);
+      color: #ffffff;
+    }
+
+    .board {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 0.5rem;
+    }
+
+    .chip {
+      border: 2px solid #ffffff;
+      background: #151515;
+      padding: 0.5rem;
+      min-height: 80px;
+    }
+
+    .chip p,
+    .chip strong,
+    .chip small {
+      color: #ffffff;
+      margin: 0;
+    }
+
+    .chip strong {
+      display: block;
+      font-size: 1.2rem;
+      color: #ffffff;
+    }
+
+    .chart-wrap {
+      border: 2px solid #ffffff;
+      background: #000000;
+      padding: 0.6rem;
+      margin-top: 0.7rem;
+    }
+
+    .bars {
+      display: grid;
+      grid-template-columns: repeat(6, 1fr);
+      align-items: end;
+      gap: 0.45rem;
+      height: 120px;
+      margin-top: 0.5rem;
+    }
+
+    .bar {
+      background: linear-gradient(180deg, #ff3b4f 0%, #b4091c 100%);
+      border: 1px solid #ffffff;
+      position: relative;
+      min-height: 10px;
+    }
+
+    .bar span {
+      position: absolute;
+      top: -1.25rem;
+      left: 50%;
+      transform: translateX(-50%);
+      font-family: var(--mono);
+      font-size: 0.68rem;
+      color: #ffffff;
+      background: #000000;
+      padding: 0.05rem 0.2rem;
+      border: 1px solid #ffffff;
+    }
+
+    .grid-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.6rem;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-family: var(--mono);
+      font-size: 0.74rem;
+      background: #ffffff;
+      color: #000000;
+    }
+
+    th, td {
+      border: 1px solid #000000;
+      padding: 0.3rem;
+      color: #000000;
+    }
+
+    th {
+      background: #ececec;
+      color: #000000;
+    }
+
+    .right a { color: #ffffff; }
+
+    .faq-item {
+      border: 2px solid #ffffff;
+      margin-bottom: 0.5rem;
+      background: #131313;
+    }
+
+    .faq-item button {
+      width: 100%;
+      text-align: left;
+      border: 0;
+      border-bottom: 2px solid #ffffff;
+      background: #d31224;
+      color: #ffffff;
+      font-weight: 700;
+      font-family: var(--sans);
+      padding: 0.45rem;
+      margin: 0;
+    }
+
+    .faq-item div {
+      padding: 0.45rem;
+      color: #ffffff;
+    }
+
+    .fine {
+      font-family: var(--mono);
+      font-size: 0.66rem;
+      color: #ffffff;
+      line-height: 1.35;
+    }
+
+    .left .fine { color: #000000; }
+
+    .paw {
+      font-size: 1rem;
+      color: var(--red);
+    }
+
+    .vol-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 0.4rem;
+    }
+
+    .vol-grid button {
+      border: 2px solid #000000;
+      background: #ffffff;
+      color: #000000;
+      border-radius: 0;
+      padding: 0.35rem;
+      font-family: var(--mono);
+      font-size: 0.72rem;
+      margin: 0;
+    }
+
+    .vol-grid button:hover,
+    .vol-grid button:focus-visible {
+      background: #d31224;
+      color: #ffffff;
+      border-color: #d31224;
+    }
+
+    progress {
+      width: 100%;
+      height: 1rem;
+    }
+
+    .impact-note {
+      border: 2px solid #000;
+      background: #fff;
+      color: #000;
+      padding: 0.4rem;
+      font-family: var(--mono);
+      font-size: 0.74rem;
+      margin-top: 0.4rem;
+    }
+
+    footer {
+      border-top: 2px solid #fff;
+      margin-top: 0.8rem;
+      padding-top: 0.8rem;
+    }
+
+    @media (max-width: 980px) {
+      .split { grid-template-columns: 1fr; }
+      .left { border-right: 0; border-bottom: 5px solid #000; }
+      .catalog, .grid-2, .board, .vol-grid { grid-template-columns: 1fr 1fr; }
+    }
+
+    @media (max-width: 640px) {
+      .catalog, .grid-2, .board, .vol-grid, .nav-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body x-data="catInstitute()">
+  <main class="split">
+    <section class="left">
+      <nav class="nav-grid" aria-label="Primary">
+        <a href="#mission">Mission</a>
+        <a href="#clinic">Clinic</a>
+        <a href="#volunteer">Volunteer</a>
+        <a href="#trial">Trials</a>
+        <a href="#donate">Donate</a>
+        <a href="#faq">FAQ</a>
+      </nav>
+
+      <header class="mast hero-animate">
+        <p class="tagline">501(c)(3) NONPROFIT | EST. 1998 | FELIS-CERTIFIED</p>
+        <h1>Feline Institute for Boredom Remediation</h1>
+        <p><strong>We provide evidence-based treatment for chronic ennui, one paw at a time.</strong></p>
+        <p>Our research clinics measure whisker twitch variability, sofa-stare duration, and afternoon yawn clusters to restore meaningful curiosity in humans and companion cats.</p>
+        <div class="btn-row">
+          <button class="donate-btn" id="donate">Donate Now</button>
+          <button x-on:click="openIntake = !openIntake">Toggle Quick Intake</button>
+          <button x-on:click="shuffleDisclaimer()">Rotate Safety Footnote</button>
+        </div>
+        <div class="impact-note" x-text="activeDisclaimer"></div>
+      </header>
+
+      <section class="panel" id="mission">
+        <h2>Mission Statement <span class="paw">🐾</span></h2>
+        <p>FIBR advances boredom medicine as a public health service. We fund trials, train volunteers, and provide no-cost boredom triage in under-resourced neighborhoods where attention drift has gone untreated for generations.</p>
+        <div class="catalog">
+          <article class="kpi">
+            <div class="n" x-text="patientsHelped.toLocaleString()"></div>
+            <div class="l">Patients stabilized this quarter</div>
+          </article>
+          <article class="kpi">
+            <div class="n" x-text="catMentors"></div>
+            <div class="l">Certified therapy cats on duty</div>
+          </article>
+          <article class="kpi">
+            <div class="n" x-text="volunteerHours.toLocaleString()"></div>
+            <div class="l">Volunteer lap-hours logged</div>
+          </article>
+          <article class="kpi">
+            <div class="n" x-text="(researchYield).toFixed(1) + '%' "></div>
+            <div class="l">Research yield improvement</div>
+          </article>
+        </div>
+        <div class="ticker" x-text="tickerMessages[tickerIndex]"></div>
+      </section>
+
+      <section class="panel" id="clinic">
+        <h3>Rapid Triage Console</h3>
+        <p class="fine">For educational planning only. Does not replace clinician judgment, cat nods, or licensed nap protocol.</p>
+        <label for="boredomScale"><strong>Boredom Severity Index:</strong> <span x-text="boredomLevel"></span>/10</label>
+        <input id="boredomScale" type="range" min="1" max="10" x-model.number="boredomLevel" />
+        <p><strong>Suggested protocol:</strong> <span class="red" x-text="triageText"></span></p>
+
+        <div class="grid-2">
+          <div>
+            <h3>Symptom Checklist</h3>
+            <label><input type="checkbox" x-model="symptoms" value="blank_stare" /> Repeated blank stares at turned-off screens</label>
+            <label><input type="checkbox" x-model="symptoms" value="weekend_dread" /> Sunday evening dread before hobbies</label>
+            <label><input type="checkbox" x-model="symptoms" value="snack_loop" /> Compulsive snack-loop behavior</label>
+            <label><input type="checkbox" x-model="symptoms" value="scroll_hiccup" /> Thumb scroll hiccups every 12 sec</label>
+            <p><strong>Clinical boredom load:</strong> <span class="red" x-text="symptomScore"></span> points</p>
+          </div>
+          <div>
+            <h3>Purr-Dose Simulator</h3>
+            <p>Daily treatment capsules are adjusted by caregiver team + feline board.</p>
+            <div class="btn-row">
+              <button x-on:click="dose = Math.max(0, dose - 1)">- 1 capsule</button>
+              <button x-on:click="dose++">+ 1 capsule</button>
+              <button x-on:click="dose = 3">Reset</button>
+            </div>
+            <p><strong>Current plan:</strong> <span class="red" x-text="dose"></span> capsules + <span class="red" x-text="dose * 7"></span> minutes of guided laser-pointer mobility</p>
+            <p class="fine">Capsules are metaphorical and legally interpreted as structured curiosity exercises.</p>
+          </div>
+        </div>
+      </section>
+
+      <section class="panel" id="volunteer">
+        <h3>Volunteer Opportunities</h3>
+        <p>Join a neighborhood Paw Patrol unit. Every shift supports clinic intake, toy sterilization, and boredom screening at public libraries.</p>
+        <div class="vol-grid">
+          <button x-on:click="addShift(2)">2h Intake Desk</button>
+          <button x-on:click="addShift(3)">3h Play Lab</button>
+          <button x-on:click="addShift(4)">4h Home Visits</button>
+          <button x-on:click="addShift(1)">1h Data Labeling</button>
+        </div>
+        <p><strong>Community goal progress:</strong> <span x-text="goalProgress"></span>%</p>
+        <progress max="100" x-bind:value="goalProgress"></progress>
+        <p class="fine">Goal = 6,000 volunteer hours before International Curiosity Week.</p>
+      </section>
+
+      <section class="panel" id="trial">
+        <h3>Clinical Trial Ledger</h3>
+        <p>Open studies include yarn-guided focus therapy, synchronized group purring, and red-dot tracking for executive function.</p>
+        <div class="btn-row">
+          <button x-on:click="sortBy = 'name'">Sort by Trial</button>
+          <button x-on:click="sortBy = 'phase'">Sort by Phase</button>
+          <button x-on:click="sortBy = 'cats'">Sort by Cat Team</button>
+        </div>
+        <table>
+          <thead>
+            <tr>
+              <th>Trial</th>
+              <th>Phase</th>
+              <th>Cat Team</th>
+              <th>Retention</th>
+            </tr>
+          </thead>
+          <tbody>
+            <template x-for="row in sortedTrials" :key="row.name">
+              <tr>
+                <td x-text="row.name"></td>
+                <td x-text="row.phase"></td>
+                <td x-text="row.cats"></td>
+                <td x-text="row.retention + '%' "></td>
+              </tr>
+            </template>
+          </tbody>
+        </table>
+      </section>
+    </section>
+
+    <section class="right">
+      <article class="panel" style="background:#101010;border-color:#ffffff;">
+        <h2 style="color:#ffffff;">Live Operations Meow-dboard</h2>
+        <p style="color:#ffffff;">Monitoring boredom biomarkers across 14 partner clinics and 3 mobile cat labs.</p>
+        <div class="board">
+          <div class="chip">
+            <small>Waiting Room Mood</small>
+            <strong x-text="liveMood + '%' "></strong>
+            <p>positive engagement</p>
+          </div>
+          <div class="chip">
+            <small>Laser Sessions</small>
+            <strong x-text="laserSessions"></strong>
+            <p>today</p>
+          </div>
+          <div class="chip">
+            <small>Purr Resonance</small>
+            <strong x-text="purrHz.toFixed(1) + 'Hz'"></strong>
+            <p>median therapeutic range</p>
+          </div>
+        </div>
+
+        <div class="chart-wrap">
+          <strong style="color:#ffffff;">Six-Day Curiosity Rebound Chart</strong>
+          <div class="bars">
+            <template x-for="bar in bars" :key="bar.day">
+              <div class="bar" :style="`height:${bar.value}%`">
+                <span x-text="bar.day"></span>
+              </div>
+            </template>
+          </div>
+        </div>
+      </article>
+
+      <article class="panel" style="background:#ffffff;">
+        <h3>Nonprofit Funding Menu</h3>
+        <p>Every gift is tax-deductible and powers no-cost treatment. Select a monthly gift tier:</p>
+        <div class="btn-row">
+          <button x-on:click="setDonation(15)">$15</button>
+          <button x-on:click="setDonation(35)">$35</button>
+          <button x-on:click="setDonation(75)">$75</button>
+          <button x-on:click="setDonation(150)">$150</button>
+        </div>
+        <p><strong>Selected monthly gift:</strong> <span class="red">$<span x-text="donation"></span></span></p>
+        <p class="impact-note" x-text="donationImpact"></p>
+        <div class="btn-row">
+          <button class="donate-btn">Confirm Donation</button>
+          <button x-on:click="donation = 35">Use Most Common Tier</button>
+        </div>
+      </article>
+
+      <article class="panel" style="background:#101010;border-color:#ffffff;">
+        <h3 style="color:#ffffff;">Community Testimonials</h3>
+        <div class="grid-2">
+          <blockquote style="border:2px solid #fff;padding:0.5rem;color:#fff;background:#161616;">
+            "After two weeks in Cat-Backed Curiosity Group, my son stopped saying 'I guess I'm bored' and started building tiny cardboard observatories."<br />
+            <strong style="color:#fff;">- Nora P., Parent</strong>
+          </blockquote>
+          <blockquote style="border:2px solid #fff;padding:0.5rem;color:#fff;background:#161616;">
+            "Our shelter cat Basil now leads morning stimulation rounds. Volunteer retention doubled in one month."<br />
+            <strong style="color:#fff;">- Clinic Director, District 8</strong>
+          </blockquote>
+          <blockquote style="border:2px solid #fff;padding:0.5rem;color:#fff;background:#161616;">
+            "The Boredom First Aid cards are practical, calm, and weirdly life-changing."<br />
+            <strong style="color:#fff;">- High School Librarian</strong>
+          </blockquote>
+          <blockquote style="border:2px solid #fff;padding:0.5rem;color:#fff;background:#161616;">
+            "I came for community service credits, stayed because Professor Mittens has standards."<br />
+            <strong style="color:#fff;">- Volunteer Cohort 22</strong>
+          </blockquote>
+        </div>
+      </article>
+
+      <article class="panel" id="faq" style="background:#101010;border-color:#ffffff;">
+        <h3 style="color:#ffffff;">FAQ</h3>
+        <div class="faq-item" x-data="{open:true}">
+          <button x-on:click="open=!open">Is boredom really treatable?</button>
+          <div x-show="open">Yes. Our peer-reviewed model combines guided novelty, social purring environments, and structured play tasks that restore attentional flexibility.</div>
+        </div>
+        <div class="faq-item" x-data="{open:false}">
+          <button x-on:click="open=!open">Can I volunteer if I am not a cat owner?</button>
+          <div x-show="open">Absolutely. We provide feline communication orientation, lint roller access, and supervised lap-safety training.</div>
+        </div>
+        <div class="faq-item" x-data="{open:false}">
+          <button x-on:click="open=!open">Do you offer corporate boredom prevention workshops?</button>
+          <div x-show="open">Yes. Sliding-scale workshops are available for nonprofits, schools, and union workplaces.</div>
+        </div>
+      </article>
+
+      <footer>
+        <p><strong style="color:#ffffff;">Feline Institute for Boredom Remediation (FIBR)</strong></p>
+        <p style="color:#ffffff;">89 Whisker Annex, Suite C, Baltimore, MD 21202 | 1-800-PURR-CARE</p>
+        <p class="fine">Regulatory Footnotes: FIBR is a registered nonprofit. All cat clinicians hold current cuddle credentials. No lasers are pointed at eyes. All naps are consensual. Research protocols approved by the Institutional Board for Curiosity and Cats (IBCC). Field teams comply with municipal scratching-post ordinances.</p>
+      </footer>
+    </section>
+  </main>
+
+  <script>
+    function catInstitute() {
+      return {
+        openIntake: false,
+        boredomLevel: 4,
+        symptoms: [],
+        dose: 3,
+        donation: 35,
+        patientsHelped: 18264,
+        catMentors: 312,
+        volunteerHours: 42780,
+        researchYield: 18.4,
+        liveMood: 83,
+        laserSessions: 146,
+        purrHz: 26.2,
+        tickerIndex: 0,
+        goalProgress: 71,
+        sortBy: 'name',
+        bars: [
+          { day: 'Mon', value: 48 },
+          { day: 'Tue', value: 58 },
+          { day: 'Wed', value: 62 },
+          { day: 'Thu', value: 68 },
+          { day: 'Fri', value: 74 },
+          { day: 'Sat', value: 81 }
+        ],
+        trials: [
+          { name: 'Yarn Focus Protocol', phase: 'II', cats: 7, retention: 88 },
+          { name: 'Purr Resonance Group', phase: 'III', cats: 12, retention: 91 },
+          { name: 'Red Dot Executive Lab', phase: 'I', cats: 5, retention: 79 },
+          { name: 'Window Perch Reflection', phase: 'II', cats: 9, retention: 85 }
+        ],
+        tickerMessages: [
+          'ALERT: Mobile Cat Lab #3 deployed to Eastside Library; boredom queue reduced by 31%.',
+          'NOTICE: Grant matched through midnight for adolescent curiosity clinics.',
+          'CLINIC UPDATE: 94% of participants completed today\'s guided novelty drills.',
+          'FIELD NOTE: Therapy cat Juniper approved 42 lap-sessions before lunch.'
+        ],
+        disclaimers: [
+          'Clinical note: Side effects may include renewed wonder, spontaneous journaling, and healthier screen boundaries.',
+          'Safety bulletin: Keep yarn metaphors away from tax paperwork and ceiling fans.',
+          'Donor advisory: Every $35 funds one family boredom screening + follow-up paw call.'
+        ],
+        activeDisclaimer: '',
+
+        get triageText() {
+          if (this.boredomLevel <= 3) return 'Preventive purr-check and weekend enrichment packet.';
+          if (this.boredomLevel <= 6) return 'Moderate intervention: 5-day Curiosity Reboot with cat mentor.';
+          if (this.boredomLevel <= 8) return 'Intensive support: daily clinic circles + guided play prescription.';
+          return 'Priority stabilization: clinician-led boredom reversal with household coaching.';
+        },
+
+        get symptomScore() {
+          return this.symptoms.length * 22;
+        },
+
+        get donationImpact() {
+          if (this.donation <= 15) return 'Funds one classroom boredom screening card set each month.';
+          if (this.donation <= 35) return 'Covers one full intake appointment and feline mentor pairing.';
+          if (this.donation <= 75) return 'Supports a neighborhood volunteer shift with supplies and transit.';
+          return 'Sponsors weekly no-cost group treatment for six participants.';
+        },
+
+        get sortedTrials() {
+          return [...this.trials].sort((a, b) => {
+            if (this.sortBy === 'phase') return a.phase.localeCompare(b.phase);
+            if (this.sortBy === 'cats') return b.cats - a.cats;
+            return a.name.localeCompare(b.name);
+          });
+        },
+
+        setDonation(amount) {
+          this.donation = amount;
+        },
+
+        addShift(hours) {
+          this.volunteerHours += hours;
+          this.goalProgress = Math.min(100, Math.round((this.volunteerHours / 60000) * 100));
+        },
+
+        shuffleDisclaimer() {
+          const idx = Math.floor(Math.random() * this.disclaimers.length);
+          this.activeDisclaimer = this.disclaimers[idx];
+        },
+
+        init() {
+          this.activeDisclaimer = this.disclaimers[0];
+
+          setInterval(() => {
+            this.patientsHelped += Math.floor(Math.random() * 3);
+            this.laserSessions += Math.floor(Math.random() * 2);
+            this.liveMood = 78 + Math.floor(Math.random() * 18);
+            this.purrHz = 24 + Math.random() * 4;
+            this.tickerIndex = (this.tickerIndex + 1) % this.tickerMessages.length;
+            this.researchYield = Math.min(39.9, this.researchYield + (Math.random() * 0.15));
+
+            this.bars = this.bars.map((b) => {
+              const drift = (Math.random() * 12) - 6;
+              const next = Math.max(20, Math.min(94, b.value + drift));
+              return { day: b.day, value: Math.round(next) };
+            });
+          }, 2200);
+        }
+      };
+    }
+
+    document.addEventListener('DOMContentLoaded', function () {
+      if (window.lucide && typeof window.lucide.createIcons === 'function') {
+        window.lucide.createIcons();
+      }
+      if (window.gsap) {
+        window.gsap.from('.hero-animate', {
+          y: 24,
+          opacity: 0,
+          duration: 0.8,
+          ease: 'power2.out'
+        });
+        window.gsap.from('.panel', {
+          opacity: 0,
+          y: 16,
+          duration: 0.55,
+          stagger: 0.08,
+          ease: 'power1.out'
+        });
+      }
+    });
+  </script>
+</body>
+</html>

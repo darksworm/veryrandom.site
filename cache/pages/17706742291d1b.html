@@ -1,0 +1,967 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Bleachman, Gust & Associates — Atmospheric Pollution Litigation</title>
+<link rel="stylesheet" href="/assets/css/fonts.css">
+<script defer src="/assets/js/alpine.min.js"></script>
+<script src="/assets/js/gsap.min.js"></script>
+<script src="/assets/js/lucide.min.js"></script>
+<style>
+  :root {
+    --white: #f8f9fa;
+    --clinical: #ffffff;
+    --green: #00c853;
+    --green-dark: #00a844;
+    --green-pale: #e8f9ef;
+    --green-tint: #f0fdf4;
+    --black: #111;
+    --gray-dark: #333;
+    --gray-mid: #666;
+    --gray-light: #ccc;
+    --rule: #222;
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { font-size: 16px; scroll-behavior: smooth; }
+  body {
+    font-family: 'Crimson Pro', Georgia, serif;
+    background: var(--clinical);
+    color: var(--black);
+    line-height: 1.55;
+    overflow-x: hidden;
+  }
+  h1, h2, h3, h4, h5, h6, .nav-brand, .kicker {
+    font-family: 'Space Grotesk', system-ui, sans-serif;
+  }
+  .mono { font-family: 'IBM Plex Mono', monospace; }
+
+  /* NEWSPAPER GRID */
+  .container { max-width: 1280px; margin: 0 auto; padding: 0 1.25rem; }
+  .rule { border-top: 2px solid var(--rule); }
+  .rule-thin { border-top: 1px solid var(--gray-light); }
+  .rule-green { border-top: 3px solid var(--green); }
+
+  /* NAV */
+  .topbar {
+    background: var(--black);
+    color: var(--clinical);
+    padding: 0.35rem 0;
+    font-size: 0.75rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    font-family: 'IBM Plex Mono', monospace;
+  }
+  .topbar .container { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.5rem; }
+  .topbar a { color: var(--green); text-decoration: none; }
+
+  .navbar {
+    border-bottom: 3px solid var(--black);
+    padding: 0.75rem 0;
+    background: var(--clinical);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+  .navbar .container { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.5rem; }
+  .nav-brand {
+    font-size: clamp(1rem, 3vw, 1.35rem);
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    text-transform: uppercase;
+    color: var(--black);
+    line-height: 1.1;
+  }
+  .nav-brand span { color: var(--green); }
+  .nav-links { display: flex; gap: 1.25rem; flex-wrap: wrap; }
+  .nav-links a {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 0.8rem;
+    text-decoration: none;
+    color: var(--gray-dark);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    font-weight: 600;
+  }
+  .nav-links a:hover { color: var(--green-dark); }
+
+  /* HERO / MASTHEAD */
+  .masthead {
+    padding: 2.5rem 0 1.5rem;
+    border-bottom: 3px double var(--black);
+  }
+  .masthead-title {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(2.2rem, 7vw, 4.5rem);
+    font-weight: 900;
+    line-height: 0.95;
+    letter-spacing: -0.03em;
+    text-transform: uppercase;
+    text-align: center;
+    margin-bottom: 0.5rem;
+  }
+  .masthead-sub {
+    text-align: center;
+    font-size: clamp(0.9rem, 2vw, 1.1rem);
+    color: var(--gray-dark);
+    font-style: italic;
+    max-width: 600px;
+    margin: 0 auto;
+  }
+  .edition-line {
+    text-align: center;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.7rem;
+    letter-spacing: 0.1em;
+    color: var(--gray-mid);
+    text-transform: uppercase;
+    margin-top: 0.75rem;
+    padding-top: 0.5rem;
+    border-top: 1px solid var(--gray-light);
+  }
+
+  /* COLUMNS LAYOUT */
+  .cols-3 {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1.5rem;
+  }
+  .cols-2 {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: 1.5rem;
+  }
+  .cols-2-equal {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.5rem;
+  }
+  @media (max-width: 768px) {
+    .cols-3, .cols-2, .cols-2-equal {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  .section { padding: 1.5rem 0; }
+  .section + .section { border-top: 1px solid var(--gray-light); }
+
+  /* ARTICLE STYLES */
+  .kicker {
+    font-size: 0.7rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: var(--green-dark);
+    margin-bottom: 0.25rem;
+    display: block;
+  }
+  .headline {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(1.3rem, 3vw, 1.8rem);
+    font-weight: 800;
+    line-height: 1.1;
+    margin-bottom: 0.5rem;
+    color: var(--black);
+  }
+  .headline-sm {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(1rem, 2vw, 1.3rem);
+    font-weight: 700;
+    line-height: 1.15;
+    margin-bottom: 0.4rem;
+  }
+  .byline {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.7rem;
+    color: var(--gray-mid);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: 0.75rem;
+  }
+  .article-body { font-size: 1.05rem; line-height: 1.65; }
+  .article-body p + p { margin-top: 0.75rem; }
+  .lead { font-size: 1.15rem; font-weight: 600; line-height: 1.5; }
+  .pullquote {
+    border-left: 4px solid var(--green);
+    padding: 0.75rem 1rem;
+    margin: 1rem 0;
+    font-family: 'Playfair Display', serif;
+    font-size: 1.2rem;
+    font-style: italic;
+    color: var(--gray-dark);
+    background: var(--green-tint);
+  }
+
+  /* GREEN BOX */
+  .green-box {
+    background: var(--green);
+    color: var(--black);
+    padding: 1.25rem;
+    margin: 1rem 0;
+  }
+  .green-box h3 { font-weight: 800; margin-bottom: 0.5rem; text-transform: uppercase; font-size: 0.9rem; letter-spacing: 0.08em; }
+  .green-box p { font-size: 0.95rem; }
+
+  /* STATS BAR */
+  .stats-bar {
+    display: flex;
+    gap: 0;
+    border-top: 3px solid var(--green);
+    border-bottom: 1px solid var(--gray-light);
+    background: var(--green-tint);
+    flex-wrap: wrap;
+  }
+  .stat-item {
+    flex: 1;
+    min-width: 150px;
+    padding: 1rem;
+    text-align: center;
+    border-right: 1px solid var(--gray-light);
+  }
+  .stat-item:last-child { border-right: none; }
+  .stat-num { font-family: 'Space Grotesk', sans-serif; font-size: 1.8rem; font-weight: 800; color: var(--black); }
+  .stat-label { font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.08em; color: var(--gray-dark); font-family: 'IBM Plex Mono', monospace; }
+
+  /* TABS */
+  .tab-bar { display: flex; gap: 0; border-bottom: 2px solid var(--black); flex-wrap: wrap; }
+  .tab-btn {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 0.8rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    padding: 0.6rem 1.25rem;
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: var(--gray-mid);
+    border-bottom: 3px solid transparent;
+    margin-bottom: -2px;
+    transition: all 0.15s;
+  }
+  .tab-btn:hover { color: var(--black); }
+  .tab-btn.active { color: var(--black); border-bottom-color: var(--green); background: var(--green-tint); }
+  .tab-panel { padding: 1.25rem 0; }
+
+  /* ACCORDION / EXPANDABLE */
+  .accordion-item { border-bottom: 1px solid var(--gray-light); }
+  .accordion-btn {
+    width: 100%;
+    text-align: left;
+    background: none;
+    border: none;
+    padding: 0.85rem 0;
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 0.95rem;
+    font-weight: 700;
+    cursor: pointer;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    color: var(--black);
+  }
+  .accordion-btn .chevron { transition: transform 0.2s; font-size: 1.2rem; color: var(--green-dark); }
+  .accordion-body { padding: 0 0 1rem; font-size: 0.95rem; line-height: 1.6; color: var(--gray-dark); }
+
+  /* TESTIMONIALS */
+  .testimonial {
+    background: var(--green-pale);
+    border-left: 4px solid var(--green);
+    padding: 1rem 1.25rem;
+    margin-bottom: 1rem;
+  }
+  .testimonial p { font-style: italic; font-size: 1rem; color: var(--gray-dark); margin-bottom: 0.5rem; }
+  .testimonial .tname { font-family: 'Space Grotesk', sans-serif; font-weight: 700; font-size: 0.8rem; color: var(--black); }
+  .testimonial .tdetail { font-family: 'IBM Plex Mono', monospace; font-size: 0.68rem; color: var(--gray-mid); }
+
+  /* PRICING TABLE */
+  .pricing-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 1.25rem;
+  }
+  .price-card {
+    border: 2px solid var(--black);
+    padding: 1.5rem;
+    position: relative;
+    background: var(--clinical);
+  }
+  .price-card.featured { border-color: var(--green); background: var(--green-tint); }
+  .price-card .tier {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 0.7rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.15em;
+    color: var(--gray-mid);
+  }
+  .price-card .price {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 2.2rem;
+    font-weight: 800;
+    margin: 0.25rem 0;
+    color: var(--black);
+  }
+  .price-card .price-sub { font-size: 0.78rem; color: var(--gray-mid); margin-bottom: 0.75rem; }
+  .price-card ul { list-style: none; padding: 0; }
+  .price-card li {
+    font-size: 0.88rem;
+    padding: 0.35rem 0;
+    border-bottom: 1px solid var(--gray-light);
+    color: var(--gray-dark);
+  }
+  .price-card li:last-child { border-bottom: none; }
+  .price-card li::before { content: "✓ "; color: var(--green-dark); font-weight: 800; }
+  .badge {
+    position: absolute;
+    top: -1px; right: -1px;
+    background: var(--green);
+    color: var(--black);
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.6rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    padding: 0.25rem 0.6rem;
+  }
+
+  /* BIO GRID */
+  .bio-card { padding: 1rem 0; }
+  .bio-card .bio-name { font-family: 'Space Grotesk', sans-serif; font-weight: 800; font-size: 1rem; }
+  .bio-card .bio-title { font-family: 'IBM Plex Mono', monospace; font-size: 0.7rem; color: var(--green-dark); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 0.4rem; }
+  .bio-card .bio-desc { font-size: 0.92rem; color: var(--gray-dark); line-height: 1.55; }
+  .bio-initial {
+    width: 56px; height: 56px;
+    background: var(--black);
+    color: var(--green);
+    font-family: 'Playfair Display', serif;
+    font-size: 1.6rem;
+    font-weight: 800;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 0.5rem;
+  }
+
+  /* PRESS RELEASE */
+  .press { background: var(--green-tint); padding: 1.5rem; border: 1px solid var(--green); margin: 1rem 0; }
+  .press .press-label {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.65rem;
+    text-transform: uppercase;
+    letter-spacing: 0.15em;
+    color: var(--green-dark);
+    margin-bottom: 0.5rem;
+    font-weight: 700;
+  }
+
+  /* FOOTER */
+  footer {
+    background: var(--black);
+    color: var(--gray-light);
+    padding: 2rem 0 3rem;
+    margin-top: 2rem;
+    font-size: 0.85rem;
+  }
+  footer a { color: var(--green); text-decoration: none; }
+  footer h4 { color: var(--clinical); font-family: 'Space Grotesk', sans-serif; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 0.5rem; }
+  .footer-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1.5rem; }
+  .footer-bottom {
+    margin-top: 1.5rem;
+    padding-top: 1rem;
+    border-top: 1px solid #333;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.65rem;
+    color: var(--gray-mid);
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+
+  /* HOVER REVEAL */
+  .hover-reveal { position: relative; cursor: pointer; }
+  .hover-reveal .reveal-content {
+    display: none;
+    position: absolute;
+    top: 100%;
+    left: 0;
+    background: var(--black);
+    color: var(--clinical);
+    padding: 0.75rem 1rem;
+    font-size: 0.82rem;
+    z-index: 50;
+    min-width: 250px;
+    max-width: 350px;
+    border: 2px solid var(--green);
+    line-height: 1.45;
+  }
+  .hover-reveal:hover .reveal-content,
+  .hover-reveal:focus .reveal-content,
+  .hover-reveal.show-reveal .reveal-content { display: block; }
+
+  /* CTA BUTTON */
+  .btn-cta {
+    display: inline-block;
+    background: var(--green);
+    color: var(--black);
+    font-family: 'Space Grotesk', sans-serif;
+    font-weight: 800;
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    padding: 0.7rem 1.5rem;
+    border: 2px solid var(--black);
+    cursor: pointer;
+    text-decoration: none;
+    transition: background 0.15s;
+    min-height: 44px;
+  }
+  .btn-cta:hover { background: var(--green-dark); color: var(--clinical); }
+
+  /* SCROLLBAR */
+  .sidebar-scroll { max-height: 420px; overflow-y: auto; }
+  .sidebar-scroll::-webkit-scrollbar { width: 4px; }
+  .sidebar-scroll::-webkit-scrollbar-thumb { background: var(--green); }
+
+  /* BREAKING BANNER */
+  .breaking-banner {
+    background: var(--green);
+    color: var(--black);
+    padding: 0.5rem 0;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.72rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    overflow: hidden;
+    white-space: nowrap;
+  }
+  .breaking-inner { display: inline-block; animation: ticker 28s linear infinite; }
+  @keyframes ticker { 0% { transform: translateX(100vw); } 100% { transform: translateX(-100%); } }
+
+  /* DISCLAIMER */
+  .disclaimer {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.62rem;
+    color: var(--gray-mid);
+    line-height: 1.5;
+    padding: 1rem 0;
+    border-top: 1px solid var(--gray-light);
+    margin-top: 1rem;
+  }
+
+  /* ANIM INIT */
+  .fade-up { opacity: 0; transform: translateY(20px); }
+
+  /* MOBILE NAV TOGGLE */
+  .nav-toggle { display: none; background: none; border: none; font-size: 1.5rem; cursor: pointer; color: var(--black); min-width: 44px; min-height: 44px; }
+  @media (max-width: 768px) {
+    .nav-toggle { display: block; }
+    .nav-links { width: 100%; display: none; flex-direction: column; gap: 0.75rem; padding-top: 0.75rem; }
+    .nav-links.open { display: flex; }
+    .nav-links a { font-size: 0.9rem; padding: 0.3rem 0; }
+  }
+
+  /* REDACTED */
+  .redacted {
+    background: var(--black);
+    color: var(--black);
+    padding: 0 0.3em;
+    cursor: pointer;
+    transition: all 0.2s;
+    user-select: none;
+  }
+  .redacted.revealed { background: transparent; color: var(--green-dark); }
+</style>
+</head>
+<body x-data="{ mobileNav: false, activeTab: 'current', showDisclaimer: false }">
+
+<!-- TOPBAR -->
+<div class="topbar">
+  <div class="container">
+    <span>Atmospheric Pollution Litigation Since 1987</span>
+    <span>24/7 Cloud Reporting Hotline: <a href="tel:+18005554247">1-800-555-CAIR</a></span>
+  </div>
+</div>
+
+<!-- BREAKING TICKER -->
+<div class="breaking-banner">
+  <div class="breaking-inner">
+    ★ BREAKING: Cumulus formations spotted over Toledo, OH — Class action filing underway ★ SETTLEMENT UPDATE: $4.2M awarded in Bleachman v. The Sky (Docket 2024-ATM-7781) ★ NEW PRECEDENT: Judge rules cirrus clouds "structurally indistinguishable from abandoned fiberglass insulation" ★ WEATHER ADVISORY: All precipitation reclassified as "unlicensed sky discharge" ★
+  </div>
+</div>
+
+<!-- NAVBAR -->
+<nav class="navbar">
+  <div class="container">
+    <div class="nav-brand">Bleachman, Gust<span>&</span> Associates<br><span style="font-size:0.55em;font-weight:400;letter-spacing:0.04em;color:var(--gray-mid);">Attorneys at Atmosphere</span></div>
+    <button class="nav-toggle" @click="mobileNav = !mobileNav" aria-label="Toggle navigation">☰</button>
+    <div class="nav-links" :class="{ 'open': mobileNav }">
+      <a href="#cases">Active Cases</a>
+      <a href="#team">Our Team</a>
+      <a href="#pricing">Retainer Plans</a>
+      <a href="#faq">FAQ</a>
+      <a href="#press">Press Room</a>
+      <a href="#report">Report a Cloud</a>
+    </div>
+  </div>
+</nav>
+
+<!-- MASTHEAD -->
+<header class="masthead">
+  <div class="container">
+    <h1 class="masthead-title fade-up">The Sky Has<br>A Littering Problem</h1>
+    <p class="masthead-sub fade-up">"Somebody put all this stuff up there and nobody's asking who." — Gerald Bleachman, founding partner, 1987 deposition</p>
+    <div class="edition-line">Vol. XXXVIII, No. 412 &nbsp;·&nbsp; February 9, 2026 &nbsp;·&nbsp; The Atmospheric Liability Quarterly &nbsp;·&nbsp; Est. 1987 &nbsp;·&nbsp; Steubenville, OH</div>
+  </div>
+</header>
+
+<!-- STATS -->
+<div class="stats-bar">
+  <div class="stat-item">
+    <div class="stat-num" id="stat1">2,847</div>
+    <div class="stat-label">Clouds Litigated</div>
+  </div>
+  <div class="stat-item">
+    <div class="stat-num">$187M</div>
+    <div class="stat-label">Total Settlements</div>
+  </div>
+  <div class="stat-item">
+    <div class="stat-num">14</div>
+    <div class="stat-label">States w/ Sky Liens</div>
+  </div>
+  <div class="stat-item">
+    <div class="stat-num">0</div>
+    <div class="stat-label">Clouds We've Liked</div>
+  </div>
+</div>
+
+<!-- MAIN CONTENT -->
+<div class="container">
+
+  <!-- LEAD STORY -->
+  <section class="section" id="cases">
+    <div class="cols-2">
+      <div>
+        <span class="kicker">Lead Story</span>
+        <h2 class="headline fade-up">Midwest Sky "Essentially an Open Landfill," New Forensic Report Finds</h2>
+        <div class="byline">By Karen Whittle, Senior Atmospheric Correspondent · Feb 9, 2026</div>
+        <div class="article-body">
+          <p class="lead">A comprehensive 340-page report commissioned by the firm has found that the airspace above the American Midwest contains approximately 1.2 billion metric tons of unlicensed water vapor, making it "the largest unregulated dumping site in the Western Hemisphere."</p>
+          <p>"What we're looking at is essentially a sky landfill," said Dr. Patricia Hume, the firm's retained atmospheric forensics specialist. "You wouldn't accept someone dumping this much material on your lawn. The fact that it's above your lawn doesn't make it better. Arguably, it makes it worse, because you can't even put a tarp over it."</p>
+          <p>The report documents that a single cumulonimbus formation can weigh as much as 1.1 million pounds—roughly equivalent to 110 school buses, or one school bus filled with 109 other school buses. "That is hanging over people's houses," said partner Janet Gust. "We have building codes for a reason."</p>
+          <div class="pullquote">"If I left 110 school buses on your roof, you'd call the police. Clouds get a pass because they're white and fluffy. That's aesthetic bias, and it's actionable."</div>
+          <p>The firm is currently seeking plaintiffs in Ohio, Indiana, Michigan, and Illinois for a multi-district class action. Residents who have at any point looked up and seen a cloud are encouraged to contact intake.</p>
+        </div>
+      </div>
+      <div>
+        <div class="green-box">
+          <h3>Were You Exposed to Sky?</h3>
+          <p>If you have ever been outdoors in a state where clouds are present, you may be entitled to compensation. Our intake team is available 24/7.</p>
+          <p style="margin-top:0.75rem;font-weight:700;">Call 1-800-555-CAIR or fill out Form ATM-12B (available at any participating Kinko's).</p>
+        </div>
+
+        <div style="margin-top:1.5rem;">
+          <span class="kicker">Case Spotlight</span>
+          <h3 class="headline-sm">Henderson v. That One Cloud That Looked Like a Dog</h3>
+          <div class="byline">Docket No. 2025-ATM-3309 · Status: Active</div>
+          <p style="font-size:0.92rem;color:var(--gray-dark);">Plaintiff Darryl Henderson, 54, of Akron, alleges that a cloud resembling a golden retriever caused "severe emotional disturbance" by reminding him of his childhood dog, Biscuit, who died in 2003. Henderson is seeking $240,000 in emotional damages and a restraining order against cumulus formations within 15,000 feet of his property.</p>
+          <p style="font-size:0.92rem;color:var(--gray-dark);margin-top:0.5rem;">"I just want to look up and see nothing," Henderson told reporters. "Is that so much to ask?"</p>
+        </div>
+
+        <div style="margin-top:1.5rem;">
+          <span class="kicker">In Brief</span>
+          <h3 class="headline-sm">Firm Wins Right to Depose the Jet Stream</h3>
+          <div class="byline">Procedural ruling · Jan 28, 2026</div>
+          <p style="font-size:0.92rem;color:var(--gray-dark);">In a landmark procedural ruling, Judge Martha Chen of the Northern District of Ohio has granted BG&A's motion to depose the jet stream as a hostile witness. "It knows what it did," said lead counsel Reginald Gust III. The deposition is scheduled for March, weather permitting.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- TABBED: CURRENT CASES / RECENT WINS / PENDING -->
+  <section class="section" x-data="{ tab: 'current' }">
+    <div class="rule-green" style="margin-bottom:1rem;"></div>
+    <div class="tab-bar">
+      <button class="tab-btn" :class="{ active: tab === 'current' }" @click="tab = 'current'">Active Litigation</button>
+      <button class="tab-btn" :class="{ active: tab === 'wins' }" @click="tab = 'wins'">Recent Victories</button>
+      <button class="tab-btn" :class="{ active: tab === 'pending' }" @click="tab = 'pending'">Pending Actions</button>
+    </div>
+    <div class="tab-panel" x-show="tab === 'current'">
+      <div class="cols-3">
+        <div>
+          <h4 class="headline-sm">Bleachman v. The Sky</h4>
+          <div class="byline">Multi-district · 14 States</div>
+          <p style="font-size:0.9rem;color:var(--gray-dark);">Flagship class action alleging the sky has operated as an unlicensed waste disposal system since approximately 4.5 billion years ago. Seeking injunctive relief and retroactive permitting fees. Current plaintiff class: 47 million U.S. residents who "have eyes."</p>
+        </div>
+        <div>
+          <h4 class="headline-sm">In re: Morning Fog (Toledo)</h4>
+          <div class="byline">Docket 2025-ATM-8812</div>
+          <p style="font-size:0.9rem;color:var(--gray-dark);">Alleges that morning fog constitutes "clouds trespassing at ground level." Toledo residents have reported visibility under 200 feet on 37 mornings since October, which the firm characterizes as "atmospheric breaking and entering."</p>
+        </div>
+        <div>
+          <h4 class="headline-sm">Nguyen v. Contrail LLC</h4>
+          <div class="byline">Docket 2026-ATM-0119</div>
+          <p style="font-size:0.9rem;color:var(--gray-dark);">Individual action against Delta Air Lines for producing artificial clouds (contrails) without a sky-use permit. Plaintiff Dawn Nguyen states she "didn't consent to additional clouds" and is seeking $47,500 per contrail over her property since 2019.</p>
+        </div>
+      </div>
+    </div>
+    <div class="tab-panel" x-show="tab === 'wins'" x-cloak>
+      <div class="cols-3">
+        <div>
+          <h4 class="headline-sm">Gust v. Overcast (Settled)</h4>
+          <div class="byline">$4.2M Settlement · Dec 2025</div>
+          <p style="font-size:0.9rem;color:var(--gray-dark);">Jury found that 11 consecutive overcast days in Gary, Indiana constituted "aesthetic blight" under state environmental code. Residents of a 4-block radius each received $1,200 and a coupon for 15% off SunHealth™ UV lamps.</p>
+        </div>
+        <div>
+          <h4 class="headline-sm">Bleachman v. Nimbus et al.</h4>
+          <div class="byline">$1.8M Verdict · Sept 2025</div>
+          <p style="font-size:0.9rem;color:var(--gray-dark);">Rain ruled an "unauthorized discharge of sky contents onto private property." Defendant (the atmosphere) failed to appear. Default judgment entered. Gerald Bleachman called it "the most important no-show since my first wedding."</p>
+        </div>
+        <div>
+          <h4 class="headline-sm">Class of '24 v. Sunset</h4>
+          <div class="byline">$780K Settlement · June 2025</div>
+          <p style="font-size:0.9rem;color:var(--gray-dark);">143 plaintiffs alleged a "suspiciously beautiful" sunset over Lake Erie was an attempt by the atmosphere to generate positive PR ahead of the Bleachman v. The Sky trial. Settled under NDA. The sunset has not commented.</p>
+        </div>
+      </div>
+    </div>
+    <div class="tab-panel" x-show="tab === 'pending'" x-cloak>
+      <div class="cols-3">
+        <div>
+          <h4 class="headline-sm">Ohio v. Humidity</h4>
+          <div class="byline">Amicus Brief Filed</div>
+          <p style="font-size:0.9rem;color:var(--gray-dark);">BG&A has filed an amicus brief arguing humidity is "pre-cloud" and should be regulated as a precursor pollutant, similar to how the DEA classifies precursor chemicals. "It's cloud larva," said Janet Gust.</p>
+        </div>
+        <div>
+          <h4 class="headline-sm">Emergency Motion: February Snow</h4>
+          <div class="byline">Filed Feb 3, 2026</div>
+          <p style="font-size:0.9rem;color:var(--gray-dark);">Seeking emergency injunction against all snowfall in the greater Cleveland area. Motion argues snow is "just clouds that fell down" and therefore constitutes illegal dumping. Hearing set for Feb 14.</p>
+        </div>
+        <div>
+          <h4 class="headline-sm">Petition: Sky Zoning Board</h4>
+          <div class="byline">Regulatory Action</div>
+          <p style="font-size:0.9rem;color:var(--gray-dark);">Firm has petitioned the FAA to establish a Sky Zoning Board with authority to issue citations, cloud removal orders, and sky-use permits. Proposed fee structure: $2,400/cloud/month or $19,200/annual unlimited sky-use license.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- TEAM -->
+  <section class="section" id="team">
+    <div class="rule" style="margin-bottom:1.25rem;"></div>
+    <span class="kicker">The Partners</span>
+    <h2 class="headline" style="margin-bottom:1rem;">Meet the Firm</h2>
+    <div class="cols-3">
+      <div class="bio-card">
+        <div class="bio-initial">GB</div>
+        <div class="bio-name">Gerald Bleachman</div>
+        <div class="bio-title">Founding Partner · Chief Sky Litigator</div>
+        <p class="bio-desc">Gerald hasn't looked up since 1983, when a cloud "ruined" his daughter's outdoor birthday party. He has since filed over 1,400 atmospheric complaints and holds the Ohio state record for most restraining orders filed against weather phenomena. Hobbies include ceilings and parking garages. J.D., University of Akron, 1979.</p>
+      </div>
+      <div class="bio-card">
+        <div class="bio-initial">JG</div>
+        <div class="bio-name">Janet Gust</div>
+        <div class="bio-title">Managing Partner · Precipitation Defense</div>
+        <p class="bio-desc">Janet joined the firm in 1994 after a distinguished career suing rivers for "loitering." She pioneered the legal theory that evaporation is theft—specifically, that bodies of water are "smuggling themselves into the sky without a permit." Named one of Ohio Lawyer Monthly's "Top 40 Under 70" in 2024. J.D., Case Western Reserve, 1988.</p>
+      </div>
+      <div class="bio-card">
+        <div class="bio-initial">RG</div>
+        <div class="bio-name">Reginald Gust III</div>
+        <div class="bio-title">Senior Associate · Aerial Trespass</div>
+        <p class="bio-desc">Janet's nephew and the firm's youngest attorney, Reginald specializes in aerial trespass law, a field he invented. He successfully argued that a rainbow over Cincinnati constituted "an unlicensed light installation on private airspace" and won $12,000 for his client, who described the rainbow as "pretty, but unauthorized." J.D., Ohio State, 2019.</p>
+      </div>
+    </div>
+    <div class="cols-3" style="margin-top:0.5rem;">
+      <div class="bio-card">
+        <div class="bio-initial">PH</div>
+        <div class="bio-name">Dr. Patricia Hume</div>
+        <div class="bio-title">Retained Expert · Atmospheric Forensics</div>
+        <p class="bio-desc">Dr. Hume holds a Ph.D. in meteorology from Penn State, which she describes as "the biggest mistake of my life, because now I understand exactly how much garbage is up there." Her 340-page report, <em>The Sky: An Unregulated Dump</em>, is the firm's primary evidentiary document and a NYT bestseller in the "Atmospheric Crime" category, which was created for her.</p>
+      </div>
+      <div class="bio-card">
+        <div class="bio-initial">DM</div>
+        <div class="bio-name">Diane Moorhaven</div>
+        <div class="bio-title">Paralegal · Cloud Identification Unit</div>
+        <p class="bio-desc">Diane has personally catalogued and photographed 11,247 clouds since joining the firm in 2001. Each cloud has been assigned a case number. She can identify a cumulonimbus at 30,000 feet by silhouette alone, a skill she calls "completely useless in my personal life." Certificate, Steubenville Community College, 1998.</p>
+      </div>
+      <div class="bio-card">
+        <div class="bio-initial">CT</div>
+        <div class="bio-name">Carl Tomasetti</div>
+        <div class="bio-title">Office Manager · Former Weatherman</div>
+        <p class="bio-desc">Carl worked as a local TV meteorologist for WTOV-9 from 1996 to 2014, when he was fired for referring to clouds on-air as "sky trash" during a live broadcast. He describes his current role as "desk work, mostly, but I still go outside to yell at the sky during lunch." Associates degree, unrelated field.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- TESTIMONIALS -->
+  <section class="section">
+    <div class="rule-thin" style="margin-bottom:1.25rem;"></div>
+    <div class="cols-2-equal">
+      <div>
+        <span class="kicker">Client Voices</span>
+        <h2 class="headline" style="margin-bottom:1rem;">What Our Clients Say</h2>
+        <div class="testimonial">
+          <p>"I always knew something was wrong with the sky but everyone told me to 'relax' and 'go back inside.' Bleachman, Gust & Associates were the first people to take me seriously, and also the first people to take $347 a month from me, but I feel heard."</p>
+          <div class="tname">Barbara Klumpf</div>
+          <div class="tdetail">Plaintiff, Klumpf v. Partly Cloudy · Lima, OH</div>
+        </div>
+        <div class="testimonial">
+          <p>"They told me my rain gutter lawsuit was 'unwinnable' and 'not how lawsuits work.' Two years later, I have a $12,000 settlement and a personalized cease-and-desist letter addressed to 'The Atmosphere, c/o Whoever Is in Charge.' Worth every penny of the $43,000 in legal fees."</p>
+          <div class="tname">Ron DiPaolo</div>
+          <div class="tdetail">Plaintiff, DiPaolo v. Precipitation · Youngstown, OH</div>
+        </div>
+        <div class="testimonial">
+          <p>"I can't really talk about the details because of the NDA, but I will say this: if you've ever had a cloud block your sun, you deserve justice and also possibly a UV lamp, which is what I got. The lamp is fine."</p>
+          <div class="tname">Name Withheld</div>
+          <div class="tdetail">Plaintiff, [REDACTED] v. Overcast · Gary, IN</div>
+        </div>
+      </div>
+      <div>
+        <span class="kicker">From the Blog</span>
+        <h3 class="headline-sm">Opinion: "Partly Cloudy" Is a Hate Crime Against Blue Skies</h3>
+        <div class="byline">By Gerald Bleachman · Jan 14, 2026</div>
+        <div class="article-body" style="font-size:0.92rem;">
+          <p>When the National Weather Service issues a forecast of "partly cloudy," what they are telling you is that the sky is partly full of garbage. They wouldn't say "partly rats" about your kitchen. They wouldn't say "partly sewage" about your drinking water. But we accept "partly cloudy" as though it were a neutral condition rather than a partial contamination of our most basic shared resource: the view upward.</p>
+          <p>I have been fighting this fight for 39 years. I have been called a crank, a nuisance, and — in one particularly hurtful appellate brief — "a man who fundamentally misunderstands what clouds are." But I understand exactly what clouds are. They are someone else's water, parked in my sky, without my permission. That is called littering. In some jurisdictions, it is called trespassing. In all jurisdictions, it is called rude.</p>
+          <p><em>[Read the full 4,200-word op-ed at BleachmanGust.com/blog]</em></p>
+        </div>
+        <div style="margin-top:1.25rem;" class="rule-thin"></div>
+        <h3 class="headline-sm" style="margin-top:1rem;">Legal Analysis: Can You Sue a Cloud?</h3>
+        <div class="byline">By Janet Gust · Dec 30, 2025</div>
+        <p style="font-size:0.92rem;color:var(--gray-dark);">Short answer: yes. Long answer: yes, and you should. The question isn't whether clouds have legal standing — they clearly don't, which is actually our advantage. You can't cross-examine a cloud. You can't put a cloud on the witness stand. This means the cloud cannot defend itself, which is, legally speaking, the best possible scenario for our clients.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- PRICING -->
+  <section class="section" id="pricing">
+    <div class="rule-green" style="margin-bottom:1.25rem;"></div>
+    <span class="kicker">Retainer Plans</span>
+    <h2 class="headline" style="margin-bottom:0.35rem;">Sky Defense Packages</h2>
+    <p style="font-size:0.9rem;color:var(--gray-mid);margin-bottom:1.25rem;">All plans include a complimentary umbrella (for evidence collection, not rain protection — we do not acknowledge rain as a valid phenomenon).</p>
+    <div class="pricing-grid">
+      <div class="price-card">
+        <div class="tier">Cirrus</div>
+        <div class="price">$47.99<span style="font-size:0.5em;font-weight:400;color:var(--gray-mid);">/mo</span></div>
+        <div class="price-sub">Individual sky monitoring</div>
+        <ul>
+          <li>Monthly atmospheric threat assessment</li>
+          <li>Up to 3 cloud complaints filed per quarter</li>
+          <li>Standard cease-and-desist letters (addressed to "The Sky")</li>
+          <li>Access to client portal (SkyWatch™)</li>
+          <li>One (1) complimentary yell at cloud per year</li>
+        </ul>
+      </div>
+      <div class="price-card featured">
+        <div class="badge">Most Popular</div>
+        <div class="tier">Cumulus</div>
+        <div class="price">$347.00<span style="font-size:0.5em;font-weight:400;color:var(--gray-mid);">/mo</span></div>
+        <div class="price-sub">Full atmospheric litigation coverage</div>
+        <ul>
+          <li>Everything in Cirrus</li>
+          <li>Unlimited cloud complaints</li>
+          <li>Named plaintiff status in active class actions</li>
+          <li>Priority rain response team (arrives within 4 hours)</li>
+          <li>Personalized restraining order against one (1) specific cloud type</li>
+          <li>Quarterly sky purity report</li>
+        </ul>
+      </div>
+      <div class="price-card">
+        <div class="tier">Cumulonimbus</div>
+        <div class="price">$2,400<span style="font-size:0.5em;font-weight:400;color:var(--gray-mid);">/mo</span></div>
+        <div class="price-sub">Enterprise sky defense</div>
+        <ul>
+          <li>Everything in Cumulus</li>
+          <li>Dedicated attorney on retainer</li>
+          <li>Emergency fog response (30-minute ETA)</li>
+          <li>Annual skyline audit of your property</li>
+          <li>Private atmospheric litigation hotline</li>
+          <li>Gerald Bleachman's personal cell number</li>
+          <li>One (1) cloud named after you in court filings</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- FAQ ACCORDION -->
+  <section class="section" id="faq">
+    <div class="rule" style="margin-bottom:1.25rem;"></div>
+    <span class="kicker">Frequently Asked Questions</span>
+    <h2 class="headline" style="margin-bottom:1rem;">You Have Questions. The Sky Has Answers (That It Refuses to Give).</h2>
+    <div x-data="{ open: null }">
+      <div class="accordion-item">
+        <button class="accordion-btn" @click="open = open === 1 ? null : 1"><span>Are clouds actually illegal?</span><span class="chevron" :style="open === 1 ? 'transform:rotate(180deg)' : ''">▼</span></button>
+        <div class="accordion-body" x-show="open === 1" x-collapse x-cloak>Not yet, but we're working on it. Currently, clouds exist in what we call a "legal gray area," which is ironic because most clouds are also gray. Our position is that any object occupying airspace above private property without the owner's consent constitutes trespass. The fact that no court has ever agreed with us is, in our view, evidence of systemic atmospheric bias in the judiciary.</div>
+      </div>
+      <div class="accordion-item">
+        <button class="accordion-btn" @click="open = open === 2 ? null : 2"><span>Can I really sue a cloud?</span><span class="chevron" :style="open === 2 ? 'transform:rotate(180deg)' : ''">▼</span></button>
+        <div class="accordion-body" x-show="open === 2" x-collapse x-cloak>You can file a lawsuit against anything. Whether that lawsuit succeeds depends on the judge, the jurisdiction, and whether we can get the case heard before Judge Chen, who has been very sympathetic to our work ever since a rogue nimbostratus formation dropped 3 inches of rain on her daughter's wedding in 2022. We have won 14 cases by default judgment because the defendant (a cloud) did not appear. This is our preferred legal strategy.</div>
+      </div>
+      <div class="accordion-item">
+        <button class="accordion-btn" @click="open = open === 3 ? null : 3"><span>How do I know if I've been affected by sky pollution?</span><span class="chevron" :style="open === 3 ? 'transform:rotate(180deg)' : ''">▼</span></button>
+        <div class="accordion-body" x-show="open === 3" x-collapse x-cloak>Have you ever looked up? Then yes. Our intake criteria are simple: if you have been outdoors at any point in your life in a location where the sky was visible, you are a potential plaintiff. Indoor-only individuals may also qualify if they have seen the sky through a window or on television. We are currently evaluating whether people who have seen paintings of clouds have standing.</div>
+      </div>
+      <div class="accordion-item">
+        <button class="accordion-btn" @click="open = open === 4 ? null : 4"><span>What about rain? Is rain a crime?</span><span class="chevron" :style="open === 4 ? 'transform:rotate(180deg)' : ''">▼</span></button>
+        <div class="accordion-body" x-show="open === 4" x-collapse x-cloak>We believe rain is the disposal phase of cloud pollution—essentially, the sky dumping its contents onto your property. Under most state environmental codes, discharging water onto someone's land without their consent is prohibited. The fact that rain has been doing this for billions of years does not make it legal; it makes it a very old crime. Our position paper, "Rain: The Sky's Unlicensed Discharge" (Bleachman, 2018), has been cited in zero legal decisions, which we attribute to the powerful rain lobby.</div>
+      </div>
+      <div class="accordion-item">
+        <button class="accordion-btn" @click="open = open === 5 ? null : 5"><span>Why haven't I heard of your firm before?</span><span class="chevron" :style="open === 5 ? 'transform:rotate(180deg)' : ''">▼</span></button>
+        <div class="accordion-body" x-show="open === 5" x-collapse x-cloak>Big Weather. The meteorological-industrial complex has a vested interest in keeping clouds normalized. Every local news station employs a "meteorologist" whose entire job is to make clouds seem routine and acceptable. These are essentially cloud apologists on the payroll of every major media outlet. We have filed FCC complaints. They have not been returned.</div>
+      </div>
+      <div class="accordion-item">
+        <button class="accordion-btn" @click="open = open === 6 ? null : 6"><span>Do you handle sunny days?</span><span class="chevron" :style="open === 6 ? 'transform:rotate(180deg)' : ''">▼</span></button>
+        <div class="accordion-body" x-show="open === 6" x-collapse x-cloak>We do not litigate against the sun at this time. The sun is one of the few atmospheric actors we consider to be operating within acceptable parameters. That said, Gerald has described sunsets as "the sky's closing argument" and has expressed interest in a future practice area focused on "unlicensed atmospheric color changes." This is not currently available to clients.</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- PRESS ROOM -->
+  <section class="section" id="press">
+    <div class="rule-thin" style="margin-bottom:1.25rem;"></div>
+    <span class="kicker">Press Room</span>
+    <h2 class="headline" style="margin-bottom:1rem;">Recent Coverage & Firm Notices</h2>
+    <div class="cols-2-equal">
+      <div>
+        <div class="press">
+          <div class="press-label">Press Release · February 3, 2026</div>
+          <h3 class="headline-sm">BG&A Files Emergency Injunction Against February Snowfall</h3>
+          <p style="font-size:0.9rem;color:var(--gray-dark);margin-top:0.5rem;">STEUBENVILLE, OH — Bleachman, Gust & Associates announced today the filing of an emergency motion in the Northern District of Ohio seeking an immediate halt to all snowfall in the greater Cleveland metropolitan area. The firm argues that snow, which it defines as "frozen clouds that have given up and fallen," constitutes illegal dumping under both state and federal environmental statutes.</p>
+          <p style="font-size:0.9rem;color:var(--gray-dark);margin-top:0.5rem;">"A cloud that stays in the sky is trespassing," said founding partner Gerald Bleachman. "A cloud that falls on your driveway is dumping. We see no meaningful distinction between a snowstorm and someone backing a dump truck up to your house, except the dump truck has the decency to be visible."</p>
+        </div>
+        <div class="press">
+          <div class="press-label">Media Mention · January 19, 2026</div>
+          <h3 class="headline-sm">Steubenville Herald-Star: "Local Law Firm Sues Sky Again, For 1,400th Time"</h3>
+          <p style="font-size:0.9rem;color:var(--gray-dark);margin-top:0.5rem;">"Bleachman, reached by phone, said he was 'not done' and would 'never be done as long as there is something up there.' When asked to clarify what he meant by 'something,' he said, 'You know exactly what I mean,' and hung up."</p>
+        </div>
+      </div>
+      <div>
+        <div class="press">
+          <div class="press-label">Firm Announcement · January 8, 2026</div>
+          <h3 class="headline-sm">BG&A Opens Satellite Office in Gary, Indiana</h3>
+          <p style="font-size:0.9rem;color:var(--gray-dark);margin-top:0.5rem;">The firm's new Gary office will focus exclusively on overcast litigation. "Gary averages 186 overcast days per year," said managing partner Janet Gust. "That's 186 counts of sky misconduct. We intend to file for every single one of them, retroactively, back to the city's founding in 1906. That's approximately 22,320 separate atmospheric violations."</p>
+        </div>
+        <div style="margin-top:1.25rem;">
+          <span class="kicker">As Seen In</span>
+          <p style="font-size:0.88rem;color:var(--gray-dark);margin-top:0.4rem;line-height:1.8;">
+            <span style="font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:0.8rem;">Steubenville Herald-Star</span> · "Local Firm Sues Sky Again" (17 articles)<br>
+            <span style="font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:0.8rem;">Ohio Lawyer Monthly</span> · "Top 40 Under 70" (2024)<br>
+            <span style="font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:0.8rem;">The Weather Channel</span> · Cease-and-desist recipient (2019, 2021, 2023)<br>
+            <span style="font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:0.8rem;">National Weather Service</span> · "Please stop calling us" (2022)<br>
+            <span style="font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:0.8rem;">Akron Beacon Journal</span> · "Is This Man Insane?" (Opinion, 2020)<br>
+            <span style="font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:0.8rem;">NPR's All Things Considered</span> · Segment declined, twice
+          </p>
+        </div>
+        <div style="margin-top:1.25rem;">
+          <span class="kicker">Internal Memo — Leaked</span>
+          <p style="font-size:0.88rem;color:var(--gray-dark);margin-top:0.4rem;">From: Gerald Bleachman<br>To: All Staff<br>Re: Office Windows</p>
+          <p style="font-size:0.88rem;color:var(--gray-dark);margin-top:0.35rem;">"Effective immediately, all office blinds are to remain closed. I am tired of walking past conference room B and seeing <span class="redacted" @click="$el.classList.toggle('revealed')">clouds visible through the window</span>. This is a hostile work environment and I have filed a complaint with HR. HR has reminded me that I am also HR."</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- REPORT A CLOUD -->
+  <section class="section" id="report">
+    <div class="rule-green" style="margin-bottom:1.25rem;"></div>
+    <div class="cols-2">
+      <div>
+        <span class="kicker">Take Action</span>
+        <h2 class="headline">Report a Cloud</h2>
+        <p style="font-size:0.95rem;color:var(--gray-dark);margin:0.75rem 0;">See something? Say something. Every cloud report helps build our evidentiary database. Our Cloud Identification Unit currently tracks over 11,247 individually catalogued clouds, each assigned a unique docket number.</p>
+        <h4 style="font-family:'Space Grotesk',sans-serif;font-size:0.85rem;margin-top:1.25rem;margin-bottom:0.5rem;">HOW TO FILE A CLOUD REPORT:</h4>
+        <ol style="font-size:0.9rem;color:var(--gray-dark);padding-left:1.25rem;line-height:1.8;">
+          <li>Look up. Confirm the presence of one or more clouds.</li>
+          <li>Note the cloud type, if known. (If unknown, write "suspicious.")</li>
+          <li>Estimate the cloud's size in school buses.</li>
+          <li>Take a photograph. Point directly at the cloud. This is your evidence.</li>
+          <li>Call 1-800-555-CAIR or email <span class="mono" style="font-size:0.8rem;">intake@bleachmangust.com</span></li>
+          <li>A member of our team will respond within 2-4 business days, weather permitting.</li>
+        </ol>
+        <p style="font-size:0.82rem;color:var(--gray-dark);margin-top:0.75rem;font-style:italic;">Note: Do not attempt to physically remove a cloud. This is not legal advice. Actually, it is legal advice: don't do it. We tried once. Gerald was fine, but the ladder was not.</p>
+      </div>
+      <div>
+        <div class="green-box" style="margin-top:0;">
+          <h3>Cloud Severity Classification System</h3>
+          <p style="margin-bottom:0.5rem;">Official BG&A internal rating scale:</p>
+          <div style="font-size:0.88rem;line-height:2;">
+            <strong>Level 1 — Wisp:</strong> Minimal sky contamination. Monitoring only.<br>
+            <strong>Level 2 — Cluster:</strong> Multiple clouds present. Complaint recommended.<br>
+            <strong>Level 3 — Blanket:</strong> Overcast conditions. Immediate legal action advised.<br>
+            <strong>Level 4 — Hostile Formation:</strong> Thunderstorm or cumulonimbus. Evacuate to indoor facility. Our emergency team is en route.<br>
+            <strong>Level 5 — <span class="redacted" @click="$el.classList.toggle('revealed')">TOTAL SKY FAILURE</span>:</strong> <span class="redacted" @click="$el.classList.toggle('revealed')">Has not occurred yet. Gerald has a plan.</span>
+          </div>
+        </div>
+        <div style="margin-top:1.25rem;">
+          <span class="kicker">Know Your Rights</span>
+          <h4 class="headline-sm">The Atmospheric Bill of Rights</h4>
+          <p style="font-size:0.88rem;color:var(--gray-dark);margin-top:0.4rem;font-style:italic;">(Drafted by Gerald Bleachman, 2019. Adopted by: no one yet.)</p>
+          <ol style="font-size:0.88rem;color:var(--gray-dark);padding-left:1.25rem;line-height:1.8;margin-top:0.5rem;">
+            <li>The right to an unobstructed sky.</li>
+            <li>The right to be informed before precipitation occurs on your property.</li>
+            <li>The right to refuse humidity.</li>
+            <li>The right to a 30-day notice before any cloud forms above your address.</li>
+            <li>The right to a sky that is blue and nothing else.</li>
+          </ol>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- DISCLAIMER -->
+  <div class="disclaimer">
+    <p>Bleachman, Gust & Associates is a licensed law firm in the state of Ohio. Nothing on this website constitutes an endorsement of clear skies, which the firm considers a natural and legally uncontroversial state of affairs. The firm does not provide meteorological advice and has been specifically asked by the National Weather Service to stop pretending that it does. All case results are real to the extent that anything involving clouds can be considered "real." Gerald Bleachman's views on the sky are his own and do not reflect the position of the Ohio State Bar Association, which has asked him to "please clarify that." Past results do not guarantee future outcomes. The sky does what it wants, for now. This website was last updated on a clear day, which is the only kind of day the firm acknowledges.</p>
+  </div>
+
+</div>
+
+<!-- FOOTER -->
+<footer>
+  <div class="container">
+    <div class="footer-grid">
+      <div>
+        <h4>Main Office</h4>
+        <p>Bleachman, Gust & Associates<br>412 Clear Sky Blvd, Suite 3<br>Steubenville, OH 43952</p>
+        <p style="margin-top:0.5rem;">Tel: 1-800-555-CAIR<br>Fax: 1-800-555-CAIR (same number, Gerald doesn't know how fax works)</p>
+      </div>
+      <div>
+        <h4>Satellite Offices</h4>
+        <p>Gary, IN — Overcast Division<br>Toledo, OH — Fog Response Unit<br>Akron, OH — Gerald's garage (by appointment)</p>
+      </div>
+      <div>
+        <h4>Hours</h4>
+        <p>Mon–Fri: 8am–6pm<br>Sat: 9am–1pm (cloud emergencies only)<br>Sun: Closed (Gerald goes to a building with a very high ceiling)</p>
+      </div>
+      <div>
+        <h4>Resources</h4>
+        <p><a href="#cases">Active Cases</a><br><a href="#pricing">Retainer Plans</a><br><a href="#faq">FAQ</a><br><a href="#report">Report a Cloud</a><br><a href="#press">Press Room</a></p>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>© 2026 Bleachman, Gust & Associates. All rights reserved. All clouds disputed.</span>
+      <span>Ohio State Bar Registration #47-ATM-1987 · Not affiliated with any weather service, by their request</span>
+    </div>
+  </div>
+</footer>
+
+<script>
+  // Init Lucide icons
+  lucide.createIcons();
+
+  // GSAP fade-ups
+  document.addEventListener('DOMContentLoaded', function() {
+    var els = document.querySelectorAll('.fade-up');
+    els.forEach(function(el, i) {
+      gsap.to(el, {
+        opacity: 1,
+        y: 0,
+        duration: 0.7,
+        delay: i * 0.15,
+        ease: 'power2.out'
+      });
+    });
+  });
+</script>
+</body>
+</html>

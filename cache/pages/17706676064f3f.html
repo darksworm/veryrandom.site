@@ -1,0 +1,667 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Ledger & Ice Co. | Cold Positions, Warm Rituals</title>
+  <link rel="stylesheet" href="/assets/css/pico.min.css" />
+  <link rel="stylesheet" href="/assets/css/fonts.css" />
+  <style>
+    :root {
+      --paper: #efe1c6;
+      --paper-deep: #dbc29a;
+      --ink: #1a120b;
+      --ink-soft: #2c1e13;
+      --tar: #17120d;
+      --tar-2: #23170f;
+      --chalk: #fff8eb;
+      --rust: #8e4a23;
+      --gold: #b78a42;
+      --accent: #4b7a72;
+      --voltage: 42;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html, body {
+      margin: 0;
+      min-height: 100%;
+      font-family: 'Space Grotesk', sans-serif;
+      color: var(--ink);
+      background: var(--paper);
+    }
+
+    body {
+      background:
+        radial-gradient(circle at 8% 14%, rgba(183, 138, 66, 0.26), transparent 34%),
+        radial-gradient(circle at 82% 88%, rgba(142, 74, 35, 0.18), transparent 30%),
+        linear-gradient(110deg, #f4e8d1, #e7d0ab 46%, #e2c69a 100%);
+    }
+
+    .shell {
+      min-height: 100vh;
+      display: grid;
+      grid-template-columns: 48% 52%;
+      border: 10px solid var(--ink);
+      box-shadow: 0 0 0 8px #cba66e inset, 0 24px 60px rgba(0, 0, 0, 0.34);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .shell::before,
+    .shell::after {
+      content: "";
+      position: absolute;
+      pointer-events: none;
+    }
+
+    .shell::before {
+      inset: -5% auto auto -8%;
+      width: 34rem;
+      height: 34rem;
+      background: conic-gradient(from 120deg, #0000 0 10%, rgba(183, 138, 66, 0.24) 18%, #0000 34%, rgba(142, 74, 35, 0.2) 52%, #0000 74%, rgba(75, 122, 114, 0.24) 84%, #0000 100%);
+      filter: blur(1px);
+      transform: rotate(-5deg);
+    }
+
+    .shell::after {
+      right: -14rem;
+      top: -8rem;
+      width: 32rem;
+      height: 32rem;
+      background: radial-gradient(circle, rgba(255, 248, 235, 0.4), rgba(255, 248, 235, 0) 62%);
+    }
+
+    .left,
+    .right {
+      padding: 1.25rem 1.25rem 1.1rem;
+      position: relative;
+    }
+
+    .left {
+      background:
+        linear-gradient(155deg, rgba(255, 248, 235, 0.7), rgba(239, 225, 198, 0.95)),
+        repeating-linear-gradient(80deg, rgba(44, 30, 19, 0.09), rgba(44, 30, 19, 0.09) 1px, transparent 1px, transparent 10px);
+      border-right: 3px dashed var(--ink-soft);
+      color: var(--ink);
+    }
+
+    .right {
+      background:
+        linear-gradient(120deg, #1f160f, #25170e 40%, #321f12 100%);
+      color: var(--chalk);
+      overflow: hidden;
+    }
+
+    nav {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 1rem;
+      margin-bottom: 1.1rem;
+    }
+
+    .brand {
+      font-size: 1.08rem;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      color: inherit;
+      text-decoration: none;
+    }
+
+    .nav-links {
+      display: flex;
+      gap: 0.8rem;
+      flex-wrap: wrap;
+    }
+
+    .nav-links a {
+      color: inherit;
+      text-decoration: none;
+      border: 1px solid currentColor;
+      padding: 0.2rem 0.5rem;
+      font-size: 0.76rem;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      font-weight: 700;
+    }
+
+    h1 {
+      font-size: clamp(2rem, 4.4vw, 3.7rem);
+      line-height: 0.95;
+      margin: 0.45rem 0 0.9rem;
+      text-transform: uppercase;
+      letter-spacing: 0.03em;
+    }
+
+    .lede {
+      max-width: 55ch;
+      font-size: 0.98rem;
+      line-height: 1.45;
+      font-weight: 600;
+      margin-bottom: 1.15rem;
+    }
+
+    .chip-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.55rem;
+      margin-bottom: 1rem;
+    }
+
+    .chip {
+      border: 2px solid var(--ink);
+      padding: 0.28rem 0.48rem;
+      font-size: 0.72rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      background: #f9e8cb;
+      font-weight: 700;
+      color: var(--ink);
+    }
+
+    .art-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 0.65rem;
+      margin-bottom: 0.9rem;
+    }
+
+    .tile {
+      min-height: 142px;
+      border: 2px solid var(--ink);
+      position: relative;
+      overflow: hidden;
+      isolation: isolate;
+      background: #ecd8b5;
+      cursor: pointer;
+    }
+
+    .tile::before,
+    .tile::after {
+      content: "";
+      position: absolute;
+      transition: transform 450ms ease, clip-path 450ms ease, background 450ms ease;
+    }
+
+    .tile-a::before {
+      inset: 12% 8% auto;
+      height: 68%;
+      background: linear-gradient(145deg, #8e4a23, #b78a42);
+      clip-path: polygon(8% 11%, 91% 0, 100% 74%, 34% 100%, 0 54%);
+      box-shadow: 0 0 0 2px #1a120b;
+    }
+
+    .tile-a::after {
+      width: 80px;
+      height: 80px;
+      right: -22px;
+      bottom: -22px;
+      border-radius: 50%;
+      background: radial-gradient(circle at 26% 30%, #fff8eb, #b78a42 60%, #8e4a23 100%);
+      border: 2px solid #1a120b;
+    }
+
+    .tile-a:hover::before,
+    .tile-a.active::before {
+      clip-path: polygon(0 0, 100% 14%, 86% 100%, 14% 88%);
+      transform: translateY(-5px) rotate(-4deg);
+      background: linear-gradient(145deg, #4b7a72, #b78a42);
+    }
+
+    .tile-a:hover::after,
+    .tile-a.active::after {
+      transform: translate(-22px, -18px) scale(1.24);
+    }
+
+    .tile-b {
+      background:
+        linear-gradient(180deg, #f4e8d1, #e9cf9e),
+        repeating-linear-gradient(-45deg, #0000 0 6px, rgba(23, 18, 13, 0.09) 6px 7px);
+    }
+
+    .tile-b::before {
+      inset: 0;
+      background: linear-gradient(75deg, rgba(44, 30, 19, 0.94), rgba(44, 30, 19, 0) 62%);
+      clip-path: polygon(0 0, 56% 0, 72% 100%, 0 100%);
+    }
+
+    .tile-b::after {
+      width: 55%;
+      height: 40%;
+      left: 18%;
+      top: 32%;
+      background: #fef4df;
+      border: 2px solid #1a120b;
+      box-shadow: -6px 6px 0 #8e4a23;
+      transform: rotate(-5deg);
+    }
+
+    .tile-b:hover::before,
+    .tile-b.active::before {
+      clip-path: polygon(0 0, 74% 0, 58% 100%, 0 100%);
+      background: linear-gradient(70deg, rgba(75, 122, 114, 0.95), rgba(44, 30, 19, 0) 68%);
+    }
+
+    .tile-b:hover::after,
+    .tile-b.active::after {
+      transform: rotate(7deg) translateY(-8px);
+    }
+
+    .price-band {
+      border: 2px solid var(--ink);
+      background: #f9ecd5;
+      padding: 0.55rem;
+      margin-top: 0.7rem;
+    }
+
+    .price-row {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.35rem 0;
+      border-bottom: 1px dashed var(--ink-soft);
+    }
+
+    .price-row:last-child {
+      border-bottom: none;
+    }
+
+    .price-label {
+      font-size: 0.8rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+    }
+
+    .price-value {
+      font-family: 'IBM Plex Mono', monospace;
+      font-weight: 700;
+      color: var(--ink);
+      background: #fff8eb;
+      border: 1px solid var(--ink);
+      padding: 0.2rem 0.4rem;
+    }
+
+    .right .top-strip {
+      display: grid;
+      grid-template-columns: auto 1fr auto;
+      align-items: center;
+      gap: 0.8rem;
+      margin-bottom: 0.85rem;
+      border-bottom: 2px solid #fff8eb;
+      padding-bottom: 0.5rem;
+    }
+
+    .mono {
+      font-family: 'IBM Plex Mono', monospace;
+      letter-spacing: 0.03em;
+    }
+
+    .caps {
+      text-transform: uppercase;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      font-size: 0.75rem;
+    }
+
+    .canvas {
+      min-height: 62vh;
+      border: 2px solid #fff8eb;
+      position: relative;
+      overflow: hidden;
+      background:
+        radial-gradient(circle at 20% 16%, rgba(255, 248, 235, 0.14), transparent 35%),
+        linear-gradient(115deg, #22170f, #1a130d 46%, #311f12);
+    }
+
+    .orb,
+    .bar,
+    .shard,
+    .ring {
+      position: absolute;
+      border: 2px solid #fff8eb;
+      transition: all 450ms ease;
+    }
+
+    .orb {
+      width: calc(120px + (var(--voltage) * 1px));
+      height: calc(120px + (var(--voltage) * 1px));
+      border-radius: 50%;
+      top: 12%;
+      left: 7%;
+      background: radial-gradient(circle at 28% 30%, #fff8eb 0 10%, #b78a42 38%, #8e4a23 67%, #3d2214 100%);
+      box-shadow: 0 0 40px rgba(183, 138, 66, 0.35);
+    }
+
+    .bar {
+      width: 62%;
+      height: 18%;
+      bottom: 10%;
+      right: 6%;
+      background: linear-gradient(90deg, #8e4a23, #b78a42, #efe1c6);
+      clip-path: polygon(0 0, 90% 0, 100% 100%, 10% 100%);
+    }
+
+    .shard {
+      width: 32%;
+      height: 42%;
+      left: 44%;
+      top: 22%;
+      background: linear-gradient(165deg, #efe1c6, #b78a42);
+      clip-path: polygon(0 8%, 80% 0, 100% 86%, 16% 100%);
+      box-shadow: -14px 14px 0 rgba(255, 248, 235, 0.15);
+    }
+
+    .ring {
+      width: 230px;
+      height: 230px;
+      right: -44px;
+      top: 14%;
+      border-radius: 50%;
+      border-width: 12px;
+      border-color: #fff8eb #fff8eb #0000 #0000;
+      transform: rotate(28deg);
+    }
+
+    .canvas.boost .orb {
+      transform: translate(44px, 8px) scale(1.13);
+      filter: hue-rotate(18deg) saturate(1.2);
+    }
+
+    .canvas.boost .bar {
+      clip-path: polygon(3% 6%, 100% 0, 96% 100%, 0 90%);
+      transform: translateY(-18px) rotate(-3deg);
+      background: linear-gradient(90deg, #4b7a72, #b78a42, #fff8eb);
+    }
+
+    .canvas.boost .shard {
+      transform: translate(-18px, 8px) rotate(-11deg);
+      clip-path: polygon(0 0, 96% 16%, 80% 100%, 8% 82%);
+    }
+
+    .canvas.boost .ring {
+      transform: rotate(-22deg) scale(1.2);
+      border-color: #4b7a72 #fff8eb #0000 #0000;
+    }
+
+    .control-panel {
+      margin-top: 0.75rem;
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 0.8rem;
+      align-items: end;
+    }
+
+    .control-panel label {
+      font-size: 0.74rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      font-weight: 700;
+      color: var(--chalk);
+      margin-bottom: 0.25rem;
+      display: block;
+    }
+
+    input[type="range"] {
+      margin: 0;
+      accent-color: #fff8eb;
+      width: 100%;
+    }
+
+    .switches {
+      display: flex;
+      gap: 0.55rem;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+    }
+
+    button,
+    .switch {
+      border: 2px solid currentColor;
+      background: transparent;
+      color: inherit;
+      padding: 0.34rem 0.6rem;
+      font-size: 0.74rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .switch.active {
+      background: #fff8eb;
+      color: #1a120b;
+    }
+
+    .quote-strip {
+      margin-top: 0.72rem;
+      border: 2px dashed #fff8eb;
+      padding: 0.48rem;
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 0.6rem;
+      align-items: center;
+    }
+
+    .quote-strip p {
+      margin: 0;
+      color: #fff8eb;
+      font-size: 0.8rem;
+      font-weight: 600;
+    }
+
+    .footer-grid {
+      margin-top: 0.7rem;
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 0.55rem;
+    }
+
+    .footer-box {
+      border: 1px solid currentColor;
+      padding: 0.38rem;
+      min-height: 72px;
+      font-size: 0.72rem;
+      line-height: 1.3;
+      font-weight: 700;
+    }
+
+    .footer-box strong {
+      display: block;
+      font-size: 0.68rem;
+      margin-bottom: 0.2rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+
+    [x-cloak] { display: none !important; }
+
+    @media (max-width: 960px) {
+      .shell {
+        grid-template-columns: 1fr;
+      }
+
+      .left {
+        border-right: none;
+        border-bottom: 3px dashed var(--ink-soft);
+      }
+
+      .canvas {
+        min-height: 48vh;
+      }
+
+      .control-panel {
+        grid-template-columns: 1fr;
+      }
+
+      .switches {
+        justify-content: flex-start;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="shell" x-data="iceLedger()">
+    <section class="left">
+      <nav>
+        <a class="brand" href="#">
+          <i data-lucide="snowflake"></i>
+          Ledger &amp; Ice Co.
+        </a>
+        <div class="nav-links">
+          <a href="#vault">Vault</a>
+          <a href="#tiers">Tiers</a>
+          <a href="#desk">Desk</a>
+        </div>
+      </nav>
+
+      <p class="caps mono">Cold asset lifestyle desk</p>
+      <h1>Hold Fast.<br/>Pour Slow.</h1>
+      <p class="lede">Membership house for disciplined chill. We source single-origin cube flights, publish weekly freeze indexes, and host after-hours commitment tastings.</p>
+
+      <div class="chip-row">
+        <span class="chip">Daily Freeze Letter</span>
+        <span class="chip">Cube Custody</span>
+        <span class="chip">Night Exchange</span>
+      </div>
+
+      <div class="art-grid" id="vault">
+        <article class="tile tile-a" :class="{active: tileA}" @mouseenter="tileA=true" @mouseleave="tileA=false" @click="tileA=!tileA" aria-label="Morph tile A"></article>
+        <article class="tile tile-b" :class="{active: tileB}" @mouseenter="tileB=true" @mouseleave="tileB=false" @click="tileB=!tileB" aria-label="Morph tile B"></article>
+      </div>
+
+      <section class="price-band" id="tiers" aria-label="Membership pricing">
+        <div class="price-row">
+          <span class="price-label">Starter Drift</span>
+          <span class="price-value">$24 / mo</span>
+        </div>
+        <div class="price-row">
+          <span class="price-label">Serious Freeze</span>
+          <span class="price-value">$88 / mo</span>
+        </div>
+        <div class="price-row">
+          <span class="price-label">Black Ice Desk</span>
+          <span class="price-value">$190 / mo</span>
+        </div>
+      </section>
+
+      <div class="footer-grid">
+        <article class="footer-box">
+          <strong>Member Note</strong>
+          "My bar program stopped guessing and started closing."
+        </article>
+        <article class="footer-box">
+          <strong>Dispatch</strong>
+          Thursday 20:00 EST: Baltic slab release window.
+        </article>
+        <article class="footer-box">
+          <strong>Policy</strong>
+          Melt credits settle every Monday at market close.
+        </article>
+      </div>
+    </section>
+
+    <section class="right" id="desk">
+      <div class="top-strip">
+        <span class="caps mono">Live Ritual Board</span>
+        <span class="mono" x-text="modeLabel"></span>
+        <span class="caps">EST 08:10</span>
+      </div>
+
+      <div class="canvas" :class="{boost: pulse}" :style="`--voltage:${voltage}`" @mouseenter="hovered=true" @mouseleave="hovered=false">
+        <div class="orb" id="orb"></div>
+        <div class="bar" id="bar"></div>
+        <div class="shard" id="shard"></div>
+        <div class="ring" id="ring"></div>
+      </div>
+
+      <div class="control-panel">
+        <div>
+          <label for="volatility">Freeze Volatility: <span class="mono" x-text="voltage"></span></label>
+          <input id="volatility" type="range" min="20" max="90" step="1" x-model.number="voltage" @input="shapeFromRange" />
+        </div>
+        <div class="switches">
+          <button type="button" @click="runPulse">Pulse Market</button>
+          <button type="button" class="switch" :class="{active: mode==='sepia'}" @click="setMode('sepia')">Sepia</button>
+          <button type="button" class="switch" :class="{active: mode==='ledger'}" @click="setMode('ledger')">Ledger</button>
+        </div>
+      </div>
+
+      <aside class="quote-strip">
+        <p x-show="!hovered" x-cloak>"This dashboard makes every pour feel like an informed decision."</p>
+        <p x-show="hovered" x-cloak>Hover confirmed: risk profile stabilized for tonight's service.</p>
+        <span class="mono caps">Member 0431</span>
+      </aside>
+    </section>
+  </main>
+
+  <script src="/assets/js/alpine.min.js" defer></script>
+  <script src="/assets/js/gsap.min.js" defer></script>
+  <script src="/assets/js/lucide.min.js" defer></script>
+  <script>
+    function iceLedger() {
+      return {
+        voltage: 42,
+        pulse: false,
+        hovered: false,
+        tileA: false,
+        tileB: false,
+        mode: 'sepia',
+        get modeLabel() {
+          return this.mode === 'sepia' ? 'Parchment Session / Stable' : 'Ledger Session / Active';
+        },
+        setMode(next) {
+          this.mode = next;
+          const shell = document.querySelector('.shell');
+          if (!shell) return;
+          if (next === 'ledger') {
+            shell.style.filter = 'contrast(1.08) saturate(1.16) hue-rotate(-8deg)';
+          } else {
+            shell.style.filter = 'none';
+          }
+        },
+        shapeFromRange() {
+          const factor = this.voltage / 100;
+          const orb = document.getElementById('orb');
+          const bar = document.getElementById('bar');
+          const ring = document.getElementById('ring');
+          if (orb) orb.style.borderRadius = `${50 - Math.round(factor * 16)}% ${50 + Math.round(factor * 14)}% 50% 50%`;
+          if (bar) bar.style.letterSpacing = `${Math.round(factor * 2)}px`;
+          if (ring) ring.style.borderWidth = `${8 + Math.round(factor * 10)}px`;
+        },
+        runPulse() {
+          this.pulse = !this.pulse;
+          const tl = gsap.timeline({ defaults: { duration: 0.45, ease: 'power2.out' } });
+          tl.to('#orb', { x: this.pulse ? 20 : 0, y: this.pulse ? 8 : 0, scale: this.pulse ? 1.12 : 1 });
+          tl.to('#shard', { rotation: this.pulse ? -10 : 0, x: this.pulse ? -14 : 0, y: this.pulse ? 7 : 0 }, '<');
+          tl.to('#bar', { y: this.pulse ? -14 : 0, rotation: this.pulse ? -3 : 0 }, '<');
+          tl.to('#ring', { rotation: this.pulse ? -22 : 28, scale: this.pulse ? 1.18 : 1 }, '<');
+        }
+      };
+    }
+
+    document.addEventListener('alpine:init', () => {
+      Alpine.data('iceLedger', iceLedger);
+    });
+
+    window.addEventListener('DOMContentLoaded', () => {
+      if (window.lucide) {
+        lucide.createIcons();
+      }
+      if (window.gsap) {
+        gsap.from('.left h1', { y: 26, opacity: 0, duration: 0.7, ease: 'power2.out' });
+        gsap.from('.tile', { y: 18, opacity: 0, stagger: 0.1, duration: 0.6, ease: 'power2.out' });
+        gsap.from('.canvas > div', { scale: 0.8, opacity: 0, stagger: 0.08, duration: 0.7, ease: 'back.out(1.4)' });
+      }
+    });
+  </script>
+</body>
+</html>

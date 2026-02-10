@@ -1,0 +1,715 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>The Quartermaster's Purl & Phantom Inn</title>
+  <link rel="stylesheet" href="/assets/css/pico.min.css" />
+  <link rel="stylesheet" href="/assets/css/fonts.css" />
+  <style>
+    :root {
+      --bg-0: #041a2d;
+      --bg-1: #06243d;
+      --bg-2: #083755;
+      --line: #1de8b6;
+      --line-2: #3ffff0;
+      --ink: #f4fff9;
+      --ink-soft: #d7f5ef;
+      --warn: #ffd166;
+      --danger: #ff5f7a;
+      --safe: #7fffd4;
+      --panel: #072b45;
+      --shadow: #02111f;
+      --mode-glow: #2de7c5;
+      --cat-chaos: 1;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html,
+    body {
+      margin: 0;
+      padding: 0;
+      width: 100%;
+      overflow-x: hidden;
+    }
+
+    body {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 16px;
+      line-height: 1.45;
+      color: var(--ink);
+      background:
+        radial-gradient(circle at 12% 15%, #0b4b63 0%, #06243d 28%, #041a2d 56%),
+        radial-gradient(circle at 88% 82%, #0a596a 0%, #083755 20%, #041a2d 50%),
+        linear-gradient(130deg, var(--bg-0), var(--bg-1), var(--bg-2));
+      min-height: 100vh;
+      position: relative;
+    }
+
+    body::before,
+    body::after {
+      content: "";
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    body::before {
+      background:
+        repeating-linear-gradient(
+          to bottom,
+          transparent 0,
+          transparent 14px,
+          #0f4f5a 15px,
+          transparent 16px
+        );
+      mix-blend-mode: screen;
+      opacity: 0.34;
+    }
+
+    body::after {
+      background:
+        radial-gradient(circle at 20% 30%, #4ef7d5 0 2px, transparent 3px),
+        radial-gradient(circle at 70% 18%, #87ffec 0 1px, transparent 2px),
+        radial-gradient(circle at 44% 72%, #3effd4 0 2px, transparent 3px),
+        radial-gradient(circle at 84% 52%, #89ffee 0 1px, transparent 2px);
+      background-size: 340px 260px;
+      opacity: 0.58;
+      animation: blink 5s linear infinite;
+    }
+
+    @keyframes blink {
+      0%,
+      100% {
+        filter: brightness(1);
+      }
+      40% {
+        filter: brightness(1.12);
+      }
+      70% {
+        filter: brightness(0.92);
+      }
+    }
+
+    .shell {
+      position: relative;
+      z-index: 1;
+      width: min(1100px, 100% - 2rem);
+      margin: 1rem auto 2.5rem;
+      border: 1px solid #2de7c5;
+      border-radius: 20px;
+      background:
+        linear-gradient(180deg, #072d48 0%, #05253d 100%);
+      box-shadow:
+        0 0 0 2px #0f5160,
+        0 24px 55px #02111f;
+      overflow: hidden;
+    }
+
+    .shell::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      background:
+        linear-gradient(90deg, #3ffff0 0 2px, transparent 2px calc(100% - 2px), #3ffff0 calc(100% - 2px));
+      clip-path: polygon(0 0, 100% 0, 100% 98%, 96% 100%, 0 100%);
+      opacity: 0.75;
+    }
+
+    .topbar {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      gap: 0.6rem;
+      align-items: center;
+      padding: 0.9rem 1rem;
+      background: #041e33;
+      border-bottom: 1px solid #1de8b6;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      font-size: clamp(0.92rem, 1.8vw, 1.05rem);
+      color: #ffffff;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+    }
+
+    .brand i {
+      width: 18px;
+      height: 18px;
+      color: #7fffd4;
+    }
+
+    nav {
+      display: flex;
+      gap: 0.45rem;
+      flex-wrap: wrap;
+    }
+
+    .chip {
+      border: 1px solid #35e9c7;
+      background: #07334c;
+      color: #ffffff;
+      padding: 0.42rem 0.7rem;
+      border-radius: 999px;
+      font-size: 0.82rem;
+      text-decoration: none;
+      min-height: 44px;
+      display: inline-flex;
+      align-items: center;
+    }
+
+    .chip:hover,
+    .chip:focus-visible {
+      background: #0b4e63;
+      outline: none;
+    }
+
+    .hero {
+      padding: clamp(1rem, 3vw, 1.8rem);
+      display: grid;
+      gap: 1rem;
+      grid-template-columns: 1.1fr 0.9fr;
+      align-items: stretch;
+      border-bottom: 1px dashed #2de7c5;
+    }
+
+    .titlebox {
+      background:
+        linear-gradient(145deg, #0a3b56 0%, #08344a 56%, #072f47 100%);
+      border: 1px solid #3ffff0;
+      border-radius: 16px;
+      padding: 1rem;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .titlebox::before {
+      content: "";
+      position: absolute;
+      width: 220px;
+      height: 220px;
+      top: -90px;
+      right: -65px;
+      background: radial-gradient(circle, #6effe3 0%, #2de7c5 33%, transparent 70%);
+      filter: blur(4px);
+    }
+
+    h1 {
+      margin: 0 0 0.5rem;
+      font-size: clamp(1.3rem, 4vw, 2.35rem);
+      line-height: 1.2;
+      color: #ffffff;
+      max-width: 28ch;
+    }
+
+    .lede {
+      margin: 0;
+      color: #e6fff8;
+      max-width: 50ch;
+    }
+
+    .motto {
+      margin-top: 0.8rem;
+      display: inline-flex;
+      border: 1px dashed #8affea;
+      padding: 0.45rem 0.65rem;
+      color: #ffffff;
+      background: #0a4256;
+    }
+
+    .loom {
+      border: 1px solid #2de7c5;
+      border-radius: 16px;
+      padding: 1rem;
+      background: #052b40;
+      position: relative;
+      overflow: hidden;
+      min-height: 240px;
+    }
+
+    .loom::before {
+      content: "";
+      position: absolute;
+      inset: 1rem;
+      border: 1px solid #6effe3;
+      clip-path: polygon(8% 0, 92% 0, 100% 15%, 100% 85%, 92% 100%, 8% 100%, 0 85%, 0 15%);
+      opacity: 0.9;
+    }
+
+    .loom-grid {
+      position: absolute;
+      inset: 1.5rem;
+      display: grid;
+      grid-template-columns: repeat(6, 1fr);
+      grid-template-rows: repeat(4, 1fr);
+      gap: 0.35rem;
+    }
+
+    .stitch {
+      border: 1px solid #2de7c5;
+      border-radius: 4px;
+      background: linear-gradient(135deg, #0d5365, #06364e);
+      box-shadow: inset 0 0 8px #0d7f88;
+      transition: transform 250ms ease, background 250ms ease;
+    }
+
+    .loom:hover .stitch {
+      transform: scale(calc(0.96 + var(--cat-chaos) * 0.05));
+      background: linear-gradient(135deg, #116f78, #095265);
+    }
+
+    .loom-label {
+      position: absolute;
+      left: 1.5rem;
+      bottom: 1rem;
+      color: #ffffff;
+      background: #06354f;
+      border: 1px solid #4af1d1;
+      padding: 0.28rem 0.5rem;
+      font-size: 0.82rem;
+    }
+
+    .sections {
+      padding: clamp(1rem, 3vw, 1.8rem);
+      display: grid;
+      gap: 1rem;
+    }
+
+    .control-panel {
+      border: 1px solid #2de7c5;
+      border-radius: 14px;
+      background: #062c41;
+      padding: 0.8rem;
+      display: grid;
+      gap: 0.75rem;
+    }
+
+    .row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.55rem;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .status {
+      color: #ffffff;
+      font-size: 0.96rem;
+    }
+
+    .btns {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+    }
+
+    button {
+      font-family: inherit;
+      border: 1px solid #49f2d3;
+      border-radius: 10px;
+      background: #0a3b56;
+      color: #ffffff;
+      min-height: 44px;
+      padding: 0.55rem 0.85rem;
+      font-size: 0.9rem;
+      cursor: pointer;
+    }
+
+    button:hover,
+    button:focus-visible {
+      background: #105871;
+      outline: none;
+    }
+
+    .cards {
+      display: grid;
+      gap: 1rem;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+
+    .card {
+      border: 1px solid #2de7c5;
+      border-radius: 14px;
+      background: linear-gradient(160deg, #073852, #062f44 65%, #08354f);
+      padding: 0.9rem;
+      min-height: 210px;
+      position: relative;
+      overflow: hidden;
+      transition: transform 300ms ease, box-shadow 300ms ease, border-color 300ms ease;
+    }
+
+    .card::after {
+      content: "";
+      position: absolute;
+      width: 160px;
+      height: 160px;
+      right: -50px;
+      bottom: -70px;
+      border-radius: 50%;
+      background: radial-gradient(circle, #62ffe5 0%, transparent 70%);
+      pointer-events: none;
+    }
+
+    .card:hover {
+      transform: translateY(-5px) rotate(-0.5deg);
+      box-shadow: 0 18px 28px #02111f;
+      border-color: #7fffd4;
+    }
+
+    .card h2,
+    .card h3 {
+      margin: 0 0 0.4rem;
+      color: #ffffff;
+      font-size: 1.08rem;
+    }
+
+    .card p,
+    .card li,
+    .card small {
+      color: #e4fff8;
+    }
+
+    .price {
+      font-size: 1.45rem;
+      color: #ffffff;
+      margin: 0.4rem 0;
+    }
+
+    ul {
+      margin: 0.35rem 0 0;
+      padding-left: 1rem;
+    }
+
+    .testimonials {
+      display: grid;
+      gap: 0.75rem;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    blockquote {
+      margin: 0;
+      border: 1px solid #35e9c7;
+      border-left: 5px solid #7fffd4;
+      border-radius: 12px;
+      padding: 0.75rem;
+      background: #08354e;
+      color: #ffffff;
+    }
+
+    .faq details {
+      border: 1px solid #2de7c5;
+      border-radius: 12px;
+      background: #062f47;
+      padding: 0.65rem 0.7rem;
+    }
+
+    .faq details + details {
+      margin-top: 0.55rem;
+    }
+
+    .faq summary {
+      cursor: pointer;
+      color: #ffffff;
+      font-weight: 600;
+    }
+
+    .faq p {
+      margin: 0.5rem 0 0;
+      color: #e8fff9;
+    }
+
+    footer {
+      border-top: 1px solid #1de8b6;
+      background: #041e32;
+      padding: 1rem;
+      color: #ffffff;
+      font-size: 0.9rem;
+    }
+
+    [data-mode="calm"] {
+      --mode-glow: #67f7dc;
+      --cat-chaos: 0.8;
+    }
+
+    [data-mode="tumble"] {
+      --mode-glow: #4ee8ff;
+      --cat-chaos: 1.2;
+    }
+
+    [data-mode="siege"] {
+      --mode-glow: #ffd166;
+      --cat-chaos: 1.7;
+    }
+
+    [data-mode] .control-panel {
+      box-shadow: 0 0 0 2px var(--mode-glow);
+    }
+
+    [data-mode] .loom::before {
+      border-color: var(--mode-glow);
+    }
+
+    .catline {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      color: #ffffff;
+      margin-top: 0.35rem;
+    }
+
+    .pulse {
+      width: 10px;
+      height: 10px;
+      background: var(--mode-glow);
+      border-radius: 50%;
+      box-shadow: 0 0 0 0 #8affea;
+      animation: pulse 1.8s infinite;
+    }
+
+    @keyframes pulse {
+      0% {
+        box-shadow: 0 0 0 0 #8affea;
+      }
+      70% {
+        box-shadow: 0 0 0 14px #8affea00;
+      }
+      100% {
+        box-shadow: 0 0 0 0 #8affea00;
+      }
+    }
+
+    @media (max-width: 900px) {
+      .hero {
+        grid-template-columns: 1fr;
+      }
+
+      .cards {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+    }
+
+    @media (max-width: 640px) {
+      .shell {
+        width: min(100% - 1rem, 980px);
+        border-radius: 14px;
+      }
+
+      .cards,
+      .testimonials {
+        grid-template-columns: 1fr;
+      }
+
+      .chip {
+        font-size: 0.78rem;
+      }
+
+      .brand {
+        width: 100%;
+      }
+    }
+  </style>
+</head>
+<body x-data="inn()" :data-mode="mode">
+  <main class="shell">
+    <header class="topbar">
+      <div class="brand">
+        <i data-lucide="shield"></i>
+        Commander Marnie Purl's Phantom Billet
+      </div>
+      <nav>
+        <a class="chip" href="#bunks">Bunks</a>
+        <a class="chip" href="#rates">Rates</a>
+        <a class="chip" href="#cat-report">Cat Report</a>
+        <a class="chip" href="#faq">FAQ</a>
+      </nav>
+    </header>
+
+    <section class="hero" id="bunks">
+      <article class="titlebox">
+        <h1>I knit under pressure and host sleep under discipline.</h1>
+        <p class="lede">
+          I am Commander Marnie Purl, former naval quartermaster, current speed-knitting champion, accidental employer of twelve ghosts.
+          Every bed is military-tight. Every blanket is hand-cabled. Every shelf is one cat impact away from collapse.
+        </p>
+        <p class="motto">Rule 1: Guests rest. Rule 2: Yarn survives. Rule 3: If Rule 2 fails, we log it.</p>
+      </article>
+
+      <aside class="loom" aria-label="Live shelf impact loom radar">
+        <div class="loom-grid">
+          <template x-for="n in 24" :key="n">
+            <span class="stitch"></span>
+          </template>
+        </div>
+        <div class="loom-label">Live Loom Radar // feline impact probability: <span x-text="impact"></span>%</div>
+      </aside>
+    </section>
+
+    <section class="sections">
+      <section class="control-panel" id="cat-report">
+        <div class="row">
+          <div class="status">Tonight's command state: <strong x-text="label"></strong></div>
+          <div class="btns">
+            <button type="button" @click="setMode('calm')">Calm Paws</button>
+            <button type="button" @click="setMode('tumble')">Tumble Watch</button>
+            <button type="button" @click="setMode('siege')">Full Shelf Siege</button>
+            <button type="button" @click="drill()">Re-shelve Drill</button>
+          </div>
+        </div>
+        <div class="catline">
+          <span class="pulse" aria-hidden="true"></span>
+          <span x-text="log"></span>
+        </div>
+      </section>
+
+      <section class="cards" id="rates">
+        <article class="card reveal">
+          <h2>Needle Standard Berth</h2>
+          <p class="price">$129/night</p>
+          <ul>
+            <li>One ghost butler named Dennis</li>
+            <li>Weighted blanket, hand-knit in lane discipline</li>
+            <li>Earplugs rated for 2am ceramic crashes</li>
+          </ul>
+        </article>
+        <article class="card reveal">
+          <h2>Captain's Yarn Locker Suite</h2>
+          <p class="price">$229/night</p>
+          <ul>
+            <li>Private tea service by transparent staff</li>
+            <li>Emergency shelf helmet, brass chin strap</li>
+            <li>Window seat for supervised cat diplomacy</li>
+          </ul>
+        </article>
+        <article class="card reveal">
+          <h2>Monthly Residency</h2>
+          <p class="price">$1,847.99/month</p>
+          <ul>
+            <li>Unlimited cocoa, strict spoon inventory</li>
+            <li>Nightly knitting drills at 2100 sharp</li>
+            <li>Priority rebooking after vase incidents</li>
+          </ul>
+        </article>
+      </section>
+
+      <section class="testimonials">
+        <blockquote>
+          "I arrived burnt out. I left with six hours of sleep and a tactical scarf."<br />
+          <small>- Dr. Eliza Croft, maritime dentist</small>
+        </blockquote>
+        <blockquote>
+          "A cat launched my candle. Marnie saluted, caught it, and comped my pie."<br />
+          <small>- Gideon Park, regional meteorologist</small>
+        </blockquote>
+      </section>
+
+      <section class="faq" id="faq">
+        <details>
+          <summary>Are your staff actually ghosts?</summary>
+          <p>Yes. Payroll is simple. Morale is high. Footsteps are optional.</p>
+        </details>
+        <details>
+          <summary>Can I bring my own cat?</summary>
+          <p>Only if it signs the shelf ceasefire form and wears a tiny bell.</p>
+        </details>
+        <details>
+          <summary>Do you really knit competitively?</summary>
+          <p>Record: 43-inch cable panel in 11 minutes, under simulated artillery clatter.</p>
+        </details>
+      </section>
+    </section>
+
+    <footer>
+      Quartermaster's Purl & Phantom Inn, Dock Road 17, Fogharbor. Night desk rune: 555-0144.
+    </footer>
+  </main>
+
+  <script src="/assets/js/alpine.min.js"></script>
+  <script src="/assets/js/gsap.min.js"></script>
+  <script src="/assets/js/lucide.min.js"></script>
+  <script>
+    function inn() {
+      return {
+        mode: 'calm',
+        impact: 27,
+        label: 'Calm Paws',
+        log: 'Ghost Shift B reports one tabby pacing near the marmalade shelf.',
+        setMode(next) {
+          this.mode = next;
+          if (next === 'calm') {
+            this.impact = 27;
+            this.label = 'Calm Paws';
+            this.log = 'Ghost Shift B reports one tabby pacing near the marmalade shelf.';
+          }
+          if (next === 'tumble') {
+            this.impact = 58;
+            this.label = 'Tumble Watch';
+            this.log = 'Two cats reached upper shelves. We have lost three teacups and composure.';
+          }
+          if (next === 'siege') {
+            this.impact = 91;
+            this.label = 'Full Shelf Siege';
+            this.log = 'All paws airborne. Dennis the ghost has deployed backup saucers.';
+          }
+          gsap.fromTo('.loom',
+            { scale: 0.98, boxShadow: '0 0 0 #02111f' },
+            { scale: 1, boxShadow: '0 0 26px var(--mode-glow)', duration: 0.45, clearProps: 'transform' }
+          );
+        },
+        drill() {
+          const tiles = document.querySelectorAll('.stitch');
+          gsap.fromTo(
+            tiles,
+            { y: 0, rotate: 0 },
+            {
+              y: () => (Math.random() > 0.45 ? -8 : 8),
+              rotate: () => (Math.random() > 0.5 ? 4 : -4),
+              duration: 0.16,
+              yoyo: true,
+              repeat: 3,
+              stagger: { each: 0.01, from: 'random' },
+              clearProps: 'transform'
+            }
+          );
+          this.log = 'Re-shelve drill complete. Jam jars upright. Pride partially restored.';
+        }
+      };
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      if (window.lucide) {
+        lucide.createIcons();
+      }
+
+      const cards = document.querySelectorAll('.reveal');
+      gsap.fromTo(
+        cards,
+        { y: 22, opacity: 0 },
+        { y: 0, opacity: 1, duration: 0.7, stagger: 0.11, ease: 'power2.out', clearProps: 'opacity,transform' }
+      );
+
+      const shell = document.querySelector('.shell');
+      shell.addEventListener('mousemove', (event) => {
+        const rect = shell.getBoundingClientRect();
+        const x = (event.clientX - rect.left) / rect.width;
+        const y = (event.clientY - rect.top) / rect.height;
+        shell.style.background = `
+          radial-gradient(circle at ${x * 100}% ${y * 100}%, #0f4f67 0%, #07334d 35%, #05253d 100%)
+        `;
+      });
+
+      shell.addEventListener('mouseleave', () => {
+        shell.style.background = 'linear-gradient(180deg, #072d48 0%, #05253d 100%)';
+      });
+    });
+  </script>
+</body>
+</html>

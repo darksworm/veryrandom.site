@@ -1,0 +1,687 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CrayonNet™ Social Print Station | Department of Waxy Communications</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: "MS Sans Serif", "Comic Sans MS", cursive;
+            background: linear-gradient(135deg, #1a0f2e 0%, #2d1b4e 50%, #0f1a2e 100%);
+            color: #f0e68c;
+            overflow: hidden;
+            height: 100vh;
+            position: relative;
+            cursor: crosshair;
+        }
+
+        .snowglobe-container {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 90vw;
+            height: 90vh;
+            border: 8px solid #8b7355;
+            border-radius: 50%;
+            background: radial-gradient(circle at 30% 30%, rgba(255,200,150,0.3), rgba(100,50,150,0.2));
+            box-shadow: 
+                inset 0 0 60px rgba(0,0,0,0.8),
+                0 0 80px rgba(255,165,0,0.5),
+                0 0 120px rgba(138,43,226,0.4);
+            overflow: hidden;
+        }
+
+        .snowflake {
+            position: absolute;
+            pointer-events: none;
+            animation: snowfall linear infinite;
+            opacity: 0.7;
+        }
+
+        @keyframes snowfall {
+            0% { transform: translateY(-10vh) rotate(0deg); opacity: 0; }
+            10% { opacity: 0.7; }
+            90% { opacity: 0.7; }
+            100% { transform: translateY(100vh) rotate(360deg); opacity: 0; }
+        }
+
+        .desktop {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .window {
+            position: absolute;
+            background: linear-gradient(to bottom, #ff6b5b, #ffa500, #8b4789);
+            border: 3px solid #333;
+            box-shadow: -5px 5px 20px rgba(0,0,0,0.7), 0 0 30px rgba(255,107,91,0.4);
+            font-size: 12px;
+            z-index: 10;
+            min-width: 280px;
+            animation: glitch 4s infinite;
+        }
+
+        @keyframes glitch {
+            0%, 100% { transform: translate(0, 0); }
+            20% { transform: translate(-2px, 2px); }
+            40% { transform: translate(2px, -1px); }
+            60% { transform: translate(-1px, 1px); }
+            80% { transform: translate(1px, -2px); }
+        }
+
+        .titlebar {
+            background: linear-gradient(90deg, #ff1744, #ff6e40, #ffa726);
+            color: #000;
+            padding: 4px 8px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-weight: bold;
+            cursor: move;
+            user-select: none;
+            border-bottom: 2px solid #333;
+        }
+
+        .titlebar-buttons {
+            display: flex;
+            gap: 4px;
+        }
+
+        .btn-title {
+            width: 18px;
+            height: 14px;
+            background: #ddd;
+            border: 1px solid #999;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 10px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        .btn-title:hover {
+            background: #fff;
+        }
+
+        .window-content {
+            padding: 12px;
+            background: rgba(240, 230, 140, 0.95);
+            color: #1a0f2e;
+            overflow-y: auto;
+            max-height: 80vh;
+            font-size: 11px;
+            line-height: 1.4;
+        }
+
+        .window-1 { top: 5%; left: 2%; width: 400px; }
+        .window-2 { top: 15%; right: 3%; width: 380px; }
+        .window-3 { bottom: 8%; left: 5%; width: 420px; }
+        .window-4 { bottom: 5%; right: 5%; width: 350px; }
+        .window-5 { top: 40%; left: 35%; width: 500px; z-index: 20; }
+
+        .breadcrumb {
+            color: #8b4789;
+            font-size: 10px;
+            margin-bottom: 8px;
+            animation: breadcrumb-jump 2s infinite;
+            word-break: break-all;
+        }
+
+        @keyframes breadcrumb-jump {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-3px); }
+        }
+
+        .permit-box {
+            border: 3px dashed #ff1744;
+            padding: 8px;
+            margin: 8px 0;
+            background: #ffeb3b;
+            animation: permit-pulse 1s infinite alternate;
+        }
+
+        @keyframes permit-pulse {
+            0% { box-shadow: 0 0 5px #ff1744; }
+            100% { box-shadow: 0 0 15px #ff1744; }
+        }
+
+        .disclaimer {
+            background: #ff6b5b;
+            color: #000;
+            padding: 6px;
+            margin: 8px 0;
+            border: 2px solid #000;
+            font-size: 9px;
+            animation: disclaimer-update 3s infinite;
+            font-weight: bold;
+        }
+
+        @keyframes disclaimer-update {
+            0%, 100% { background: #ff6b5b; }
+            50% { background: #ff8a65; }
+        }
+
+        .accordion {
+            margin: 8px 0;
+        }
+
+        .accordion-header {
+            background: linear-gradient(90deg, #8b4789, #d946a6);
+            color: #fff;
+            padding: 6px;
+            cursor: pointer;
+            border: 2px solid #000;
+            font-weight: bold;
+            user-select: none;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .accordion-header:hover {
+            background: linear-gradient(90deg, #a855a8, #ec4899);
+        }
+
+        .accordion-content {
+            background: #fff8dc;
+            padding: 6px;
+            border: 1px solid #000;
+            border-top: none;
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s;
+            font-size: 9px;
+        }
+
+        .accordion-content.open {
+            max-height: 200px;
+        }
+
+        .input-field {
+            background: #fff;
+            border: 2px solid #333;
+            padding: 4px;
+            margin: 6px 0;
+            font-family: "MS Sans Serif", monospace;
+            font-size: 11px;
+            width: 100%;
+        }
+
+        .button {
+            background: linear-gradient(180deg, #ffa726, #ff6b5b);
+            border: 2px outset #fff;
+            color: #000;
+            padding: 6px 12px;
+            cursor: pointer;
+            font-weight: bold;
+            margin: 4px 2px;
+            font-size: 11px;
+        }
+
+        .button:active {
+            border-style: inset;
+        }
+
+        .button:hover {
+            background: linear-gradient(180deg, #ffb74d, #ff7043);
+        }
+
+        .glitch-text {
+            animation: glitch-text 2s infinite;
+        }
+
+        @keyframes glitch-text {
+            0%, 100% { text-shadow: 2px 0 #ff1744, -2px 0 #00bfff; }
+            50% { text-shadow: -2px 0 #ff1744, 2px 0 #00bfff; }
+        }
+
+        .transaction-log {
+            background: #000;
+            color: #0f0;
+            padding: 8px;
+            font-family: monospace;
+            font-size: 9px;
+            border: 2px solid #0f0;
+            max-height: 120px;
+            overflow-y: auto;
+            margin: 6px 0;
+        }
+
+        .transaction-line {
+            animation: scan-line 0.5s infinite;
+        }
+
+        @keyframes scan-line {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+
+        .trust-badge {
+            background: linear-gradient(135deg, #ffd700, #ffed4e);
+            border: 3px double #333;
+            padding: 6px;
+            margin: 6px 0;
+            text-align: center;
+            font-weight: bold;
+            font-size: 10px;
+            box-shadow: inset 0 0 10px rgba(0,0,0,0.3);
+        }
+
+        .weather-widget {
+            background: linear-gradient(135deg, #ff6b9d, #c06c84);
+            border: 2px solid #333;
+            padding: 8px;
+            margin: 8px 0;
+            border-radius: 8px;
+            animation: weather-shimmer 4s infinite;
+        }
+
+        @keyframes weather-shimmer {
+            0%, 100% { box-shadow: 0 0 10px rgba(255,107,157,0.5); }
+            50% { box-shadow: 0 0 20px rgba(255,107,157,0.8); }
+        }
+
+        .crayonmark {
+            font-style: italic;
+            text-decoration: wavy underline;
+            color: #d946a6;
+        }
+
+        .hero-text {
+            background: linear-gradient(45deg, #ff6b5b, #ffa726, #8b4789);
+            color: #fff;
+            padding: 12px;
+            margin: 8px 0;
+            border: 3px solid #000;
+            font-weight: bold;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.7);
+            animation: hero-pulse 2s infinite;
+        }
+
+        @keyframes hero-pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.02); }
+        }
+
+        footer {
+            position: fixed;
+            bottom: 0;
+            width: 100%;
+            background: rgba(0,0,0,0.9);
+            color: #0f0;
+            padding: 8px;
+            font-size: 9px;
+            border-top: 2px solid #0f0;
+            font-family: monospace;
+            z-index: 100;
+        }
+
+        .stat-box {
+            background: #e0aaff;
+            border: 2px solid #9c27b0;
+            padding: 6px;
+            margin: 4px 0;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .stat-label {
+            font-weight: bold;
+        }
+
+        .stat-value {
+            color: #ff1744;
+            font-weight: bold;
+            animation: stat-update 1s infinite;
+        }
+
+        @keyframes stat-update {
+            0%, 100% { color: #ff1744; }
+            50% { color: #ff6b5b; }
+        }
+    </style>
+</head>
+<body>
+    <div class="snowglobe-container" id="snowglobe">
+        <div class="desktop">
+            <!-- MAIN HERO WINDOW -->
+            <div class="window window-5">
+                <div class="titlebar">
+                    <span>📠 CrayonNet™ Social Print Station v2.4.1</span>
+                    <div class="titlebar-buttons">
+                        <div class="btn-title">_</div>
+                        <div class="btn-title">□</div>
+                        <div class="btn-title">×</div>
+                    </div>
+                </div>
+                <div class="window-content">
+                    <div class="breadcrumb">
+                        🔗 System > Communications > CrayonNet > Social > Print > Index > Feedback > Archive > Deprecated > V2 > Primary > Status
+                    </div>
+                    
+                    <div class="hero-text">
+                        💬 A printer with strong opinions connects your crayon documents to sympathetic bureaucrats worldwide. Totally legitimate. Mostly.
+                    </div>
+
+                    <div class="permit-box">
+                        <strong>⚠️ ACTIVE ZONING PERMIT #2847-WAXY</strong><br>
+                        Status: <span id="permit-status">APPROVED</span> | Expires: <span id="permit-date">2025-14-32</span><br>
+                        <button class="button" onclick="updatePermit()">RENEW IMMEDIATELY</button>
+                    </div>
+
+                    <p>Your documents will be:</p>
+                    <ul style="margin-left: 20px; margin-top: 6px;">
+                        <li>✏️ Written entirely in crayon by our printer</li>
+                        <li>🎨 Assigned emotional value ratings</li>
+                        <li>📱 Shared to the CrayonNet social graph</li>
+                        <li>❄️ Preserved in this delightful snow globe</li>
+                    </ul>
+
+                    <button class="button" onclick="submitCrayon()">SUBMIT DOCUMENT FOR CRAYON CONVERSION</button>
+                </div>
+            </div>
+
+            <!-- WINDOW 1: LEGAL DISCLAIMER -->
+            <div class="window window-1">
+                <div class="titlebar">
+                    <span>⚖️ Legal Machinery</span>
+                    <div class="titlebar-buttons">
+                        <div class="btn-title">_</div>
+                        <div class="btn-title">□</div>
+                        <div class="btn-title">×</div>
+                    </div>
+                </div>
+                <div class="window-content">
+                    <div class="disclaimer" id="disclaimer">
+                        NOTICE: All documents are property of Department of Waxy Communications. Your crayon choices are logged and filed. The printer reserves the right to judge your word choice.
+                    </div>
+
+                    <div class="accordion">
+                        <div class="accordion-header" onclick="toggleAccordion(event)">
+                            📋 REVERSIBLE TERMS OF SERVICE
+                            <span>▼</span>
+                        </div>
+                        <div class="accordion-content">
+                            By using CrayonNet, you agree that:
+                            <br><br>
+                            • Colors may reverse spontaneously<br>
+                            • Privacy is optional not mandatory<br>
+                            • Crayon ink is considered permanent unless it isn't<br>
+                            • Opinions of the printer override user intent<br>
+                            • All terms can be reversed by shaking the snow globe counterclockwise
+                        </div>
+                    </div>
+
+                    <div class="trust-badge">
+                        ✅ CERTIFIED BY<br>
+                        Dept. of Fictional Credentials<br>
+                        Badge #XR-9923-NOTREAL
+                    </div>
+                </div>
+            </div>
+
+            <!-- WINDOW 2: SOCIAL STATS -->
+            <div class="window window-2">
+                <div class="titlebar">
+                    <span>📊 Your CrayonNet Stats</span>
+                    <div class="titlebar-buttons">
+                        <div class="btn-title">_</div>
+                        <div class="btn-title">□</div>
+                        <div class="btn-title">×</div>
+                    </div>
+                </div>
+                <div class="window-content">
+                    <div class="stat-box">
+                        <span class="stat-label">Documents Crayoned:</span>
+                        <span class="stat-value" id="stat-crayoned">0</span>
+                    </div>
+                    <div class="stat-box">
+                        <span class="stat-label">Printer Opinions:</span>
+                        <span class="stat-value" id="stat-opinions">0</span>
+                    </div>
+                    <div class="stat-box">
+                        <span class="stat-label">Social Resonance:</span>
+                        <span class="stat-value" id="stat-resonance">0%</span>
+                    </div>
+                    <div class="stat-box">
+                        <span class="stat-label">Crayon Hue Score:</span>
+                        <span class="stat-value" id="stat-hue">UNDEFINED</span>
+                    </div>
+
+                    <div style="margin-top: 12px; padding-top: 12px; border-top: 2px solid #9c27b0;">
+                        <strong>Input Your Favorite Color:</strong><br>
+                        <input type="text" class="input-field" id="color-input" placeholder="e.g., Burnt Sienna">
+                        <button class="button" onclick="updateColor()">SET COLOR PREFERENCE</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- WINDOW 3: TRANSACTION LOG -->
+            <div class="window window-3">
+                <div class="titlebar">
+                    <span>💳 CrayonNet Financial Activity Log</span>
+                    <div class="titlebar-buttons">
+                        <div class="btn-title">_</div>
+                        <div class="btn-title">□</div>
+                        <div class="btn-title">×</div>
+                    </div>
+                </div>
+                <div class="window-content">
+                    <p><strong>Recent Transactions:</strong></p>
+                    <div class="transaction-log" id="transaction-log">
+                        > SYSTEM BOOT COMPLETE<br>
+                        > CRAYON SUPPLY: 847 UNITS<br>
+                        > PRINTER ONLINE AND OPINIONATED
+                    </div>
+                    <button class="button" onclick="addTransaction()">GENERATE FAKE TRANSACTION</button>
+                    <button class="button" onclick="clearLog()">CLEAR LOG</button>
+                </div>
+            </div>
+
+            <!-- WINDOW 4: WEATHER PREDICTION -->
+            <div class="window window-4">
+                <div class="titlebar">
+                    <span>🌤️ Personal Weather Predictor™</span>
+                    <div class="titlebar-buttons">
+                        <div class="btn-title">_</div>
+                        <div class="btn-title">□</div>
+                        <div class="btn-title">×</div>
+                    </div>
+                </div>
+                <div class="window-content">
+                    <p><strong>Your Predicted Personal Weather:</strong></p>
+                    <div class="weather-widget">
+                        <strong id="weather-prediction">CALCULATING...</strong><br>
+                        <span style="font-size: 10px;">Next: <span id="weather-next">Scattered Confusion</span></span>
+                    </div>
+                    <p style="margin-top: 12px; font-size: 9px; font-style: italic;">
+                        ⚠️ These predictions are purely fictional and legally allowed. Your actual weather may vary significantly or identically.
+                    </p>
+                    <button class="button" onclick="predictWeather()">REFRESH PERSONAL WEATHER</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        <span id="footer-text">
+            🏛️ DEPARTMENT OF WAXY COMMUNICATIONS | Crayon Protocol v2.4.1 | This footer legally predicts your weather on Tuesdays | Trust Badge Authority: Fictional Govt. Dept #447 | Status: GLITCHY BUT FUNCTIONAL
+        </span>
+    </footer>
+
+    <script>
+        // Generate snowflakes
+        function createSnowflakes() {
+            const container = document.getElementById('snowglobe');
+            const colors = ['#ffffff', '#e0f7ff', '#fff8dc'];
+            for (let i = 0; i < 40; i++) {
+                const flake = document.createElement('div');
+                flake.className = 'snowflake';
+                flake.textContent = '❄';
+                flake.style.left = Math.random() * 100 + '%';
+                flake.style.color = colors[Math.floor(Math.random() * colors.length)];
+                flake.style.fontSize = Math.random() * 20 + 10 + 'px';
+                flake.style.animationDuration = (Math.random() * 15 + 10) + 's';
+                flake.style.animationDelay = Math.random() * 5 + 's';
+                container.appendChild(flake);
+            }
+        }
+
+        // Update permit status
+        function updatePermit() {
+            const statuses = ['APPROVED', 'PENDING REVIEW', 'PROVISIONAL', 'TENTATIVELY VALID'];
+            const newStatus = statuses[Math.floor(Math.random() * statuses.length)];
+            document.getElementById('permit-status').textContent = newStatus;
+            document.getElementById('permit-date').textContent = new Date(Date.now() + Math.random() * 365 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
+        }
+
+        // Submit crayon document
+        function submitCrayon() {
+            const crayons = ['Red', 'Blue', 'Yellow', 'Green', 'Purple', 'Orange', 'Brown'];
+            const crayon = crayons[Math.floor(Math.random() * crayons.length)];
+            addTransaction(`CRAYON DOCUMENT SUBMITTED | Color: ${crayon} | Opinion Value: ${Math.floor(Math.random() * 100)}%`);
+            updateStats();
+            alert(`Document submitted in ${crayon}! The printer has opinions.`);
+        }
+
+        // Accordion toggle
+        function toggleAccordion(event) {
+            const header = event.target.closest('.accordion-header');
+            const content = header.nextElementSibling;
+            content.classList.toggle('open');
+            header.querySelector('span').textContent = content.classList.contains('open') ? '▲' : '▼';
+        }
+
+        // Add transaction
+        function addTransaction() {
+            const types = [
+                'CRAYON UNIT TRANSFER',
+                'OPINION LOGGED',
+                'DOCUMENT PROCESSED',
+                'PRINTER STATUS UPDATE',
+                'COLOR REVERSAL INITIATED',
+                'SOCIAL RESONANCE SPIKE'
+            ];
+            const type = types[Math.floor(Math.random() * types.length)];
+            const amount = Math.floor(Math.random() * 1000);
+            const time = new Date().toLocaleTimeString();
+            const log = document.getElementById('transaction-log');
+            const line = document.createElement('div');
+            line.className = 'transaction-line';
+            line.textContent = `> [${time}] ${type}: ${amount} units`;
+            log.appendChild(line);
+            log.scrollTop = log.scrollHeight;
+            if (log.children.length > 15) {
+                log.removeChild(log.firstChild);
+            }
+        }
+
+        // Clear log
+        function clearLog() {
+            document.getElementById('transaction-log').innerHTML = '> LOG CLEARED\n> READY FOR NEW TRANSACTIONS';
+        }
+
+        // Update color
+        function updateColor() {
+            const input = document.getElementById('color-input').value;
+            document.getElementById('stat-hue').textContent = input || 'UNDEFINED';
+            alert(`Preferred color updated to: ${input}`);
+        }
+
+        // Predict weather
+        function predictWeather() {
+            const predictions = [
+                'Scattered Confusion with High Probability of Irony',
+                'Crayon Showers Expected by Afternoon',
+                'Mostly Bureaucratic with Opinion Fronts Moving In',
+                'Glitchy Skies with Intermittent Glitches',
+                'Waxy Precipitation Likely',
+                'Chance of Retrograde Mercury Affecting Print Statements'
+            ];
+            const nexts = [
+                'Temporary Clarity',
+                'Indefinite Ambiguity',
+                'Recursive Weather Patterns',
+                'Printer Opinions',
+                'Administrative Fog'
+            ];
+            document.getElementById('weather-prediction').textContent = predictions[Math.floor(Math.random() * predictions.length)];
+            document.getElementById('weather-next').textContent = nexts[Math.floor(Math.random() * nexts.length)];
+        }
+
+        // Update stats
+        function updateStats() {
+            document.getElementById('stat-crayoned').textContent = Math.floor(Math.random() * 100);
+            document.getElementById('stat-opinions').textContent = Math.floor(Math.random() * 50);
+            document.getElementById('stat-resonance').textContent = Math.floor(Math.random() * 100) + '%';
+        }
+
+        // Auto-update disclaimer
+        setInterval(() => {
+            const disclaimers = [
+                'NOTICE: All documents are logged. The printer is watching.',
+                'WARNING: Crayon colors may reverse without notice.',
+                'CAUTION: Your opinions matter to the printer (negatively).',
+                'ALERT: This snow globe may contain existential dread.',
+                'NOTIFICATION: Backwards compatibility not guaranteed.'
+            ];
+            document.getElementById('disclaimer').textContent = disclaimers[Math.floor(Math.random() * disclaimers.length)];
+        }, 4000);
+
+        // Auto-update footer
+        setInterval(() => {
+            const footerTexts = [
+                '🏛️ DEPARTMENT OF WAXY COMMUNICATIONS | All systems nominal | Printer is happy |',
+                '⚠️ ALERT: Crayon supply at 847 units | Printer opinions: HIGH | Status: PROCESSING |',
+                '📠 TRANSMISSION COMPLETE | Documents filed forever | Reversible terms active |'
+            ];
+            const text = footerTexts[Math.floor(Math.random() * footerTexts.length)];
+            const suffix = ['Trust Badge: REAL', 'Glitch Token: %{&?#{#}[[~|#{]<', 'Status: LIVE'][Math.floor(Math.random() * 3)];
+            document.getElementById('footer-text').textContent = text + suffix;
+        }, 8000);
+
+        // Make windows draggable
+        let draggedWindow = null;
+        let offset = { x: 0, y: 0 };
+
+        document.querySelectorAll('.window').forEach(win => {
+            win.querySelector('.titlebar').addEventListener('mousedown', (e) => {
+                draggedWindow = win;
+                offset.x = e.clientX - win.offsetLeft;
+                offset.y = e.clientY - win.offsetTop;
+                win.style.zIndex = 1000;
+            });
+        });
+
+        document.addEventListener('mousemove', (e) => {
+            if (draggedWindow) {
+                draggedWindow.style.left = (e.clientX - offset.x) + 'px';
+                draggedWindow.style.top = (e.clientY - offset.y) + 'px';
+            }
+        });
+
+        document.addEventListener('mouseup', () => {
+            if (draggedWindow) draggedWindow.style.zIndex = 10;
+            draggedWindow = null;
+        });
+
+        // Initialize
+        createSnowflakes();
+        updateStats();
+        predictWeather();
+        setInterval(addTransaction, 7000);
+    </script>
+</body>
+</html>

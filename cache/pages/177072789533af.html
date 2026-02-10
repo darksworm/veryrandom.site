@@ -1,0 +1,907 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Flexus Institute — Strengthening the Muscles You Can't See</title>
+<link rel="stylesheet" href="/assets/css/fonts.css">
+<script src="/assets/js/gsap.min.js"></script>
+<script defer src="/assets/js/alpine.min.js"></script>
+<style>
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --white:#f4f7f5;--green:#00c97b;--green-dark:#00a366;--green-pale:#e0fff0;
+  --green-glow:#00ff9940;--black:#0a0f0c;--gray:#3a4a40;--gray-light:#6b7b70;
+  --surgical:#f0fdf6;--star:#00c97b;
+}
+html{scroll-behavior:smooth;scroll-snap-type:y mandatory;overflow-x:hidden}
+body{
+  font-family:'Space Grotesk',sans-serif;background:var(--white);color:var(--black);
+  overflow-x:hidden;line-height:1.6;
+}
+section{
+  min-height:100vh;scroll-snap-align:start;position:relative;
+  display:flex;align-items:center;justify-content:center;flex-direction:column;
+  overflow:hidden;
+}
+
+/* ===== NAV ===== */
+nav{
+  position:fixed;top:0;left:0;right:0;z-index:100;
+  background:rgba(244,247,245,0.92);backdrop-filter:blur(12px);
+  border-bottom:1px solid #d0e8d8;padding:12px 24px;
+  display:flex;align-items:center;justify-content:space-between;
+}
+nav .logo{font-weight:700;font-size:1.1rem;color:var(--green-dark);letter-spacing:-0.5px}
+nav .logo span{color:var(--black)}
+nav ul{list-style:none;display:flex;gap:20px}
+nav ul li a{
+  text-decoration:none;color:var(--gray);font-size:0.85rem;font-weight:500;
+  transition:color 0.3s;
+}
+nav ul li a:hover{color:var(--green-dark)}
+.nav-donate{
+  background:var(--green);color:#fff!important;padding:6px 16px;border-radius:20px;
+  font-weight:600;transition:background 0.3s,transform 0.2s;
+}
+.nav-donate:hover{background:var(--green-dark);transform:scale(1.05)}
+@media(max-width:768px){
+  nav ul{gap:10px}
+  nav ul li a{font-size:0.75rem}
+  .hide-mobile{display:none}
+}
+
+/* ===== HERO — CSS ART: geometric eye ===== */
+#hero{background:var(--white)}
+.hero-art{position:relative;width:min(400px,80vw);height:min(400px,80vw)}
+
+/* Outer rotating ring */
+.eye-ring{
+  position:absolute;inset:0;border-radius:50%;
+  border:3px solid var(--green);
+  animation:spin 20s linear infinite;
+}
+.eye-ring::before{
+  content:'';position:absolute;top:-8px;left:50%;width:16px;height:16px;
+  background:var(--green);border-radius:50%;transform:translateX(-50%);
+}
+.eye-ring::after{
+  content:'';position:absolute;bottom:-8px;left:50%;width:16px;height:16px;
+  background:var(--green);border-radius:50%;transform:translateX(-50%);
+}
+
+/* Inner eye shape */
+.eye-shape{
+  position:absolute;top:50%;left:50%;width:70%;height:40%;
+  transform:translate(-50%,-50%);
+  background:var(--green-pale);
+  border-radius:50%;
+  border:2px solid var(--green);
+  box-shadow:0 0 60px var(--green-glow),inset 0 0 40px var(--green-glow);
+}
+
+/* Pupil */
+.eye-pupil{
+  position:absolute;top:50%;left:50%;width:30%;height:52%;
+  transform:translate(-50%,-50%);
+  background:radial-gradient(circle,var(--green-dark) 30%,var(--green) 60%,transparent 70%);
+  border-radius:50%;
+  transition:transform 0.6s cubic-bezier(0.23,1,0.32,1);
+}
+.eye-pupil::after{
+  content:'';position:absolute;top:20%;left:55%;width:25%;height:25%;
+  background:rgba(255,255,255,0.8);border-radius:50%;
+}
+
+/* Radiating lines around eye */
+.eye-rays{position:absolute;inset:0}
+.eye-rays span{
+  position:absolute;top:50%;left:50%;width:2px;height:48%;
+  background:linear-gradient(to top,transparent 60%,var(--green) 100%);
+  transform-origin:bottom center;
+  opacity:0.4;
+}
+
+/* Star field behind */
+.star-field{position:absolute;inset:0}
+.star-field i{
+  position:absolute;width:3px;height:3px;background:var(--green);border-radius:50%;
+  animation:twinkle 2s ease-in-out infinite alternate;
+}
+
+/* Hero text */
+.hero-text{text-align:center;margin-top:40px;max-width:600px;padding:0 20px}
+.hero-text h1{
+  font-family:'Playfair Display',serif;font-size:clamp(1.8rem,5vw,3.2rem);
+  color:var(--black);line-height:1.2;margin-bottom:12px;
+}
+.hero-text h1 em{color:var(--green-dark);font-style:normal}
+.hero-text p{color:var(--gray);font-size:clamp(0.95rem,2vw,1.1rem);margin-bottom:24px}
+.hero-cta{
+  display:inline-block;background:var(--green);color:#fff;padding:14px 36px;
+  border-radius:30px;font-weight:700;font-size:1rem;text-decoration:none;
+  transition:background 0.3s,transform 0.2s,box-shadow 0.3s;
+  box-shadow:0 4px 20px var(--green-glow);
+}
+.hero-cta:hover{background:var(--green-dark);transform:translateY(-2px);box-shadow:0 8px 30px var(--green-glow)}
+
+@keyframes spin{to{transform:rotate(360deg)}}
+@keyframes twinkle{0%{opacity:0.2}100%{opacity:1}}
+
+/* ===== SECTION 2: MISSION — CSS art: connected nodes ===== */
+#mission{background:var(--surgical)}
+.mission-grid{
+  display:grid;grid-template-columns:1fr 1fr;gap:60px;
+  max-width:1100px;padding:80px 24px 60px;align-items:center;
+}
+@media(max-width:768px){.mission-grid{grid-template-columns:1fr;gap:30px;padding:80px 20px 40px}}
+
+.node-art{position:relative;width:100%;aspect-ratio:1;max-width:400px;margin:0 auto}
+.node{
+  position:absolute;width:60px;height:60px;border-radius:50%;
+  background:var(--white);border:3px solid var(--green);
+  display:flex;align-items:center;justify-content:center;
+  font-size:1.4rem;
+  transition:transform 0.4s,box-shadow 0.4s,background 0.4s;
+  cursor:pointer;z-index:2;
+}
+.node:hover{
+  transform:scale(1.3);background:var(--green);
+  box-shadow:0 0 30px var(--green-glow);
+}
+.node:hover .node-label{opacity:1;transform:translateX(-50%) translateY(0)}
+.node-label{
+  position:absolute;bottom:-28px;left:50%;transform:translateX(-50%) translateY(5px);
+  font-size:0.7rem;font-weight:600;color:var(--green-dark);white-space:nowrap;
+  opacity:0;transition:all 0.3s;
+}
+/* Node positions */
+.node:nth-child(1){top:10%;left:45%}
+.node:nth-child(2){top:35%;left:15%}
+.node:nth-child(3){top:35%;left:75%}
+.node:nth-child(4){top:65%;left:30%}
+.node:nth-child(5){top:65%;left:65%}
+.node:nth-child(6){top:88%;left:48%}
+
+/* SVG lines between nodes */
+.node-lines{position:absolute;inset:0;z-index:1}
+.node-lines line{stroke:var(--green);stroke-width:1.5;opacity:0.3}
+
+.mission-text h2{
+  font-family:'Playfair Display',serif;font-size:clamp(1.6rem,4vw,2.4rem);
+  color:var(--black);margin-bottom:16px;line-height:1.2;
+}
+.mission-text p{color:var(--gray);font-size:clamp(0.9rem,1.8vw,1.05rem);margin-bottom:14px}
+.mission-text .stat{
+  display:inline-block;background:var(--green);color:#fff;
+  padding:4px 14px;border-radius:12px;font-weight:700;font-size:0.85rem;
+  margin:4px 4px 4px 0;
+}
+
+/* ===== SECTION 3: PROGRAMS — morphing cards ===== */
+#programs{background:var(--white);padding:80px 20px}
+#programs h2{
+  font-family:'Playfair Display',serif;font-size:clamp(1.6rem,4vw,2.4rem);
+  text-align:center;margin-bottom:40px;color:var(--black);
+}
+.programs-grid{
+  display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));
+  gap:24px;max-width:1000px;width:100%;
+}
+.program-card{
+  background:var(--surgical);border:2px solid #d0e8d8;border-radius:20px;
+  padding:32px 24px;position:relative;overflow:hidden;
+  transition:border-color 0.4s,transform 0.3s;cursor:pointer;
+}
+.program-card:hover{border-color:var(--green);transform:translateY(-4px)}
+
+/* CSS art shapes inside cards */
+.card-shape{
+  width:80px;height:80px;margin:0 auto 20px;position:relative;
+  transition:transform 0.6s cubic-bezier(0.23,1,0.32,1);
+}
+.program-card:hover .card-shape{transform:rotate(180deg) scale(1.1)}
+
+.shape-grief{
+  background:var(--green-pale);border-radius:50% 50% 50% 0;
+  border:3px solid var(--green);transform:rotate(-45deg);
+  width:80px;height:80px;
+}
+.shape-grief::after{
+  content:'';position:absolute;top:15px;left:15px;width:20px;height:20px;
+  background:var(--green);border-radius:50%;
+}
+
+.shape-rage{
+  width:0;height:0;
+  border-left:40px solid transparent;border-right:40px solid transparent;
+  border-bottom:72px solid var(--green-pale);
+  position:relative;
+}
+.shape-rage::after{
+  content:'';position:absolute;top:26px;left:-20px;width:40px;height:40px;
+  border:3px solid var(--green);border-radius:50%;background:transparent;
+}
+
+.shape-joy{
+  width:80px;height:80px;background:var(--green-pale);
+  clip-path:polygon(50% 0%,61% 35%,98% 35%,68% 57%,79% 91%,50% 70%,21% 91%,32% 57%,2% 35%,39% 35%);
+  border:none;position:relative;
+}
+.shape-joy::before{
+  content:'';position:absolute;inset:8px;
+  background:var(--green);
+  clip-path:polygon(50% 0%,61% 35%,98% 35%,68% 57%,79% 91%,50% 70%,21% 91%,32% 57%,2% 35%,39% 35%);
+  opacity:0.3;
+}
+
+.program-card h3{font-size:1.1rem;color:var(--black);margin-bottom:8px;text-align:center}
+.program-card .price{
+  text-align:center;color:var(--green-dark);font-weight:700;font-size:0.95rem;
+  margin-bottom:8px;
+}
+.program-card p{color:var(--gray);font-size:0.88rem;text-align:center}
+.program-card .cat-note{
+  margin-top:12px;padding:8px 12px;background:#fff;border-radius:10px;
+  font-family:'IBM Plex Mono',monospace;font-size:0.75rem;color:var(--gray);
+  border:1px dashed var(--green);text-align:center;
+}
+
+/* ===== SECTION 4: CHAIRMAN WHISKERS — CSS cat face ===== */
+#qc{background:linear-gradient(180deg,var(--white) 0%,var(--green-pale) 100%);padding:80px 20px}
+.qc-container{text-align:center;max-width:700px}
+.cat-face{
+  width:min(200px,50vw);height:min(200px,50vw);margin:0 auto 30px;
+  position:relative;
+}
+/* Head */
+.cat-head{
+  width:100%;height:75%;background:var(--green-pale);border:3px solid var(--green);
+  border-radius:50% 50% 45% 45%;position:absolute;bottom:0;
+}
+/* Ears */
+.cat-ear{
+  position:absolute;width:30%;height:35%;background:var(--green-pale);
+  border:3px solid var(--green);top:0;
+  clip-path:polygon(50% 0%,0% 100%,100% 100%);
+}
+.cat-ear.left{left:10%;transform:rotate(-10deg)}
+.cat-ear.right{right:10%;transform:rotate(10deg)}
+.cat-ear::after{
+  content:'';position:absolute;width:50%;height:50%;background:var(--green);
+  opacity:0.3;top:35%;left:25%;
+  clip-path:polygon(50% 0%,0% 100%,100% 100%);
+}
+/* Eyes */
+.cat-eyes{position:absolute;top:40%;left:50%;transform:translateX(-50%);display:flex;gap:25%}
+.cat-eye{
+  width:clamp(18px,5vw,28px);height:clamp(18px,5vw,28px);
+  background:var(--green);border-radius:50%;position:relative;
+  animation:blink 4s ease-in-out infinite;
+}
+.cat-eye::after{
+  content:'';position:absolute;top:30%;left:55%;width:30%;height:30%;
+  background:#fff;border-radius:50%;
+}
+@keyframes blink{0%,90%,100%{transform:scaleY(1)}95%{transform:scaleY(0.1)}}
+/* Nose */
+.cat-nose{
+  position:absolute;top:60%;left:50%;transform:translateX(-50%);
+  width:0;height:0;border-left:8px solid transparent;border-right:8px solid transparent;
+  border-top:10px solid var(--green);
+}
+/* Whiskers */
+.whisker{
+  position:absolute;top:63%;height:2px;width:28%;background:var(--green);
+  transform-origin:center;
+}
+.whisker.l1{left:2%;transform:rotate(-8deg)}
+.whisker.l2{left:2%;top:68%;transform:rotate(8deg)}
+.whisker.r1{right:2%;transform:rotate(8deg)}
+.whisker.r2{right:2%;top:68%;transform:rotate(-8deg)}
+
+.qc-container h2{
+  font-family:'Playfair Display',serif;font-size:clamp(1.4rem,3.5vw,2rem);
+  color:var(--black);margin-bottom:12px;
+}
+.qc-container .title-badge{
+  display:inline-block;background:var(--green);color:#fff;padding:4px 16px;
+  border-radius:10px;font-size:0.8rem;font-weight:700;margin-bottom:20px;
+  font-family:'IBM Plex Mono',monospace;
+}
+.qc-container p{color:var(--gray);font-size:clamp(0.88rem,1.6vw,1rem);margin-bottom:12px;max-width:550px;margin-left:auto;margin-right:auto}
+
+/* Error log ticker */
+.error-log{
+  margin-top:24px;background:#0a0f0c;border-radius:12px;padding:16px 20px;
+  font-family:'IBM Plex Mono',monospace;font-size:0.78rem;color:var(--green);
+  text-align:left;max-width:520px;margin-left:auto;margin-right:auto;
+  max-height:180px;overflow:hidden;position:relative;
+}
+.error-log::after{
+  content:'';position:absolute;bottom:0;left:0;right:0;height:40px;
+  background:linear-gradient(transparent,#0a0f0c);
+}
+.error-log p{color:var(--green);margin-bottom:4px;font-size:0.75rem}
+.error-log .warn{color:#f0c040}
+
+/* ===== SECTION 5: TESTIMONIALS ===== */
+#testimonials{background:var(--white);padding:80px 20px}
+#testimonials h2{
+  font-family:'Playfair Display',serif;font-size:clamp(1.4rem,3.5vw,2rem);
+  text-align:center;color:var(--black);margin-bottom:40px;
+}
+.testimonial-grid{
+  display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));
+  gap:20px;max-width:900px;width:100%;
+}
+.testimonial{
+  background:var(--surgical);border:2px solid #d0e8d8;border-radius:16px;
+  padding:24px;transition:border-color 0.3s;
+}
+.testimonial:hover{border-color:var(--green)}
+.testimonial blockquote{
+  color:var(--gray);font-size:0.9rem;font-style:italic;margin-bottom:12px;
+  line-height:1.5;
+}
+.testimonial cite{
+  color:var(--black);font-weight:600;font-size:0.85rem;font-style:normal;
+  display:block;
+}
+.testimonial .receipt{
+  margin-top:8px;font-family:'IBM Plex Mono',monospace;font-size:0.7rem;
+  color:var(--gray-light);padding:6px 10px;background:#fff;border-radius:8px;
+  border:1px dashed #d0e8d8;
+}
+
+/* ===== SECTION 6: DONATE — big CSS art heart ===== */
+#donate{
+  background:var(--green-pale);padding:80px 20px;
+}
+.donate-container{text-align:center;max-width:600px}
+.css-heart{
+  width:min(160px,35vw);height:min(150px,33vw);margin:0 auto 30px;
+  position:relative;cursor:pointer;
+  transition:transform 0.3s;
+}
+.css-heart:hover{transform:scale(1.15)}
+.css-heart::before,.css-heart::after{
+  content:'';position:absolute;width:50%;height:80%;
+  background:var(--green);border-radius:50% 50% 0 0;
+}
+.css-heart::before{left:50%;transform:rotate(-45deg);transform-origin:0 100%}
+.css-heart::after{left:0;transform:rotate(45deg);transform-origin:100% 100%}
+
+.donate-container h2{
+  font-family:'Playfair Display',serif;font-size:clamp(1.4rem,3.5vw,2.2rem);
+  color:var(--black);margin-bottom:12px;
+}
+.donate-container p{color:var(--gray);font-size:clamp(0.9rem,1.6vw,1.05rem);margin-bottom:24px}
+.donate-tiers{
+  display:flex;gap:12px;justify-content:center;flex-wrap:wrap;margin-bottom:20px;
+}
+.donate-btn{
+  padding:12px 24px;border-radius:20px;border:2px solid var(--green);
+  background:transparent;color:var(--green-dark);font-weight:700;font-size:0.95rem;
+  cursor:pointer;transition:all 0.3s;font-family:'Space Grotesk',sans-serif;
+}
+.donate-btn:hover,.donate-btn.active{
+  background:var(--green);color:#fff;transform:translateY(-2px);
+  box-shadow:0 4px 15px var(--green-glow);
+}
+.donate-note{
+  font-family:'IBM Plex Mono',monospace;font-size:0.75rem;color:var(--gray-light);
+  margin-top:16px;
+}
+
+/* ===== SECTION 7: VOLUNTEER ===== */
+#volunteer{background:var(--white);padding:80px 20px}
+.volunteer-container{text-align:center;max-width:700px}
+.volunteer-container h2{
+  font-family:'Playfair Display',serif;font-size:clamp(1.4rem,3.5vw,2rem);
+  color:var(--black);margin-bottom:16px;
+}
+.volunteer-container p{color:var(--gray);font-size:clamp(0.88rem,1.6vw,1rem);margin-bottom:24px}
+.role-list{list-style:none;display:flex;flex-direction:column;gap:12px;text-align:left;max-width:500px;margin:0 auto}
+.role-list li{
+  padding:16px 20px;background:var(--surgical);border:2px solid #d0e8d8;
+  border-radius:14px;display:flex;justify-content:space-between;align-items:center;
+  transition:border-color 0.3s,transform 0.2s;cursor:pointer;
+}
+.role-list li:hover{border-color:var(--green);transform:translateX(4px)}
+.role-title{font-weight:600;color:var(--black);font-size:0.95rem}
+.role-tag{
+  font-family:'IBM Plex Mono',monospace;font-size:0.7rem;
+  background:var(--green-pale);color:var(--green-dark);padding:4px 10px;
+  border-radius:8px;font-weight:600;white-space:nowrap;
+}
+
+/* ===== FOOTER ===== */
+footer{
+  background:var(--black);color:#c0d0c6;padding:40px 24px;
+  text-align:center;font-size:0.8rem;
+}
+footer a{color:var(--green);text-decoration:none}
+footer .footer-cat{
+  font-family:'IBM Plex Mono',monospace;font-size:0.7rem;
+  color:#5a7a64;margin-top:12px;
+}
+
+/* ===== FLOATING GEOMETRIC SHAPES (decorative) ===== */
+.geo{position:absolute;pointer-events:none;z-index:0}
+.geo-circle{
+  border-radius:50%;border:2px solid var(--green);opacity:0.15;
+}
+.geo-cross{
+  width:30px;height:30px;opacity:0.12;
+}
+.geo-cross::before,.geo-cross::after{
+  content:'';position:absolute;background:var(--green);
+}
+.geo-cross::before{width:100%;height:3px;top:50%;transform:translateY(-50%)}
+.geo-cross::after{height:100%;width:3px;left:50%;transform:translateX(-50%)}
+
+/* ===== MODAL OVERLAY ===== */
+.modal-backdrop{
+  position:fixed;inset:0;background:rgba(10,15,12,0.7);z-index:200;
+  display:flex;align-items:center;justify-content:center;padding:20px;
+  backdrop-filter:blur(6px);
+}
+.modal{
+  background:var(--white);border-radius:20px;padding:32px;max-width:420px;
+  width:100%;position:relative;text-align:center;
+}
+.modal h3{font-family:'Playfair Display',serif;font-size:1.4rem;color:var(--black);margin-bottom:12px}
+.modal p{color:var(--gray);font-size:0.9rem;margin-bottom:16px}
+.modal .error-receipt{
+  font-family:'IBM Plex Mono',monospace;font-size:0.75rem;color:var(--green-dark);
+  background:var(--green-pale);padding:12px;border-radius:10px;margin-bottom:16px;
+  text-align:left;
+}
+.modal button{
+  padding:12px 32px;border-radius:20px;border:none;
+  background:var(--green);color:#fff;font-weight:700;font-size:0.95rem;
+  cursor:pointer;transition:background 0.3s;font-family:'Space Grotesk',sans-serif;
+}
+.modal button:hover{background:var(--green-dark)}
+.modal .close-btn{
+  position:absolute;top:12px;right:16px;background:none;border:none;
+  font-size:1.4rem;color:var(--gray);cursor:pointer;padding:4px;
+}
+
+/* ===== SCROLLBAR ===== */
+::-webkit-scrollbar{width:6px}
+::-webkit-scrollbar-track{background:var(--white)}
+::-webkit-scrollbar-thumb{background:var(--green);border-radius:3px}
+
+/* ===== ANIMATIONS ===== */
+.fade-up{opacity:0;transform:translateY(30px)}
+
+/* ===== RESPONSIVE ===== */
+@media(max-width:600px){
+  section{min-height:auto;min-height:100svh;padding:60px 16px}
+  .hero-art{width:60vw;height:60vw}
+  .node{width:44px;height:44px;font-size:1rem}
+  .error-log{font-size:0.65rem;padding:12px}
+  .cat-face{width:40vw;height:40vw}
+}
+</style>
+</head>
+<body x-data="flexus()">
+
+<!-- NAV -->
+<nav>
+  <div class="logo"><span>THE</span> FLEXUS <span>INSTITUTE</span></div>
+  <ul>
+    <li><a href="#mission" class="hide-mobile">Mission</a></li>
+    <li><a href="#programs" class="hide-mobile">Programs</a></li>
+    <li><a href="#qc">QC</a></li>
+    <li><a href="#donate" class="nav-donate">Donate</a></li>
+  </ul>
+</nav>
+
+<!-- HERO -->
+<section id="hero">
+  <div class="hero-art" id="heroArt">
+    <!-- Star field -->
+    <div class="star-field" id="starField"></div>
+    <!-- Radiating lines -->
+    <div class="eye-rays" id="eyeRays"></div>
+    <!-- Outer ring -->
+    <div class="eye-ring"></div>
+    <!-- Eye shape -->
+    <div class="eye-shape">
+      <div class="eye-pupil" id="eyePupil"></div>
+    </div>
+  </div>
+  <div class="hero-text fade-up">
+    <h1>Strengthening the Muscles <em>You Can't See</em></h1>
+    <p>Since 2019, we've helped 14,000+ humans bench-press their feelings. Tax-deductible.</p>
+    <a href="#donate" class="hero-cta">Flex Your Empathy</a>
+  </div>
+
+  <!-- Decorative geos -->
+  <div class="geo geo-circle" style="width:120px;height:120px;top:10%;right:8%"></div>
+  <div class="geo geo-circle" style="width:60px;height:60px;bottom:15%;left:5%"></div>
+  <div class="geo geo-cross" style="top:20%;left:12%"></div>
+</section>
+
+<!-- MISSION -->
+<section id="mission">
+  <div class="mission-grid">
+    <div class="node-art">
+      <svg class="node-lines" viewBox="0 0 400 400">
+        <line x1="190" y1="55" x2="75" y2="150"/>
+        <line x1="190" y1="55" x2="310" y2="150"/>
+        <line x1="75" y1="150" x2="130" y2="270"/>
+        <line x1="310" y1="150" x2="270" y2="270"/>
+        <line x1="130" y1="270" x2="270" y2="270"/>
+        <line x1="130" y1="270" x2="200" y2="360"/>
+        <line x1="270" y1="270" x2="200" y2="360"/>
+      </svg>
+      <div class="node" style="top:8%;left:43%">
+        🧠<span class="node-label">Awareness</span>
+      </div>
+      <div class="node" style="top:33%;left:10%">
+        💧<span class="node-label">Grief</span>
+      </div>
+      <div class="node" style="top:33%;left:70%">
+        🔥<span class="node-label">Rage</span>
+      </div>
+      <div class="node" style="top:62%;left:25%">
+        ⚡<span class="node-label">Courage</span>
+      </div>
+      <div class="node" style="top:62%;left:60%">
+        🌱<span class="node-label">Joy</span>
+      </div>
+      <div class="node" style="top:85%;left:43%">
+        ✨<span class="node-label">Integration</span>
+      </div>
+    </div>
+    <div class="mission-text fade-up">
+      <h2>No one helped me cry at Planet Fitness.</h2>
+      <p>In 2019, Dr. Ramona Voss wept openly on a leg press machine for 45 minutes. Three staff members walked past. Two offered towels. Nobody asked why.</p>
+      <p>That day, she founded The Flexus Institute: a 501(c)(3) non-profit dedicated to the radical idea that your feelings are muscles — and most of them haven't been to the gym since 2004.</p>
+      <div style="margin-top:16px">
+        <span class="stat">14,217 alumni</span>
+        <span class="stat">6 emotional muscle groups</span>
+        <span class="stat">1 office cat</span>
+        <span class="stat">0 functioning payment systems</span>
+      </div>
+    </div>
+  </div>
+  <div class="geo geo-cross" style="bottom:10%;right:10%"></div>
+</section>
+
+<!-- PROGRAMS -->
+<section id="programs">
+  <h2 class="fade-up">Core Programs</h2>
+  <div class="programs-grid">
+    <div class="program-card fade-up">
+      <div class="card-shape"><div class="shape-grief"></div></div>
+      <h3>Grief Reps</h3>
+      <div class="price">$47.99/month</div>
+      <p>8-week intensive. You will cry in front of strangers and they will clap. Spotters provided.</p>
+      <div class="cat-note">⚠ Chairman Whiskers altered 3 enrollment forms this week. If your name now reads "Mgggggggg," you are still enrolled.</div>
+    </div>
+    <div class="program-card fade-up">
+      <div class="card-shape"><div class="shape-rage"></div></div>
+      <h3>Rage Conditioning</h3>
+      <div class="price">$62.00/month</div>
+      <p>Scream into a clinically-approved void. We measure your anger in decibels and chart your progress over time.</p>
+      <div class="cat-note">⚠ Due to a QC incident, all rage invoices now include a $0.00 charge for "tuna (emotional)."</div>
+    </div>
+    <div class="program-card fade-up">
+      <div class="card-shape"><div class="shape-joy"></div></div>
+      <h3>Joy Circuit Training</h3>
+      <div class="price">$33.50/month</div>
+      <p>Most adults haven't genuinely laughed since 2016. We fix that. Warning: may cause spontaneous skipping.</p>
+      <div class="cat-note">⚠ 12 receipts this month printed entirely in lowercase with "purrrr" appended. QC has approved this.</div>
+    </div>
+  </div>
+</section>
+
+<!-- CHAIRMAN WHISKERS QC -->
+<section id="qc">
+  <div class="qc-container">
+    <!-- CSS Cat Face -->
+    <div class="cat-face" id="catFace">
+      <div class="cat-ear left"></div>
+      <div class="cat-ear right"></div>
+      <div class="cat-head">
+        <div class="cat-eyes" style="width:70%;display:flex;justify-content:space-between">
+          <div class="cat-eye"></div>
+          <div class="cat-eye"></div>
+        </div>
+        <div class="cat-nose"></div>
+        <div class="whisker l1"></div>
+        <div class="whisker l2"></div>
+        <div class="whisker r1"></div>
+        <div class="whisker r2"></div>
+      </div>
+    </div>
+    <span class="title-badge">CHIEF QUALITY OFFICER</span>
+    <h2 class="fade-up">Chairman Whiskers</h2>
+    <p>Promoted from "office cat" to CQO in March 2023 after we realized his keyboard interventions reduced complaint rates by 71%. Donors stopped disputing charges they couldn't read.</p>
+    <p>He sits on exactly one keyboard at a time. He chooses which transactions to alter. We do not question his methods.</p>
+
+    <!-- Live error log -->
+    <div class="error-log" id="errorLog">
+      <p>> [09:14:02] TRANSACTION #8841 — $47.99 Grief Reps renewal</p>
+      <p class="warn">> [09:14:03] QC OVERRIDE: amount changed to $47.ffffffff99</p>
+      <p>> [09:14:03] recipient name: "Sandra Mggghello Voss"</p>
+      <p>> [09:14:04] status: APPROVED by Chairman Whiskers (paw confirmation)</p>
+      <p>> [09:17:31] TRANSACTION #8842 — $62.00 Rage Conditioning</p>
+      <p class="warn">> [09:17:32] QC OVERRIDE: memo field set to "aaaaaaaaaaaaaa"</p>
+      <p>> [09:17:32] status: APPROVED (chairman was purring)</p>
+      <p>> [09:22:08] TRANSACTION #8843 — $33.50 Joy Circuit</p>
+      <p class="warn">> [09:22:09] QC OVERRIDE: currency changed to "tuna"</p>
+      <p>> [09:22:09] 33.50 tuna deposited. No conversion rate available.</p>
+    </div>
+  </div>
+</section>
+
+<!-- TESTIMONIALS -->
+<section id="testimonials">
+  <h2 class="fade-up">What Our Alumni Say</h2>
+  <div class="testimonial-grid">
+    <div class="testimonial fade-up">
+      <blockquote>"I came in unable to feel anything below my emotional neck. After 8 weeks of Grief Reps, I cried at a Subaru commercial and my wife said 'finally.'"</blockquote>
+      <cite>Derek Halloran, 43, Accountant</cite>
+      <div class="receipt">Receipt #7720: $47.mmmm99/mo — "Griefffff Repsss"</div>
+    </div>
+    <div class="testimonial fade-up">
+      <blockquote>"My rage score went from 14 decibels to 97. I can now scream with the confidence of a woman who has been wronged by Costco's return policy. I have not been wronged by Costco."</blockquote>
+      <cite>Priya Naidu, 37, UX Designer</cite>
+      <div class="receipt">Receipt #7801: $62.00/mo — charge memo: "rrrrrrrrrrrrr"</div>
+    </div>
+    <div class="testimonial fade-up">
+      <blockquote>"I skipped in public for the first time since 1998. A man on the street said 'good for you' and I wept. Then I enrolled in Grief Reps too."</blockquote>
+      <cite>Malcolm Bridges, 51, Civil Engineer</cite>
+      <div class="receipt">Receipt #7856: $33.50 tuna/mo — QC note: "purrrrr"</div>
+    </div>
+  </div>
+</section>
+
+<!-- DONATE -->
+<section id="donate">
+  <div class="donate-container">
+    <div class="css-heart" id="cssHeart" @click="heartPulse = !heartPulse" :style="heartPulse && 'animation: pulse 0.6s ease'"></div>
+    <h2 class="fade-up">Fund Feelings.</h2>
+    <p>Every dollar helps someone bench-press a suppressed memory. Your donation is tax-deductible and will be processed by Chairman Whiskers personally.</p>
+    <div class="donate-tiers">
+      <button class="donate-btn" @click="donate(10)" :class="donateAmount===10 && 'active'">$10</button>
+      <button class="donate-btn" @click="donate(25)" :class="donateAmount===25 && 'active'">$25</button>
+      <button class="donate-btn" @click="donate(100)" :class="donateAmount===100 && 'active'">$100</button>
+      <button class="donate-btn" @click="donate(500)" :class="donateAmount===500 && 'active'">$500</button>
+    </div>
+    <p class="donate-note">* All donations are processed through Chairman Whiskers' Quality Control system. Your receipt may contain additional characters.</p>
+  </div>
+</section>
+
+<!-- VOLUNTEER -->
+<section id="volunteer">
+  <div class="volunteer-container">
+    <h2 class="fade-up">Volunteer Positions</h2>
+    <p>We run on emotional labor — literally. These roles require no prior experience, just a willingness to feel things in a professional setting.</p>
+    <ul class="role-list">
+      <li>
+        <span class="role-title">Grief Spotter</span>
+        <span class="role-tag">12 hrs/week</span>
+      </li>
+      <li>
+        <span class="role-title">Rage Room Sanitation Technician</span>
+        <span class="role-tag">As needed</span>
+      </li>
+      <li>
+        <span class="role-title">Joy Metrics Analyst</span>
+        <span class="role-tag">8 hrs/week</span>
+      </li>
+      <li>
+        <span class="role-title">Chairman Whiskers' Keyboard Wiper</span>
+        <span class="role-tag">FULL TIME</span>
+      </li>
+      <li>
+        <span class="role-title">Crying Towel Logistics Coordinator</span>
+        <span class="role-tag">4 hrs/week</span>
+      </li>
+    </ul>
+  </div>
+</section>
+
+<!-- DONATE MODAL -->
+<template x-if="showModal">
+  <div class="modal-backdrop" @click.self="showModal=false">
+    <div class="modal">
+      <button class="close-btn" @click="showModal=false">&times;</button>
+      <h3>Thank You!</h3>
+      <p>Chairman Whiskers has processed your donation.</p>
+      <div class="error-receipt">
+        <p style="color:#006644;margin-bottom:4px">FLEXUS INSTITUTE — DONATION RECEIPT</p>
+        <p style="color:#006644;margin-bottom:4px" x-text="'Amount: $' + catCorrupt(donateAmount)"></p>
+        <p style="color:#006644;margin-bottom:4px" x-text="'Memo: ' + catMemo()"></p>
+        <p style="color:#006644;margin-bottom:4px">QC Status: APPROVED (paw print on file)</p>
+        <p style="color:#006644">Tax-deductible: Probably. We're not sure anymore.</p>
+      </div>
+      <button @click="showModal=false">Close & Feel Something</button>
+    </div>
+  </div>
+</template>
+
+<!-- FOOTER -->
+<footer>
+  <p>The Flexus Institute is a 501(c)(3) non-profit. EIN: 84-QQ33fffff209</p>
+  <p style="margin-top:8px">Founded 2019 by Dr. Ramona Voss &middot; <a href="#mission">Our Mission</a> &middot; <a href="#volunteer">Volunteer</a></p>
+  <p class="footer-cat">All transactions subject to QC review by Chairman Whiskers. The Flexus Institute is not responsible for receipts containing the word "tuna," unexpected lowercase characters, or emotional breakthroughs triggered by corrupted invoices.</p>
+</footer>
+
+<script>
+function flexus() {
+  return {
+    showModal: false,
+    donateAmount: 0,
+    heartPulse: false,
+    donate(amount) {
+      this.donateAmount = amount;
+      this.showModal = true;
+    },
+    catCorrupt(amount) {
+      var s = amount.toFixed(2);
+      var cats = ['ff','mmm','ggg','rrr','purrr'];
+      var c = cats[Math.floor(Math.random() * cats.length)];
+      var pos = Math.floor(Math.random() * s.length);
+      return s.slice(0, pos) + c + s.slice(pos);
+    },
+    catMemo() {
+      var memos = [
+        'Donation for eeeeemotional infrastructure',
+        'aaaaaaa (thank you)',
+        'TUNA FUND — approved by CQO',
+        'gggggifted with purrrpose',
+        'Payment for feeeeeelings',
+        'mmmmmmoney for muscles'
+      ];
+      return memos[Math.floor(Math.random() * memos.length)];
+    }
+  };
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+  // Generate star field
+  var starField = document.getElementById('starField');
+  if (starField) {
+    for (var i = 0; i < 30; i++) {
+      var star = document.createElement('i');
+      star.style.left = Math.random() * 100 + '%';
+      star.style.top = Math.random() * 100 + '%';
+      star.style.width = (Math.random() * 3 + 1) + 'px';
+      star.style.height = star.style.width;
+      star.style.animationDelay = (Math.random() * 2) + 's';
+      star.style.animationDuration = (Math.random() * 2 + 1.5) + 's';
+      starField.appendChild(star);
+    }
+  }
+
+  // Generate eye rays
+  var eyeRays = document.getElementById('eyeRays');
+  if (eyeRays) {
+    for (var i = 0; i < 24; i++) {
+      var ray = document.createElement('span');
+      ray.style.transform = 'rotate(' + (i * 15) + 'deg)';
+      eyeRays.appendChild(ray);
+    }
+  }
+
+  // Eye follows mouse
+  document.addEventListener('mousemove', function(e) {
+    var pupil = document.getElementById('eyePupil');
+    if (!pupil) return;
+    var art = document.getElementById('heroArt');
+    var rect = art.getBoundingClientRect();
+    var cx = rect.left + rect.width / 2;
+    var cy = rect.top + rect.height / 2;
+    var dx = (e.clientX - cx) / (window.innerWidth / 2);
+    var dy = (e.clientY - cy) / (window.innerHeight / 2);
+    var maxMove = 12;
+    pupil.style.transform = 'translate(calc(-50% + ' + (dx * maxMove) + 'px), calc(-50% + ' + (dy * maxMove) + 'px))';
+  });
+
+  // GSAP fade-up animations
+  var fadeEls = document.querySelectorAll('.fade-up');
+  var observer = new IntersectionObserver(function(entries) {
+    entries.forEach(function(entry) {
+      if (entry.isIntersecting) {
+        gsap.fromTo(entry.target,
+          { y: 30, opacity: 0 },
+          { y: 0, opacity: 1, duration: 0.7, ease: 'power2.out', clearProps: 'opacity,transform' }
+        );
+        observer.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.15 });
+
+  fadeEls.forEach(function(el) { observer.observe(el); });
+
+  // Animate nodes on hover with GSAP
+  var nodes = document.querySelectorAll('.node');
+  nodes.forEach(function(node) {
+    node.addEventListener('mouseenter', function() {
+      gsap.fromTo(node, 
+        { scale: 1 },
+        { scale: 1.2, duration: 0.3, ease: 'back.out(1.7)', clearProps: 'transform' }
+      );
+    });
+  });
+
+  // Error log auto-scroll effect
+  var errorLog = document.getElementById('errorLog');
+  if (errorLog) {
+    var logEntries = [
+      ['log', 'TRANSACTION #8844 — $25.00 Donation'],
+      ['warn', 'QC OVERRIDE: donor name changed to "ffffffriend"'],
+      ['log', 'status: APPROVED (chairman sleeping on keyboard)'],
+      ['log', 'TRANSACTION #8845 — $100.00 Grief Reps annual'],
+      ['warn', 'QC OVERRIDE: receipt language set to "meow"'],
+      ['log', 'TRANSACTION #8846 — $33.50 Joy Circuit renewal'],
+      ['warn', 'QC OVERRIDE: entire invoice replaced with "mmmmmmm"'],
+      ['log', 'status: APPROVED (chairman made biscuits on enter key)'],
+      ['log', 'TRANSACTION #8847 — $62.00 Rage Conditioning'],
+      ['warn', 'QC OVERRIDE: decimal moved. Amount now $6200.00.'],
+      ['log', 'CORRECTION: decimal restored after chairman left keyboard'],
+      ['log', 'TRANSACTION #8848 — $500.00 Major Gift'],
+      ['warn', 'QC OVERRIDE: thank-you email subject line now "asdffffffjkl;"'],
+      ['log', 'status: APPROVED (chairman purred for 4 seconds)'],
+    ];
+    var idx = 0;
+    setInterval(function() {
+      if (idx >= logEntries.length) idx = 0;
+      var entry = logEntries[idx];
+      var p = document.createElement('p');
+      var h = new Date().getHours().toString().padStart(2,'0');
+      var m = new Date().getMinutes().toString().padStart(2,'0');
+      var s = new Date().getSeconds().toString().padStart(2,'0');
+      p.textContent = '> [' + h + ':' + m + ':' + s + '] ' + entry[1];
+      if (entry[0] === 'warn') p.className = 'warn';
+      errorLog.appendChild(p);
+      errorLog.scrollTop = errorLog.scrollHeight;
+      idx++;
+    }, 3000);
+  }
+
+  // Heart pulse animation
+  var heart = document.getElementById('cssHeart');
+  if (heart) {
+    var style = document.createElement('style');
+    style.textContent = '@keyframes pulse{0%{transform:scale(1)}50%{transform:scale(1.2)}100%{transform:scale(1)}}';
+    document.head.appendChild(style);
+  }
+
+  // Cat face subtle animation
+  var catFace = document.getElementById('catFace');
+  if (catFace) {
+    catFace.addEventListener('mouseenter', function() {
+      gsap.fromTo(catFace.querySelectorAll('.whisker'),
+        { scaleX: 1 },
+        { scaleX: 1.2, duration: 0.3, stagger: 0.05, yoyo: true, repeat: 1, clearProps: 'transform' }
+      );
+    });
+  }
+
+  // Program card shape color shift on hover
+  var cards = document.querySelectorAll('.program-card');
+  cards.forEach(function(card) {
+    card.addEventListener('mouseenter', function() {
+      var shape = card.querySelector('.card-shape');
+      if (shape) {
+        gsap.fromTo(shape, 
+          { rotate: 0, scale: 1 },
+          { rotate: 180, scale: 1.1, duration: 0.6, ease: 'power2.out', clearProps: 'transform' }
+        );
+      }
+    });
+  });
+});
+</script>
+
+</body>
+</html>

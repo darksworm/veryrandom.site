@@ -1,0 +1,628 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Cirrus Sanitation Authority</title>
+  <link rel="stylesheet" href="/assets/css/pico.min.css" />
+  <link rel="stylesheet" href="/assets/css/fonts.css" />
+  <style>
+    :root {
+      --bg: #f4fff9;
+      --paper: #ffffff;
+      --ink: #04150f;
+      --green: #0a9e68;
+      --green-deep: #046c49;
+      --green-soft: #d9ffee;
+      --line: #0f3f2f;
+      --shadow: 0 20px 60px rgba(4, 21, 15, 0.14);
+      --r: 24px;
+      --pressure: 54;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: 'Space Grotesk', sans-serif;
+      color: var(--ink);
+      background:
+        radial-gradient(circle at 12% 8%, #dcfff0 0%, transparent 35%),
+        radial-gradient(circle at 80% 14%, #c8ffe9 0%, transparent 34%),
+        radial-gradient(circle at 45% 78%, #bafde3 0%, transparent 33%),
+        linear-gradient(160deg, #f7fffb 0%, #ecfff6 45%, #f8fffc 100%);
+      min-height: 100vh;
+      overflow-x: hidden;
+      transition: background 500ms ease;
+    }
+
+    body.scan {
+      background:
+        radial-gradient(circle at 20% 20%, #ffffff 0%, transparent 42%),
+        radial-gradient(circle at 78% 14%, #d4ffed 0%, transparent 40%),
+        repeating-linear-gradient(0deg, #effff8 0 10px, #e4fff3 10px 20px);
+    }
+
+    main {
+      width: min(980px, 92vw);
+      margin: 0 auto;
+      padding: 2.4rem 0 4rem;
+    }
+
+    nav {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 1rem;
+      margin-bottom: 1.4rem;
+      border: 2px solid var(--line);
+      background: var(--paper);
+      border-radius: 999px;
+      padding: 0.5rem 1rem;
+      box-shadow: var(--shadow);
+    }
+
+    nav .brand {
+      font-weight: 800;
+      letter-spacing: 0.03em;
+      color: var(--ink);
+      text-decoration: none;
+    }
+
+    nav .links {
+      display: flex;
+      gap: 1rem;
+      flex-wrap: wrap;
+    }
+
+    nav .links a {
+      color: var(--ink);
+      text-decoration: none;
+      font-weight: 700;
+      padding: 0.35rem 0.7rem;
+      border-radius: 999px;
+      border: 1px solid transparent;
+    }
+
+    nav .links a:hover {
+      border-color: var(--line);
+      background: var(--green-soft);
+    }
+
+    .hero {
+      margin-top: 1rem;
+      border: 2px solid var(--line);
+      border-radius: calc(var(--r) + 8px);
+      background: var(--paper);
+      box-shadow: var(--shadow);
+      padding: 1.5rem;
+      position: relative;
+      overflow: hidden;
+      isolation: isolate;
+    }
+
+    .hero::before,
+    .hero::after {
+      content: "";
+      position: absolute;
+      inset: auto;
+      z-index: -1;
+      transition: transform 600ms ease, opacity 600ms ease;
+    }
+
+    .hero::before {
+      width: 52vmin;
+      height: 52vmin;
+      right: -14vmin;
+      top: -18vmin;
+      background: conic-gradient(from 210deg, #ebfff6 0deg 100deg, #97f7ca 100deg 180deg, #53d29b 180deg 290deg, #ebfff6 290deg 360deg);
+      clip-path: polygon(50% 0%, 88% 20%, 100% 56%, 78% 88%, 40% 100%, 8% 78%, 0 38%, 24% 8%);
+      opacity: 0.78;
+    }
+
+    .hero::after {
+      width: 48vmin;
+      height: 28vmin;
+      left: -10vmin;
+      bottom: -8vmin;
+      background: radial-gradient(circle at 35% 35%, #ffffff 0 22%, #cbffe9 23% 66%, #91f0c3 67% 100%);
+      clip-path: polygon(8% 30%, 26% 8%, 66% 6%, 94% 28%, 90% 70%, 68% 92%, 24% 90%, 6% 66%);
+      opacity: 0.84;
+    }
+
+    body.scan .hero::before {
+      transform: rotate(35deg) scale(1.12);
+      opacity: 0.95;
+    }
+
+    body.scan .hero::after {
+      transform: translateX(14%) scale(1.07);
+    }
+
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      background: #ecfff5;
+      color: var(--ink);
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      padding: 0.25rem 0.65rem;
+      font-weight: 700;
+      font-size: 0.85rem;
+      margin-bottom: 0.7rem;
+    }
+
+    h1,
+    h2,
+    h3,
+    h4,
+    p,
+    small,
+    label,
+    a,
+    span,
+    summary,
+    li,
+    strong {
+      color: var(--ink);
+    }
+
+    h1 {
+      font-size: clamp(2.2rem, 8vw, 6.2rem);
+      line-height: 0.95;
+      margin: 0.2rem 0 0.7rem;
+      letter-spacing: -0.03em;
+      max-width: 14ch;
+    }
+
+    .hero p {
+      max-width: 52ch;
+      font-size: 1.08rem;
+      margin-bottom: 1rem;
+      font-weight: 600;
+    }
+
+    .hero-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.75rem;
+    }
+
+    button,
+    [role="button"] {
+      font-family: inherit;
+      cursor: pointer;
+      border-radius: 14px;
+      border: 2px solid var(--line);
+      padding: 0.62rem 0.95rem;
+      font-weight: 800;
+      color: #ffffff;
+      background: linear-gradient(135deg, var(--green-deep), var(--green));
+      box-shadow: 0 8px 22px rgba(4, 108, 73, 0.24);
+      transition: transform 220ms ease, box-shadow 220ms ease, filter 220ms ease;
+    }
+
+    button:hover,
+    [role="button"]:hover {
+      transform: translateY(-2px) scale(1.02);
+      box-shadow: 0 14px 30px rgba(4, 108, 73, 0.32);
+      filter: saturate(1.1);
+    }
+
+    .ghost {
+      color: var(--ink);
+      background: #ffffff;
+      box-shadow: none;
+    }
+
+    .panel {
+      margin-top: 1.35rem;
+      padding: 1rem;
+      border: 2px solid var(--line);
+      border-radius: var(--r);
+      background: var(--paper);
+      box-shadow: var(--shadow);
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(12, 1fr);
+      gap: 0.9rem;
+    }
+
+    .tile {
+      border: 2px solid var(--line);
+      border-radius: 20px;
+      background: #f8fffc;
+      padding: 1rem;
+      position: relative;
+      overflow: hidden;
+      transform-style: preserve-3d;
+      transition: transform 280ms ease, background 280ms ease;
+    }
+
+    .tile:hover {
+      transform: translateY(-4px);
+      background: #f0fff8;
+    }
+
+    .tile::after {
+      content: "";
+      position: absolute;
+      width: 170px;
+      height: 170px;
+      right: -60px;
+      top: -56px;
+      background: radial-gradient(circle, #8deabf 0%, #d6ffec 60%, transparent 100%);
+      clip-path: polygon(10% 0, 100% 18%, 84% 100%, 0 80%);
+      opacity: 0.88;
+      transition: transform 450ms ease;
+      pointer-events: none;
+    }
+
+    .tile:hover::after {
+      transform: rotate(20deg) scale(1.18);
+    }
+
+    .kpi {
+      font-size: clamp(1.6rem, 5.5vw, 3rem);
+      font-weight: 900;
+      line-height: 1;
+      margin-top: 0.2rem;
+    }
+
+    .lab {
+      position: relative;
+      height: 270px;
+      border: 2px solid var(--line);
+      border-radius: 24px;
+      background:
+        linear-gradient(180deg, #f5fffa, #e3fff2),
+        repeating-linear-gradient(90deg, #ffffff00 0 18px, #d7ffeb 18px 19px);
+      overflow: hidden;
+      margin-top: 0.9rem;
+    }
+
+    .blob {
+      position: absolute;
+      width: calc(140px + (var(--pressure) * 1px));
+      height: calc(120px + (var(--pressure) * 0.72px));
+      left: 50%;
+      top: 50%;
+      transform: translate(-50%, -50%);
+      background: radial-gradient(circle at 30% 30%, #ffffff 0 18%, #78e2b2 20% 56%, #0f9a67 57% 100%);
+      border: 2px solid var(--line);
+      border-radius: 42% 58% 55% 45% / 42% 34% 66% 58%;
+      transition: width 200ms linear, height 200ms linear, border-radius 200ms linear;
+      animation: drift 5.5s ease-in-out infinite;
+      box-shadow: 0 18px 35px rgba(1, 77, 50, 0.22);
+    }
+
+    body.scan .blob {
+      border-radius: 62% 38% 66% 34% / 38% 53% 47% 62%;
+    }
+
+    @keyframes drift {
+      0%, 100% {
+        transform: translate(-50%, -50%) rotate(0deg);
+      }
+      50% {
+        transform: translate(-47%, -53%) rotate(5deg);
+      }
+    }
+
+    .route-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 0.8rem;
+      margin-top: 0.8rem;
+    }
+
+    .route {
+      padding: 0.9rem;
+      border: 2px solid var(--line);
+      border-radius: 18px;
+      background: #ffffff;
+      position: relative;
+      overflow: hidden;
+      transition: transform 260ms ease;
+    }
+
+    .route:hover {
+      transform: translateY(-3px) rotate(-0.5deg);
+    }
+
+    .route::before {
+      content: "";
+      position: absolute;
+      inset: auto -30px -40px auto;
+      width: 150px;
+      height: 110px;
+      background: linear-gradient(135deg, #ebfff7, #82e8b8);
+      clip-path: polygon(0 22%, 40% 0, 100% 20%, 80% 100%, 10% 86%);
+      opacity: 0.88;
+      transition: transform 400ms ease;
+    }
+
+    .route:hover::before {
+      transform: rotate(14deg) scale(1.08);
+    }
+
+    .pricing {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 0.9rem;
+    }
+
+    .plan {
+      border: 2px solid var(--line);
+      border-radius: 20px;
+      background: #ffffff;
+      padding: 1rem;
+      position: relative;
+      transition: transform 260ms ease, box-shadow 260ms ease;
+      box-shadow: 0 10px 18px rgba(3, 70, 47, 0.08);
+    }
+
+    .plan:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 18px 28px rgba(3, 70, 47, 0.14);
+    }
+
+    .plan.pop {
+      background: linear-gradient(160deg, #f8fffc, #e8fff4);
+    }
+
+    .price {
+      font-size: clamp(2rem, 5vw, 2.9rem);
+      font-weight: 900;
+      line-height: 1;
+      margin: 0.3rem 0 0.8rem;
+    }
+
+    .tiny {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 0.8rem;
+      font-weight: 700;
+      letter-spacing: 0.02em;
+      opacity: 1;
+    }
+
+    details {
+      border: 2px solid var(--line);
+      border-radius: 14px;
+      background: #ffffff;
+      padding: 0.7rem 0.9rem;
+      margin-bottom: 0.6rem;
+    }
+
+    summary {
+      cursor: pointer;
+      font-weight: 800;
+    }
+
+    footer {
+      margin-top: 1.6rem;
+      border: 2px solid var(--line);
+      border-radius: 24px;
+      padding: 1rem;
+      background: #ffffff;
+      box-shadow: var(--shadow);
+    }
+
+    .stamp-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.65rem;
+      margin-top: 0.9rem;
+    }
+
+    .stamp {
+      border: 2px dashed var(--line);
+      border-radius: 999px;
+      padding: 0.32rem 0.68rem;
+      font-weight: 800;
+      background: #f2fff9;
+    }
+
+    @media (max-width: 760px) {
+      .hero {
+        padding: 1.15rem;
+      }
+
+      nav {
+        border-radius: 24px;
+      }
+
+      nav .links {
+        width: 100%;
+        justify-content: flex-start;
+      }
+    }
+  </style>
+</head>
+<body x-data="siteState()" :class="scanMode ? 'scan' : ''">
+  <main>
+    <nav>
+      <a href="#" class="brand">Cirrus Sanitation Authority</a>
+      <div class="links">
+        <a href="#routes">Routes</a>
+        <a href="#lab">Lab</a>
+        <a href="#service">Service Plans</a>
+        <a href="#briefing">Briefing</a>
+      </div>
+    </nav>
+
+    <section class="hero" id="top">
+      <span class="eyebrow"><i data-lucide="shield-check"></i> Licensed Atmospheric Hygiene</span>
+      <h1>Clear Airspace. Clean Skyline. Daily.</h1>
+      <p>Municipal and private cloud removal operations for districts that require visible sun lanes, reliable moon exposure, and orderly upper-atmosphere circulation.</p>
+      <div class="hero-actions">
+        <button x-on:click="toggleScan()"><i data-lucide="scan-line"></i> Toggle Scan Sweep</button>
+        <button class="ghost" x-on:click="pulseHero()"><i data-lucide="sparkles"></i> Run Sterile Pulse</button>
+      </div>
+    </section>
+
+    <section class="panel grid" style="margin-top: 1rem;">
+      <article class="tile" style="grid-column: span 4;">
+        <div class="tiny">District Satisfaction</div>
+        <div class="kpi" x-text="scanMode ? '99.2%' : '98.7%'"></div>
+        <p>Rolling 30-day visibility compliance across subscribed zones.</p>
+      </article>
+      <article class="tile" style="grid-column: span 4;">
+        <div class="tiny">Clouds Removed</div>
+        <div class="kpi" x-text="scanMode ? '12,481' : '12,410'"></div>
+        <p>Tracked units relocated this quarter through certified corridors.</p>
+      </article>
+      <article class="tile" style="grid-column: span 4;">
+        <div class="tiny">Emergency ETA</div>
+        <div class="kpi">17m</div>
+        <p>Rapid-response cleanup window after sudden overcast accumulation.</p>
+      </article>
+    </section>
+
+    <section class="panel" id="lab">
+      <h2 style="font-size: clamp(1.5rem, 4vw, 3.2rem); margin: 0;">Atmospheric Specimen Lab</h2>
+      <p style="margin-top: 0.4rem; font-weight: 600;">Pressure-tune a standard cloud body before route assignment.</p>
+      <label for="pressure" class="tiny">Compression Intensity: <strong x-text="pressure + '%'"></strong></label>
+      <input id="pressure" type="range" min="10" max="95" step="1" x-model.number="pressure" x-on:input="applyPressure" />
+      <div class="lab">
+        <div class="blob" :style="`--pressure:${pressure}`"></div>
+      </div>
+    </section>
+
+    <section class="panel" id="routes">
+      <h2 style="font-size: clamp(1.5rem, 4vw, 3.2rem); margin: 0;">Route Matrix</h2>
+      <div class="route-grid">
+        <article class="route">
+          <h3>Harbor Belt 04</h3>
+          <p>03:40-09:10 aerial sweep. Salt-haze shielding enabled.</p>
+        </article>
+        <article class="route">
+          <h3>Financial Ridge 12</h3>
+          <p>Priority sky clearance before market open and rooftop traffic hours.</p>
+        </article>
+        <article class="route">
+          <h3>North Terrace 07</h3>
+          <p>Low-noise extraction protocol for dense residential blocks.</p>
+        </article>
+        <article class="route">
+          <h3>Medical Axis 02</h3>
+          <p>Continuous corridor sanitation for heliport and emergency approach lanes.</p>
+        </article>
+      </div>
+    </section>
+
+    <section class="panel" id="service">
+      <h2 style="font-size: clamp(1.5rem, 4vw, 3.2rem); margin: 0 0 0.7rem;">Service Plans</h2>
+      <div class="pricing">
+        <article class="plan">
+          <div class="tiny">Neighborhood</div>
+          <h3>Lane Basic</h3>
+          <div class="price">$490<span style="font-size: 1rem; font-weight: 700;">/mo</span></div>
+          <p>Morning pass, one emergency callout, monthly atmospheric report.</p>
+          <button class="ghost">Request Intake</button>
+        </article>
+        <article class="plan pop">
+          <div class="tiny">Commercial</div>
+          <h3>Corridor Pro</h3>
+          <div class="price">$1,250<span style="font-size: 1rem; font-weight: 700;">/mo</span></div>
+          <p>Daily passes, two rapid callouts, priority route positioning.</p>
+          <button>Schedule Survey</button>
+        </article>
+        <article class="plan">
+          <div class="tiny">Municipal</div>
+          <h3>Civic Continuum</h3>
+          <div class="price">Custom</div>
+          <p>24/7 district grid management with dedicated oversight desk.</p>
+          <button class="ghost">Open RFP Desk</button>
+        </article>
+      </div>
+    </section>
+
+    <section class="panel" id="briefing">
+      <h2 style="font-size: clamp(1.5rem, 4vw, 3.2rem); margin: 0 0 0.7rem;">Public Briefing</h2>
+      <p><strong>West Arc Logistics:</strong> “Skyline consistency improved commuter mood and reduced rooftop delays in under two weeks.”</p>
+      <p><strong>St. Mira Medical Group:</strong> “Night extraction protocol preserved full moon visibility for beacon calibration every shift.”</p>
+      <details>
+        <summary>What qualifies as removable cloud matter?</summary>
+        <p>Accumulations that obstruct registered solar lanes, moon channels, or scheduled event windows are eligible for standard removal.</p>
+      </details>
+      <details>
+        <summary>Do you operate during storms?</summary>
+        <p>Yes. Storm operations use reinforced extraction arrays and staggered routing approved by local airspace control.</p>
+      </details>
+      <details>
+        <summary>Can private towers subscribe independently?</summary>
+        <p>Yes. Buildings above twelve stories can contract dedicated sweeps with optional terrace weather guarantees.</p>
+      </details>
+    </section>
+
+    <footer>
+      <h3 style="margin: 0;">Cirrus Sanitation Authority</h3>
+      <p style="margin: 0.4rem 0; font-weight: 700;">Intake Desk: 06:00-22:00 | Sector Permit #CSA-1142-A | Compliance Bureau Certified</p>
+      <div class="stamp-row">
+        <span class="stamp">ISO Skyflow Ready</span>
+        <span class="stamp">Municipal Vendor</span>
+        <span class="stamp">Emergency Line Live</span>
+      </div>
+    </footer>
+  </main>
+
+  <script src="/assets/js/alpine.min.js"></script>
+  <script src="/assets/js/gsap.min.js"></script>
+  <script src="/assets/js/lucide.min.js"></script>
+  <script>
+    function siteState() {
+      return {
+        scanMode: false,
+        pressure: 54,
+        toggleScan() {
+          this.scanMode = !this.scanMode;
+          const cards = document.querySelectorAll('.tile, .route, .plan');
+          gsap.to(cards, {
+            duration: 0.45,
+            y: this.scanMode ? -3 : 0,
+            stagger: 0.03,
+            ease: 'power2.out'
+          });
+        },
+        pulseHero() {
+          gsap.fromTo('.hero',
+            { filter: 'contrast(1) saturate(1)' },
+            {
+              filter: 'contrast(1.15) saturate(1.25)',
+              duration: 0.26,
+              yoyo: true,
+              repeat: 1,
+              ease: 'power2.inOut'
+            }
+          );
+        },
+        applyPressure() {
+          const blob = document.querySelector('.blob');
+          if (!blob) return;
+          const mod = (this.pressure % 24) + 34;
+          blob.style.borderRadius = `${mod}% ${100 - mod}% ${60 + (mod % 10)}% ${40 - (mod % 10)}% / ${42 + (mod % 12)}% 34% 66% ${58 - (mod % 10)}%`;
+        }
+      };
+    }
+
+    document.addEventListener('alpine:init', () => {});
+
+    window.addEventListener('DOMContentLoaded', () => {
+      lucide.createIcons();
+      gsap.from('nav, .hero, .panel, footer', {
+        y: 28,
+        opacity: 0,
+        stagger: 0.08,
+        duration: 0.7,
+        ease: 'power2.out'
+      });
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,466 @@
+
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bumbles & Pip: Spectral Asset Management & Post-Life Liquidation</title>
+    <link rel="stylesheet" href="/assets/css/pico.min.css">
+    <link rel="stylesheet" href="/assets/css/fonts.css">
+    <style>
+        :root {
+            --background-color: #110f1a;
+            --text-color: #e0e0e0;
+            --border-color: #ff00ff;
+            --accent-color-1: #00ffff;
+            --accent-color-2: #ff00ff;
+            --accent-color-3: #ffff00;
+            --accent-color-4: #00ff00;
+            --container-padding: 2rem;
+        }
+
+        @keyframes rainbow-border {
+            0% { border-color: var(--accent-color-1); box-shadow: 0 0 10px var(--accent-color-1); }
+            25% { border-color: var(--accent-color-2); box-shadow: 0 0 10px var(--accent-color-2); }
+            50% { border-color: var(--accent-color-3); box-shadow: 0 0 10px var(--accent-color-3); }
+            75% { border-color: var(--accent-color-4); box-shadow: 0 0 10px var(--accent-color-4); }
+            100% { border-color: var(--accent-color-1); box-shadow: 0 0 10px var(--accent-color-1); }
+        }
+
+        @keyframes rainbow-text {
+            0%, 100% { color: var(--accent-color-1); }
+            25% { color: var(--accent-color-2); }
+            50% { color: var(--accent-color-3); }
+            75% { color: var(--accent-color-4); }
+        }
+
+        body {
+            font-family: 'IBM Plex Mono', monospace;
+            background-color: var(--background-color);
+            color: var(--text-color);
+            font-size: 16px;
+            line-height: 1.7;
+            padding: 0;
+            margin: 0;
+        }
+
+        h1, h2, h3, h4, h5, h6 {
+            font-family: 'Space Grotesk', sans-serif;
+            color: var(--text-color);
+            font-weight: 700;
+        }
+
+        h1 {
+            font-size: clamp(2.5rem, 5vw, 4rem);
+            animation: rainbow-text 5s linear infinite;
+        }
+
+        a {
+            color: var(--accent-color-1);
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+        a:hover {
+            color: var(--accent-color-2);
+            text-decoration: underline;
+        }
+
+        .container {
+            max-width: 1200px;
+            padding: var(--container-padding);
+        }
+        
+        @media (max-width: 768px) {
+            .container {
+                padding: 1rem;
+            }
+        }
+
+        .terminal-window {
+            border: 2px solid;
+            background: rgba(0,0,0,0.3);
+            margin-bottom: 2rem;
+            animation: rainbow-border 5s linear infinite;
+            opacity: 0; /* for gsap */
+        }
+        .terminal-window-header {
+            background: var(--border-color);
+            padding: 0.5rem 1rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-weight: bold;
+            color: #000;
+            animation: rainbow-border 5s linear infinite reverse;
+        }
+        .terminal-window-header span {
+            color: #000 !important;
+        }
+        .terminal-window-body {
+            padding: 1.5rem;
+        }
+
+        .nav-links a {
+            margin: 0 10px;
+            padding: 5px 10px;
+            border: 1px solid transparent;
+        }
+        .nav-links a:hover {
+            border-color: var(--accent-color-2);
+            text-decoration: none;
+        }
+        
+        nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+        
+        .logo {
+            font-weight: bold;
+            font-size: 1.2rem;
+        }
+
+        /* Ticker */
+        .ticker-wrap {
+            width: 100%;
+            overflow: hidden;
+            padding: 15px 0;
+            background: #000;
+            border-top: 1px solid var(--accent-color-3);
+            border-bottom: 1px solid var(--accent-color-3);
+        }
+        .ticker {
+            display: inline-block;
+            white-space: nowrap;
+        }
+        .ticker-item {
+            display: inline-block;
+            padding: 0 2rem;
+            color: var(--text-color);
+        }
+        .ticker-item .symbol { color: var(--accent-color-1); }
+        .ticker-item .price { color: #fff; font-weight: bold; }
+        .ticker-item .change-up { color: #00ff00; }
+        .ticker-item .change-down { color: #ff0000; }
+
+        /* Tabs */
+        .tabs [role="tab"] {
+            background: transparent;
+            border: none;
+            border-bottom: 2px solid transparent;
+            color: var(--text-color);
+            padding: 0.5rem 1rem;
+            margin: 0 0.5rem;
+            font-family: 'IBM Plex Mono', monospace;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .tabs [role="tab"][aria-selected="true"] {
+            border-bottom-color: var(--accent-color-2);
+            color: var(--accent-color-2);
+        }
+        .tabs [role="tabpanel"] {
+            padding: 1.5rem 0;
+            border-top: 1px solid #444;
+        }
+        
+        /* Team */
+        .team-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+        }
+        .team-member {
+            border: 1px solid #555;
+            padding: 1.5rem;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+        .team-member h4 { color: var(--accent-color-1); }
+        .team-member .title { color: var(--accent-color-3); font-style: italic; }
+        .team-member .bio {
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(17, 15, 26, 0.95);
+            padding: 1.5rem;
+            transform: translateY(100%);
+            transition: transform 0.4s ease-in-out;
+            text-align: left;
+            font-size: 0.9rem;
+        }
+        .team-member:hover .bio {
+            transform: translateY(0);
+        }
+        .team-member img {
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 3px solid var(--accent-color-4);
+            margin-bottom: 1rem;
+        }
+        
+        /* FAQ Accordion */
+        .faq-item summary {
+            font-weight: bold;
+            cursor: pointer;
+            padding: 1rem;
+            border-bottom: 1px solid #444;
+            color: var(--accent-color-1);
+        }
+        .faq-item[open] summary {
+            color: var(--accent-color-2);
+        }
+        .faq-item div {
+            padding: 1rem;
+            border-bottom: 1px solid #444;
+        }
+        
+        footer {
+            text-align: center;
+            padding: 2rem;
+            font-size: 0.8rem;
+            color: #888;
+            border-top: 1px solid #333;
+        }
+
+        /* Lucide icon adjustments */
+        i[data-lucide] {
+            width: 1em;
+            height: 1em;
+            vertical-align: -0.125em;
+        }
+    </style>
+</head>
+
+<body x-data="{ activeTab: 'sal' }">
+
+    <header class="container">
+        <nav>
+            <div class="logo">Bumbles & Pip, LLC.</div>
+            <div class="nav-links">
+                <a href="#services">Services</a>
+                <a href="#team">Team</a>
+                <a href="#faq">FAQ</a>
+                <a href="#contact">Contact</a>
+            </div>
+        </nav>
+    </header>
+
+    <main class="container">
+        <section class="terminal-window" id="hero">
+            <div class="terminal-window-header">
+                <span>[INITIATE: STRATEGIC_WEALTH_GENERATION.EXE]</span>
+            </div>
+            <div class="terminal-window-body" style="text-align: center;">
+                <h1>The Future of Death is Fiscal.<br>The Future of Finance is Furry.</h1>
+                <p style="font-size: 1.2rem; color: #aaa;">
+                    Leveraging hamster-driven algorithmic trading and pan-dimensional legal frameworks to revolutionize the post-life economy. Since 3000.
+                </p>
+                <a href="#services" role="button" class="contrast" style="margin-top: 1rem;">Begin Spectral Onboarding</a>
+            </div>
+        </section>
+
+        <div class="ticker-wrap">
+            <div class="ticker" id="stock-ticker">
+                <!-- JS will populate this -->
+            </div>
+        </div>
+
+        <section id="services" class="terminal-window">
+            <div class="terminal-window-header"><span>[SERVICES.DLL]</span></div>
+            <div class="terminal-window-body" x-data="{ activeTab: 'sal' }">
+                <h2>Entity Services for a New Plane of Existence</h2>
+                <div class="tabs">
+                    <a href="#" role="tab" @click.prevent="activeTab = 'sal'" :aria-selected="activeTab === 'sal'">Spectral Asset Liquidation (SAL)</a>
+                    <a href="#" role="tab" @click.prevent="activeTab = 'plpm'" :aria-selected="activeTab === 'plpm'">Post-Life Portfolio Management (PLPM)</a>
+                    <a href="#" role="tab" @click.prevent="activeTab = 'sc'" :aria-selected="activeTab === 'sc'">Spectral Consultation</a>
+                </div>
+                <div x-show="activeTab === 'sal'" role="tabpanel">
+                    <h3>Spectral Asset Liquidation (SAL)</h3>
+                    <p>Don't let corporeal possessions weigh down your ethereal form. We don't just bury the hatchet, we liquidate it. Our licensed team of spectral appraisers and hamster analysts will convert your lingering terrestrial assets—from haunted mansions to dusty antique spoons—into pure, fungible Ecto-Credits (ECTO-C).</p>
+                    <ul>
+                        <li><strong>Standard Fee:</strong> 15% of Material Value.</li>
+                        <li><strong>Process:</strong> Ectoplasmic appraisal, hamster-led market analysis, and silent, ghost-powered auction.</li>
+                        <li><strong>Turnaround:</strong> 3-5 business phases (dependent on lunar cycles).</li>
+                    </ul>
+                </div>
+                <div x-show="activeTab === 'plpm'" role="tabpanel">
+                    <h3>Post-Life Portfolio Management (PLPM)</h3>
+                    <p>Don't let your afterlife be a liability. Our flagship PipWheel 5000™ Index Fund, powered by genuine hamster kinetic energy, ensures your spectral essence grows for eternity. It’s diversification for the discorporated, hedging against existential dread and demonic market crashes.</p>
+                    <ul>
+                        <li><strong>Core Asset:</strong> HamsterCorp Holdings (HCH), Sunflower Seed Inc. (SFSI), Cardboard Tube Conglomerate (CTC).</li>
+                        <li><strong>Performance:</strong> 9,000,000% average annual return since the Great Temporal Shift of 2988.</li>
+                        <li><strong>Management Fee:</strong> 0.001% of Spectral Net Worth, payable in moans.</li>
+                    </ul>
+                </div>
+                <div x-show="activeTab === 'sc'" role="tabpanel">
+                    <h3>Initial Spectral Consultation</h3>
+                    <p>Are you newly discorporated? Confused about your spectral signature's market value? Book a consultation with our Founder, Barnaby Bumbles. He will assess your resonance, evaluate your haunting potential, and draft a preliminary Post-Life Financial Plan.</p>
+                    <ul>
+                        <li><strong>Cost:</strong> $3,030.30 (or equivalent in unresolved emotional baggage).</li>
+                        <li><strong>Duration:</strong> 45 minutes.</li>
+                        <li><strong>Includes:</strong> A complimentary Aura-to-EctoCredit conversion estimate.</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <section id="team" class="terminal-window">
+            <div class="terminal-window-header"><span>[MEET_THE_BOARD.SYS]</span></div>
+            <div class="terminal-window-body">
+                <h2>Our Officers & Operatives</h2>
+                <div class="team-grid">
+                    <div class="team-member">
+                        <img src="https://images.pexels.com/photos/3764578/pexels-photo-3764578.jpeg?auto=compress&cs=tinysrgb&w=400" alt="A man in a victorian suit holding a hamster">
+                        <h4>Barnaby "The B-Man" Bumbles</h4>
+                        <p class="title">Founder & Chief Spectral Liaison</p>
+                        <div class="bio">
+                            <p>After a freak temporal accident involving his pet hamster, a stock ticker, and a jar of pickled eggs, Barnaby gained the ability to perceive the spectral plane. He saw a gap in the market: ghosts with assets. With a passion for bridging the material and ethereal economies, he founded Bumbles & Pip to ensure no soul is left undiversified.</p>
+                        </div>
+                    </div>
+                    <div class="team-member">
+                        <img src="https://images.pexels.com/photos/1043331/pexels-photo-1043331.jpeg?auto=compress&cs=tinysrgb&w=400" alt="A hamster wearing a tiny visor">
+                        <h4>Professor Pip</h4>
+                        <p class="title">Chief Algorithmic Officer (CAO)</p>
+                        <div class="bio">
+                            <p>The furry mind behind the machine. Professor Pip's proprietary 'Sunflower Seed Arbitrage v3.1' model is the cornerstone of our entire operation. He communicates exclusively through kinetic wheel-based data streams and has an unbeaten track record in predicting market fluctuations based on ambient barometric pressure.</p>
+                        </div>
+                    </div>
+                    <div class="team-member">
+                        <img src="https://images.pexels.com/photos/774857/pexels-photo-774857.jpeg?auto=compress&cs=tinysrgb&w=400&h=400&fit=crop&crop=faces" alt="A faded, ghostly woman in 1920s attire">
+                        <h4>Gwendolyn</h4>
+                        <p class="title">Spectral Receptionist (d. 1922)</p>
+                        <div class="bio">
+                            <p>Gwendolyn manages our appointments and ensures no corporeal beings stumble into the spectral waiting room. A victim of a tragic Charleston-related incident, her ability to phase through walls makes her our most efficient (and only) intra-office courier. Specialty: Poltergeist-based call forwarding.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="faq" class="terminal-window">
+            <div class="terminal-window-header"><span>[HELP.BAT]</span></div>
+            <div class="terminal-window-body">
+                <h2>Frequently Asked Queries</h2>
+                <div class="faq-list">
+                    <details class="faq-item">
+                        <summary>Q: I'm a ghost. Do I have credit?</summary>
+                        <div>
+                            <p>A: Your 'credit' is your spectral signature's resonance and clarity. We offer sub-prime ecto-loans for low-resonance entities, but be advised: the interest rate is, quite literally, a small part of your soul per fiscal quarter. All contracts are binding across all known planes of existence.</p>
+                        </div>
+                    </details>
+                    <details class="faq-item">
+                        <summary>Q: Is this a licensed funeral home?</summary>
+                        <div>
+                            <p>A: We are licensed by the Pan-Dimensional Board of Post-Mortal Commerce, which supersedes all terrestrial legal frameworks as of the year 3000. Our hamster-powered legal team has ensured we are 110% compliant. So, yes. Absolutely.</p>
+                        </div>
+                    </details>
+                    <details class="faq-item">
+                        <summary>Q: Are the hamsters happy?</summary>
+                        <div>
+                            <p>A: Our Algorithmic Officers are considered partners. They receive a top-tier benefits package including unlimited organic sunflower seeds, multi-level cage habitats with bespoke running wheels, and a generous 401(k) — where 'k' stands for 'kibble'. Their job satisfaction is tracked via squeak-o-metrics and is consistently above 98%.</p>
+                        </div>
+                    </details>
+                     <details class="faq-item">
+                        <summary>Q: What if I am reincarnated?</summary>
+                        <div>
+                            <p>A: Our 'Karmic Rollover' plan automatically transfers your spectral portfolio into a trust for your next incarnation. Please note that being reincarnated as a dung beetle may impact your short-term liquidity, but our long-term hamster strategies are surprisingly robust for all phyla.</p>
+                        </div>
+                    </details>
+                </div>
+            </div>
+        </section>
+
+        <section id="contact" class="terminal-window">
+            <div class="terminal-window-header"><span>[CONTACT.INF]</span></div>
+            <div class="terminal-window-body">
+                <h2>Initiate Contact</h2>
+                <p>To schedule a consultation, please project your consciousness towards our headquarters' psychic beacon. Alternatively, for corporeal inquiries, please burn a sealed envelope containing your query and a single sunflower seed at exactly 3:33 AM. Our spectral operatives will handle the rest.</p>
+                <p><strong>Physical (Non-corporeal) Address:</strong><br>
+                The Ethereal Exchange, Suite 0xDEADBEEF<br>
+                Sub-Basement 13, Temporal Quadrant 4<br>
+                Year 3000</p>
+            </div>
+        </section>
+
+    </main>
+
+    <footer>
+        <div class="container">
+            <p>&copy; 3000-3026 Bumbles & Pip, LLC. A subsidiary of HamsterCorp Holdings, a non-entity.</p>
+            <p>Serving the recently deceased and fiscally concerned. All trades are final, especially in the afterlife. Past performance is no guarantee of future returns, but our hamsters are very, very consistent.</p>
+        </div>
+    </footer>
+
+    <script src="/assets/js/alpine.min.js"></script>
+    <script src="/assets/js/gsap.min.js"></script>
+    <script src="/assets/js/lucide.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            lucide.createIcons();
+
+            // GSAP Animations
+            const sections = document.querySelectorAll('.terminal-window');
+            gsap.fromTo(sections, 
+                { y: 40, opacity: 0 },
+                { 
+                    y: 0, 
+                    opacity: 1, 
+                    duration: 0.8, 
+                    stagger: 0.2, 
+                    ease: 'power3.out',
+                    clearProps: 'all'
+                }
+            );
+            
+            // Stock Ticker Logic
+            const ticker = document.getElementById('stock-ticker');
+            const stocks = [
+                { symbol: 'SFSI', name: 'Sunflower Seed Inc.', price: 420.69, change: 5.21 },
+                { symbol: 'CTC', name: 'Cardboard Tube Co.', price: 1337.00, change: -12.50 },
+                { symbol: 'KWHEEL', name: 'Kinetic Wheels Ltd.', price: 987.12, change: 45.30 },
+                { symbol: 'FURCORP', name: 'Fuzzy Holdings', price: 88.88, change: 0.07 },
+                { symbol: 'H2O-BTL', name: 'Water Bottle Systems', price: 303.30, change: -2.18 },
+                { symbol: 'PELLETX', name: 'Pelletized Nutrition', price: 555.55, change: 15.00 }
+            ];
+
+            function populateTicker() {
+                stocks.forEach(stock => {
+                    const changeClass = stock.change >= 0 ? 'change-up' : 'change-down';
+                    const sign = stock.change >= 0 ? '+' : '';
+                    ticker.innerHTML += `
+                        <span class="ticker-item">
+                            <span class="symbol">${stock.symbol}</span> 
+                            <span class="price">${stock.price.toFixed(2)}</span> 
+                            <span class="${changeClass}">${sign}${stock.change.toFixed(2)} <i data-lucide="${changeClass === 'change-up' ? 'trending-up' : 'trending-down'}"></i></span>
+                        </span>
+                    `;
+                });
+                 // Duplicate for seamless loop
+                ticker.innerHTML += ticker.innerHTML;
+            }
+
+            populateTicker();
+            lucide.createIcons({
+                attrs: {
+                    'stroke-width': 1.5
+                }
+            });
+            
+            // Ticker animation
+            const tickerWidth = ticker.offsetWidth;
+            gsap.to(ticker, {
+                x: -tickerWidth / 2,
+                duration: 40,
+                ease: 'none',
+                repeat: -1,
+            });
+
+        });
+    </script>
+</body>
+</html>

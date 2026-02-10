@@ -1,0 +1,473 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>The Porchlight Dispatch | by Brent Mallory</title>
+  <link rel="stylesheet" href="/assets/css/pico.min.css" />
+  <link rel="stylesheet" href="/assets/css/fonts.css" />
+  <style>
+    :root {
+      --coral: #f26b5b;
+      --gold: #e5b247;
+      --purple: #5e3a86;
+      --blue: #132a57;
+      --paper: #fff8ef;
+      --ink: #1c1c1c;
+      --ink-soft: #333333;
+      --line: #d4bf9c;
+      --panel: #f9ebd6;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: 'Space Grotesk', 'Inter', sans-serif;
+      background: linear-gradient(135deg, var(--blue) 0%, #1c3d78 42%, var(--purple) 100%);
+      color: var(--ink);
+      font-size: 16px;
+      line-height: 1.45;
+      overflow-x: hidden;
+    }
+
+    .page-wrap {
+      min-height: 100vh;
+      display: grid;
+      grid-template-columns: 1.35fr 0.9fr;
+    }
+
+    .left {
+      background: var(--paper);
+      border-right: 4px double var(--line);
+      padding: clamp(1rem, 2vw, 2rem);
+    }
+
+    .right {
+      background: linear-gradient(180deg, #f6c57e 0%, #f2a870 35%, #dd7e74 70%, #8152a3 100%);
+      padding: clamp(1rem, 2vw, 2rem);
+      color: #1f1730;
+    }
+
+    .masthead {
+      border-top: 6px solid var(--blue);
+      border-bottom: 3px solid var(--blue);
+      padding: 0.8rem 0;
+      margin-bottom: 1rem;
+    }
+
+    .kicker {
+      font-family: 'IBM Plex Mono', monospace;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      font-size: 0.78rem;
+      color: #243d6f;
+      margin: 0;
+    }
+
+    h1 {
+      font-family: 'Playfair Display', 'Crimson Pro', serif;
+      font-size: clamp(2rem, 5vw, 3.4rem);
+      margin: 0.1rem 0;
+      line-height: 1;
+      color: #121212;
+    }
+
+    .byline-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.6rem;
+      align-items: center;
+      justify-content: space-between;
+      border-top: 1px solid var(--line);
+      border-bottom: 1px solid var(--line);
+      padding: 0.5rem 0;
+      margin-bottom: 1rem;
+    }
+
+    .small {
+      font-size: 0.9rem;
+      color: #2c2c2c;
+      margin: 0;
+    }
+
+    .edition {
+      display: inline-flex;
+      gap: 0.4rem;
+      background: #fff5e7;
+      border: 1px solid #b99a67;
+      border-radius: 999px;
+      padding: 0.25rem;
+    }
+
+    .edition button,
+    .chip,
+    .toggle-btn,
+    .read-btn {
+      min-height: 44px;
+      border-radius: 999px;
+      border: 1px solid #20417a;
+      font-weight: 700;
+      font-size: 0.9rem;
+    }
+
+    .edition button {
+      margin: 0;
+      padding: 0.45rem 0.85rem;
+      color: #1f2e59;
+      background: #fff8ef;
+    }
+
+    .edition .active {
+      background: var(--blue);
+      color: #ffffff;
+      border-color: var(--blue);
+    }
+
+    .hero-deck {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 0.8rem;
+      align-items: start;
+      margin-bottom: 1rem;
+    }
+
+    .hero-deck p {
+      margin: 0;
+      font-size: clamp(1rem, 2.1vw, 1.2rem);
+      color: #222222;
+    }
+
+    .tagline {
+      background: #fff2d9;
+      border-left: 5px solid var(--coral);
+      padding: 0.7rem;
+      font-weight: 600;
+      color: #2e2e2e;
+    }
+
+    .filters {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      margin-bottom: 1rem;
+    }
+
+    .chip {
+      background: #fff8ef;
+      color: #1a2f5f;
+      margin: 0;
+      padding: 0.45rem 0.8rem;
+    }
+
+    .chip.active {
+      background: var(--coral);
+      border-color: #9d3024;
+      color: #ffffff;
+    }
+
+    .news-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 0.9rem;
+    }
+
+    .story {
+      border: 1px solid #bfa376;
+      background: #fffefc;
+      padding: 0.8rem;
+      box-shadow: 0 2px 0 #dbc5a1;
+    }
+
+    .story h3 {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.24rem;
+      margin: 0 0 0.4rem;
+      color: #1a1a1a;
+    }
+
+    .meta {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 0.78rem;
+      color: #2f2f2f;
+      margin-bottom: 0.45rem;
+      text-transform: uppercase;
+    }
+
+    .story p {
+      color: #292929;
+      margin: 0 0 0.55rem;
+    }
+
+    .read-btn {
+      margin: 0;
+      padding: 0.35rem 0.75rem;
+      background: #f3e0c5;
+      color: #1f2e59;
+      border-color: #93652f;
+    }
+
+    .expanded {
+      margin-top: 0.6rem;
+      border-top: 1px dashed #9a7b4d;
+      padding-top: 0.6rem;
+      color: #232323;
+    }
+
+    .aside-head {
+      border-bottom: 2px solid #2a1f45;
+      padding-bottom: 0.5rem;
+      margin-bottom: 0.75rem;
+    }
+
+    .aside-head h2 {
+      margin: 0;
+      font-family: 'Playfair Display', serif;
+      color: #1f1631;
+      font-size: clamp(1.6rem, 3.5vw, 2.2rem);
+    }
+
+    .pull {
+      margin: 0.9rem 0;
+      padding: 0.8rem;
+      border-left: 5px solid #542d7a;
+      background: #ffe7be;
+      font-family: 'Playfair Display', serif;
+      font-size: 1.2rem;
+      color: #25183b;
+    }
+
+    .card {
+      border: 1px solid #5f3f28;
+      background: #fff2d8;
+      padding: 0.75rem;
+      margin-bottom: 0.75rem;
+      color: #2c1b14;
+    }
+
+    .card h4 {
+      margin: 0 0 0.35rem;
+      font-size: 1.02rem;
+      color: #25183b;
+    }
+
+    .card p,
+    .card li {
+      margin: 0.2rem 0;
+      color: #2f1f17;
+      font-size: 0.95rem;
+    }
+
+    .card ul {
+      margin: 0;
+      padding-left: 1.1rem;
+    }
+
+    .toggle-btn {
+      width: 100%;
+      margin-bottom: 0.7rem;
+      padding: 0.55rem;
+      background: #2c1f47;
+      border-color: #2c1f47;
+      color: #ffffff;
+      display: flex;
+      gap: 0.5rem;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .ad {
+      border: 2px dashed #6c3f2a;
+      background: #ffdeb3;
+      padding: 0.7rem;
+      margin-bottom: 0.75rem;
+      font-family: 'IBM Plex Mono', monospace;
+      color: #2f1e17;
+    }
+
+    .footer-note {
+      margin-top: 1.4rem;
+      padding-top: 0.8rem;
+      border-top: 1px solid #3f2757;
+      font-size: 0.86rem;
+      color: #26192f;
+    }
+
+    .icon {
+      width: 18px;
+      height: 18px;
+      stroke-width: 2.2;
+    }
+
+    @media (max-width: 1020px) {
+      .page-wrap { grid-template-columns: 1fr; }
+      .left { border-right: none; border-bottom: 4px double var(--line); }
+      .news-grid { grid-template-columns: 1fr; }
+    }
+
+    @media (max-width: 640px) {
+      .hero-deck { grid-template-columns: 1fr; }
+      h1 { font-size: 2.2rem; }
+      .card p, .card li { font-size: 1rem; }
+      .small { font-size: 0.95rem; }
+    }
+  </style>
+</head>
+<body>
+  <main class="page-wrap" x-data="dispatchApp()">
+    <section class="left">
+      <header class="masthead">
+        <p class="kicker">Serving Birch Hollow Since June 14, 2019</p>
+        <h1>The Porchlight Dispatch</h1>
+        <p class="kicker">Romance logistics, reconciled nightly by Brent Mallory and Sergeant Muffin</p>
+      </header>
+
+      <div class="byline-row">
+        <p class="small"><strong>Publisher:</strong> Brent Mallory, suburban father of two, former regional pallet scheduler, now founder of <strong>Porchlight Pairings</strong>.</p>
+        <div class="edition" role="tablist" aria-label="Edition switch">
+          <button :class="edition==='morning' ? 'active' : ''" @click="edition='morning'" aria-label="Morning edition">Morning</button>
+          <button :class="edition==='late' ? 'active' : ''" @click="edition='late'" aria-label="Late Night edition">Late Night</button>
+        </div>
+      </div>
+
+      <div class="hero-deck">
+        <p x-show="edition==='morning'">I built Porchlight Pairings because my neighborhood block party had 43 deviled eggs and zero emotional closure. Our app schedules first dates like supply drops. My cat, Sergeant Muffin, still approves every charge by sitting on the keyboard. Yes, accounting cries daily.</p>
+        <p x-show="edition==='late'">Late-night bulletin: jazz trio still live in the den, drummer still paid in lasagna, and Sergeant Muffin just converted another $19.00 date credit into $19.11 because "extra fish tax." I don't argue with rank.</p>
+        <aside class="tagline">Tonight's Reliability Score: <strong>94.2%</strong> on-date arrivals, <strong>0%</strong> silence at check presentation.</aside>
+      </div>
+
+      <div class="filters" aria-label="Story filters">
+        <button class="chip" :class="filter==='all' ? 'active' : ''" @click="filter='all'">All Copy</button>
+        <button class="chip" :class="filter==='news' ? 'active' : ''" @click="filter='news'">Field Reports</button>
+        <button class="chip" :class="filter==='opinion' ? 'active' : ''" @click="filter='opinion'">Opinion</button>
+        <button class="chip" :class="filter==='letters' ? 'active' : ''" @click="filter='letters'">Letters</button>
+        <button class="chip" :class="filter==='alerts' ? 'active' : ''" @click="filter='alerts'">Finance Alerts</button>
+      </div>
+
+      <section class="news-grid" aria-live="polite">
+        <template x-for="item in filteredStories" :key="item.id">
+          <article class="story" x-data="{open:false}">
+            <div class="meta" x-text="item.category + ' / ' + item.byline"></div>
+            <h3 x-text="item.title"></h3>
+            <p x-text="item.dek"></p>
+            <button class="read-btn" @click="open=!open" :aria-expanded="open.toString()" aria-label="Toggle full story">
+              <span x-text="open ? 'Fold Story' : 'Read Dispatch'"></span>
+            </button>
+            <div class="expanded" x-show="open" x-transition>
+              <p x-text="item.body"></p>
+            </div>
+          </article>
+        </template>
+      </section>
+    </section>
+
+    <aside class="right">
+      <div class="aside-head">
+        <h2>Side Column & Notices</h2>
+        <p class="small">Printed beside the snack table while the jazz band warms up in E-flat.</p>
+      </div>
+
+      <blockquote class="pull">"At 7:42 p.m. I matched two tax attorneys and one beekeeper by mistake. They now run a cider club. That's operational excellence."<br><strong>- Brent</strong></blockquote>
+
+      <div class="card">
+        <h4>Classifieds</h4>
+        <ul>
+          <li><strong>FOR HIRE:</strong> Date Chaperone with military clipboard, $47.99/night, includes lint roller.</li>
+          <li><strong>SWAP:</strong> One "Sorry I ghosted" bouquet for two apology cannolis.</li>
+          <li><strong>LOST:</strong> Green cardigan, emotional availability, and one trombone mute.</li>
+          <li><strong>SERVICES:</strong> Jazz drummer will accompany difficult breakups, 12-minute minimum.</li>
+        </ul>
+      </div>
+
+      <div class="card">
+        <h4>Letters to the Editor</h4>
+        <p><strong>Maureen, Cul-de-sac 8:</strong> "Your app assigned my husband and I a second first date at our own kitchen island. It worked."</p>
+        <p><strong>Jordan, HOA Treasurer:</strong> "Please stop listing my garage as a neutral romantic zone. Also, nice saxophone solos."</p>
+        <p><strong>Dante, New User:</strong> "I paid for one premium rose and received six tins of tuna. Five stars for honesty."</p>
+      </div>
+
+      <button class="toggle-btn" @click="showCorrections=!showCorrections" :aria-expanded="showCorrections.toString()">
+        <i class="icon" data-lucide="file-warning"></i>
+        <span x-text="showCorrections ? 'Hide Corrections' : 'Show Corrections & Retractions'"></span>
+      </button>
+
+      <section class="card" x-show="showCorrections" x-transition>
+        <h4>Corrections Desk</h4>
+        <p>Yesterday we reported "all payments stable." Correction: Sergeant Muffin converted 38 invoices to values ending in .11.</p>
+        <p>We also misidentified our bassist as "human resources." He is not HR. He is just emotionally literate.</p>
+      </section>
+
+      <div class="ad">AD: <strong>Campfire Courtship Crates</strong><br>Starter set: enamel mugs, emergency sonnet, two rain ponchos. $63.40 plus cat surcharge.</div>
+      <div class="ad">AD: <strong>Quartermaster Florals</strong><br>Peonies sorted by urgency code: Green (curious), Amber (serious), Red (met each other's parents).</div>
+      <div class="ad">AD: <strong>Bassline Background Checks</strong><br>"We verify vibes while upright bass plays softly behind you."</div>
+
+      <div class="card">
+        <h4>Opinion Corner</h4>
+        <p><strong>"Stop Calling It Chaos."</strong> It's a decentralized romance command structure with cat-led anti-fraud.</p>
+        <p><strong>"Bring Back Polite Confirmations."</strong> If you can text "on my way," you can save civilization.</p>
+        <p><strong>"Jazz Is Not A Distraction."</strong> It's uptime for human feelings.</p>
+      </div>
+
+      <div class="footer-note">
+        Porchlight Pairings HQ: Brent's split-level ranch, Birch Hollow. Live trio every night 6:30 p.m.-until neighbors text "respectfully, please."<br>
+        Helpline: dial extension 2 and say "Muffin, stand down." Response time averages 11 minutes.
+      </div>
+    </aside>
+  </main>
+
+  <script src="/assets/js/alpine.min.js" defer></script>
+  <script src="/assets/js/gsap.min.js" defer></script>
+  <script src="/assets/js/lucide.min.js" defer></script>
+  <script>
+    function dispatchApp() {
+      return {
+        edition: 'morning',
+        filter: 'all',
+        showCorrections: false,
+        stories: [
+          { id: 1, category: 'news', byline: 'Metro Desk', title: 'Patio Table Converted Into First-Date Checkpoint', dek: 'Three lanterns, two clipboards, and one very calm saxophonist now manage arrivals.', body: 'We processed 71 handshakes and 14 respectful nods before sunset. Nobody asked "what are we" before appetizer delivery. That is growth.' },
+          { id: 2, category: 'alerts', byline: 'Finance Unit', title: 'All Premium Tiers Now End in .11', dek: 'Cat paws continue to add precise tuna-indexed adjustments.', body: 'Our $29.00 Gold Plan is now $29.11. Customers report mild confusion and strangely high trust. Sergeant Muffin has no comment.' },
+          { id: 3, category: 'opinion', byline: 'Brent Mallory', title: 'The Minivan Is A Command Center, Not A Midlife Crisis', dek: 'Sliding doors create excellent briefing acoustics.', body: 'I can route six couples, one bouquet courier, and a trumpet mute from row three. Judge less. Love more. Respect cargo discipline.' },
+          { id: 4, category: 'letters', byline: 'Readers', title: 'Reader Mail: "Your Date Reminder Called Me Sir"', dek: 'Our app salutes users by rank until profile settings change.', body: 'After 412 requests, we added casual mode. You may now be greeted with "hey" instead of "Good evening, Captain."' },
+          { id: 5, category: 'news', byline: 'Neighborhood Beat', title: 'Jazz Trio Hits 400 Consecutive Service Hours', dek: 'No breaks except one lasagna interval and a trumpet nap.', body: 'Continuous live jazz reduced awkward silences by 63%. Breakup severity dropped from "public crying" to "civilized sighing."' },
+          { id: 6, category: 'alerts', byline: 'Risk Office', title: 'Refund Policy Updated After Cat Purchased 90 Shrimp Rings', dek: 'We now classify seafood incidents as force majeure.', body: 'Affected users received apology postcards and porch pickup credits. Shrimp was redistributed to the Wednesday Singles Mixer.' },
+          { id: 7, category: 'opinion', byline: 'Guest Column: Denise K.', title: 'Bring Back Courting Snacks', dek: 'Romance fails when everyone shows up hungry and defensive.', body: 'A pretzel rod can save a conversation. We recommend emergency nuts, polite water service, and one shared olive plate.' },
+          { id: 8, category: 'news', byline: 'Tech Desk', title: 'Map Pins Now Include "Safe Exit Routes"', dek: 'Designed for dates that were nice but definitely enough.', body: 'The app quietly suggests bookstores, bus stops, and plausible "I feed my neighbor\'s turtle" excuses.' },
+          { id: 9, category: 'letters', byline: 'Reader Hotline', title: 'Letter: "My Match Arrived With A Clipboard Too"', dek: 'Mutual preparedness remains our strongest compatibility marker.', body: 'When both parties carry checklists, conversation starts fast and conflict ends early. Love is logistics with eye contact.' },
+          { id: 10, category: 'alerts', byline: 'Accounting', title: 'Emergency Clarification: "Cat Tax" Is Real', dek: 'It funds keyboard covers, tuna stipends, and apology macarons.', body: 'Current surcharge is 1.1%. We publish this transparently because secrecy is how startups become documentaries.' },
+          { id: 11, category: 'opinion', byline: 'Brent Mallory', title: 'No, I Will Not Turn Off The Trumpet At Dinner', dek: 'You cannot rush emotional honesty in total silence.', body: 'The muted trumpet at table 4 has prevented 22 bad monologues this quarter. Music gives people mercy exits.' },
+          { id: 12, category: 'news', byline: 'Civic Desk', title: 'HOA Grants Temporary Permit For Moonlight Slow-Dance Lane', dek: 'Cones removed at dawn, hearts returned by noon.', body: 'Permit excludes rollerblades, leaf blowers, and "ironic" fog machines. Couples must carry reflective strips after 9 p.m.' },
+          { id: 13, category: 'letters', byline: 'Reader Mailbag', title: 'Letter: "I Met My Fiance Over An Invoice Dispute"', dek: 'Disagreement about cat surcharge became six-hour conversation.', body: 'They are now planning a courthouse wedding and have asked Sergeant Muffin to serve as ring bearer. We advised against velvet.' },
+          { id: 14, category: 'news', byline: 'Food & Feelings', title: 'Snack Cart Debuts "Ceasefire Cannoli"', dek: 'Issued when a date gets tense near minute forty.', body: 'One bite, one apology, one gentle clarifying question. De-escalation success rate: 88% when pistachio dust is present.' },
+          { id: 15, category: 'opinion', byline: 'Editorial Board', title: 'Kissing Is A Deployment, Plan Accordingly', dek: 'Do not improvise near curbside pickup lanes.', body: 'Check timing, weather, and breath conditions. Courage without scheduling is just confusion with cologne.' },
+          { id: 16, category: 'alerts', byline: 'Night Watch', title: 'After-Hours Matchmaking Paused For Drum Solo', dek: 'System resumes automatically after applause threshold is met.', body: 'Service interruption lasted 6 minutes and 22 seconds. We regret nothing; the solo was transcendent and technically flawless.' }
+        ],
+        get filteredStories() {
+          if (this.filter === 'all') return this.stories;
+          return this.stories.filter((s) => s.category === this.filter);
+        }
+      };
+    }
+
+    window.addEventListener('load', function () {
+      if (window.lucide && typeof window.lucide.createIcons === 'function') {
+        window.lucide.createIcons();
+      }
+      if (window.gsap) {
+        gsap.fromTo('.masthead',
+          { y: -24, opacity: 0 },
+          { y: 0, opacity: 1, duration: 0.65, ease: 'power2.out', clearProps: 'opacity,transform' }
+        );
+        gsap.fromTo('.story',
+          { y: 20, opacity: 0 },
+          { y: 0, opacity: 1, duration: 0.55, stagger: 0.05, ease: 'power2.out', clearProps: 'opacity,transform' }
+        );
+        gsap.fromTo('.card, .ad, .pull',
+          { x: 16, opacity: 0 },
+          { x: 0, opacity: 1, duration: 0.55, stagger: 0.06, ease: 'power2.out', clearProps: 'opacity,transform' }
+        );
+      }
+    });
+  </script>
+</body>
+</html>

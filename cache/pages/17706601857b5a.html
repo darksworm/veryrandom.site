@@ -1,0 +1,448 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Snow Globe TED Toilet Exchange</title>
+<style>
+:root{
+  --ink:#111;
+  --paper:#f7f4ef;
+  --paper-2:#efe9e1;
+  --red:#d9232e;
+  --ash:#b7b0a8;
+  --shadow:rgba(0,0,0,.25);
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0;height:100%;font-family: "Times New Roman", Times, serif;background:var(--paper);color:var(--ink)}
+body{overflow-x:hidden}
+
+/* global grunge */
+body:before{
+  content:"";position:fixed;inset:0;pointer-events:none;mix-blend-mode:multiply;opacity:.2;
+  background:
+    repeating-linear-gradient(90deg, rgba(0,0,0,.05) 0 1px, transparent 1px 3px),
+    repeating-linear-gradient(0deg, rgba(0,0,0,.04) 0 1px, transparent 1px 4px),
+    radial-gradient(circle at 20% 10%, rgba(0,0,0,.08), transparent 40%),
+    radial-gradient(circle at 80% 90%, rgba(0,0,0,.08), transparent 40%);
+  z-index:2;
+}
+
+#deck{scroll-snap-type:y mandatory;overflow-y:scroll;height:100vh}
+.slide{scroll-snap-align:start;min-height:100vh;display:grid;grid-template-rows:auto 1fr auto;gap:18px;padding:36px 6vw;position:relative}
+
+.slide h1,.slide h2{margin:0;text-transform:uppercase;letter-spacing:.08em}
+.slide h1{font-size:clamp(32px,5vw,64px)}
+.slide h2{font-size:clamp(20px,3vw,36px)}
+
+/* zine layout */
+.zine{display:grid;grid-template-columns:1.2fr .8fr;gap:24px;align-items:stretch}
+.panel{background:var(--paper-2);border:2px solid var(--ink);box-shadow:8px 8px 0 var(--shadow);padding:18px;position:relative}
+.panel.red{border-color:var(--red);box-shadow:8px 8px 0 rgba(217,35,46,.25)}
+
+.badge{display:inline-block;border:2px solid var(--ink);padding:4px 8px;font-size:12px;letter-spacing:.2em;text-transform:uppercase;background:#fff}
+
+/* globe */
+.globe{position:relative;width:min(60vw,560px);aspect-ratio:1/1;margin:0 auto;border-radius:50%;
+  background:
+    radial-gradient(circle at 30% 30%, #fff 0 18%, transparent 18%),
+    radial-gradient(circle at 70% 30%, #fff 0 12%, transparent 12%),
+    radial-gradient(circle at 50% 60%, rgba(255,255,255,.8) 0 30%, rgba(255,255,255,0) 45%),
+    radial-gradient(circle at 50% 50%, #dfe6ef 0 40%, #c1cedb 41% 60%, #aab8c7 61% 75%, #9aa8b8 76% 100%);
+  border:3px solid var(--ink);
+  box-shadow:0 20px 40px var(--shadow);
+  overflow:hidden;
+}
+
+.flake{position:absolute;width:6px;height:6px;background:#fff;border-radius:50%;opacity:.8;animation:fall 4s linear infinite}
+@keyframes fall{from{transform:translateY(-20px) scale(.7)}to{transform:translateY(520px) scale(1.2)}}
+
+.globe .toilet{position:absolute;left:50%;top:55%;transform:translate(-50%,-50%);
+  width:120px;height:120px;border:3px solid var(--ink);border-radius:12px 12px 18px 18px;background:#fff;box-shadow:6px 6px 0 var(--shadow)}
+.globe .toilet:before{content:"";position:absolute;left:50%;top:-35px;transform:translateX(-50%);
+  width:90px;height:50px;border:3px solid var(--ink);border-bottom:none;border-radius:60px 60px 0 0;background:#fff}
+.globe .toilet:after{content:"TED";position:absolute;left:50%;top:35px;transform:translateX(-50%);
+  font-weight:bold;color:var(--red);letter-spacing:.2em}
+
+.mascot{position:absolute;width:80px;height:80px;border:2px solid var(--ink);border-radius:50%;background:conic-gradient(from 90deg, #fff 0 40%, #000 40% 60%, #fff 60% 100%);
+  box-shadow:4px 4px 0 var(--shadow);animation:roam 9s linear infinite}
+.mascot:before{content:"";position:absolute;inset:16px;border:2px solid var(--ink);border-radius:50%}
+.mascot:after{content:"M";position:absolute;inset:0;display:grid;place-items:center;font-weight:bold}
+@keyframes roam{
+  0%{transform:translate(-40px,-30px)}
+  25%{transform:translate(120px,20px)}
+  50%{transform:translate(10px,140px)}
+  75%{transform:translate(-100px,80px)}
+  100%{transform:translate(-40px,-30px)}
+}
+
+.ticker{font-family: "Courier New", Courier, monospace;white-space:nowrap;overflow:hidden;border-top:2px solid var(--ink);border-bottom:2px solid var(--ink);padding:8px 0;background:#fff}
+.ticker .track{display:inline-block;animation:marquee 20s linear infinite}
+@keyframes marquee{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:14px}
+.card{border:2px solid var(--ink);padding:12px;background:#fff;box-shadow:6px 6px 0 var(--shadow)}
+.card strong{color:var(--red)}
+
+button{font:inherit;border:2px solid var(--ink);background:#fff;padding:8px 12px;cursor:pointer;box-shadow:4px 4px 0 var(--shadow);text-transform:uppercase;letter-spacing:.1em}
+button.red{border-color:var(--red);color:var(--red)}
+button:active{transform:translate(2px,2px);box-shadow:2px 2px 0 var(--shadow)}
+
+.pill{display:inline-block;border:2px solid var(--ink);padding:2px 6px;background:#fff;font-size:12px;text-transform:uppercase;letter-spacing:.12em}
+
+/* slide themes */
+.slide:nth-child(1){background:linear-gradient(180deg, #fff 0%, var(--paper) 60%, #e5dfd6 100%)}
+.slide:nth-child(2){background:linear-gradient(180deg, #fdfafa 0%, #f0e7de 100%)}
+.slide:nth-child(3){background:linear-gradient(180deg, #f7f4ef 0%, #ebe3da 100%)}
+.slide:nth-child(4){background:linear-gradient(180deg, #fdfdfc 0%, #eee6dd 100%)}
+
+/* interactive states */
+.hidden{display:none}
+.spin{animation:spin 1.2s linear infinite}
+@keyframes spin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
+
+.highlight{background:var(--red);color:#fff;padding:0 6px}
+
+.footer{font-size:12px;opacity:.8}
+
+</style>
+</head>
+<body>
+<div id="deck">
+  <section class="slide">
+    <div>
+      <span class="badge">Snow Globe Exchange</span>
+      <h1>TED Talk Toilet: Self-Help Liquidity Engine</h1>
+      <p>Inside the globe, wisdom flushes upward. Outside, mascots roam freely and cannot be stopped.</p>
+    </div>
+    <div class="zine">
+      <div class="panel">
+        <div class="globe" id="globe">
+          <div class="toilet" id="toilet"></div>
+          <div class="mascot" id="mascot"></div>
+        </div>
+        <p class="footer">Disclaimer #1: The snow is 100% metaphorical and 0% refundable.</p>
+      </div>
+      <div class="panel red">
+        <h2>Live TED Flows</h2>
+        <div class="grid">
+          <div class="card"><strong id="talkCount">12</strong> talks today</div>
+          <div class="card"><strong id="bookCount">3</strong> self-help books in the pipe</div>
+          <div class="card"><strong id="mascotCount">7</strong> mascots loose</div>
+          <div class="card"><strong id="snowCount">4,112</strong> flakes in circulation</div>
+        </div>
+        <div style="margin-top:12px;display:flex;gap:10px;flex-wrap:wrap">
+          <button id="shakeBtn" class="red">Shake Globe</button>
+          <button id="publishBtn">Publish Book</button>
+          <button id="mascotBtn">Release Mascot</button>
+          <button id="toggleTedBtn">Mute TED</button>
+        </div>
+        <p id="tedLine" style="margin-top:10px"><span class="pill">TED</span> "Your inner swirl is your outer whirl."</p>
+        <p class="footer">Disclaimer #2: Mascots are freelance chaos agents.</p>
+      </div>
+    </div>
+    <div class="ticker">
+      <div class="track" id="tickerTrack">TOIL-USD ▲ 4.2% • GLOBE/GLB ▼ 1.1% • FLUSH/ETH ▲ 9.9% • TALK/LTV ▲ 0.4% • BOOK/BASIN ▲ 3.3% • </div>
+    </div>
+  </section>
+
+  <section class="slide">
+    <div>
+      <h2>Exchange Orderbook (Definitely Real)</h2>
+      <p>We settle trades by moral clarity and a tiny bell inside the globe.</p>
+    </div>
+    <div class="zine">
+      <div class="panel">
+        <div class="grid">
+          <div class="card">Best Bid: <strong id="bestBid">403.1</strong> TOIL</div>
+          <div class="card">Best Ask: <strong id="bestAsk">404.6</strong> TOIL</div>
+          <div class="card">Spread: <strong id="spread">1.5</strong> TOIL</div>
+          <div class="card">24h Volume: <strong id="vol24">9,812</strong> books</div>
+        </div>
+        <div style="margin-top:12px;display:flex;gap:10px;flex-wrap:wrap">
+          <button id="nudgeBidBtn">Nudge Bid</button>
+          <button id="nudgeAskBtn">Nudge Ask</button>
+          <button id="autoTradeBtn" class="red">Auto-Trade: OFF</button>
+        </div>
+        <p class="footer">Disclaimer #3: Auto-trade runs on inspirational quotes, not electricity.</p>
+      </div>
+      <div class="panel red">
+        <h2>Self-Help Shelf</h2>
+        <ul id="shelf" style="padding-left:16px;line-height:1.6">
+          <li>"Flush Forward: The Inner Plunge"</li>
+          <li>"Seven Habits of Highly Hygienic Souls"</li>
+          <li>"Quietly Loud Splash: A Guide"</li>
+          <li>"You Are Not Your Queue"</li>
+        </ul>
+        <div style="display:flex;gap:10px;flex-wrap:wrap">
+          <button id="addBookBtn">Add New Title</button>
+          <button id="shuffleBooksBtn">Shuffle Shelf</button>
+        </div>
+        <p class="footer">Disclaimer #4: Reading may cause sudden confidence and mild soap odor.</p>
+      </div>
+    </div>
+    <div class="ticker">
+      <div class="track">SPEAKER/YEAR ▲ 0.8% • LID/LOCK ▼ 2.2% • GURU/BONUS ▲ 1.6% • MASCOT/IOU ▲ 5.0% • </div>
+    </div>
+  </section>
+
+  <section class="slide">
+    <div>
+      <h2>Snow Globe Governance</h2>
+      <p>Proposals are thrown into the globe. If they stick, they pass.</p>
+    </div>
+    <div class="zine">
+      <div class="panel">
+        <h2>Active Proposals</h2>
+        <div class="grid" id="proposalGrid">
+          <div class="card">P-12: Replace gavel with rubber duck</div>
+          <div class="card">P-13: Mint 1,000,000 flakes of accountability</div>
+          <div class="card">P-14: Mandatory TED intermission every 4 flushes</div>
+          <div class="card">P-15: Mascot curfew (will be ignored)</div>
+        </div>
+        <div style="margin-top:12px;display:flex;gap:10px;flex-wrap:wrap">
+          <button id="voteBtn" class="red">Cast Vote</button>
+          <button id="toggleProposalsBtn">Hide Proposals</button>
+        </div>
+        <p id="voteStatus" class="footer">Votes cast: 204. Turnout: 112% (we count echoes).</p>
+      </div>
+      <div class="panel red">
+        <h2>Mascot Tracker</h2>
+        <p>We track them, but they don't acknowledge our authority.</p>
+        <div class="grid">
+          <div class="card">Zone A: <strong id="zoneA">2</strong> mascots</div>
+          <div class="card">Zone B: <strong id="zoneB">3</strong> mascots</div>
+          <div class="card">Zone C: <strong id="zoneC">2</strong> mascots</div>
+          <div class="card">Warning: <strong id="warning">Mildly Roaming</strong></div>
+        </div>
+        <div style="margin-top:12px;display:flex;gap:10px;flex-wrap:wrap">
+          <button id="relocateBtn">Relocate Mascots</button>
+          <button id="panicBtn" class="red">Panic Mode</button>
+        </div>
+        <p class="footer">Disclaimer #5: Panic Mode is theatrical.</p>
+      </div>
+    </div>
+    <div class="ticker">
+      <div class="track">PLEDGE/PLUNGE ▲ 2.4% • SNOW/ETH ▼ 0.9% • TED/DAO ▲ 6.6% • </div>
+    </div>
+  </section>
+
+  <section class="slide">
+    <div>
+      <h2>Final Slide: The Globe Remembers</h2>
+      <p>Time inside the globe is circular. Time outside is a queue.</p>
+    </div>
+    <div class="zine">
+      <div class="panel">
+        <h2>Daily Rituals</h2>
+        <ol style="line-height:1.7">
+          <li>Shake the globe before breakfast.</li>
+          <li>Listen to the toilet's keynote on resilience.</li>
+          <li>Trade one fear for one flake.</li>
+          <li>Refuse mascot negotiations.</li>
+          <li>Write a self-help chapter you won't publish.</li>
+        </ol>
+        <div style="display:flex;gap:10px;flex-wrap:wrap">
+          <button id="cycleQuoteBtn">Next Quote</button>
+          <button id="glowBtn" class="red">Glow Mode</button>
+        </div>
+        <p id="quote" style="margin-top:10px">"Your bathroom is a boardroom."</p>
+      </div>
+      <div class="panel red">
+        <h2>Live Counter</h2>
+        <p>Seconds since the last profound flush:</p>
+        <div style="font-size:36px;font-weight:bold" id="seconds">0</div>
+        <p>Current Mood: <span id="mood" class="highlight">Optimistically Damp</span></p>
+        <p class="footer">Disclaimer #6: This counter is emotionally accurate, not temporally accurate.</p>
+      </div>
+    </div>
+    <div class="ticker">
+      <div class="track">GLOBE/INDEX ▲ 1.9% • ZINE/BND ▼ 0.2% • TOIL/TED ▲ 3.7% • </div>
+    </div>
+  </section>
+</div>
+
+<script>
+(function(){
+  const q = (id)=>document.getElementById(id);
+  const globe = q('globe');
+  const toilet = q('toilet');
+  const mascot = q('mascot');
+  const tedLine = q('tedLine');
+
+  // Witty lines
+  const tedLines = [
+    '"Your inner swirl is your outer whirl."',
+    '"Discipline is just consistency with better towels."',
+    '"Be the lever you wish to see in the world."',
+    '"A clean bowl is a clean soul."',
+    '"Abundance begins at the handle."',
+    '"Hustle, but keep it hygienic."',
+    '"Your narrative is not your napkin."',
+    '"Silence is the loudest flush."'
+  ];
+  let tedIndex = 0;
+
+  // create initial snow
+  const makeFlake = ()=>{
+    const f = document.createElement('div');
+    f.className = 'flake';
+    f.style.left = Math.random()*100 + '%';
+    f.style.animationDuration = (2 + Math.random()*4) + 's';
+    f.style.opacity = (0.4 + Math.random()*0.6);
+    globe.appendChild(f);
+    setTimeout(()=>f.remove(), 6000);
+  };
+  for(let i=0;i<40;i++) makeFlake();
+
+  // counters
+  let talkCount = 12, bookCount = 3, mascotCount = 7, snowCount = 4112;
+  let bestBid = 403.1, bestAsk = 404.6, vol24 = 9812;
+  let votes = 204;
+  let seconds = 0;
+  let glow = false;
+  let autoTrade = false;
+  let proposalHidden = false;
+
+  const updateMarket = ()=>{
+    q('bestBid').textContent = bestBid.toFixed(1);
+    q('bestAsk').textContent = bestAsk.toFixed(1);
+    q('spread').textContent = (bestAsk - bestBid).toFixed(1);
+    q('vol24').textContent = vol24.toLocaleString();
+  };
+  updateMarket();
+
+  // Interaction 1: shake globe
+  q('shakeBtn').addEventListener('click', ()=>{
+    for(let i=0;i<30;i++) makeFlake();
+    globe.animate([
+      {transform:'translateX(0)'},{transform:'translateX(6px)'},{transform:'translateX(-6px)'},{transform:'translateX(0)'}
+    ],{duration:400});
+    snowCount += 128;
+    q('snowCount').textContent = snowCount.toLocaleString();
+  });
+
+  // Interaction 2: publish book
+  q('publishBtn').addEventListener('click', ()=>{
+    bookCount++;
+    q('bookCount').textContent = bookCount;
+    tedIndex = (tedIndex + 1) % tedLines.length;
+    tedLine.innerHTML = '<span class="pill">TED</span> ' + tedLines[tedIndex];
+  });
+
+  // Interaction 3: release mascot
+  q('mascotBtn').addEventListener('click', ()=>{
+    mascotCount++;
+    q('mascotCount').textContent = mascotCount;
+    mascot.classList.toggle('spin');
+  });
+
+  // Interaction 4: toggle ted
+  q('toggleTedBtn').addEventListener('click', (e)=>{
+    const muted = tedLine.classList.toggle('hidden');
+    e.target.textContent = muted ? 'Unmute TED' : 'Mute TED';
+  });
+
+  // Market nudges
+  q('nudgeBidBtn').addEventListener('click', ()=>{
+    bestBid += 0.4;
+    updateMarket();
+  });
+  q('nudgeAskBtn').addEventListener('click', ()=>{
+    bestAsk += 0.4;
+    updateMarket();
+  });
+  q('autoTradeBtn').addEventListener('click', (e)=>{
+    autoTrade = !autoTrade;
+    e.target.textContent = 'Auto-Trade: ' + (autoTrade ? 'ON' : 'OFF');
+    e.target.classList.toggle('red');
+  });
+
+  // Shelf interactions
+  const titles = [
+    '"The Gratitude Gasket"',
+    '"Mindfulness in the Stall"',
+    '"Flush Your Doubts"',
+    '"The Plunge Principle"',
+    '"Zen and the Art of Porcelain"',
+    '"Humble Brag, Clean Rag"'
+  ];
+  q('addBookBtn').addEventListener('click', ()=>{
+    const li = document.createElement('li');
+    li.textContent = titles[Math.floor(Math.random()*titles.length)];
+    q('shelf').appendChild(li);
+    bookCount++;
+    q('bookCount').textContent = bookCount;
+  });
+  q('shuffleBooksBtn').addEventListener('click', ()=>{
+    const list = q('shelf');
+    const items = Array.from(list.children);
+    items.sort(()=>Math.random()-0.5).forEach(i=>list.appendChild(i));
+  });
+
+  // Proposal interactions
+  q('voteBtn').addEventListener('click', ()=>{
+    votes += Math.floor(2 + Math.random()*7);
+    q('voteStatus').textContent = `Votes cast: ${votes}. Turnout: ${112 + (votes%9)}% (we count echoes).`;
+  });
+  q('toggleProposalsBtn').addEventListener('click', (e)=>{
+    proposalHidden = !proposalHidden;
+    q('proposalGrid').classList.toggle('hidden');
+    e.target.textContent = proposalHidden ? 'Show Proposals' : 'Hide Proposals';
+  });
+
+  // Mascot tracker
+  q('relocateBtn').addEventListener('click', ()=>{
+    const a = Math.floor(1+Math.random()*3);
+    const b = Math.floor(1+Math.random()*4);
+    const c = Math.max(1, mascotCount - a - b);
+    q('zoneA').textContent = a;
+    q('zoneB').textContent = b;
+    q('zoneC').textContent = c;
+    q('warning').textContent = (a+b+c>7) ? 'Wildly Roaming' : 'Mildly Roaming';
+  });
+  q('panicBtn').addEventListener('click', ()=>{
+    document.body.animate([
+      {filter:'none'},{filter:'contrast(1.4) hue-rotate(20deg)'},{filter:'none'}
+    ],{duration:600});
+  });
+
+  // Quotes
+  const quotes = [
+    '"Your bathroom is a boardroom."',
+    '"Refill your courage, not your tank."',
+    '"The globe spins, so should your plans."',
+    '"Success is a slow drip."',
+    '"Be the mascot of your own chaos."',
+    '"Clarity begins at 2 AM."'
+  ];
+  let quoteIdx = 0;
+  q('cycleQuoteBtn').addEventListener('click', ()=>{
+    quoteIdx = (quoteIdx + 1) % quotes.length;
+    q('quote').textContent = quotes[quoteIdx];
+  });
+
+  // Glow mode
+  q('glowBtn').addEventListener('click', ()=>{
+    glow = !glow;
+    globe.style.boxShadow = glow ? '0 0 40px rgba(217,35,46,.5)' : '0 20px 40px rgba(0,0,0,.25)';
+  });
+
+  // auto updates
+  setInterval(()=>{
+    seconds++;
+    q('seconds').textContent = seconds;
+    talkCount += (Math.random()<0.2) ? 1 : 0;
+    q('talkCount').textContent = talkCount;
+    if(autoTrade){
+      bestBid += (Math.random()-0.5)*0.8;
+      bestAsk = bestBid + (1 + Math.random()*1.5);
+      vol24 += Math.floor(Math.random()*20);
+      updateMarket();
+    }
+    if(seconds % 6 === 0) makeFlake();
+  }, 1000);
+})();
+</script>
+</body>
+</html>

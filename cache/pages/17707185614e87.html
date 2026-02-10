@@ -1,0 +1,792 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Purrchase Memory League | Receipts Never Forget</title>
+  <link rel="stylesheet" href="/assets/css/pico.min.css" />
+  <link rel="stylesheet" href="/assets/css/fonts.css" />
+  <style>
+    :root {
+      --bg-a: #ffe6f2;
+      --bg-b: #e6fff8;
+      --bg-c: #f9f0ff;
+      --bg-d: #fff9e6;
+      --ink: #161616;
+      --ink-soft: #333333;
+      --line: #222222;
+      --panel: #ffffff;
+      --panel-alt: #f5f8ff;
+      --good: #0f7a32;
+      --bad: #a40f2f;
+      --accent: #009d8f;
+      --accent-2: #5e4cff;
+      --accent-3: #ff5e8a;
+      --radius: 16px;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html,
+    body {
+      margin: 0;
+      padding: 0;
+      min-height: 100%;
+      font-family: 'IBM Plex Mono', monospace;
+      color: var(--ink);
+      background: linear-gradient(135deg, var(--bg-a), var(--bg-b), var(--bg-c), var(--bg-d));
+      background-size: 320% 320%;
+      animation: rainbowShift 20s ease infinite;
+      font-size: 16px;
+      line-height: 1.45;
+    }
+
+    @keyframes rainbowShift {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+
+    body.panic {
+      --bg-a: #fff0f5;
+      --bg-b: #fff8e6;
+      --bg-c: #edf9ff;
+      --bg-d: #f2edff;
+      --panel: #fff7fb;
+      --panel-alt: #fefcf4;
+      --line: #4f1f1f;
+      --accent: #d94870;
+      --accent-2: #1b8eb8;
+      --accent-3: #8a42ff;
+    }
+
+    .wrap {
+      max-width: 1240px;
+      margin: 0 auto;
+      padding: clamp(14px, 2.8vw, 30px);
+    }
+
+    .terminal {
+      border: 2px solid var(--line);
+      border-radius: var(--radius);
+      background: var(--panel);
+      box-shadow: 0 10px 0 #000000;
+      overflow: hidden;
+    }
+
+    .term-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+      border-bottom: 2px solid var(--line);
+      padding: 10px 14px;
+      background: repeating-linear-gradient(
+        90deg,
+        #ffe4ef 0px,
+        #ffe4ef 14px,
+        #e5f7ff 14px,
+        #e5f7ff 28px,
+        #ecffe6 28px,
+        #ecffe6 42px
+      );
+    }
+
+    .term-dots {
+      display: flex;
+      gap: 8px;
+    }
+
+    .dot {
+      width: 12px;
+      height: 12px;
+      border-radius: 100px;
+      border: 1px solid #000000;
+    }
+
+    .d1 { background: #ff6d98; }
+    .d2 { background: #ffd166; }
+    .d3 { background: #06d6a0; }
+
+    .nav {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin: 14px 0 18px;
+    }
+
+    .chip,
+    button,
+    input,
+    select {
+      font-family: 'IBM Plex Mono', monospace;
+    }
+
+    .chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 12px;
+      border: 2px solid var(--line);
+      border-radius: 999px;
+      background: #ffffff;
+      color: var(--ink);
+      text-decoration: none;
+      font-weight: 700;
+      min-height: 44px;
+    }
+
+    .hero {
+      padding: clamp(14px, 2.2vw, 26px);
+      display: grid;
+      grid-template-columns: 1.1fr 0.9fr;
+      gap: 14px;
+      align-items: stretch;
+    }
+
+    .hero h1 {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: clamp(1.6rem, 5vw, 3rem);
+      margin: 0 0 10px;
+      line-height: 1.05;
+      color: #101010;
+    }
+
+    .hero p {
+      color: #242424;
+      margin: 0 0 12px;
+      max-width: 65ch;
+    }
+
+    .kicker {
+      display: inline-block;
+      border: 2px dashed var(--line);
+      padding: 8px 10px;
+      border-radius: 10px;
+      background: #fff6fb;
+      color: #181818;
+      font-weight: 700;
+      margin-bottom: 12px;
+    }
+
+    .btn-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .btn {
+      min-height: 44px;
+      border: 2px solid var(--line);
+      border-radius: 10px;
+      background: #ffffff;
+      color: #111111;
+      font-weight: 800;
+      padding: 10px 14px;
+      cursor: pointer;
+    }
+
+    .btn.alt {
+      background: #e8fff6;
+    }
+
+    .btn.warn {
+      background: #fff0d6;
+    }
+
+    .stack {
+      display: grid;
+      gap: 10px;
+    }
+
+    .card {
+      border: 2px solid var(--line);
+      border-radius: 12px;
+      background: var(--panel-alt);
+      padding: 12px;
+    }
+
+    .tiny {
+      font-size: 0.88rem;
+      color: #333333;
+    }
+
+    .big {
+      font-size: clamp(1.3rem, 4.5vw, 2.4rem);
+      font-weight: 800;
+      color: #111111;
+      margin: 2px 0;
+    }
+
+    .grid {
+      display: grid;
+      gap: 12px;
+      margin-top: 12px;
+    }
+
+    .grid.main {
+      grid-template-columns: repeat(12, minmax(0, 1fr));
+    }
+
+    .span-4 { grid-column: span 4; }
+    .span-5 { grid-column: span 5; }
+    .span-6 { grid-column: span 6; }
+    .span-7 { grid-column: span 7; }
+    .span-8 { grid-column: span 8; }
+    .span-12 { grid-column: span 12; }
+
+    .table-wrap {
+      overflow-x: auto;
+      border: 2px solid var(--line);
+      border-radius: 12px;
+      background: #ffffff;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      min-width: 560px;
+      margin: 0;
+    }
+
+    th,
+    td {
+      border-bottom: 1px solid #222222;
+      padding: 8px;
+      text-align: left;
+      color: #111111;
+      font-size: 0.95rem;
+    }
+
+    th {
+      background: #eaf7ff;
+      color: #111111;
+    }
+
+    .bar {
+      width: 100%;
+      height: 16px;
+      border: 2px solid #111111;
+      border-radius: 999px;
+      background: #ffffff;
+      overflow: hidden;
+    }
+
+    .bar > span {
+      display: block;
+      height: 100%;
+      background: linear-gradient(90deg, #ff7ab5, #7f6cff, #18b2a3);
+      width: 0;
+      transition: width 0.3s ease;
+    }
+
+    .tabs {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 10px;
+    }
+
+    .tab-btn {
+      border: 2px solid var(--line);
+      background: #ffffff;
+      color: #121212;
+      border-radius: 10px;
+      min-height: 44px;
+      padding: 8px 12px;
+      font-weight: 800;
+      cursor: pointer;
+    }
+
+    .tab-btn.active {
+      background: #e8f3ff;
+    }
+
+    .ticker {
+      border: 2px dashed var(--line);
+      border-radius: 10px;
+      padding: 10px;
+      background: #fffbef;
+      color: #1a1a1a;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      font-weight: 700;
+    }
+
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      border: 2px solid var(--line);
+      border-radius: 999px;
+      padding: 5px 10px;
+      background: #ffffff;
+      color: #151515;
+      font-size: 0.82rem;
+      font-weight: 700;
+      margin: 2px;
+    }
+
+    .pricing {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 12px;
+    }
+
+    .plan {
+      border: 2px solid var(--line);
+      border-radius: 14px;
+      padding: 12px;
+      background: #ffffff;
+    }
+
+    .plan h3 {
+      margin: 0;
+      font-size: 1.1rem;
+      color: #111111;
+    }
+
+    .plan .price {
+      font-size: 1.8rem;
+      font-weight: 900;
+      margin: 6px 0;
+      color: #111111;
+    }
+
+    .plan p,
+    .plan li {
+      color: #242424;
+    }
+
+    .faq details {
+      border: 2px solid var(--line);
+      border-radius: 10px;
+      background: #ffffff;
+      margin-bottom: 8px;
+      padding: 10px;
+    }
+
+    .faq summary {
+      cursor: pointer;
+      font-weight: 800;
+      color: #111111;
+    }
+
+    .foot {
+      border: 2px solid var(--line);
+      border-radius: 12px;
+      background: #fffef9;
+      padding: 12px;
+      margin-top: 12px;
+      color: #252525;
+    }
+
+    .notice {
+      color: #262626;
+      font-size: 0.9rem;
+    }
+
+    .good { color: var(--good); font-weight: 800; }
+    .bad { color: var(--bad); font-weight: 800; }
+
+    @media (max-width: 1100px) {
+      .hero {
+        grid-template-columns: 1fr;
+      }
+
+      .span-4,
+      .span-5,
+      .span-6,
+      .span-7,
+      .span-8 {
+        grid-column: span 12;
+      }
+
+      .pricing {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (max-width: 700px) {
+      .term-head {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+
+      .chip {
+        width: 100%;
+        justify-content: center;
+      }
+
+      .btn,
+      .tab-btn,
+      button,
+      input,
+      select {
+        width: 100%;
+      }
+    }
+  </style>
+</head>
+<body x-data="receiptCats()" :class="{ panic: panicMode }">
+  <div class="wrap">
+    <nav class="nav">
+      <a href="#dashboard" class="chip"><i data-lucide="cat"></i> Live Shameboard</a>
+      <a href="#plans" class="chip"><i data-lucide="credit-card"></i> Membership Tiers</a>
+      <a href="#testimonials" class="chip"><i data-lucide="message-circle-heart"></i> Survivor Meows</a>
+      <a href="#faq" class="chip"><i data-lucide="help-circle"></i> Emergency FAQ</a>
+    </nav>
+
+    <section class="terminal">
+      <div class="term-head">
+        <div class="term-dots">
+          <span class="dot d1"></span>
+          <span class="dot d2"></span>
+          <span class="dot d3"></span>
+        </div>
+        <strong>PM League Console v9.1 | Founder session: Dr. Miso Clawford</strong>
+      </div>
+
+      <div class="hero">
+        <div>
+          <span class="kicker">PASTEL CORPORATE WELLNESS UNIT // FELINE DIVISION</span>
+          <h1>Receipts are autobiographies. I read them so your future employer never does.</h1>
+          <p>
+            I am Dr. Miso Clawford, former mall-food-court cat, now executive director of the Purrchase Memory League.
+            My turning point was finding a 2018 receipt that proved I bought twelve novelty lava lamps and called it "tax strategy." Never again.
+          </p>
+          <div class="btn-row">
+            <button class="btn" @click="joinPledge()"><i data-lucide="paw-print"></i> Add My Paw To The Pledge</button>
+            <button class="btn alt" @click="panicMode = !panicMode"><i data-lucide="siren"></i> Toggle Panic Pastel Mode</button>
+            <button class="btn warn" @click="newConfession()"><i data-lucide="scan-search"></i> Generate Fresh Receipt Confession</button>
+          </div>
+          <p class="tiny" x-text="confession"></p>
+        </div>
+
+        <div class="stack">
+          <div class="card">
+            <div class="tiny">Pledges filed today</div>
+            <div class="big" x-text="pledges.toLocaleString()"></div>
+            <div class="bar"><span :style="`width:${Math.min((pledges/25000)*100,100)}%`"></span></div>
+          </div>
+          <div class="card">
+            <div class="tiny">Average cat-judge score</div>
+            <div class="big" x-text="`${catJudge}/10`"></div>
+            <div class="tiny" :class="catJudge >= 7 ? 'good' : 'bad'" x-text="catJudge >= 7 ? 'Acceptably accountable.' : 'Needs more public meow-culpability.'"></div>
+          </div>
+          <div class="card">
+            <div class="tiny">Live ticker</div>
+            <div class="ticker" x-text="ticker"></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="grid main" id="dashboard">
+      <article class="card span-7">
+        <h2>Shameboard Controls</h2>
+        <p class="tiny">Every click updates our internal Feline Accountability Matrix. Yes, this is a real matrix. It has glitter.</p>
+
+        <label for="severity">How long was your worst receipt (in feet)? <strong x-text="severity"></strong></label>
+        <input id="severity" type="range" min="1" max="18" x-model.number="severity" @input="recomputeGuilt()" />
+
+        <label for="category">Most dangerous spending category</label>
+        <select id="category" x-model="category" @change="recomputeGuilt()">
+          <option value="impulse candles">Impulse candles</option>
+          <option value="single-use smoothie jars">Single-use smoothie jars</option>
+          <option value="motivational throw pillows">Motivational throw pillows</option>
+          <option value="limited-edition cat hoodies">Limited-edition cat hoodies</option>
+          <option value="mystery online flash sale">Mystery online flash sale</option>
+        </select>
+
+        <div class="grid" style="grid-template-columns: 1fr 1fr;">
+          <div class="card">
+            <div class="tiny">Guilt Index</div>
+            <div class="big" x-text="guiltIndex"></div>
+            <div class="bar"><span :style="`width:${Math.min(guiltIndex,100)}%`"></span></div>
+          </div>
+          <div class="card">
+            <div class="tiny">Recommended intervention</div>
+            <p style="margin:6px 0 0; color:#191919;" x-text="intervention"></p>
+          </div>
+        </div>
+
+        <div class="btn-row">
+          <button class="btn" @click="auditNow()"><i data-lucide="clipboard-check"></i> Run Pawdit</button>
+          <button class="btn" @click="addViolation()"><i data-lucide="badge-alert"></i> Log New Violation</button>
+          <button class="btn" @click="running = !running" x-text="running ? 'Pause MeowTimer' : 'Resume MeowTimer'"></button>
+        </div>
+      </article>
+
+      <article class="card span-5">
+        <h2>MeowTimer</h2>
+        <p class="tiny">Seconds since someone said "it was on sale" in this office.</p>
+        <div class="big" x-text="timerSeconds"></div>
+        <div class="pill">Violation queue: <strong style="margin-left:6px;" x-text="violations.length"></strong></div>
+        <div class="pill">Mood: <strong style="margin-left:6px;" x-text="panicMode ? 'hissing politely' : 'supervised calm' "></strong></div>
+
+        <div class="card" style="margin-top:10px;">
+          <strong>Top 3 Current Offenses</strong>
+          <ol style="margin:8px 0 0; padding-left:20px;">
+            <template x-for="(item, i) in violations.slice(0,3)" :key="i">
+              <li x-text="item"></li>
+            </template>
+          </ol>
+        </div>
+      </article>
+
+      <article class="card span-12">
+        <div class="tabs">
+          <button class="tab-btn" :class="{active: activeTab === 'feed'}" @click="activeTab = 'feed'">Live Feed</button>
+          <button class="tab-btn" :class="{active: activeTab === 'table'}" @click="activeTab = 'table'">Forensic Table</button>
+          <button class="tab-btn" :class="{active: activeTab === 'chart'}" @click="activeTab = 'chart'">Department Chart</button>
+        </div>
+
+        <div x-show="activeTab === 'feed'">
+          <div class="grid" style="grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));">
+            <div class="card">
+              <div class="tiny">Cat Paw Compliance</div>
+              <div class="big">94%</div>
+              <p class="tiny">Up 3% after banning emotional support bulk-buying.</p>
+            </div>
+            <div class="card">
+              <div class="tiny">Receipts Recovered</div>
+              <div class="big" x-text="(8720 + pledges).toLocaleString()"></div>
+              <p class="tiny">Includes one CVS receipt used as a winter scarf.</p>
+            </div>
+            <div class="card">
+              <div class="tiny">Average excuse length</div>
+              <div class="big">47 words</div>
+              <p class="tiny">Most common phrase: "I thought points would heal me."</p>
+            </div>
+            <div class="card">
+              <div class="tiny">Emergency Pawline Calls</div>
+              <div class="big" x-text="(310 + Math.floor(timerSeconds / 4)).toLocaleString()"></div>
+              <p class="tiny">Our hold music is just me knocking pens off desks.</p>
+            </div>
+          </div>
+        </div>
+
+        <div x-show="activeTab === 'table'">
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Case ID</th>
+                  <th>Citizen</th>
+                  <th>Cat Reviewer</th>
+                  <th>Item</th>
+                  <th>Outcome</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr><td>CAT-0042</td><td>Janice P.</td><td>Sir Whiskers III</td><td>Bluetooth rice spoon</td><td class="bad">Unnecessary but iconic</td></tr>
+                <tr><td>CAT-0119</td><td>Trey M.</td><td>Bean (intern)</td><td>Emergency glitter milk</td><td class="bad">Escalated to moon court</td></tr>
+                <tr><td>CAT-0217</td><td>Mona L.</td><td>Dr. Miso</td><td>14 yoga bricks</td><td class="good">Returned 9, hugged 5</td></tr>
+                <tr><td>CAT-0331</td><td>Priya R.</td><td>Tuna Esq.</td><td>Desk waterfall fountain</td><td class="good">Allowed for hydration theater</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <div x-show="activeTab === 'chart'">
+          <p class="tiny">Monthly purchase regrets by department</p>
+          <template x-for="row in deptData" :key="row.name">
+            <div style="margin-bottom:10px;">
+              <div style="display:flex; justify-content:space-between; gap:10px;">
+                <strong x-text="row.name"></strong>
+                <span x-text="row.value + '%'" style="color:#1f1f1f;"></span>
+              </div>
+              <div class="bar"><span :style="`width:${row.value}%`"></span></div>
+            </div>
+          </template>
+        </div>
+      </article>
+    </section>
+
+    <section class="card" id="plans">
+      <h2>Membership Tiers (tax-deductible in spirit)</h2>
+      <div class="pricing">
+        <article class="plan">
+          <h3>Kitten Witness</h3>
+          <div class="price">$12.99/mo</div>
+          <ul>
+            <li>Weekly reminder: "You already own one."</li>
+            <li>Two receipt interventions per month</li>
+            <li>One judgmental paw-stamp PDF</li>
+          </ul>
+          <button class="btn" @click="selectedPlan='Kitten Witness'">Select</button>
+        </article>
+
+        <article class="plan" style="background:#f2f9ff;">
+          <h3>Senior Whisker Auditor</h3>
+          <div class="price">$47.99/mo</div>
+          <ul>
+            <li>24/7 "Do I need this?" hotline</li>
+            <li>Real-time cart interruption meows</li>
+            <li>Quarterly closet de-dramatization</li>
+          </ul>
+          <button class="btn" @click="selectedPlan='Senior Whisker Auditor'">Select</button>
+        </article>
+
+        <article class="plan">
+          <h3>Panther Board Member</h3>
+          <div class="price">$199.00/mo</div>
+          <ul>
+            <li>Personal cat CFO named Kevin</li>
+            <li>Receipt tattoo removal counseling</li>
+            <li>Annual gala seat near the laser pointer</li>
+          </ul>
+          <button class="btn" @click="selectedPlan='Panther Board Member'">Select</button>
+        </article>
+      </div>
+      <p class="tiny">Selected plan: <strong x-text="selectedPlan"></strong>. Billing cycle begins immediately after your first impulse purchase.</p>
+    </section>
+
+    <section class="card" id="testimonials">
+      <h2>Survivor Meows</h2>
+      <div class="grid" style="grid-template-columns: repeat(auto-fit, minmax(220px,1fr));">
+        <blockquote class="card">
+          "Dr. Miso stopped me from buying a sixth bread machine. I now rent bread emotionally."<br />
+          <strong>- Glenda, former appliance romantic</strong>
+        </blockquote>
+        <blockquote class="card">
+          "I submitted 312 receipts. They sent back one sticky note: 'why.' Changed my life."<br />
+          <strong>- Marcel, recovering coupon athlete</strong>
+        </blockquote>
+        <blockquote class="card">
+          "Their cat knocked my cart-total monitor off the desk. I took the hint."<br />
+          <strong>- Denise, CFO of regret</strong>
+        </blockquote>
+      </div>
+    </section>
+
+    <section class="card faq" id="faq">
+      <h2>Emergency FAQ</h2>
+      <details>
+        <summary>Are you actually a nonprofit?</summary>
+        <p>Yes. We are a registered 501(c)(3): Felines Against Financial Delusion. We accept grants, tuna, and dramatic confessions.</p>
+      </details>
+      <details>
+        <summary>Will you read my full receipt out loud?</summary>
+        <p>Only if it exceeds 7 feet and includes the phrase "artisanal battery organizer." Then yes, with theatrical pause.</p>
+      </details>
+      <details>
+        <summary>Do cats have accounting credentials?</summary>
+        <p>Four of ours passed the CPA exam by sleeping on the answer key. Legally complex. Spiritually valid.</p>
+      </details>
+    </section>
+
+    <footer class="foot">
+      <strong>Purrchase Memory League</strong><br />
+      Founded by Dr. Miso Clawford, alley cat turned accountability executive.<br />
+      <span class="notice">Fine print: 93% of dust returns within 48 hours. 100% of bad receipts return emotionally.</span>
+    </footer>
+  </div>
+
+  <script src="/assets/js/alpine.min.js" defer></script>
+  <script src="/assets/js/gsap.min.js"></script>
+  <script src="/assets/js/lucide.min.js"></script>
+  <script>
+    function receiptCats() {
+      return {
+        pledges: 18142,
+        panicMode: false,
+        confession: 'Latest confession: "I bought a mirror for my mirror because it looked lonely."',
+        catJudge: 7,
+        ticker: 'LIVE: Municipal clerk surrendered 19 unopened planners. Cat applause ongoing.',
+        severity: 6,
+        category: 'impulse candles',
+        guiltIndex: 43,
+        intervention: 'One-week no-basket challenge + supervised wishlist journaling.',
+        running: true,
+        timerSeconds: 0,
+        violations: [
+          'Double-purchased identical black turtlenecks labeled "different vibe."',
+          'Signed up for premium weather alerts for one umbrella.',
+          'Bought glow-in-the-dark reusable sticky notes.'
+        ],
+        activeTab: 'feed',
+        selectedPlan: 'Kitten Witness',
+        deptData: [
+          { name: 'Marketing (tote bags)', value: 88 },
+          { name: 'Operations (desk fountains)', value: 72 },
+          { name: 'Leadership (motivational candles)', value: 91 },
+          { name: 'IT (mechanical keyboards)', value: 64 },
+          { name: 'HR (snack diplomacy)', value: 79 }
+        ],
+        confessions: [
+          'Latest confession: "I bought a mirror for my mirror because it looked lonely."',
+          'Latest confession: "I said one candle. The cart heard twelve."',
+          'Latest confession: "I ordered tiny shopping carts for my desk plants."',
+          'Latest confession: "I financed a luxury lint roller."'
+        ],
+        tickers: [
+          'LIVE: Municipal clerk surrendered 19 unopened planners. Cat applause ongoing.',
+          'ALERT: Someone called bulk glitter "retirement strategy." Immediate intervention.',
+          'BREAKING: Coupon stack collapsed under emotional weight, no injuries.',
+          'FIELD NOTE: Receipt longer than a yoga mat identified at checkout lane 4.'
+        ],
+        joinPledge() {
+          this.pledges += 1;
+          this.catJudge = Math.min(10, this.catJudge + 1);
+          this.ticker = 'LIVE: New pledge filed. We rang the accountability bell three times.';
+        },
+        newConfession() {
+          const idx = Math.floor(Math.random() * this.confessions.length);
+          this.confession = this.confessions[idx];
+        },
+        recomputeGuilt() {
+          const catFactor = this.category.includes('hoodies') ? 22 : this.category.includes('candles') ? 15 : 10;
+          this.guiltIndex = Math.min(100, (this.severity * 6) + catFactor);
+          if (this.guiltIndex > 85) {
+            this.intervention = 'Full moon spending freeze + chaperoned checkout.';
+          } else if (this.guiltIndex > 60) {
+            this.intervention = 'Delete saved cards and consult a stern tabby.';
+          } else {
+            this.intervention = 'One-week no-basket challenge + supervised wishlist journaling.';
+          }
+        },
+        auditNow() {
+          this.catJudge = Math.max(1, Math.min(10, this.catJudge + (this.guiltIndex > 70 ? -1 : 1)));
+          this.ticker = 'PAWDIT COMPLETE: Category "' + this.category + '" flagged for gentle public accountability.';
+        },
+        addViolation() {
+          const pool = [
+            'Purchased emergency fondue set despite zero fondue history.',
+            'Bought a second ergonomic stool "for posture variety."',
+            'Subscribed to premium planner stickers for calendar avoidance.',
+            'Acquired three ring lights for one houseplant.',
+            'Ordered cat-themed cat food labels for human pantry bins.'
+          ];
+          this.violations.unshift(pool[Math.floor(Math.random() * pool.length)]);
+          this.ticker = this.tickers[Math.floor(Math.random() * this.tickers.length)];
+        }
+      };
+    }
+
+    document.addEventListener('alpine:init', () => {
+      setInterval(() => {
+        const root = document.querySelector('body');
+        const data = Alpine.$data(root);
+        if (!data) return;
+        if (data.running) data.timerSeconds += 1;
+        if (data.timerSeconds % 6 === 0) {
+          data.ticker = data.tickers[Math.floor(Math.random() * data.tickers.length)];
+        }
+      }, 1000);
+    });
+
+    document.addEventListener('DOMContentLoaded', () => {
+      lucide.createIcons();
+
+      const tl = gsap.timeline();
+      tl.fromTo('.chip', { y: 20, opacity: 0 }, { y: 0, opacity: 1, stagger: 0.05, duration: 0.4, clearProps: 'opacity,transform' })
+        .fromTo('.hero h1', { y: 22, opacity: 0 }, { y: 0, opacity: 1, duration: 0.5, clearProps: 'opacity,transform' }, '-=0.2')
+        .fromTo('.card', { y: 16, opacity: 0 }, { y: 0, opacity: 1, stagger: 0.04, duration: 0.35, clearProps: 'opacity,transform' }, '-=0.2');
+    });
+  </script>
+</body>
+</html>

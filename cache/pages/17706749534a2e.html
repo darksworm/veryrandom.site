@@ -1,0 +1,902 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Glass Between — Mirror Transit Authority</title>
+<link rel="stylesheet" href="/assets/css/fonts.css">
+<style>
+  *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+  :root {
+    --black: #0a0a0a;
+    --white: #f5f0eb;
+    --red: #c23b22;
+    --gray: #3a3a3a;
+    --light-gray: #d4d0cc;
+  }
+
+  body {
+    background: var(--white);
+    color: var(--black);
+    font-family: 'Crimson Pro', Georgia, serif;
+    font-size: 18px;
+    line-height: 1.6;
+    overflow-x: hidden;
+    min-height: 100vh;
+  }
+
+  ::selection {
+    background: var(--red);
+    color: var(--white);
+  }
+
+  /* ── OVERLAPPING WINDOWS SYSTEM ── */
+  .window {
+    background: var(--white);
+    border: 1.5px solid var(--black);
+    position: relative;
+    box-shadow: 4px 4px 0 var(--black);
+  }
+
+  .window-bar {
+    background: var(--black);
+    color: var(--white);
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    padding: 6px 12px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .window-bar .dots {
+    display: flex;
+    gap: 5px;
+  }
+
+  .window-bar .dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    border: 1px solid var(--white);
+  }
+
+  .window-bar .dot.red { background: var(--red); border-color: var(--red); }
+
+  .window-body {
+    padding: 28px 24px;
+  }
+
+  /* ── DESKTOP LAYOUT ── */
+  .desktop {
+    min-height: 100vh;
+    padding: 20px;
+    position: relative;
+  }
+
+  /* ── NAV ── */
+  .nav-window {
+    position: fixed;
+    top: 16px;
+    left: 16px;
+    z-index: 100;
+    width: auto;
+    max-width: calc(100vw - 32px);
+  }
+
+  .nav-window .window-body {
+    padding: 10px 16px;
+    display: flex;
+    gap: 20px;
+    flex-wrap: wrap;
+    align-items: center;
+  }
+
+  .nav-window a {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--black);
+    text-decoration: none;
+    white-space: nowrap;
+  }
+
+  .nav-window a:hover {
+    color: var(--red);
+  }
+
+  .nav-window .logo-text {
+    font-family: 'Playfair Display', serif;
+    font-size: 14px;
+    font-weight: 700;
+    text-transform: none;
+    letter-spacing: 0.02em;
+  }
+
+  /* ── HERO ── */
+  .hero-area {
+    padding-top: 100px;
+    padding-bottom: 60px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-height: 90vh;
+    justify-content: center;
+    position: relative;
+  }
+
+  .hero-window {
+    max-width: 680px;
+    width: 90%;
+    z-index: 10;
+  }
+
+  .hero-window .window-body {
+    padding: 48px 36px;
+    text-align: center;
+  }
+
+  .hero-title {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(2.4rem, 6vw, 4.2rem);
+    line-height: 1.1;
+    font-weight: 900;
+    margin-bottom: 24px;
+    letter-spacing: -0.02em;
+  }
+
+  .hero-title .red {
+    color: var(--red);
+  }
+
+  .hero-sub {
+    font-size: clamp(1rem, 2.5vw, 1.2rem);
+    color: var(--gray);
+    max-width: 460px;
+    margin: 0 auto 32px;
+    font-style: italic;
+  }
+
+  .stamp {
+    display: inline-block;
+    border: 2px solid var(--red);
+    color: var(--red);
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    padding: 6px 14px;
+    transform: rotate(-2deg);
+    opacity: 0;
+    animation: stampIn 0.6s ease 1.5s forwards;
+  }
+
+  @keyframes stampIn {
+    0% { opacity: 0; transform: rotate(-2deg) scale(2); }
+    60% { opacity: 1; transform: rotate(-2deg) scale(0.95); }
+    100% { opacity: 1; transform: rotate(-2deg) scale(1); }
+  }
+
+  /* ── FLOATING MEMO ── */
+  .memo-float {
+    position: absolute;
+    top: 15%;
+    right: 5%;
+    max-width: 260px;
+    width: 40%;
+    transform: rotate(3deg);
+    z-index: 5;
+    opacity: 0;
+    animation: fadeSlide 1.2s ease 0.8s forwards;
+  }
+
+  .memo-float .window-body {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px;
+    line-height: 1.7;
+    color: var(--gray);
+    padding: 16px;
+  }
+
+  .memo-float .window-body strong {
+    color: var(--black);
+  }
+
+  @keyframes fadeSlide {
+    from { opacity: 0; transform: rotate(3deg) translateY(20px); }
+    to { opacity: 1; transform: rotate(3deg) translateY(0); }
+  }
+
+  /* ── CLASSIFIED SECTION ── */
+  .classified-section {
+    padding: 80px 20px;
+    display: flex;
+    justify-content: center;
+  }
+
+  .classified-window {
+    max-width: 800px;
+    width: 100%;
+  }
+
+  .classified-window .window-body {
+    padding: 40px 32px;
+    columns: 2;
+    column-gap: 32px;
+  }
+
+  .classified-entry {
+    break-inside: avoid;
+    margin-bottom: 28px;
+    border-bottom: 1px solid var(--light-gray);
+    padding-bottom: 20px;
+  }
+
+  .classified-entry h3 {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.1rem;
+    font-weight: 700;
+    margin-bottom: 6px;
+  }
+
+  .classified-entry p {
+    font-size: 0.9rem;
+    color: var(--gray);
+  }
+
+  .classified-entry .ref {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 10px;
+    color: var(--red);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    margin-top: 8px;
+    display: block;
+  }
+
+  /* ── MIDDLE MOOD PIECE ── */
+  .mood-section {
+    padding: 120px 20px;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .mood-text {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(1.6rem, 4vw, 2.8rem);
+    font-weight: 400;
+    font-style: italic;
+    max-width: 700px;
+    margin: 0 auto;
+    line-height: 1.4;
+    color: var(--black);
+    opacity: 0;
+  }
+
+  .mood-text .redline {
+    display: block;
+    width: 40px;
+    height: 2px;
+    background: var(--red);
+    margin: 24px auto;
+  }
+
+  .mood-attr {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px;
+    color: var(--gray);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    margin-top: 20px;
+  }
+
+  /* ── OPERATIONS GRID ── */
+  .ops-section {
+    padding: 40px 20px 80px;
+    display: flex;
+    justify-content: center;
+  }
+
+  .ops-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    max-width: 900px;
+    width: 100%;
+  }
+
+  .ops-grid .window {
+    transition: transform 0.4s ease;
+  }
+
+  .ops-grid .window:hover {
+    transform: translate(-2px, -2px);
+  }
+
+  .ops-grid .window-body h3 {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 1rem;
+    font-weight: 600;
+    margin-bottom: 8px;
+  }
+
+  .ops-grid .window-body p {
+    font-size: 0.85rem;
+    color: var(--gray);
+    line-height: 1.5;
+  }
+
+  .ops-grid .price {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 1.4rem;
+    font-weight: 700;
+    color: var(--red);
+    margin-top: 12px;
+    display: block;
+  }
+
+  /* ── TESTIMONIALS ── */
+  .test-section {
+    padding: 80px 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 20px;
+  }
+
+  .test-section .section-label {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--gray);
+    margin-bottom: 20px;
+  }
+
+  .test-window {
+    max-width: 560px;
+    width: 90%;
+  }
+
+  .test-window:nth-child(odd) {
+    transform: rotate(-0.8deg);
+  }
+  .test-window:nth-child(even) {
+    transform: rotate(0.6deg);
+  }
+
+  .test-window .window-body blockquote {
+    font-style: italic;
+    font-size: 1rem;
+    margin-bottom: 12px;
+    color: var(--black);
+  }
+
+  .test-window .window-body cite {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px;
+    color: var(--gray);
+    font-style: normal;
+    letter-spacing: 0.05em;
+  }
+
+  /* ── FAQ ── */
+  .faq-section {
+    padding: 80px 20px;
+    display: flex;
+    justify-content: center;
+  }
+
+  .faq-window {
+    max-width: 640px;
+    width: 90%;
+  }
+
+  .faq-window .window-body {
+    padding: 32px 28px;
+  }
+
+  .faq-item {
+    margin-bottom: 28px;
+    border-bottom: 1px solid var(--light-gray);
+    padding-bottom: 20px;
+  }
+
+  .faq-item:last-child {
+    border-bottom: none;
+    margin-bottom: 0;
+  }
+
+  .faq-item dt {
+    font-family: 'Space Grotesk', sans-serif;
+    font-weight: 700;
+    font-size: 0.95rem;
+    margin-bottom: 8px;
+    color: var(--black);
+  }
+
+  .faq-item dd {
+    font-size: 0.9rem;
+    color: var(--gray);
+  }
+
+  /* ── FOOTER ── */
+  .footer-section {
+    padding: 60px 20px 40px;
+    text-align: center;
+    border-top: 1px solid var(--light-gray);
+  }
+
+  .footer-section p {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 10px;
+    color: var(--gray);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    line-height: 2;
+  }
+
+  .footer-section .warning {
+    color: var(--red);
+    font-size: 11px;
+    margin-top: 16px;
+    display: block;
+  }
+
+  /* ── THE MIRROR HOVER EFFECT ── */
+  .mirror-portal {
+    width: 120px;
+    height: 180px;
+    margin: 40px auto 0;
+    border: 1.5px solid var(--black);
+    border-radius: 60px 60px 0 0;
+    position: relative;
+    overflow: hidden;
+    cursor: pointer;
+    background: var(--white);
+    transition: all 1.8s ease;
+  }
+
+  .mirror-portal:hover {
+    background: var(--black);
+    box-shadow: 0 0 60px rgba(194, 59, 34, 0.3);
+  }
+
+  .mirror-portal .mirror-text {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--black);
+    transition: color 1.8s ease;
+    text-align: center;
+    padding: 10px;
+  }
+
+  .mirror-portal:hover .mirror-text {
+    color: var(--red);
+  }
+
+  /* ── REDACTED BARS ── */
+  .redacted {
+    background: var(--black);
+    color: var(--black);
+    padding: 0 4px;
+    user-select: none;
+    transition: background 0.6s ease;
+  }
+
+  .redacted:hover {
+    background: var(--red);
+    color: var(--white);
+  }
+
+  /* ── RESPONSIVE ── */
+  @media (max-width: 768px) {
+    .classified-window .window-body {
+      columns: 1;
+    }
+
+    .ops-grid {
+      grid-template-columns: 1fr;
+    }
+
+    .memo-float {
+      position: relative;
+      top: auto;
+      right: auto;
+      width: 90%;
+      max-width: 320px;
+      margin: 20px auto 0;
+      transform: rotate(1deg);
+      animation: fadeSlide 1.2s ease 0.8s forwards;
+    }
+
+    .hero-area {
+      min-height: auto;
+      padding-top: 80px;
+      padding-bottom: 40px;
+    }
+
+    .nav-window .window-body {
+      gap: 12px;
+    }
+
+    .hero-window .window-body {
+      padding: 32px 20px;
+    }
+
+    .mood-section {
+      padding: 80px 20px;
+    }
+  }
+
+  @media (max-width: 480px) {
+    .nav-window {
+      left: 8px;
+      right: 8px;
+      width: auto;
+    }
+
+    .nav-window .window-body {
+      gap: 8px;
+      padding: 8px 12px;
+    }
+
+    .nav-window a {
+      font-size: 9px;
+    }
+
+    body {
+      font-size: 16px;
+    }
+  }
+
+  /* ── SLOW PULSE ── */
+  @keyframes slowPulse {
+    0%, 100% { opacity: 0.4; }
+    50% { opacity: 1; }
+  }
+
+  .pulse-dot {
+    display: inline-block;
+    width: 6px;
+    height: 6px;
+    background: var(--red);
+    border-radius: 50%;
+    animation: slowPulse 3s ease infinite;
+    vertical-align: middle;
+    margin-right: 6px;
+  }
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<div class="nav-window window">
+  <div class="window-bar">
+    <span>MTA — ACTIVE SESSION</span>
+    <div class="dots"><span class="dot red"></span><span class="dot"></span><span class="dot"></span></div>
+  </div>
+  <div class="window-body">
+    <a href="#" class="logo-text">Mirror Transit Authority</a>
+    <a href="#services">Services</a>
+    <a href="#field-reports">Reports</a>
+    <a href="#faq">Protocol</a>
+    <a href="#pricing">Tariffs</a>
+  </div>
+</div>
+
+<!-- HERO -->
+<div class="hero-area">
+  <div class="hero-window window">
+    <div class="window-bar">
+      <span>DISPATCH — PUBLIC NOTICE 2024-11-07</span>
+      <div class="dots"><span class="dot red"></span><span class="dot"></span><span class="dot"></span></div>
+    </div>
+    <div class="window-body">
+      <h1 class="hero-title">Every mirror<br>is a <span class="red">door</span>.</h1>
+      <p class="hero-sub">The Mirror Transit Authority has maintained safe passage through reflective surfaces since 1971. We are currently accepting new commuters for the Autumn corridor schedule.</p>
+      <span class="stamp"><span class="pulse-dot"></span> Corridor Status: Open</span>
+    </div>
+  </div>
+
+  <div class="memo-float window">
+    <div class="window-bar">
+      <span>INTERNAL MEMO</span>
+      <div class="dots"><span class="dot"></span><span class="dot"></span><span class="dot"></span></div>
+    </div>
+    <div class="window-body">
+      <strong>RE: Bathroom mirror incidents</strong><br><br>
+      Please remind all commuters that the 6:15 AM corridor through medicine cabinet mirrors is <strong>standing room only</strong>. Fog your mirror before entry to signal intent. Do NOT make eye contact with your reflection. It is not you. It has not been you since March.
+    </div>
+  </div>
+</div>
+
+<!-- MOOD PIECE -->
+<div class="mood-section">
+  <div class="mood-text" id="moodText">
+    You have looked into a mirror 47,000 times in your life.
+    <span class="redline"></span>
+    And not once did you wonder where the light goes when you look away.
+  </div>
+  <p class="mood-attr">— Meredith Sable, Director of Passenger Onboarding, 1987–present</p>
+</div>
+
+<!-- SERVICES / CLASSIFIED BULLETINS -->
+<div class="classified-section" id="services">
+  <div class="classified-window window">
+    <div class="window-bar">
+      <span>CLASSIFIED BULLETIN — AVAILABLE CORRIDORS</span>
+      <div class="dots"><span class="dot red"></span><span class="dot"></span><span class="dot"></span></div>
+    </div>
+    <div class="window-body">
+      <div class="classified-entry">
+        <h3>Residential Bathroom (Standard)</h3>
+        <p>The most common entry point. Optimal transit window: 2:00–4:00 AM, when the glass is thinnest. Must be at least 18" wide. Wall-mounted only — handheld mirrors are <span class="redacted">extremely dangerous</span> and unregulated.</p>
+        <span class="ref">Corridor Class: A — Capacity: 1 soul/transit</span>
+      </div>
+      <div class="classified-entry">
+        <h3>Department Store Fitting Room</h3>
+        <p>Three-panel configurations allow group transit of up to 3 passengers. The MTA is not responsible for which version of you arrives. All fitting room corridors close during seasonal sales.</p>
+        <span class="ref">Corridor Class: B — Capacity: 3 souls/transit</span>
+      </div>
+      <div class="classified-entry">
+        <h3>Rearview Mirror (Vehicle)</h3>
+        <p>Emergency-only corridor. Extremely narrow. Only approved for passengers under 4'11". Objects in the mirror are closer than they appear because <span class="redacted">they are reaching</span>.</p>
+        <span class="ref">Corridor Class: D — Emergency Use Only</span>
+      </div>
+      <div class="classified-entry">
+        <h3>Hotel Vanity (Full-Length)</h3>
+        <p>Premium corridor. Hotels don't know we use them. The mirrors in Room 414 of any Holiday Inn are pre-calibrated — this is not a coincidence. Please leave a tip for housekeeping.</p>
+        <span class="ref">Corridor Class: A+ — Capacity: 2 souls/transit</span>
+      </div>
+      <div class="classified-entry">
+        <h3>Compact Mirror (Purse/Pocket)</h3>
+        <p>Strictly forbidden. In 1993, a commuter named <span class="redacted">Darla Voss</span> attempted transit through a compact mirror on the 7 train. She is now 2 inches tall and lives in a thimble in our Lost & Found office. She is fine. She says she prefers it.</p>
+        <span class="ref">Corridor Class: X — BANNED</span>
+      </div>
+      <div class="classified-entry">
+        <h3>Lake/Pond (Natural Reflection)</h3>
+        <p>Unregulated wild corridors. The MTA does not service natural bodies of water but acknowledges their existence. If you see yourself waving from a lake and you are not waving, <strong>walk away calmly</strong>.</p>
+        <span class="ref">Corridor Class: UNREGULATED — Transit at own risk</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- PRICING -->
+<div class="ops-section" id="pricing">
+  <div class="ops-grid">
+    <div class="window">
+      <div class="window-bar"><span>SINGLE TRANSIT PASS</span><div class="dots"><span class="dot"></span></div></div>
+      <div class="window-body">
+        <h3>Day Return</h3>
+        <p>One entry, one exit. Same mirror. You must return before the glass cools. Non-transferable. Your reflection holds your place while you're gone.</p>
+        <span class="price">$47.99</span>
+      </div>
+    </div>
+    <div class="window">
+      <div class="window-bar"><span>MONTHLY CORRIDOR PASS</span><div class="dots"><span class="dot red"></span></div></div>
+      <div class="window-body">
+        <h3>Regular Commuter</h3>
+        <p>Unlimited transits through registered bathroom mirrors. Includes fog insurance. Does not cover department stores or vehicles. Subject to rush hour delays.</p>
+        <span class="price">$189/mo</span>
+      </div>
+    </div>
+    <div class="window">
+      <div class="window-bar"><span>ANNUAL — RECOMMENDED</span><div class="dots"><span class="dot red"></span></div></div>
+      <div class="window-body">
+        <h3>Permanent Resident</h3>
+        <p>Full corridor access. Priority boarding. Your reflection is assigned a name and a small apartment on the other side. You may visit them on Sundays.</p>
+        <span class="price">$1,971/yr</span>
+      </div>
+    </div>
+    <div class="window">
+      <div class="window-bar"><span>EMERGENCY EXTRACTION</span><div class="dots"><span class="dot"></span></div></div>
+      <div class="window-body">
+        <h3>Rescue Service</h3>
+        <p>If you or a loved one is trapped inside a mirror, do not break the glass. Call our extraction team. Average response time: 14 minutes. We have a 97.3% retrieval rate. Do not ask about the other 2.7%.</p>
+        <span class="price">$4,200 flat</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- TESTIMONIALS -->
+<div class="test-section" id="field-reports">
+  <span class="section-label">Field Reports — Verified Commuters</span>
+
+  <div class="test-window window">
+    <div class="window-bar"><span>REPORT #4471</span><div class="dots"><span class="dot"></span></div></div>
+    <div class="window-body">
+      <blockquote>"I've been commuting through my bathroom mirror to work since 2019. My commute went from 45 minutes on the L train to 0.003 seconds. The only downside is that my reflection now has my old job and honestly? He's better at it."</blockquote>
+      <cite>— Gerald K., Brooklyn, NY. Commuter since 2019. Employee of the month (the reflection, not him).</cite>
+    </div>
+  </div>
+
+  <div class="test-window window">
+    <div class="window-bar"><span>REPORT #4472</span><div class="dots"><span class="dot"></span></div></div>
+    <div class="window-body">
+      <blockquote>"I accidentally went through the mirror in my gym locker room and ended up in a gym on the other side that is exactly the same except everyone is left-handed and the water fountains dispense room-temperature oat milk."</blockquote>
+      <cite>— Priya S., Portland, OR. Filed a formal complaint. We are looking into the oat milk.</cite>
+    </div>
+  </div>
+
+  <div class="test-window window">
+    <div class="window-bar"><span>REPORT #4473 — FLAGGED</span><div class="dots"><span class="dot red"></span></div></div>
+    <div class="window-body">
+      <blockquote>"My daughter keeps waving at the bathroom mirror and something waves back a half-second too late. Should I be concerned?"</blockquote>
+      <cite>— Anonymous, Submitted 3:47 AM. Status: <strong style="color: var(--red);">Under investigation.</strong></cite>
+    </div>
+  </div>
+</div>
+
+<!-- FAQ -->
+<div class="faq-section" id="faq">
+  <div class="faq-window window">
+    <div class="window-bar"><span>COMMUTER PROTOCOL — FREQUENTLY ASKED</span><div class="dots"><span class="dot red"></span><span class="dot"></span></div></div>
+    <div class="window-body">
+      <dl>
+        <div class="faq-item">
+          <dt>Is mirror transit safe?</dt>
+          <dd>The MTA has facilitated over 12 million successful transits since 1971 with only 347 "incidents." We define "incident" very specifically and we will not elaborate.</dd>
+        </div>
+        <div class="faq-item">
+          <dt>Why does my reflection sometimes move independently?</dt>
+          <dd>Your reflection is a living entity employed by the MTA to maintain corridor integrity. They are unionized. They have healthcare. Please do not tap on the glass — it is considered rude.</dd>
+        </div>
+        <div class="faq-item">
+          <dt>I broke a mirror. Did I kill someone?</dt>
+          <dd>No. You destroyed a doorway. The reflection has been reassigned. You will, however, receive 7 years of bad luck, which is actually just a fine issued by the MTA's Revenue Division. It works out to roughly $14/month.</dd>
+        </div>
+        <div class="faq-item">
+          <dt>What is on the other side?</dt>
+          <dd>Everything that is here, but reversed. Left becomes right. Your good side becomes your bad side. The books are unreadable. The clocks run in a direction we don't have a word for. It is, by all accounts, <span class="redacted">perfectly fine</span>.</dd>
+        </div>
+        <div class="faq-item">
+          <dt>Can I send packages through a mirror?</dt>
+          <dd>Flat items only. Letters, photographs, pressed flowers. Anything with depth greater than 3mm requires a commercial freight corridor (minimum 6'×4' mirror, $800 per shipment, 2–3 business days).</dd>
+        </div>
+      </dl>
+    </div>
+  </div>
+</div>
+
+<!-- THE MIRROR -->
+<div style="padding: 60px 20px 40px; text-align: center;">
+  <div class="mirror-portal" id="mirrorPortal">
+    <span class="mirror-text">Look<br>closer</span>
+  </div>
+</div>
+
+<!-- FOOTER -->
+<div class="footer-section">
+  <p>Mirror Transit Authority — Est. 1971</p>
+  <p>A division of the Bureau of Reflective Infrastructure</p>
+  <p>Director: Meredith Sable — 53 years without a major corridor collapse</p>
+  <p class="warning"><span class="pulse-dot"></span> If you are reading this from inside a mirror, please proceed to your nearest exit surface.</p>
+  <p style="margin-top: 24px; opacity: 0.5;">MTA-DOC-2024-1107 | INTERNAL USE ONLY | DO NOT DISTRIBUTE TO REFLECTIONS</p>
+</div>
+
+<script src="/assets/js/gsap.min.js"></script>
+<script>
+(function() {
+  // Mood text fade in on scroll
+  var moodText = document.getElementById('moodText');
+  var moodObserver = new IntersectionObserver(function(entries) {
+    entries.forEach(function(entry) {
+      if (entry.isIntersecting) {
+        gsap.to(moodText, {
+          opacity: 1,
+          duration: 2.5,
+          ease: 'power2.out'
+        });
+        moodObserver.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.3 });
+  moodObserver.observe(moodText);
+
+  // Subtle float on windows in the ops grid
+  var opsWindows = document.querySelectorAll('.ops-grid .window');
+  opsWindows.forEach(function(win, i) {
+    gsap.to(win, {
+      y: -4,
+      duration: 3 + i * 0.5,
+      ease: 'sine.inOut',
+      yoyo: true,
+      repeat: -1,
+      delay: i * 0.3
+    });
+  });
+
+  // Classified entries stagger in
+  var classifiedEntries = document.querySelectorAll('.classified-entry');
+  var classObserver = new IntersectionObserver(function(entries) {
+    var visible = entries.filter(function(e) { return e.isIntersecting; });
+    visible.forEach(function(entry, i) {
+      gsap.fromTo(entry.target, 
+        { opacity: 0, x: -10 },
+        { opacity: 1, x: 0, duration: 0.8, delay: i * 0.1, ease: 'power2.out' }
+      );
+      classObserver.unobserve(entry.target);
+    });
+  }, { threshold: 0.1 });
+  classifiedEntries.forEach(function(el) {
+    el.style.opacity = '0';
+    classObserver.observe(el);
+  });
+
+  // Testimonial windows stagger
+  var testWindows = document.querySelectorAll('.test-window');
+  var testObserver = new IntersectionObserver(function(entries) {
+    entries.forEach(function(entry) {
+      if (entry.isIntersecting) {
+        gsap.fromTo(entry.target,
+          { opacity: 0, y: 20 },
+          { opacity: 1, y: 0, duration: 1, ease: 'power2.out' }
+        );
+        testObserver.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.2 });
+  testWindows.forEach(function(el) {
+    el.style.opacity = '0';
+    testObserver.observe(el);
+  });
+
+  // Mirror portal interaction
+  var portal = document.getElementById('mirrorPortal');
+  var mirrorText = portal.querySelector('.mirror-text');
+  var messages = [
+    'Look\nCloser',
+    'You\nBlinked',
+    'It\nDidn\'t',
+    'Step\nThrough',
+    'We\'re\nWaiting',
+    'Look\nCloser'
+  ];
+  var msgIndex = 0;
+
+  portal.addEventListener('click', function() {
+    msgIndex = (msgIndex + 1) % messages.length;
+    gsap.to(mirrorText, {
+      opacity: 0,
+      duration: 0.4,
+      onComplete: function() {
+        mirrorText.innerHTML = messages[msgIndex].replace('\n', '<br>');
+        gsap.to(mirrorText, { opacity: 1, duration: 0.8 });
+      }
+    });
+  });
+
+  // Redacted hover — reveal on touch for mobile
+  var redacted = document.querySelectorAll('.redacted');
+  redacted.forEach(function(el) {
+    el.addEventListener('touchstart', function() {
+      el.style.background = 'var(--red)';
+      el.style.color = 'var(--white)';
+    });
+    el.addEventListener('touchend', function() {
+      setTimeout(function() {
+        el.style.background = 'var(--black)';
+        el.style.color = 'var(--black)';
+      }, 1500);
+    });
+  });
+})();
+</script>
+
+</body>
+</html>

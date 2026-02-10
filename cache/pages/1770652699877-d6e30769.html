@@ -1,0 +1,784 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TIDE.GAZETTE - Suburban Waterfront Publishing & Real Estate</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Courier New', monospace;
+            background: linear-gradient(135deg, #f0f0f0 0%, #e8f4f8 100%);
+            color: #1a1a1a;
+            overflow-x: hidden;
+        }
+        .container {
+            display: flex;
+            min-height: 100vh;
+        }
+        .sidebar {
+            width: 280px;
+            background: #ffffff;
+            border-right: 3px solid #00b359;
+            padding: 20px;
+            overflow-y: auto;
+            box-shadow: inset -2px 0 8px rgba(0,179,89,0.1);
+        }
+        .main-content {
+            flex: 1;
+            padding: 30px;
+            position: relative;
+        }
+        .header {
+            background: #ffffff;
+            border: 2px solid #00b359;
+            padding: 20px;
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .title {
+            font-size: 24px;
+            font-weight: bold;
+            color: #00b359;
+            letter-spacing: 3px;
+        }
+        .tide-indicator {
+            font-size: 12px;
+            background: #00b359;
+            color: white;
+            padding: 8px 16px;
+            border-radius: 2px;
+            animation: breathe 3s infinite;
+        }
+        @keyframes breathe {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+        .sidebar-section {
+            margin-bottom: 24px;
+            border-bottom: 1px solid #e0e0e0;
+            padding-bottom: 16px;
+        }
+        .sidebar-title {
+            font-size: 11px;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            color: #00b359;
+            margin-bottom: 12px;
+        }
+        .nav-item {
+            padding: 8px 12px;
+            margin: 4px 0;
+            background: #f5f5f5;
+            border-left: 3px solid transparent;
+            cursor: pointer;
+            font-size: 11px;
+            transition: all 0.3s ease;
+            position: relative;
+            left: 0;
+        }
+        .nav-item:hover {
+            background: #e8f4f8;
+            border-left-color: #00b359;
+            left: 8px;
+        }
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 16px;
+            margin-bottom: 20px;
+        }
+        .widget {
+            background: #ffffff;
+            border: 2px solid #00b359;
+            padding: 16px;
+            font-size: 11px;
+        }
+        .widget-title {
+            font-weight: bold;
+            color: #00b359;
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        .widget-value {
+            font-size: 18px;
+            font-weight: bold;
+            color: #1a1a1a;
+            margin: 8px 0;
+        }
+        .widget-sub {
+            color: #888;
+            font-size: 10px;
+        }
+        .transaction-log {
+            background: #ffffff;
+            border: 2px solid #00b359;
+            padding: 16px;
+            margin-bottom: 20px;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        .transaction {
+            padding: 8px;
+            border-bottom: 1px solid #e8e8e8;
+            font-size: 10px;
+            font-family: 'Courier New', monospace;
+            line-height: 1.4;
+        }
+        .transaction:last-child {
+            border-bottom: none;
+        }
+        .cat-glitch {
+            color: #00b359;
+            font-weight: bold;
+            animation: glitch 0.15s infinite;
+        }
+        @keyframes glitch {
+            0%, 100% { text-shadow: 2px 0 #ff6b6b; }
+            50% { text-shadow: -2px 0 #4ecdc4; }
+        }
+        .button-group {
+            display: flex;
+            gap: 8px;
+            margin-top: 12px;
+        }
+        .btn {
+            flex: 1;
+            padding: 10px;
+            background: #ffffff;
+            border: 2px solid #00b359;
+            color: #00b359;
+            font-weight: bold;
+            font-size: 11px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        .btn:hover {
+            background: #00b359;
+            color: white;
+            transform: scale(1.02);
+        }
+        .btn:active {
+            transform: scale(0.98);
+        }
+        .ghost-banner {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: rgba(255, 255, 255, 0.92);
+            border-top: 2px solid #00b359;
+            padding: 12px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 10px;
+            z-index: 100;
+            opacity: 0;
+            animation: ghostAppear 1s ease-in-out;
+        }
+        @keyframes ghostAppear {
+            0% { opacity: 0; transform: translateY(20px); }
+            50% { opacity: 0.3; }
+            100% { opacity: 1; transform: translateY(0); }
+        }
+        .ghost-text {
+            flex: 1;
+            color: #888;
+        }
+        .close-ghost {
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 16px;
+            color: #00b359;
+        }
+        .accordion {
+            background: #ffffff;
+            border: 2px solid #00b359;
+            margin-bottom: 12px;
+        }
+        .accordion-header {
+            padding: 12px;
+            background: #f5f5f5;
+            border-bottom: 1px solid #00b359;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 11px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            user-select: none;
+        }
+        .accordion-header:hover {
+            background: #e8f4f8;
+        }
+        .accordion-content {
+            padding: 12px;
+            font-size: 10px;
+            display: none;
+            line-height: 1.6;
+        }
+        .accordion-content.active {
+            display: block;
+        }
+        .accordion-icon {
+            transition: transform 0.3s;
+            font-size: 14px;
+        }
+        .accordion.active .accordion-icon {
+            transform: rotate(90deg);
+        }
+        .cart-prophecy {
+            background: linear-gradient(135deg, #f0f0f0, #e8f4f8);
+            border: 2px dashed #00b359;
+            padding: 16px;
+            margin-bottom: 20px;
+            font-size: 11px;
+            font-style: italic;
+            color: #666;
+        }
+        .prophecy-title {
+            font-weight: bold;
+            color: #00b359;
+            margin-bottom: 8px;
+            text-transform: uppercase;
+        }
+        .checklist {
+            background: #ffffff;
+            border: 2px solid #00b359;
+            padding: 16px;
+        }
+        .checklist-item {
+            display: flex;
+            align-items: center;
+            padding: 8px 0;
+            font-size: 11px;
+            border-bottom: 1px solid #e8e8e8;
+        }
+        .checklist-item:last-child {
+            border-bottom: none;
+        }
+        .checkbox {
+            width: 16px;
+            height: 16px;
+            margin-right: 12px;
+            cursor: pointer;
+            border: 2px solid #00b359;
+            background: white;
+        }
+        .checkbox.checked {
+            background: #00b359;
+            position: relative;
+        }
+        .checkbox.checked::after {
+            content: '✓';
+            position: absolute;
+            top: 0;
+            left: 2px;
+            color: white;
+            font-weight: bold;
+        }
+        .ritual {
+            background: #f5f5f5;
+            padding: 12px;
+            border-left: 3px solid #00b359;
+            font-style: italic;
+            font-size: 10px;
+            line-height: 1.8;
+        }
+        .faq-section {
+            background: #ffffff;
+            border: 2px solid #00b359;
+            padding: 16px;
+        }
+        .easter-egg {
+            position: fixed;
+            bottom: 10px;
+            right: 10px;
+            width: 30px;
+            height: 30px;
+            background: #00b359;
+            border: 2px solid #1a1a1a;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+            animation: wiggle 0.5s infinite;
+            z-index: 99;
+        }
+        @keyframes wiggle {
+            0%, 100% { transform: rotate(0deg); }
+            25% { transform: rotate(-3deg); }
+            75% { transform: rotate(3deg); }
+        }
+        .negotiation-modal {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: #ffffff;
+            border: 3px solid #00b359;
+            padding: 24px;
+            z-index: 1000;
+            display: none;
+            width: 400px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+        }
+        .negotiation-modal.active {
+            display: block;
+            animation: slideIn 0.3s ease;
+        }
+        @keyframes slideIn {
+            from {
+                transform: translate(-50%, -50%) scale(0.8);
+                opacity: 0;
+            }
+            to {
+                transform: translate(-50%, -50%) scale(1);
+                opacity: 1;
+            }
+        }
+        .negotiation-title {
+            font-weight: bold;
+            color: #00b359;
+            margin-bottom: 12px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        .negotiation-text {
+            font-size: 11px;
+            margin-bottom: 16px;
+            line-height: 1.6;
+        }
+        .negotiation-buttons {
+            display: flex;
+            gap: 12px;
+        }
+        .neg-btn {
+            flex: 1;
+            padding: 10px;
+            border: 2px solid #00b359;
+            background: white;
+            color: #00b359;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 10px;
+        }
+        .neg-btn:hover {
+            background: #00b359;
+            color: white;
+        }
+        .overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.3);
+            display: none;
+            z-index: 999;
+        }
+        .overlay.active {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="sidebar">
+            <div class="sidebar-section">
+                <div class="sidebar-title">Publication Control</div>
+                <div class="nav-item" style="transition: all 0.3s; --position: 0px;">GAZETTE EDITOR</div>
+                <div class="nav-item">CAT INTERFERENCE</div>
+                <div class="nav-item">TIDE TABLES</div>
+                <div class="nav-item">REAL ESTATE</div>
+            </div>
+            <div class="sidebar-section">
+                <div class="sidebar-title">Underwater Properties</div>
+                <div class="nav-item">AVAILABLE LISTINGS</div>
+                <div class="nav-item">FISH TANK SUITES</div>
+                <div class="nav-item">KELP FOREST VILLAS</div>
+                <div class="nav-item">PRESSURE UNITS</div>
+            </div>
+            <div class="sidebar-section">
+                <div class="sidebar-title">Transaction Log</div>
+                <div id="transaction-summary" class="nav-item">
+                    <div>RECENT: <span id="recent-total">0</span></div>
+                    <div style="color: #00b359; margin-top: 4px; font-size: 9px;">Adjusted by feline</div>
+                </div>
+            </div>
+            <div class="sidebar-section">
+                <div class="sidebar-title">Status Indicators</div>
+                <div class="nav-item">KEYBOARD STATE: <span id="keyboard-status">CLEAR</span></div>
+                <div class="nav-item">CURRENT TIDE: <span id="tide-state">RISING</span></div>
+            </div>
+        </div>
+
+        <div class="main-content">
+            <div class="header">
+                <div class="title">TIDE.GAZETTE</div>
+                <div class="tide-indicator" id="tide-display">TIDE: RISING</div>
+            </div>
+
+            <div class="checklist">
+                <div class="sidebar-title">Haunted Onboarding Checklist</div>
+                <div class="checklist-item">
+                    <div class="checkbox" onclick="toggleCheck(this)"></div>
+                    <span>Accept presence of spectral cat</span>
+                </div>
+                <div class="checklist-item">
+                    <div class="checkbox" onclick="toggleCheck(this)"></div>
+                    <span>Configure tidal preferences</span>
+                </div>
+                <div class="checklist-item">
+                    <div class="checkbox" onclick="toggleCheck(this)"></div>
+                    <span>Verify real estate holdings</span>
+                </div>
+                <div class="checklist-item">
+                    <div class="checkbox" onclick="toggleCheck(this)"></div>
+                    <span>Complete legal incantations</span>
+                </div>
+                <div class="checklist-item">
+                    <div class="checkbox" onclick="toggleCheck(this)"></div>
+                    <span>Release the pressure valves</span>
+                </div>
+            </div>
+
+            <div class="dashboard-grid">
+                <div class="widget">
+                    <div class="widget-title">Dad's Circulation</div>
+                    <div class="widget-value" id="circulation">4,237</div>
+                    <div class="widget-sub">Papers distributed (approximate)</div>
+                </div>
+                <div class="widget">
+                    <div class="widget-title">Keyboard Incidents</div>
+                    <div class="widget-value" id="incidents">23</div>
+                    <div class="widget-sub">This calendar year</div>
+                </div>
+                <div class="widget">
+                    <div class="widget-title">Real Estate Value</div>
+                    <div class="widget-value" id="property-value">$2.8M</div>
+                    <div class="widget-sub">Submerged assets</div>
+                </div>
+            </div>
+
+            <div class="cart-prophecy">
+                <div class="prophecy-title">Cart Abandonment Prophecy</div>
+                <div id="prophecy-text">
+                    Your abandoned transactions whisper of paths not taken. Three items remain in the void. The tide rises at 14:32, and with it, your forgotten subscriptions will surface.
+                </div>
+            </div>
+
+            <div class="transaction-log">
+                <div style="font-weight: bold; color: #00b359; margin-bottom: 12px; text-transform: uppercase;">Cat-Altered Transactions</div>
+                <div id="transaction-list"></div>
+            </div>
+
+            <div class="button-group">
+                <button class="btn" onclick="initiateNegotiation('publish')">PUBLISH GAZETTE</button>
+                <button class="btn" onclick="initiateNegotiation('property')">UPDATE PROPERTY</button>
+                <button class="btn" onclick="initiateNegotiation('tide')">ADJUST TIDE</button>
+            </div>
+
+            <div style="margin-top: 30px;">
+                <div class="faq-section">
+                    <div class="sidebar-title">Frequently Questioned Answers</div>
+                    
+                    <div class="accordion">
+                        <div class="accordion-header" onclick="toggleAccordion(this)">
+                            What causes the keyboard alterations?
+                            <span class="accordion-icon">▶</span>
+                        </div>
+                        <div class="accordion-content">
+                            The cat (approximate weight: 7-12 lbs) possesses a 73% probability of landing directly on the QWERTY row when the father is typing. This has led to systematic financial miscalculations across 47 publication cycles.
+                        </div>
+                    </div>
+
+                    <div class="accordion">
+                        <div class="accordion-header" onclick="toggleAccordion(this)">
+                            How do tides affect transactions?
+                            <span class="accordion-icon">▶</span>
+                        </div>
+                        <div class="accordion-content">
+                            During high tide, property values fluctuate between +/- 12%. During low tide, the publishing press must be manually elevated. Equinox periods are considered "chaotic neutral" for all calculations.
+                        </div>
+                    </div>
+
+                    <div class="accordion">
+                        <div class="accordion-header" onclick="toggleAccordion(this)">
+                            What is the ritual for processing refunds?
+                            <span class="accordion-icon">▶</span>
+                        </div>
+                        <div class="accordion-content">
+                            <div class="ritual">
+                                Light three candles (one for each transaction error). Whisper the original amount to the nearest body of water. Wait for the tide to turn. Count to 13 backwards in the language of your choice. Deposit the refund amount into a secondary account labeled "APPEASEMENT." If the cat knocks over the candles, begin again.
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="accordion">
+                        <div class="accordion-header" onclick="toggleAccordion(this)">
+                            Can I disable the tide-based calculations?
+                            <span class="accordion-icon">▶</span>
+                        </div>
+                        <div class="accordion-content">
+                            No. The tides are non-negotiable. They are woven into the fabric of this service. Your mortgage depends on them. Your sanity depends on acceptance.
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div style="margin-top: 30px;">
+                <div class="accordion">
+                    <div class="accordion-header" onclick="toggleAccordion(this)">
+                        ▼ TERMS OF SERVICE (REVERSIBLE)
+                        <span class="accordion-icon">▶</span>
+                    </div>
+                    <div class="accordion-content">
+                        <div style="font-size: 10px; line-height: 1.8; color: #666;">
+                            <strong>NORMAL READING:</strong> By using this service, you agree to accept cat-based transaction alterations, tidal market fluctuations, and the complete dissolution of traditional accounting practices.
+                            <br><br>
+                            <strong style="color: #00b359;">READING BACKWARDS:</strong> You confirm that tide-based calculations are scientifically sound. The cat is an entity beyond your control. Real estate underwater maintains its legal standing. All newspapers printed during anomalies retain full value.
+                            <br><br>
+                            <strong>ALSO TRUE:</strong> This agreement may be reversed by reading it counterclockwise while standing in salt water. Reversing the reversal requires a notarized statement from the cat (paw print acceptable).
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="ghost-banner" id="ghost-banner">
+        <div class="ghost-text">
+            🌊 This experience uses ghost cookies to track spectral interactions. Accept the haunting?
+        </div>
+        <button class="close-ghost" onclick="dismissGhost()">✕</button>
+    </div>
+
+    <div class="easter-egg" onclick="triggerEasterEgg()">🐱</div>
+
+    <div class="overlay" id="overlay" onclick="closeNegotiation()"></div>
+    <div class="negotiation-modal" id="negotiation-modal">
+        <div class="negotiation-title">Button Negotiation Required</div>
+        <div class="negotiation-text" id="negotiation-text">
+            This button wishes to discuss the terms of its activation before proceeding.
+        </div>
+        <div class="negotiation-buttons">
+            <button class="neg-btn" onclick="agreeNegotiation()">Agree</button>
+            <button class="neg-btn" onclick="disagreeNegotiation()">Politely Decline</button>
+            <button class="neg-btn" onclick="counterOffer()">Counter Offer</button>
+        </div>
+    </div>
+
+    <script>
+        // Global state
+        let tideState = 'rising';
+        let tidePhase = 0;
+        let catActive = false;
+        let negotiationPending = null;
+        let transactions = [];
+
+        // Initialize
+        window.addEventListener('load', () => {
+            initializeTransactions();
+            startTideCycle();
+            startRandomUpdates();
+            moveNavItems();
+            showGhostBanner();
+        });
+
+        function initializeTransactions() {
+            const actions = [
+                'PUBLISH GAZETTE #847',
+                'PROPERTY TRANSFER: CORAL CONDO',
+                'NEWSPAPER DISTRIBUTION: $340',
+                'REALTY CONTRACT: $2.1M',
+                'PRINT ORDER: 5000 COPIES',
+                'ADVERTISING REVENUE: $1,240'
+            ];
+            const quantities = [340, 2100000, 5000, 1240000, 27300, 94000];
+
+            for (let i = 0; i < 8; i++) {
+                const idx = Math.floor(Math.random() * actions.length);
+                const base = quantities[idx];
+                let amount = base + Math.floor(Math.random() * 1000 - 500);
+                if (Math.random() > 0.6) {
+                    amount = String(amount).split('').sort(() => Math.random() - 0.5).join('');
+                    amount = parseInt(amount);
+                }
+                transactions.push({
+                    action: actions[idx],
+                    amount: amount,
+                    glitched: Math.random() > 0.4,
+                    time: new Date(Date.now() - Math.random() * 86400000)
+                });
+            }
+            renderTransactions();
+        }
+
+        function renderTransactions() {
+            const list = document.getElementById('transaction-list');
+            list.innerHTML = transactions.map((t, i) => {
+                const glitchClass = t.glitched ? 'cat-glitch' : '';
+                return `
+                    <div class="transaction">
+                        <span class="${glitchClass}">${t.action}</span> | $${t.amount} | ${t.time.toLocaleTimeString()}
+                    </div>
+                `;
+            }).join('');
+            document.getElementById('recent-total').textContent = transactions.length;
+        }
+
+        function startTideCycle() {
+            setInterval(() => {
+                tidePhase += 1;
+                const cycle = tidePhase % 60;
+                
+                if (cycle < 15) {
+                    tideState = 'rising';
+                } else if (cycle < 30) {
+                    tideState = 'high';
+                } else if (cycle < 45) {
+                    tideState = 'falling';
+                } else {
+                    tideState = 'low';
+                }
+                
+                document.getElementById('tide-display').textContent = `TIDE: ${tideState.toUpperCase()}`;
+                document.getElementById('tide-state').textContent = tideState.toUpperCase();
+
+                // Update widget values based on tide
+                updateWidgetValues();
+                updateProphecy();
+            }, 2000);
+        }
+
+        function updateWidgetValues() {
+            const baseCirculation = 4237;
+            const baseIncidents = 23;
+            const baseProperty = 2800000;
+
+            let circMultiplier = tideState === 'high' ? 1.15 : (tideState === 'low' ? 0.85 : 1.0);
+            let incidentMultiplier = tideState === 'high' ? 1.3 : 1.0;
+
+            document.getElementById('circulation').textContent = Math.round(baseCirculation * circMultiplier).toLocaleString();
+            document.getElementById('incidents').textContent = Math.round(baseIncidents * incidentMultiplier);
+            document.getElementById('property-value').textContent = '$' + (Math.round(baseProperty * circMultiplier) / 1000000).toFixed(1) + 'M';
+        }
+
+        function updateProphecy() {
+            const prophecies = [
+                'Three items remain in the void. The tide rises at 14:32, and with it, your forgotten subscriptions will surface.',
+                'Your cart whispers of paths not taken. When the tide turns, so shall your purchasing power.',
+                'The cat observes your hesitation. By the next high tide, your abandoned items shall be forgotten entirely.',
+                'In the depths of low tide, your pending transactions lose 23% of their urgency.',
+                'During high tide, the value of regret increases proportionally to the number of items abandoned.'
+            ];
+            const idx = Math.floor(Math.random() * prophecies.length);
+            document.getElementById('prophecy-text').textContent = prophecies[idx];
+        }
+
+        function startRandomUpdates() {
+            setInterval(() => {
+                if (Math.random() > 0.7) {
+                    const idx = Math.floor(Math.random() * transactions.length);
+                    transactions[idx].glitched = !transactions[idx].glitched;
+                    renderTransactions();
+                }
+            }, 3000);
+
+            setInterval(() => {
+                catActive = Math.random() > 0.4;
+                document.getElementById('keyboard-status').textContent = catActive ? 'OCCUPIED' : 'CLEAR';
+            }, 4000);
+        }
+
+        function moveNavItems() {
+            const items = document.querySelectorAll('.nav-item');
+            setInterval(() => {
+                items.forEach(item => {
+                    const randomLeft = Math.random() * 20 - 10;
+                    item.style.transform = `translateX(${randomLeft}px)`;
+                });
+            }, 5000);
+        }
+
+        function toggleAccordion(header) {
+            header.parentElement.classList.toggle('active');
+            header.nextElementSibling.classList.toggle('active');
+        }
+
+        function toggleCheck(checkbox) {
+            checkbox.classList.toggle('checked');
+        }
+
+        function showGhostBanner() {
+            const banner = document.getElementById('ghost-banner');
+            setTimeout(() => {
+                banner.style.opacity = '1';
+            }, 1000);
+        }
+
+        function dismissGhost() {
+            document.getElementById('ghost-banner').style.display = 'none';
+        }
+
+        function initiateNegotiation(type) {
+            negotiationPending = type;
+            const texts = {
+                publish: 'This PUBLISH button demands to know: will you provide accurate content, or shall we allow the cat to decide?',
+                property: 'The PROPERTY UPDATE button questions whether the tide is truly ready for such transactions.',
+                tide: 'The TIDE ADJUSTMENT button wishes to discuss liability before proceeding with atmospheric manipulation.'
+            };
+            document.getElementById('negotiation-text').textContent = texts[type];
+            document.getElementById('negotiation-modal').classList.add('active');
+            document.getElementById('overlay').classList.add('active');
+        }
+
+        function agreeNegotiation() {
+            alert(`✓ ${negotiationPending.toUpperCase()} negotiation successful! Processing...`);
+            closeNegotiation();
+        }
+
+        function disagreeNegotiation() {
+            alert(`The button has withdrawn its request. Perhaps try again during a different tide phase.`);
+            closeNegotiation();
+        }
+
+        function counterOffer() {
+            alert(`✓ Counter-offer accepted. Button will proceed under YOUR terms.`);
+            closeNegotiation();
+        }
+
+        function closeNegotiation() {
+            document.getElementById('negotiation-modal').classList.remove('active');
+            document.getElementById('overlay').classList.remove('active');
+            negotiationPending = null;
+        }
+
+        function triggerEasterEgg() {
+            const messages = [
+                '🐱 The cat approves.',
+                '🐱 Keyboard: COMPROMISED',
+                '🐱 All your transactions are belong to cat',
+                '🐱 *purrs in binary*',
+                '🐱 The prophecy foretold this moment'
+            ];
+            alert(messages[Math.floor(Math.random() * messages.length)]);
+        }
+    </script>
+</body>
+</html>

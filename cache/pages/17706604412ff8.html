@@ -1,0 +1,513 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Victorian Data Center: Backwards Tuesday Broadcast</title>
+<style>
+  :root {
+    --terracotta: #c46a4a;
+    --sand: #e4c8a3;
+    --olive: #6f7a3b;
+    --umber: #5b3a2e;
+    --ink: #2b1c14;
+    --cream: #f6ead6;
+    --brass: #b8894b;
+    --ruby: #7a2e2e;
+    --glow: rgba(196,106,74,0.35);
+  }
+  * { box-sizing: border-box; }
+  html, body { height: 100%; }
+  body {
+    margin: 0;
+    font-family: "Georgia", "Times New Roman", serif;
+    color: var(--ink);
+    background:
+      radial-gradient(1200px 900px at 15% 10%, #f7e7cf 0%, transparent 60%),
+      radial-gradient(900px 700px at 85% 20%, #d9b58a 0%, transparent 55%),
+      linear-gradient(120deg, #d4a77b 0%, #b47d57 35%, #c28a61 60%, #8b5b3f 100%);
+    overflow-x: hidden;
+  }
+  .page {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 28px 22px 80px;
+    position: relative;
+  }
+  .ornate {
+    position: absolute;
+    inset: -60px -40px auto auto;
+    width: 240px;
+    height: 240px;
+    border-radius: 50%;
+    background: radial-gradient(circle at 30% 30%, #f5d9b1 0%, #c18359 60%, #6b3f2b 100%);
+    filter: blur(0.5px) drop-shadow(0 10px 30px rgba(0,0,0,0.2));
+    opacity: 0.4;
+    animation: drift 18s ease-in-out infinite;
+    pointer-events: none;
+  }
+  @keyframes drift {
+    0%,100% { transform: translate(0,0) rotate(0deg); }
+    50% { transform: translate(-20px, 12px) rotate(18deg); }
+  }
+  header {
+    display: grid;
+    grid-template-columns: 1.2fr 0.8fr;
+    gap: 18px;
+    align-items: end;
+  }
+  .masthead {
+    background: linear-gradient(145deg, #f4e1c6 0%, #d8b487 70%);
+    border: 2px solid var(--umber);
+    box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+    padding: 18px 20px;
+    position: relative;
+    transform: rotate(-1deg);
+  }
+  .masthead h1 {
+    margin: 0 0 6px;
+    font-size: 2.6rem;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+  }
+  .masthead .tag {
+    font-style: italic;
+    color: var(--ruby);
+  }
+  .ticker {
+    font-size: 0.95rem;
+    background: rgba(255,255,255,0.65);
+    border: 1px dashed var(--umber);
+    padding: 6px 10px;
+    margin-top: 8px;
+  }
+  .panel {
+    background: linear-gradient(160deg, rgba(255,255,255,0.7), rgba(244,225,198,0.9));
+    border: 2px solid var(--olive);
+    box-shadow: 0 12px 28px rgba(0,0,0,0.22), inset 0 0 40px rgba(0,0,0,0.05);
+    padding: 14px 16px;
+    position: relative;
+  }
+  .panel .label {
+    font-size: 0.8rem;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: var(--umber);
+  }
+  .right-stack {
+    display: grid;
+    gap: 14px;
+  }
+  .grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr 0.8fr;
+    gap: 16px;
+    margin-top: 20px;
+  }
+  .overlap {
+    position: relative;
+  }
+  .overlap .panel {
+    transform: rotate(1.2deg);
+  }
+  .overlap .panel.secondary {
+    position: absolute;
+    top: 18px;
+    right: -10px;
+    width: 72%;
+    transform: rotate(-2deg);
+    opacity: 0.96;
+  }
+  .cards {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+  .badge {
+    display: inline-block;
+    padding: 4px 8px;
+    border: 1px solid var(--brass);
+    border-radius: 16px;
+    font-size: 0.75rem;
+    background: rgba(255,255,255,0.6);
+  }
+  .controls {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+    margin-top: 10px;
+  }
+  button {
+    cursor: pointer;
+    border: 2px solid var(--umber);
+    background: linear-gradient(120deg, #f3d9b6, #cfa277);
+    padding: 8px 10px;
+    font-weight: bold;
+    color: var(--ink);
+    box-shadow: 0 6px 18px rgba(0,0,0,0.2);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+  }
+  button:hover { transform: translateY(-2px); box-shadow: 0 10px 22px rgba(0,0,0,0.25); }
+  .counter {
+    font-size: 2rem;
+    color: var(--ruby);
+  }
+  .dance-floor {
+    display: grid;
+    grid-template-columns: repeat(6, 1fr);
+    gap: 6px;
+    margin-top: 8px;
+  }
+  .tile {
+    height: 22px;
+    border-radius: 4px;
+    background: rgba(111,122,59,0.2);
+    transition: background 0.3s ease, transform 0.3s ease;
+  }
+  .tile.active {
+    background: linear-gradient(90deg, #c46a4a, #e4c8a3, #6f7a3b);
+    transform: scale(1.05);
+  }
+  .ticker-line {
+    white-space: nowrap;
+    overflow: hidden;
+  }
+  .ticker-line span {
+    display: inline-block;
+    padding-left: 100%;
+    animation: scroll 18s linear infinite;
+  }
+  @keyframes scroll {
+    0% { transform: translateX(0%); }
+    100% { transform: translateX(-100%); }
+  }
+  .backwards {
+    font-variant-numeric: tabular-nums;
+    font-size: 1.2rem;
+    font-weight: bold;
+  }
+  .stage {
+    min-height: 140px;
+    padding: 10px;
+    border: 1px dashed var(--umber);
+    background: rgba(255,255,255,0.55);
+  }
+  .hidden { display: none; }
+  .pulse {
+    animation: pulse 1.2s ease-in-out infinite;
+  }
+  @keyframes pulse {
+    0%,100% { box-shadow: 0 0 0 0 var(--glow); }
+    50% { box-shadow: 0 0 26px 6px var(--glow); }
+  }
+  .footer {
+    margin-top: 26px;
+    font-size: 0.9rem;
+    padding: 12px;
+    border-top: 2px solid var(--umber);
+  }
+  .list {
+    margin: 8px 0 0;
+    padding-left: 16px;
+  }
+  .list li { margin: 4px 0; }
+  .note {
+    font-style: italic;
+    color: #5c3a2f;
+  }
+  .stamp {
+    position: absolute;
+    top: -12px;
+    right: 16px;
+    background: var(--ruby);
+    color: #f7e7cf;
+    padding: 6px 10px;
+    transform: rotate(6deg);
+    box-shadow: 0 6px 14px rgba(0,0,0,0.2);
+  }
+  @media (max-width: 980px) {
+    header { grid-template-columns: 1fr; }
+    .grid { grid-template-columns: 1fr; }
+    .overlap .panel.secondary { position: static; width: 100%; margin-top: 12px; transform: rotate(0deg); }
+  }
+</style>
+</head>
+<body>
+  <div class="page">
+    <div class="ornate"></div>
+    <header>
+      <div class="masthead">
+        <div class="stamp">BACKWARDS TUESDAY</div>
+        <h1>Florence Nightshade’s Reality Ward</h1>
+        <div class="tag">A sleep-deprived nurse runs the show. The show runs time. The time runs backwards on Tuesdays.</div>
+        <div class="ticker">
+          <div class="ticker-line"><span id="tickerText">Tonight’s choreography: interpretive pager beeps, bedpan waltzes, and a solemn IV tango. Broadcast in 7 wards, 3 realities, and one broom closet.</span></div>
+        </div>
+      </div>
+      <div class="right-stack">
+        <div class="panel">
+          <div class="label">Vital Ratings</div>
+          <div class="counter" id="rating">84.2%</div>
+          <div class="note">Audience approval measured in sighs and soft shoes.</div>
+        </div>
+        <div class="panel">
+          <div class="label">Reverse-Time Console</div>
+          <div>Current Day: <span id="dayName" class="backwards">Tuesday</span></div>
+          <div>Clock Running: <span id="reverseClock" class="backwards">11:59:50</span></div>
+          <div class="note">If the clock hits 00:00:00, everyone must moonwalk out.</div>
+        </div>
+      </div>
+    </header>
+
+    <section class="grid">
+      <div class="overlap">
+        <div class="panel">
+          <div class="label">Ward Stage Feed</div>
+          <div class="stage" id="stage">
+            <div class="badge">Live, Mostly</div>
+            <p id="sceneText">Scene 1: A defiant stethoscope performs a solo about unpaid lunch breaks.</p>
+            <p class="note" id="sceneNote">All dialogue translated through elbows and meaningful glances.</p>
+          </div>
+          <div class="controls">
+            <button id="nextScene">Cue Next Scene</button>
+            <button id="toggleLights">Dim The Gaslights</button>
+          </div>
+        </div>
+        <div class="panel secondary">
+          <div class="label">Dance-Only Communication</div>
+          <div class="dance-floor" id="danceFloor"></div>
+          <div class="controls">
+            <button id="shuffleDance">Shuffle Signal</button>
+            <button id="freezeDance">Freeze Pose</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="label">Producer’s Clipboard</div>
+        <p>Lead nurse Florence Nightshade schedules chaos between 3:00 AM and 3:05 AM for “artistic reasons.”</p>
+        <ul class="list" id="producerList">
+          <li>Episode 12: “The Suture That Time Forgot.”</li>
+          <li>Episode 13: “Paging Dr. Dramatic.”</li>
+          <li>Episode 14: “IV League Finals.”</li>
+        </ul>
+        <div class="controls">
+          <button id="addEpisode">Add Surprise Episode</button>
+          <button id="toggleClipboard">Fold Clipboard</button>
+        </div>
+        <p class="note">Disclaimer: clipboard is more trusted than any timeline.</p>
+      </div>
+
+      <div class="panel">
+        <div class="label">Backwards Statistics</div>
+        <div>Patients Reassured: <span id="reassured" class="counter">312</span></div>
+        <div>Pages Interpreted: <span id="pages" class="counter">97</span></div>
+        <div>Tea Refills: <span id="tea" class="counter">14</span></div>
+        <div class="controls">
+          <button id="boostStats">Reverse-Boost</button>
+          <button id="resetStats">Calm Everything Down</button>
+        </div>
+        <p class="note">Numbers drift backwards on Tuesdays but forward in our hearts.</p>
+      </div>
+    </section>
+
+    <section class="grid">
+      <div class="panel">
+        <div class="label">Backstage Gossip (Translated by Ankles)</div>
+        <p>“The IV pole keeps getting top billing.”</p>
+        <p>“Someone replaced the call bell with a timpani.”</p>
+        <p>“The janitor is secretly the choreographer.”</p>
+        <p>“We rehearse in the stairwell to train for dramatic exits.”</p>
+        <p class="note">Legal note: No ankles were harmed, only slightly overbooked.</p>
+      </div>
+
+      <div class="panel">
+        <div class="label">Audience Participation</div>
+        <p>Choose tonight’s dramatic prop:</p>
+        <div class="controls">
+          <button data-prop="A velvet bedpan">Velvet Bedpan</button>
+          <button data-prop="An ornate pager">Ornate Pager</button>
+        </div>
+        <div class="controls">
+          <button data-prop="A heroic sponge">Heroic Sponge</button>
+          <button data-prop="A trembling teacup">Trembling Teacup</button>
+        </div>
+        <p id="propResult" class="note">Selected prop: none yet, the dancers are waiting politely.</p>
+      </div>
+
+      <div class="panel">
+        <div class="label">Tuesday Paradox Desk</div>
+        <p>Time audit status: <span id="audit">Stable-ish</span></p>
+        <p>Reverse scheduling forecast: <span id="forecast">Slightly bewildered</span></p>
+        <p>Ward announcement: <span id="announcement">“Please moonwalk calmly to the exit.”</span></p>
+        <div class="controls">
+          <button id="flipTime">Flip Tuesday</button>
+          <button id="changeAnnouncement">New Announcement</button>
+        </div>
+      </div>
+    </section>
+
+    <div class="footer">
+      <p>Humorous disclaimers: All choreography is medically unnecessary. All data is theatrically accurate. Any resemblance to actual time is coincidental and probably reversed. Florence Nightshade denies knowledge of the glitter spill.</p>
+      <p class="note">Additional disclaimers: The applause is canned; the cans are not FDA approved. The show is filmed before, during, and after itself.</p>
+    </div>
+  </div>
+
+<script>
+  const scenes = [
+    "Scene 2: Two interns mime a cardiac monitor arguing with a teapot.",
+    "Scene 3: The crash cart performs a slow pirouette of accountability.",
+    "Scene 4: A chorus of clipboards sings in pure semaphore.",
+    "Scene 5: The lead nurse tap-dances the medication schedule backwards.",
+    "Scene 6: Everyone bows to the vending machine, our silent sponsor."
+  ];
+  const notes = [
+    "Audience translation provided by the left knee.",
+    "Subtitles replaced with interpretive shoulder shrugs.",
+    "If confused, watch the elbows for plot twists.",
+    "All meaning conveyed by extremely decisive wrists.",
+    "Plot rendered in soft-shoe Morse code."
+  ];
+  const announcements = [
+    "Please moonwalk calmly to the exit.",
+    "Do not panic; the hallway is only metaphorical.",
+    "Paging the concept of time, please report to Ward 7.",
+    "All applause must be delivered via jazz hands.",
+    "The staircase is only dramatic on odd-numbered beats."
+  ];
+
+  const stage = document.getElementById("stage");
+  const sceneText = document.getElementById("sceneText");
+  const sceneNote = document.getElementById("sceneNote");
+  const nextScene = document.getElementById("nextScene");
+  const toggleLights = document.getElementById("toggleLights");
+  const shuffleDance = document.getElementById("shuffleDance");
+  const freezeDance = document.getElementById("freezeDance");
+  const danceFloor = document.getElementById("danceFloor");
+  const addEpisode = document.getElementById("addEpisode");
+  const toggleClipboard = document.getElementById("toggleClipboard");
+  const producerList = document.getElementById("producerList");
+  const rating = document.getElementById("rating");
+  const reassured = document.getElementById("reassured");
+  const pages = document.getElementById("pages");
+  const tea = document.getElementById("tea");
+  const boostStats = document.getElementById("boostStats");
+  const resetStats = document.getElementById("resetStats");
+  const propResult = document.getElementById("propResult");
+  const flipTime = document.getElementById("flipTime");
+  const audit = document.getElementById("audit");
+  const forecast = document.getElementById("forecast");
+  const announcement = document.getElementById("announcement");
+  const changeAnnouncement = document.getElementById("changeAnnouncement");
+  const reverseClock = document.getElementById("reverseClock");
+  const dayName = document.getElementById("dayName");
+
+  let sceneIndex = 0;
+  let noteIndex = 0;
+  let danceFrozen = false;
+  let clipboardOpen = true;
+  let reverseSeconds = 11 * 3600 + 59 * 60 + 50;
+  let isTuesday = true;
+
+  function pad(n) { return String(n).padStart(2, "0"); }
+  function tickReverse() {
+    reverseSeconds--;
+    if (reverseSeconds < 0) reverseSeconds = 12 * 3600 - 1;
+    const h = Math.floor(reverseSeconds / 3600);
+    const m = Math.floor((reverseSeconds % 3600) / 60);
+    const s = reverseSeconds % 60;
+    reverseClock.textContent = `${pad(h)}:${pad(m)}:${pad(s)}`;
+  }
+  setInterval(tickReverse, 1000);
+
+  function updateRating() {
+    const base = 82 + Math.random() * 6;
+    rating.textContent = `${base.toFixed(1)}%`;
+  }
+  setInterval(updateRating, 3500);
+
+  function buildDanceFloor() {
+    for (let i = 0; i < 24; i++) {
+      const tile = document.createElement("div");
+      tile.className = "tile";
+      danceFloor.appendChild(tile);
+    }
+  }
+  buildDanceFloor();
+
+  function shuffleTiles() {
+    if (danceFrozen) return;
+    [...danceFloor.children].forEach(tile => {
+      tile.classList.toggle("active", Math.random() > 0.55);
+    });
+  }
+  setInterval(shuffleTiles, 1200);
+
+  nextScene.addEventListener("click", () => {
+    sceneIndex = (sceneIndex + 1) % scenes.length;
+    noteIndex = (noteIndex + 1) % notes.length;
+    sceneText.textContent = scenes[sceneIndex];
+    sceneNote.textContent = notes[noteIndex];
+    stage.classList.add("pulse");
+    setTimeout(() => stage.classList.remove("pulse"), 800);
+  });
+
+  toggleLights.addEventListener("click", () => {
+    stage.classList.toggle("hidden");
+    toggleLights.textContent = stage.classList.contains("hidden") ? "Relight The Gaslights" : "Dim The Gaslights";
+  });
+
+  shuffleDance.addEventListener("click", () => {
+    shuffleTiles();
+  });
+
+  freezeDance.addEventListener("click", () => {
+    danceFrozen = !danceFrozen;
+    freezeDance.textContent = danceFrozen ? "Unfreeze Pose" : "Freeze Pose";
+  });
+
+  addEpisode.addEventListener("click", () => {
+    const item = document.createElement("li");
+    const id = Math.floor(100 + Math.random() * 900);
+    item.textContent = `Episode ${id}: “The Bandage That Knew Too Much.”`;
+    producerList.appendChild(item);
+  });
+
+  toggleClipboard.addEventListener("click", () => {
+    clipboardOpen = !clipboardOpen;
+    producerList.style.display = clipboardOpen ? "block" : "none";
+    toggleClipboard.textContent = clipboardOpen ? "Fold Clipboard" : "Unfold Clipboard";
+  });
+
+  function boost() {
+    reassured.textContent = Number(reassured.textContent) + 7;
+    pages.textContent = Number(pages.textContent) + 3;
+    tea.textContent = Number(tea.textContent) + 1;
+  }
+  boostStats.addEventListener("click", boost);
+  resetStats.addEventListener("click", () => {
+    reassured.textContent = 312;
+    pages.textContent = 97;
+    tea.textContent = 14;
+  });
+
+  document.querySelectorAll("button[data-prop]").forEach(btn => {
+    btn.addEventListener("click", () => {
+      propResult.textContent = `Selected prop: ${btn.dataset.prop}. The dancers immediately interpret this.`;
+    });
+  });
+
+  flipTime.addEventListener("click", () => {
+    isTuesday = !isTuesday;
+    dayName.textContent = isTuesday ? "Tuesday" : "Not Tuesday";
+    audit.textContent = isTuesday ? "Stable-ish" : "Alarmingly forward";
+    forecast.textContent = isTuesday ? "Slightly bewildered" : "Straightforward, suspicious";
+  });
+
+  changeAnnouncement.addEventListener("click", () => {
+    const pick = announcements[Math.floor(Math.random() * announcements.length)];
+    announcement.textContent = `“${pick}”`;
+  });
+</script>
+</body>
+</html>

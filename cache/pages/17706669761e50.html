@@ -1,0 +1,712 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Clawterparty Bath Bank Atelier</title>
+  <link rel="stylesheet" href="/assets/css/pico.min.css" />
+  <link rel="stylesheet" href="/assets/css/fonts.css" />
+  <style>
+    :root {
+      --pink: #ff2ea6;
+      --blue: #0a5bff;
+      --lime: #b9ff2d;
+      --ink: #090909;
+      --paper: #f7f7f3;
+      --deep: #101a4a;
+      --card: #ffffff;
+    }
+
+    * { box-sizing: border-box; }
+
+    html, body {
+      margin: 0;
+      padding: 0;
+      scroll-behavior: smooth;
+      scroll-snap-type: y mandatory;
+      background: var(--ink);
+      color: #fff;
+      font-family: 'Space Grotesk', sans-serif;
+    }
+
+    body {
+      line-height: 1.5;
+      overflow-x: hidden;
+    }
+
+    h1, h2, h3, h4 {
+      margin: 0 0 0.7rem;
+      line-height: 1.05;
+      letter-spacing: 0.02em;
+    }
+
+    p, li, small, summary, label {
+      color: inherit;
+      opacity: 1;
+    }
+
+    .mono {
+      font-family: 'IBM Plex Mono', monospace;
+      letter-spacing: 0.01em;
+    }
+
+    .section {
+      min-height: 100vh;
+      scroll-snap-align: start;
+      padding: 2rem clamp(1rem, 4vw, 4rem);
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      gap: 1rem;
+    }
+
+    .construct-line {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      background-image:
+        linear-gradient(120deg, transparent 0 18%, rgba(255,255,255,0.08) 18% 19%, transparent 19% 100%),
+        linear-gradient(300deg, transparent 0 36%, rgba(255,255,255,0.08) 36% 37%, transparent 37% 100%);
+      mix-blend-mode: screen;
+    }
+
+    .hero {
+      background: radial-gradient(circle at 80% 10%, var(--pink) 0 20%, transparent 20%),
+        linear-gradient(130deg, var(--deep) 0 45%, var(--blue) 45% 70%, var(--lime) 70% 100%);
+      color: #ffffff;
+    }
+
+    .hero-grid {
+      display: grid;
+      grid-template-columns: 1.2fr 1fr;
+      gap: 1.5rem;
+      align-items: center;
+    }
+
+    nav {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      margin-bottom: 1rem;
+    }
+
+    nav a {
+      text-decoration: none;
+      background: #ffffff;
+      color: #000000;
+      padding: 0.35rem 0.7rem;
+      border: 2px solid #000000;
+      font-weight: 700;
+      text-transform: uppercase;
+      font-size: 0.82rem;
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      background: #000000;
+      color: #ffffff;
+      padding: 0.3rem 0.55rem;
+      border: 2px solid #ffffff;
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      font-weight: 700;
+      width: fit-content;
+    }
+
+    .hero h1 {
+      font-size: clamp(2.1rem, 8vw, 5.8rem);
+      text-transform: uppercase;
+    }
+
+    .hero p {
+      max-width: 60ch;
+      color: #ffffff;
+      font-size: 1.05rem;
+    }
+
+    .panel {
+      background: #ffffff;
+      color: #000000;
+      border: 4px solid #000000;
+      padding: 1rem;
+      box-shadow: 10px 10px 0 #000000;
+    }
+
+    .panel h3, .panel p, .panel li, .panel strong, .panel small {
+      color: #000000;
+    }
+
+    .riddle-input {
+      margin-top: 0.5rem;
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 0.5rem;
+    }
+
+    .riddle-input input {
+      margin: 0;
+      background: #ffffff;
+      border: 2px solid #000000;
+      color: #000000;
+    }
+
+    .riddle-input button {
+      margin: 0;
+      background: var(--lime);
+      color: #000000;
+      border: 2px solid #000000;
+      font-weight: 800;
+    }
+
+    .message {
+      margin-top: 0.5rem;
+      font-weight: 700;
+      color: #000000;
+      min-height: 1.5rem;
+    }
+
+    .deck {
+      background: linear-gradient(160deg, #ffffff 0 55%, var(--pink) 55% 100%);
+      color: #000000;
+    }
+
+    .deck .heading {
+      color: #000000;
+      font-size: clamp(1.8rem, 5vw, 3.4rem);
+      text-transform: uppercase;
+    }
+
+    .columns-3 {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 1rem;
+    }
+
+    .cat-card {
+      background: var(--card);
+      border: 3px solid #000000;
+      padding: 1rem;
+      color: #000000;
+      transform: rotate(calc(var(--r, 0) * 1deg));
+    }
+
+    .cat-card h3, .cat-card p {
+      color: #000000;
+    }
+
+    .cat-card:hover {
+      background: var(--lime);
+    }
+
+    .tabs {
+      background: linear-gradient(130deg, #001244 0 50%, #0a5bff 50% 100%);
+      color: #ffffff;
+    }
+
+    .tabs h2, .tabs p {
+      color: #ffffff;
+    }
+
+    .tab-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      margin: 0.5rem 0 1rem;
+    }
+
+    .tab-btn {
+      border: 2px solid #ffffff;
+      background: #000000;
+      color: #ffffff;
+      font-weight: 700;
+      text-transform: uppercase;
+      padding: 0.5rem 0.8rem;
+      cursor: pointer;
+    }
+
+    .tab-btn.active {
+      background: var(--lime);
+      color: #000000;
+      border-color: #000000;
+    }
+
+    .article {
+      background: #ffffff;
+      color: #000000;
+      border: 3px solid #000000;
+      padding: 1rem;
+      min-height: 260px;
+    }
+
+    .article h3, .article p, .article li {
+      color: #000000;
+    }
+
+    .pricing {
+      background: linear-gradient(160deg, var(--pink) 0 40%, #ffffff 40% 100%);
+      color: #000000;
+    }
+
+    .pricing h2 {
+      color: #000000;
+      text-transform: uppercase;
+      font-size: clamp(1.8rem, 5vw, 3rem);
+    }
+
+    .price-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 1rem;
+    }
+
+    .price {
+      border: 3px solid #000000;
+      background: #ffffff;
+      color: #000000;
+      padding: 1rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.6rem;
+    }
+
+    .price strong, .price li, .price p, .price h3 {
+      color: #000000;
+    }
+
+    .price .tag {
+      background: #000000;
+      color: #ffffff;
+      padding: 0.2rem 0.5rem;
+      width: fit-content;
+      font-size: 0.8rem;
+    }
+
+    .quotes {
+      background: linear-gradient(130deg, #0b0b0b 0 45%, #b9ff2d 45% 100%);
+      color: #ffffff;
+    }
+
+    .quotes-wrap {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+    }
+
+    .quote {
+      border: 3px solid #ffffff;
+      padding: 1rem;
+      background: rgba(0, 0, 0, 0.82);
+      color: #ffffff;
+      transition: transform 0.22s ease;
+    }
+
+    .quote p, .quote strong {
+      color: #ffffff;
+    }
+
+    .quote:hover {
+      transform: translateY(-4px);
+      background: #001244;
+    }
+
+    .faq {
+      background: linear-gradient(140deg, #ffffff 0 58%, #0a5bff 58% 100%);
+      color: #000000;
+    }
+
+    .faq h2 {
+      color: #000000;
+      text-transform: uppercase;
+    }
+
+    details {
+      border: 3px solid #000000;
+      background: #ffffff;
+      color: #000000;
+      padding: 0.8rem;
+      margin-bottom: 0.7rem;
+    }
+
+    details summary {
+      color: #000000;
+      font-weight: 800;
+      cursor: pointer;
+    }
+
+    details p {
+      margin: 0.6rem 0 0;
+      color: #000000;
+    }
+
+    .footer {
+      background: linear-gradient(120deg, #ff2ea6 0 40%, #101a4a 40% 100%);
+      color: #ffffff;
+    }
+
+    .footer-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+    }
+
+    .press {
+      border: 3px solid #ffffff;
+      padding: 1rem;
+    }
+
+    .press h3, .press p, .press li {
+      color: #ffffff;
+    }
+
+    .pawline {
+      font-size: 1.2rem;
+      letter-spacing: 0.35rem;
+      user-select: none;
+    }
+
+    .icon-row {
+      display: flex;
+      gap: 0.7rem;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+
+    .icon-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      border: 2px solid #000000;
+      background: #ffffff;
+      color: #000000;
+      padding: 0.25rem 0.5rem;
+      font-size: 0.8rem;
+      font-weight: 700;
+      text-transform: uppercase;
+    }
+
+    .hover-reveal {
+      position: relative;
+      border: 3px solid #000000;
+      background: #ffffff;
+      color: #000000;
+      padding: 1rem;
+      overflow: hidden;
+    }
+
+    .hover-reveal .reveal {
+      position: absolute;
+      inset: 0;
+      background: var(--lime);
+      color: #000000;
+      display: grid;
+      place-items: center;
+      font-weight: 800;
+      transform: translateY(102%);
+      transition: transform 0.25s ease;
+      padding: 1rem;
+      text-align: center;
+    }
+
+    .hover-reveal:hover .reveal {
+      transform: translateY(0);
+    }
+
+    @media (max-width: 980px) {
+      .hero-grid,
+      .columns-3,
+      .price-grid,
+      .quotes-wrap,
+      .footer-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .section {
+        min-height: auto;
+        padding: 3rem 1rem;
+        scroll-snap-align: none;
+      }
+
+      html, body {
+        scroll-snap-type: none;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <section class="section hero" id="entry" x-data="riddleGate()">
+      <div class="construct-line" aria-hidden="true"></div>
+      <nav>
+        <a href="#entry">Vestibule</a>
+        <a href="#collections">Collections</a>
+        <a href="#gazette">Gazette</a>
+        <a href="#terms">Terms</a>
+        <a href="#inquiries">Inquiries</a>
+      </nav>
+
+      <div class="hero-grid">
+        <div>
+          <span class="badge mono"><i data-lucide="banknote"></i> Clawterparty Bath Bank Atelier</span>
+          <h1>Favors held in escrow. Tailoring cut on bias.</h1>
+          <p>
+            Clawterparty is the first feline-first reserve institution to underwrite social obligations and convert them into season-ready garments.
+            Every collar, coat, and trench is priced in honored favors, notarized by whiskerprint, and released from our marble bathtub clearing room.
+          </p>
+          <div class="icon-row" style="margin-top:0.8rem;">
+            <span class="icon-pill"><i data-lucide="paw-print"></i> Purr-Certified</span>
+            <span class="icon-pill"><i data-lucide="bath"></i> Tub-Operated</span>
+            <span class="icon-pill"><i data-lucide="shield-check"></i> Favor-Secured</span>
+          </div>
+          <p class="pawline" aria-hidden="true">🐾 🐾 🐾 🐾 🐾 🐾</p>
+        </div>
+
+        <aside class="panel" aria-label="Riddle Access Portal">
+          <h3 class="mono">Vestibule Riddle</h3>
+          <p>
+            Entry to member pricing requires one correct answer. Read slowly:
+            <strong>"I have keys but open no locks. I have space but no room. You can enter, but cannot go outside."</strong>
+          </p>
+          <label for="riddle-answer" class="mono">Your answer</label>
+          <div class="riddle-input">
+            <input id="riddle-answer" type="text" x-model="answer" placeholder="Type your answer" aria-label="Riddle answer" />
+            <button type="button" @click="checkAnswer">Unlock</button>
+          </div>
+          <p class="message" x-text="message"></p>
+          <template x-if="unlocked">
+            <div>
+              <strong>Entry confirmed.</strong>
+              <p class="mono">Access phrase: CATALYST-VAULT-09. Present this at fitting.</p>
+            </div>
+          </template>
+        </aside>
+      </div>
+    </section>
+
+    <section class="section deck" id="collections">
+      <h2 class="heading">Current lines from the tub floor</h2>
+      <p style="max-width:76ch; color:#000000;">
+        Our design desk works shoulder-to-shoulder with the obligation desk. When a favor matures, it funds a production run.
+        This season includes diplomatic rainwear for apology tours, velvet officewear for debt settlement dinners, and claw-friendly evening gloves.
+      </p>
+      <div class="columns-3">
+        <article class="cat-card" style="--r:-1;">
+          <h3>The String Theory Trench</h3>
+          <p>
+            Double-breasted weatherproof shell with hidden pocket for promissory fish. Lining printed with municipal nap maps.
+            Popular with mediators, magistrates, and cats who prefer dramatic exits through side doors.
+          </p>
+        </article>
+        <article class="cat-card" style="--r:1;">
+          <h3>Debit & Biscuit Suiting</h3>
+          <p>
+            Precision-cut tailoring in electric blue twill. Each lapel includes detachable paw tabs for formal kneading.
+            Tailored in-house by Comptroller Mewsly while balancing ledger books on the faucet.
+          </p>
+        </article>
+        <article class="cat-card" style="--r:-2;">
+          <h3>Lime Collateral Knit Set</h3>
+          <p>
+            Soft-structure knitwear that breathes during negotiations and clings during rooftop wind events.
+            Every set includes an emergency clause pocket and a certified lint pardon card.
+          </p>
+        </article>
+      </div>
+
+      <div class="hover-reveal" style="margin-top:1rem; max-width:72ch;">
+        <strong class="mono">Hover for Internal Memo 24-CAT</strong>
+        <p style="margin:0.5rem 0 0; color:#000000;">
+          Staff reminder: all garment approvals must be stamped before the rubber duck rings once.
+          Late approvals are rolled to next moon and may incur ceremonial hissing.
+        </p>
+        <div class="reveal">Memo addendum: Chaircat reserves right to redirect silk inventory toward morale capes.</div>
+      </div>
+    </section>
+
+    <section class="section tabs" id="gazette" x-data="{ tab: 'dispatch' }">
+      <h2>Reading Room, Filing Room, Grooming Room</h2>
+      <p style="max-width:70ch;">
+        We publish heavily because trust grows when minutes are clear. Browse dispatches, personnel biographies,
+        and signed customer letters archived by quarter.
+      </p>
+
+      <div class="tab-list" role="tablist" aria-label="Gazette Tabs">
+        <button class="tab-btn" :class="{ 'active': tab === 'dispatch' }" @click="tab='dispatch'" role="tab" aria-selected="true">Dispatches</button>
+        <button class="tab-btn" :class="{ 'active': tab === 'bios' }" @click="tab='bios'" role="tab">Employee Bios</button>
+        <button class="tab-btn" :class="{ 'active': tab === 'letters' }" @click="tab='letters'" role="tab">Member Letters</button>
+      </div>
+
+      <article class="article" x-show="tab === 'dispatch'" x-transition>
+        <h3>Press Bulletin: Spring Settlement Capsule Opens Monday</h3>
+        <p>
+          Clawterparty Bath Bank Atelier confirms release of the Spring Settlement Capsule, a six-look collection built around reciprocal dressing.
+          The capsule was financed by 812 fulfilled favors, including school pickup rotations, emergency soup delivery, and one highly rated tax-season babysitting run.
+        </p>
+        <p>
+          Chief Soak Officer Tatiana Purrkova noted that liquidity remains stable despite recent demand for satin arbitration cloaks.
+          "Our clients need garments that negotiate before they speak," she wrote in the quarterly tubside letter.
+          "A well-cut sleeve can reduce the temperature in any room by three emotional degrees."
+        </p>
+      </article>
+
+      <article class="article" x-show="tab === 'bios'" x-transition>
+        <h3>Operations Team (Selected)</h3>
+        <ul>
+          <li><strong>Marmalade "Ledgerpaw" Petrov, Chaircat:</strong> Former neighborhood treasurer. Specializes in cross-border favor swaps and dramatic scarf knots.</li>
+          <li><strong>Comptroller Mewsly Nguyen:</strong> Oversees garment collateralization and late-night hemming. Known for reconciling accounts by listening to radiators.</li>
+          <li><strong>Ivana Clawvic, Head of Threshold Security:</strong> Authored the current riddle policy. Reject rate: 14%. Politeness rate: 100%.</li>
+          <li><strong>Rook Whiskers, Tub Infrastructure Engineer:</strong> Maintains faucet pressure, archive humidity, and emergency bubble reserves.</li>
+        </ul>
+      </article>
+
+      <article class="article" x-show="tab === 'letters'" x-transition>
+        <h3>Recent Testimonials Filed by Account Holders</h3>
+        <p><strong>Veronica D., municipal mediator:</strong> "I exchanged three calendar favors for a charcoal hearing coat. Negotiations ended early because everyone sat straighter."</p>
+        <p><strong>Omar B., pastry supplier:</strong> "Their favor valuation felt fair. I pledged two holiday shifts and walked out with knitwear that survived flour, rain, and a tram delay."</p>
+        <p><strong>Sylvie K., neighborhood attorney:</strong> "The riddle gate felt ceremonial in the right way. The coat pockets are deep enough for documents and cat treats."</p>
+      </article>
+    </section>
+
+    <section class="section pricing" id="terms">
+      <h2>Membership terms & favor pricing</h2>
+      <p style="max-width:68ch; color:#000000;">
+        All plans include fitting access, valuation review, and one claw-safe alteration window. Favors are audited monthly and never sold to third parties.
+        If a favor expires, we convert it to a community credit and publish the adjustment in the public ledger.
+      </p>
+      <div class="price-grid">
+        <article class="price">
+          <span class="tag mono">Street Tier</span>
+          <h3>Bench Cat</h3>
+          <strong class="mono">4 favors / month</strong>
+          <p>For first-time members needing one anchor garment each quarter.</p>
+          <ul>
+            <li>1 tailoring session</li>
+            <li>Access to standard fabrics</li>
+            <li>Riddle retries: 2 per month</li>
+          </ul>
+        </article>
+        <article class="price" style="background:#b9ff2d;">
+          <span class="tag mono">Popular</span>
+          <h3>Velvet Paw</h3>
+          <strong class="mono">9 favors / month</strong>
+          <p>For professionals managing high-stakes social obligations and public-facing wardrobes.</p>
+          <ul>
+            <li>3 tailoring sessions</li>
+            <li>Priority hemming within 72 hours</li>
+            <li>Seasonal vault previews</li>
+          </ul>
+        </article>
+        <article class="price">
+          <span class="tag mono">Institutional</span>
+          <h3>Bathhouse Syndicate</h3>
+          <strong class="mono">By negotiation</strong>
+          <p>For councils, co-ops, and theatrical boards requiring pooled favor issuance.</p>
+          <ul>
+            <li>Dedicated valuation officer</li>
+            <li>Custom insignia programs</li>
+            <li>Emergency midnight appointments</li>
+          </ul>
+        </article>
+      </div>
+    </section>
+
+    <section class="section quotes" id="inquiries">
+      <h2 style="font-size:clamp(1.9rem,5vw,3.3rem); text-transform:uppercase;">Member testimony & practical questions</h2>
+      <div class="quotes-wrap">
+        <article class="quote">
+          <p>
+            "After I completed two neighbor favors and one reunion toast duty, I was approved for the Electric Blue Clerk Coat.
+            The sleeves let me carry files, snacks, and one indignant kitten without wrinkling."
+          </p>
+          <strong class="mono">- Daria L., district archivist</strong>
+        </article>
+        <article class="quote">
+          <p>
+            "They handled my rush request during rain season. I arrived soaked, left with a lime overcoat and a legally binding nap schedule.
+            Every seam still holds after six commuter trains and a choir recital."
+          </p>
+          <strong class="mono">- Pavel R., choir coordinator</strong>
+        </article>
+      </div>
+
+      <div class="faq" style="margin-top:1rem; padding:1rem; border:3px solid #000000;">
+        <h2>FAQ</h2>
+        <details>
+          <summary>Why the riddle?</summary>
+          <p>The threshold keeps our queue deliberate and deters impulse pledging. Thoughtful entry improves repayment quality and fitting outcomes.</p>
+        </details>
+        <details>
+          <summary>Where is headquarters exactly?</summary>
+          <p>Our registered office occupies a reinforced clawfoot bathtub in the old exchange building. Visiting hours are listed in weekly bulletins.</p>
+        </details>
+        <details>
+          <summary>Can I repay favors early?</summary>
+          <p>Yes. Early fulfillment earns a grooming credit and increases access to limited textile drops.</p>
+        </details>
+      </div>
+    </section>
+
+    <section class="section footer">
+      <div class="footer-grid">
+        <article class="press">
+          <h3>Press room excerpt</h3>
+          <p>
+            <strong>FOR IMMEDIATE RELEASE, February 2026:</strong> Clawterparty announces expanded apprenticeship track for young cutters and obligation clerks.
+            Cohort members receive instruction in pattern drafting, social collateral ethics, and bathtub acoustics for confidential calls.
+          </p>
+          <p>
+            Journal inquiries: <span class="mono">press@clawterparty.reserve</span><br />
+            Member care: <span class="mono">care@clawterparty.reserve</span>
+          </p>
+        </article>
+
+        <article class="press">
+          <h3>Footer directory</h3>
+          <ul>
+            <li>Public Ledger Tuesdays: 08:00-20:00</li>
+            <li>Riddle Desk: Walk-in and appointment</li>
+            <li>Fitting Hall: By validated favor ID</li>
+            <li>Bath Operations: Always staffed</li>
+          </ul>
+          <p class="pawline" aria-hidden="true">🐾 🐾 🐾 🐾</p>
+          <small>Clawterparty Bath Bank Atelier. Licensed by the Cooperative Board of Reciprocal Conduct.</small>
+        </article>
+      </div>
+    </section>
+  </main>
+
+  <script src="/assets/js/alpine.min.js" defer></script>
+  <script src="/assets/js/gsap.min.js"></script>
+  <script src="/assets/js/lucide.min.js"></script>
+  <script>
+    function riddleGate() {
+      return {
+        answer: '',
+        unlocked: false,
+        message: 'Solve to open member terms.',
+        checkAnswer() {
+          var clean = this.answer.trim().toLowerCase();
+          var ok = ['keyboard', 'a keyboard'];
+          if (ok.indexOf(clean) !== -1) {
+            this.unlocked = true;
+            this.message = 'Correct. Vestibule unlocked.';
+          } else {
+            this.unlocked = false;
+            this.message = 'Not quite. Read the clues again and try once more.';
+          }
+        }
+      };
+    }
+
+    window.addEventListener('DOMContentLoaded', function () {
+      lucide.createIcons();
+
+      gsap.from('.hero h1', { y: 38, opacity: 0, duration: 0.9, ease: 'power2.out' });
+      gsap.from('.hero p', { y: 24, opacity: 0, duration: 0.8, delay: 0.15, stagger: 0.08, ease: 'power2.out' });
+      gsap.from('nav a', { y: -16, opacity: 0, duration: 0.45, stagger: 0.06, ease: 'power2.out' });
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,500 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ye Olde Micro-Chivalry Tattoo & Armory</title>
+    
+    <link rel="stylesheet" href="/assets/css/pico.min.css">
+    <link rel="stylesheet" href="/assets/css/fonts.css">
+    
+    <style>
+        :root {
+            --bg-color: #eaf2f8; /* Pale Blue Silver */
+            --text-color: #273746; /* Dark Slate */
+            --primary-color: #a9cce3; /* Soft Blue */
+            --border-color: #d6eaf8; /* Lighter Blue */
+            --accent-color: #5d6d7e; /* Slate Gray */
+            --glitch-text-color: #3498db;
+            --error-color: #c0392b;
+
+            --font-main: 'Space Grotesk', sans-serif;
+            --font-mono: 'IBM Plex Mono', monospace;
+            --font-serif: 'Crimson Pro', serif;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            font-family: var(--font-main);
+            color: var(--text-color);
+            font-size: 16px;
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        /* High Contrast Text Mandate */
+        h1, h2, h3, h4, h5, h6, p, a, span, div, strong, em, label, input, button, textarea, th, td, li, figcaption {
+            color: var(--text-color);
+            opacity: 1 !important; /* Override any inherited opacity */
+        }
+        ::placeholder { color: var(--accent-color); opacity: 1; }
+        .muted { color: var(--accent-color); }
+        .error-text { color: var(--error-color); }
+
+        .container {
+            max-width: 1600px;
+            padding: 1rem;
+            margin: 0 auto;
+        }
+
+        /* Glitchcore Y2K Government Portal Aesthetic */
+        @keyframes glitch {
+            0% { transform: translate(0); }
+            20% { transform: translate(-2px, 2px); }
+            40% { transform: translate(-2px, -2px); }
+            60% { transform: translate(2px, 2px); }
+            80% { transform: translate(2px, -2px); }
+            100% { transform: translate(0); }
+        }
+
+        @keyframes ticker {
+            0% { transform: translateX(100%); }
+            100% { transform: translateX(-100%); }
+        }
+
+        .site-header {
+            border: 2px solid var(--border-color);
+            background: linear-gradient(135deg, #ffffff, #f1f6f9);
+            padding: 0.5rem;
+            text-align: center;
+            margin-bottom: 2rem;
+            animation: glitch 0.3s infinite linear alternate-reverse;
+        }
+
+        .site-header h1 {
+            font-family: var(--font-mono);
+            font-size: clamp(1rem, 4vw, 1.75rem);
+            font-weight: 700;
+            color: var(--text-color);
+            margin: 0;
+            text-shadow: 1px 1px 0 var(--glitch-text-color), -1px -1px 0 #ff00ff;
+        }
+
+        .ticker-wrap {
+            width: 100%;
+            overflow: hidden;
+            background-color: var(--text-color);
+            color: var(--bg-color);
+            padding: 0.25rem 0;
+            margin-top: 0.5rem;
+        }
+        .ticker-wrap .ticker {
+            display: inline-block;
+            white-space: nowrap;
+            padding-left: 100%;
+            animation: ticker 25s linear infinite;
+        }
+        .ticker-wrap .ticker span {
+            color: var(--bg-color);
+            margin: 0 2rem;
+            font-family: var(--font-mono);
+        }
+
+        /* Newspaper Layout */
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .panel {
+            border: 1px solid var(--border-color);
+            background-color: #fff;
+            padding: 1.5rem;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+            display: flex;
+            flex-direction: column;
+        }
+        .panel-title {
+            font-family: var(--font-serif);
+            font-weight: 600;
+            font-size: 1.5rem;
+            border-bottom: 2px solid var(--primary-color);
+            padding-bottom: 0.5rem;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        /* Interactive Elements */
+        button, .button {
+            min-height: 44px;
+            background-color: var(--text-color);
+            color: var(--bg-color);
+            border: 2px solid var(--accent-color);
+            font-family: var(--font-main);
+            font-weight: 700;
+            box-shadow: 2px 2px 0 var(--accent-color);
+            transition: all 0.1s ease-in-out;
+        }
+        button:hover, .button:hover {
+            background-color: var(--accent-color);
+            color: #fff;
+            transform: translate(1px, 1px);
+            box-shadow: 1px 1px 0 var(--accent-color);
+        }
+
+        .countdown-timer, .live-counter {
+            font-family: var(--font-mono);
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--glitch-text-color);
+            background-color: var(--bg-color);
+            padding: 0.5rem 1rem;
+            text-align: center;
+            border: 1px dashed var(--primary-color);
+            margin-bottom: 1rem;
+        }
+        
+        .css-chart {
+            flex-grow: 1;
+            display: flex;
+            align-items: flex-end;
+            gap: 5px;
+            padding: 1rem;
+            background-color: #f8f9fa;
+            border: 1px solid var(--border-color);
+        }
+        .css-chart-bar {
+            flex-grow: 1;
+            background-color: var(--primary-color);
+            position: relative;
+        }
+        .css-chart-bar::after {
+            content: attr(data-label);
+            position: absolute;
+            bottom: -20px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 0.7rem;
+            font-family: var(--font-mono);
+        }
+
+        /* Codex Table */
+        .codex-table { width: 100%; border-collapse: collapse; margin-top: 1.5rem; }
+        .codex-table th, .codex-table td {
+            border: 1px solid var(--border-color);
+            padding: 0.75rem;
+            text-align: left;
+        }
+        .codex-table th { background-color: #f1f6f9; font-family: var(--font-serif); font-weight: 700; }
+        .codex-table td .muted { font-size: 0.9em; }
+        
+        /* FAQ */
+        .faq-item { margin-bottom: 0.5rem; border: 1px solid var(--border-color); }
+        .faq-question {
+            background-color: #fff;
+            padding: 0.75rem 1rem;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-weight: 700;
+        }
+        .faq-answer {
+            background-color: #f8f9fa;
+            padding: 1rem;
+            border-top: 1px solid var(--border-color);
+        }
+
+        /* The Gauntlet */
+        .gauntlet-step {
+            border: 1px dashed var(--accent-color);
+            padding: 1rem;
+            margin-bottom: 1rem;
+            background: #fff;
+        }
+
+        /* Footer */
+        .site-footer {
+            margin-top: 3rem;
+            border-top: 4px double var(--text-color);
+            padding-top: 1.5rem;
+            text-align: center;
+            font-family: var(--font-mono);
+            font-size: 0.8rem;
+        }
+        .footer-seal {
+            width: 80px;
+            height: 80px;
+            border: 2px solid var(--text-color);
+            border-radius: 50%;
+            margin: 0 auto 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            font-weight: bold;
+            font-size: 0.7rem;
+            transform: rotate(-15deg);
+        }
+        .footer-disclaimer {
+            max-width: 600px;
+            margin: 1rem auto;
+            font-style: italic;
+            color: var(--accent-color);
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            body { font-size: 15px; }
+            .panel { padding: 1rem; }
+            .site-header h1 { font-size: 1.2rem; }
+            .dashboard-grid { grid-template-columns: 1fr; }
+        }
+
+        /* Ensure bottom-right is clear */
+        body::after {
+            content: "";
+            position: fixed;
+            bottom: 0;
+            right: 0;
+            width: 150px;
+            height: 150px;
+            pointer-events: none;
+        }
+    </style>
+</head>
+<body x-data="{ 
+    armorCompliant: null,
+    soulsSaved: 17,
+    countdown: { days: 0, hours: 0, minutes: 0, seconds: 0 },
+    activeFaq: null,
+    gauntletStep: 1,
+    gauntletCanvas: 'undecided',
+    init() {
+        this.updateCountdown();
+        setInterval(() => this.updateCountdown(), 1000);
+        lucide.createIcons();
+    },
+    updateCountdown() {
+        const now = new Date();
+        const nextSlot = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1, 10, 0, 0); // Next day at 10 AM
+        const diff = nextSlot - now;
+
+        this.countdown.days = Math.floor(diff / (1000 * 60 * 60 * 24));
+        this.countdown.hours = Math.floor((diff / (1000 * 60 * 60)) % 24);
+        this.countdown.minutes = Math.floor((diff / 1000 / 60) % 60);
+        this.countdown.seconds = Math.floor((diff / 1000) % 60);
+    },
+    toggleFaq(index) {
+        this.activeFaq = this.activeFaq === index ? null : index;
+    }
+}">
+
+    <header class="site-header">
+        <h1>Ye Olde Micro-Chivalry Tattoo & Armory</h1>
+        <p class="muted" style="margin:0; font-family: var(--font-mono); font-size: 0.9rem;">DEPARTMENT OF MINIATURE SANCTITY, LOCAL EDICT 3A-iv</p>
+    </header>
+
+    <div class="ticker-wrap">
+        <div class="ticker">
+            <span>NOTICE: Un-armored patrons will be met with polite disdain and a surcharge.</span>
+            <span>RUMOR MILL: Big Chad's Ink Slop-Shop uses a power drill. You have been warned.</span>
+            <span>VASSAL APPLICATIONS: Inquire via raven ONLY.</span>
+            <span>DAILY AFFIRMATION: True honor fits on a thumbnail.</span>
+            <span>MANDATE 7B.4: Full plate is not optional. It is a courtesy.</span>
+        </div>
+    </div>
+
+    <main class="container">
+        <div class="dashboard-grid">
+            
+            <!-- Panel 1: Armor Compliance -->
+            <div class="panel" x-init="gsap.fromTo($el, {y:20, opacity:0}, {y:0, opacity:1, duration:0.6, delay: 0.1, clearProps:'all'})">
+                <h2 class="panel-title"><i data-lucide="shield-check"></i>Armor Compliance</h2>
+                <p>In accordance with Mandate 7B.4, all petitioners must be attired in regulation-grade armor. Please confirm your status.</p>
+                <p class="muted" style="font-size: 0.8rem;">Failure to comply is an affront to chivalry itself.</p>
+                
+                <div style="margin: 1rem 0; display: flex; gap: 1rem;">
+                    <button @click="armorCompliant = true" :class="{'active': armorCompliant === true}">Yes, I am Armored</button>
+                    <button @click="armorCompliant = false" :class="{'active': armorCompliant === false}">No, I am a Cad</button>
+                </div>
+
+                <template x-if="armorCompliant === true">
+                    <p style="color: #27ae60; font-weight: bold;">Huzzah! A true gentleperson of honor. You may proceed with dignity.</p>
+                </template>
+                <template x-if="armorCompliant === false">
+                    <div class="error-text" style="border: 1px solid var(--error-color); padding: 1rem;">
+                        <strong style="color: inherit;">A grievous error!</strong> Your lack of basic decorum has been noted. We cannot in good conscience serve an un-plated lout. Peruse our list of approved smiths and return when you are decent.
+                        <a href="#" style="display: block; margin-top: 0.5rem;">[View Approved Armorers List - Form 9C]</a>
+                    </div>
+                </template>
+            </div>
+
+            <!-- Panel 2: Crusade Briefing -->
+            <div class="panel" x-init="gsap.fromTo($el, {y:20, opacity:0}, {y:0, opacity:1, duration:0.6, delay: 0.2, clearProps:'all'})">
+                <h2 class="panel-title"><i data-lucide="swords"></i>Daily Crusade Briefing</h2>
+                <p>The battle against gaudy, oversized skin-stains is eternal. The next opportunity for righteous inscription approaches:</p>
+                <div class="countdown-timer">
+                    <span x-text="countdown.hours.toString().padStart(2, '0')"></span>:
+                    <span x-text="countdown.minutes.toString().padStart(2, '0')"></span>:
+                    <span x-text="countdown.seconds.toString().padStart(2, '0')"></span>
+                </div>
+                <p class="muted" style="text-align: center; margin-top: -1rem; margin-bottom: 1rem;">Until next appointment</p>
+
+                <p>Souls Saved from Gaudy Tattoos Today:</p>
+                <div class="live-counter" x-text="soulsSaved"></div>
+                <button @click="soulsSaved++">Log Another Aesthetic Victory</button>
+            </div>
+            
+            <!-- Panel 3: Sanctity Index -->
+            <div class="panel" x-init="gsap.fromTo($el, {y:20, opacity:0}, {y:0, opacity:1, duration:0.6, delay: 0.3, clearProps:'all'})">
+                <h2 class="panel-title"><i data-lucide="bar-chart-3"></i>Local Sanctity Index</h2>
+                <p>Regional purity levels since our crusade began. The data is incontrovertible.</p>
+                <div class="css-chart" aria-label="A bar chart showing rising sanctity levels">
+                    <div class="css-chart-bar" style="height: 30%;" data-label="Q1"></div>
+                    <div class="css-chart-bar" style="height: 50%;" data-label="Q2"></div>
+                    <div class="css-chart-bar" style="height: 85%;" data-label="Q3"></div>
+                    <div class="css-chart-bar" style="height: 95%;" data-label="Current"></div>
+                </div>
+                <figcaption class="muted" style="font-size: 0.8rem; text-align: center; margin-top: 1.5rem;">Source: Dept. of Miniature Sanctity, Bureau of Subjective Metrics.</figcaption>
+            </div>
+        </div>
+
+        <!-- Micro-Chivalry Codex -->
+        <div class="panel" style="margin-top: 2rem;" x-init="gsap.fromTo($el, {y:20, opacity:0}, {y:0, opacity:1, duration:0.6, delay: 0.4, clearProps:'all'})">
+            <h2 class="panel-title"><i data-lucide="book-open"></i>The Micro-Chivalry Codex</h2>
+            <p>A selection of approved heraldic inscriptions. All work is guaranteed to be smaller than a silver groat and rendered with a single-bristle brush.</p>
+            <table class="codex-table">
+                <thead>
+                    <tr>
+                        <th>Inscription</th>
+                        <th>Description</th>
+                        <th>Honorarium</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>The Flea-Sized Flail</strong></td>
+                        <td>A symbol of your righteous fury, barely visible to the naked eye. Perfect for the pinky knuckle.</td>
+                        <td>14 Gold Sovereigns</td>
+                    </tr>
+                    <tr>
+                        <td><strong>The Gnat's-Wing Griffin</strong></td>
+                        <td>For those whose honor is as delicate as it is fierce. Recommended for placement upon a single freckle.</td>
+                        <td>18 Gold Sovereigns</td>
+                    </tr>
+                    <tr>
+                        <td><strong>The Mite's Mettle</strong></td>
+                        <td>A full portrait of St. George battling a particularly stubborn dust bunny. Requires a jeweler's loupe for appreciation.</td>
+                        <td>25 Gold Sovereigns</td>
+                    </tr>
+                    <tr>
+                        <td><strong>The Modest Moat</strong></td>
+                        <td>A simple, elegant line encircling a chosen pore. A statement of quiet defensibility.</td>
+                        <td>12 Gold Sovereigns</td>
+                    </tr>
+                </tbody>
+            </table>
+             <p class="muted" style="font-size: 0.8rem; margin-top: 1rem;">*Bartering will be met with a silent, judgmental stare. Don't embarrass us both.</p>
+        </div>
+        
+        <div class="dashboard-grid" style="margin-top: 2rem;">
+            <!-- Panel 4: Testimonials -->
+            <div class="panel" x-init="gsap.fromTo($el, {y:20, opacity:0}, {y:0, opacity:1, duration:0.6, delay: 0.5, clearProps:'all'})">
+                <h2 class="panel-title"><i data-lucide="scroll-text"></i>Roll of Esteemed Patrons</h2>
+                <blockquote style="margin:0;">
+                    <p>"I barely felt a thing, and now I carry the crest of my ancestors on my thumbnail. The clarity is astonishing under a 40x microscope. Reginald runs a fine establishment."</p>
+                    <footer style="font-weight: bold; color: var(--accent-color);">- Sir Barnaby the Bold (and now, minutely decorated)</footer>
+                </blockquote>
+                <hr>
+                <blockquote style="margin:0;">
+                    <p>"The complimentary chainmail polishing while I waited was a lovely touch. My Gnat's-Wing Griffin is the talk of the court, once I point out where it is."</p>
+                    <footer style="font-weight: bold; color: var(--accent-color);">- Lady Gwendoline of the Whispering Pines</footer>
+                </blockquote>
+            </div>
+
+            <!-- Panel 5: FAQ -->
+            <div class="panel" x-init="gsap.fromTo($el, {y:20, opacity:0}, {y:0, opacity:1, duration:0.6, delay: 0.6, clearProps:'all'})">
+                <h2 class="panel-title"><i data-lucide="help-circle"></i>Frequently Asked Queries</h2>
+                <div class="faq-item">
+                    <div class="faq-question" @click="toggleFaq(1)">
+                        <span>Do I really need to wear armor?</span>
+                        <i :data-lucide="activeFaq === 1 ? 'chevron-up' : 'chevron-down'"></i>
+                    </div>
+                    <div class="faq-answer" x-show="activeFaq === 1" x-transition>
+                        Does a knight need a steed? Does a king need a crown? Do not trifle. See Mandate 7B.4. It is a matter of basic workshop safety and common decency.
+                    </div>
+                </div>
+                <div class="faq-item">
+                    <div class="faq-question" @click="toggleFaq(2)">
+                        <span>Can I get a tattoo of a skull on fire?</span>
+                         <i :data-lucide="activeFaq === 2 ? 'chevron-up' : 'chevron-down'"></i>
+                    </div>
+                    <div class="faq-answer" x-show="activeFaq === 2" x-transition>
+                        We traffic in heraldry, not barbarism. Perhaps you'd be interested in a tasteful, microscopic rendering of a chalice? Or a very small wheat sheaf? We find these better reflect a noble character.
+                    </div>
+                </div>
+                <div class="faq-item">
+                    <div class="faq-question" @click="toggleFaq(3)">
+                        <span>Is it painful?</span>
+                         <i :data-lucide="activeFaq === 3 ? 'chevron-up' : 'chevron-down'"></i>
+                    </div>
+                    <div class="faq-answer" x-show="activeFaq === 3" x-transition>
+                        Less painful than the shame of a large, poorly-conceived tattoo of a cartoon character. The discomfort is fleeting; the honor is eternal (and microscopic).
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- The Gauntlet -->
+        <div class="panel" style="margin-top: 2rem;" x-init="gsap.fromTo($el, {y:20, opacity:0}, {y:0, opacity:1, duration:0.6, delay: 0.7, clearProps:'all'})">
+            <h2 class="panel-title"><i data-lucide="castle"></i>The Gauntlet: Petition for Inscription</h2>
+            <p>To request an audience, you must prove your worth by navigating these trials.</p>
+
+            <div x-show="gauntletStep === 1" class="gauntlet-step">
+                <h3>Step 1: Declare Your Allegiance</h3>
+                <p>Swear fealty to the Code of Micro-Chivalry, renouncing all affection for ostentatious and needlessly large body art.</p>
+                <button @click="gauntletStep = 2">I So Swear</button>
+            </div>
+
+            <div x-show="gauntletStep === 2" class="gauntlet-step" x-transition:enter>
+                <h3>Step 2: Choose Your Canvas</h3>
+                <p>Indicate the site of your future honor. Choose wisely. Your selection is <span style="text-decoration: underline;">binding</span>.</p>
+                <select x-model="gauntletCanvas">
+                    <option value="undecided" disabled>Select a worthy location...</option>
+                    <option value="The upper knuckle of the index finger">Upper Knuckle, Index Finger</option>
+                    <option value="The space between two eyelashes">Space Between Two Eyelashes</option>
+                    <option value="A prominent forehead vein">A Prominent Forehead Vein</option>
+                    <option value="The left side of a specific hangnail">The Left Side of a Hangnail</option>
+                </select>
+                <p class="muted" style="margin-top: 1rem;">You have selected: <strong x-text="gauntletCanvas" style="color: var(--text-color);"></strong>.</p>
+                <button @click="gauntletStep = 3" :disabled="gauntletCanvas === 'undecided'">Confirm Canvas & Proceed</button>
+            </div>
+
+            <div x-show="gauntletStep === 3" class="gauntlet-step" x-transition:enter>
+                <h3>Step 3: Awaiting the Summons</h3>
+                <p>Your petition has been received and recorded on vellum. If your cause is deemed worthy, a raven will be dispatched to your coordinates within 3-5 business fortnights.</p>
+                <p style="font-weight: bold;">Do not contact us. We will contact you, should your worthiness be established.</p>
+                <button @click="gauntletStep = 1; gauntletCanvas = 'undecided'">File Another Petition</button>
+            </div>
+        </div>
+
+    </main>
+
+    <footer class="site-footer">
+        <div class="footer-seal">
+            OFFICIAL DECREE of SANCTITY
+        </div>
+        <p>BY ORDER OF SIR REGINALD THIMBLEWORTH III</p>
+        <p class="footer-disclaimer">This establishment is not liable for honor-duels instigated on the premises, eye-strain from attempting to view your tattoo, or sudden onsets of intense personal dignity. All honorariums are final. No refunds, no regrets.</p>
+        <p>LAST SYSTEM SYNC: 14:32:01 GMT, YEAR OF OUR LORD 1066 (STABLE)</p>
+    </footer>
+
+    <script src="/assets/js/alpine.min.js" defer></script>
+    <script src="/assets/js/gsap.min.js"></script>
+    <script src="/assets/js/lucide.min.js"></script>
+</body>
+</html>

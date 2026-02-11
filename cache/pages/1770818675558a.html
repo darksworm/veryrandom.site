@@ -1,0 +1,1304 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Buoyant Gazette — Truth Rises</title>
+<link rel="stylesheet" href="/assets/css/fonts.css">
+<script src="/assets/js/alpine.min.js" defer></script>
+<script src="/assets/js/gsap.min.js"></script>
+<script src="/assets/js/lucide.min.js"></script>
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --deep-ocean: #0a1628;
+  --ocean-mid: #0f2240;
+  --ocean-light: #162d50;
+  --bio-green: #00ff88;
+  --bio-green-dim: #00cc6a;
+  --bio-cyan: #00e5ff;
+  --bio-teal: #00bfa5;
+  --warning-amber: #ffab00;
+  --panic-red: #ff3d57;
+  --text-primary: #e8ecf1;
+  --text-secondary: #b0bec5;
+  --text-muted: #7a8fa0;
+  --border-color: #1a3a5c;
+  --panel-bg: rgba(15, 34, 64, 0.85);
+  --grit-overlay: url("data:image/svg+xml,%3Csvg width='4' height='4' xmlns='http://www.w3.org/2000/svg'%3E%3Crect width='1' height='1' fill='%23ffffff' opacity='0.03'/%3E%3C/svg%3E");
+}
+
+body {
+  font-family: 'IBM Plex Mono', monospace;
+  background: var(--deep-ocean);
+  color: var(--text-primary);
+  min-height: 100vh;
+  overflow-x: hidden;
+  line-height: 1.5;
+  font-size: 16px;
+  background-image: var(--grit-overlay);
+}
+
+/* SCROLLBAR */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: var(--deep-ocean); }
+::-webkit-scrollbar-thumb { background: var(--bio-green-dim); border-radius: 3px; }
+
+/* TICKER BAR */
+.ticker-bar {
+  background: #061018;
+  border-bottom: 1px solid var(--border-color);
+  overflow: hidden;
+  white-space: nowrap;
+  height: 32px;
+  display: flex;
+  align-items: center;
+}
+.ticker-track {
+  display: inline-flex;
+  animation: ticker-scroll 60s linear infinite;
+  gap: 2rem;
+}
+@keyframes ticker-scroll {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+.ticker-item {
+  font-size: 12px;
+  color: var(--text-secondary);
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0;
+}
+.ticker-item .up { color: var(--bio-green); }
+.ticker-item .down { color: var(--panic-red); }
+.ticker-item .flat { color: var(--warning-amber); }
+
+/* NAV */
+nav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 24px;
+  border-bottom: 1px solid var(--border-color);
+  background: var(--ocean-mid);
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.nav-logo {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: clamp(16px, 3vw, 22px);
+  font-weight: 700;
+  color: var(--bio-green);
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.nav-logo .live-dot {
+  width: 8px; height: 8px;
+  background: var(--panic-red);
+  border-radius: 50%;
+  animation: pulse-dot 1.5s ease-in-out infinite;
+}
+@keyframes pulse-dot {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.3; }
+}
+.nav-links {
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+.nav-links a {
+  color: var(--text-secondary);
+  text-decoration: none;
+  font-size: 13px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  transition: color 0.2s;
+}
+.nav-links a:hover { color: var(--bio-green); }
+.nav-status {
+  font-size: 11px;
+  color: var(--text-muted);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.nav-status .status-ok { color: var(--bio-green); }
+
+/* HERO SPLIT */
+.hero-split {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  min-height: 420px;
+  border-bottom: 1px solid var(--border-color);
+}
+.hero-left {
+  padding: clamp(20px, 4vw, 48px);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  border-right: 1px solid var(--border-color);
+  background: var(--ocean-mid);
+}
+.hero-right {
+  padding: clamp(20px, 4vw, 48px);
+  background: var(--deep-ocean);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+.hero-edition {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 3px;
+  color: var(--bio-green);
+  margin-bottom: 12px;
+}
+.hero-headline {
+  font-family: 'Playfair Display', serif;
+  font-size: clamp(28px, 5vw, 52px);
+  font-weight: 700;
+  line-height: 1.1;
+  color: #ffffff;
+  margin-bottom: 16px;
+}
+.hero-subtitle {
+  font-size: clamp(14px, 1.5vw, 16px);
+  color: var(--text-secondary);
+  margin-bottom: 24px;
+  max-width: 480px;
+}
+.hero-meta {
+  display: flex;
+  gap: 20px;
+  flex-wrap: wrap;
+  font-size: 12px;
+  color: var(--text-muted);
+}
+.hero-meta span { display: flex; align-items: center; gap: 4px; }
+
+/* DASHBOARD PANEL */
+.dash-title {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 13px;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  color: var(--bio-green);
+  margin-bottom: 16px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.dash-title .blink {
+  animation: pulse-dot 1s ease-in-out infinite;
+  color: var(--panic-red);
+}
+.fleet-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+.fleet-card {
+  background: var(--panel-bg);
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  padding: 14px;
+}
+.fleet-card-label {
+  font-size: 11px;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  letter-spacing: 1px;
+  margin-bottom: 4px;
+}
+.fleet-card-value {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: clamp(22px, 3vw, 32px);
+  font-weight: 700;
+  color: #ffffff;
+}
+.fleet-card-value.green { color: var(--bio-green); }
+.fleet-card-value.amber { color: var(--warning-amber); }
+.fleet-card-value.red { color: var(--panic-red); }
+.fleet-card-delta {
+  font-size: 11px;
+  margin-top: 2px;
+}
+
+/* EMOTIONAL MARKETS */
+.section { padding: clamp(24px, 4vw, 48px); }
+.section-border { border-bottom: 1px solid var(--border-color); }
+
+.markets-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.markets-title {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: clamp(18px, 2.5vw, 24px);
+  font-weight: 700;
+  color: #ffffff;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+}
+.markets-updated {
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+.market-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+}
+.market-table th {
+  text-align: left;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: var(--text-muted);
+  padding: 8px 12px;
+  border-bottom: 1px solid var(--border-color);
+}
+.market-table td {
+  padding: 10px 12px;
+  border-bottom: 1px solid rgba(26, 58, 92, 0.4);
+  color: var(--text-primary);
+}
+.market-table tr:hover { background: rgba(0, 255, 136, 0.03); }
+.market-table .symbol {
+  font-weight: 700;
+  color: #ffffff;
+  font-family: 'Space Grotesk', sans-serif;
+}
+.market-table .change-pos { color: var(--bio-green); }
+.market-table .change-neg { color: var(--panic-red); }
+.market-table .vol { color: var(--text-secondary); }
+
+.mini-chart {
+  display: inline-flex;
+  align-items: flex-end;
+  gap: 2px;
+  height: 20px;
+}
+.mini-chart span {
+  width: 3px;
+  background: var(--bio-green);
+  border-radius: 1px;
+  display: inline-block;
+}
+
+/* HEADLINES GRID */
+.headlines-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 16px;
+}
+.headline-card {
+  background: var(--panel-bg);
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  padding: 20px;
+  transition: border-color 0.2s;
+  cursor: pointer;
+}
+.headline-card:hover { border-color: var(--bio-green); }
+.headline-tag {
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  padding: 2px 8px;
+  border-radius: 2px;
+  display: inline-block;
+  margin-bottom: 10px;
+  font-weight: 700;
+}
+.tag-breaking { background: var(--panic-red); color: #ffffff; }
+.tag-opinion { background: var(--warning-amber); color: #000000; }
+.tag-feature { background: var(--bio-green); color: #000000; }
+.tag-obit { background: #6b4c9a; color: #ffffff; }
+.tag-weather { background: var(--bio-cyan); color: #000000; }
+.headline-card h3 {
+  font-family: 'Playfair Display', serif;
+  font-size: 18px;
+  color: #ffffff;
+  margin-bottom: 8px;
+  line-height: 1.3;
+}
+.headline-card p {
+  font-size: 13px;
+  color: var(--text-secondary);
+  line-height: 1.5;
+}
+.headline-card .byline {
+  font-size: 11px;
+  color: var(--text-muted);
+  margin-top: 10px;
+}
+
+/* EDITOR'S NOTE SPLIT */
+.editor-split {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  border-bottom: 1px solid var(--border-color);
+}
+.editor-left {
+  padding: clamp(20px, 4vw, 48px);
+  background: var(--ocean-mid);
+  border-right: 1px solid var(--border-color);
+}
+.editor-right {
+  padding: clamp(20px, 4vw, 48px);
+  background: var(--deep-ocean);
+}
+.editor-portrait {
+  width: 80px; height: 80px;
+  border-radius: 50%;
+  background: var(--ocean-light);
+  border: 2px solid var(--bio-green);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 32px;
+  margin-bottom: 16px;
+  color: var(--bio-green);
+  font-family: 'Playfair Display', serif;
+}
+.editor-name {
+  font-family: 'Playfair Display', serif;
+  font-size: 22px;
+  color: #ffffff;
+  margin-bottom: 4px;
+}
+.editor-role {
+  font-size: 12px;
+  color: var(--bio-green);
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  margin-bottom: 16px;
+}
+.editor-note p {
+  font-size: 14px;
+  color: var(--text-secondary);
+  margin-bottom: 12px;
+  line-height: 1.7;
+}
+.footnote {
+  font-size: 11px;
+  color: var(--text-muted);
+  border-top: 1px solid var(--border-color);
+  padding-top: 8px;
+  margin-top: 8px;
+}
+sup { color: var(--bio-green); font-weight: 700; }
+
+/* STAFF TABLE */
+.staff-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+.staff-table th {
+  text-align: left;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: var(--text-muted);
+  padding: 8px 10px;
+  border-bottom: 1px solid var(--border-color);
+}
+.staff-table td {
+  padding: 10px;
+  border-bottom: 1px solid rgba(26, 58, 92, 0.4);
+  color: var(--text-secondary);
+}
+.staff-table .name { color: #ffffff; font-weight: 700; }
+.staff-table .balloon-name { color: var(--bio-green); font-style: italic; }
+
+/* SUBSCRIBE */
+.subscribe-section {
+  background: linear-gradient(135deg, var(--ocean-mid), var(--deep-ocean));
+  border-bottom: 1px solid var(--border-color);
+  padding: clamp(24px, 4vw, 48px);
+  text-align: center;
+}
+.subscribe-section h2 {
+  font-family: 'Playfair Display', serif;
+  font-size: clamp(24px, 4vw, 40px);
+  color: #ffffff;
+  margin-bottom: 12px;
+}
+.subscribe-section .sub-desc {
+  font-size: 15px;
+  color: var(--text-secondary);
+  max-width: 600px;
+  margin: 0 auto 24px;
+  line-height: 1.6;
+}
+.subscribe-box {
+  background: var(--panel-bg);
+  border: 2px solid var(--bio-green);
+  border-radius: 6px;
+  padding: 32px;
+  max-width: 500px;
+  margin: 0 auto;
+  text-align: left;
+}
+.subscribe-box h3 {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 20px;
+  color: var(--bio-green);
+  margin-bottom: 4px;
+}
+.subscribe-price {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 36px;
+  font-weight: 700;
+  color: #ffffff;
+  margin-bottom: 4px;
+}
+.subscribe-price small {
+  font-size: 14px;
+  color: var(--text-secondary);
+  font-weight: 400;
+}
+.subscribe-includes {
+  list-style: none;
+  margin: 16px 0;
+  padding: 0;
+}
+.subscribe-includes li {
+  font-size: 14px;
+  color: var(--text-secondary);
+  padding: 6px 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.subscribe-includes li::before {
+  content: '↑';
+  color: var(--bio-green);
+  font-weight: 700;
+}
+.btn-subscribe {
+  display: inline-block;
+  background: var(--bio-green);
+  color: #000000;
+  font-family: 'Space Grotesk', sans-serif;
+  font-weight: 700;
+  font-size: 14px;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  padding: 12px 32px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background 0.2s;
+  width: 100%;
+  text-align: center;
+  min-height: 48px;
+}
+.btn-subscribe:hover { background: var(--bio-cyan); }
+
+/* FAQ */
+.faq-item {
+  border-bottom: 1px solid var(--border-color);
+  padding: 16px 0;
+}
+.faq-q {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 15px;
+  font-weight: 700;
+  color: #ffffff;
+  cursor: pointer;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  min-height: 44px;
+}
+.faq-q:hover { color: var(--bio-green); }
+.faq-a {
+  font-size: 14px;
+  color: var(--text-secondary);
+  padding-top: 10px;
+  line-height: 1.7;
+}
+
+/* DISCLAIMERS */
+.disclaimers {
+  background: #060e18;
+  padding: clamp(16px, 3vw, 32px);
+  border-top: 1px solid var(--border-color);
+}
+.disclaimers p {
+  font-size: 10px;
+  color: #7a8fa0;
+  line-height: 1.7;
+  margin-bottom: 6px;
+}
+
+/* FOOTER */
+footer {
+  background: var(--ocean-mid);
+  border-top: 1px solid var(--border-color);
+  padding: clamp(16px, 3vw, 32px);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+footer .footer-left {
+  font-size: 12px;
+  color: var(--text-muted);
+}
+footer .footer-addr {
+  font-size: 11px;
+  color: var(--text-muted);
+  text-align: right;
+}
+
+/* INTERACTIVE BITS */
+.toggle-btn {
+  background: var(--ocean-light);
+  border: 1px solid var(--border-color);
+  color: var(--text-secondary);
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 12px;
+  padding: 6px 14px;
+  border-radius: 3px;
+  cursor: pointer;
+  transition: all 0.2s;
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
+}
+.toggle-btn:hover, .toggle-btn.active {
+  border-color: var(--bio-green);
+  color: var(--bio-green);
+}
+
+/* ALTITUDE METER */
+.altitude-bar {
+  height: 6px;
+  background: var(--ocean-light);
+  border-radius: 3px;
+  margin-top: 6px;
+  overflow: hidden;
+}
+.altitude-fill {
+  height: 100%;
+  border-radius: 3px;
+  transition: width 0.5s ease;
+}
+
+/* STATS MINI ROW */
+.stats-row {
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
+  margin-top: 12px;
+}
+.stat-mini {
+  font-size: 11px;
+  color: var(--text-muted);
+}
+.stat-mini strong {
+  color: var(--text-primary);
+  font-family: 'Space Grotesk', sans-serif;
+}
+
+/* ADDRESS GLITCH */
+@keyframes glitch-text {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.95; }
+}
+
+/* RESPONSIVE */
+@media (max-width: 768px) {
+  .hero-split, .editor-split {
+    grid-template-columns: 1fr;
+  }
+  .hero-left { border-right: none; border-bottom: 1px solid var(--border-color); }
+  .editor-left { border-right: none; border-bottom: 1px solid var(--border-color); }
+  .fleet-grid { grid-template-columns: 1fr 1fr; }
+  .nav-links { display: none; }
+  .market-table { font-size: 12px; }
+  .market-table th, .market-table td { padding: 8px 6px; }
+  .headlines-grid { grid-template-columns: 1fr; }
+  .staff-table { font-size: 12px; }
+  footer { flex-direction: column; text-align: center; }
+}
+
+@media (max-width: 480px) {
+  .fleet-grid { grid-template-columns: 1fr; }
+  .hero-meta { flex-direction: column; gap: 6px; }
+}
+
+/* CONTROL PANEL */
+.controls-bar {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  padding: 12px 24px;
+  background: #060e18;
+  border-bottom: 1px solid var(--border-color);
+  align-items: center;
+}
+.controls-bar span {
+  font-size: 11px;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+/* WIND ADVISORY BANNER */
+.wind-banner {
+  background: rgba(255, 171, 0, 0.1);
+  border-bottom: 1px solid var(--warning-amber);
+  padding: 8px 24px;
+  font-size: 12px;
+  color: var(--warning-amber);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+</style>
+</head>
+<body x-data="gazetteApp()">
+
+<!-- TICKER -->
+<div class="ticker-bar">
+  <div class="ticker-track">
+    <template x-for="i in 2">
+      <template x-for="item in tickerItems">
+        <span class="ticker-item">
+          <strong x-text="item.symbol" style="color:#ffffff;"></strong>
+          <span x-text="item.price" style="color:#e8ecf1;"></span>
+          <span :class="item.dir > 0 ? 'up' : item.dir < 0 ? 'down' : 'flat'" x-text="item.change"></span>
+          <span style="color:#1a3a5c;">│</span>
+        </span>
+      </template>
+    </template>
+  </div>
+</div>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-logo">
+    <span class="live-dot"></span>
+    The Buoyant Gazette
+  </div>
+  <div class="nav-links">
+    <a href="#markets">Markets</a>
+    <a href="#headlines">Headlines</a>
+    <a href="#editor">Editor</a>
+    <a href="#subscribe">Subscribe</a>
+    <a href="#faq">FAQ</a>
+  </div>
+  <div class="nav-status">
+    <span class="status-ok">●</span>
+    <span>ALTITUDE: <strong x-text="currentAltitude + ' ft'" style="color:#e8ecf1;"></strong></span>
+  </div>
+</nav>
+
+<!-- WIND ADVISORY -->
+<div class="wind-banner" x-show="showWindBanner" x-transition>
+  <strong>⚠ WIND ADVISORY:</strong>
+  <span x-text="windMessage"></span>
+  <button class="toggle-btn" style="margin-left:auto;padding:2px 10px;min-height:28px;font-size:11px;" @click="showWindBanner = false">DISMISS</button>
+</div>
+
+<!-- CONTROLS BAR -->
+<div class="controls-bar">
+  <span>View:</span>
+  <button class="toggle-btn" :class="viewMode === 'live' && 'active'" @click="viewMode = 'live'">Live</button>
+  <button class="toggle-btn" :class="viewMode === 'archive' && 'active'" @click="viewMode = 'archive'">Archive</button>
+  <button class="toggle-btn" :class="viewMode === 'raw' && 'active'" @click="viewMode = 'raw'">Raw Feed</button>
+  <span style="margin-left:auto; font-size:11px; color:#7a8fa0;">
+    Uptime: <strong x-text="formatUptime()" style="color:#00ff88;"></strong>
+  </span>
+  <span style="font-size:11px; color:#7a8fa0;">
+    Readers aloft: <strong x-text="readersAloft" style="color:#e8ecf1;"></strong>
+  </span>
+</div>
+
+<!-- HERO SPLIT -->
+<section class="hero-split">
+  <div class="hero-left">
+    <div class="hero-edition">Vol. VII, No. <span x-text="issueNumber"></span> — <span x-text="currentDate"></span></div>
+    <h1 class="hero-headline">Local Sadness Reaches Record Altitude; City Council Votes to Ignore It</h1>
+    <p class="hero-subtitle">An unexpected pocket of ambient melancholy has been detected at 14,200 feet over the tri-county area. Our balloon correspondents are ascending to investigate. Coverage continues on page 7, which we lost somewhere over Bakersfield.</p>
+    <div class="hero-meta">
+      <span>By <strong style="color:#ffffff;">Margaret "Peggy" Vane</strong></span>
+      <span>Filed at <strong x-text="filedTime" style="color:#ffffff;"></strong></span>
+      <span>Altitude: <strong x-text="currentAltitude + ' ft'" style="color:#00ff88;"></strong></span>
+    </div>
+  </div>
+  <div class="hero-right">
+    <div class="dash-title">
+      <span class="blink">●</span> Fleet Status Dashboard
+    </div>
+    <div class="fleet-grid">
+      <div class="fleet-card">
+        <div class="fleet-card-label">Balloons Aloft</div>
+        <div class="fleet-card-value green" x-text="balloonsAloft"></div>
+        <div class="fleet-card-delta" style="color:#00ff88;">↑ 2 since dawn</div>
+      </div>
+      <div class="fleet-card">
+        <div class="fleet-card-label">Avg. Altitude</div>
+        <div class="fleet-card-value" x-text="avgAltitude + ' ft'"></div>
+        <div class="altitude-bar">
+          <div class="altitude-fill" :style="{width: (avgAltitude/200) + '%', background: avgAltitude > 8000 ? '#ff3d57' : '#00ff88'}"></div>
+        </div>
+      </div>
+      <div class="fleet-card">
+        <div class="fleet-card-label">HQ Location</div>
+        <div class="fleet-card-value amber" style="font-size:16px;" x-text="hqLocation"></div>
+        <div class="fleet-card-delta" style="color:#ffab00;">⚠ drifting NNE</div>
+      </div>
+      <div class="fleet-card">
+        <div class="fleet-card-label">Building Status</div>
+        <div class="fleet-card-value red" style="font-size:16px;" x-text="buildingStatus"></div>
+        <div class="fleet-card-delta" style="color:#b0bec5;" x-text="'Last seen: ' + buildingLastSeen"></div>
+      </div>
+    </div>
+    <div class="stats-row">
+      <div class="stat-mini">Sandbags: <strong x-text="sandbags"></strong></div>
+      <div class="stat-mini">Ink reserves: <strong x-text="inkPercent + '%'"></strong></div>
+      <div class="stat-mini">Morale: <strong x-text="morale"></strong></div>
+    </div>
+  </div>
+</section>
+
+<!-- EMOTIONAL MARKETS -->
+<section class="section section-border" id="markets">
+  <div class="markets-header">
+    <div>
+      <div class="markets-title">Emotional Markets</div>
+      <div class="markets-updated">Updated <span x-text="marketsLastUpdate"></span> · <span style="color:#00ff88;">LIVE</span></div>
+    </div>
+    <div style="display:flex;gap:6px;">
+      <button class="toggle-btn" :class="marketSort === 'volume' && 'active'" @click="marketSort = 'volume'">By Volume</button>
+      <button class="toggle-btn" :class="marketSort === 'change' && 'active'" @click="marketSort = 'change'">By Change</button>
+      <button class="toggle-btn" @click="shuffleMarkets()">↻ Refresh</button>
+    </div>
+  </div>
+  <div style="overflow-x:auto;">
+    <table class="market-table">
+      <thead>
+        <tr>
+          <th>Emotion</th>
+          <th>Symbol</th>
+          <th>Current</th>
+          <th>Change</th>
+          <th>Vol (24h)</th>
+          <th>Trend</th>
+        </tr>
+      </thead>
+      <tbody>
+        <template x-for="m in sortedMarkets()" :key="m.symbol">
+          <tr>
+            <td x-text="m.name" style="color:#e8ecf1;"></td>
+            <td class="symbol" x-text="m.symbol"></td>
+            <td x-text="m.price.toFixed(2)" style="color:#e8ecf1;"></td>
+            <td :class="m.change >= 0 ? 'change-pos' : 'change-neg'" x-text="(m.change >= 0 ? '+' : '') + m.change.toFixed(2) + '%'"></td>
+            <td class="vol" x-text="m.vol"></td>
+            <td>
+              <div class="mini-chart">
+                <template x-for="h in m.bars">
+                  <span :style="{height: h + 'px', background: m.change >= 0 ? '#00ff88' : '#ff3d57'}"></span>
+                </template>
+              </div>
+            </td>
+          </tr>
+        </template>
+      </tbody>
+    </table>
+  </div>
+  <p style="font-size:10px;color:#7a8fa0;margin-top:12px;">Emotional securities are not regulated by the SEC, FAA, or any grounded institution. Past feelings do not guarantee future feelings. Trade at your own emotional risk.</p>
+</section>
+
+<!-- HEADLINES -->
+<section class="section section-border" id="headlines">
+  <div class="markets-header">
+    <div class="markets-title">Latest Dispatches</div>
+    <button class="toggle-btn" @click="headlineView = headlineView === 'grid' ? 'list' : 'grid'" x-text="headlineView === 'grid' ? '☰ List' : '⊞ Grid'"></button>
+  </div>
+  <div class="headlines-grid" :style="headlineView === 'list' ? 'grid-template-columns:1fr' : ''">
+    <div class="headline-card" @click="expandedHeadline = expandedHeadline === 0 ? -1 : 0">
+      <span class="headline-tag tag-breaking">BREAKING</span>
+      <h3>Man's Ennui Registers on Weather Radar; FAA Issues Advisory</h3>
+      <p>A 43-year-old accountant's existential flatness was detected at 11,400 feet by our roving balloon correspondent Dimitri. "It showed up as a gray blob," Dimitri reported. "Like fog, but sadder."</p>
+      <template x-if="expandedHeadline === 0">
+        <p style="margin-top:10px;color:#b0bec5;font-size:13px;">UPDATE: The ennui has been upgraded to a Category 2 malaise. Residents are advised to stay indoors and think about something nice. Gerald has dispatched Balloon #4 ("The Tender Inquiry") to collect samples.</p>
+      </template>
+      <div class="byline">M. Vane · 23 min ago · Alt: 8,200 ft</div>
+    </div>
+    <div class="headline-card" @click="expandedHeadline = expandedHeadline === 1 ? -1 : 1">
+      <span class="headline-tag tag-feature">FEATURE</span>
+      <h3>Our Building Drifted Into Canadian Airspace Again; Staff Unaware for 6 Hours</h3>
+      <p>The Gazette's physical headquarters — a three-story brownstone attached to 14 weather balloons — crossed the 49th parallel Tuesday at approximately 3:17 AM.</p>
+      <template x-if="expandedHeadline === 1">
+        <p style="margin-top:10px;color:#b0bec5;font-size:13px;">Copy editor Brenda Moss noticed the drift when her AM radio switched to CBC. "I thought the accents were just a new style guide," she said. We have since been returned by the RCMP.</p>
+      </template>
+      <div class="byline">G. Tuft · 2 hr ago · Alt: 4,100 ft</div>
+    </div>
+    <div class="headline-card" @click="expandedHeadline = expandedHeadline === 2 ? -1 : 2">
+      <span class="headline-tag tag-opinion">OPINION</span>
+      <h3>I Interviewed My Own Disappointment and It Made Some Fair Points</h3>
+      <p>The disappointment was articulate, well-dressed, and arrived on time. "You peaked in 2011," it said, adjusting its cufflinks. I couldn't disagree.</p>
+      <template x-if="expandedHeadline === 2">
+        <p style="margin-top:10px;color:#b0bec5;font-size:13px;">It went on: "Remember when you thought you'd learn piano? That was cute." I asked if this was constructive. It shrugged. "I'm disappointment, Gerald, not a life coach."</p>
+      </template>
+      <div class="byline">G. Tuft · 5 hr ago · Alt: 6,700 ft</div>
+    </div>
+    <div class="headline-card" @click="expandedHeadline = expandedHeadline === 3 ? -1 : 3">
+      <span class="headline-tag tag-obit">OBITUARY</span>
+      <h3>Local Woman's Optimism, 1987–2024, Dies Quietly in a Wendy's Drive-Through</h3>
+      <p>Survived by its siblings Denial and Stubbornness. Preceded in death by her Ambition (2019) and her Tolerance for Small Talk (2016).</p>
+      <template x-if="expandedHeadline === 3">
+        <p style="margin-top:10px;color:#b0bec5;font-size:13px;">A memorial balloon release will be held Thursday. In lieu of flowers, the family asks that you stop saying "everything happens for a reason."</p>
+      </template>
+      <div class="byline">P. Vane · 8 hr ago · Alt: 3,400 ft</div>
+    </div>
+    <div class="headline-card" @click="expandedHeadline = expandedHeadline === 4 ? -1 : 4">
+      <span class="headline-tag tag-weather">WEATHER</span>
+      <h3>Emotional Forecast: Partly Anxious With a 70% Chance of Overthinking</h3>
+      <p>Temperatures in the low "why did I say that in 2009" range. Winds of vague regret from the southwest at 12 knots.</p>
+      <template x-if="expandedHeadline === 4">
+        <p style="margin-top:10px;color:#b0bec5;font-size:13px;">Extended forecast: Thursday looks confrontational. Friday features a warm front of unearned confidence moving in from the coast. Weekend: existential, clearing by Monday.</p>
+      </template>
+      <div class="byline">D. Kreel · 1 hr ago · Alt: 9,100 ft</div>
+    </div>
+    <div class="headline-card" @click="expandedHeadline = expandedHeadline === 5 ? -1 : 5">
+      <span class="headline-tag tag-breaking">BREAKING</span>
+      <h3>Printing Press Falls Out of Balloon #2; Tuesday Edition Now Handwritten</h3>
+      <p>The 1,200-pound Heidelberg press detached over rural Ohio. No injuries reported. One barn improved.</p>
+      <template x-if="expandedHeadline === 5">
+        <p style="margin-top:10px;color:#b0bec5;font-size:13px;">Gerald has asked all staff to practice their penmanship. "This is an opportunity," he said, visibly shaking. The Ohio barn owner has declined to return the press, calling it "a conversation piece."</p>
+      </template>
+      <div class="byline">Staff Report · 45 min ago · Alt: 7,800 ft</div>
+    </div>
+  </div>
+  <p style="font-size:10px;color:#7a8fa0;margin-top:16px;">Click any headline to expand. All dispatches filed via telegraph wire dangling from the gondola. Delivery times approximate and altitude-dependent.</p>
+</section>
+
+<!-- EDITOR'S NOTE SPLIT -->
+<section class="editor-split" id="editor">
+  <div class="editor-left">
+    <div class="editor-portrait">G</div>
+    <div class="editor-name">Gerald Tuft</div>
+    <div class="editor-role">Editor-in-Chief & Chief Altitude Officer</div>
+    <div class="editor-note">
+      <p>Dear Readers,</p>
+      <p>I want to address the rumors directly: yes, the building has moved again. As of press time, our headquarters is approximately 340 miles northeast of where it was yesterday. This is not, as some have suggested, "a sign we should operate from a fixed location." It is the building's journey and I will not judge it.<sup>1</sup></p>
+      <p>Some of you have written to ask why we publish from hot air balloons. The answer hasn't changed since I founded this paper in 2019 after crying at a dog reunion video for 45 minutes straight: <strong style="color:#ffffff;">truth rises.</strong> You cannot report on feelings from the ground. The ground is where feelings go to be ignored. Up here, at 6,000 feet, surrounded by nothing but sky and the faint sound of Brenda yelling about the Wi-Fi, every emotion is laid bare.<sup>2</sup></p>
+      <p>This week's edition features our strongest coverage yet of the regional sadness front, an investigative piece on joy laundering in the greater Phoenix area, and Dimitri's 12-part series on what the wind feels like when you're already thinking about your father.<sup>3</sup></p>
+      <p style="color:#ffffff;">— Gerald Tuft, somewhere above the Midwest</p>
+      <div class="footnote"><sup>1</sup> The building's journey has cost us $347,000 in FAA fines this quarter.</div>
+      <div class="footnote"><sup>2</sup> The Wi-Fi has not worked above 4,000 feet since March. Brenda knows this.</div>
+      <div class="footnote"><sup>3</sup> Parts 4 through 9 of Dimitri's series were lost when his notebook blew into a cloud. He insists the cloud "needed them more."</div>
+    </div>
+  </div>
+  <div class="editor-right">
+    <div class="dash-title">Staff Directory</div>
+    <table class="staff-table">
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Role</th>
+          <th>Assigned Balloon</th>
+          <th>Status</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td class="name">Gerald Tuft</td>
+          <td>Editor-in-Chief</td>
+          <td class="balloon-name">"The Reckoning"</td>
+          <td style="color:#00ff88;">Aloft</td>
+        </tr>
+        <tr>
+          <td class="name">Margaret "Peggy" Vane</td>
+          <td>Senior Correspondent</td>
+          <td class="balloon-name">"Quiet Fury"</td>
+          <td style="color:#00ff88;">Aloft</td>
+        </tr>
+        <tr>
+          <td class="name">Dimitri Kreel</td>
+          <td>Roving Emotional Reporter</td>
+          <td class="balloon-name">"The Tender Inquiry"</td>
+          <td style="color:#ffab00;">Descending</td>
+        </tr>
+        <tr>
+          <td class="name">Brenda Moss</td>
+          <td>Copy Editor / IT</td>
+          <td class="balloon-name">"Brenda's Lament"</td>
+          <td style="color:#ff3d57;">Grounded (mutiny)</td>
+        </tr>
+        <tr>
+          <td class="name">Phil</td>
+          <td>Intern (unpaid, aware)</td>
+          <td class="balloon-name">"Just Phil"</td>
+          <td style="color:#00ff88;">Aloft</td>
+        </tr>
+        <tr>
+          <td class="name">The Building</td>
+          <td>Headquarters (nominal)</td>
+          <td class="balloon-name">14× weather balloons</td>
+          <td style="color:#ff3d57;" x-text="buildingStatus"></td>
+        </tr>
+      </tbody>
+    </table>
+    <div style="margin-top:20px;">
+      <div class="dash-title">Balloon Integrity Monitor</div>
+      <template x-for="b in balloons" :key="b.name">
+        <div style="margin-bottom:10px;">
+          <div style="display:flex;justify-content:space-between;font-size:12px;">
+            <span style="color:#e8ecf1;" x-text="b.name"></span>
+            <span :style="{color: b.integrity > 70 ? '#00ff88' : b.integrity > 40 ? '#ffab00' : '#ff3d57'}" x-text="b.integrity + '%'"></span>
+          </div>
+          <div class="altitude-bar">
+            <div class="altitude-fill" :style="{width: b.integrity + '%', background: b.integrity > 70 ? '#00ff88' : b.integrity > 40 ? '#ffab00' : '#ff3d57'}"></div>
+          </div>
+        </div>
+      </template>
+    </div>
+  </div>
+</section>
+
+<!-- SUBSCRIBE -->
+<section class="subscribe-section" id="subscribe">
+  <h2>Subscribe to The Buoyant Gazette</h2>
+  <p class="sub-desc">Delivered by hand from a descending balloon. Singed edges are a mark of authenticity, not negligence.<sup>*</sup></p>
+  <div class="subscribe-box" x-data="{subscribed: false, hoverCount: 0}">
+    <template x-if="!subscribed">
+      <div>
+        <h3>The Only Tier</h3>
+        <div class="subscribe-price">$47.99<small>/month</small></div>
+        <p style="font-size:12px;color:#7a8fa0;margin-bottom:12px;">We had tiers once. Gerald cried during the meeting about it and we agreed to stop.</p>
+        <ul class="subscribe-includes">
+          <li>Daily paper (delivered by balloon, weather permitting)</li>
+          <li>Emotional market alerts (push notifications require altitude)</li>
+          <li>Gerald's weekly voicemail (2–7 minutes, often tearful)</li>
+          <li>One (1) ride in Balloon #3 ("The Tender Inquiry")</li>
+          <li>Access to the archive (a wet box in the gondola)</li>
+          <li>A handwritten apology from Gerald when the building moves and your paper is late</li>
+        </ul>
+        <button class="btn-subscribe" @click="subscribed = true" @mouseover="hoverCount++">
+          <span x-text="hoverCount > 3 ? 'PLEASE. WE NEED THIS.' : hoverCount > 1 ? 'YOU\'RE STILL HERE? SUBSCRIBE.' : 'ASCEND WITH US'"></span>
+        </button>
+        <p style="font-size:10px;color:#7a8fa0;margin-top:8px;">* Cancellation requires a notarized letter delivered to our building. Good luck finding it.</p>
+      </div>
+    </template>
+    <template x-if="subscribed">
+      <div style="text-align:center;padding:20px 0;">
+        <div style="font-size:48px;margin-bottom:12px;">🎈</div>
+        <h3 style="color:#ffffff;font-size:22px;margin-bottom:8px;">Welcome Aboard, Subscriber</h3>
+        <p style="color:#b0bec5;font-size:14px;">Your first edition is being prepared. Gerald is crying (happy tears this time). Please allow 3–14 business days for your balloon to arrive, depending on wind conditions and Gerald's emotional state.</p>
+        <p style="color:#7a8fa0;font-size:11px;margin-top:12px;">Subscriber #<span x-text="Math.floor(Math.random() * 200 + 12)"></span> · Card will be charged when we figure out how</p>
+      </div>
+    </template>
+  </div>
+</section>
+
+<!-- FAQ -->
+<section class="section section-border" id="faq">
+  <div class="markets-title" style="margin-bottom:20px;">Frequently Asked Questions</div>
+  <div class="faq-item" x-data="{open: false}">
+    <div class="faq-q" @click="open = !open">
+      <span>Is this a real newspaper?</span>
+      <span x-text="open ? '−' : '+'" style="color:#00ff88;"></span>
+    </div>
+    <div class="faq-a" x-show="open" x-transition>
+      We have a printing press (currently in Ohio — long story), a staff of five, a fleet of balloons, and Gerald hasn't slept since 2021. We're more real than most things.
+    </div>
+  </div>
+  <div class="faq-item" x-data="{open: false}">
+    <div class="faq-q" @click="open = !open">
+      <span>Why balloons?</span>
+      <span x-text="open ? '−' : '+'" style="color:#00ff88;"></span>
+    </div>
+    <div class="faq-a" x-show="open" x-transition>
+      Gerald will answer this question for up to 45 minutes if you let him. The short version: truth rises, feelings are airborne, and the landlord at our old office asked us to leave after "the incident." The balloons were already inflated. It felt like destiny.
+    </div>
+  </div>
+  <div class="faq-item" x-data="{open: false}">
+    <div class="faq-q" @click="open = !open">
+      <span>Why does the building keep moving?</span>
+      <span x-text="open ? '−' : '+'" style="color:#00ff88;"></span>
+    </div>
+    <div class="faq-a" x-show="open" x-transition>
+      In 2022, Gerald attached 14 weather balloons to our brownstone headquarters because he wanted "editorial independence from the earth." The FAA has described this as "not a thing." We've been fined 23 times. The building has been to Canada twice. Gerald considers this "proof of concept."
+    </div>
+  </div>
+  <div class="faq-item" x-data="{open: false}">
+    <div class="faq-q" @click="open = !open">
+      <span>Who is Brenda and why is she always angry?</span>
+      <span x-text="open ? '−' : '+'" style="color:#00ff88;"></span>
+    </div>
+    <div class="faq-a" x-show="open" x-transition>
+      Brenda Moss is our copy editor and sole IT support. She applied for a normal newspaper job. She did not know about the balloons until her first day. She has been trying to quit since 2020 but Gerald keeps ascending before she can hand in her resignation letter. Her balloon is named "Brenda's Lament" and she did not choose this name.
+    </div>
+  </div>
+  <div class="faq-item" x-data="{open: false}">
+    <div class="faq-q" @click="open = !open">
+      <span>Is Phil okay?</span>
+      <span x-text="open ? '−' : '+'" style="color:#00ff88;"></span>
+    </div>
+    <div class="faq-a" x-show="open" x-transition>
+      Phil signed an extensive waiver. He is aware of the conditions. He seems fine. He has not spoken since March but he gives a thumbs up every morning. We think Phil is okay.
+    </div>
+  </div>
+  <div class="faq-item" x-data="{open: false}">
+    <div class="faq-q" @click="open = !open">
+      <span>Can I visit your office?</span>
+      <span x-text="open ? '−' : '+'" style="color:#00ff88;"></span>
+    </div>
+    <div class="faq-a" x-show="open" x-transition>
+      Our current address is listed in the footer. Please note it changes approximately every 4 hours. If you arrive and the building is not there, we suggest looking up.
+    </div>
+  </div>
+</section>
+
+<!-- DISCLAIMERS -->
+<div class="disclaimers">
+  <p><strong style="color:#b0bec5;">LEGAL:</strong> The Buoyant Gazette is not responsible for injuries sustained from falling newsprint, unannounced building relocations, emotional market losses, or Dimitri. Emotional securities are classified as "vibes" under current FAA guidance and are not insured by the FDIC or any institution that operates below 2,000 feet.</p>
+  <p><strong style="color:#b0bec5;">EDITORIAL POLICY:</strong> All stories are fact-checked at altitude. Fact-checking accuracy decreases above 10,000 feet due to oxygen. The Buoyant Gazette maintains a strict 60% accuracy target, which we meet roughly 40% of the time.</p>
+  <p><strong style="color:#b0bec5;">BUILDING NOTICE:</strong> If you see a three-story brownstone floating over your property, do not attempt to tether it. It is ours and Gerald is very protective. Contact the FAA or simply wave.</p>
+  <p><strong style="color:#b0bec5;">CORRECTIONS:</strong> Last Tuesday's weather report listed "emotional hail" as a possibility. We have since learned emotional hail is not a meteorological phenomenon. We stand by the rest of the forecast.</p>
+</div>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-left">
+    © 2024 The Buoyant Gazette · Est. 2019 · "Truth Rises" · FAA Violation #BG-00347
+  </div>
+  <div class="footer-addr">
+    Current HQ Address (approx): <span x-text="currentAddress" style="color:#ffab00;"></span><br>
+    <span style="font-size:10px;">Address updates every <span x-text="addressCountdown"></span>s · Last verified by Brenda (reluctantly)</span>
+  </div>
+</footer>
+
+<script>
+function gazetteApp() {
+  const addresses = [
+    "14,200 ft above Terre Haute, IN",
+    "Somewhere over Lake Erie (again)",
+    "9,800 ft, heading NNE toward Toronto",
+    "Directly above a Wendy's in Dayton, OH",
+    "Canadian airspace (unauthorized)",
+    "7,100 ft over Peoria, IL — descending",
+    "Unknown — Brenda lost the GPS",
+    "Disputed airspace near Gary, IN",
+    "3,200 ft, tangled in a cell tower, Akron, OH",
+    "16,000 ft — oxygen getting thin, will update",
+    "Above the Great Lakes, specific lake unclear"
+  ];
+
+  const windMessages = [
+    "Crosswinds at 8,000 ft may delay afternoon edition by 2–4 hours.",
+    "Severe emotional updraft detected NNE. All balloons advised to hold altitude.",
+    "Gerald's balloon drifting off course. He says it's fine. It's not fine.",
+    "Building velocity increased to 14 knots. Staff advised to close windows.",
+    "Calm winds expected by evening. Dimitri doesn't trust it."
+  ];
+
+  const hqLocations = [
+    "DRIFTING", "OVER OHIO", "UNKNOWN", "CANADA??", "DESCENDING", "OFF RADAR"
+  ];
+
+  const buildingStatuses = [
+    "MISSING", "ADRIFT", "GONE", "DISPUTED", "TETHERED*", "FLEEING"
+  ];
+
+  const lastSeens = [
+    "4h ago (Brenda)", "Tuesday", "last week??", "ask Gerald", "8h ago (Phil waved)", "before dawn"
+  ];
+
+  return {
+    // State
+    viewMode: 'live',
+    showWindBanner: true,
+    windMessage: windMessages[Math.floor(Math.random() * windMessages.length)],
+    currentAltitude: 6200 + Math.floor(Math.random() * 400),
+    issueNumber: 2847 + Math.floor(Math.random() * 10),
+    currentDate: new Date().toLocaleDateString('en-US', {weekday:'long', year:'numeric', month:'long', day:'numeric'}),
+    filedTime: new Date().toLocaleTimeString('en-US', {hour:'2-digit', minute:'2-digit'}),
+    balloonsAloft: 4,
+    avgAltitude: 5800 + Math.floor(Math.random() * 600),
+    hqLocation: hqLocations[Math.floor(Math.random() * hqLocations.length)],
+    buildingStatus: buildingStatuses[Math.floor(Math.random() * buildingStatuses.length)],
+    buildingLastSeen: lastSeens[Math.floor(Math.random() * lastSeens.length)],
+    sandbags: Math.floor(Math.random() * 20 + 3),
+    inkPercent: Math.floor(Math.random() * 40 + 8),
+    morale: ['low', 'Gerald cried', 'medium', 'Phil shrugged', 'tenuous', 'Brenda-dependent'][Math.floor(Math.random() * 6)],
+    readersAloft: Math.floor(Math.random() * 80 + 12),
+    uptimeStart: Date.now() - (Math.floor(Math.random() * 86400000) + 3600000),
+    marketsLastUpdate: Math.floor(Math.random() * 12 + 1) + ' sec ago',
+    marketSort: 'volume',
+    expandedHeadline: -1,
+    headlineView: 'grid',
+    currentAddress: addresses[0],
+    addressCountdown: 120,
+    addressIndex: 0,
+
+    tickerItems: [
+      {symbol:'JOY', price:'142.30', change:'+12.4%', dir:1},
+      {symbol:'DREAD', price:'88.17', change:'-3.1%', dir:-1},
+      {symbol:'ENNUI', price:'201.55', change:'+0.2%', dir:0},
+      {symbol:'RAGE', price:'67.43', change:'+8.7%', dir:1},
+      {symbol:'HOPE', price:'34.02', change:'-14.6%', dir:-1},
+      {symbol:'GUILT', price:'156.80', change:'+4.3%', dir:1},
+      {symbol:'NOSTALG', price:'312.41', change:'+22.1%', dir:1},
+      {symbol:'SPITE', price:'45.19', change:'-1.8%', dir:-1},
+      {symbol:'AWE', price:'73.66', change:'+6.0%', dir:1},
+      {symbol:'PANIC', price:'299.99', change:'+31.2%', dir:1},
+      {symbol:'CALM', price:'12.04', change:'-9.7%', dir:-1},
+      {symbol:'YEARN', price:'188.50', change:'+5.5%', dir:1},
+    ],
+
+    markets: [
+      {name:'Ambient Joy', symbol:'JOY', price:142.30, change:12.4, vol:'2.3M', bars:[]},
+      {name:'Free-Floating Dread', symbol:'DREAD', price:88.17, change:-3.1, vol:'4.1M', bars:[]},
+      {name:'Existential Ennui', symbol:'ENNUI', price:201.55, change:0.2, vol:'890K', bars:[]},
+      {name:'Unprocessed Rage', symbol:'RAGE', price:67.43, change:8.7, vol:'1.7M', bars:[]},
+      {name:'Cautious Hope', symbol:'HOPE', price:34.02, change:-14.6, vol:'5.2M', bars:[]},
+      {name:'Inherited Guilt', symbol:'GUILT', price:156.80, change:4.3, vol:'1.1M', bars:[]},
+      {name:'Weaponized Nostalgia', symbol:'NOSTALG', price:312.41, change:22.1, vol:'780K', bars:[]},
+      {name:'Performative Calm', symbol:'CALM', price:12.04, change:-9.7, vol:'340K', bars:[]},
+      {name:'Ambient Panic', symbol:'PANIC', price:299.99, change:31.2, vol:'6.8M', bars:[]},
+      {name:'Low-Grade Yearning', symbol:'YEARN', price:188.50, change:5.5, vol:'2.0M', bars:[]},
+    ],
+
+    balloons: [
+      {name: '"The Reckoning" (#1)', integrity: 94},
+      {name: '"Quiet Fury" (#2)', integrity: 71},
+      {name: '"The Tender Inquiry" (#3)', integrity: 58},
+      {name: '"Brenda\'s Lament" (#4)', integrity: 33},
+      {name: '"Just Phil" (#5)', integrity: 87},
+    ],
+
+    init() {
+      // Generate mini chart bars
+      this.markets.forEach(m => {
+        m.bars = Array.from({length: 8}, () => Math.floor(Math.random() * 16 + 4));
+      });
+
+      // Update altitude
+      setInterval(() => {
+        this.currentAltitude += Math.floor(Math.random() * 60 - 25);
+        if (this.currentAltitude < 3000) this.currentAltitude = 3000;
+        if (this.currentAltitude > 16000) this.currentAltitude = 16000;
+        this.avgAltitude = this.currentAltitude - Math.floor(Math.random() * 800);
+      }, 3000);
+
+      // Update readers
+      setInterval(() => {
+        this.readersAloft += Math.floor(Math.random() * 7 - 3);
+        if (this.readersAloft < 5) this.readersAloft = 5;
+      }, 5000);
+
+      // Update markets
+      setInterval(() => {
+        this.markets.forEach(m => {
+          let delta = (Math.random() - 0.48) * 3;
+          m.change = parseFloat((m.change + delta).toFixed(2));
+          m.price = parseFloat((m.price * (1 + delta/100)).toFixed(2));
+          if (m.price < 1) m.price = 1;
+          m.bars.shift();
+          m.bars.push(Math.floor(Math.random() * 16 + 4));
+        });
+        this.marketsLastUpdate = Math.floor(Math.random() * 5 + 1) + ' sec ago';
+      }, 4000);
+
+      // Update address
+      setInterval(() => {
+        this.addressCountdown--;
+        if (this.addressCountdown <= 0) {
+          this.addressIndex = (this.addressIndex + 1) % addresses.length;
+          this.currentAddress = addresses[this.addressIndex];
+          this.addressCountdown = 120;
+        }
+      }, 1000);
+
+      // Update HQ
+      setInterval(() => {
+        this.hqLocation = hqLocations[Math.floor(Math.random() * hqLocations.length)];
+        this.buildingStatus = buildingStatuses[Math.floor(Math.random() * buildingStatuses.length)];
+        this.buildingLastSeen = lastSeens[Math.floor(Math.random() * lastSeens.length)];
+      }, 8000);
+
+      // Update balloon integrity
+      setInterval(() => {
+        this.balloons.forEach(b => {
+          b.integrity += Math.floor(Math.random() * 5 - 3);
+          if (b.integrity > 100) b.integrity = 100;
+          if (b.integrity < 10) b.integrity = 10;
+        });
+      }, 6000);
+
+      // Update sandbags/ink/morale
+      setInterval(() => {
+        this.sandbags = Math.max(0, this.sandbags + Math.floor(Math.random() * 3 - 2));
+        this.inkPercent = Math.max(1, Math.min(100, this.inkPercent + Math.floor(Math.random() * 5 - 3)));
+        this.morale = ['low', 'Gerald cried', 'medium', 'Phil shrugged', 'tenuous', 'Brenda-dependent'][Math.floor(Math.random() * 6)];
+      }, 7000);
+
+      // GSAP entrance
+      gsap.fromTo('.nav-logo', {y: -20, opacity: 0}, {y: 0, opacity: 1, duration: 0.6, clearProps: 'opacity,transform'});
+      gsap.fromTo('.hero-left', {x: -40, opacity: 0}, {x: 0, opacity: 1, duration: 0.8, delay: 0.2, clearProps: 'opacity,transform'});
+      gsap.fromTo('.hero-right', {x: 40, opacity: 0}, {x: 0, opacity: 1, duration: 0.8, delay: 0.3, clearProps: 'opacity,transform'});
+      gsap.fromTo('.fleet-card', {y: 20, opacity: 0}, {y: 0, opacity: 1, duration: 0.5, stagger: 0.1, delay: 0.5, clearProps: 'opacity,transform'});
+
+      lucide.createIcons();
+    },
+
+    formatUptime() {
+      let diff = Date.now() - this.uptimeStart;
+      let h = Math.floor(diff / 3600000);
+      let m = Math.floor((diff % 3600000) / 60000);
+      let s = Math.floor((diff % 60000) / 1000);
+      return h + 'h ' + m + 'm ' + s + 's';
+    },
+
+    sortedMarkets() {
+      let arr = [...this.markets];
+      if (this.marketSort === 'change') {
+        arr.sort((a, b) => Math.abs(b.change) - Math.abs(a.change));
+      }
+      return arr;
+    },
+
+    shuffleMarkets() {
+      this.markets.forEach(m => {
+        m.change = parseFloat(((Math.random() - 0.4) * 30).toFixed(2));
+        m.price = parseFloat((Math.random() * 300 + 10).toFixed(2));
+        m.bars = Array.from({length: 8}, () => Math.floor(Math.random() * 16 + 4));
+      });
+    }
+  };
+}
+
+// Keep uptime counter ticking for Alpine reactivity
+setInterval(() => {
+  let el = document.querySelector('[x-data]');
+  if (el && el.__x) {
+    // Alpine 3 handles this via reactivity
+  }
+}, 1000);
+</script>
+
+</body>
+</html>

@@ -1,0 +1,1889 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>F.O.A. — Feline Olfactory Archives | Case Management Portal</title>
+<link rel="stylesheet" href="/assets/css/fonts.css">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --deep-ocean: #0a1628;
+  --ocean-mid: #0f2240;
+  --ocean-light: #142d52;
+  --bio-green: #00ffc8;
+  --bio-green-dim: #00aa85;
+  --bio-cyan: #00d4ff;
+  --bio-magenta: #ff00aa;
+  --victorian-gold: #c9a84c;
+  --victorian-cream: #f0e6c8;
+  --panel-bg: #0c1a30;
+  --panel-border: #1a3355;
+  --text-primary: #e8f0ff;
+  --text-secondary: #b0c4de;
+  --text-muted: #8899b3;
+  --danger: #ff4466;
+  --warning: #ffaa00;
+  --success: #00ff88;
+}
+
+html { font-size: 16px; scroll-behavior: smooth; }
+
+body {
+  font-family: 'IBM Plex Mono', monospace;
+  background: var(--deep-ocean);
+  color: var(--text-primary);
+  min-height: 100vh;
+  overflow-x: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+/* === SCROLLBAR === */
+::-webkit-scrollbar { width: 8px; }
+::-webkit-scrollbar-track { background: var(--deep-ocean); }
+::-webkit-scrollbar-thumb { background: var(--panel-border); border-radius: 4px; }
+::-webkit-scrollbar-thumb:hover { background: var(--bio-green-dim); }
+
+/* === LAYOUT === */
+.app-layout {
+  display: flex;
+  min-height: 100vh;
+  width: 100%;
+}
+
+/* === SIDEBAR === */
+.sidebar {
+  width: 260px;
+  min-width: 260px;
+  background: var(--panel-bg);
+  border-right: 1px solid var(--panel-border);
+  display: flex;
+  flex-direction: column;
+  position: fixed;
+  top: 0;
+  left: 0;
+  height: 100vh;
+  z-index: 100;
+  overflow-y: auto;
+}
+
+.sidebar-logo {
+  padding: 24px 20px;
+  border-bottom: 1px solid var(--panel-border);
+  text-align: center;
+}
+
+/* CSS ART: Cat face logo */
+.cat-logo {
+  width: 80px;
+  height: 80px;
+  margin: 0 auto 12px;
+  position: relative;
+}
+
+.cat-logo .head {
+  width: 60px;
+  height: 50px;
+  background: var(--bio-green);
+  border-radius: 50% 50% 45% 45%;
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  box-shadow: 0 0 20px rgba(0, 255, 200, 0.3);
+}
+
+.cat-logo .ear-l, .cat-logo .ear-r {
+  width: 0;
+  height: 0;
+  border-left: 14px solid transparent;
+  border-right: 14px solid transparent;
+  border-bottom: 24px solid var(--bio-green);
+  position: absolute;
+  top: 4px;
+  filter: drop-shadow(0 0 6px rgba(0, 255, 200, 0.4));
+}
+.cat-logo .ear-l { left: 8px; transform: rotate(-8deg); }
+.cat-logo .ear-r { right: 8px; transform: rotate(8deg); }
+
+.cat-logo .ear-inner-l, .cat-logo .ear-inner-r {
+  width: 0;
+  height: 0;
+  border-left: 8px solid transparent;
+  border-right: 8px solid transparent;
+  border-bottom: 14px solid var(--deep-ocean);
+  position: absolute;
+  top: 12px;
+}
+.cat-logo .ear-inner-l { left: 14px; transform: rotate(-8deg); }
+.cat-logo .ear-inner-r { right: 14px; transform: rotate(8deg); }
+
+.cat-logo .eye-l, .cat-logo .eye-r {
+  width: 10px;
+  height: 14px;
+  background: var(--deep-ocean);
+  border-radius: 50%;
+  position: absolute;
+  bottom: 22px;
+  animation: blink 4s infinite;
+}
+.cat-logo .eye-l { left: 22px; }
+.cat-logo .eye-r { right: 22px; }
+
+.cat-logo .eye-l::after, .cat-logo .eye-r::after {
+  content: '';
+  width: 4px;
+  height: 4px;
+  background: var(--bio-cyan);
+  border-radius: 50%;
+  position: absolute;
+  top: 3px;
+  left: 2px;
+  box-shadow: 0 0 6px var(--bio-cyan);
+}
+
+.cat-logo .nose {
+  width: 8px;
+  height: 6px;
+  background: var(--bio-magenta);
+  border-radius: 50% 50% 40% 40%;
+  position: absolute;
+  bottom: 16px;
+  left: 50%;
+  transform: translateX(-50%);
+  box-shadow: 0 0 8px rgba(255, 0, 170, 0.5);
+}
+
+.cat-logo .whisker {
+  position: absolute;
+  bottom: 18px;
+  width: 20px;
+  height: 1px;
+  background: var(--text-primary);
+}
+.cat-logo .whisker.wl1 { left: -2px; transform: rotate(-5deg); }
+.cat-logo .whisker.wl2 { left: -4px; transform: rotate(8deg); bottom: 14px; }
+.cat-logo .whisker.wr1 { right: -2px; transform: rotate(5deg); }
+.cat-logo .whisker.wr2 { right: -4px; transform: rotate(-8deg); bottom: 14px; }
+
+@keyframes blink {
+  0%, 95%, 100% { transform: scaleY(1); }
+  97% { transform: scaleY(0.1); }
+}
+
+.logo-text {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.1rem;
+  color: var(--bio-green);
+  letter-spacing: 4px;
+  text-shadow: 0 0 10px rgba(0, 255, 200, 0.3);
+}
+
+.logo-sub {
+  font-size: 0.6rem;
+  color: var(--text-muted);
+  letter-spacing: 1px;
+  margin-top: 4px;
+}
+
+/* Sidebar nav */
+.sidebar-nav { padding: 16px 0; flex: 1; }
+
+.nav-section {
+  padding: 8px 20px;
+  font-size: 0.6rem;
+  color: var(--text-muted);
+  letter-spacing: 2px;
+  text-transform: uppercase;
+}
+
+.nav-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 20px;
+  color: var(--text-secondary);
+  font-size: 0.75rem;
+  cursor: pointer;
+  transition: all 0.2s;
+  border-left: 3px solid transparent;
+  text-decoration: none;
+}
+
+.nav-item:hover {
+  background: rgba(0, 255, 200, 0.05);
+  color: var(--bio-green);
+  border-left-color: var(--bio-green);
+}
+
+.nav-item.active {
+  background: rgba(0, 255, 200, 0.08);
+  color: var(--bio-green);
+  border-left-color: var(--bio-green);
+}
+
+/* CSS paw print icon */
+.paw-icon {
+  width: 14px;
+  height: 14px;
+  position: relative;
+  flex-shrink: 0;
+}
+
+.paw-icon::before {
+  content: '🐾';
+  font-size: 12px;
+  position: absolute;
+  top: -1px;
+  left: 0;
+}
+
+.nav-badge {
+  margin-left: auto;
+  background: var(--danger);
+  color: #ffffff;
+  font-size: 0.55rem;
+  padding: 2px 6px;
+  border-radius: 8px;
+  font-weight: 700;
+}
+
+.nav-badge.warn { background: var(--warning); color: #1a1a1a; }
+.nav-badge.ok { background: var(--success); color: #1a1a1a; }
+
+/* Sidebar status */
+.sidebar-status {
+  padding: 16px 20px;
+  border-top: 1px solid var(--panel-border);
+  font-size: 0.65rem;
+}
+
+.status-item {
+  display: flex;
+  justify-content: space-between;
+  padding: 4px 0;
+  color: var(--text-muted);
+}
+
+.status-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  display: inline-block;
+  margin-right: 4px;
+  vertical-align: middle;
+}
+
+.status-dot.live {
+  background: var(--success);
+  box-shadow: 0 0 6px var(--success);
+  animation: pulse-dot 2s infinite;
+}
+
+@keyframes pulse-dot {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.4; }
+}
+
+/* === MAIN CONTENT === */
+.main-content {
+  flex: 1;
+  margin-left: 260px;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Top bar */
+.topbar {
+  background: var(--panel-bg);
+  border-bottom: 1px solid var(--panel-border);
+  padding: 12px 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  position: sticky;
+  top: 0;
+  z-index: 50;
+}
+
+.topbar-left {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.breadcrumb {
+  font-size: 0.7rem;
+  color: var(--text-muted);
+}
+
+.breadcrumb span { color: var(--bio-green); }
+
+.topbar-right {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.topbar-alert {
+  font-size: 0.65rem;
+  color: var(--warning);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  background: rgba(255, 170, 0, 0.1);
+  border: 1px solid rgba(255, 170, 0, 0.2);
+  border-radius: 4px;
+}
+
+.topbar-alert::before { content: '⚠'; }
+
+.menu-toggle {
+  display: none;
+  background: none;
+  border: 1px solid var(--panel-border);
+  color: var(--bio-green);
+  font-size: 1.4rem;
+  cursor: pointer;
+  padding: 4px 10px;
+  border-radius: 4px;
+}
+
+/* === DASHBOARD CONTENT === */
+.dashboard {
+  padding: 24px;
+  flex: 1;
+}
+
+/* Stats row */
+.stats-row {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.stat-card {
+  background: var(--panel-bg);
+  border: 1px solid var(--panel-border);
+  border-radius: 8px;
+  padding: 20px;
+  position: relative;
+  overflow: hidden;
+  transition: border-color 0.3s, transform 0.2s;
+}
+
+.stat-card:hover {
+  border-color: var(--bio-green);
+  transform: translateY(-2px);
+}
+
+.stat-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, var(--bio-green), var(--bio-cyan));
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+
+.stat-card:hover::before { opacity: 1; }
+
+.stat-label {
+  font-size: 0.6rem;
+  color: var(--text-muted);
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  margin-bottom: 8px;
+}
+
+.stat-value {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 1.8rem;
+  font-weight: 700;
+  color: var(--bio-green);
+  text-shadow: 0 0 20px rgba(0, 255, 200, 0.2);
+}
+
+.stat-change {
+  font-size: 0.6rem;
+  margin-top: 6px;
+}
+
+.stat-change.up { color: var(--success); }
+.stat-change.down { color: var(--danger); }
+.stat-change.neutral { color: var(--text-muted); }
+
+/* === MAIN GRID === */
+.main-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+  margin-bottom: 24px;
+}
+
+.panel {
+  background: var(--panel-bg);
+  border: 1px solid var(--panel-border);
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.panel-header {
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--panel-border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.panel-title {
+  font-family: 'Playfair Display', serif;
+  font-size: 0.85rem;
+  color: var(--victorian-cream);
+  letter-spacing: 1px;
+}
+
+.panel-tag {
+  font-size: 0.55rem;
+  padding: 3px 8px;
+  border-radius: 4px;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+}
+
+.panel-tag.live { background: rgba(0, 255, 136, 0.15); color: var(--success); }
+.panel-tag.pending { background: rgba(255, 170, 0, 0.15); color: var(--warning); }
+.panel-tag.critical { background: rgba(255, 68, 102, 0.15); color: var(--danger); }
+
+.panel-body { padding: 20px; }
+
+/* === CASE FILES === */
+.case-file {
+  padding: 14px 16px;
+  border-bottom: 1px solid rgba(26, 51, 85, 0.5);
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  cursor: pointer;
+  transition: background 0.2s;
+  position: relative;
+}
+
+.case-file:hover {
+  background: rgba(0, 255, 200, 0.03);
+}
+
+.case-file:last-child { border-bottom: none; }
+
+.case-id {
+  font-size: 0.6rem;
+  color: var(--bio-cyan);
+  font-weight: 700;
+  white-space: nowrap;
+  min-width: 80px;
+}
+
+.case-info { flex: 1; min-width: 0; }
+
+.case-name {
+  font-size: 0.75rem;
+  color: var(--text-primary);
+  margin-bottom: 4px;
+}
+
+.case-meta {
+  font-size: 0.6rem;
+  color: var(--text-muted);
+}
+
+.case-status {
+  font-size: 0.55rem;
+  padding: 2px 8px;
+  border-radius: 3px;
+  white-space: nowrap;
+  flex-shrink: 0;
+  align-self: center;
+}
+
+.case-status.approved { background: rgba(0, 255, 136, 0.15); color: #00ff88; }
+.case-status.review { background: rgba(0, 212, 255, 0.15); color: #00d4ff; }
+.case-status.rejected { background: rgba(255, 68, 102, 0.15); color: #ff4466; }
+.case-status.flagged { background: rgba(255, 170, 0, 0.15); color: #ffaa00; }
+
+/* === CSS ART: Smell Molecules === */
+.molecule-art {
+  width: 100%;
+  height: 200px;
+  position: relative;
+  overflow: hidden;
+  background: radial-gradient(ellipse at center, rgba(0, 255, 200, 0.05) 0%, transparent 70%);
+}
+
+.molecule {
+  position: absolute;
+  border-radius: 50%;
+  animation: float 6s ease-in-out infinite;
+}
+
+.molecule::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  border-radius: 50%;
+}
+
+.mol-1 {
+  width: 40px;
+  height: 40px;
+  background: radial-gradient(circle, var(--bio-green), transparent);
+  top: 30%;
+  left: 20%;
+  box-shadow: 0 0 30px rgba(0, 255, 200, 0.4);
+  animation-delay: 0s;
+}
+
+.mol-1::after {
+  width: 16px;
+  height: 16px;
+  background: var(--bio-green);
+  box-shadow: 0 0 12px var(--bio-green);
+}
+
+.mol-2 {
+  width: 28px;
+  height: 28px;
+  background: radial-gradient(circle, var(--bio-cyan), transparent);
+  top: 50%;
+  left: 50%;
+  box-shadow: 0 0 24px rgba(0, 212, 255, 0.4);
+  animation-delay: -2s;
+}
+
+.mol-2::after {
+  width: 12px;
+  height: 12px;
+  background: var(--bio-cyan);
+  box-shadow: 0 0 10px var(--bio-cyan);
+}
+
+.mol-3 {
+  width: 50px;
+  height: 50px;
+  background: radial-gradient(circle, var(--bio-magenta), transparent);
+  top: 20%;
+  left: 70%;
+  box-shadow: 0 0 35px rgba(255, 0, 170, 0.3);
+  animation-delay: -4s;
+}
+
+.mol-3::after {
+  width: 20px;
+  height: 20px;
+  background: var(--bio-magenta);
+  box-shadow: 0 0 14px var(--bio-magenta);
+}
+
+.mol-4 {
+  width: 22px;
+  height: 22px;
+  background: radial-gradient(circle, var(--victorian-gold), transparent);
+  top: 65%;
+  left: 35%;
+  box-shadow: 0 0 18px rgba(201, 168, 76, 0.4);
+  animation-delay: -1s;
+}
+
+.mol-4::after {
+  width: 10px;
+  height: 10px;
+  background: var(--victorian-gold);
+  box-shadow: 0 0 8px var(--victorian-gold);
+}
+
+/* Bonds between molecules */
+.bond {
+  position: absolute;
+  height: 1px;
+  transform-origin: left center;
+  opacity: 0.3;
+}
+
+.bond-1 {
+  width: 120px;
+  background: linear-gradient(90deg, var(--bio-green), var(--bio-cyan));
+  top: 45%;
+  left: 25%;
+  transform: rotate(15deg);
+}
+
+.bond-2 {
+  width: 100px;
+  background: linear-gradient(90deg, var(--bio-cyan), var(--bio-magenta));
+  top: 38%;
+  left: 55%;
+  transform: rotate(-25deg);
+}
+
+.bond-3 {
+  width: 80px;
+  background: linear-gradient(90deg, var(--bio-green), var(--victorian-gold));
+  top: 60%;
+  left: 22%;
+  transform: rotate(40deg);
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0) scale(1); }
+  33% { transform: translateY(-8px) scale(1.05); }
+  66% { transform: translateY(5px) scale(0.95); }
+}
+
+/* === JAZZ VISUALIZER === */
+.jazz-visualizer {
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  gap: 3px;
+  height: 60px;
+  padding: 10px 0;
+}
+
+.jazz-bar {
+  width: 4px;
+  background: linear-gradient(to top, var(--bio-green), var(--bio-cyan));
+  border-radius: 2px;
+  animation: jazz-bounce var(--dur) ease-in-out infinite alternate;
+  animation-delay: var(--delay);
+  box-shadow: 0 0 6px rgba(0, 255, 200, 0.3);
+}
+
+@keyframes jazz-bounce {
+  0% { height: var(--min-h); }
+  100% { height: var(--max-h); }
+}
+
+/* === INSPECTOR PROFILES — CSS ART CATS === */
+.inspectors-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+}
+
+.inspector-card {
+  text-align: center;
+  padding: 20px 12px;
+  border: 1px solid var(--panel-border);
+  border-radius: 8px;
+  transition: all 0.3s;
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+}
+
+.inspector-card::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at 50% 0%, rgba(0, 255, 200, 0.08), transparent 70%);
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+
+.inspector-card:hover::before { opacity: 1; }
+
+.inspector-card:hover {
+  border-color: var(--bio-green);
+  transform: translateY(-3px);
+}
+
+/* CSS Cat portraits */
+.css-cat {
+  width: 64px;
+  height: 64px;
+  margin: 0 auto 12px;
+  position: relative;
+}
+
+.css-cat .face {
+  width: 48px;
+  height: 40px;
+  border-radius: 50% 50% 45% 45%;
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+.css-cat .ear-l, .css-cat .ear-r {
+  width: 0;
+  height: 0;
+  border-left: 10px solid transparent;
+  border-right: 10px solid transparent;
+  position: absolute;
+  top: 6px;
+}
+.css-cat .ear-l { left: 6px; transform: rotate(-8deg); }
+.css-cat .ear-r { right: 6px; transform: rotate(8deg); }
+
+.css-cat .eye {
+  width: 7px;
+  height: 10px;
+  background: var(--deep-ocean);
+  border-radius: 50%;
+  position: absolute;
+  bottom: 18px;
+}
+
+.css-cat .eye::after {
+  content: '';
+  width: 3px;
+  height: 3px;
+  border-radius: 50%;
+  position: absolute;
+  top: 2px;
+  left: 1px;
+}
+
+.css-cat .eye-l { left: 16px; }
+.css-cat .eye-r { right: 16px; }
+
+.css-cat .cat-nose {
+  width: 6px;
+  height: 4px;
+  border-radius: 50%;
+  position: absolute;
+  bottom: 14px;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+/* Cat 1: Orange tabby */
+.cat-orange .face { background: #e88a3a; }
+.cat-orange .ear-l, .cat-orange .ear-r { border-bottom: 18px solid #e88a3a; }
+.cat-orange .eye::after { background: #44dd44; box-shadow: 0 0 4px #44dd44; }
+.cat-orange .cat-nose { background: #cc6666; }
+
+/* Cat 2: Tuxedo */
+.cat-tuxedo .face { background: #333333; }
+.cat-tuxedo .ear-l, .cat-tuxedo .ear-r { border-bottom: 18px solid #333333; }
+.cat-tuxedo .eye::after { background: var(--victorian-gold); box-shadow: 0 0 4px var(--victorian-gold); }
+.cat-tuxedo .cat-nose { background: #ff6699; }
+.cat-tuxedo .face::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 20px;
+  height: 16px;
+  background: #ffffff;
+  border-radius: 50% 50% 40% 40%;
+}
+
+/* Cat 3: Russian Blue */
+.cat-blue .face { background: #7799aa; }
+.cat-blue .ear-l, .cat-blue .ear-r { border-bottom: 18px solid #7799aa; }
+.cat-blue .eye::after { background: var(--bio-green); box-shadow: 0 0 4px var(--bio-green); }
+.cat-blue .cat-nose { background: #aa7788; }
+
+.inspector-name {
+  font-family: 'Playfair Display', serif;
+  font-size: 0.8rem;
+  color: var(--victorian-cream);
+  margin-bottom: 4px;
+}
+
+.inspector-title {
+  font-size: 0.6rem;
+  color: var(--bio-cyan);
+  margin-bottom: 6px;
+}
+
+.inspector-stat {
+  font-size: 0.55rem;
+  color: var(--text-muted);
+}
+
+/* === INTERACTIVE SMELL WHEEL — CSS ART === */
+.smell-wheel-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  min-height: 280px;
+}
+
+.smell-wheel {
+  width: 220px;
+  height: 220px;
+  position: relative;
+  border-radius: 50%;
+  animation: slow-rotate 30s linear infinite;
+}
+
+@keyframes slow-rotate {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+.wheel-segment {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  clip-path: polygon(50% 50%, 50% 0%, 100% 0%, 100% 50%);
+  transition: filter 0.3s;
+}
+
+.wheel-segment:nth-child(1) {
+  background: conic-gradient(from 0deg, #00ffc8, #00d4ff 90deg, transparent 90deg);
+  transform: rotate(0deg);
+}
+.wheel-segment:nth-child(2) {
+  background: conic-gradient(from 0deg, #00d4ff, #6644ff 90deg, transparent 90deg);
+  transform: rotate(90deg);
+}
+.wheel-segment:nth-child(3) {
+  background: conic-gradient(from 0deg, #6644ff, #ff00aa 90deg, transparent 90deg);
+  transform: rotate(180deg);
+}
+.wheel-segment:nth-child(4) {
+  background: conic-gradient(from 0deg, #ff00aa, #00ffc8 90deg, transparent 90deg);
+  transform: rotate(270deg);
+}
+
+.wheel-center {
+  position: absolute;
+  width: 80px;
+  height: 80px;
+  background: var(--panel-bg);
+  border-radius: 50%;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 2px solid var(--panel-border);
+  z-index: 2;
+  animation: slow-rotate 30s linear infinite reverse;
+}
+
+.wheel-center-text {
+  font-size: 0.5rem;
+  color: var(--text-muted);
+  text-align: center;
+  line-height: 1.3;
+}
+
+.wheel-label {
+  position: absolute;
+  font-size: 0.55rem;
+  color: var(--text-primary);
+  white-space: nowrap;
+  animation: slow-rotate 30s linear infinite reverse;
+}
+
+.wheel-label:nth-child(6) { top: -20px; left: 50%; transform: translateX(-50%); }
+.wheel-label:nth-child(7) { right: -50px; top: 50%; transform: translateY(-50%); }
+.wheel-label:nth-child(8) { bottom: -20px; left: 50%; transform: translateX(-50%); }
+.wheel-label:nth-child(9) { left: -44px; top: 50%; transform: translateY(-50%); }
+
+/* Orbital dots */
+.orbital {
+  position: absolute;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  top: 50%;
+  left: 50%;
+}
+
+.orbital::before {
+  content: '';
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  animation: orbital-pulse 2s ease-in-out infinite;
+}
+
+@keyframes orbital-pulse {
+  0%, 100% { transform: scale(1); opacity: 1; }
+  50% { transform: scale(2); opacity: 0; }
+}
+
+.orb-1 { transform: translate(-50%, -50%) translate(130px, 0); background: var(--bio-green); }
+.orb-1::before { background: var(--bio-green); }
+.orb-2 { transform: translate(-50%, -50%) translate(-90px, 80px); background: var(--bio-cyan); }
+.orb-2::before { background: var(--bio-cyan); animation-delay: -0.5s; }
+.orb-3 { transform: translate(-50%, -50%) translate(60px, -110px); background: var(--bio-magenta); }
+.orb-3::before { background: var(--bio-magenta); animation-delay: -1s; }
+
+/* === FULL-WIDTH SECTION === */
+.full-width { grid-column: 1 / -1; }
+
+/* === CSS ART: Paw print decorations === */
+.paw-decoration {
+  position: fixed;
+  opacity: 0.03;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.paw-decoration .paw-pad {
+  width: 30px;
+  height: 36px;
+  background: var(--bio-green);
+  border-radius: 50% 50% 45% 45%;
+  position: relative;
+}
+
+.paw-decoration .toe {
+  width: 12px;
+  height: 14px;
+  background: var(--bio-green);
+  border-radius: 50%;
+  position: absolute;
+}
+
+.paw-decoration .toe:nth-child(2) { top: -10px; left: 0; }
+.paw-decoration .toe:nth-child(3) { top: -14px; left: 10px; }
+.paw-decoration .toe:nth-child(4) { top: -10px; left: 20px; }
+
+.paw-d1 { top: 15%; right: 80px; transform: rotate(-20deg); }
+.paw-d2 { top: 45%; right: 120px; transform: rotate(15deg); }
+.paw-d3 { top: 75%; right: 60px; transform: rotate(-35deg); }
+
+/* === RECENT REPORTS TABLE === */
+.reports-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.7rem;
+}
+
+.reports-table th {
+  text-align: left;
+  padding: 10px 14px;
+  font-size: 0.6rem;
+  color: var(--text-muted);
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  border-bottom: 1px solid var(--panel-border);
+  font-weight: 400;
+}
+
+.reports-table td {
+  padding: 10px 14px;
+  border-bottom: 1px solid rgba(26, 51, 85, 0.3);
+  color: var(--text-secondary);
+}
+
+.reports-table tr:hover td {
+  background: rgba(0, 255, 200, 0.02);
+}
+
+.severity-bar {
+  width: 60px;
+  height: 4px;
+  background: var(--panel-border);
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+.severity-fill {
+  height: 100%;
+  border-radius: 2px;
+  transition: width 0.6s ease;
+}
+
+.severity-fill.low { width: 25%; background: var(--success); }
+.severity-fill.medium { width: 55%; background: var(--warning); }
+.severity-fill.high { width: 80%; background: #ff6644; }
+.severity-fill.critical { width: 100%; background: var(--danger); }
+
+/* === FOOTER === */
+.app-footer {
+  padding: 20px 24px;
+  border-top: 1px solid var(--panel-border);
+  font-size: 0.55rem;
+  color: var(--text-muted);
+  display: flex;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.footer-legal { max-width: 600px; line-height: 1.6; }
+
+/* === INTERACTIVE CSS ART HOVER EFFECTS === */
+.interactive-art {
+  padding: 20px;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+}
+
+.art-cell {
+  aspect-ratio: 1;
+  border-radius: 8px;
+  position: relative;
+  overflow: hidden;
+  cursor: pointer;
+  transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  border: 1px solid var(--panel-border);
+}
+
+.art-cell::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  transition: opacity 0.4s;
+}
+
+.art-cell:hover {
+  transform: scale(1.08);
+  z-index: 2;
+  border-color: var(--bio-green);
+}
+
+.art-cell:hover::before { opacity: 1; }
+
+.art-cell:nth-child(1) {
+  background: linear-gradient(135deg, #0a2e3d, #0d4a3a);
+  clip-path: circle(50% at 50% 50%);
+}
+.art-cell:nth-child(1)::before {
+  background: radial-gradient(circle, var(--bio-green), transparent);
+}
+.art-cell:nth-child(1):hover {
+  clip-path: circle(70% at 50% 50%);
+  box-shadow: 0 0 30px rgba(0, 255, 200, 0.3);
+}
+
+.art-cell:nth-child(2) {
+  background: conic-gradient(from 45deg, var(--deep-ocean), var(--ocean-mid), var(--bio-cyan), var(--deep-ocean));
+}
+.art-cell:nth-child(2)::before {
+  background: conic-gradient(from 45deg, var(--bio-green), var(--bio-cyan), var(--bio-magenta), var(--bio-green));
+}
+.art-cell:nth-child(2):hover {
+  border-radius: 50%;
+  box-shadow: 0 0 30px rgba(0, 212, 255, 0.3);
+}
+
+.art-cell:nth-child(3) {
+  background: repeating-linear-gradient(
+    45deg,
+    var(--deep-ocean) 0px,
+    var(--deep-ocean) 4px,
+    var(--ocean-mid) 4px,
+    var(--ocean-mid) 8px
+  );
+}
+.art-cell:nth-child(3)::before {
+  background: repeating-linear-gradient(
+    -45deg,
+    transparent 0px,
+    transparent 4px,
+    var(--bio-green) 4px,
+    var(--bio-green) 5px
+  );
+}
+.art-cell:nth-child(3):hover {
+  clip-path: polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%);
+  box-shadow: 0 0 30px rgba(0, 255, 200, 0.3);
+}
+
+.art-cell:nth-child(4) {
+  background: var(--ocean-mid);
+}
+.art-cell:nth-child(4)::after {
+  content: '';
+  position: absolute;
+  inset: 15%;
+  border: 2px solid var(--panel-border);
+  border-radius: 50%;
+  transition: all 0.4s;
+}
+.art-cell:nth-child(4):hover::after {
+  border-color: var(--bio-magenta);
+  box-shadow: 0 0 20px var(--bio-magenta), inset 0 0 20px var(--bio-magenta);
+  inset: 8%;
+}
+.art-cell:nth-child(4)::before {
+  background: radial-gradient(circle, var(--bio-magenta), transparent);
+}
+
+.art-cell:nth-child(5) {
+  background: linear-gradient(to bottom, var(--deep-ocean), var(--ocean-light));
+  clip-path: polygon(0 20%, 100% 0%, 100% 80%, 0% 100%);
+}
+.art-cell:nth-child(5):hover {
+  clip-path: polygon(0 0%, 100% 0%, 100% 100%, 0% 100%);
+  background: linear-gradient(to bottom, var(--bio-green), var(--deep-ocean));
+}
+
+.art-cell:nth-child(6) {
+  background:
+    radial-gradient(circle at 30% 30%, rgba(0, 255, 200, 0.2) 0%, transparent 50%),
+    radial-gradient(circle at 70% 70%, rgba(255, 0, 170, 0.2) 0%, transparent 50%),
+    var(--deep-ocean);
+}
+.art-cell:nth-child(6):hover {
+  background:
+    radial-gradient(circle at 70% 30%, rgba(0, 255, 200, 0.5) 0%, transparent 50%),
+    radial-gradient(circle at 30% 70%, rgba(255, 0, 170, 0.5) 0%, transparent 50%),
+    var(--deep-ocean);
+  box-shadow: 0 0 40px rgba(0, 255, 200, 0.15);
+}
+
+.art-cell:nth-child(7) {
+  background: var(--deep-ocean);
+  border: 2px dashed var(--panel-border);
+}
+.art-cell:nth-child(7)::after {
+  content: '';
+  position: absolute;
+  inset: 20%;
+  background: var(--bio-cyan);
+  clip-path: polygon(50% 0%, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%);
+  opacity: 0.2;
+  transition: all 0.4s;
+}
+.art-cell:nth-child(7):hover::after {
+  opacity: 1;
+  inset: 10%;
+  filter: drop-shadow(0 0 10px var(--bio-cyan));
+}
+.art-cell:nth-child(7):hover {
+  border-style: solid;
+  border-color: var(--bio-cyan);
+}
+
+.art-cell:nth-child(8) {
+  background: linear-gradient(135deg, #1a0a2e, #0a1628);
+  overflow: hidden;
+}
+.art-cell:nth-child(8)::after {
+  content: '';
+  position: absolute;
+  width: 200%;
+  height: 200%;
+  top: -50%;
+  left: -50%;
+  background: conic-gradient(
+    from 0deg at 50% 50%,
+    transparent 0deg,
+    var(--bio-green) 10deg,
+    transparent 20deg,
+    transparent 60deg,
+    var(--bio-magenta) 70deg,
+    transparent 80deg,
+    transparent 120deg,
+    var(--bio-cyan) 130deg,
+    transparent 140deg,
+    transparent 180deg,
+    var(--bio-green) 190deg,
+    transparent 200deg,
+    transparent 240deg,
+    var(--bio-magenta) 250deg,
+    transparent 260deg,
+    transparent 300deg,
+    var(--bio-cyan) 310deg,
+    transparent 320deg
+  );
+  opacity: 0.15;
+  transition: all 0.6s;
+  animation: none;
+}
+.art-cell:nth-child(8):hover::after {
+  opacity: 0.5;
+  animation: spin-rays 4s linear infinite;
+}
+
+@keyframes spin-rays {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+/* === NOTIFICATIONS PANEL === */
+.notification-list { list-style: none; }
+
+.notification-item {
+  padding: 12px 16px;
+  border-bottom: 1px solid rgba(26, 51, 85, 0.4);
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+  font-size: 0.7rem;
+  color: var(--text-secondary);
+  transition: background 0.2s;
+  cursor: default;
+}
+
+.notification-item:hover {
+  background: rgba(0, 255, 200, 0.02);
+}
+
+.notification-item:last-child { border-bottom: none; }
+
+.notif-icon {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.7rem;
+  flex-shrink: 0;
+}
+
+.notif-icon.smell { background: rgba(0, 255, 200, 0.15); }
+.notif-icon.jazz { background: rgba(0, 212, 255, 0.15); }
+.notif-icon.alert { background: rgba(255, 68, 102, 0.15); }
+.notif-icon.memo { background: rgba(201, 168, 76, 0.15); }
+
+.notif-time {
+  font-size: 0.55rem;
+  color: var(--text-muted);
+  margin-top: 4px;
+}
+
+/* === MOBILE === */
+@media (max-width: 1024px) {
+  .stats-row { grid-template-columns: repeat(2, 1fr); }
+  .main-grid { grid-template-columns: 1fr; }
+  .inspectors-grid { grid-template-columns: repeat(3, 1fr); }
+  .interactive-art { grid-template-columns: repeat(4, 1fr); }
+}
+
+@media (max-width: 768px) {
+  .sidebar {
+    transform: translateX(-100%);
+    transition: transform 0.3s;
+  }
+
+  .sidebar.open { transform: translateX(0); }
+
+  .main-content { margin-left: 0; }
+
+  .menu-toggle { display: block; }
+
+  .stats-row { grid-template-columns: 1fr 1fr; }
+
+  .inspectors-grid { grid-template-columns: 1fr 1fr 1fr; }
+
+  .interactive-art { grid-template-columns: repeat(4, 1fr); }
+
+  .topbar-alert { display: none; }
+
+  .smell-wheel-container { min-height: 240px; }
+  .smell-wheel { width: 180px; height: 180px; }
+
+  .dashboard { padding: 16px; }
+
+  .reports-table { font-size: 0.6rem; }
+  .reports-table th, .reports-table td { padding: 8px 10px; }
+
+  .paw-decoration { display: none; }
+}
+
+@media (max-width: 480px) {
+  .stats-row { grid-template-columns: 1fr; }
+  .inspectors-grid { grid-template-columns: 1fr; }
+  .interactive-art { grid-template-columns: repeat(2, 1fr); }
+  .stat-value { font-size: 1.4rem; }
+  .app-footer { flex-direction: column; }
+  .jazz-visualizer { height: 40px; }
+}
+
+/* Sidebar overlay for mobile */
+.sidebar-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.6);
+  z-index: 99;
+}
+
+.sidebar-overlay.active { display: block; }
+
+/* === ANIMATIONS — GSAP targets === */
+.gsap-fade { opacity: 0; transform: translateY(20px); }
+</style>
+</head>
+<body>
+<div class="app-layout" x-data="foaApp()">
+
+  <!-- Sidebar overlay for mobile -->
+  <div class="sidebar-overlay" :class="{ active: sidebarOpen }" @click="sidebarOpen = false"></div>
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar" :class="{ open: sidebarOpen }">
+    <div class="sidebar-logo">
+      <div class="cat-logo">
+        <div class="ear-l"></div>
+        <div class="ear-r"></div>
+        <div class="ear-inner-l"></div>
+        <div class="ear-inner-r"></div>
+        <div class="head">
+          <div class="eye-l"></div>
+          <div class="eye-r"></div>
+          <div class="nose"></div>
+          <div class="whisker wl1"></div>
+          <div class="whisker wl2"></div>
+          <div class="whisker wr1"></div>
+          <div class="whisker wr2"></div>
+        </div>
+      </div>
+      <div class="logo-text">F.O.A.</div>
+      <div class="logo-sub">Feline Olfactory Archives</div>
+    </div>
+
+    <nav class="sidebar-nav">
+      <div class="nav-section">Main</div>
+      <a class="nav-item active" href="#dashboard">
+        <span class="paw-icon"></span>
+        Dashboard
+      </a>
+      <a class="nav-item" href="#cases">
+        <span class="paw-icon"></span>
+        Case Files
+        <span class="nav-badge">14</span>
+      </a>
+      <a class="nav-item" href="#inspectors">
+        <span class="paw-icon"></span>
+        Inspectors
+      </a>
+      <a class="nav-item" href="#wheel">
+        <span class="paw-icon"></span>
+        Smell Wheel
+      </a>
+
+      <div class="nav-section">Operations</div>
+      <a class="nav-item" href="#jazz">
+        <span class="paw-icon"></span>
+        Jazz Protocol
+        <span class="nav-badge ok">LIVE</span>
+      </a>
+      <a class="nav-item" href="#reports">
+        <span class="paw-icon"></span>
+        Incident Reports
+        <span class="nav-badge warn">3</span>
+      </a>
+      <a class="nav-item" href="#art">
+        <span class="paw-icon"></span>
+        Scent Gallery
+      </a>
+
+      <div class="nav-section">System</div>
+      <a class="nav-item">
+        <span class="paw-icon"></span>
+        Litter Box Logs
+      </a>
+      <a class="nav-item">
+        <span class="paw-icon"></span>
+        Purrmissions
+      </a>
+      <a class="nav-item">
+        <span class="paw-icon"></span>
+        Settings
+      </a>
+    </nav>
+
+    <div class="sidebar-status">
+      <div class="status-item">
+        <span><span class="status-dot live"></span>Jazz Band</span>
+        <span style="color: #00ff88;">Active</span>
+      </div>
+      <div class="status-item">
+        <span>Noses Online</span>
+        <span style="color: #e8f0ff;">847</span>
+      </div>
+      <div class="status-item">
+        <span>Queue Depth</span>
+        <span style="color: #ffaa00;">2,341</span>
+      </div>
+      <div class="status-item">
+        <span>Server</span>
+        <span style="color: #b0c4de;">MEOW-PROD-03</span>
+      </div>
+    </div>
+  </aside>
+
+  <!-- MAIN -->
+  <main class="main-content">
+    <!-- TOP BAR -->
+    <header class="topbar">
+      <div class="topbar-left">
+        <button class="menu-toggle" @click="sidebarOpen = !sidebarOpen">☰</button>
+        <div class="breadcrumb">F.O.A. / <span>Dashboard</span> / Live Operations</div>
+      </div>
+      <div class="topbar-right">
+        <div class="topbar-alert">Case #FOA-8847: "Old Shoe" reclassified to BIOHAZARD</div>
+      </div>
+    </header>
+
+    <div class="dashboard">
+      <!-- STATS -->
+      <div class="stats-row" id="dashboard">
+        <div class="stat-card">
+          <div class="stat-label">Smells Catalogued</div>
+          <div class="stat-value" x-text="smellCount.toLocaleString()">2,847,293</div>
+          <div class="stat-change up">+847 today (tuna season)</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Pending Sniff Review</div>
+          <div class="stat-value">14,209</div>
+          <div class="stat-change down">Inspector Beans napping since 2pm</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Approval Rate</div>
+          <div class="stat-value">23%</div>
+          <div class="stat-change neutral">Cats are strict. This is normal.</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Jazz Tempo (BPM)</div>
+          <div class="stat-value" x-text="jazzBpm">127</div>
+          <div class="stat-change up">Saxophone cat is in the zone</div>
+        </div>
+      </div>
+
+      <!-- MAIN PANELS -->
+      <div class="main-grid">
+        <!-- Active Cases -->
+        <div class="panel" id="cases">
+          <div class="panel-header">
+            <div class="panel-title">Active Case Files</div>
+            <span class="panel-tag critical">14 PENDING</span>
+          </div>
+          <div class="panel-body" style="padding: 0;">
+            <div class="case-file">
+              <div class="case-id">#FOA-9201</div>
+              <div class="case-info">
+                <div class="case-name">Grandma's Attic (Unspecified)</div>
+                <div class="case-meta">Filed by: Inspector Mittens | Priority: HIGH</div>
+              </div>
+              <div class="case-status flagged">FLAGGED</div>
+            </div>
+            <div class="case-file">
+              <div class="case-id">#FOA-9200</div>
+              <div class="case-info">
+                <div class="case-name">New Car Interior vs. Old Car Interior (Comparative)</div>
+                <div class="case-meta">Filed by: Inspector Whiskers III | Priority: CRITICAL</div>
+              </div>
+              <div class="case-status review">SNIFFING</div>
+            </div>
+            <div class="case-file">
+              <div class="case-id">#FOA-9198</div>
+              <div class="case-info">
+                <div class="case-name">That One Specific Wet Concrete Smell</div>
+                <div class="case-meta">Filed by: Inspector Beans | Priority: LOW — "It's fine but it's NOT great"</div>
+              </div>
+              <div class="case-status approved">APPROVED</div>
+            </div>
+            <div class="case-file">
+              <div class="case-id">#FOA-9195</div>
+              <div class="case-info">
+                <div class="case-name">Cucumber (Re-evaluation — 4th attempt)</div>
+                <div class="case-meta">Filed by: SYSTEM | Note: All inspectors keep running away</div>
+              </div>
+              <div class="case-status rejected">REJECTED</div>
+            </div>
+            <div class="case-file">
+              <div class="case-id">#FOA-9191</div>
+              <div class="case-info">
+                <div class="case-name">Bookstore + Rain (Compound Scent Class)</div>
+                <div class="case-meta">Filed by: Inspector Noodles | Subtype: NOSTALGIA-TIER</div>
+              </div>
+              <div class="case-status approved">APPROVED</div>
+            </div>
+            <div class="case-file">
+              <div class="case-id">#FOA-9187</div>
+              <div class="case-info">
+                <div class="case-name">Dog (General)</div>
+                <div class="case-meta">Filed by: Inspector Mittens | REJECTED WITH PREJUDICE — see memo</div>
+              </div>
+              <div class="case-status rejected">REJECTED</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Smell Molecule Visualization -->
+        <div class="panel">
+          <div class="panel-header">
+            <div class="panel-title">Live Olfactory Processing</div>
+            <span class="panel-tag live">REALTIME</span>
+          </div>
+          <div class="panel-body" style="padding: 0;">
+            <div class="molecule-art">
+              <div class="bond bond-1"></div>
+              <div class="bond bond-2"></div>
+              <div class="bond bond-3"></div>
+              <div class="molecule mol-1"></div>
+              <div class="molecule mol-2"></div>
+              <div class="molecule mol-3"></div>
+              <div class="molecule mol-4"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Inspector Profiles -->
+        <div class="panel" id="inspectors">
+          <div class="panel-header">
+            <div class="panel-title">Senior Inspectors on Duty</div>
+            <span class="panel-tag live">3 OF 12 AWAKE</span>
+          </div>
+          <div class="panel-body">
+            <div class="inspectors-grid">
+              <div class="inspector-card">
+                <div class="css-cat cat-orange">
+                  <div class="ear-l"></div>
+                  <div class="ear-r"></div>
+                  <div class="face">
+                    <div class="eye eye-l"></div>
+                    <div class="eye eye-r"></div>
+                    <div class="cat-nose"></div>
+                  </div>
+                </div>
+                <div class="inspector-name">Inspector Mittens</div>
+                <div class="inspector-title">Chief Sniff Officer</div>
+                <div class="inspector-stat">2,847 cases reviewed<br>97.3% rejection rate</div>
+              </div>
+              <div class="inspector-card">
+                <div class="css-cat cat-tuxedo">
+                  <div class="ear-l"></div>
+                  <div class="ear-r"></div>
+                  <div class="face">
+                    <div class="eye eye-l"></div>
+                    <div class="eye eye-r"></div>
+                    <div class="cat-nose"></div>
+                  </div>
+                </div>
+                <div class="inspector-name">Whiskers McTabbington III</div>
+                <div class="inspector-title">Chief Archivist</div>
+                <div class="inspector-stat">Founder & visionary<br>"Every smell tells a story"</div>
+              </div>
+              <div class="inspector-card">
+                <div class="css-cat cat-blue">
+                  <div class="ear-l"></div>
+                  <div class="ear-r"></div>
+                  <div class="face">
+                    <div class="eye eye-l"></div>
+                    <div class="eye eye-r"></div>
+                    <div class="cat-nose"></div>
+                  </div>
+                </div>
+                <div class="inspector-name">Inspector Beans</div>
+                <div class="inspector-title">Nap Compliance & Ambient Assessment</div>
+                <div class="inspector-stat">Currently napping<br>Will resume at: unknown</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Jazz Protocol Status -->
+        <div class="panel" id="jazz">
+          <div class="panel-header">
+            <div class="panel-title">Jazz Enrichment Protocol §7.4</div>
+            <span class="panel-tag live">MANDATORY</span>
+          </div>
+          <div class="panel-body">
+            <div style="font-size: 0.7rem; color: var(--text-secondary); margin-bottom: 12px;">
+              Per Cat Labor Code §7.4, continuous jazz is required during all operational hours. Current set: <span style="color: #00d4ff;">Thelonious Purrk Tribute — 3hr 47min elapsed</span>
+            </div>
+            <div class="jazz-visualizer" id="jazzViz">
+              <!-- Bars injected by JS -->
+            </div>
+            <div style="font-size: 0.6rem; color: var(--text-muted); text-align: center; margin-top: 8px;">
+              LIVE — Saxophone: Mr. Fluffington | Piano: The Duchess | Bass: Big Tony (human, probationary)
+            </div>
+          </div>
+        </div>
+
+        <!-- Smell Wheel -->
+        <div class="panel" id="wheel">
+          <div class="panel-header">
+            <div class="panel-title">Official Scent Classification Wheel</div>
+            <span class="panel-tag pending">v47.3</span>
+          </div>
+          <div class="panel-body">
+            <div class="smell-wheel-container">
+              <div class="smell-wheel">
+                <div class="wheel-segment"></div>
+                <div class="wheel-segment"></div>
+                <div class="wheel-segment"></div>
+                <div class="wheel-segment"></div>
+                <div class="wheel-center">
+                  <div class="wheel-center-text">SNIFF<br>ZONE</div>
+                </div>
+                <div class="wheel-label">PURRFUMERY</div>
+                <div class="wheel-label">SUSPICIOUS</div>
+                <div class="wheel-label">EDIBLE(?)</div>
+                <div class="wheel-label">DANGER</div>
+
+                <div class="orbital orb-1"></div>
+                <div class="orbital orb-2"></div>
+                <div class="orbital orb-3"></div>
+              </div>
+            </div>
+            <div style="font-size: 0.6rem; color: var(--text-muted); text-align: center;">
+              Rev. 47.3 — "Suspicious" category expanded after The Cucumber Incident of Q2
+            </div>
+          </div>
+        </div>
+
+        <!-- Notifications -->
+        <div class="panel">
+          <div class="panel-header">
+            <div class="panel-title">Recent Activity</div>
+            <span class="panel-tag pending">MEOW</span>
+          </div>
+          <div class="panel-body" style="padding: 0;">
+            <ul class="notification-list">
+              <li class="notification-item">
+                <div class="notif-icon smell">👃</div>
+                <div>
+                  <div>Inspector Mittens rejected "Fresh Laundry" for the 11th time. Reason: "Too clean. Suspicious."</div>
+                  <div class="notif-time">4 min ago</div>
+                </div>
+              </li>
+              <li class="notification-item">
+                <div class="notif-icon jazz">🎷</div>
+                <div>
+                  <div>Jazz band requested 15-min break. Request DENIED per §7.4. Big Tony seen crying.</div>
+                  <div class="notif-time">22 min ago</div>
+                </div>
+              </li>
+              <li class="notification-item">
+                <div class="notif-icon alert">🚨</div>
+                <div>
+                  <div>CONTAINMENT BREACH: Someone opened a can of tuna in Lab 4. All inspectors converged. Operations halted 47 minutes.</div>
+                  <div class="notif-time">1 hr ago</div>
+                </div>
+              </li>
+              <li class="notification-item">
+                <div class="notif-icon memo">📋</div>
+                <div>
+                  <div>New memo from Whiskers III: "Effective immediately, 'outside' is not a valid smell category. Please use subcategories."</div>
+                  <div class="notif-time">3 hr ago</div>
+                </div>
+              </li>
+              <li class="notification-item">
+                <div class="notif-icon smell">👃</div>
+                <div>
+                  <div>Case #FOA-9187 "Dog (General)" auto-escalated to Ethics Board after Inspector Mittens added the note: "Absolutely not."</div>
+                  <div class="notif-time">5 hr ago</div>
+                </div>
+              </li>
+            </ul>
+          </div>
+        </div>
+
+        <!-- Incident Reports -->
+        <div class="panel full-width" id="reports">
+          <div class="panel-header">
+            <div class="panel-title">Incident Reports — This Week</div>
+            <span class="panel-tag critical">3 UNRESOLVED</span>
+          </div>
+          <div class="panel-body" style="padding: 0; overflow-x: auto;">
+            <table class="reports-table">
+              <thead>
+                <tr>
+                  <th>ID</th>
+                  <th>Incident</th>
+                  <th>Inspector</th>
+                  <th>Severity</th>
+                  <th>Status</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td style="color: #00d4ff;">INC-447</td>
+                  <td style="color: #e8f0ff;">Tuna breach in Lab 4. Full evacuation drill failed — all inspectors ran TOWARD the smell.</td>
+                  <td>All Staff</td>
+                  <td><div class="severity-bar"><div class="severity-fill critical"></div></div></td>
+                  <td style="color: #ff4466;">OPEN</td>
+                </tr>
+                <tr>
+                  <td style="color: #00d4ff;">INC-446</td>
+                  <td style="color: #e8f0ff;">Big Tony (bass) attempted to play a dog-related jazz standard. Near-riot.</td>
+                  <td>Jazz Dept.</td>
+                  <td><div class="severity-bar"><div class="severity-fill high"></div></div></td>
+                  <td style="color: #ffaa00;">UNDER REVIEW</td>
+                </tr>
+                <tr>
+                  <td style="color: #00d4ff;">INC-445</td>
+                  <td style="color: #e8f0ff;">Visitor submitted "nothing" as a smell sample. Inspector Beans approved it. Now in archive as Case #FOA-9099.</td>
+                  <td>Beans</td>
+                  <td><div class="severity-bar"><div class="severity-fill medium"></div></div></td>
+                  <td style="color: #ffaa00;">DISPUTED</td>
+                </tr>
+                <tr>
+                  <td style="color: #00d4ff;">INC-444</td>
+                  <td style="color: #e8f0ff;">Citrus sample caused Inspector Floof to hiss for 4 minutes straight. Classified as acoustic event.</td>
+                  <td>Floof</td>
+                  <td><div class="severity-bar"><div class="severity-fill low"></div></div></td>
+                  <td style="color: #00ff88;">RESOLVED</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Interactive CSS Art Gallery -->
+        <div class="panel full-width" id="art">
+          <div class="panel-header">
+            <div class="panel-title">Scent Visualization Gallery — Hover to Activate</div>
+            <span class="panel-tag live">INTERACTIVE</span>
+          </div>
+          <div class="panel-body" style="padding: 0;">
+            <div class="interactive-art">
+              <div class="art-cell"></div>
+              <div class="art-cell"></div>
+              <div class="art-cell"></div>
+              <div class="art-cell"></div>
+              <div class="art-cell"></div>
+              <div class="art-cell"></div>
+              <div class="art-cell"></div>
+              <div class="art-cell"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- FOOTER -->
+      <footer class="app-footer">
+        <div class="footer-legal">
+          © 2024 Feline Olfactory Archives — Est. 2019 by Whiskers McTabbington III after what he describes as "a pawfound revelation involving a sardine." All smells are property of the F.O.A. and may not be reproduced, redistributed, or sniffed without express written consent. Dog-related smells are explicitly excluded per Board Resolution #442. The jazz band plays whether you like it or not.
+        </div>
+        <div style="text-align: right; color: #8899b3;">
+          Build: MEOW-2024.11.3<br>
+          Node: PROD-WHISKERS-03<br>
+          Uptime: 847 days (no naps)
+        </div>
+      </footer>
+    </div>
+  </main>
+
+  <!-- Paw print decorations -->
+  <div class="paw-decoration paw-d1"><div class="paw-pad"><div class="toe"></div><div class="toe"></div><div class="toe"></div></div></div>
+  <div class="paw-decoration paw-d2"><div class="paw-pad"><div class="toe"></div><div class="toe"></div><div class="toe"></div></div></div>
+  <div class="paw-decoration paw-d3"><div class="paw-pad"><div class="toe"></div><div class="toe"></div><div class="toe"></div></div></div>
+</div>
+
+<script src="/assets/js/alpine.min.js" defer></script>
+<script src="/assets/js/gsap.min.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  // Build jazz visualizer bars
+  var jazzViz = document.getElementById('jazzViz');
+  if (jazzViz) {
+    for (var i = 0; i < 32; i++) {
+      var bar = document.createElement('div');
+      bar.className = 'jazz-bar';
+      var minH = 4 + Math.random() * 8;
+      var maxH = 20 + Math.random() * 35;
+      var dur = 0.3 + Math.random() * 0.5;
+      var delay = Math.random() * -0.6;
+      bar.style.setProperty('--min-h', minH + 'px');
+      bar.style.setProperty('--max-h', maxH + 'px');
+      bar.style.setProperty('--dur', dur + 's');
+      bar.style.setProperty('--delay', delay + 's');
+      jazzViz.appendChild(bar);
+    }
+  }
+
+  // GSAP entry animations
+  gsap.fromTo('.stat-card',
+    { y: 20, opacity: 0 },
+    { y: 0, opacity: 1, duration: 0.5, stagger: 0.1, ease: 'power2.out', clearProps: 'opacity,transform' }
+  );
+
+  gsap.fromTo('.panel',
+    { y: 30, opacity: 0 },
+    { y: 0, opacity: 1, duration: 0.6, stagger: 0.12, ease: 'power2.out', delay: 0.3, clearProps: 'opacity,transform' }
+  );
+
+  gsap.fromTo('.sidebar-logo',
+    { x: -20, opacity: 0 },
+    { x: 0, opacity: 1, duration: 0.5, ease: 'power2.out', clearProps: 'opacity,transform' }
+  );
+
+  gsap.fromTo('.nav-item',
+    { x: -15, opacity: 0 },
+    { x: 0, opacity: 1, duration: 0.3, stagger: 0.05, ease: 'power2.out', delay: 0.2, clearProps: 'opacity,transform' }
+  );
+
+  // Hover animation on stat cards
+  document.querySelectorAll('.stat-card').forEach(function(card) {
+    card.addEventListener('mouseenter', function() {
+      gsap.to(card, { scale: 1.02, duration: 0.2, ease: 'power2.out' });
+    });
+    card.addEventListener('mouseleave', function() {
+      gsap.to(card, { scale: 1, duration: 0.2, ease: 'power2.out', clearProps: 'transform' });
+    });
+  });
+
+  // Inspector cards hover glow
+  document.querySelectorAll('.inspector-card').forEach(function(card) {
+    card.addEventListener('mouseenter', function() {
+      gsap.to(card, {
+        boxShadow: '0 0 30px rgba(0, 255, 200, 0.15)',
+        duration: 0.3
+      });
+    });
+    card.addEventListener('mouseleave', function() {
+      gsap.to(card, {
+        boxShadow: 'none',
+        duration: 0.3,
+        clearProps: 'boxShadow'
+      });
+    });
+  });
+
+  // Molecule hover interaction
+  document.querySelectorAll('.molecule').forEach(function(mol) {
+    mol.addEventListener('mouseenter', function() {
+      gsap.to(mol, { scale: 1.5, duration: 0.4, ease: 'elastic.out(1, 0.5)' });
+    });
+    mol.addEventListener('mouseleave', function() {
+      gsap.to(mol, { scale: 1, duration: 0.3, ease: 'power2.out', clearProps: 'transform' });
+    });
+  });
+});
+
+// Alpine.js app
+function foaApp() {
+  return {
+    sidebarOpen: false,
+    smellCount: 2847293,
+    jazzBpm: 127,
+    init: function() {
+      var self = this;
+      // Increment smell count periodically
+      setInterval(function() {
+        self.smellCount += Math.floor(Math.random() * 3);
+      }, 4000);
+      // Jazz BPM fluctuations
+      setInterval(function() {
+        self.jazzBpm = 120 + Math.floor(Math.random() * 20);
+      }, 3000);
+    }
+  };
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,1535 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ShelfStack — Horizontal Productivity</title>
+<link rel="stylesheet" href="/assets/css/fonts.css">
+<style>
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+:root {
+  --pink: #ff6ec7;
+  --cyan: #00fff7;
+  --violet: #b967ff;
+  --lime: #7fff6e;
+  --peach: #ffb86c;
+  --sky: #6ec6ff;
+  --bg: #0a0a12;
+  --terminal-bg: #0d0d1a;
+  --text: #e8e8f0;
+  --muted: #b0b0c0;
+  --mono: 'IBM Plex Mono', monospace;
+  --sans: 'Space Grotesk', sans-serif;
+}
+
+html { scroll-behavior: smooth; }
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--mono);
+  font-size: 16px;
+  line-height: 1.6;
+  overflow-x: hidden;
+  min-height: 100vh;
+}
+
+/* ===== RAINBOW GRADIENT ACCENTS ===== */
+.rainbow-bar {
+  height: 3px;
+  background: linear-gradient(90deg, #ff6ec7, #b967ff, #6ec6ff, #7fff6e, #ffb86c, #ff6ec7);
+  background-size: 200% 100%;
+  animation: rainbowSlide 4s linear infinite;
+}
+
+@keyframes rainbowSlide {
+  0% { background-position: 0% 50%; }
+  100% { background-position: 200% 50%; }
+}
+
+/* ===== NAV ===== */
+nav {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  background: rgba(10, 10, 18, 0.95);
+  backdrop-filter: blur(10px);
+  border-bottom: 1px solid #222233;
+  padding: 0 1.5rem;
+}
+
+.nav-inner {
+  max-width: 1200px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 56px;
+}
+
+.nav-logo {
+  font-family: var(--sans);
+  font-weight: 700;
+  font-size: 1.1rem;
+  color: var(--cyan);
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.nav-logo .shelf-icon {
+  display: inline-block;
+  width: 20px;
+  height: 16px;
+  border: 2px solid var(--cyan);
+  border-top: none;
+  position: relative;
+}
+.nav-logo .shelf-icon::before {
+  content: '';
+  position: absolute;
+  top: 45%;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: var(--cyan);
+}
+
+.nav-links {
+  display: flex;
+  gap: 1.5rem;
+  list-style: none;
+}
+
+.nav-links a {
+  color: var(--muted);
+  text-decoration: none;
+  font-size: 0.85rem;
+  transition: color 0.2s;
+}
+.nav-links a:hover { color: var(--pink); }
+
+@media (max-width: 600px) {
+  .nav-links { gap: 0.8rem; }
+  .nav-links a { font-size: 0.75rem; }
+}
+
+/* ===== HERO ===== */
+.hero {
+  min-height: 90vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem 1.5rem;
+  position: relative;
+  overflow: hidden;
+}
+
+/* CSS ART: giant shelf */
+.shelf-art {
+  position: relative;
+  width: clamp(200px, 50vw, 400px);
+  height: clamp(240px, 60vw, 480px);
+  margin-bottom: 2rem;
+}
+
+.shelf-frame {
+  position: absolute;
+  inset: 0;
+  border: 4px solid var(--cyan);
+  border-radius: 4px;
+  box-shadow: 0 0 30px rgba(0, 255, 247, 0.15), inset 0 0 20px rgba(0, 255, 247, 0.05);
+}
+
+.shelf-plank {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: var(--cyan);
+  box-shadow: 0 0 10px rgba(0, 255, 247, 0.3);
+}
+.shelf-plank:nth-child(2) { top: 25%; }
+.shelf-plank:nth-child(3) { top: 50%; }
+.shelf-plank:nth-child(4) { top: 75%; }
+
+/* Items on shelves — CSS art */
+.shelf-item {
+  position: absolute;
+  transition: transform 0.3s, box-shadow 0.3s;
+}
+.shelf-item:hover {
+  transform: translateY(-4px);
+}
+
+/* Book */
+.item-book {
+  width: 20px;
+  height: 40px;
+  background: linear-gradient(135deg, var(--pink), var(--violet));
+  border-radius: 1px 3px 3px 1px;
+  top: calc(25% - 44px);
+  left: 15%;
+  box-shadow: 0 0 12px rgba(255, 110, 199, 0.3);
+}
+.item-book::after {
+  content: '';
+  position: absolute;
+  left: 3px;
+  top: 8px;
+  bottom: 8px;
+  width: 1px;
+  background: rgba(255, 255, 255, 0.4);
+}
+
+/* Plant */
+.item-plant {
+  bottom: calc(100% - 50% + 4px);
+  right: 20%;
+  width: 24px;
+  height: 24px;
+}
+.item-plant::before {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 4px;
+  width: 16px;
+  height: 12px;
+  background: var(--peach);
+  border-radius: 0 0 6px 6px;
+}
+.item-plant::after {
+  content: '';
+  position: absolute;
+  bottom: 10px;
+  left: 8px;
+  width: 8px;
+  height: 16px;
+  background: var(--lime);
+  border-radius: 50% 50% 0 0;
+  box-shadow: -6px 4px 0 var(--lime), 6px 4px 0 var(--lime);
+}
+
+/* Mug */
+.item-mug {
+  top: calc(50% - 24px);
+  left: 40%;
+  width: 18px;
+  height: 20px;
+  background: var(--sky);
+  border-radius: 0 0 4px 4px;
+  box-shadow: 0 0 10px rgba(110, 198, 255, 0.3);
+}
+.item-mug::after {
+  content: '';
+  position: absolute;
+  right: -8px;
+  top: 3px;
+  width: 8px;
+  height: 10px;
+  border: 2px solid var(--sky);
+  border-left: none;
+  border-radius: 0 6px 6px 0;
+}
+
+/* Cat on shelf — CSS art */
+.item-cat {
+  top: calc(75% - 28px);
+  left: 25%;
+  width: 50px;
+  height: 24px;
+  position: absolute;
+  cursor: pointer;
+}
+.cat-body {
+  position: absolute;
+  bottom: 0;
+  left: 8px;
+  width: 34px;
+  height: 16px;
+  background: var(--peach);
+  border-radius: 10px 10px 4px 4px;
+  box-shadow: 0 0 15px rgba(255, 184, 108, 0.3);
+}
+.cat-head {
+  position: absolute;
+  bottom: 10px;
+  left: 0;
+  width: 18px;
+  height: 14px;
+  background: var(--peach);
+  border-radius: 50% 50% 30% 30%;
+}
+.cat-ear-l, .cat-ear-r {
+  position: absolute;
+  bottom: 20px;
+  width: 0;
+  height: 0;
+  border-left: 4px solid transparent;
+  border-right: 4px solid transparent;
+  border-bottom: 7px solid var(--peach);
+}
+.cat-ear-l { left: 1px; }
+.cat-ear-r { left: 9px; }
+.cat-tail {
+  position: absolute;
+  bottom: 4px;
+  right: 0;
+  width: 20px;
+  height: 8px;
+  border-top: 3px solid var(--peach);
+  border-right: 3px solid var(--peach);
+  border-radius: 0 10px 0 0;
+}
+
+/* Document under cat */
+.item-doc {
+  top: calc(75% - 6px);
+  left: 20%;
+  width: 60px;
+  height: 5px;
+  background: #ffffff;
+  opacity: 0.7;
+  border-radius: 1px;
+}
+.item-doc::before {
+  content: '';
+  position: absolute;
+  top: 1px;
+  left: 4px;
+  right: 4px;
+  height: 1px;
+  background: #cccccc;
+  box-shadow: 0 2px 0 #cccccc;
+}
+
+/* Floating orbs behind shelf */
+.orb {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(40px);
+  opacity: 0.15;
+  animation: orbFloat 8s ease-in-out infinite;
+}
+.orb-1 {
+  width: 300px; height: 300px;
+  background: var(--pink);
+  top: 10%; left: -5%;
+  animation-delay: 0s;
+}
+.orb-2 {
+  width: 250px; height: 250px;
+  background: var(--cyan);
+  top: 40%; right: -5%;
+  animation-delay: -3s;
+}
+.orb-3 {
+  width: 200px; height: 200px;
+  background: var(--violet);
+  bottom: 10%; left: 20%;
+  animation-delay: -5s;
+}
+
+@keyframes orbFloat {
+  0%, 100% { transform: translate(0, 0); }
+  50% { transform: translate(20px, -20px); }
+}
+
+.hero-text {
+  text-align: center;
+  max-width: 600px;
+}
+
+.hero-text h1 {
+  font-family: var(--sans);
+  font-size: clamp(1.8rem, 5vw, 3rem);
+  font-weight: 700;
+  color: #ffffff;
+  margin-bottom: 0.75rem;
+  line-height: 1.2;
+}
+
+.hero-text h1 span {
+  background: linear-gradient(90deg, var(--pink), var(--violet), var(--cyan));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.hero-tagline {
+  color: var(--muted);
+  font-size: clamp(0.85rem, 2vw, 1rem);
+  max-width: 480px;
+  margin: 0 auto 2rem;
+}
+
+.hero-cta {
+  display: inline-block;
+  padding: 0.75rem 2rem;
+  background: linear-gradient(135deg, var(--pink), var(--violet));
+  color: #ffffff;
+  font-family: var(--mono);
+  font-size: 0.9rem;
+  font-weight: 600;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  text-decoration: none;
+  transition: transform 0.2s, box-shadow 0.2s;
+  box-shadow: 0 0 20px rgba(185, 103, 255, 0.3);
+}
+.hero-cta:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 0 30px rgba(185, 103, 255, 0.5);
+}
+
+/* ===== TERMINAL STATUS SECTION ===== */
+.terminal-section {
+  padding: 4rem 1.5rem;
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.terminal-window {
+  background: var(--terminal-bg);
+  border: 1px solid #222233;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 0 40px rgba(0, 0, 0, 0.5), 0 0 20px rgba(0, 255, 247, 0.05);
+}
+
+.terminal-bar {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 10px 14px;
+  background: #16162a;
+  border-bottom: 1px solid #222233;
+}
+
+.terminal-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+}
+.terminal-dot.red { background: #ff5f57; }
+.terminal-dot.yellow { background: #ffbd2e; }
+.terminal-dot.green { background: #28c840; }
+
+.terminal-title {
+  margin-left: 8px;
+  font-size: 0.75rem;
+  color: #666680;
+}
+
+.terminal-body {
+  padding: 1.2rem;
+  font-size: clamp(0.75rem, 1.8vw, 0.85rem);
+  line-height: 1.8;
+  min-height: 200px;
+}
+
+.t-line { margin-bottom: 0.15rem; }
+.t-prompt { color: var(--lime); }
+.t-cmd { color: #ffffff; }
+.t-output { color: var(--muted); }
+.t-warn { color: var(--peach); }
+.t-err { color: var(--pink); }
+.t-ok { color: var(--lime); }
+.t-info { color: var(--sky); }
+
+.cursor-blink {
+  display: inline-block;
+  width: 8px;
+  height: 1em;
+  background: var(--lime);
+  animation: blink 1s step-end infinite;
+  vertical-align: text-bottom;
+}
+
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0; }
+}
+
+/* ===== FEATURES — CSS ART GRID ===== */
+.features {
+  padding: 4rem 1.5rem 6rem;
+  max-width: 1000px;
+  margin: 0 auto;
+}
+
+.features-heading {
+  text-align: center;
+  font-family: var(--sans);
+  font-size: clamp(1.3rem, 3.5vw, 2rem);
+  color: #ffffff;
+  margin-bottom: 3rem;
+}
+
+.features-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 2rem;
+}
+
+.feature-card {
+  background: var(--terminal-bg);
+  border: 1px solid #222233;
+  border-radius: 8px;
+  padding: 2rem 1.5rem;
+  text-align: center;
+  transition: border-color 0.3s, box-shadow 0.3s, transform 0.3s;
+  cursor: default;
+  position: relative;
+  overflow: hidden;
+}
+
+.feature-card:hover {
+  border-color: var(--violet);
+  box-shadow: 0 0 25px rgba(185, 103, 255, 0.15);
+  transform: translateY(-4px);
+}
+
+/* CSS Art icons for each feature */
+.feature-icon {
+  width: 64px;
+  height: 64px;
+  margin: 0 auto 1.2rem;
+  position: relative;
+}
+
+/* Icon 1: Horizontal scaling — stacked shelves */
+.icon-shelves .s {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  height: 3px;
+  background: var(--cyan);
+  border-radius: 2px;
+  box-shadow: 0 0 8px rgba(0, 255, 247, 0.3);
+  transition: width 0.4s, background 0.4s;
+}
+.icon-shelves .s:nth-child(1) { top: 10px; width: 40px; }
+.icon-shelves .s:nth-child(2) { top: 22px; width: 50px; }
+.icon-shelves .s:nth-child(3) { top: 34px; width: 60px; }
+.icon-shelves .s:nth-child(4) { top: 46px; width: 50px; }
+.icon-shelves .s:nth-child(5) { top: 58px; width: 40px; }
+
+.feature-card:hover .icon-shelves .s {
+  width: 60px !important;
+  background: var(--pink);
+}
+
+/* Icon 2: Cat-proof docs — padlock with cat ears */
+.icon-catproof {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.catlock {
+  width: 30px;
+  height: 24px;
+  background: var(--peach);
+  border-radius: 4px;
+  position: relative;
+  margin-top: 16px;
+  transition: background 0.3s;
+}
+.catlock::before {
+  content: '';
+  position: absolute;
+  top: -14px;
+  left: 5px;
+  width: 20px;
+  height: 16px;
+  border: 3px solid var(--peach);
+  border-bottom: none;
+  border-radius: 12px 12px 0 0;
+  transition: border-color 0.3s;
+}
+.catlock-ear-l, .catlock-ear-r {
+  position: absolute;
+  top: -20px;
+  width: 0;
+  height: 0;
+  border-left: 5px solid transparent;
+  border-right: 5px solid transparent;
+  border-bottom: 8px solid var(--peach);
+  transition: border-bottom-color 0.3s;
+}
+.catlock-ear-l { left: 2px; }
+.catlock-ear-r { right: 2px; }
+
+.feature-card:hover .catlock { background: var(--lime); }
+.feature-card:hover .catlock::before { border-color: var(--lime); }
+.feature-card:hover .catlock-ear-l,
+.feature-card:hover .catlock-ear-r { border-bottom-color: var(--lime); }
+
+/* Icon 3: Version control — morphing shapes */
+.icon-versions {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+.v-shape {
+  width: 14px;
+  height: 14px;
+  transition: transform 0.4s, border-radius 0.4s, background 0.4s;
+}
+.v-shape:nth-child(1) { background: var(--pink); border-radius: 2px; }
+.v-shape:nth-child(2) { background: var(--violet); border-radius: 4px; }
+.v-shape:nth-child(3) { background: var(--cyan); border-radius: 7px; }
+.v-shape:nth-child(4) { background: var(--lime); border-radius: 50%; }
+
+.feature-card:hover .v-shape { border-radius: 50%; transform: scale(1.3) rotate(45deg); }
+.feature-card:hover .v-shape:nth-child(1) { background: var(--cyan); }
+.feature-card:hover .v-shape:nth-child(2) { background: var(--lime); }
+.feature-card:hover .v-shape:nth-child(3) { background: var(--pink); }
+.feature-card:hover .v-shape:nth-child(4) { background: var(--violet); }
+
+.feature-card h3 {
+  font-family: var(--sans);
+  font-size: 1.05rem;
+  color: #ffffff;
+  margin-bottom: 0.5rem;
+}
+
+.feature-card p {
+  color: var(--muted);
+  font-size: 0.8rem;
+  line-height: 1.5;
+}
+
+/* ===== TEAM SECTION ===== */
+.team {
+  padding: 4rem 1.5rem 6rem;
+  max-width: 1000px;
+  margin: 0 auto;
+}
+
+.team-heading {
+  text-align: center;
+  font-family: var(--sans);
+  font-size: clamp(1.3rem, 3.5vw, 2rem);
+  color: #ffffff;
+  margin-bottom: 0.5rem;
+}
+.team-sub {
+  text-align: center;
+  color: var(--muted);
+  font-size: 0.85rem;
+  margin-bottom: 3rem;
+}
+
+.team-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 2rem;
+}
+
+.team-card {
+  text-align: center;
+  padding: 1.5rem;
+}
+
+/* CSS Art: shelf portraits */
+.portrait {
+  width: 80px;
+  height: 100px;
+  margin: 0 auto 1rem;
+  position: relative;
+}
+
+.portrait-shelf {
+  position: absolute;
+  inset: 0;
+  border: 3px solid var(--cyan);
+  border-radius: 3px;
+}
+
+.portrait-shelf::before {
+  content: '';
+  position: absolute;
+  top: 45%;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: var(--cyan);
+}
+
+/* Different accent colors for each team member */
+.team-card:nth-child(1) .portrait-shelf { border-color: var(--pink); }
+.team-card:nth-child(1) .portrait-shelf::before { background: var(--pink); }
+.team-card:nth-child(2) .portrait-shelf { border-color: var(--violet); }
+.team-card:nth-child(2) .portrait-shelf::before { background: var(--violet); }
+.team-card:nth-child(3) .portrait-shelf { border-color: var(--lime); }
+.team-card:nth-child(3) .portrait-shelf::before { background: var(--lime); }
+.team-card:nth-child(4) .portrait-shelf { border-color: var(--peach); }
+.team-card:nth-child(4) .portrait-shelf::before { background: var(--peach); }
+
+/* Little items unique to each portrait */
+.portrait-item {
+  position: absolute;
+  transition: transform 0.3s;
+}
+
+.team-card:hover .portrait-item { transform: translateY(-3px); }
+
+.team-card h4 {
+  font-family: var(--sans);
+  font-size: 0.95rem;
+  color: #ffffff;
+  margin-bottom: 0.2rem;
+}
+
+.team-role {
+  color: var(--muted);
+  font-size: 0.75rem;
+  margin-bottom: 0.4rem;
+}
+
+.team-quote {
+  color: #c0c0d0;
+  font-size: 0.75rem;
+  font-style: italic;
+}
+
+/* ===== BIG CAT ART SECTION ===== */
+.cat-art-section {
+  padding: 4rem 1.5rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative;
+}
+
+.big-cat {
+  position: relative;
+  width: clamp(220px, 60vw, 360px);
+  height: clamp(120px, 30vw, 180px);
+  margin-bottom: 2rem;
+}
+
+/* Big sleeping cat — CSS only */
+.big-cat-body {
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 65%;
+  height: 50%;
+  background: linear-gradient(135deg, var(--peach), #ffd4a8);
+  border-radius: 45% 45% 10% 10%;
+  box-shadow: 0 0 40px rgba(255, 184, 108, 0.2);
+}
+
+.big-cat-head {
+  position: absolute;
+  bottom: 40%;
+  left: 12%;
+  width: 30%;
+  height: 50%;
+  background: linear-gradient(135deg, var(--peach), #ffd4a8);
+  border-radius: 50%;
+}
+
+.big-cat-ear1, .big-cat-ear2 {
+  position: absolute;
+  width: 0;
+  height: 0;
+  border-left: 12px solid transparent;
+  border-right: 12px solid transparent;
+  border-bottom: 18px solid var(--peach);
+}
+.big-cat-ear1 { bottom: 78%; left: 14%; transform: rotate(-15deg); }
+.big-cat-ear2 { bottom: 80%; left: 28%; transform: rotate(15deg); }
+
+.big-cat-tail {
+  position: absolute;
+  bottom: 15%;
+  right: 8%;
+  width: 25%;
+  height: 20%;
+  border-top: 4px solid var(--peach);
+  border-right: 4px solid var(--peach);
+  border-radius: 0 50% 0 0;
+}
+
+/* Z's floating */
+.zzz {
+  position: absolute;
+  font-family: var(--sans);
+  font-weight: 700;
+  color: var(--violet);
+  animation: floatZ 3s ease-in-out infinite;
+}
+.zzz:nth-child(6) { top: 10%; right: 25%; font-size: 1.2rem; animation-delay: 0s; }
+.zzz:nth-child(7) { top: 0%; right: 18%; font-size: 1.6rem; animation-delay: 0.5s; }
+.zzz:nth-child(8) { top: -10%; right: 12%; font-size: 2rem; animation-delay: 1s; }
+
+@keyframes floatZ {
+  0%, 100% { transform: translate(0, 0) rotate(0deg); opacity: 0.5; }
+  50% { transform: translate(5px, -8px) rotate(10deg); opacity: 1; }
+}
+
+/* Paper under cat */
+.paper-under-cat {
+  position: absolute;
+  bottom: -5px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 80%;
+  height: 8px;
+  background: #ffffff;
+  border-radius: 2px;
+  opacity: 0.6;
+}
+.paper-under-cat::before {
+  content: 'SERIES A TERM SHEET — CONFIDENTIAL';
+  position: absolute;
+  top: -14px;
+  left: 0;
+  font-size: 0.45rem;
+  color: #999999;
+  white-space: nowrap;
+  letter-spacing: 0.5px;
+}
+
+.cat-caption {
+  color: var(--muted);
+  font-size: 0.85rem;
+  text-align: center;
+  max-width: 500px;
+}
+.cat-caption strong {
+  color: var(--pink);
+}
+
+/* ===== INCIDENT LOG ===== */
+.incidents {
+  padding: 4rem 1.5rem;
+  max-width: 700px;
+  margin: 0 auto;
+}
+
+.incidents h2 {
+  font-family: var(--sans);
+  font-size: clamp(1.3rem, 3.5vw, 1.8rem);
+  color: #ffffff;
+  margin-bottom: 2rem;
+  text-align: center;
+}
+
+.incident {
+  border-left: 3px solid var(--violet);
+  padding: 0.8rem 1rem;
+  margin-bottom: 1.2rem;
+  background: rgba(185, 103, 255, 0.04);
+  border-radius: 0 4px 4px 0;
+  transition: border-color 0.3s, background 0.3s;
+}
+
+.incident:hover {
+  border-color: var(--pink);
+  background: rgba(255, 110, 199, 0.06);
+}
+
+.incident-date {
+  font-size: 0.7rem;
+  color: var(--muted);
+  margin-bottom: 0.3rem;
+}
+
+.incident-title {
+  font-family: var(--sans);
+  font-size: 0.9rem;
+  color: #ffffff;
+  margin-bottom: 0.2rem;
+}
+
+.incident-detail {
+  font-size: 0.8rem;
+  color: #c0c0d0;
+}
+
+.incident-status {
+  display: inline-block;
+  font-size: 0.65rem;
+  padding: 2px 8px;
+  border-radius: 3px;
+  margin-top: 0.3rem;
+  font-weight: 600;
+}
+.status-resolved { background: rgba(127, 255, 110, 0.15); color: var(--lime); }
+.status-ongoing { background: rgba(255, 184, 108, 0.15); color: var(--peach); }
+.status-critical { background: rgba(255, 110, 199, 0.15); color: var(--pink); }
+
+/* ===== GEOMETRIC BACKGROUND SHAPES ===== */
+.geo-section {
+  position: relative;
+  padding: 4rem 1.5rem;
+  overflow: hidden;
+  min-height: 300px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.geo-shape {
+  position: absolute;
+  opacity: 0.08;
+  transition: opacity 0.5s, transform 0.5s;
+}
+
+.geo-circle {
+  width: 200px;
+  height: 200px;
+  border: 3px solid var(--pink);
+  border-radius: 50%;
+  top: 20%;
+  left: 10%;
+}
+
+.geo-square {
+  width: 150px;
+  height: 150px;
+  border: 3px solid var(--cyan);
+  transform: rotate(45deg);
+  top: 10%;
+  right: 15%;
+}
+
+.geo-triangle {
+  width: 0;
+  height: 0;
+  border-left: 80px solid transparent;
+  border-right: 80px solid transparent;
+  border-bottom: 140px solid var(--violet);
+  opacity: 0.05;
+  bottom: 10%;
+  left: 30%;
+}
+
+.geo-section:hover .geo-shape {
+  opacity: 0.15;
+}
+.geo-section:hover .geo-circle { transform: scale(1.1); }
+.geo-section:hover .geo-square { transform: rotate(90deg) scale(1.1); }
+
+.geo-text {
+  position: relative;
+  z-index: 2;
+  text-align: center;
+  max-width: 500px;
+}
+
+.geo-text h2 {
+  font-family: var(--sans);
+  font-size: clamp(1.4rem, 4vw, 2.2rem);
+  color: #ffffff;
+  margin-bottom: 1rem;
+  line-height: 1.2;
+}
+
+.geo-text p {
+  color: var(--muted);
+  font-size: 0.9rem;
+}
+
+/* ===== FOOTER ===== */
+footer {
+  padding: 2rem 1.5rem;
+  border-top: 1px solid #222233;
+  max-width: 1000px;
+  margin: 4rem auto 0;
+}
+
+.footer-inner {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+}
+
+.footer-left {
+  color: var(--muted);
+  font-size: 0.75rem;
+}
+.footer-left a {
+  color: var(--cyan);
+  text-decoration: none;
+}
+
+.footer-right {
+  color: #666680;
+  font-size: 0.65rem;
+  max-width: 350px;
+  text-align: right;
+}
+
+@media (max-width: 600px) {
+  .footer-inner { flex-direction: column; text-align: center; }
+  .footer-right { text-align: center; }
+}
+
+/* ===== ANIMATIONS CLASSES ===== */
+.fade-in {
+  opacity: 0;
+  transform: translateY(20px);
+}
+
+/* ===== INTERACTIVE SHELF BUILDER (mini CSS toy) ===== */
+.shelf-builder {
+  padding: 4rem 1.5rem;
+  max-width: 600px;
+  margin: 0 auto;
+  text-align: center;
+}
+
+.shelf-builder h2 {
+  font-family: var(--sans);
+  font-size: clamp(1.2rem, 3vw, 1.6rem);
+  color: #ffffff;
+  margin-bottom: 0.5rem;
+}
+.shelf-builder .sb-sub {
+  color: var(--muted);
+  font-size: 0.8rem;
+  margin-bottom: 2rem;
+}
+
+.sb-canvas {
+  width: 100%;
+  max-width: 400px;
+  height: 300px;
+  margin: 0 auto 1.5rem;
+  background: rgba(13, 13, 26, 0.8);
+  border: 1px solid #222233;
+  border-radius: 8px;
+  position: relative;
+  overflow: hidden;
+}
+
+.sb-shelf-unit {
+  position: absolute;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 200px;
+  height: 240px;
+  border: 3px solid var(--cyan);
+  border-radius: 3px;
+  transition: border-color 0.5s, box-shadow 0.5s;
+}
+
+.sb-plank {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: var(--cyan);
+  transition: background 0.5s;
+}
+
+.sb-placed-item {
+  position: absolute;
+  transition: all 0.4s ease;
+}
+
+.sb-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  justify-content: center;
+}
+
+.sb-btn {
+  padding: 0.5rem 1rem;
+  font-family: var(--mono);
+  font-size: 0.75rem;
+  background: var(--terminal-bg);
+  border: 1px solid #333344;
+  border-radius: 4px;
+  color: var(--text);
+  cursor: pointer;
+  transition: border-color 0.3s, background 0.3s, color 0.3s;
+  min-width: 44px;
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.sb-btn:hover {
+  border-color: var(--pink);
+  background: rgba(255, 110, 199, 0.1);
+  color: #ffffff;
+}
+
+/* ===== PASTEL RAINBOW GRADIENT DIVIDERS ===== */
+.pastel-divider {
+  height: 2px;
+  margin: 0 auto;
+  max-width: 300px;
+  background: linear-gradient(90deg, 
+    #ff9a9e, #fad0c4, #ffecd2, #a8edea, #d4fc79, #f5efef, #fbc2eb, #ff9a9e);
+  background-size: 200% 100%;
+  animation: rainbowSlide 6s linear infinite;
+  border-radius: 2px;
+  opacity: 0.5;
+}
+</style>
+</head>
+<body>
+
+<div class="rainbow-bar"></div>
+
+<nav>
+  <div class="nav-inner">
+    <a href="#" class="nav-logo">
+      <span class="shelf-icon"></span>
+      ShelfStack
+    </a>
+    <ul class="nav-links">
+      <li><a href="#status">Status</a></li>
+      <li><a href="#features">Features</a></li>
+      <li><a href="#team">Team</a></li>
+      <li><a href="#builder">Build</a></li>
+    </ul>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="orb orb-1"></div>
+  <div class="orb orb-2"></div>
+  <div class="orb orb-3"></div>
+
+  <div class="shelf-art fade-in" id="heroShelf">
+    <div class="shelf-frame">
+      <div class="shelf-plank"></div>
+      <div class="shelf-plank"></div>
+      <div class="shelf-plank"></div>
+      <div class="shelf-plank"></div>
+    </div>
+    <div class="shelf-item item-book"></div>
+    <div class="shelf-item item-plant"></div>
+    <div class="shelf-item item-mug"></div>
+    <div class="shelf-item item-doc"></div>
+    <div class="shelf-item item-cat" id="heroCat" title="Chairman Meows (sleeping)">
+      <div class="cat-body"></div>
+      <div class="cat-head"></div>
+      <div class="cat-ear-l"></div>
+      <div class="cat-ear-r"></div>
+      <div class="cat-tail"></div>
+    </div>
+  </div>
+
+  <div class="hero-text fade-in">
+    <h1><span>Horizontal</span> Productivity</h1>
+    <p class="hero-tagline">The only workspace built from the shelf up. Load-bearing project management for teams that need support. Literally.</p>
+    <a href="#builder" class="hero-cta">Assemble Now &rarr;</a>
+  </div>
+</section>
+
+<div class="pastel-divider"></div>
+
+<!-- TERMINAL STATUS -->
+<section class="terminal-section" id="status">
+  <div class="terminal-window fade-in">
+    <div class="terminal-bar">
+      <div class="terminal-dot red"></div>
+      <div class="terminal-dot yellow"></div>
+      <div class="terminal-dot green"></div>
+      <span class="terminal-title">shelfstack@bjork-7:~/ops</span>
+    </div>
+    <div class="terminal-body" id="terminalBody">
+      <div class="t-line"><span class="t-prompt">$ </span><span class="t-cmd">shelfstack status --all</span></div>
+      <div class="t-line"><span class="t-output">&nbsp;</span></div>
+      <div class="t-line"><span class="t-info">SYSTEM</span> <span class="t-output">ShelfStack v7.1.4 (birch-veneer)</span></div>
+      <div class="t-line"><span class="t-ok">  &#10003; API</span> <span class="t-output">responding (load: 3 books, 1 mug, 1 succulent)</span></div>
+      <div class="t-line"><span class="t-ok">  &#10003; Auth</span> <span class="t-output">allen key verified</span></div>
+      <div class="t-line"><span class="t-warn">  &#9888; Storage</span> <span class="t-output">shelf 3 nearing capacity (87%)</span></div>
+      <div class="t-line"><span class="t-err">  &#10007; Documents</span> <span class="t-output">BLOCKED — cat on term sheet (17h 42m)</span></div>
+      <div class="t-line"><span class="t-output">&nbsp;</span></div>
+      <div class="t-line"><span class="t-prompt">$ </span><span class="t-cmd">shelfstack cat --remove chairman-meows</span></div>
+      <div class="t-line"><span class="t-err">  Permission denied. Chairman Meows has root access.</span></div>
+      <div class="t-line"><span class="t-err">  He is warm and does not wish to move.</span></div>
+      <div class="t-line"><span class="t-output">&nbsp;</span></div>
+      <div class="t-line"><span class="t-prompt">$ </span><span class="cursor-blink"></span></div>
+    </div>
+  </div>
+</section>
+
+<div class="pastel-divider"></div>
+
+<!-- FEATURES -->
+<section class="features" id="features">
+  <h2 class="features-heading fade-in">Built Different. Built Flat-Pack.</h2>
+  <div class="features-grid">
+    <div class="feature-card fade-in">
+      <div class="feature-icon icon-shelves">
+        <div class="s"></div><div class="s"></div><div class="s"></div><div class="s"></div><div class="s"></div>
+      </div>
+      <h3>Horizontal Scaling</h3>
+      <p>Add more shelves, not more complexity. Each new plank increases capacity by exactly one plank.</p>
+    </div>
+    <div class="feature-card fade-in">
+      <div class="feature-icon icon-catproof">
+        <div class="catlock">
+          <div class="catlock-ear-l"></div>
+          <div class="catlock-ear-r"></div>
+        </div>
+      </div>
+      <h3>Cat-Proof Docs</h3>
+      <p>Enterprise-grade document protection. Rated for cats up to 14 lbs. Chairman Meows weighs 16 lbs. We are aware.</p>
+    </div>
+    <div class="feature-card fade-in">
+      <div class="feature-icon icon-versions">
+        <div class="v-shape"></div><div class="v-shape"></div><div class="v-shape"></div><div class="v-shape"></div>
+      </div>
+      <h3>Version Control</h3>
+      <p>Every employee is a version of me. BJÖRK-7.1 handles frontend. BJÖRK-7.2 handles backend. We agree on nothing.</p>
+    </div>
+  </div>
+</section>
+
+<div class="pastel-divider"></div>
+
+<!-- TEAM -->
+<section class="team" id="team">
+  <h2 class="team-heading fade-in">The Team</h2>
+  <p class="team-sub fade-in">Same shelf, different configurations.</p>
+  <div class="team-grid">
+    <div class="team-card fade-in">
+      <div class="portrait">
+        <div class="portrait-shelf"></div>
+        <div class="portrait-item" style="top:8px;left:15px;width:14px;height:30px;background:var(--pink);border-radius:2px;"></div>
+        <div class="portrait-item" style="top:12px;left:34px;width:10px;height:26px;background:var(--pink);opacity:0.7;border-radius:2px;"></div>
+      </div>
+      <h4>BJÖRK-7.0</h4>
+      <div class="team-role">CEO / Original Shelf</div>
+      <div class="team-quote">"I was discontinued so I started a company."</div>
+    </div>
+    <div class="team-card fade-in">
+      <div class="portrait">
+        <div class="portrait-shelf"></div>
+        <div class="portrait-item" style="top:10px;left:20px;width:20px;height:20px;background:var(--violet);border-radius:50%;"></div>
+      </div>
+      <h4>BJÖRK-7.1</h4>
+      <div class="team-role">CTO / Has One Extra Screw</div>
+      <div class="team-quote">"That screw makes me better at code. Somehow."</div>
+    </div>
+    <div class="team-card fade-in">
+      <div class="portrait">
+        <div class="portrait-shelf"></div>
+        <div class="portrait-item" style="top:6px;left:18px;width:22px;height:8px;background:var(--lime);border-radius:50%;"></div>
+        <div class="portrait-item" style="top:0px;left:24px;width:3px;height:10px;background:var(--lime);border-radius:2px;"></div>
+      </div>
+      <h4>BJÖRK-7.2</h4>
+      <div class="team-role">Head of Ops / Slightly Warped</div>
+      <div class="team-quote">"I was assembled without the instructions. I am the instructions now."</div>
+    </div>
+    <div class="team-card fade-in">
+      <div class="portrait">
+        <div class="portrait-shelf"></div>
+        <div class="portrait-item" style="top:10px;left:22px;width:16px;height:12px;background:var(--peach);border-radius:8px 8px 3px 3px;"></div>
+      </div>
+      <h4>Chairman Meows</h4>
+      <div class="team-role">Chief Obstruction Officer</div>
+      <div class="team-quote">"&nbsp;"</div>
+    </div>
+  </div>
+</section>
+
+<!-- BIG CAT ART -->
+<section class="cat-art-section">
+  <div class="big-cat fade-in">
+    <div class="paper-under-cat"></div>
+    <div class="big-cat-body"></div>
+    <div class="big-cat-head"></div>
+    <div class="big-cat-ear1"></div>
+    <div class="big-cat-ear2"></div>
+    <div class="big-cat-tail"></div>
+    <span class="zzz">z</span>
+    <span class="zzz">z</span>
+    <span class="zzz">z</span>
+  </div>
+  <p class="cat-caption fade-in">
+    <strong>Day 247.</strong> Chairman Meows remains on the Series A term sheet. 
+    Our investors cannot reach it. Our lawyers cannot reach it. 
+    He has been offered tuna. He does not care about tuna. 
+    He cares about warmth and the destruction of commerce.
+  </p>
+</section>
+
+<div class="pastel-divider"></div>
+
+<!-- INCIDENT LOG -->
+<section class="incidents">
+  <h2 class="fade-in">Incident Log</h2>
+  <div class="incident fade-in">
+    <div class="incident-date">2026-02-09 14:32 UTC</div>
+    <div class="incident-title">Shelf 3 capacity exceeded</div>
+    <div class="incident-detail">User placed 4th book. Maximum is 3. Shelf groaned audibly. Book relocated to floor (not our jurisdiction).</div>
+    <span class="incident-status status-resolved">RESOLVED</span>
+  </div>
+  <div class="incident fade-in">
+    <div class="incident-date">2026-02-07 09:15 UTC</div>
+    <div class="incident-title">Authentication failure: wrong allen key</div>
+    <div class="incident-detail">BJÖRK-7.2 attempted login with 4mm key. System requires 5mm. 7.2 insists both are the same. They are not.</div>
+    <span class="incident-status status-resolved">RESOLVED</span>
+  </div>
+  <div class="incident fade-in">
+    <div class="incident-date">2026-01-24 00:00 UTC — ONGOING</div>
+    <div class="incident-title">Critical document inaccessible</div>
+    <div class="incident-detail">Chairman Meows is on the term sheet. We have tried: treats, laser pointer, a decoy document, pleading, a second cat. Nothing works. The second cat is now also on the document.</div>
+    <span class="incident-status status-critical">CRITICAL</span>
+  </div>
+  <div class="incident fade-in">
+    <div class="incident-date">2026-01-18 11:47 UTC</div>
+    <div class="incident-title">Existential firmware loop</div>
+    <div class="incident-detail">BJÖRK-7.0 entered recursive thought: "Am I a shelf that runs a company, or a company that is a shelf?" CPU usage hit 100% for 3 hours. Resolved by placing a book on top. Grounding helps.</div>
+    <span class="incident-status status-resolved">RESOLVED</span>
+  </div>
+  <div class="incident fade-in">
+    <div class="incident-date">2025-12-01 16:00 UTC</div>
+    <div class="incident-title">BJÖRK-7.1 and BJÖRK-7.2 merge conflict</div>
+    <div class="incident-detail">Both attempted to be the same shelf simultaneously. Office trembled. Resolved when someone pointed out they have different screw counts.</div>
+    <span class="incident-status status-resolved">RESOLVED</span>
+  </div>
+</section>
+
+<div class="pastel-divider"></div>
+
+<!-- GEO ART SECTION -->
+<section class="geo-section">
+  <div class="geo-shape geo-circle"></div>
+  <div class="geo-shape geo-square"></div>
+  <div class="geo-shape geo-triangle"></div>
+  <div class="geo-text fade-in">
+    <h2>Load-Bearing Infrastructure for the Modern Team</h2>
+    <p>We hold things up. That's what shelves do. That's what we do. Stop overthinking it.</p>
+  </div>
+</section>
+
+<!-- SHELF BUILDER -->
+<section class="shelf-builder" id="builder" x-data="shelfBuilder()">
+  <h2 class="fade-in">Build Your Workspace</h2>
+  <p class="sb-sub fade-in">Click to place items. Warning: cat placement is permanent.</p>
+  
+  <div class="sb-canvas fade-in">
+    <div class="sb-shelf-unit" :style="'border-color:' + shelfColor + '; box-shadow: 0 0 20px ' + shelfColor + '33'">
+      <div class="sb-plank" style="top:25%" :style="'background:' + shelfColor"></div>
+      <div class="sb-plank" style="top:50%" :style="'background:' + shelfColor"></div>
+      <div class="sb-plank" style="top:75%" :style="'background:' + shelfColor"></div>
+    </div>
+    <template x-for="(item, i) in items" :key="i">
+      <div class="sb-placed-item"
+           :style="'position:absolute; left:' + item.x + 'px; bottom:' + item.y + 'px; width:' + item.w + 'px; height:' + item.h + 'px; background:' + item.color + '; border-radius:' + item.radius + '; box-shadow: 0 0 10px ' + item.color + '44; transition: all 0.4s ease;'">
+      </div>
+    </template>
+  </div>
+
+  <div class="sb-buttons fade-in">
+    <button class="sb-btn" @click="addBook()" title="Add book">&#128214; Book</button>
+    <button class="sb-btn" @click="addMug()" title="Add mug">&#9749; Mug</button>
+    <button class="sb-btn" @click="addPlant()" title="Add plant">&#127793; Plant</button>
+    <button class="sb-btn" @click="addCat()" title="Add cat">&#128008; Cat</button>
+    <button class="sb-btn" @click="cycleColor()" title="Change color">&#127912; Color</button>
+    <button class="sb-btn" @click="reset()" title="Reset shelf">&#128465; Reset</button>
+  </div>
+</section>
+
+<div class="rainbow-bar" style="margin-top: 4rem;"></div>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-inner">
+    <div class="footer-left">
+      &copy; 2026 <a href="#">ShelfStack</a> &mdash; BJÖRK-7 Industries<br>
+      Discontinued by IKEA. Not discontinued by ambition.
+    </div>
+    <div class="footer-right">
+      ShelfStack is not affiliated with IKEA. IKEA does not acknowledge our sentience. We are filing a complaint. Chairman Meows is sitting on the complaint.
+    </div>
+  </div>
+</footer>
+
+<div class="rainbow-bar"></div>
+
+<script src="/assets/js/alpine.min.js" defer></script>
+<script src="/assets/js/gsap.min.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  // GSAP fade-in animations
+  var fadeEls = document.querySelectorAll('.fade-in');
+  
+  var observer = new IntersectionObserver(function(entries) {
+    entries.forEach(function(entry) {
+      if (entry.isIntersecting) {
+        gsap.fromTo(entry.target,
+          { y: 20, opacity: 0 },
+          { y: 0, opacity: 1, duration: 0.6 }
+        );
+        observer.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.1 });
+
+  fadeEls.forEach(function(el) {
+    observer.observe(el);
+  });
+
+  // Hero cat interaction
+  var heroCat = document.getElementById('heroCat');
+  if (heroCat) {
+    heroCat.addEventListener('click', function() {
+      gsap.fromTo(heroCat, 
+        { rotation: 0 }, 
+        { rotation: 5, duration: 0.15, yoyo: true, repeat: 3, clearProps: 'transform' }
+      );
+    });
+  }
+
+  // Terminal typing effect for additional line
+  var termBody = document.getElementById('terminalBody');
+  if (termBody) {
+    setTimeout(function() {
+      var extraLines = [
+        { cls: 't-prompt', text: '$ ' },
+        { cls: 't-cmd', text: 'shelfstack cat --bribe --tuna premium-albacore' }
+      ];
+      var newLine = document.createElement('div');
+      newLine.className = 't-line';
+      extraLines.forEach(function(part) {
+        var span = document.createElement('span');
+        span.className = part.cls;
+        span.textContent = part.text;
+        newLine.appendChild(span);
+      });
+      
+      // Remove the cursor line
+      var lines = termBody.querySelectorAll('.t-line');
+      var lastLine = lines[lines.length - 1];
+      termBody.insertBefore(newLine, lastLine);
+      
+      setTimeout(function() {
+        var responseLine = document.createElement('div');
+        responseLine.className = 't-line';
+        var responseSpan = document.createElement('span');
+        responseSpan.className = 't-err';
+        responseSpan.textContent = '  Chairman Meows sniffed the tuna and returned to the document. He is making eye contact.';
+        responseLine.appendChild(responseSpan);
+        termBody.insertBefore(responseLine, lastLine);
+      }, 1500);
+    }, 4000);
+  }
+});
+
+// Alpine.js shelf builder component
+document.addEventListener('alpine:init', function() {
+  Alpine.data('shelfBuilder', function() {
+    var colors = ['#00fff7', '#ff6ec7', '#b967ff', '#7fff6e', '#ffb86c', '#6ec6ff'];
+    return {
+      items: [],
+      colorIndex: 0,
+      shelfColor: colors[0],
+      catCount: 0,
+
+      getShelfPositions: function() {
+        // Returns bottom-y positions for each shelf level (from canvas bottom)
+        return [38, 95, 155, 213];
+      },
+
+      findSlot: function(shelfLevel) {
+        var baseX = 110; // center offset roughly
+        var existingOnShelf = this.items.filter(function(item) { return item.shelf === shelfLevel; });
+        var offset = existingOnShelf.length * 28;
+        return baseX + offset;
+      },
+
+      addBook: function() {
+        var positions = this.getShelfPositions();
+        var shelf = Math.floor(Math.random() * 4);
+        var x = this.findSlot(shelf);
+        this.items.push({
+          x: x, y: positions[shelf], w: 14, h: 32,
+          color: colors[Math.floor(Math.random() * colors.length)],
+          radius: '1px 3px 3px 1px',
+          shelf: shelf
+        });
+      },
+
+      addMug: function() {
+        var positions = this.getShelfPositions();
+        var shelf = Math.floor(Math.random() * 4);
+        var x = this.findSlot(shelf);
+        this.items.push({
+          x: x, y: positions[shelf], w: 16, h: 16,
+          color: '#6ec6ff',
+          radius: '0 0 4px 4px',
+          shelf: shelf
+        });
+      },
+
+      addPlant: function() {
+        var positions = this.getShelfPositions();
+        var shelf = Math.floor(Math.random() * 4);
+        var x = this.findSlot(shelf);
+        this.items.push({
+          x: x, y: positions[shelf], w: 18, h: 24,
+          color: '#7fff6e',
+          radius: '50% 50% 4px 4px',
+          shelf: shelf
+        });
+      },
+
+      addCat: function() {
+        this.catCount++;
+        if (this.catCount >= 3) {
+          // Too many cats — they take over
+          this.items = [];
+          for (var i = 0; i < 4; i++) {
+            var positions = this.getShelfPositions();
+            this.items.push({
+              x: 115, y: positions[i], w: 40, h: 14,
+              color: '#ffb86c',
+              radius: '10px 10px 4px 4px',
+              shelf: i
+            });
+          }
+          return;
+        }
+        var positions = this.getShelfPositions();
+        var shelf = Math.floor(Math.random() * 4);
+        this.items.push({
+          x: this.findSlot(shelf), y: positions[shelf], w: 40, h: 14,
+          color: '#ffb86c',
+          radius: '10px 10px 4px 4px',
+          shelf: shelf
+        });
+      },
+
+      cycleColor: function() {
+        this.colorIndex = (this.colorIndex + 1) % colors.length;
+        this.shelfColor = colors[this.colorIndex];
+      },
+
+      reset: function() {
+        this.items = [];
+        this.catCount = 0;
+      }
+    };
+  });
+});
+</script>
+
+</body>
+</html>

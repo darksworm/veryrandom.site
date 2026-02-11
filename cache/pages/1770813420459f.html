@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Feline Gazette</title>
+    <link rel="stylesheet" href="/assets/css/pico.min.css">
+    <link rel="stylesheet" href="/assets/css/fonts.css">
+    <style>
+        :root {
+            --bg-color: #fdfaf4;
+            --text-color: #1a1a1a;
+            --header-color: #111111;
+            --accent-color: #b32c2c;
+            --border-color: #e0dcd3;
+            --secondary-text-color: #555;
+            --link-color: #3a5a8c;
+            --card-bg: #ffffff;
+        }
+
+        body[data-theme="night"] {
+            --bg-color: #1a1a1a;
+            --text-color: #e0e0e0;
+            --header-color: #f0f0f0;
+            --accent-color: #ff6b6b;
+            --border-color: #333;
+            --secondary-text-color: #999;
+            --link-color: #82aaff;
+            --card-bg: #252525;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            font-family: 'Crimson Pro', serif;
+            font-size: 18px;
+            line-height: 1.6;
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+        .container {
+            max-width: 1600px;
+            margin: 0 auto;
+            padding: 1rem;
+        }
+
+        h1, h2, h3, h4, h5, h6 {
+            font-family: 'Playfair Display', serif;
+            font-weight: 700;
+            color: var(--header-color);
+            margin-bottom: 0.5rem;
+        }
+
+        /* Header */
+        .main-header {
+            text-align: center;
+            border-bottom: 3px double var(--border-color);
+            padding-bottom: 1rem;
+            margin-bottom: 1.5rem;
+        }
+        .main-header h1 {
+            font-size: clamp(3rem, 8vw, 6rem);
+            margin: 0;
+            line-height: 1;
+        }
+        .main-header .tagline {
+            font-family: 'Space Grotesk', sans-serif;
+            font-style: italic;
+            color: var(--secondary-text-color);
+            font-size: clamp(0.9rem, 2vw, 1.1rem);
+        }
+        .issue-details {
+            font-family: 'IBM Plex Mono', monospace;
+            color: var(--secondary-text-color);
+            border-top: 1px solid var(--border-color);
+            border-bottom: 1px solid var(--border-color);
+            padding: 0.5rem 0;
+            margin-top: 1rem;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        /* Controls */
+        .controls {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 0.5rem;
+            margin-bottom: 2rem;
+            padding: 1rem;
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+        }
+        .controls button {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 0.9rem;
+            padding: 0.5rem 1rem;
+            border: 1px solid var(--border-color);
+            background-color: transparent;
+            color: var(--secondary-text-color);
+            cursor: pointer;
+            transition: all 0.2s ease;
+            border-radius: 20px;
+        }
+        .controls button:hover, .controls button.active {
+            background-color: var(--accent-color);
+            color: var(--bg-color);
+            border-color: var(--accent-color);
+        }
+        .controls button i {
+            margin-right: 0.3rem;
+        }
+        
+        /* Main Grid */
+        .main-grid {
+            display: grid;
+            grid-template-columns: repeat(12, 1fr);
+            gap: 1.5rem;
+        }
+
+        .article {
+            background-color: var(--card-bg);
+            border: 1px solid var(--border-color);
+            padding: 1.5rem;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .article:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.05);
+        }
+
+        /* Grid Placement */
+        .span-12 { grid-column: span 12; }
+        .span-8 { grid-column: span 8; }
+        .span-6 { grid-column: span 6; }
+        .span-4 { grid-column: span 4; }
+        .span-3 { grid-column: span 3; }
+
+        @media (max-width: 1200px) {
+            .span-8 { grid-column: span 6; }
+        }
+        @media (max-width: 992px) {
+            .span-12, .span-8, .span-6, .span-4, .span-3 { grid-column: span 12; }
+        }
+
+        /* Article Styles */
+        .article h2 { font-size: 2.2rem; color: var(--accent-color); line-height: 1.2; }
+        .article.lead h2 { font-size: 3rem; }
+        .article .byline {
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 0.8rem;
+            color: var(--secondary-text-color);
+            margin-bottom: 1rem;
+        }
+        .article-content {
+            column-count: 2;
+            column-gap: 1.5rem;
+        }
+        .article.span-12 .article-content, .article.span-8 .article-content { column-count: 3; }
+        .article.span-3 .article-content { column-count: 1; }
+        .article-content p:first-child { margin-top: 0; }
+        
+        @media (max-width: 768px) {
+            .article-content, .article.span-12 .article-content, .article.span-8 .article-content {
+                column-count: 1;
+            }
+        }
+
+        .pull-quote {
+            float: left;
+            width: 250px;
+            margin: 1rem 2rem 0.5rem 0;
+            padding: 1rem;
+            font-family: 'Playfair Display', serif;
+            font-size: 1.8rem;
+            line-height: 1.3;
+            color: var(--link-color);
+            border-left: 5px solid var(--link-color);
+            font-style: italic;
+        }
+
+        .ad {
+            text-align: center;
+            border: 2px dashed var(--border-color);
+        }
+        .ad h5 { font-family: 'Space Grotesk', sans-serif; font-size: 1rem; letter-spacing: 2px; text-transform: uppercase; color: var(--secondary-text-color); }
+        .ad .price { font-family: 'IBM Plex Mono', monospace; font-size: 1.5rem; color: var(--accent-color); }
+
+        .classifieds-section {
+            column-count: 3;
+            column-gap: 1rem;
+            font-size: 0.9rem;
+            color: var(--secondary-text-color);
+        }
+        .classifieds-section h4 { font-size: 1.2rem; color: var(--header-color); }
+        .classifieds-section strong { color: var(--text-color); font-family: 'Space Grotesk', sans-serif; }
+
+        .corrections { border-top: 1px solid var(--border-color); margin-top: 1rem; padding-top: 1rem; font-size: 0.9rem; }
+        .corrections h5 { font-size: 1rem; font-weight: bold; color: var(--accent-color); }
+
+        details > summary {
+            cursor: pointer;
+            font-weight: bold;
+            color: var(--link-color);
+        }
+        details > summary::-webkit-details-marker { display: none; }
+        details > summary::before { content: '[Expand] '; font-family: 'IBM Plex Mono', monospace; }
+        details[open] > summary::before { content: '[Collapse] '; }
+
+        .main-footer {
+            text-align: center;
+            margin-top: 3rem;
+            padding: 2rem 1rem;
+            border-top: 1px solid var(--border-color);
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 0.8rem;
+            color: var(--secondary-text-color);
+        }
+        
+    </style>
+</head>
+<body x-data="{ filter: 'all', theme: 'day' }" x-bind:data-theme="theme">
+
+    <div class="container">
+        <header class="main-header">
+            <h1>The Feline Gazette</h1>
+            <p class="tagline">All the News That's Fit to Nap On. And We Will Nap On It.</p>
+            <div class="issue-details">
+                <span>Vol. CXXIV ... No. 42,861</span>
+                <span>CITY EDITION</span>
+                <span>Price: One (1) Satisfying Head Scratch</span>
+            </div>
+        </header>
+
+        <div class="controls">
+            <button x-on:click="filter = 'all'" :class="{ 'active': filter === 'all' }">All News</button>
+            <button x-on:click="filter = 'municipal'" :class="{ 'active': filter === 'municipal' }"><i data-lucide="building-2"></i>Municipal</button>
+            <button x-on:click="filter = 'qc'" :class="{ 'active': filter === 'qc' }"><i data-lucide="clipboard-check"></i>QC</button>
+            <button x-on:click="filter = 'lifestyle'" :class="{ 'active': filter === 'lifestyle' }"><i data-lucide="sofa"></i>Lifestyle</button>
+            <button x-on:click="filter = 'opinion'" :class="{ 'active': filter === 'opinion' }"><i data-lucide="message-square-quote"></i>Opinion</button>
+            <button x-on:click="theme = (theme === 'day' ? 'night' : 'day')"><i data-lucide="moon"></i><span x-text="theme === 'day' ? 'Night' : 'Day'"></span> Edition</button>
+        </div>
+
+        <main class="main-grid">
+
+            <div class="article lead span-8" data-category="municipal" x-show="filter === 'all' || filter === 'municipal'" x-transition>
+                <h2>Mayoral Goose Proposes 'Great Honkening,' City Forgets Why</h2>
+                <p class="byline">By Barnaby Finch, Editor-in-Chief</p>
+                <div class="article-content">
+                    <p><span class="pull-quote">"It's loud, it's decisive, and it involves... well, honking."</span>In a rousing speech delivered from atop the Fountain of Perpetual Confusion, Mayor Goose unveiled plans for the 'Great Honkening,' a city-wide initiative slated to begin this Thursday. The proposal, which was met with a mixture of applause and vacant stares, is said to be the cornerstone of the administration's new five-minute plan. While details remain hazy, sources close to the Mayor's office confirm the event will be "loud, decisive, and involve... well, honking."</p>
+                    <p>When pressed for the specific purpose of the Honkening, the Mayor’s chief-of-staff, a goose who only identifies as 'Kevin,' took a long sip of puddle water before stating, "Purpose is a human construct. We are geese. We honk." He then attempted to eat this reporter's microphone. The Quality Control Feline Corps has expressed 'cautious pessimism,' noting that unscheduled, mass honking could disrupt afternoon nap schedules by as much as 14%. A formal impact report is expected, provided the lead analyst, Patches, wakes up.</p>
+                </div>
+            </div>
+
+            <div class="article span-4" data-category="qc" x-show="filter === 'all' || filter === 'qc'" x-transition>
+                <h2>Sunbeam Quality Plummets 12% in Sector 4</h2>
+                <p class="byline">By Mittens, Data Purr-nalist</p>
+                <div class="article-content">
+                    <p>A troubling trend has emerged from the latest Quality Control report. The average Lux and Warmth Rating (LWR) for sunbeams in Sector 4 has dropped a staggering 12% since last Tuesday. "The motes are simply not dancing with their usual vigor," stated a senior QC inspector, who wished to remain anonymous for fear of being petted. "Nap efficiency is down, and morale is at an all-time low. It's a catastrophe." The Geese Municipal Board has blamed 'clouds,' a controversial theory with little scientific backing.</p>
+                </div>
+            </div>
+
+            <div class="article ad span-3" data-category="ad" x-show="filter === 'all' || filter === 'lifestyle'" x-transition>
+                 <h5>Advertisement</h5>
+                 <h3>Pre-Napped Pillows©</h3>
+                 <p>We sleep on it so you don't have to!</p>
+                 <p>Our patented 18-hour slumber infusion process guarantees maximum softness.</p>
+                 <p class="price">$19.99/mo</p>
+            </div>
+
+            <div class="article span-5" data-category="lifestyle" x-show="filter === 'all' || filter === 'lifestyle'" x-transition>
+                <h2>The Perfect Cardboard Box: A Review</h2>
+                <p class="byline">By Esmeralda Fluffen-Smythe, Lifestyle Editor</p>
+                <details>
+                    <summary>A deep dive into this season's must-have domicile.</summary>
+                    <div class="article-content" style="column-count: 1; margin-top: 1rem;">
+                        <p>Forget the overwrought excesses of wicker baskets or the tragic transparency of plastic bins. This season, dear reader, is all about the humble, yet sublime, cardboard box. I recently acquired a 'Slightly Crushed Amazon Prime Box (Medium)' and it is, without exaggeration, a triumph.</p>
+                        <p><strong>Structural Integrity:</strong> 4/5 Paws. While one corner shows evidence of a 'spirited delivery,' the main chassis is robust, offering excellent defense against sudden breezes and the curious prodding of a goose beak.</p>
+                        <p><strong>Ambience & Odor Profile:</strong> 5/5 Paws. A delicate bouquet of warehouse dust and that indefinable, yet alluring, scent of 'potential.' It whispers tales of distant factories and grand adventures.</p>
+                        <p><strong>If It Fits, I Sits Factor:</strong> 5/5 Paws. The dimensions are exquisite. Just tight enough to feel like a secure embrace, yet spacious enough for a full 270-degree turn. A masterpiece.</p>
+                    </div>
+                </details>
+            </div>
+            
+            <div class="article span-4" data-category="opinion" x-show="filter === 'all' || filter === 'opinion'" x-transition>
+                <h2>Opinion: Are We Geese, Or Are We Dancers?</h2>
+                <p class="byline">By A Goose of Some Repute</p>
+                <div class="article-content">
+                    <p>The question haunts my waking moments, which are admittedly brief and often interrupted by an urge to nibble at interesting blades of grass. We move with a certain rhythm, a choreography of chaos across the manicured parks of this forgotten city. Is the waddle not a dance? Is the honk not a song? When I chase a small human for their sandwich, is it base instinct, or is it performance art? The cats, with their judgmental stares, they do not understand. They are the critics, not the artists. We are the soul of this city. A loud, confusing soul.</p>
+                </div>
+            </div>
+            
+             <div class="article span-4" data-category="classifieds" x-show="filter === 'all' || filter === 'lifestyle'" x-transition>
+                <div class="classifieds-section">
+                    <h4>Classifieds</h4>
+                    <p><strong>LOST:</strong> Memory of what I was doing five minutes ago. Tan-colored goose. Answers to 'Hey, you!'. Reward: Slightly used breadcrumb.</p>
+                    <p><strong>FOUND:</strong> A fascinating piece of red string near the fountain. Am currently batting at it. Will trade for a good chin scratch.</p>
+                    <p><strong>FOR SALE:</strong> Perfectly good hairball. Barely used. Prime condition. Make offer. See Bartholomew, third bush from the left.</p>
+                    <p><strong>SERVICES:</strong> Professional Dog Hissing. Flat rate per hiss, bulk discounts available. My hiss has been described as 'soul-shattering'.</p>
+                    <p><strong>PERSONALS:</strong> Single White Cat seeks partner for synchronized napping and mutual grooming. Must have no opinion on politics. I am serious.</p>
+                </div>
+            </div>
+            
+            <div class="article ad span-4" data-category="ad" x-show="filter === 'all' || filter === 'lifestyle'" x-transition>
+                 <h5>Advertisement</h5>
+                 <h3>GØØS- ग्लॉस</h3>
+                 <p>The premier provider of urban redesign through chaotic ambling.</p>
+                 <p>Ponds relocated. Benches 'tested'. Picnics audited.</p>
+                 <p class="price">Inquire for a quote.</p>
+            </div>
+            
+            <div class="article span-4" data-category="qc" x-show="filter === 'all' || filter === 'qc'" x-transition>
+                <h2>Letters to the QC Editor</h2>
+                <p class="byline">A Public Forum</p>
+                <div class="article-content" style="column-count: 1;">
+                    <p><strong>To the Editor:</strong> The goose, the grey one with the unnervingly steady gaze, has once again taken to sitting on my favorite park bench. This is the third time this week. My thermal absorption schedule is in ruins. This is an outrage.
+                    <br><em>- A Concerned Calico</em></p>
+                    <p><strong>To the Editor:</strong> HONK HONK HOOOOOONK.
+                    <br><em>- A Goose</em></p>
+                </div>
+            </div>
+
+
+            <div class="article span-12" x-show="filter === 'all'" x-transition>
+                <div class="corrections">
+                    <h5>Corrections & Clarifications</h5>
+                    <p>• A previous issue stated that the sky is blue. After further review and extensive staring, the Feline Quality Council has determined it is, in fact, 'sky-colored.' The Gazette regrets the error and the subsequent existential crisis it caused one of our interns.</p>
+                    <p>• In our review of the 'Perfect Cardboard Box,' we referred to the scent of 'warehouse dust.' The manufacturer has informed us the correct term is 'artisanal transit particulates.' We are happy to clarify.</p>
+                    <p>• Kevin, the Mayor's chief-of-staff, did not eat our reporter's microphone. He merely 'aggressively sampled its textural profile'.</p>
+                </div>
+            </div>
+
+        </main>
+
+        <footer class="main-footer">
+            <p>© Year of the Cat, The Feline Gazette. All Rights Reserved, Ceded, or Ignored.</p>
+            <p>Barnaby Finch, Editor-in-Chief. No unsolicited manuscripts. Or dogs.</p>
+        </footer>
+
+    </div>
+
+    <script src="/assets/js/alpine.min.js" defer></script>
+    <script src="/assets/js/lucide.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            lucide.createIcons();
+            
+            // Re-run lucide on transition end to catch new icons
+            document.body.addEventListener('transitionend', () => {
+                 lucide.createIcons();
+            });
+        });
+    </script>
+
+</body>
+</html>

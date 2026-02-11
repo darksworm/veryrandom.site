@@ -1,0 +1,578 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>The Peripatetic Grandeur - Resident Services</title>
+  <link rel="stylesheet" href="/assets/css/pico.min.css">
+  <link rel="stylesheet" href="/assets/css/fonts.css">
+  <style>
+    :root {
+      --parchment: #fdf6e3;
+      --ink: #3a3228;
+      --ink-muted: #6a6258;
+      --accent: #a58661;
+      --danger: #9b2c2c;
+      --warning: #b7791f;
+      --success: #285e61;
+      --font-serif: 'Playfair Display', serif;
+      --font-sans: 'Inter', sans-serif;
+      --font-mono: 'IBM Plex Mono', monospace;
+    }
+
+    /* GENERAL STYLES */
+    html {
+      scroll-snap-type: y mandatory;
+      scroll-behavior: smooth;
+    }
+    body {
+      background-color: var(--parchment);
+      color: var(--ink);
+      font-family: var(--font-sans);
+      font-size: 16px;
+      line-height: 1.6;
+      overflow-x: hidden;
+      margin: 0;
+    }
+
+    h1, h2, h3, h4, h5 {
+      font-family: var(--font-serif);
+      color: var(--ink);
+      letter-spacing: 0.5px;
+      margin-bottom: 0.5rem;
+    }
+
+    h1 { font-size: clamp(2.5rem, 6vw, 4rem); }
+    h2 { font-size: clamp(1.8rem, 5vw, 2.5rem); }
+    h3 { font-size: clamp(1.2rem, 4vw, 1.5rem); }
+
+    p { margin-bottom: 1rem; max-width: 70ch; }
+    a { color: var(--accent); }
+    a:hover { color: var(--ink); }
+    
+    .container {
+      width: 90%;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    /* SCROLLING SECTIONS */
+    main > section {
+      height: 100vh;
+      min-height: 600px; /* Minimum height for smaller viewports */
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      scroll-snap-align: start;
+      padding: 2rem 0;
+      box-sizing: border-box;
+      position: relative;
+      overflow: hidden;
+    }
+    
+    main > section::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background-image: url('data:image/svg+xml,%3Csvg width="60" height="60" viewBox="0.0 0.0 60.0 60.0" xmlns="http://www.w3.org/2000/svg"%3E%3Cg%3E%3Cpath fill="%23e8e2d3" d="M 0.0 0.0 L 60.0 0.0 L 60.0 60.0 L 0.0 60.0 z"/%3E%3Cpath fill-opacity="0.1" fill-rule="evenodd" fill="%238a8273" d="M 30.0 1.0 C 13.987 1.0 1.0 13.987 1.0 30.0 C 1.0 46.013 13.987 59.0 30.0 59.0 C 46.013 59.0 59.0 46.013 59.0 30.0 C 59.0 13.987 46.013 1.0 30.0 1.0 z M 30.0 0.0 C 46.569 0.0 60.0 13.431 60.0 30.0 C 60.0 46.569 46.569 60.0 30.0 60.0 C 13.431 60.0 0.0 46.569 0.0 30.0 C 0.0 13.431 13.431 0.0 30.0 0.0 z"/%3E%3C/g%3E%3C/svg%3E');
+      opacity: 0.5;
+      z-index: -1;
+    }
+
+    /* HEADER */
+    .site-header {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      z-index: 10;
+      background: rgba(253, 246, 227, 0.8);
+      backdrop-filter: blur(5px);
+      padding: 0.5rem 1rem;
+      font-family: var(--font-mono);
+      font-size: 0.8rem;
+      border-bottom: 1px solid rgba(58, 50, 40, 0.1);
+    }
+    .header-content {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+    .header-content .logo { font-weight: bold; }
+    .header-content span { margin: 0 0.5rem; }
+
+    /* HERO SECTION */
+    #hero {
+      text-align: center;
+    }
+    #hero h1 { opacity: 0; }
+    #hero p { opacity: 0; }
+    #hero .ticker { opacity: 0; }
+
+    .ticker {
+      margin-top: 2rem;
+      font-family: var(--font-mono);
+      font-size: 0.9rem;
+      background: rgba(58, 50, 40, 0.05);
+      padding: 1rem;
+      border: 1px solid rgba(58, 50, 40, 0.1);
+      border-radius: 4px;
+      display: inline-block;
+      max-width: 90vw;
+      text-align: left;
+    }
+    .ticker span { display: block; margin-bottom: 0.5rem; }
+    .ticker strong { font-weight: normal; color: var(--accent); }
+
+    /* PRICING SECTION */
+    .pricing-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 2rem;
+      width: 100%;
+    }
+    .pricing-tier {
+      border: 1px solid rgba(58, 50, 40, 0.2);
+      padding: 1.5rem;
+      background: rgba(255,255,255,0.1);
+      display: flex;
+      flex-direction: column;
+    }
+    .pricing-tier h3 {
+      font-family: var(--font-sans);
+      font-weight: 700;
+      border-bottom: 2px solid var(--accent);
+      padding-bottom: 0.5rem;
+      margin-bottom: 1rem;
+    }
+    .pricing-tier .price {
+      font-size: 2rem;
+      font-family: var(--font-serif);
+      margin-bottom: 1rem;
+    }
+    .pricing-tier .price span { font-size: 1rem; color: var(--ink-muted); }
+    .pricing-tier ul {
+      list-style: none;
+      padding: 0;
+      margin: 0 0 1.5rem 0;
+      flex-grow: 1;
+    }
+    .pricing-tier li {
+      margin-bottom: 0.75rem;
+      padding-left: 1.5rem;
+      position: relative;
+    }
+    .pricing-tier li::before {
+      content: '✓';
+      color: var(--accent);
+      position: absolute;
+      left: 0;
+    }
+    .pricing-tier button {
+      width: 100%;
+      background-color: var(--accent);
+      border-color: var(--accent);
+      color: white;
+    }
+    .pricing-tier:nth-child(2) {
+      border-color: var(--accent);
+      border-width: 2px;
+      transform: scale(1.05);
+    }
+    .pricing-tier:nth-child(2) button {
+      background-color: var(--ink);
+      border-color: var(--ink);
+    }
+
+    /* DASHBOARD SECTION */
+    #dashboard { text-align: center; }
+    .dashboard-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+      gap: 1.5rem;
+      width: 100%;
+      height: auto;
+      max-height: 80vh;
+      overflow-y: auto;
+      text-align: left;
+      padding: 1rem;
+    }
+    .dashboard-panel {
+      background: rgba(58, 50, 40, 0.03);
+      border: 1px solid rgba(58, 50, 40, 0.1);
+      padding: 1rem;
+    }
+    .dashboard-panel h4 { border-bottom: 1px solid rgba(58, 50, 40, 0.1); padding-bottom: 0.5rem; }
+    .chart-container {
+      font-size: 0.8rem;
+    }
+    .chart-bar {
+      display: flex;
+      align-items: center;
+      margin-bottom: 0.5rem;
+    }
+    .chart-label { width: 80px; flex-shrink: 0; }
+    .bar {
+      height: 20px;
+      background: var(--accent);
+      color: white;
+      text-align: right;
+      padding-right: 4px;
+      box-sizing: border-box;
+      white-space: nowrap;
+    }
+    
+    .anomaly-feed {
+      font-family: var(--font-mono);
+      font-size: 0.75rem;
+      height: 200px;
+      overflow-y: scroll;
+      padding-right: 10px;
+    }
+    .anomaly-feed p { font-size: inherit; line-height: 1.4; margin: 0 0 0.5rem 0; }
+    
+    .memo-toggle button { margin-bottom: 1rem; }
+    .memos {
+      font-family: var(--font-serif);
+      font-style: italic;
+      font-size: 0.9rem;
+      background: rgba(255,255,255,0.2);
+      padding: 1rem;
+      border-left: 3px solid var(--accent);
+    }
+    .memos p { margin: 0; }
+
+    /* FAQ & FOOTER */
+    #faq .container, #footer .container {
+      max-width: 800px;
+      text-align: center;
+    }
+    #faq details {
+      text-align: left;
+      margin-bottom: 1rem;
+      background: transparent;
+    }
+    #faq summary { font-weight: bold; }
+    #footer {
+      height: auto;
+      min-height: 300px;
+      background: var(--ink);
+      color: var(--parchment);
+    }
+    #footer h2, #footer p, #footer small { color: var(--parchment); }
+    #footer .disclaimer {
+      font-size: 0.8rem;
+      color: rgba(253, 246, 227, 0.7);
+      margin-top: 2rem;
+    }
+    #footer i {
+      margin-top: 1rem;
+    }
+
+    /* RESPONSIVE */
+    @media (max-width: 768px) {
+      .header-content {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+      .header-content span { margin: 0.2rem 0; display: block; }
+      .pricing-grid { grid-template-columns: 1fr; }
+      .pricing-tier:nth-child(2) { transform: scale(1); }
+      main > section { padding: 5rem 0; height: auto; min-height: 100vh; }
+      .dashboard-grid { grid-template-columns: 1fr; }
+    }
+    
+    /* UTILITIES */
+    .text-danger { color: var(--danger) !important; }
+    .text-warning { color: var(--warning) !important; }
+    .text-success { color: var(--success) !important; }
+
+    /* Keep bottom right clear */
+    /* No elements positioned here */
+  </style>
+</head>
+<body x-data="appState" x-init="init">
+  <header class="site-header">
+    <div class="header-content container">
+      <div class="logo">The Peripatetic Grandeur // Resident Services Portal</div>
+      <div class="live-stats">
+        <span>STATUS: <span x-text="buildingStatus"></span></span>
+        <span>GEO-SYNC: <span x-text="geoSyncStatus" :class="{ 'text-danger': geoSyncStatus === 'UNSTABLE' }"></span></span>
+        <span class="desktop-only">F.I.S.R*: <span x-text="felineRevisions"></span></span>
+      </div>
+    </div>
+  </header>
+
+  <main>
+
+    <section id="hero">
+      <div class="container">
+        <h1 x-ref="heroTitle">Achieve Locational Certainty.</h1>
+        <p class="lead" x-ref="heroSubtitle">Permanent Domicile Assurance: A Subscription Framework for a Fluid Existence.</p>
+        <div class="ticker" x-ref="heroTicker">
+          <span><strong>Current Geolocation:</strong> <span x-text="geolocation"></span> (Approx.)</span>
+          <span><strong>Next Relocation Event:</strong> <span x-text="relocationTimer"></span></span>
+          <span><strong>Mail Forwarding Success Rate:</strong> <span x-text="mailSuccessRate + '%'" :class="mailSuccessClass"></span></span>
+          <small>*Feline-Induced Systemic Revisions (Past 24h)</small>
+        </div>
+      </div>
+    </section>
+
+    <section id="pricing">
+      <div class="container">
+        <h2>Service Tiers for Unwavering Tenancy</h2>
+        <div class="pricing-grid">
+          <div class="pricing-tier">
+            <h3>Stationary Aspirant</h3>
+            <div class="price">$19.99 <span>/ month</span></div>
+            <ul>
+              <li>Bi-weekly Geocoordinate Email Updates</li>
+              <li>Standard Mail Holding (Up to 7 days)</li>
+              <li>Access to "Is The Building Here?" Public API (Rate Limited)</li>
+              <li>Mittens' Blessing (Nominal)</li>
+            </ul>
+            <button @click="alert('Inquiry logged. Please submit form 4A-Delta for consideration.')">Select Plan</button>
+          </div>
+          <div class="pricing-tier">
+            <h3>Kinetic Resident</h3>
+            <div class="price">$47.99 <span>/ month</span></div>
+            <ul>
+              <li>All Aspirant benefits PLUS:</li>
+              <li>Real-Time SMS Relocation Alerts</li>
+              <li>Priority Mail Forwarding (Domestic Only)</li>
+              <li>Discounted Parcel Redirection Fee (15% off)</li>
+              <li>Feline Intervention Insurance (Basic Coverage)</li>
+            </ul>
+            <button @click="alert('A wise choice. Your account will be provisioned pending the next successful satellite uplink.')">Most Popular</button>
+          </div>
+          <div class="pricing-tier">
+            <h3>Zenith Nomad</h3>
+            <div class="price">$129.99 <span>/ month</span></div>
+            <ul>
+              <li>All Kinetic benefits PLUS:</li>
+              <li>Dedicated Relocation Concierge (09:15-09:45 GMT, Tue)</li>
+              <li>Global Mail & Parcel Forwarding</li>
+              <li>Predictive Itinerary Reports (Beta)</li>
+              <li>Full Immunity from Feline-Induced Revisions*</li>
+            </ul>
+            <button @click="alert('An application has been dispatched to your last known address. Good luck.')">Apply Now</button>
+          </div>
+        </div>
+        <small style="margin-top: 1rem; display: block; text-align: center;">*Subject to annual review by Mittens, Chief Executive of Transactional Ambiguity.</small>
+      </div>
+    </section>
+
+    <section id="dashboard">
+      <div class="container" style="width:100%">
+        <h2>Live Operations Dashboard</h2>
+        <div class="dashboard-grid">
+          <div class="dashboard-panel" x-data="chartData">
+            <h4>Package Delivery Success by Carrier</h4>
+            <div class="chart-container">
+              <template x-for="carrier in carriers" :key="carrier.name">
+                <div class="chart-bar">
+                  <div class="chart-label" x-text="carrier.name"></div>
+                  <div class="bar" :style="`width: ${carrier.rate}%; background-color: ${carrier.color}`" x-text="carrier.rate + '%'"></div>
+                </div>
+              </template>
+            </div>
+            <small>Data as of last successful census. Fluctuation is expected.</small>
+          </div>
+
+          <div class="dashboard-panel" x-data="anomalyFeed">
+            <h4>Live Anomaly Feed</h4>
+            <div class="anomaly-feed" x-ref="feed">
+              <template x-for="event in events" :key="event.id">
+                <p><strong x-text="event.time"></strong> - <span x-text="event.text"></span></p>
+              </template>
+            </div>
+          </div>
+          
+          <div class="dashboard-panel" x-data="{ showInternalMemos: false }">
+              <h4>Internal Communications</h4>
+              <p>For internal review only. Dissemination is a violation of Guideline 7.4.c.</p>
+              <div class="memo-toggle">
+                  <button @click="showInternalMemos = !showInternalMemos" x-text="showInternalMemos ? 'Hide Sensitive Memos' : 'Reveal Leaked Memos'"></button>
+              </div>
+              <div x-show="showInternalMemos" x-transition class="memos">
+                  <p>"MEMO: Stop referring to the building's movement as 'drifting.' The official term is 'orchestrated geographical realignment.'"</p>
+                  <hr>
+                  <p>"MEMO: The cat is not 'on the payroll.' She is an independent contractor and her compensation (tuna) is non-negotiable."</p>
+              </div>
+          </div>
+
+        </div>
+      </div>
+    </section>
+    
+    <section id="faq">
+        <div class="container">
+            <h2>Frequently Stated Concerns</h2>
+            <details>
+                <summary>Where are we going?</summary>
+                <p>That is a matter of operational security and meteorological divination. Please consult your Predictive Itinerary Report (Zenith Nomad tier only).</p>
+            </details>
+            <details>
+                <summary>My subscription was just upgraded to "Super Platinum" for $5000/day. Why?</summary>
+                <p>A Feline-Induced Systemic Revision has likely occurred. Please fill out Form 8812-C ("Erroneous Feline Billing Inquiry") in triplicate and submit it to the management office. Please note the office may have relocated since you started filling out the form.</p>
+            </details>
+            <details>
+                <summary>Is this legal?</summary>
+                <p>Our legal team (one overworked paralegal in Apt 2C) has assured us our situation is "unprecedented" and therefore "not technically illegal." Please do not ask again.</p>
+            </details>
+            <details>
+                <summary>Can I just move out?</summary>
+                <p>"Moving out" is a complex logistical process requiring a 180-day notice and a successful "Egress Feasibility Study." It is often simpler to upgrade your Domicile Assurance package.</p>
+            </details>
+        </div>
+    </section>
+
+    <footer id="footer">
+      <div class="container">
+        <h2>Commitment in Motion.</h2>
+        <p>Your stability is our priority, within reasonable operational parameters.</p>
+        <i data-lucide="cat"></i>
+        <div class="disclaimer">
+          <p>© 2026 The Peripatetic Grandeur Resident Services. All rights reserved, pending geographical jurisdiction.</p>
+          <p>The Peripatetic Grandeur is an equal opportunity housing provider, regardless of your current or future coordinates.</p>
+          <p>Please do not feed the Chief Executive of Transactional Ambiguity. She has a sensitive stomach and a powerful influence on your utility billing.</p>
+        </div>
+      </div>
+    </footer>
+
+  </main>
+
+  <script src="/assets/js/alpine.min.js" defer></script>
+  <script src="/assets/js/gsap.min.js"></script>
+  <script src="/assets/js/lucide.min.js"></script>
+
+  <script>
+    document.addEventListener('alpine:init', () => {
+      Alpine.data('appState', () => ({
+        buildingStatus: 'NOMINAL',
+        geoSyncStatus: 'STABLE',
+        felineRevisions: 0,
+        geolocation: '48.8584° N, 2.2945° E',
+        relocationTimer: '7h 42m 15s',
+        mailSuccessRate: 62.7,
+        
+        get mailSuccessClass() {
+          if (this.mailSuccessRate < 50) return 'text-danger';
+          if (this.mailSuccessRate < 70) return 'text-warning';
+          return 'text-success';
+        },
+
+        init() {
+          // Lucide Icons
+          lucide.createIcons();
+
+          // GSAP Animations
+          const tl = gsap.timeline({defaults: { duration: 0.8, ease: 'power2.out' }});
+          tl.fromTo(this.$refs.heroTitle, { y: 30, opacity: 0 }, { y: 0, opacity: 1, duration: 1.0, clearProps:'opacity,transform' })
+            .fromTo(this.$refs.heroSubtitle, { y: 20, opacity: 0 }, { y: 0, opacity: 1, clearProps:'opacity,transform' }, "-=0.6")
+            .fromTo(this.$refs.heroTicker, { y: 20, opacity: 0 }, { y: 0, opacity: 1, clearProps:'opacity,transform' }, "-=0.5");
+          gsap.fromTo('main > section:not(#hero)', {opacity: 0, y: 50}, {
+            scrollTrigger: {
+                trigger: 'main > section:not(#hero)',
+                start: 'top 80%',
+                toggleActions: 'play none none none',
+            },
+            opacity: 1,
+            y: 0,
+            stagger: 0.3,
+            duration: 1,
+            clearProps:'opacity,transform'
+          });
+
+          // Live Tickers
+          setInterval(() => {
+            // Update feline revisions
+            if (Math.random() > 0.85) {
+              this.felineRevisions++;
+            }
+            // Update geolocation
+            let lat = (parseFloat(this.geolocation.split('°')[0]) + (Math.random() - 0.5) * 0.001).toFixed(4);
+            let lon = (parseFloat(this.geolocation.split(', ')[1].split('°')[0]) + (Math.random() - 0.5) * 0.001).toFixed(4);
+            this.geolocation = `${lat}° N, ${lon}° E`;
+
+            // Update mail success rate
+            this.mailSuccessRate = Math.max(30, this.mailSuccessRate + (Math.random() - 0.52) * 0.1).toFixed(1);
+            
+            // Update geo-sync status
+            this.geoSyncStatus = Math.random() > 0.95 ? 'UNSTABLE' : 'STABLE';
+
+          }, 2000);
+
+          setInterval(() => {
+             // Countdown timer
+             let timeParts = this.relocationTimer.match(/(\d+)h (\d+)m (\d+)s/);
+             if(timeParts) {
+                let hours = parseInt(timeParts[1], 10);
+                let minutes = parseInt(timeParts[2], 10);
+                let seconds = parseInt(timeParts[3], 10);
+                let totalSeconds = hours * 3600 + minutes * 60 + seconds - 1;
+                if(totalSeconds < 0) totalSeconds = 86400; // Reset
+                let h = Math.floor(totalSeconds / 3600);
+                let m = Math.floor((totalSeconds % 3600) / 60);
+                let s = totalSeconds % 60;
+                this.relocationTimer = `${h}h ${m}m ${s}s`;
+             }
+          }, 1000);
+        }
+      }));
+
+      Alpine.data('chartData', () => ({
+        carriers: [
+          { name: 'FedEx', rate: 40, color: '#4d3d74' },
+          { name: 'UPS', rate: 35, color: '#8c5a3c' },
+          { name: 'DHL', rate: 20, color: '#fcc800' },
+          { name: 'Pigeons', rate: 5, color: '#b0b0b0' },
+        ],
+        init() {
+            setInterval(() => {
+                this.carriers.forEach(c => {
+                    c.rate = Math.max(5, Math.min(95, c.rate + (Math.random() - 0.5) * 2));
+                });
+            }, 3000);
+        }
+      }));
+
+      Alpine.data('anomalyFeed', () => ({
+        nextId: 5,
+        events: [
+          { id: 4, time: '14:02:47', text: "Transaction #8A4F2C reclassified as 'Feline Whimsy'. Invoice voided." },
+          { id: 3, time: '14:01:15', text: "Structural Vibration exceeds Threshold 4B. Suspending pizza deliveries." },
+          { id: 2, time: '13:58:02', text: "Mittens has selected a new CFO from the resident list. Congratulations, Apt 7B." },
+          { id: 1, time: '13:55:33', text: "Unscheduled course correction initiated. Blame the tides." },
+        ],
+        possibleEvents: [
+          "Gravity compensation field fluctuating. Expect brief periods of lightness.",
+          "Apt 12E has won 'Postal Lottery'. All building mail redirected there for 24h.",
+          "New policy: All complaints must be submitted via interpretive dance.",
+          "Mittens requires more tuna. A 'tuna-tax' of 3.4% will be applied to all accounts.",
+          "Building has entered a temporal distortion. Yesterday is now tomorrow.",
+          "Warning: Proximity to Bermuda Triangle detected. Secure loose items."
+        ],
+        init() {
+            setInterval(() => {
+                if (Math.random() > 0.6) {
+                    const now = new Date();
+                    const time = `${now.getHours().toString().padStart(2,'0')}:${now.getMinutes().toString().padStart(2,'0')}:${now.getSeconds().toString().padStart(2,'0')}`;
+                    const text = this.possibleEvents[Math.floor(Math.random() * this.possibleEvents.length)];
+                    this.events.unshift({ id: this.nextId++, time: time, text: text });
+                    if(this.events.length > 20) this.events.pop();
+                    
+                    this.$nextTick(() => {
+                        this.$refs.feed.scrollTop = 0;
+                    });
+                }
+            }, 4500);
+        }
+      }));
+    });
+  </script>
+
+</body>
+</html>

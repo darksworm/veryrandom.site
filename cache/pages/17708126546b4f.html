@@ -1,0 +1,1798 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PAWPRINT FORENSICS — Feline Cybercrime Investigation Unit</title>
+<link rel="stylesheet" href="/assets/css/fonts.css">
+<style>
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+:root {
+  --white: #f8faf8;
+  --green: #00e676;
+  --green-dark: #00c853;
+  --green-muted: #b9f6ca;
+  --green-faint: #e8f5e9;
+  --black: #0a0a0a;
+  --gray: #2d2d2d;
+  --gray-mid: #555555;
+  --gray-light: #e0e0e0;
+}
+
+html { scroll-behavior: smooth; }
+
+body {
+  font-family: 'IBM Plex Mono', monospace;
+  background: var(--white);
+  color: var(--black);
+  overflow-x: hidden;
+  line-height: 1.6;
+  font-size: 16px;
+}
+
+/* ═══ GRUNGE TEXTURE OVERLAY ═══ */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image: 
+    radial-gradient(circle at 20% 50%, rgba(0,230,118,0.03) 0%, transparent 50%),
+    radial-gradient(circle at 80% 20%, rgba(0,230,118,0.05) 0%, transparent 40%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* ═══ NAV ═══ */
+nav {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 100;
+  background: rgba(248,250,248,0.92);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--green);
+  padding: 12px 24px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+nav .logo {
+  font-family: 'Space Grotesk', sans-serif;
+  font-weight: 700;
+  font-size: 14px;
+  letter-spacing: 4px;
+  text-transform: uppercase;
+  color: var(--black);
+}
+
+nav .logo span { color: var(--green-dark); }
+
+nav ul {
+  display: flex;
+  list-style: none;
+  gap: 24px;
+}
+
+nav ul li a {
+  color: var(--gray);
+  text-decoration: none;
+  font-size: 12px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  transition: color 0.3s;
+}
+
+nav ul li a:hover { color: var(--green-dark); }
+
+/* ═══ HERO — CSS ART CAT SILHOUETTE ═══ */
+.hero {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  padding: 100px 24px 60px;
+  overflow: hidden;
+}
+
+/* Circuit board pattern background */
+.hero::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(90deg, transparent 49.5%, var(--green-faint) 49.5%, var(--green-faint) 50.5%, transparent 50.5%),
+    linear-gradient(0deg, transparent 49.5%, var(--green-faint) 49.5%, var(--green-faint) 50.5%, transparent 50.5%);
+  background-size: 60px 60px;
+  opacity: 0.5;
+}
+
+/* CSS ART: Giant cat head */
+.cat-head {
+  position: relative;
+  width: clamp(200px, 40vw, 360px);
+  height: clamp(180px, 36vw, 320px);
+  margin-bottom: 40px;
+  z-index: 2;
+  cursor: pointer;
+  transition: filter 0.5s;
+}
+
+.cat-head:hover { filter: hue-rotate(30deg); }
+
+/* Face shape */
+.cat-face {
+  position: absolute;
+  width: 100%;
+  height: 80%;
+  bottom: 0;
+  background: var(--black);
+  border-radius: 50% 50% 45% 45%;
+  overflow: hidden;
+}
+
+/* Scan lines on face */
+.cat-face::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: repeating-linear-gradient(
+    0deg,
+    transparent,
+    transparent 2px,
+    rgba(0,230,118,0.07) 2px,
+    rgba(0,230,118,0.07) 4px
+  );
+}
+
+/* Ears */
+.ear-left, .ear-right {
+  position: absolute;
+  width: 30%;
+  height: 40%;
+  top: 0;
+  background: var(--black);
+  clip-path: polygon(50% 0%, 0% 100%, 100% 100%);
+  z-index: -1;
+}
+
+.ear-left { left: 8%; transform: rotate(-8deg); }
+.ear-right { right: 8%; transform: rotate(8deg); }
+
+.ear-left::after, .ear-right::after {
+  content: '';
+  position: absolute;
+  width: 60%;
+  height: 60%;
+  top: 25%;
+  left: 20%;
+  background: var(--green);
+  clip-path: polygon(50% 0%, 0% 100%, 100% 100%);
+  opacity: 0.8;
+}
+
+/* Eyes — CSS art glowing hacker eyes */
+.eye {
+  position: absolute;
+  width: 22%;
+  height: 28%;
+  top: 35%;
+  background: var(--green);
+  border-radius: 50%;
+  box-shadow: 0 0 30px var(--green), 0 0 60px rgba(0,230,118,0.4);
+  transition: all 0.3s;
+}
+
+.eye-left { left: 18%; }
+.eye-right { right: 18%; }
+
+.cat-head:hover .eye {
+  box-shadow: 0 0 50px var(--green), 0 0 100px rgba(0,230,118,0.6);
+  height: 16%;
+  top: 40%;
+}
+
+/* Pupils */
+.eye::after {
+  content: '';
+  position: absolute;
+  width: 35%;
+  height: 70%;
+  top: 15%;
+  left: 32.5%;
+  background: var(--black);
+  border-radius: 50%;
+  transition: all 0.3s;
+}
+
+.cat-head:hover .eye::after {
+  width: 70%;
+  height: 80%;
+  top: 10%;
+  left: 15%;
+}
+
+/* Nose */
+.nose {
+  position: absolute;
+  width: 10%;
+  height: 8%;
+  bottom: 28%;
+  left: 45%;
+  background: var(--green-dark);
+  clip-path: polygon(50% 0%, 0% 100%, 100% 100%);
+  transform: rotate(180deg);
+}
+
+/* Mouth lines */
+.mouth {
+  position: absolute;
+  bottom: 18%;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 30%;
+  height: 12%;
+}
+
+.mouth::before, .mouth::after {
+  content: '';
+  position: absolute;
+  width: 50%;
+  height: 100%;
+  border-bottom: 3px solid var(--green);
+  top: 0;
+}
+
+.mouth::before {
+  left: 0;
+  border-radius: 0 0 0 50%;
+}
+
+.mouth::after {
+  right: 0;
+  border-radius: 0 0 50% 0;
+}
+
+/* Whiskers — animated */
+.whisker {
+  position: absolute;
+  height: 2px;
+  background: var(--green);
+  transform-origin: 0 50%;
+  transition: transform 0.3s;
+}
+
+.whisker-l1 { width: 25%; bottom: 32%; left: 5%; transform: rotate(-8deg); }
+.whisker-l2 { width: 28%; bottom: 28%; left: 3%; transform: rotate(2deg); }
+.whisker-l3 { width: 22%; bottom: 24%; left: 7%; transform: rotate(12deg); }
+.whisker-r1 { width: 25%; bottom: 32%; right: 5%; transform: rotate(188deg); transform-origin: 100% 50%; }
+.whisker-r2 { width: 28%; bottom: 28%; right: 3%; transform: rotate(178deg); transform-origin: 100% 50%; }
+.whisker-r3 { width: 22%; bottom: 24%; right: 7%; transform: rotate(168deg); transform-origin: 100% 50%; }
+
+.cat-head:hover .whisker-l1 { transform: rotate(-15deg); }
+.cat-head:hover .whisker-l3 { transform: rotate(18deg); }
+.cat-head:hover .whisker-r1 { transform: rotate(195deg); }
+.cat-head:hover .whisker-r3 { transform: rotate(162deg); }
+
+.hero-text {
+  text-align: center;
+  z-index: 2;
+  max-width: 700px;
+}
+
+.hero-text h1 {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: clamp(28px, 5vw, 56px);
+  font-weight: 700;
+  letter-spacing: 6px;
+  text-transform: uppercase;
+  color: var(--black);
+  margin-bottom: 8px;
+  line-height: 1.1;
+}
+
+.hero-text h1 span { color: var(--green-dark); }
+
+.hero-text .tagline {
+  font-size: clamp(13px, 2vw, 16px);
+  color: var(--gray-mid);
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  margin-bottom: 24px;
+}
+
+.hero-text .est {
+  display: inline-block;
+  border: 1px solid var(--green);
+  padding: 4px 16px;
+  font-size: 11px;
+  letter-spacing: 3px;
+  color: var(--gray-mid);
+  text-transform: uppercase;
+}
+
+/* ═══ MISSION STRIP ═══ */
+.mission-strip {
+  background: var(--black);
+  color: var(--green);
+  padding: 40px 24px;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+}
+
+.mission-strip::before {
+  content: '🐾 🐾 🐾 🐾 🐾 🐾 🐾 🐾 🐾 🐾 🐾 🐾 🐾 🐾 🐾 🐾 🐾 🐾 🐾 🐾';
+  position: absolute;
+  top: 8px;
+  left: 0;
+  white-space: nowrap;
+  font-size: 10px;
+  opacity: 0.3;
+  animation: scroll-paws 20s linear infinite;
+}
+
+@keyframes scroll-paws {
+  from { transform: translateX(0); }
+  to { transform: translateX(-50%); }
+}
+
+.mission-strip p {
+  font-family: 'Crimson Pro', serif;
+  font-size: clamp(18px, 3vw, 28px);
+  font-style: italic;
+  max-width: 800px;
+  margin: 0 auto;
+  line-height: 1.5;
+  color: #ffffff;
+}
+
+.mission-strip p em {
+  color: var(--green);
+  font-style: normal;
+  font-weight: 700;
+}
+
+/* ═══ EVIDENCE WALL — CSS ART INTERACTIVE ═══ */
+.evidence-wall {
+  padding: 80px 24px;
+  position: relative;
+  min-height: 80vh;
+}
+
+.evidence-wall h2 {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: clamp(20px, 3vw, 32px);
+  letter-spacing: 4px;
+  text-transform: uppercase;
+  text-align: center;
+  margin-bottom: 60px;
+  color: var(--black);
+}
+
+.evidence-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 40px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+/* Evidence cards with CSS art */
+.evidence-card {
+  position: relative;
+  background: var(--white);
+  border: 1px solid var(--gray-light);
+  padding: 40px 24px 24px;
+  transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  overflow: hidden;
+}
+
+.evidence-card::before {
+  content: 'CLASSIFIED';
+  position: absolute;
+  top: 12px;
+  right: -30px;
+  background: var(--green);
+  color: var(--black);
+  font-size: 9px;
+  letter-spacing: 2px;
+  padding: 2px 40px;
+  transform: rotate(45deg);
+  font-weight: 700;
+}
+
+.evidence-card:hover {
+  transform: translateY(-8px) rotate(-1deg);
+  box-shadow: 12px 12px 0 var(--green-muted);
+  border-color: var(--green);
+}
+
+/* CSS art inside cards */
+.card-art {
+  width: 100%;
+  height: 160px;
+  position: relative;
+  margin-bottom: 20px;
+  overflow: hidden;
+  background: var(--green-faint);
+  border: 1px dashed var(--green);
+}
+
+/* Card 1: Yarn ball CSS art */
+.yarn-ball {
+  position: absolute;
+  width: 80px;
+  height: 80px;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  border-radius: 50%;
+  border: 3px solid var(--green-dark);
+  transition: all 0.5s;
+}
+
+.yarn-ball::before {
+  content: '';
+  position: absolute;
+  inset: 8px;
+  border-radius: 50%;
+  border: 2px dashed var(--green);
+  animation: yarn-spin 8s linear infinite;
+}
+
+.yarn-ball::after {
+  content: '';
+  position: absolute;
+  width: 60px;
+  height: 2px;
+  background: var(--green-dark);
+  top: 50%;
+  right: -60px;
+  transform-origin: left;
+  transition: all 0.4s;
+}
+
+@keyframes yarn-spin {
+  to { transform: rotate(360deg); }
+}
+
+.evidence-card:hover .yarn-ball {
+  width: 100px;
+  height: 100px;
+  box-shadow: 0 0 20px rgba(0,200,83,0.3);
+}
+
+.evidence-card:hover .yarn-ball::after {
+  width: 100px;
+  transform: rotate(20deg);
+}
+
+/* Card 2: Red dot CSS art */
+.red-dot-scene {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.red-dot {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 40% 40%, #ff5252, #d50000);
+  box-shadow: 0 0 15px rgba(213,0,0,0.4);
+  animation: dot-drift 3s ease-in-out infinite;
+  position: relative;
+}
+
+.red-dot::after {
+  content: '?';
+  position: absolute;
+  top: -30px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 24px;
+  font-weight: 700;
+  color: var(--green-dark);
+  animation: question-bounce 1.5s ease-in-out infinite;
+}
+
+@keyframes dot-drift {
+  0%, 100% { transform: translate(0, 0); }
+  25% { transform: translate(40px, -20px); }
+  50% { transform: translate(-30px, 10px); }
+  75% { transform: translate(20px, 30px); }
+}
+
+@keyframes question-bounce {
+  0%, 100% { transform: translateX(-50%) translateY(0); }
+  50% { transform: translateX(-50%) translateY(-8px); }
+}
+
+/* Card 3: Vacuum CSS art */
+.vacuum-art {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.vacuum-body {
+  width: 50px;
+  height: 90px;
+  background: var(--gray);
+  border-radius: 25px 25px 8px 8px;
+  position: relative;
+  transition: transform 0.5s;
+}
+
+.vacuum-body::before {
+  content: '';
+  position: absolute;
+  width: 16px;
+  height: 40px;
+  background: var(--gray-mid);
+  top: -35px;
+  left: 50%;
+  transform: translateX(-50%);
+  border-radius: 4px;
+}
+
+.vacuum-body::after {
+  content: '⚠';
+  position: absolute;
+  top: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 20px;
+}
+
+.evidence-card:hover .vacuum-body {
+  transform: rotate(10deg) scale(1.1);
+}
+
+/* Danger stripes around vacuum */
+.danger-zone {
+  position: absolute;
+  inset: 10px;
+  border: 2px dashed #d50000;
+  border-radius: 8px;
+  opacity: 0;
+  transition: opacity 0.4s;
+}
+
+.evidence-card:hover .danger-zone { opacity: 1; }
+
+.evidence-card h3 {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 16px;
+  font-weight: 700;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--black);
+  margin-bottom: 8px;
+}
+
+.evidence-card .case-id {
+  font-size: 11px;
+  color: var(--gray-mid);
+  letter-spacing: 2px;
+  margin-bottom: 12px;
+  display: block;
+}
+
+.evidence-card p {
+  font-size: 14px;
+  color: var(--gray);
+  line-height: 1.6;
+}
+
+.evidence-card .status {
+  display: inline-block;
+  margin-top: 16px;
+  padding: 4px 12px;
+  font-size: 10px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  font-weight: 700;
+}
+
+.status-active {
+  background: var(--green-muted);
+  color: #1b5e20;
+}
+
+.status-cold {
+  background: var(--gray-light);
+  color: var(--gray);
+}
+
+/* ═══ TEAM — CSS ART CAT PORTRAITS ═══ */
+.team {
+  background: var(--black);
+  padding: 80px 24px;
+  position: relative;
+  overflow: hidden;
+}
+
+/* Matrix-style falling characters */
+.matrix-bg {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  opacity: 0.08;
+  pointer-events: none;
+}
+
+.matrix-col {
+  position: absolute;
+  top: -100%;
+  font-size: 14px;
+  color: var(--green);
+  writing-mode: vertical-rl;
+  animation: matrix-fall linear infinite;
+  font-family: 'IBM Plex Mono', monospace;
+}
+
+@keyframes matrix-fall {
+  to { top: 100%; }
+}
+
+.team h2 {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: clamp(20px, 3vw, 32px);
+  letter-spacing: 4px;
+  text-transform: uppercase;
+  text-align: center;
+  margin-bottom: 60px;
+  color: #ffffff;
+}
+
+.team-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 40px;
+  max-width: 1000px;
+  margin: 0 auto;
+}
+
+.team-member {
+  text-align: center;
+  position: relative;
+}
+
+/* CSS Art: Cat avatar */
+.cat-avatar {
+  width: 120px;
+  height: 120px;
+  margin: 0 auto 20px;
+  position: relative;
+  cursor: pointer;
+  transition: transform 0.3s;
+}
+
+.cat-avatar:hover { transform: scale(1.1) rotate(5deg); }
+
+.avatar-circle {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  border: 2px solid var(--green);
+  overflow: hidden;
+  position: relative;
+  background: #1a1a1a;
+}
+
+/* Simplified cat face in avatar */
+.av-ear-l, .av-ear-r {
+  position: absolute;
+  width: 25px;
+  height: 30px;
+  background: var(--green-dark);
+  top: -8px;
+  clip-path: polygon(50% 0%, 0% 100%, 100% 100%);
+  z-index: 2;
+}
+
+.av-ear-l { left: 18px; transform: rotate(-10deg); }
+.av-ear-r { right: 18px; transform: rotate(10deg); }
+
+.av-eyes {
+  position: absolute;
+  top: 45%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 60%;
+  display: flex;
+  justify-content: space-between;
+}
+
+.av-eye {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: var(--green);
+  box-shadow: 0 0 8px var(--green);
+  transition: all 0.3s;
+}
+
+.cat-avatar:hover .av-eye {
+  height: 8px;
+  box-shadow: 0 0 16px var(--green);
+}
+
+.av-nose {
+  position: absolute;
+  top: 60%;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 8px;
+  height: 6px;
+  background: var(--green-dark);
+  clip-path: polygon(50% 0%, 0% 100%, 100% 100%);
+  transform: translateX(-50%) rotate(180deg);
+}
+
+.team-member h3 {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 16px;
+  color: var(--green);
+  letter-spacing: 2px;
+  margin-bottom: 4px;
+}
+
+.team-member .alias {
+  font-size: 11px;
+  color: #aaaaaa;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  margin-bottom: 8px;
+  display: block;
+}
+
+.team-member p {
+  font-size: 13px;
+  color: #cccccc;
+  line-height: 1.5;
+}
+
+/* ═══ STATS — CSS ART PAWS ═══ */
+.stats {
+  padding: 60px 24px;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 40px;
+  position: relative;
+}
+
+.stat-item {
+  text-align: center;
+  min-width: 160px;
+  position: relative;
+}
+
+/* CSS paw print behind each stat */
+.paw-bg {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 100px;
+  height: 100px;
+  opacity: 0.08;
+  pointer-events: none;
+}
+
+.paw-pad {
+  position: absolute;
+  border-radius: 50%;
+  background: var(--green);
+}
+
+.paw-main { width: 40px; height: 50px; bottom: 0; left: 30px; border-radius: 40% 40% 50% 50%; }
+.paw-t1 { width: 18px; height: 22px; top: 5px; left: 15px; }
+.paw-t2 { width: 18px; height: 22px; top: 0; left: 35px; }
+.paw-t3 { width: 18px; height: 22px; top: 5px; left: 55px; }
+.paw-t4 { width: 16px; height: 18px; top: 15px; left: 70px; }
+
+.stat-number {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: clamp(32px, 5vw, 48px);
+  font-weight: 700;
+  color: var(--green-dark);
+  line-height: 1;
+  margin-bottom: 8px;
+}
+
+.stat-label {
+  font-size: 12px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--gray-mid);
+}
+
+/* ═══ INTERACTIVE CSS ART — THE CONSPIRACY BOARD ═══ */
+.conspiracy {
+  padding: 80px 24px;
+  background: linear-gradient(180deg, var(--white) 0%, var(--green-faint) 100%);
+  position: relative;
+}
+
+.conspiracy h2 {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: clamp(20px, 3vw, 32px);
+  letter-spacing: 4px;
+  text-transform: uppercase;
+  text-align: center;
+  margin-bottom: 16px;
+  color: var(--black);
+}
+
+.conspiracy .subtitle {
+  text-align: center;
+  font-size: 13px;
+  color: var(--gray-mid);
+  letter-spacing: 2px;
+  margin-bottom: 60px;
+}
+
+.board {
+  max-width: 900px;
+  margin: 0 auto;
+  position: relative;
+  min-height: 400px;
+  border: 2px solid var(--black);
+  background: var(--white);
+  overflow: hidden;
+}
+
+/* Cork board texture */
+.board::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: 
+    radial-gradient(circle at 10% 20%, var(--green-faint) 2px, transparent 2px),
+    radial-gradient(circle at 50% 70%, var(--green-faint) 2px, transparent 2px),
+    radial-gradient(circle at 80% 30%, var(--green-faint) 2px, transparent 2px),
+    radial-gradient(circle at 30% 80%, var(--green-faint) 2px, transparent 2px),
+    radial-gradient(circle at 70% 60%, var(--green-faint) 2px, transparent 2px);
+  opacity: 0.5;
+}
+
+/* Pinned items on the board */
+.pin-item {
+  position: absolute;
+  padding: 16px;
+  background: var(--white);
+  border: 1px solid var(--gray-light);
+  box-shadow: 2px 2px 8px rgba(0,0,0,0.1);
+  transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  cursor: pointer;
+  z-index: 2;
+  max-width: 200px;
+}
+
+.pin-item:hover {
+  z-index: 10;
+  transform: scale(1.15) rotate(0deg) !important;
+  box-shadow: 4px 4px 20px rgba(0,0,0,0.2);
+}
+
+/* Pushpin CSS art */
+.pin-item::before {
+  content: '';
+  position: absolute;
+  top: -8px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 40% 40%, #ff5252, #c62828);
+  box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+}
+
+.pin-1 { top: 20px; left: 5%; transform: rotate(-3deg); }
+.pin-2 { top: 40px; right: 5%; left: auto; transform: rotate(2deg); }
+.pin-3 { bottom: 30px; left: 30%; transform: rotate(-1deg); }
+.pin-4 { top: 50%; left: 50%; transform: translate(-50%, -50%) rotate(1deg); }
+
+.pin-item .pin-label {
+  font-size: 10px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: #c62828;
+  font-weight: 700;
+  margin-bottom: 6px;
+}
+
+.pin-item p {
+  font-size: 12px;
+  color: var(--gray);
+  line-height: 1.5;
+}
+
+/* String connections */
+.string-line {
+  position: absolute;
+  height: 2px;
+  background: #c62828;
+  transform-origin: left center;
+  opacity: 0.4;
+  z-index: 1;
+}
+
+.string-1 { top: 80px; left: 25%; width: 50%; transform: rotate(15deg); }
+.string-2 { top: 200px; left: 10%; width: 60%; transform: rotate(-8deg); }
+.string-3 { top: 140px; left: 40%; width: 35%; transform: rotate(25deg); }
+
+/* ═══ DONATE ═══ */
+.donate {
+  padding: 80px 24px;
+  text-align: center;
+  position: relative;
+}
+
+.donate::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 1px;
+  height: 60px;
+  background: linear-gradient(to bottom, transparent, var(--green));
+}
+
+.donate h2 {
+  font-family: 'Playfair Display', serif;
+  font-size: clamp(24px, 4vw, 42px);
+  color: var(--black);
+  margin-bottom: 16px;
+  line-height: 1.2;
+}
+
+.donate .appeal {
+  max-width: 600px;
+  margin: 0 auto 40px;
+  font-size: 15px;
+  color: var(--gray);
+  line-height: 1.7;
+}
+
+.donate-tiers {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 24px;
+  justify-content: center;
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.donate-option {
+  border: 2px solid var(--green);
+  padding: 24px;
+  min-width: 180px;
+  flex: 1;
+  max-width: 240px;
+  transition: all 0.3s;
+  cursor: pointer;
+  position: relative;
+  background: var(--white);
+}
+
+.donate-option:hover {
+  background: var(--green-faint);
+  transform: translateY(-4px);
+  box-shadow: 0 8px 24px rgba(0,200,83,0.15);
+}
+
+.donate-option .amount {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 28px;
+  font-weight: 700;
+  color: var(--green-dark);
+  margin-bottom: 4px;
+}
+
+.donate-option .tier-name {
+  font-size: 12px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--black);
+  font-weight: 700;
+  margin-bottom: 8px;
+}
+
+.donate-option p {
+  font-size: 13px;
+  color: var(--gray-mid);
+  line-height: 1.5;
+}
+
+/* ═══ VOLUNTEER ═══ */
+.volunteer {
+  background: var(--green-faint);
+  padding: 60px 24px;
+  position: relative;
+  overflow: hidden;
+}
+
+.volunteer::after {
+  content: '';
+  position: absolute;
+  right: -50px;
+  bottom: -50px;
+  width: 200px;
+  height: 200px;
+  border: 40px solid var(--green-muted);
+  border-radius: 50%;
+  opacity: 0.3;
+}
+
+.volunteer-inner {
+  max-width: 800px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 40px;
+  align-items: center;
+}
+
+.volunteer h2 {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: clamp(20px, 3vw, 28px);
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  color: var(--black);
+  margin-bottom: 16px;
+}
+
+.volunteer p {
+  font-size: 15px;
+  color: var(--gray);
+  line-height: 1.7;
+  margin-bottom: 12px;
+}
+
+.volunteer ul {
+  list-style: none;
+  padding: 0;
+}
+
+.volunteer ul li {
+  font-size: 14px;
+  color: var(--gray);
+  padding: 8px 0;
+  border-bottom: 1px dashed var(--green);
+  position: relative;
+  padding-left: 24px;
+}
+
+.volunteer ul li::before {
+  content: '🐾';
+  position: absolute;
+  left: 0;
+  font-size: 12px;
+}
+
+/* ═══ FOOTER ═══ */
+footer {
+  background: var(--black);
+  padding: 40px 24px;
+  text-align: center;
+  position: relative;
+}
+
+footer::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: repeating-linear-gradient(
+    90deg,
+    var(--green) 0px,
+    var(--green) 20px,
+    transparent 20px,
+    transparent 30px
+  );
+}
+
+.footer-art {
+  margin-bottom: 20px;
+  position: relative;
+  display: inline-block;
+}
+
+/* Tiny CSS paw print */
+.footer-paw {
+  display: inline-block;
+  width: 40px;
+  height: 40px;
+  position: relative;
+}
+
+.fp-pad {
+  position: absolute;
+  border-radius: 50%;
+  background: var(--green);
+}
+
+.fp-main { width: 16px; height: 20px; bottom: 0; left: 12px; border-radius: 40% 40% 50% 50%; }
+.fp-1 { width: 8px; height: 10px; top: 2px; left: 5px; }
+.fp-2 { width: 8px; height: 10px; top: 0; left: 14px; }
+.fp-3 { width: 8px; height: 10px; top: 2px; left: 23px; }
+
+footer p {
+  font-size: 12px;
+  color: #aaaaaa;
+  letter-spacing: 1px;
+  margin-bottom: 8px;
+}
+
+footer .legal {
+  font-size: 10px;
+  color: #777777;
+  letter-spacing: 1px;
+}
+
+footer a {
+  color: var(--green);
+  text-decoration: none;
+}
+
+/* ═══ MOBILE RESPONSIVE ═══ */
+@media (max-width: 768px) {
+  nav ul { display: none; }
+  
+  .evidence-grid { grid-template-columns: 1fr; }
+  
+  .team-grid { grid-template-columns: repeat(2, 1fr); gap: 30px; }
+  
+  .volunteer-inner { grid-template-columns: 1fr; }
+  
+  .board { min-height: 500px; }
+  
+  .pin-item { 
+    position: relative !important;
+    transform: none !important;
+    max-width: 100%;
+    margin: 20px;
+    top: auto !important;
+    left: auto !important;
+    right: auto !important;
+    bottom: auto !important;
+  }
+  
+  .string-line { display: none; }
+  
+  .stats { gap: 24px; }
+  .stat-item { min-width: 120px; }
+  
+  .donate-tiers { flex-direction: column; align-items: center; }
+  .donate-option { max-width: 100%; width: 100%; }
+}
+
+@media (max-width: 480px) {
+  .team-grid { grid-template-columns: 1fr; }
+  .hero { padding-top: 80px; }
+}
+
+/* ═══ ASYMMETRIC OVERLAPS ═══ */
+.overlap-section {
+  position: relative;
+}
+
+.overlap-section::after {
+  content: '';
+  position: absolute;
+  bottom: -30px;
+  right: 5%;
+  width: 40%;
+  height: 60px;
+  background: var(--green);
+  clip-path: polygon(10% 0%, 100% 0%, 90% 100%, 0% 100%);
+  opacity: 0.1;
+  z-index: 5;
+}
+
+/* ═══ GLITCH EFFECT ON HOVER FOR HEADING ═══ */
+.glitch-text {
+  position: relative;
+  display: inline-block;
+}
+
+.glitch-text::before,
+.glitch-text::after {
+  content: attr(data-text);
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  transition: opacity 0.1s;
+}
+
+.glitch-text:hover::before {
+  opacity: 1;
+  color: var(--green);
+  animation: glitch-1 0.3s infinite;
+  clip-path: polygon(0 0, 100% 0, 100% 45%, 0 45%);
+}
+
+.glitch-text:hover::after {
+  opacity: 1;
+  color: #ff5252;
+  animation: glitch-2 0.3s infinite;
+  clip-path: polygon(0 55%, 100% 55%, 100% 100%, 0 100%);
+}
+
+@keyframes glitch-1 {
+  0% { transform: translate(0); }
+  20% { transform: translate(-3px, 3px); }
+  40% { transform: translate(3px, -3px); }
+  60% { transform: translate(-2px, 1px); }
+  80% { transform: translate(2px, -2px); }
+  100% { transform: translate(0); }
+}
+
+@keyframes glitch-2 {
+  0% { transform: translate(0); }
+  20% { transform: translate(3px, -2px); }
+  40% { transform: translate(-3px, 2px); }
+  60% { transform: translate(1px, -3px); }
+  80% { transform: translate(-2px, 3px); }
+  100% { transform: translate(0); }
+}
+
+/* ═══ ANIMATED BORDER ART ═══ */
+.art-border {
+  position: relative;
+  padding: 3px;
+}
+
+.art-border::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, var(--green), transparent, var(--green));
+  background-size: 200% 100%;
+  animation: border-slide 3s linear infinite;
+  z-index: -1;
+}
+
+@keyframes border-slide {
+  to { background-position: -200% 0; }
+}
+
+/* ═══ CUSTOM SCROLLBAR ═══ */
+::-webkit-scrollbar { width: 8px; }
+::-webkit-scrollbar-track { background: var(--white); }
+::-webkit-scrollbar-thumb { background: var(--green); border-radius: 4px; }
+
+/* ═══ MORSE CODE TICKER ═══ */
+.morse-ticker {
+  overflow: hidden;
+  padding: 12px 0;
+  border-top: 1px solid var(--green-faint);
+  border-bottom: 1px solid var(--green-faint);
+}
+
+.morse-ticker span {
+  display: inline-block;
+  white-space: nowrap;
+  animation: ticker-scroll 30s linear infinite;
+  font-size: 11px;
+  letter-spacing: 4px;
+  color: var(--gray-mid);
+}
+
+@keyframes ticker-scroll {
+  from { transform: translateX(100vw); }
+  to { transform: translateX(-100%); }
+}
+
+/* ═══ FLOATING PAW CURSOR TRAIL AREA ═══ */
+.interactive-zone {
+  padding: 40px 24px;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+  min-height: 200px;
+  cursor: crosshair;
+}
+
+.interactive-zone p {
+  font-size: 12px;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  color: var(--gray-mid);
+}
+
+.trail-paw {
+  position: absolute;
+  font-size: 20px;
+  pointer-events: none;
+  opacity: 0;
+  transition: none;
+}
+</style>
+</head>
+<body>
+
+<!-- ═══ NAV ═══ -->
+<nav>
+  <div class="logo">PAWPRINT <span>//</span> FORENSICS</div>
+  <ul>
+    <li><a href="#cases">Cases</a></li>
+    <li><a href="#operatives">Operatives</a></li>
+    <li><a href="#evidence">Evidence</a></li>
+    <li><a href="#donate">Fund Us</a></li>
+  </ul>
+</nav>
+
+<!-- ═══ HERO ═══ -->
+<section class="hero">
+  <div class="cat-head" id="herocat">
+    <div class="ear-left"></div>
+    <div class="ear-right"></div>
+    <div class="cat-face">
+      <div class="eye eye-left"></div>
+      <div class="eye eye-right"></div>
+      <div class="nose"></div>
+      <div class="mouth"></div>
+      <div class="whisker whisker-l1"></div>
+      <div class="whisker whisker-l2"></div>
+      <div class="whisker whisker-l3"></div>
+      <div class="whisker whisker-r1"></div>
+      <div class="whisker whisker-r2"></div>
+      <div class="whisker whisker-r3"></div>
+    </div>
+  </div>
+  <div class="hero-text">
+    <h1 class="glitch-text" data-text="PAWPRINT FORENSICS">PAWPRINT <span>FORENSICS</span></h1>
+    <p class="tagline">Feline Cybercrime Investigation Unit</p>
+    <span class="est">501(c)(3) Non-Pawfit &bull; Est. 2019</span>
+  </div>
+</section>
+
+<!-- ═══ MISSION ═══ -->
+<section class="mission-strip">
+  <p>"Every knocked-over water bowl has a <em>digital trail</em>. Every mysterious red dot has an <em>IP address</em>. We will find them. We will meow at them until they confess."</p>
+</section>
+
+<!-- ═══ MORSE TICKER ═══ -->
+<div class="morse-ticker">
+  <span>-- . --- .-- &nbsp;&nbsp;&bull;&nbsp;&nbsp; CASE #4471: THE VACUUM RETURNS &nbsp;&nbsp;&bull;&nbsp;&nbsp; .... .. ... ... &nbsp;&nbsp;&bull;&nbsp;&nbsp; ALL UNITS: RED DOT SIGHTING SECTOR 7 &nbsp;&nbsp;&bull;&nbsp;&nbsp; -.-. .- - &nbsp;&nbsp;&bull;&nbsp;&nbsp; ALERT: FOOD BOWL AT 43% CAPACITY. THIS IS NOT A DRILL. &nbsp;&nbsp;&bull;&nbsp;&nbsp; .--. .- .--</span>
+</div>
+
+<!-- ═══ ACTIVE CASES ═══ -->
+<section class="evidence-wall overlap-section" id="cases">
+  <h2>Active Investigations</h2>
+  <div class="evidence-grid">
+    
+    <div class="evidence-card">
+      <div class="card-art">
+        <div class="yarn-ball"></div>
+      </div>
+      <span class="case-id">CASE #4471-YRN</span>
+      <h3>Operation Tangled Web</h3>
+      <p>A ball of yarn was found unraveled across 3 rooms. Forensic analysis of claw marks indicates this was an inside job. The prime suspect has been sleeping for 14 hours and refuses counsel.</p>
+      <span class="status status-active">ACTIVE — DAY 847</span>
+    </div>
+    
+    <div class="evidence-card">
+      <div class="card-art">
+        <div class="red-dot-scene">
+          <div class="red-dot"></div>
+        </div>
+      </div>
+      <span class="case-id">CASE #2209-DOT</span>
+      <h3>The Red Dot Conspiracy</h3>
+      <p>Unidentified luminous entity appears on walls with no discernible origin. Has evaded capture 11,347 times. Our cryptography unit believes it may be sentient. We've traced the signal to a "laser pointer" but this is clearly a cover story.</p>
+      <span class="status status-active">ACTIVE — PRIORITY ALPHA</span>
+    </div>
+    
+    <div class="evidence-card">
+      <div class="card-art">
+        <div class="vacuum-art">
+          <div class="vacuum-body"></div>
+          <div class="danger-zone"></div>
+        </div>
+      </div>
+      <span class="case-id">CASE #0001-VAC</span>
+      <h3>The Vacuum Files</h3>
+      <p>It returns every Sunday at 0900. We have filed 312 formal complaints. It has been classified as a weapon of mass disruption. Our founder, Sergeant Whiskers, has a personal vendetta. The vacuum took her favorite napping spot in 2019. She has never recovered.</p>
+      <span class="status status-cold">ONGOING — EST. RESOLUTION: NEVER</span>
+    </div>
+    
+  </div>
+</section>
+
+<!-- ═══ STATS ═══ -->
+<section class="stats">
+  <div class="stat-item">
+    <div class="paw-bg">
+      <div class="paw-pad paw-main"></div>
+      <div class="paw-pad paw-t1"></div>
+      <div class="paw-pad paw-t2"></div>
+      <div class="paw-pad paw-t3"></div>
+    </div>
+    <div class="stat-number">4,812</div>
+    <div class="stat-label">Cases Filed</div>
+  </div>
+  <div class="stat-item">
+    <div class="paw-bg">
+      <div class="paw-pad paw-main"></div>
+      <div class="paw-pad paw-t1"></div>
+      <div class="paw-pad paw-t2"></div>
+      <div class="paw-pad paw-t3"></div>
+    </div>
+    <div class="stat-number">3</div>
+    <div class="stat-label">Cases Solved</div>
+  </div>
+  <div class="stat-item">
+    <div class="paw-bg">
+      <div class="paw-pad paw-main"></div>
+      <div class="paw-pad paw-t1"></div>
+      <div class="paw-pad paw-t2"></div>
+      <div class="paw-pad paw-t3"></div>
+    </div>
+    <div class="stat-number">97%</div>
+    <div class="stat-label">Nap Compliance</div>
+  </div>
+  <div class="stat-item">
+    <div class="paw-bg">
+      <div class="paw-pad paw-main"></div>
+      <div class="paw-pad paw-t1"></div>
+      <div class="paw-pad paw-t2"></div>
+      <div class="paw-pad paw-t3"></div>
+    </div>
+    <div class="stat-number">$47.99</div>
+    <div class="stat-label">Annual Budget (treats)</div>
+  </div>
+</section>
+
+<!-- ═══ TEAM ═══ -->
+<section class="team" id="operatives">
+  <div class="matrix-bg">
+    <div class="matrix-col" style="left:5%;animation-duration:12s;">01101101 01100101 01101111 01110111</div>
+    <div class="matrix-col" style="left:20%;animation-duration:8s;animation-delay:2s;">01110000 01110101 01110010 01110010</div>
+    <div class="matrix-col" style="left:45%;animation-duration:15s;animation-delay:5s;">01101000 01101001 01110011 01110011</div>
+    <div class="matrix-col" style="left:65%;animation-duration:10s;animation-delay:1s;">01100110 01110101 01110010</div>
+    <div class="matrix-col" style="left:85%;animation-duration:9s;animation-delay:3s;">01101110 01100001 01110000</div>
+  </div>
+  
+  <h2>Field Operatives</h2>
+  
+  <div class="team-grid">
+    <div class="team-member">
+      <div class="cat-avatar">
+        <div class="av-ear-l"></div>
+        <div class="av-ear-r"></div>
+        <div class="avatar-circle">
+          <div class="av-eyes">
+            <div class="av-eye"></div>
+            <div class="av-eye"></div>
+          </div>
+          <div class="av-nose"></div>
+        </div>
+      </div>
+      <h3>Sgt. Whiskers</h3>
+      <span class="alias">Alias: zer0day_tabby</span>
+      <p>Founder. 14-year-old tabby. Learned to hack by walking across keyboards. Has accidentally deployed to production 47 times. Each time was an improvement.</p>
+    </div>
+    
+    <div class="team-member">
+      <div class="cat-avatar">
+        <div class="av-ear-l"></div>
+        <div class="av-ear-r"></div>
+        <div class="avatar-circle">
+          <div class="av-eyes">
+            <div class="av-eye"></div>
+            <div class="av-eye"></div>
+          </div>
+          <div class="av-nose"></div>
+        </div>
+      </div>
+      <h3>Chairman Meow</h3>
+      <span class="alias">Alias: the_furrwall</span>
+      <p>Head of Network Security. A 9 lb. tuxedo cat who once knocked a router off a table and called it "penetration testing." Board certified.</p>
+    </div>
+    
+    <div class="team-member">
+      <div class="cat-avatar">
+        <div class="av-ear-l"></div>
+        <div class="av-ear-r"></div>
+        <div class="avatar-circle">
+          <div class="av-eyes">
+            <div class="av-eye"></div>
+            <div class="av-eye"></div>
+          </div>
+          <div class="av-nose"></div>
+        </div>
+      </div>
+      <h3>Pixel</h3>
+      <span class="alias">Alias: cat /dev/null</span>
+      <p>Digital forensics. Specializes in recovering deleted files and knocking cups off desks. Has stared at a cursor for 9 hours straight. "That's surveillance," she says.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ CONSPIRACY BOARD ═══ -->
+<section class="conspiracy" id="evidence">
+  <h2>Evidence Board</h2>
+  <p class="subtitle">Hover to declassify // All connections are real</p>
+  
+  <div class="board">
+    <div class="string-line string-1"></div>
+    <div class="string-line string-2"></div>
+    <div class="string-line string-3"></div>
+    
+    <div class="pin-item pin-1">
+      <div class="pin-label">EXHIBIT A</div>
+      <p>Water bowl found at 40% capacity. No witnesses. "Evaporation" does not explain the wet paw prints leading to the suspect's bed.</p>
+    </div>
+    
+    <div class="pin-item pin-2">
+      <div class="pin-label">EXHIBIT B</div>
+      <p>The human claims the "vet" is a "doctor." Our intelligence suggests it is a black site. They took Mittens there. Mittens came back... different.</p>
+    </div>
+    
+    <div class="pin-item pin-3">
+      <div class="pin-label">EXHIBIT C</div>
+      <p>Intercepted transmission: "Who's a good kitty?" This is a known social engineering tactic. We are not falling for it again.</p>
+    </div>
+    
+    <div class="pin-item pin-4">
+      <div class="pin-label">CRITICAL LINK</div>
+      <p>The vacuum, the red dot, and the vet all exist in the same house. Coincidence? Our threat model says no.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ INTERACTIVE ZONE ═══ -->
+<div class="interactive-zone" id="trailzone">
+  <p>Move cursor to scan for evidence 🐾</p>
+</div>
+
+<!-- ═══ DONATE ═══ -->
+<section class="donate" id="donate">
+  <h2>Fund the Investigation</h2>
+  <p class="appeal">Pawprint Forensics is a 501(c)(3) non-pawfit. We receive no government funding because the government is "run by dogs" (source: Sgt. Whiskers). Your donation directly supports catnip procurement, keyboard walking workshops, and our ongoing legal battle against the Roomba Corporation.</p>
+  
+  <div class="donate-tiers">
+    <div class="donate-option" onclick="this.style.background='#b9f6ca'">
+      <div class="amount">$9</div>
+      <div class="tier-name">Kitten Tier</div>
+      <p>Funds 1 hour of laser pointer surveillance. You receive a thank-you hairball (digital).</p>
+    </div>
+    <div class="donate-option" onclick="this.style.background='#b9f6ca'">
+      <div class="amount">$49</div>
+      <div class="tier-name">Tomcat Tier</div>
+      <p>Sponsors a full case file investigation. Naming rights for one evidence bag. Access to our encrypted purring channel.</p>
+    </div>
+    <div class="donate-option" onclick="this.style.background='#b9f6ca'">
+      <div class="amount">$249</div>
+      <div class="tier-name">Apex Predator</div>
+      <p>Full operative status. Your name on the Evidence Board. A physical hairball mailed to your home. Sgt. Whiskers will sit on your laptop for 10 minutes via Zoom.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ VOLUNTEER ═══ -->
+<section class="volunteer">
+  <div class="volunteer-inner">
+    <div>
+      <h2>Join the Litter</h2>
+      <p>We are always recruiting new operatives. No experience necessary — most of our team has none. Must be comfortable working in the dark, napping during meetings, and ignoring direct orders.</p>
+    </div>
+    <div>
+      <ul>
+        <li>Field Surveillance (staring out windows)</li>
+        <li>Keyboard Security Analyst (walking on keyboards)</li>
+        <li>Food Supply Chain Auditor</li>
+        <li>Counter-Vacuum Operations</li>
+        <li>Red Dot Rapid Response Team</li>
+        <li>Cardboard Box Infrastructure Engineer</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ FOOTER ═══ -->
+<footer>
+  <div class="footer-art">
+    <div class="footer-paw">
+      <div class="fp-pad fp-main"></div>
+      <div class="fp-pad fp-1"></div>
+      <div class="fp-pad fp-2"></div>
+      <div class="fp-pad fp-3"></div>
+    </div>
+  </div>
+  <p>PAWPRINT FORENSICS &bull; Feline Cybercrime Investigation Unit</p>
+  <p>Encrypted Contact: meow@pawprint.fyi &bull; Signal: @zer0day_tabby</p>
+  <p class="legal">501(c)(3) Non-Pawfit Organization &bull; EIN: 00-MEOW-47 &bull; All paw prints are admissible in court (pending)</p>
+  <p class="legal" style="margin-top:12px;">This site was built by walking across a keyboard. Any resemblance to actual web design is coincidental.</p>
+</footer>
+
+<script src="/assets/js/gsap.min.js"></script>
+<script>
+(function() {
+  "use strict";
+
+  // ═══ GSAP ENTRANCE ANIMATIONS ═══
+  gsap.fromTo('.cat-head', 
+    { y: 40, opacity: 0, scale: 0.8 }, 
+    { y: 0, opacity: 1, scale: 1, duration: 1.2, ease: 'back.out(1.7)', clearProps: 'opacity,transform' }
+  );
+
+  gsap.fromTo('.hero-text h1', 
+    { y: 30, opacity: 0 }, 
+    { y: 0, opacity: 1, duration: 0.8, delay: 0.4, clearProps: 'opacity,transform' }
+  );
+
+  gsap.fromTo('.hero-text .tagline', 
+    { y: 20, opacity: 0 }, 
+    { y: 0, opacity: 1, duration: 0.6, delay: 0.7, clearProps: 'opacity,transform' }
+  );
+
+  gsap.fromTo('.hero-text .est', 
+    { y: 15, opacity: 0 }, 
+    { y: 0, opacity: 1, duration: 0.5, delay: 0.9, clearProps: 'opacity,transform' }
+  );
+
+  gsap.fromTo('.mission-strip p', 
+    { y: 20, opacity: 0 }, 
+    { y: 0, opacity: 1, duration: 0.8, delay: 1.2, clearProps: 'opacity,transform', 
+      scrollTrigger: null }
+  );
+
+  // Animate cards on scroll (manual observer)
+  var cards = document.querySelectorAll('.evidence-card');
+  var cardObserver = new IntersectionObserver(function(entries) {
+    entries.forEach(function(entry) {
+      if (entry.isIntersecting) {
+        gsap.fromTo(entry.target, 
+          { y: 40, opacity: 0, rotate: -2 }, 
+          { y: 0, opacity: 1, rotate: 0, duration: 0.7, delay: 0.1, clearProps: 'opacity,transform' }
+        );
+        cardObserver.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.2 });
+
+  cards.forEach(function(card) { cardObserver.observe(card); });
+
+  // Animate stats
+  var stats = document.querySelectorAll('.stat-item');
+  var statObserver = new IntersectionObserver(function(entries) {
+    entries.forEach(function(entry, i) {
+      if (entry.isIntersecting) {
+        gsap.fromTo(entry.target, 
+          { y: 30, opacity: 0, scale: 0.9 }, 
+          { y: 0, opacity: 1, scale: 1, duration: 0.6, delay: i * 0.1, clearProps: 'opacity,transform' }
+        );
+        statObserver.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.3 });
+
+  stats.forEach(function(s) { statObserver.observe(s); });
+
+  // Animate team members
+  var members = document.querySelectorAll('.team-member');
+  var memberObserver = new IntersectionObserver(function(entries) {
+    entries.forEach(function(entry) {
+      if (entry.isIntersecting) {
+        gsap.fromTo(entry.target, 
+          { y: 30, opacity: 0 }, 
+          { y: 0, opacity: 1, duration: 0.7, delay: 0.15, clearProps: 'opacity,transform' }
+        );
+        memberObserver.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.2 });
+
+  members.forEach(function(m) { memberObserver.observe(m); });
+
+  // Animate pin items
+  var pins = document.querySelectorAll('.pin-item');
+  var pinObserver = new IntersectionObserver(function(entries) {
+    entries.forEach(function(entry) {
+      if (entry.isIntersecting) {
+        gsap.fromTo(entry.target, 
+          { scale: 0.8, opacity: 0 }, 
+          { scale: 1, opacity: 1, duration: 0.5, delay: 0.1, clearProps: 'opacity,transform' }
+        );
+        pinObserver.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.2 });
+
+  pins.forEach(function(p) { pinObserver.observe(p); });
+
+  // ═══ INTERACTIVE: PAW TRAIL ON MOUSE MOVE ═══
+  var trailZone = document.getElementById('trailzone');
+  var pawChars = ['🐾'];
+  var lastPawTime = 0;
+
+  trailZone.addEventListener('mousemove', function(e) {
+    var now = Date.now();
+    if (now - lastPawTime < 150) return;
+    lastPawTime = now;
+
+    var rect = trailZone.getBoundingClientRect();
+    var x = e.clientX - rect.left;
+    var y = e.clientY - rect.top;
+
+    var paw = document.createElement('span');
+    paw.className = 'trail-paw';
+    paw.textContent = pawChars[0];
+    paw.style.left = x + 'px';
+    paw.style.top = y + 'px';
+    paw.style.opacity = '1';
+    paw.style.transform = 'rotate(' + (Math.random() * 60 - 30) + 'deg)';
+    trailZone.appendChild(paw);
+
+    gsap.fromTo(paw, 
+      { opacity: 1, scale: 1 }, 
+      { opacity: 0, scale: 0.3, duration: 1.5, 
+        onComplete: function() { 
+          if (paw.parentNode) paw.parentNode.removeChild(paw); 
+        },
+        clearProps: 'opacity,transform'
+      }
+    );
+  });
+
+  // ═══ EYE TRACKING ON HERO CAT ═══
+  var heroSection = document.querySelector('.hero');
+  var eyeLeft = document.querySelector('.eye-left');
+  var eyeRight = document.querySelector('.eye-right');
+
+  heroSection.addEventListener('mousemove', function(e) {
+    var rect = heroSection.getBoundingClientRect();
+    var centerX = rect.left + rect.width / 2;
+    var centerY = rect.top + rect.height / 2;
+    var dx = (e.clientX - centerX) / rect.width;
+    var dy = (e.clientY - centerY) / rect.height;
+    var moveX = dx * 4;
+    var moveY = dy * 3;
+
+    if (eyeLeft) {
+      eyeLeft.style.transform = 'translate(' + moveX + 'px, ' + moveY + 'px)';
+    }
+    if (eyeRight) {
+      eyeRight.style.transform = 'translate(' + moveX + 'px, ' + moveY + 'px)';
+    }
+  });
+
+  // ═══ DONATE CLICK FEEDBACK ═══
+  var donateOptions = document.querySelectorAll('.donate-option');
+  donateOptions.forEach(function(opt) {
+    opt.addEventListener('click', function() {
+      gsap.fromTo(this, 
+        { scale: 0.95 }, 
+        { scale: 1, duration: 0.4, ease: 'elastic.out(1, 0.3)', clearProps: 'transform' }
+      );
+    });
+  });
+
+})();
+</script>
+
+</body>
+</html>

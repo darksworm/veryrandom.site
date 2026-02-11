@@ -1,0 +1,400 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Silent Menu</title>
+    <link rel="stylesheet" href="/assets/css/fonts.css">
+    <style>
+        :root {
+            --frost-bg: #EBF4FF;
+            --ice-blue: #B0C4DE;
+            --silver: #C0C0C0;
+            --white: #FFFFFF;
+            --dark-text: #1a1a1a;
+            --border-color: #d0d0d0;
+            --glitch-1: #A7D7FF;
+            --glitch-2: #8292FF;
+            --glitch-3: #F0A2FF;
+            --font-mono: 'IBM Plex Mono', monospace;
+            --font-sans: 'Space Grotesk', sans-serif;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        html, body {
+            width: 100%;
+            height: 100%;
+            overscroll-behavior: none;
+        }
+
+        body {
+            background-color: var(--frost-bg);
+            font-family: var(--font-mono);
+            color: var(--dark-text);
+            font-size: 16px;
+            line-height: 1.6;
+            display: flex;
+            overflow-x: hidden;
+        }
+
+        .container {
+            display: flex;
+            width: 100%;
+            height: 100%;
+        }
+
+        .left-pane, .right-pane {
+            width: 50%;
+            height: 100%;
+            position: relative;
+        }
+
+        /* --- Left Pane: CSS Art --- */
+        .left-pane {
+            background-color: #000;
+            overflow: hidden;
+            position: fixed; /* Fixes it to the viewport */
+            top: 0;
+            left: 0;
+        }
+
+        .glitch-canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            filter: blur(1px);
+        }
+
+        .glitch-shape {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 200%;
+            height: 200%;
+            mix-blend-mode: screen;
+            opacity: 0.2;
+            transform-origin: center center;
+        }
+
+        .glitch-shape::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+        }
+
+        .shape1 { background: var(--glitch-1); animation: rotate 60s linear infinite, scalePulse 15s ease-in-out infinite; }
+        .shape2 { background: var(--glitch-2); animation: rotate 50s linear infinite reverse, scalePulse 12s ease-in-out infinite; }
+        .shape3 { background: var(--glitch-3); animation: rotate 70s linear infinite, scalePulse 18s ease-in-out infinite; }
+        
+        .shape1::before {
+            clip-path: polygon(0% 0%, 10% 0%, 50% 40%, 10% 80%, 0% 100%);
+            animation: morph1 13s ease-in-out infinite alternate;
+        }
+        .shape2::before {
+            clip-path: circle(30% at 80% 20%);
+             animation: morph2 11s ease-in-out infinite alternate;
+        }
+        .shape3::before {
+            clip-path: ellipse(40% 20% at 20% 80%);
+            animation: morph3 17s ease-in-out infinite alternate;
+        }
+
+        @keyframes rotate { from { transform: translate(-50%, -50%) rotate(0deg); } to { transform: translate(-50%, -50%) rotate(360deg); } }
+        @keyframes scalePulse { 0%, 100% { transform: translate(-50%, -50%) scale(0.8); } 50% { transform: translate(-50%, -50%) scale(1.1); } }
+        @keyframes morph1 { 0% { clip-path: polygon(0% 0%, 10% 0%, 50% 40%, 10% 80%, 0% 100%); } 100% { clip-path: polygon(20% 0%, 0% 20%, 30% 50%, 0% 80%, 20% 100%); } }
+        @keyframes morph2 { 0% { clip-path: circle(30% at 80% 20%); } 100% { clip-path: circle(20% at 70% 30%); } }
+        @keyframes morph3 { 0% { clip-path: ellipse(40% 20% at 20% 80%); } 100% { clip-path: ellipse(20% 35% at 25% 75%); } }
+
+
+        /* --- Right Pane: Content --- */
+        .right-pane {
+            background-color: var(--white);
+            overflow-y: auto;
+            padding: 2rem;
+            position: absolute; /* Allows scrolling */
+            top: 0;
+            right: 0;
+            border-left: 1px solid var(--border-color);
+        }
+
+        header {
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .logo {
+            font-family: var(--font-sans);
+            font-size: 2rem;
+            font-weight: 700;
+            letter-spacing: -1px;
+        }
+        
+        .tide-status {
+            display: flex;
+            align-items: center;
+            margin-top: 0.5rem;
+        }
+
+        .tide-indicator {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background-color: var(--glitch-2);
+            margin-right: 10px;
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0% { box-shadow: 0 0 0 0 rgba(130, 146, 255, 0.7); }
+            70% { box-shadow: 0 0 0 10px rgba(130, 146, 255, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(130, 146, 255, 0); }
+        }
+
+        h2 {
+            font-family: var(--font-sans);
+            font-weight: 600;
+            font-size: 1.25rem;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 0.5rem;
+            margin-bottom: 1rem;
+            margin-top: 3rem;
+        }
+
+        .offering-card, .protocol-list, .transmission-log, .faq-item {
+            border: 1px solid var(--border-color);
+            padding: 1rem;
+            margin-bottom: 1rem;
+            transition: box-shadow 0.3s ease, border-color 0.3s ease;
+        }
+        
+        .offering-card:hover {
+            border-color: var(--glitch-1);
+            box-shadow: 4px 4px 0px var(--glitch-1);
+        }
+
+        .offering-card h3 {
+            font-size: 1rem;
+            font-weight: 700;
+            margin: 0;
+        }
+
+        code {
+            background-color: var(--frost-bg);
+            padding: 0.1em 0.3em;
+            border-radius: 4px;
+            font-size: 0.9em;
+        }
+
+        .protocol-list ol {
+            padding-left: 1.5rem;
+        }
+        
+        .transmission-log p, .faq-item p {
+            margin-bottom: 0;
+        }
+        
+        .faq-question {
+            font-weight: 700;
+        }
+        
+        .small-print {
+            font-size: 0.8em;
+            color: #555;
+            margin-top: 1rem;
+        }
+
+        footer {
+            margin-top: 4rem;
+            padding-top: 2rem;
+            border-top: 1px solid var(--border-color);
+            text-align: center;
+            font-size: 0.9em;
+            color: #555;
+        }
+        
+        /* --- Responsive --- */
+        @media (max-width: 768px) {
+            body {
+                flex-direction: column;
+            }
+
+            .container {
+                flex-direction: column;
+            }
+
+            .left-pane {
+                width: 100%;
+                height: 200px; /* Fixed height for header */
+                position: relative;
+            }
+            
+            .right-pane {
+                width: 100%;
+                height: auto;
+                position: relative;
+                border-left: none;
+                padding: 1.5rem;
+            }
+            
+            .logo {
+                font-size: 1.5rem;
+            }
+        }
+        
+        /* --- No-JS fallback --- */
+        [x-cloak] {
+            display: none !important;
+        }
+    </style>
+</head>
+<body x-data="{ tide: { level: 78.4, state: 'EBB-FLUX' } }" x-init="
+    setInterval(() => {
+        let newLevel = tide.level + (Math.random() - 0.5) * 2;
+        if (newLevel > 100) newLevel = 100;
+        if (newLevel < 0) newLevel = 0;
+        tide.level = parseFloat(newLevel.toFixed(1));
+
+        if (tide.level > 75) tide.state = 'HIGH-TIDE';
+        else if (tide.level < 25) tide.state = 'LOW-TIDE';
+        else if (tide.level > tide.level - 0.1) tide.state = 'FLOOD-FLUX';
+        else tide.state = 'EBB-FLUX';
+    }, 2000)
+">
+    <div class="container">
+        <aside class="left-pane">
+            <div class="glitch-canvas" id="glitch-canvas">
+                <div class="glitch-shape shape1"></div>
+                <div class="glitch-shape shape2"></div>
+                <div class="glitch-shape shape3"></div>
+            </div>
+        </aside>
+
+        <main class="right-pane">
+            <header>
+                <div class="logo">The Silent Menu</div>
+                <div class="tide-status" x-cloak>
+                    <div class="tide-indicator"></div>
+                    <span>TIDAL STATE: <span x-text="tide.state"></span> [<span x-text="tide.level"></span>%]</span>
+                </div>
+            </header>
+
+            <section id="offering">
+                <h2>// CURRENT OFFERING</h2>
+                <div class="offering-card">
+                    <h3>The Stillness of the Neap Tide</h3>
+                    <p>// CONTENTS: Chilled cucumber broth, uni, shiso leaf, black salt.</p>
+                    <p>// ORDER GESTURE: See Protocol <code>7.A</code>.</p>
+                </div>
+                <div class="offering-card" x-show="tide.level > 60" x-cloak x-transition>
+                    <h3>High Tide's Embrace</h3>
+                    <p>// CONTENTS: Warm kelp noodle soup, fermented tide-tofu, sea grapes.</p>
+                    <p>// ORDER GESTURE: See Protocol <code>4.C</code>.</p>
+                </div>
+            </section>
+
+            <section id="protocol">
+                <h2>// ORDERING PROTOCOL</h2>
+                <div class="protocol-list">
+                    <ol>
+                        <li><strong>INITIATE:</strong> Face true north. Assume the posture of the Patient Heron (left leg raised, arms extended).</li>
+                        <li><strong>TRANSMIT:</strong> Perform a slow, deliberate sequence of eight hand gestures representing the lunar phases, ending with the 'Closed Fist of Acceptance'.</li>
+                        <li><strong>CONFIRM:</strong> Hold the final pose for no less than 11 seconds. A confirmation drone will be dispatched to observe.</li>
+                        <li><strong>RECEIVE:</strong> Our silent acolyte will arrive and mirror your final pose to confirm identity before placing the vessel on your doorstep.</li>
+                    </ol>
+                </div>
+            </section>
+
+            <section id="logs">
+                <h2>// TRANSMISSION LOG</h2>
+                <div class="transmission-log">
+                    <p><strong>LOG 774-B:</strong> User #402 performed 'The Desperate Crab'. Interpreted as a request for 'Essence of High Tide'. Vessel delivered.</p>
+                </div>
+                <div class="transmission-log">
+                    <p><strong>LOG 773-G:</strong> User #919's gesture was ambiguous (possible 'Weeping Willow' or 'Confused Seagull'). Default vessel (purified water) was dispatched as per protocol.</p>
+                </div>
+                 <div class="transmission-log">
+                    <p><strong>LOG 771-A:</strong> User #112 broadcast a flawless 'Unfurling Fern of Gratitude'. A second vessel was dispatched as a sign of respect.</p>
+                </div>
+            </section>
+            
+            <section id="faq">
+                <h2>// F.A.Q.</h2>
+                <div class="faq-item">
+                    <p class="faq-question">> What if I am immobile?</p>
+                    <p>> The cosmos expresses itself through all forms. Even the flicker of an eyelid is a dance. We will interpret.</p>
+                </div>
+                 <div class="faq-item">
+                    <p class="faq-question">> Do you accept currency?</p>
+                    <p>> We accept energetic exchange. Your commitment to the gesture is the only currency.</p>
+                    <p class="small-print">(A monthly sustenance subscription of $256.00 is required for network access and drone observation.)</p>
+                </div>
+            </section>
+
+            <footer>
+                <p>&copy; Aetheric Nourishment Foundational Body. All rights reserved under celestial law.</p>
+            </footer>
+        </main>
+    </div>
+
+    <script src="/assets/js/alpine.min.js" defer></script>
+    <script src="/assets/js/gsap.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const canvas = document.getElementById('glitch-canvas');
+            const rightPane = document.querySelector('.right-pane');
+            let timeline = gsap.timeline({ repeat: -1, yoyo: true });
+
+            // Animate shapes on the left pane
+            gsap.utils.toArray('.glitch-shape').forEach((shape, i) => {
+                timeline.fromTo(shape, 
+                    { 
+                        opacity: 0.1,
+                        scale: 0.8 + Math.random() * 0.2
+                    },
+                    {
+                        opacity: 0.2 + Math.random() * 0.1,
+                        scale: 1 + Math.random() * 0.3,
+                        duration: 5 + Math.random() * 10,
+                        ease: 'power1.inOut'
+                    }, 
+                i * 0.5);
+            });
+
+            // Interactive hover effect
+            gsap.utils.toArray('.offering-card, .protocol-list, .transmission-log, .faq-item').forEach(el => {
+                el.addEventListener('mouseenter', () => {
+                    gsap.to('.glitch-shape', {
+                        duration: 0.5,
+                        filter: 'hue-rotate(90deg) contrast(2)',
+                        ease: 'power2.out'
+                    });
+                });
+                el.addEventListener('mouseleave', () => {
+                     gsap.to('.glitch-shape', {
+                        duration: 0.5,
+                        filter: 'hue-rotate(0deg) contrast(1)',
+                        ease: 'power2.in'
+                    });
+                });
+            });
+
+            // Scroll-based animation speed
+            rightPane.addEventListener('scroll', () => {
+                const scrollPercent = rightPane.scrollTop / (rightPane.scrollHeight - rightPane.clientHeight);
+                gsap.globalTimeline.timeScale(1 + scrollPercent * 4);
+            });
+        });
+    </script>
+</body>
+</html>

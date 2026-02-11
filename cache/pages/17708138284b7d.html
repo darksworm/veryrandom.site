@@ -1,0 +1,498 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Tiny Tribune: A Journal of Inanimate Vitality</title>
+    <link rel="stylesheet" href="/assets/css/pico.min.css">
+    <link rel="stylesheet" href="/assets/css/fonts.css">
+    <style>
+        :root {
+            --color-bg: #0a0a0a;
+            --color-text: #e0e0e0;
+            --color-primary: #39FF14; /* Acid Green */
+            --color-secondary: #FFFF00; /* Warning Yellow */
+            --color-accent: #FF4500; /* Hazard Orange */
+            --font-headline: 'Space Grotesk', sans-serif;
+            --font-body: 'Crimson Pro', serif;
+            --font-mono: 'IBM Plex Mono', monospace;
+        }
+
+        /* GENERAL RESET & DEFAULTS */
+        body {
+            background-color: var(--color-bg);
+            color: var(--color-text);
+            font-family: var(--font-body);
+            font-size: 17px;
+            line-height: 1.6;
+            padding: 0;
+            margin: 0;
+            overflow-x: hidden;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        .container {
+            max-width: 1600px;
+            margin: 0 auto;
+            padding: 1rem;
+        }
+
+        h1, h2, h3, h4, h5, h6 {
+            font-family: var(--font-headline);
+            font-weight: 700;
+            color: var(--color-secondary);
+            margin-bottom: 0.5em;
+            letter-spacing: 0.5px;
+        }
+
+        a {
+            color: var(--color-primary);
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+        a:hover {
+            color: var(--color-secondary);
+        }
+        
+        strong {
+           color: var(--color-text);
+           font-weight: 600;
+        }
+        
+        p, li, blockquote {
+             color: #c7c7c7;
+        }
+
+        hr {
+            border-color: rgba(255, 255, 0, 0.2);
+        }
+
+        /* --- MAGAZINE LAYOUT --- */
+        .master-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 2rem;
+            padding-top: 2rem;
+        }
+
+        .main-content {
+            grid-column: 1 / -1;
+        }
+
+        .sidebar {
+            grid-column: 1 / -1;
+        }
+
+        @media (min-width: 1024px) {
+            .master-grid {
+                grid-template-columns: 1fr 320px;
+            }
+            .main-content {
+                grid-column: 1 / 2;
+            }
+            .sidebar {
+                grid-column: 2 / 3;
+            }
+        }
+
+        /* --- HEADER & MASTHEAD --- */
+        .masthead {
+            text-align: center;
+            padding: 1rem 0 2rem;
+            border-bottom: 4px double var(--color-accent);
+        }
+        .masthead h1 {
+            font-size: clamp(2.5rem, 8vw, 5rem);
+            color: var(--color-secondary);
+            margin: 0;
+            line-height: 1;
+        }
+        .masthead .subtitle {
+            font-family: var(--font-mono);
+            font-size: 1rem;
+            color: var(--color-primary);
+            margin: 0;
+        }
+        .masthead .founder {
+            font-size: 0.9rem;
+            font-style: italic;
+            margin-top: 0.5rem;
+            color: #888;
+        }
+
+        /* --- ARTICLE GRID & CARDS --- */
+        .filter-nav {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            margin-bottom: 2rem;
+        }
+        .filter-nav button {
+            font-family: var(--font-mono);
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            padding: 0.4rem 0.8rem;
+            border: 1px solid var(--color-primary);
+            background: transparent;
+            color: var(--color-primary);
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        .filter-nav button:hover, .filter-nav button.active {
+            background: var(--color-primary);
+            color: var(--color-bg);
+        }
+
+        .article-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 2rem;
+        }
+
+        @media (min-width: 768px) {
+            .article-grid {
+                grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            }
+        }
+        
+        .article-card {
+            border: 1px solid #333;
+            padding: 1.5rem;
+            display: flex;
+            flex-direction: column;
+            background: #111;
+            transition: transform 0.3s ease, border-color 0.3s ease;
+        }
+        .article-card:hover {
+            transform: translateY(-5px);
+            border-color: var(--color-secondary);
+        }
+        .article-card .category {
+            font-family: var(--font-mono);
+            font-size: 0.75rem;
+            color: var(--color-accent);
+            text-transform: uppercase;
+            margin-bottom: 0.5rem;
+        }
+        .article-card h2 {
+            font-size: 1.75rem;
+            margin: 0 0 1rem 0;
+        }
+        .article-card .byline {
+            font-size: 0.8rem;
+            font-style: italic;
+            color: #888;
+            margin-bottom: 1rem;
+        }
+        .article-card blockquote {
+            border-left: 3px solid var(--color-primary);
+            padding-left: 1rem;
+            font-size: 1.1rem;
+            font-style: italic;
+            margin: 0 0 1rem 0;
+            color: var(--color-text);
+        }
+        .article-card .content {
+            flex-grow: 1;
+        }
+        .article-card .read-more {
+            margin-top: 1rem;
+            font-weight: bold;
+            font-family: var(--font-headline);
+            color: var(--color-primary);
+            cursor: pointer;
+        }
+
+        /* --- SIDEBAR WIDGETS --- */
+        .widget {
+            border: 1px solid #444;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+            background-color: #1a1a1a;
+        }
+        .widget h3 {
+            font-size: 1.25rem;
+            color: var(--color-accent);
+            border-bottom: 1px solid var(--color-accent);
+            padding-bottom: 0.5rem;
+            margin-top: 0;
+        }
+        .widget ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+        .widget li {
+            padding: 0.75rem 0;
+            border-bottom: 1px solid #333;
+            font-size: 0.9rem;
+        }
+        .widget li:last-child {
+            border-bottom: none;
+        }
+        
+        .ad-widget {
+            border: 2px dashed var(--color-primary);
+            text-align: center;
+        }
+        .ad-widget .ad-title {
+            font-family: var(--font-mono);
+            font-size: 0.7rem;
+            color: #aaa;
+            letter-spacing: 2px;
+            margin-bottom: 1rem;
+        }
+        .ad-widget .ad-body {
+            font-family: var(--font-headline);
+            font-size: 1.5rem;
+            color: var(--color-secondary);
+            line-height: 1.2;
+        }
+        .ad-widget .ad-body strong {
+            font-size: 2.5rem;
+            color: var(--color-primary);
+        }
+        .ad-widget .ad-fine-print {
+            font-size: 0.7rem;
+            color: #666;
+            margin-top: 1rem;
+        }
+
+        /* --- FOOTER --- */
+        .site-footer {
+            margin-top: 3rem;
+            padding: 2rem 1rem;
+            text-align: center;
+            border-top: 1px solid #333;
+            font-size: 0.9rem;
+            color: #888;
+        }
+        .site-footer .mission-statement {
+            max-width: 60ch;
+            margin: 0 auto 1.5rem auto;
+            font-style: italic;
+        }
+        .site-footer .donate-button {
+            display: inline-block;
+            background-color: var(--color-accent);
+            color: var(--color-bg);
+            padding: 1rem 2rem;
+            font-family: var(--font-headline);
+            font-size: 1.2rem;
+            text-decoration: none;
+            border-radius: 4px;
+            margin-bottom: 1.5rem;
+            transition: transform 0.2s ease;
+        }
+        .site-footer .donate-button:hover {
+            transform: scale(1.05);
+            color: var(--color-bg);
+        }
+        .site-footer p {
+            font-size: 0.8rem;
+        }
+        
+        /* BOTTOM RIGHT CORNER - leave empty */
+        /* Do not add fixed elements here */
+    </style>
+</head>
+<body x-data="{ filter: 'all', expanded: {} }">
+
+    <div class="container">
+        <header class="masthead" id="top">
+             <h1 class="glitch">THE TINY TRIBUNE</h1>
+             <p class="subtitle">A Journal of Inanimate Vitality</p>
+             <p class="founder">Founded by Barnaby "Barney" Finnegan, Visionary</p>
+        </header>
+
+        <main class="master-grid">
+            <section class="main-content">
+                <nav class="filter-nav" aria-label="Article Filters">
+                    <button :class="{ 'active': filter === 'all' }" @click="filter = 'all'">All Issues</button>
+                    <button :class="{ 'active': filter === 'news' }" @click="filter = 'news'">Hard News</button>
+                    <button :class="{ 'active': filter === 'opinion' }" @click="filter = 'opinion'">Opinion</button>
+                    <button :class="{ 'active': filter === 'metaphysics' }" @click="filter = 'metaphysics'">Metaphysics Corner</button>
+                    <button :class="{ 'active': filter === 'community' }" @click="filter = 'community'">Community Spotlight</button>
+                </nav>
+
+                <div class="article-grid">
+                    
+                    <article class="article-card" x-show="filter === 'all' || filter === 'news'" x-transition>
+                        <p class="category">Cover Story</p>
+                        <h2>Button Achieves Record Deadlift</h2>
+                        <p class="byline">By Staff Reporter</p>
+                        <blockquote>"It wasn't about the weight. It was about proving that even a spare dress-shirt button has the heart of a lion."</blockquote>
+                        <div class="content">
+                            <p>A local mother-of-pearl fastener hoisted a standard paper staple 3mm off the ground yesterday, a new regional record. The feat of strength has inspired a generation of notions and fasteners to take up micro-lifting.</p>
+                        </div>
+                    </article>
+
+                    <article class="article-card" x-show="filter === 'all' || filter === 'opinion'" x-transition>
+                        <p class="category">Editorial</p>
+                        <h2>The Plight of the Bent Paperclip</h2>
+                        <p class="byline">By Barnaby Finnegan</p>
+                        <div class="content">
+                            <p>Are we doing enough for the ergonomically challenged? For too long, the bent paperclip has been a symbol of office despair. I say no more. It is not broken; it is simply pre-configured for advanced calisthenics. Its unique shape provides a biomechanical advantage we are only just beginning to understand. We must see potential, not problems.</p>
+                        </div>
+                    </article>
+                    
+                    <article class="article-card" x-show="filter === 'all' || filter === 'news'" x-transition>
+                        <p class="category">Success Story</p>
+                        <h2>From Landfill to Limber</h2>
+                        <p class="byline">By A. Correspondent</p>
+                        <blockquote>"I thought I was just a forgotten pawn. Now, I'm a rook-level athlete."</blockquote>
+                        <div class="content">
+                            <p>He was discarded, forgotten in a box of mismatched game pieces. Now, "Rocky" the chess pawn is a testament to Kinetic Grace, completing a full circuit of bottle-cap hurdles in under 7 minutes. His story is one of grit, determination, and proper hydration (with dew).</p>
+                        </div>
+                    </article>
+
+                    <article class="article-card" x-show="filter === 'all' || filter === 'community'" x-transition>
+                        <p class="category">Letter to the Editor</p>
+                        <h2>Is Intense Training Safe?</h2>
+                        <div class="content">
+                            <p>"To the Editor: I am a thimble of some repute and I am concerned. The pressure these youngsters are putting on themselves is immense. A sewing needle friend of mine attempted a 'thread clean-and-jerk' and was out of commission for a week. Moderation, please! - A Worried Thimble"</p>
+                        </div>
+                    </article>
+                    
+                    <article class="article-card" x-show="filter === 'all' || filter === 'metaphysics'" x-transition>
+                        <p class="category">Metaphysics Corner</p>
+                        <h2>The Karmic Ripple Effect</h2>
+                        <p class="byline">By Dr. Alistair Finch (Hon.)</p>
+                        <div class="content" x-show="!expanded[1]">
+                            <p>How a single jumping-jack by a six-sided die can alter your morning commute. The latent energy of household objects is a powerful, untapped force. When a die performs a single act of deliberate motion...</p>
+                        </div>
+                        <div class="content" x-show="expanded[1]" x-collapse>
+                             <p>How a single jumping-jack by a six-sided die can alter your morning commute. The latent energy of household objects is a powerful, untapped force. When a die performs a single act of deliberate motion, it releases a micro-packet of organizational energy into the ether. This packet, though small, can be the very thing that nudges a series of cosmic tumblers, resulting in your catching a green light or finding a primo parking spot. The universe rewards effort, no matter how small.</p>
+                        </div>
+                        <a class="read-more" @click="expanded[1] = !expanded[1]" x-text="expanded[1] ? 'Show Less' : 'Expand Article'">Expand Article</a>
+                    </article>
+
+                    <article class="article-card" x-show="filter === 'all' || filter === 'community'" x-transition>
+                        <p class="category">Volunteer Spotlight</p>
+                        <h2>Meet Brenda</h2>
+                        <p class="byline">By Staff</p>
+                        <div class="content">
+                            <p>A retired jeweler with a hawk's eye and a heart of gold, Brenda now coaches our sequin-and-glitter team in synchronized swimming. "They have a natural sparkle," she says, polishing a particularly promising specimen. "You just have to teach them to sparkle in unison."</p>
+                        </div>
+                    </article>
+                    
+                    <article class="article-card" x-show="filter === 'all' || filter === 'opinion'" x-transition>
+                        <p class="category">Correction</p>
+                        <h2>A Formal Apology</h2>
+                        <div class="content">
+                            <p>In last month's issue (Vol. 2, Issue 4), we incorrectly identified a glass marble as a "spheroid of sloth." This was a grave error. After a lengthy discussion and a review of his training logs, we have determined he is simply "big-boned" and is, in fact, making great strides in rolling endurance. We regret the error and the emotional distress it may have caused.</p>
+                        </div>
+                    </article>
+
+                    <article class="article-card" x-show="filter === 'all' || filter === 'metaphysics'" x-transition>
+                        <p class="category">Ask Barney</p>
+                        <h2>Can my USB stick do yoga?</h2>
+                        <div class="content">
+                           <p><strong>Q:</strong> My 32GB USB stick feels very rigid and stressed. Can it do yoga?</p>
+                           <p><strong>A:</strong> Absolutely! While it lacks a traditional spine, the USB-A connector provides a fantastic anchor for poses like "Downward Facing Data-Dog" and "Warrior II(SB)". Focus on isometric holds to de-stress the flash memory. Avoid hot yoga; it can void the warranty.</p>
+                        </div>
+                    </article>
+
+                </div>
+            </section>
+
+            <aside class="sidebar">
+                <div class="widget ad-widget">
+                    <p class="ad-title">A Message From Our Sponsor</p>
+                    <p class="ad-body"><strong>GÜP&trade;</strong><br>Organic, Non-GMO Adhesive. For when the training gets serious.</p>
+                    <p class="ad-fine-print">Not liable for objects permanently adhered to greatness.</p>
+                </div>
+                
+                <div class="widget">
+                    <h3>The Classifieds</h3>
+                    <ul>
+                        <li><strong>FOR TRADE:</strong> Slightly used lint ball, high potential, fluffy. Seeking lentil or split pea soup. No cream of mushroom.</li>
+                        <li><strong>WANTED:</strong> Volunteer spotters for the upcoming Thumbtack Triathlon. Must have steady hands and a calm demeanor. Payment in broth.</li>
+                        <li><strong>FOR HIRE:</strong> Ex-keychain charm, specializes in motivation. Will jingle encouragingly. Rate: 1 bouillon cube/hr.</li>
+                        <li><strong>LOST:</strong> One (1) googly eye. Left pupil. Answers to "Winky". Sentimental value.</li>
+                    </ul>
+                </div>
+
+                <div class="widget">
+                    <h3>Upcoming Events</h3>
+                    <ul>
+                        <li><strong>Feb 12:</strong> Thumbtack Triathlon (Taping, Pinning, Posting)</li>
+                        <li><strong>Feb 15:</strong> Advanced Bottle Cap Weightlifting Seminar</li>
+                        <li><strong>Feb 18:</strong> Synchronized Sequin Swimming Gala</li>
+                        <li><strong>Feb 22:</strong> The Annual Eraser Shaving Marathon</li>
+                    </ul>
+                </div>
+
+                <div class="widget ad-widget">
+                    <p class="ad-title">Fuel the Movement</p>
+                    <p class="ad-body">Soup-scription&trade;<br>Artisanal Soups, Delivered Monthly.</p>
+                    <p class="ad-fine-print">Use code KINETICGRACE for 10% off your first broth.</p>
+                </div>
+
+            </aside>
+        </main>
+    </div>
+
+    <footer class="site-footer">
+        <div class="container">
+            <p class="mission-statement">
+                <strong>The Miniature Object Fitness Initiative (MOFI)</strong> is a registered non-profit organization dedicated to unlocking the kinetic potential of all inanimate objects under 5cm. We believe that through structured exercise and positive reinforcement, we can achieve a state of Universal Kinetic Grace, making the world a subtly better and more organized place.
+            </p>
+            <a href="#top" class="donate-button" onclick="alert('SOUP DONATION PORTAL COMING SOON! Please prepare your cans.')">DONATE SOUP</a>
+            <p>&copy; 2026 The Tiny Tribune. All rights reserved, but freely shared with all who believe.</p>
+            <p>This publication is printed on 100% recycled thought experiments.</p>
+            <div style="display: flex; justify-content: center; gap: 1rem; margin-top: 1rem;">
+                <i data-lucide="box"></i>
+                <i data-lucide="anchor"></i>
+                <i data-lucide="star"></i>
+            </div>
+        </div>
+    </footer>
+
+    <script src="/assets/js/alpine.min.js" defer></script>
+    <script src="/assets/js/gsap.min.js"></script>
+    <script src="/assets/js/lucide.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // Lucide Icons
+            try {
+                lucide.createIcons();
+            } catch(e) {
+                console.error("Lucide icons failed to load.", e);
+            }
+
+            // GSAP Animations
+            try {
+                if (window.gsap) {
+                    gsap.fromTo('.masthead h1', 
+                        { y: 30, opacity: 0 }, 
+                        { y: 0, opacity: 1, duration: 1, ease: 'power3.out', delay: 0.2 }
+                    );
+
+                    gsap.fromTo('.masthead .subtitle, .masthead .founder', 
+                        { y: 20, opacity: 0 }, 
+                        { y: 0, opacity: 1, duration: 0.8, ease: 'power2.out', stagger: 0.2, delay: 0.5 }
+                    );
+
+                    gsap.fromTo('.article-card, .widget', 
+                        { y: 40, opacity: 0 }, 
+                        { 
+                            y: 0, 
+                            opacity: 1, 
+                            duration: 0.7, 
+                            ease: 'power3.out', 
+                            stagger: 0.08, 
+                            delay: 0.8,
+                            clearProps: 'opacity,transform'
+                        }
+                    );
+                }
+            } catch(e) {
+                console.error("GSAP animations failed.", e);
+            }
+        });
+    </script>
+</body>
+</html>

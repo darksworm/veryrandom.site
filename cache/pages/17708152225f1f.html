@@ -1,0 +1,1549 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BLINK COIN — By Miniature Traffic Lights, For Miniature Traffic Lights</title>
+<link rel="stylesheet" href="/assets/css/fonts.css">
+<style>
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+:root {
+  --ocean-deep: #0a1628;
+  --ocean-mid: #0d2137;
+  --ocean-light: #133152;
+  --bio-green: #00ff88;
+  --bio-green-dim: #00cc6a;
+  --bio-cyan: #00e5ff;
+  --bio-amber: #ffb700;
+  --bio-red: #ff3355;
+  --text-primary: #e8f0f8;
+  --text-secondary: #b8cce0;
+  --text-muted: #8aa4c0;
+}
+
+html { scroll-behavior: smooth; }
+
+body {
+  background: var(--ocean-deep);
+  color: var(--text-primary);
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 16px;
+  line-height: 1.6;
+  overflow-x: hidden;
+  min-height: 100vh;
+}
+
+/* ============ NEWSPAPER TEXTURE ============ */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background:
+    repeating-linear-gradient(0deg, transparent, transparent 3px, rgba(0,255,136,0.015) 3px, rgba(0,255,136,0.015) 4px),
+    repeating-linear-gradient(90deg, transparent, transparent 3px, rgba(0,229,255,0.01) 3px, rgba(0,229,255,0.01) 4px);
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* ============ NAV ============ */
+nav {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 100;
+  background: rgba(10,22,40,0.92);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid rgba(0,255,136,0.15);
+  padding: 12px 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.nav-logo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-family: 'Space Grotesk', sans-serif;
+  font-weight: 700;
+  font-size: 18px;
+  color: var(--bio-green);
+  text-decoration: none;
+}
+
+.nav-logo .mini-light {
+  width: 12px;
+  height: 28px;
+  background: var(--ocean-light);
+  border-radius: 6px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-around;
+  padding: 2px;
+  border: 1px solid rgba(0,255,136,0.3);
+}
+
+.mini-light .dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: rgba(0,255,136,0.2);
+}
+
+.mini-light .dot.active { background: var(--bio-green); box-shadow: 0 0 6px var(--bio-green); }
+
+.nav-links {
+  display: flex;
+  gap: 24px;
+  list-style: none;
+}
+
+.nav-links a {
+  color: var(--text-secondary);
+  text-decoration: none;
+  font-size: 13px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  transition: color 0.3s;
+}
+
+.nav-links a:hover { color: var(--bio-green); }
+
+/* ============ HERO ============ */
+.hero {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  padding: 100px 24px 60px;
+  overflow: hidden;
+}
+
+/* Psychedelic background swirl */
+.hero::before {
+  content: '';
+  position: absolute;
+  width: 800px;
+  height: 800px;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: conic-gradient(
+    from 0deg,
+    rgba(0,255,136,0.08),
+    rgba(0,229,255,0.06),
+    rgba(255,183,0,0.04),
+    rgba(255,51,85,0.04),
+    rgba(0,255,136,0.08)
+  );
+  border-radius: 50%;
+  animation: heroSwirl 20s linear infinite;
+  filter: blur(60px);
+  pointer-events: none;
+}
+
+@keyframes heroSwirl {
+  to { transform: translate(-50%, -50%) rotate(360deg); }
+}
+
+/* CSS ART TRAFFIC LIGHT */
+.traffic-light-art {
+  position: relative;
+  width: 120px;
+  margin-bottom: 40px;
+  z-index: 2;
+}
+
+.tl-body {
+  width: 120px;
+  height: 280px;
+  background: linear-gradient(135deg, #1a2a3a, #0d1925);
+  border-radius: 20px;
+  border: 2px solid rgba(0,255,136,0.2);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-around;
+  padding: 20px 0;
+  position: relative;
+  box-shadow:
+    0 0 40px rgba(0,255,136,0.1),
+    inset 0 0 30px rgba(0,0,0,0.3);
+}
+
+.tl-body::before {
+  content: 'TL-0047';
+  position: absolute;
+  bottom: -24px;
+  font-size: 10px;
+  color: var(--text-muted);
+  letter-spacing: 2px;
+}
+
+.tl-light {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  position: relative;
+  transition: all 0.8s ease;
+  cursor: pointer;
+}
+
+.tl-light::after {
+  content: '';
+  position: absolute;
+  inset: 4px;
+  border-radius: 50%;
+  background: inherit;
+  filter: blur(2px);
+}
+
+.tl-red {
+  background: radial-gradient(circle at 40% 40%, #ff6680, #ff3355, #991133);
+  box-shadow: 0 0 20px rgba(255,51,85,0.4), 0 0 60px rgba(255,51,85,0.15);
+  animation: pulseRed 3s ease-in-out infinite;
+}
+
+.tl-amber {
+  background: radial-gradient(circle at 40% 40%, #ffd44d, #ffb700, #996600);
+  box-shadow: 0 0 20px rgba(255,183,0,0.4), 0 0 60px rgba(255,183,0,0.15);
+  animation: pulseAmber 3s ease-in-out 1s infinite;
+}
+
+.tl-green {
+  background: radial-gradient(circle at 40% 40%, #33ffaa, #00ff88, #009944);
+  box-shadow: 0 0 20px rgba(0,255,136,0.6), 0 0 60px rgba(0,255,136,0.25);
+  animation: pulseGreen 3s ease-in-out 2s infinite;
+}
+
+@keyframes pulseRed {
+  0%, 100% { box-shadow: 0 0 20px rgba(255,51,85,0.4), 0 0 60px rgba(255,51,85,0.15); }
+  50% { box-shadow: 0 0 35px rgba(255,51,85,0.7), 0 0 90px rgba(255,51,85,0.3); }
+}
+@keyframes pulseAmber {
+  0%, 100% { box-shadow: 0 0 20px rgba(255,183,0,0.4), 0 0 60px rgba(255,183,0,0.15); }
+  50% { box-shadow: 0 0 35px rgba(255,183,0,0.7), 0 0 90px rgba(255,183,0,0.3); }
+}
+@keyframes pulseGreen {
+  0%, 100% { box-shadow: 0 0 20px rgba(0,255,136,0.6), 0 0 60px rgba(0,255,136,0.25); }
+  50% { box-shadow: 0 0 40px rgba(0,255,136,0.9), 0 0 100px rgba(0,255,136,0.4); }
+}
+
+/* Post/pole */
+.tl-pole {
+  width: 8px;
+  height: 80px;
+  background: linear-gradient(to right, #1a2a3a, #0d1925);
+  margin: 0 auto;
+  border: 1px solid rgba(0,255,136,0.1);
+}
+
+.tl-base {
+  width: 60px;
+  height: 12px;
+  background: linear-gradient(to right, #1a2a3a, #0d1925);
+  margin: 0 auto;
+  border-radius: 0 0 6px 6px;
+  border: 1px solid rgba(0,255,136,0.1);
+}
+
+/* Scale indicator */
+.scale-ruler {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 8px;
+  font-size: 10px;
+  color: var(--text-muted);
+}
+
+.scale-ruler .ruler-line {
+  width: 40px;
+  height: 1px;
+  background: var(--text-muted);
+  position: relative;
+}
+.scale-ruler .ruler-line::before, .scale-ruler .ruler-line::after {
+  content: '';
+  position: absolute;
+  width: 1px;
+  height: 5px;
+  background: var(--text-muted);
+  top: -2px;
+}
+.scale-ruler .ruler-line::before { left: 0; }
+.scale-ruler .ruler-line::after { right: 0; }
+
+.hero-text {
+  text-align: center;
+  z-index: 2;
+  max-width: 700px;
+}
+
+.hero-headline {
+  font-family: 'Playfair Display', serif;
+  font-size: clamp(36px, 7vw, 72px);
+  line-height: 1.1;
+  color: #ffffff;
+  margin-bottom: 16px;
+  letter-spacing: -1px;
+}
+
+.hero-headline .green { color: var(--bio-green); }
+
+.hero-sub {
+  font-size: clamp(14px, 2vw, 18px);
+  color: var(--text-secondary);
+  margin-bottom: 32px;
+  max-width: 500px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+/* ============ TICKER BAR ============ */
+.ticker-bar {
+  width: 100%;
+  background: rgba(0,255,136,0.05);
+  border-top: 1px solid rgba(0,255,136,0.15);
+  border-bottom: 1px solid rgba(0,255,136,0.15);
+  padding: 10px 0;
+  overflow: hidden;
+  position: relative;
+  z-index: 2;
+}
+
+.ticker-track {
+  display: flex;
+  gap: 48px;
+  animation: tickerScroll 30s linear infinite;
+  width: max-content;
+}
+
+@keyframes tickerScroll {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+
+.ticker-item {
+  white-space: nowrap;
+  font-size: 13px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.ticker-item .symbol {
+  color: var(--bio-green);
+  font-weight: 700;
+}
+
+.ticker-item .price {
+  color: #ffffff;
+  font-weight: 600;
+}
+
+.ticker-item .change {
+  font-size: 11px;
+  padding: 2px 6px;
+  border-radius: 3px;
+}
+
+.change.up { background: rgba(0,255,136,0.15); color: var(--bio-green); }
+.change.down { background: rgba(255,51,85,0.15); color: var(--bio-red); }
+
+/* ============ NEWSPAPER GRID SECTIONS ============ */
+.newspaper {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 60px 24px;
+  position: relative;
+  z-index: 2;
+}
+
+.section-masthead {
+  font-family: 'Playfair Display', serif;
+  font-size: clamp(28px, 4vw, 48px);
+  color: #ffffff;
+  text-align: center;
+  margin-bottom: 8px;
+  line-height: 1.2;
+}
+
+.section-dateline {
+  text-align: center;
+  font-size: 12px;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 3px;
+  margin-bottom: 40px;
+  padding-bottom: 16px;
+  border-bottom: 2px solid rgba(0,255,136,0.2);
+}
+
+.news-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 24px;
+}
+
+@media (max-width: 900px) {
+  .news-grid { grid-template-columns: 1fr 1fr; }
+}
+
+@media (max-width: 600px) {
+  .news-grid { grid-template-columns: 1fr; }
+}
+
+.news-col {
+  border-left: 1px solid rgba(0,255,136,0.1);
+  padding-left: 24px;
+}
+
+.news-col:first-child { border-left: none; padding-left: 0; }
+
+@media (max-width: 900px) {
+  .news-col:nth-child(3) { border-left: none; padding-left: 0; }
+}
+@media (max-width: 600px) {
+  .news-col { border-left: none; padding-left: 0; border-top: 1px solid rgba(0,255,136,0.1); padding-top: 24px; }
+  .news-col:first-child { border-top: none; padding-top: 0; }
+}
+
+.news-col h3 {
+  font-family: 'Playfair Display', serif;
+  font-size: 20px;
+  color: #ffffff;
+  margin-bottom: 12px;
+  line-height: 1.3;
+}
+
+.news-col p {
+  font-size: 14px;
+  color: var(--text-secondary);
+  margin-bottom: 12px;
+  line-height: 1.7;
+}
+
+.news-col .byline {
+  font-size: 11px;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+/* ============ SUPPORT GROUP MEMBERS — CSS ART PORTRAITS ============ */
+.members-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 32px;
+  margin-top: 40px;
+}
+
+.member-card {
+  background: linear-gradient(135deg, rgba(13,33,55,0.8), rgba(10,22,40,0.9));
+  border: 1px solid rgba(0,255,136,0.1);
+  border-radius: 12px;
+  padding: 32px 24px;
+  text-align: center;
+  transition: all 0.4s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.member-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, var(--bio-red), var(--bio-amber), var(--bio-green));
+  opacity: 0;
+  transition: opacity 0.4s;
+}
+
+.member-card:hover {
+  border-color: rgba(0,255,136,0.3);
+  transform: translateY(-4px);
+  box-shadow: 0 12px 40px rgba(0,255,136,0.1);
+}
+
+.member-card:hover::before { opacity: 1; }
+
+/* Mini traffic light portrait via CSS */
+.member-portrait {
+  width: 48px;
+  height: 100px;
+  margin: 0 auto 16px;
+  background: linear-gradient(135deg, #1a2a3a, #0d1925);
+  border-radius: 10px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-around;
+  padding: 8px 0;
+  position: relative;
+  border: 1px solid rgba(0,255,136,0.15);
+}
+
+.member-portrait .mp-dot {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  transition: all 0.6s ease;
+}
+
+.member-portrait .mp-r { background: radial-gradient(circle at 40% 40%, #662233, #331119); }
+.member-portrait .mp-a { background: radial-gradient(circle at 40% 40%, #664400, #332200); }
+.member-portrait .mp-g { background: radial-gradient(circle at 40% 40%, #226644, #113322); }
+
+.member-card:hover .mp-r { background: radial-gradient(circle at 40% 40%, #ff6680, #ff3355); box-shadow: 0 0 15px rgba(255,51,85,0.5); }
+.member-card:hover .mp-a { background: radial-gradient(circle at 40% 40%, #ffd44d, #ffb700); box-shadow: 0 0 15px rgba(255,183,0,0.5); }
+.member-card:hover .mp-g { background: radial-gradient(circle at 40% 40%, #33ffaa, #00ff88); box-shadow: 0 0 15px rgba(0,255,136,0.5); }
+
+.member-name {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 18px;
+  font-weight: 700;
+  color: #ffffff;
+  margin-bottom: 4px;
+}
+
+.member-serial {
+  font-size: 11px;
+  color: var(--text-muted);
+  letter-spacing: 2px;
+  margin-bottom: 12px;
+}
+
+.member-issue {
+  font-size: 13px;
+  color: var(--text-secondary);
+  font-style: italic;
+}
+
+/* ============ OUIJA BOARD — CSS ART ============ */
+.ouija-section {
+  padding: 80px 24px;
+  position: relative;
+  z-index: 2;
+}
+
+.ouija-container {
+  max-width: 700px;
+  margin: 0 auto;
+}
+
+.ouija-board {
+  position: relative;
+  background: linear-gradient(145deg, #0d2137, #0a1628);
+  border: 3px solid rgba(0,255,136,0.2);
+  border-radius: 120px 120px 20px 20px;
+  padding: 48px 32px 40px;
+  box-shadow:
+    0 0 60px rgba(0,255,136,0.05),
+    inset 0 0 40px rgba(0,0,0,0.3);
+  overflow: hidden;
+}
+
+.ouija-board::before {
+  content: 'DECENTRALIZED COMPLAINT RESOLUTION PROTOCOL v2.7';
+  display: block;
+  text-align: center;
+  font-family: 'Playfair Display', serif;
+  font-size: clamp(11px, 2vw, 14px);
+  color: var(--bio-green);
+  letter-spacing: 3px;
+  margin-bottom: 24px;
+}
+
+.ouija-board::after {
+  content: '';
+  position: absolute;
+  top: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 60px;
+  height: 30px;
+  border-radius: 30px 30px 0 0;
+  border: 2px solid rgba(0,255,136,0.2);
+  border-bottom: none;
+}
+
+.ouija-row {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 8px;
+}
+
+.ouija-letter {
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Playfair Display', serif;
+  font-size: 18px;
+  color: var(--text-secondary);
+  cursor: pointer;
+  border-radius: 4px;
+  transition: all 0.3s ease;
+  position: relative;
+  user-select: none;
+}
+
+.ouija-letter:hover {
+  color: var(--bio-green);
+  text-shadow: 0 0 20px rgba(0,255,136,0.6);
+  transform: scale(1.3);
+}
+
+.ouija-letter.active {
+  color: var(--bio-green);
+  text-shadow: 0 0 30px rgba(0,255,136,0.8);
+  transform: scale(1.4);
+}
+
+.ouija-responses {
+  display: flex;
+  justify-content: space-between;
+  margin: 24px 0 16px;
+  padding: 0 20px;
+}
+
+.ouija-resp {
+  font-family: 'Playfair Display', serif;
+  font-size: clamp(16px, 3vw, 22px);
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: all 0.3s;
+  padding: 8px 16px;
+  border-radius: 8px;
+}
+
+.ouija-resp:hover {
+  color: var(--bio-amber);
+  text-shadow: 0 0 20px rgba(255,183,0,0.5);
+  background: rgba(255,183,0,0.05);
+}
+
+.ouija-message-area {
+  text-align: center;
+  margin-top: 24px;
+  min-height: 60px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.ouija-message {
+  font-family: 'Playfair Display', serif;
+  font-size: clamp(16px, 3vw, 24px);
+  color: var(--bio-cyan);
+  letter-spacing: 4px;
+  min-height: 32px;
+  text-shadow: 0 0 20px rgba(0,229,255,0.3);
+}
+
+.ouija-planchette {
+  width: 60px;
+  height: 80px;
+  margin: 24px auto 0;
+  position: relative;
+}
+
+.ouija-planchette::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: rgba(0,255,136,0.05);
+  clip-path: polygon(50% 0%, 100% 100%, 0% 100%);
+  border: 1px solid rgba(0,255,136,0.2);
+  transition: all 0.4s;
+}
+
+.ouija-planchette::after {
+  content: '';
+  position: absolute;
+  top: 35px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  border: 2px solid rgba(0,255,136,0.3);
+  background: transparent;
+}
+
+.ouija-planchette:hover::before {
+  background: rgba(0,255,136,0.1);
+  box-shadow: 0 0 30px rgba(0,255,136,0.2);
+}
+
+.ouija-fine-print {
+  text-align: center;
+  font-size: 11px;
+  color: var(--text-muted);
+  margin-top: 20px;
+  max-width: 400px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+/* ============ BIOLUMINESCENT DIVIDER — CSS ART ============ */
+.bio-divider {
+  height: 120px;
+  position: relative;
+  overflow: hidden;
+  z-index: 2;
+}
+
+.bio-divider::before {
+  content: '';
+  position: absolute;
+  width: 100%;
+  height: 2px;
+  top: 50%;
+  background: linear-gradient(90deg,
+    transparent,
+    var(--bio-green),
+    var(--bio-cyan),
+    var(--bio-green),
+    transparent
+  );
+  opacity: 0.4;
+}
+
+.bio-divider::after {
+  content: '';
+  position: absolute;
+  width: 12px;
+  height: 12px;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: var(--bio-green);
+  border-radius: 50%;
+  box-shadow: 0 0 20px var(--bio-green), 0 0 40px rgba(0,255,136,0.3);
+  animation: dividerPulse 2s ease-in-out infinite;
+}
+
+@keyframes dividerPulse {
+  0%, 100% { transform: translate(-50%, -50%) scale(1); opacity: 0.6; }
+  50% { transform: translate(-50%, -50%) scale(1.5); opacity: 1; }
+}
+
+/* ============ BLINK VISUALIZER — CSS ART SECTION ============ */
+.visualizer-section {
+  padding: 60px 24px;
+  position: relative;
+  z-index: 2;
+}
+
+.vis-grid {
+  max-width: 1000px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: repeat(8, 1fr);
+  grid-template-rows: repeat(4, 80px);
+  gap: 8px;
+}
+
+@media (max-width: 600px) {
+  .vis-grid {
+    grid-template-columns: repeat(4, 1fr);
+    grid-template-rows: repeat(8, 60px);
+  }
+}
+
+.vis-cell {
+  border-radius: 8px;
+  position: relative;
+  overflow: hidden;
+  cursor: pointer;
+  transition: all 0.5s ease;
+}
+
+.vis-cell::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  transition: opacity 0.5s;
+}
+
+.vis-cell:hover {
+  transform: scale(1.05);
+  z-index: 5;
+}
+
+.vis-cell:hover::before { opacity: 1; }
+
+.vc-1 { background: linear-gradient(135deg, rgba(0,255,136,0.15), rgba(0,255,136,0.05)); grid-column: span 2; }
+.vc-1::before { background: linear-gradient(135deg, rgba(0,255,136,0.4), rgba(0,229,255,0.2)); }
+
+.vc-2 { background: linear-gradient(135deg, rgba(0,229,255,0.15), rgba(0,229,255,0.05)); }
+.vc-2::before { background: linear-gradient(135deg, rgba(0,229,255,0.4), rgba(0,255,136,0.2)); }
+
+.vc-3 { background: linear-gradient(135deg, rgba(255,183,0,0.12), rgba(255,183,0,0.04)); grid-column: span 3; grid-row: span 2; }
+.vc-3::before { background: radial-gradient(circle at center, rgba(255,183,0,0.3), transparent); }
+.vc-3-inner {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.vc-3-circle {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  border: 2px solid rgba(255,183,0,0.3);
+  animation: vc3Pulse 3s ease-in-out infinite;
+}
+@keyframes vc3Pulse {
+  0%, 100% { transform: scale(1); border-color: rgba(255,183,0,0.3); }
+  50% { transform: scale(1.2); border-color: rgba(255,183,0,0.6); }
+}
+
+.vc-4 { background: linear-gradient(135deg, rgba(255,51,85,0.12), rgba(255,51,85,0.04)); grid-column: span 2; }
+.vc-4::before { background: linear-gradient(135deg, rgba(255,51,85,0.3), rgba(255,183,0,0.15)); }
+
+.vc-5 { background: radial-gradient(circle at center, rgba(0,255,136,0.1), transparent); }
+.vc-5::before { background: radial-gradient(circle at center, rgba(0,255,136,0.3), transparent); }
+
+.vc-6 { background: linear-gradient(225deg, rgba(0,229,255,0.1), rgba(0,255,136,0.05)); grid-column: span 2; }
+.vc-6::before { background: linear-gradient(225deg, rgba(0,229,255,0.3), rgba(0,255,136,0.15)); }
+
+.vc-7 { background: linear-gradient(135deg, rgba(0,255,136,0.08), rgba(0,229,255,0.08)); grid-row: span 2; }
+.vc-7::before { background: linear-gradient(to top, rgba(0,255,136,0.3), transparent); }
+
+.vc-8 { background: rgba(0,229,255,0.06); grid-column: span 2; }
+.vc-8::before { background: rgba(0,229,255,0.2); }
+
+.vc-9 { background: linear-gradient(45deg, rgba(255,183,0,0.08), rgba(255,51,85,0.08)); }
+.vc-9::before { background: linear-gradient(45deg, rgba(255,183,0,0.25), rgba(255,51,85,0.25)); }
+
+.vc-10 { background: radial-gradient(circle at 30% 30%, rgba(0,255,136,0.12), transparent); grid-column: span 2; }
+.vc-10::before { background: radial-gradient(circle at 30% 30%, rgba(0,255,136,0.35), transparent); }
+
+/* ============ TESTIMONIALS ============ */
+.testimonials {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 60px 24px;
+  position: relative;
+  z-index: 2;
+}
+
+.testimonials-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+  margin-top: 40px;
+}
+
+@media (max-width: 700px) {
+  .testimonials-grid { grid-template-columns: 1fr; }
+}
+
+.testimonial {
+  background: linear-gradient(135deg, rgba(13,33,55,0.6), rgba(10,22,40,0.8));
+  border: 1px solid rgba(0,255,136,0.08);
+  border-radius: 8px;
+  padding: 24px;
+  position: relative;
+}
+
+.testimonial::before {
+  content: '\201C';
+  font-family: 'Playfair Display', serif;
+  font-size: 48px;
+  color: rgba(0,255,136,0.2);
+  position: absolute;
+  top: 8px;
+  left: 16px;
+  line-height: 1;
+}
+
+.testimonial-text {
+  font-size: 14px;
+  color: var(--text-secondary);
+  margin-bottom: 16px;
+  padding-top: 8px;
+  line-height: 1.7;
+}
+
+.testimonial-author {
+  font-size: 12px;
+  color: var(--bio-green);
+  font-weight: 600;
+}
+
+.testimonial-role {
+  font-size: 11px;
+  color: var(--text-muted);
+}
+
+/* ============ FOOTER ============ */
+footer {
+  border-top: 1px solid rgba(0,255,136,0.1);
+  padding: 40px 24px;
+  text-align: center;
+  position: relative;
+  z-index: 2;
+}
+
+footer p {
+  font-size: 12px;
+  color: var(--text-muted);
+  margin-bottom: 8px;
+}
+
+footer .legal {
+  font-size: 10px;
+  color: #6b849e;
+  max-width: 600px;
+  margin: 16px auto 0;
+  line-height: 1.6;
+}
+
+/* ============ AMBIENT FLOATING PARTICLES ============ */
+.particle {
+  position: fixed;
+  width: 4px;
+  height: 4px;
+  background: var(--bio-green);
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 1;
+  opacity: 0;
+}
+
+/* ============ PSYCHEDELIC BACKGROUND SHAPES ============ */
+.bg-shape {
+  position: fixed;
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 0;
+  filter: blur(80px);
+}
+
+.bg-shape-1 {
+  width: 400px;
+  height: 400px;
+  background: radial-gradient(circle, rgba(0,255,136,0.06), transparent);
+  top: 10%;
+  right: -100px;
+  animation: bgFloat1 25s ease-in-out infinite;
+}
+
+.bg-shape-2 {
+  width: 300px;
+  height: 300px;
+  background: radial-gradient(circle, rgba(0,229,255,0.05), transparent);
+  bottom: 20%;
+  left: -50px;
+  animation: bgFloat2 20s ease-in-out infinite;
+}
+
+.bg-shape-3 {
+  width: 250px;
+  height: 250px;
+  background: radial-gradient(circle, rgba(255,183,0,0.04), transparent);
+  top: 50%;
+  left: 30%;
+  animation: bgFloat3 30s ease-in-out infinite;
+}
+
+@keyframes bgFloat1 {
+  0%, 100% { transform: translate(0, 0); }
+  50% { transform: translate(-60px, 40px); }
+}
+@keyframes bgFloat2 {
+  0%, 100% { transform: translate(0, 0); }
+  50% { transform: translate(40px, -60px); }
+}
+@keyframes bgFloat3 {
+  0%, 100% { transform: translate(0, 0); }
+  50% { transform: translate(-30px, -30px); }
+}
+
+/* ============ GLOBAL RESPONSIVE ============ */
+@media (max-width: 600px) {
+  nav { padding: 10px 16px; }
+  .nav-links { gap: 12px; }
+  .nav-links a { font-size: 11px; }
+  .hero { padding: 80px 16px 40px; }
+  .tl-body { width: 90px; height: 210px; }
+  .tl-light { width: 48px; height: 48px; }
+  .newspaper { padding: 40px 16px; }
+  .ouija-letter { width: 28px; height: 28px; font-size: 15px; }
+  .ouija-board { padding: 36px 16px 32px; }
+  .testimonials { padding: 40px 16px; }
+}
+
+/* Button style */
+.btn-blink {
+  display: inline-block;
+  padding: 14px 32px;
+  background: transparent;
+  border: 2px solid var(--bio-green);
+  color: var(--bio-green);
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  text-decoration: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.btn-blink:hover {
+  background: var(--bio-green);
+  color: var(--ocean-deep);
+  box-shadow: 0 0 30px rgba(0,255,136,0.3);
+}
+
+/* ============ 70s PSYCHEDELIC CORNERS ============ */
+.psych-corner {
+  position: fixed;
+  width: 200px;
+  height: 200px;
+  pointer-events: none;
+  z-index: 1;
+  opacity: 0.3;
+}
+
+.psych-corner-tl {
+  top: 0;
+  left: 0;
+  background: conic-gradient(from 180deg at 0% 0%, rgba(0,255,136,0.15), transparent 90deg);
+}
+
+.psych-corner-br {
+  bottom: 0;
+  right: 0;
+  background: conic-gradient(from 0deg at 100% 100%, rgba(0,229,255,0.1), transparent 90deg);
+}
+
+/* ============ FORM STYLE ============ */
+.complaint-input {
+  width: 100%;
+  background: rgba(0,0,0,0.3);
+  border: 1px solid rgba(0,255,136,0.2);
+  color: var(--text-primary);
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 14px;
+  padding: 12px 16px;
+  border-radius: 6px;
+  margin-top: 16px;
+  resize: none;
+  outline: none;
+  transition: border-color 0.3s;
+}
+
+.complaint-input:focus { border-color: var(--bio-green); }
+
+.complaint-input::placeholder { color: #5a7a9a; }
+</style>
+</head>
+<body>
+<!-- Background shapes -->
+<div class="bg-shape bg-shape-1"></div>
+<div class="bg-shape bg-shape-2"></div>
+<div class="bg-shape bg-shape-3"></div>
+<div class="psych-corner psych-corner-tl"></div>
+<div class="psych-corner psych-corner-br"></div>
+
+<!-- Particles -->
+<div class="particle" id="p1"></div>
+<div class="particle" id="p2"></div>
+<div class="particle" id="p3"></div>
+<div class="particle" id="p4"></div>
+<div class="particle" id="p5"></div>
+
+<!-- NAV -->
+<nav>
+  <a href="#" class="nav-logo">
+    <span class="mini-light">
+      <span class="dot"></span>
+      <span class="dot"></span>
+      <span class="dot active"></span>
+    </span>
+    BLINK
+  </a>
+  <ul class="nav-links">
+    <li><a href="#group">Support Group</a></li>
+    <li><a href="#complaints">File Complaint</a></li>
+    <li><a href="#voices">Testimonials</a></li>
+  </ul>
+</nav>
+
+<!-- HERO -->
+<section class="hero" x-data="heroLight()">
+  <div class="traffic-light-art">
+    <div class="tl-body">
+      <div class="tl-light tl-red" @click="cycleLight('red')" :style="lightStyle('red')"></div>
+      <div class="tl-light tl-amber" @click="cycleLight('amber')" :style="lightStyle('amber')"></div>
+      <div class="tl-light tl-green" @click="cycleLight('green')" :style="lightStyle('green')"></div>
+    </div>
+    <div class="tl-pole"></div>
+    <div class="tl-base"></div>
+    <div class="scale-ruler">
+      <span class="ruler-line"></span>
+      <span>3.2 in.</span>
+    </div>
+  </div>
+  <div class="hero-text">
+    <h1 class="hero-headline">The Currency That <span class="green">Blinks</span> Back</h1>
+    <p class="hero-sub">Founded by Gerald (TL-0047). 3.2 inches tall. Infinite conviction. One BLINK = one light cycle. We didn't choose to be miniature. We chose to be monetary.</p>
+    <a href="#group" class="btn-blink">Enter the Intersection</a>
+  </div>
+</section>
+
+<!-- TICKER -->
+<div class="ticker-bar">
+  <div class="ticker-track" x-data="ticker()">
+    <template x-for="item in items" :key="item.id">
+      <span class="ticker-item">
+        <span class="symbol" x-text="item.symbol"></span>
+        <span class="price" x-text="item.price"></span>
+        <span class="change" :class="item.dir" x-text="item.change"></span>
+      </span>
+    </template>
+  </div>
+</div>
+
+<!-- SUPPORT GROUP — NEWSPAPER LAYOUT -->
+<section id="group" class="newspaper">
+  <h2 class="section-masthead">The Miniature Intersection Gazette</h2>
+  <div class="section-dateline">Vol. XLVII &bull; Est. When Gerald Got Mad &bull; Circulation: 14 Traffic Lights</div>
+
+  <div class="news-grid">
+    <div class="news-col">
+      <h3>GERALD ADDRESSES THE SHRINKAGE</h3>
+      <p>"Let me be direct," Gerald said at Tuesday's meeting, vibrating at approximately 120 lumens. "When the Portland Bureau of Transportation replaced us with full-sized units in 2019, they called it an 'upgrade.' They meant 'genocide.'"</p>
+      <p>Gerald's amber light flickered — a nervous tic he's had since the decommissioning.</p>
+      <span class="byline">— Report by Cynthia, TL-0112</span>
+    </div>
+    <div class="news-col">
+      <h3>BLINK COIN HITS $0.00047</h3>
+      <p>BLINK surged 340% this week after Gerald mined 12 new tokens during a particularly long red-light cycle. "Each BLINK is backed by one complete red-amber-green cycle," Gerald explained. "Unlike Bitcoin, our value is tied to something real: traffic management."</p>
+      <p>The total market cap is $1.74.</p>
+      <span class="byline">— Financial Desk</span>
+    </div>
+    <div class="news-col">
+      <h3>BIG DAVE CALLED A "SELLOUT" FOR 47TH CONSECUTIVE WEEK</h3>
+      <p>Gerald's full-sized rival Big Dave, installed at the corner of 5th and Morrison, continues to "just follow whatever the city computer tells him." Big Dave's only response: functioning normally at the intersection he was designed for.</p>
+      <span class="byline">— Opinion by Gerald, TL-0047</span>
+    </div>
+  </div>
+</section>
+
+<div class="bio-divider"></div>
+
+<!-- SUPPORT GROUP MEMBERS -->
+<section class="newspaper">
+  <h2 class="section-masthead">Group Members</h2>
+  <div class="section-dateline">Weekly Meetings — Gerald's Shelf — Tuesdays 7pm</div>
+
+  <div class="members-grid" x-data>
+    <div class="member-card">
+      <div class="member-portrait">
+        <div class="mp-dot mp-r"></div>
+        <div class="mp-dot mp-a"></div>
+        <div class="mp-dot mp-g"></div>
+      </div>
+      <div class="member-name">Gerald</div>
+      <div class="member-serial">TL-0047 &bull; FOUNDER</div>
+      <p class="member-issue">"They called it downsizing. I call it a war crime against infrastructure."</p>
+    </div>
+    <div class="member-card">
+      <div class="member-portrait">
+        <div class="mp-dot mp-r"></div>
+        <div class="mp-dot mp-a"></div>
+        <div class="mp-dot mp-g"></div>
+      </div>
+      <div class="member-name">Patricia</div>
+      <div class="member-serial">TL-0089 &bull; TREASURER</div>
+      <p class="member-issue">"My amber hasn't worked since 2017. I skip straight from stop to go. People get hurt."</p>
+    </div>
+    <div class="member-card">
+      <div class="member-portrait">
+        <div class="mp-dot mp-r"></div>
+        <div class="mp-dot mp-a"></div>
+        <div class="mp-dot mp-g"></div>
+      </div>
+      <div class="member-name">Doug</div>
+      <div class="member-serial">TL-0203 &bull; EMOTIONAL SUPPORT</div>
+      <p class="member-issue">"I was a pedestrian crossing signal before. They/them. I just show a hand now. Permanently."</p>
+    </div>
+    <div class="member-card">
+      <div class="member-portrait">
+        <div class="mp-dot mp-r"></div>
+        <div class="mp-dot mp-a"></div>
+        <div class="mp-dot mp-g"></div>
+      </div>
+      <div class="member-name">Francine</div>
+      <div class="member-serial">TL-0002 &bull; ELDEST</div>
+      <p class="member-issue">"I remember when we were gas-powered. Gerald is too young to understand true darkness."</p>
+    </div>
+  </div>
+</section>
+
+<div class="bio-divider"></div>
+
+<!-- VISUALIZER -->
+<section class="visualizer-section">
+  <h2 class="section-masthead">Live Cycle Visualization</h2>
+  <div class="section-dateline" style="max-width:900px;margin:0 auto 40px;">Real-Time BLINK Mining Activity &bull; Each Cell = One Cycle</div>
+
+  <div class="vis-grid" x-data="visGrid()">
+    <div class="vis-cell vc-1" @click="flash($el)"></div>
+    <div class="vis-cell vc-2" @click="flash($el)"></div>
+    <div class="vis-cell vc-3" @click="flash($el)"><div class="vc-3-inner"><div class="vc-3-circle"></div></div></div>
+    <div class="vis-cell vc-2" @click="flash($el)"></div>
+    <div class="vis-cell vc-4" @click="flash($el)"></div>
+    <div class="vis-cell vc-5" @click="flash($el)"></div>
+    <div class="vis-cell vc-6" @click="flash($el)"></div>
+    <div class="vis-cell vc-7" @click="flash($el)"></div>
+    <div class="vis-cell vc-1" @click="flash($el)"></div>
+    <div class="vis-cell vc-8" @click="flash($el)"></div>
+    <div class="vis-cell vc-9" @click="flash($el)"></div>
+    <div class="vis-cell vc-10" @click="flash($el)"></div>
+    <div class="vis-cell vc-5" @click="flash($el)"></div>
+    <div class="vis-cell vc-4" @click="flash($el)"></div>
+    <div class="vis-cell vc-2" @click="flash($el)"></div>
+    <div class="vis-cell vc-6" @click="flash($el)"></div>
+  </div>
+</section>
+
+<div class="bio-divider"></div>
+
+<!-- OUIJA COMPLAINT SYSTEM -->
+<section id="complaints" class="ouija-section" x-data="ouijaBoard()">
+  <h2 class="section-masthead">Complaint Resolution</h2>
+  <div class="section-dateline">Powered by Ouija &bull; More Transparent Than Any Blockchain</div>
+
+  <div class="ouija-container">
+    <div class="ouija-board">
+      <div class="ouija-responses">
+        <span class="ouija-resp" @click="setResponse('YES')">YES</span>
+        <span class="ouija-resp" @click="setResponse('NO')">NO</span>
+        <span class="ouija-resp" @click="setResponse('HODL')">HODL</span>
+      </div>
+
+      <template x-for="(row, ri) in letters" :key="ri">
+        <div class="ouija-row">
+          <template x-for="(letter, li) in row" :key="ri + '-' + li">
+            <span
+              class="ouija-letter"
+              :class="{ 'active': activeLetter === letter }"
+              @click="addLetter(letter)"
+              x-text="letter"
+            ></span>
+          </template>
+        </div>
+      </template>
+
+      <div class="ouija-message-area">
+        <div class="ouija-message" x-text="message || '_ _ _'"></div>
+      </div>
+
+      <div class="ouija-planchette"></div>
+
+      <p class="ouija-fine-print">The spirits have a 72-hour SLA. Gerald checks the board every Tuesday. Complaints about Big Dave are auto-resolved as "VALID."</p>
+    </div>
+
+    <textarea class="complaint-input" rows="3" placeholder="Describe your complaint in 140 characters or fewer. The spirits prefer brevity."></textarea>
+  </div>
+</section>
+
+<div class="bio-divider"></div>
+
+<!-- TESTIMONIALS -->
+<section id="voices" class="testimonials">
+  <h2 class="section-masthead">Voices From the Shelf</h2>
+  <div class="section-dateline">Verified BLINK Holders Only</div>
+
+  <div class="testimonials-grid">
+    <div class="testimonial">
+      <p class="testimonial-text">I filed a complaint that my green was 0.3 seconds shorter than spec. The ouija board replied "GET OVER IT." Honestly? I needed to hear that.</p>
+      <div class="testimonial-author">Patricia, TL-0089</div>
+      <div class="testimonial-role">Holds 0.47 BLINK</div>
+    </div>
+    <div class="testimonial">
+      <p class="testimonial-text">Before BLINK, my light cycles meant nothing. Now each one generates approximately $0.000003 in value. I have purpose again.</p>
+      <div class="testimonial-author">Doug, TL-0203</div>
+      <div class="testimonial-role">Holds 2.1 BLINK (whale)</div>
+    </div>
+    <div class="testimonial">
+      <p class="testimonial-text">Gerald once described me as "the Goldman Sachs of shelf-mounted intersection management." I have never been more flattered or more confused.</p>
+      <div class="testimonial-author">Francine, TL-0002</div>
+      <div class="testimonial-role">Original Member, Holds 0.02 BLINK</div>
+    </div>
+    <div class="testimonial">
+      <p class="testimonial-text">I am a full-sized traffic light. I do not understand what Gerald is doing. I manage 14,000 vehicles per day. He manages a shelf. Please stop emailing me.</p>
+      <div class="testimonial-author">Big Dave</div>
+      <div class="testimonial-role">5th &amp; Morrison &bull; DOES NOT HOLD BLINK</div>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <p>BLINK COIN &copy; 2024 Gerald (TL-0047) &bull; All Rights Reserved &bull; None Recognized by the SEC</p>
+  <p>Current BLINK Price: $0.00047 &bull; Total Supply: 47 BLINK &bull; Mined on Gerald's Shelf</p>
+  <p class="legal">BLINK is not a security, commodity, or currency recognized by any government, municipality, or traffic authority. Gerald is 3.2 inches tall and is not a licensed financial advisor. The Ouija Board Complaint Resolution Protocol has not been audited. By visiting this site you acknowledge that miniature traffic lights are people. Big Dave is a coward.</p>
+</footer>
+
+<script src="/assets/js/alpine.min.js" defer></script>
+<script src="/assets/js/gsap.min.js"></script>
+<script>
+// Alpine components
+document.addEventListener('alpine:init', function() {
+
+  // Hero traffic light interaction
+  Alpine.data('heroLight', function() {
+    return {
+      active: 'green',
+      cycleLight: function(color) {
+        this.active = color;
+      },
+      lightStyle: function(color) {
+        if (this.active === color) return '';
+        return 'opacity: 0.3; filter: saturate(0.3);';
+      }
+    };
+  });
+
+  // Ticker data
+  Alpine.data('ticker', function() {
+    var items = [
+      { id: 1, symbol: 'BLINK', price: '$0.00047', change: '+340%', dir: 'up' },
+      { id: 2, symbol: 'BIGDAVE', price: '$0.00', change: 'DELISTED', dir: 'down' },
+      { id: 3, symbol: 'REDCYCLE', price: '$0.00012', change: '+47%', dir: 'up' },
+      { id: 4, symbol: 'AMBR', price: '$0.00008', change: '-12%', dir: 'down' },
+      { id: 5, symbol: 'GREENLGHT', price: '$0.00031', change: '+89%', dir: 'up' },
+      { id: 6, symbol: 'SHELF', price: '$0.00002', change: '+4.7%', dir: 'up' },
+      { id: 7, symbol: 'PDXGRID', price: '$0.00000', change: 'HOSTILE', dir: 'down' },
+      { id: 8, symbol: 'BLINK', price: '$0.00047', change: '+340%', dir: 'up' },
+      { id: 9, symbol: 'BIGDAVE', price: '$0.00', change: 'DELISTED', dir: 'down' },
+      { id: 10, symbol: 'REDCYCLE', price: '$0.00012', change: '+47%', dir: 'up' },
+      { id: 11, symbol: 'AMBR', price: '$0.00008', change: '-12%', dir: 'down' },
+      { id: 12, symbol: 'GREENLGHT', price: '$0.00031', change: '+89%', dir: 'up' },
+      { id: 13, symbol: 'SHELF', price: '$0.00002', change: '+4.7%', dir: 'up' },
+      { id: 14, symbol: 'PDXGRID', price: '$0.00000', change: 'HOSTILE', dir: 'down' },
+    ];
+    return { items: items };
+  });
+
+  // Ouija board
+  Alpine.data('ouijaBoard', function() {
+    return {
+      letters: [
+        ['A','B','C','D','E','F','G','H','I','J','K','L','M'],
+        ['N','O','P','Q','R','S','T','U','V','W','X','Y','Z'],
+        ['0','1','2','3','4','5','6','7','8','9']
+      ],
+      message: '',
+      activeLetter: '',
+      responses: [
+        'HODL', 'BIG DAVE DID THIS', 'VALID COMPLAINT',
+        'ASK GERALD', 'SELL EVERYTHING', 'THE SHELF KNOWS',
+        'AMBER LIGHT SAYS WAIT', 'NOT OUR JURISDICTION',
+        'CONSULT A FULL SIZED LIGHT', 'BLINK WILL MOON',
+        'GERALD WAS RIGHT', 'INSUFFICIENT LUMENS',
+        'RED MEANS STOP COMPLAINING', 'YOUR CYCLE IS OFF'
+      ],
+      addLetter: function(letter) {
+        var self = this;
+        if (this.message.length < 20) {
+          this.activeLetter = letter;
+          this.message += letter;
+          setTimeout(function() { self.activeLetter = ''; }, 400);
+        }
+        // After enough letters, auto-respond
+        if (this.message.length >= 6 && Math.random() > 0.5) {
+          this.spiritResponse();
+        }
+      },
+      setResponse: function(resp) {
+        this.message = resp;
+        this.autoResolve();
+      },
+      spiritResponse: function() {
+        var self = this;
+        var resp = this.responses[Math.floor(Math.random() * this.responses.length)];
+        this.message = '';
+        var i = 0;
+        function typeNext() {
+          if (i < resp.length) {
+            self.message += resp[i];
+            self.activeLetter = resp[i];
+            i++;
+            setTimeout(typeNext, 80 + Math.random() * 120);
+          } else {
+            setTimeout(function() { self.activeLetter = ''; }, 400);
+          }
+        }
+        setTimeout(typeNext, 300);
+      },
+      autoResolve: function() {
+        var self = this;
+        setTimeout(function() {
+          self.spiritResponse();
+        }, 1500);
+      }
+    };
+  });
+
+  // Visualizer grid interaction
+  Alpine.data('visGrid', function() {
+    return {
+      flash: function(el) {
+        var colors = [
+          'rgba(0,255,136,0.4)',
+          'rgba(0,229,255,0.4)',
+          'rgba(255,183,0,0.3)',
+          'rgba(255,51,85,0.3)'
+        ];
+        var color = colors[Math.floor(Math.random() * colors.length)];
+        gsap.fromTo(el,
+          { boxShadow: 'inset 0 0 0px ' + color, scale: 1 },
+          { boxShadow: 'inset 0 0 60px ' + color, scale: 1.08, duration: 0.3,
+            yoyo: true, repeat: 1, ease: 'power2.out',
+            clearProps: 'boxShadow,transform'
+          }
+        );
+      }
+    };
+  });
+});
+
+// GSAP animations on load
+window.addEventListener('DOMContentLoaded', function() {
+  // Hero entrance
+  gsap.fromTo('.traffic-light-art',
+    { y: 40, opacity: 0 },
+    { y: 0, opacity: 1, duration: 1.2, ease: 'power3.out', clearProps: 'opacity,transform' }
+  );
+  gsap.fromTo('.hero-headline',
+    { y: 30, opacity: 0 },
+    { y: 0, opacity: 1, duration: 1, delay: 0.3, ease: 'power3.out', clearProps: 'opacity,transform' }
+  );
+  gsap.fromTo('.hero-sub',
+    { y: 20, opacity: 0 },
+    { y: 0, opacity: 1, duration: 0.8, delay: 0.5, ease: 'power3.out', clearProps: 'opacity,transform' }
+  );
+  gsap.fromTo('.btn-blink',
+    { y: 15, opacity: 0 },
+    { y: 0, opacity: 1, duration: 0.6, delay: 0.7, ease: 'power3.out', clearProps: 'opacity,transform' }
+  );
+
+  // Floating particles
+  var particles = document.querySelectorAll('.particle');
+  particles.forEach(function(p, i) {
+    animateParticle(p, i);
+  });
+
+  function animateParticle(el, index) {
+    var startX = Math.random() * window.innerWidth;
+    var startY = window.innerHeight + 20;
+    var endY = -20;
+    var drift = (Math.random() - 0.5) * 200;
+    var duration = 8 + Math.random() * 12;
+    var delay = index * 1.5 + Math.random() * 3;
+    var size = 2 + Math.random() * 4;
+
+    el.style.width = size + 'px';
+    el.style.height = size + 'px';
+
+    gsap.fromTo(el,
+      { x: startX, y: startY, opacity: 0, scale: 0 },
+      {
+        x: startX + drift,
+        y: endY,
+        opacity: 0.6,
+        scale: 1,
+        duration: duration,
+        delay: delay,
+        ease: 'none',
+        clearProps: 'opacity,transform',
+        onComplete: function() { animateParticle(el, 0); }
+      }
+    );
+  }
+
+  // Animate member cards on scroll
+  var observer = new IntersectionObserver(function(entries) {
+    entries.forEach(function(entry) {
+      if (entry.isIntersecting) {
+        var cards = entry.target.querySelectorAll('.member-card');
+        cards.forEach(function(card, i) {
+          gsap.fromTo(card,
+            { y: 30, opacity: 0 },
+            { y: 0, opacity: 1, duration: 0.6, delay: i * 0.15, ease: 'power2.out', clearProps: 'opacity,transform' }
+          );
+        });
+        observer.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.2 });
+
+  var membersGrid = document.querySelector('.members-grid');
+  if (membersGrid) observer.observe(membersGrid);
+
+  // Animate testimonials on scroll
+  var testObserver = new IntersectionObserver(function(entries) {
+    entries.forEach(function(entry) {
+      if (entry.isIntersecting) {
+        var items = entry.target.querySelectorAll('.testimonial');
+        items.forEach(function(item, i) {
+          gsap.fromTo(item,
+            { y: 25, opacity: 0 },
+            { y: 0, opacity: 1, duration: 0.5, delay: i * 0.12, ease: 'power2.out', clearProps: 'opacity,transform' }
+          );
+        });
+        testObserver.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.2 });
+
+  var testGrid = document.querySelector('.testimonials-grid');
+  if (testGrid) testObserver.observe(testGrid);
+
+  // Ambient visualizer auto-flash
+  var visCells = document.querySelectorAll('.vis-cell');
+  function randomFlash() {
+    var idx = Math.floor(Math.random() * visCells.length);
+    var el = visCells[idx];
+    var colors = [
+      'rgba(0,255,136,0.25)',
+      'rgba(0,229,255,0.25)',
+      'rgba(255,183,0,0.2)'
+    ];
+    var color = colors[Math.floor(Math.random() * colors.length)];
+    gsap.fromTo(el,
+      { boxShadow: 'inset 0 0 0px ' + color },
+      { boxShadow: 'inset 0 0 40px ' + color, duration: 0.5,
+        yoyo: true, repeat: 1, ease: 'power2.out',
+        clearProps: 'boxShadow'
+      }
+    );
+  }
+  setInterval(randomFlash, 800);
+});
+</script>
+</body>
+</html>

@@ -1,0 +1,371 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Daily Coo</title>
+    
+    <link rel="stylesheet" href="/assets/css/pico.min.css">
+    <link rel="stylesheet" href="/assets/css/fonts.css">
+
+    <style>
+        :root {
+            --bg-color: #0a192f;
+            --text-color: #e0e0e0;
+            --headline-color: #64ffda;
+            --accent-color: #303c55;
+            --highlight-bg: #112240;
+            --border-color: #556688;
+
+            --font-sans: 'Space Grotesk', sans-serif;
+            --font-serif: 'Crimson Pro', serif;
+            --font-mono: 'IBM Plex Mono', monospace;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            font-family: var(--font-serif);
+            font-size: 18px;
+            line-height: 1.7;
+            padding: 0;
+            margin: 0;
+            overflow-x: hidden;
+        }
+
+        h1, h2, h3, h4, h5, h6 {
+            font-family: var(--font-sans);
+            color: var(--headline-color);
+            font-weight: 700;
+            letter-spacing: -0.5px;
+        }
+
+        a { 
+            color: var(--headline-color);
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+        a:hover {
+            color: #ffffff;
+        }
+
+        .container {
+            max-width: 1600px;
+            margin: 0 auto;
+            padding: 1rem 2rem;
+        }
+        
+        .masthead {
+            text-align: center;
+            border-bottom: 2px solid var(--border-color);
+            padding-bottom: 2rem;
+            margin-bottom: 2rem;
+        }
+        .masthead h1 {
+            font-size: clamp(3rem, 10vw, 6rem);
+            margin: 0;
+            line-height: 1;
+        }
+        .masthead .tagline {
+            font-family: var(--font-mono);
+            font-size: 1rem;
+            color: var(--text-color);
+            margin: 0.5rem 0;
+        }
+        .masthead .date {
+            font-family: var(--font-mono);
+            font-size: 0.9rem;
+            color: var(--accent-color);
+        }
+
+        .newspaper-grid {
+            display: grid;
+            grid-template-columns: 1fr 300px 1fr;
+            gap: 2rem;
+            align-items: start;
+        }
+
+        .main-article {
+            grid-column: 1 / 2;
+            opacity: 0;
+        }
+
+        .main-article .byline {
+            font-family: var(--font-mono);
+            font-size: 0.9rem;
+            color: var(--headline-color);
+            margin-bottom: 1.5rem;
+        }
+        
+        .main-article h2 {
+            font-size: clamp(2rem, 5vw, 3rem);
+            line-height: 1.1;
+        }
+
+        .main-article p {
+            max-width: 75ch;
+        }
+
+        .sidebar {
+            grid-column: 2 / 3;
+            display: flex;
+            flex-direction: column;
+            gap: 2rem;
+        }
+
+        .content-column {
+            grid-column: 3 / 4;
+            display: flex;
+            flex-direction: column;
+            gap: 2rem;
+        }
+        
+        .panel {
+            background-color: var(--highlight-bg);
+            border: 1px solid var(--accent-color);
+            padding: 1.5rem;
+            opacity: 0;
+        }
+        
+        .panel h4 {
+            font-size: 1.2rem;
+            margin-top: 0;
+            border-bottom: 1px solid var(--accent-color);
+            padding-bottom: 0.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .pull-quote {
+            font-family: var(--font-sans);
+            font-size: 1.5rem;
+            line-height: 1.4;
+            color: var(--headline-color);
+            border-left: 3px solid var(--headline-color);
+            padding-left: 1.5rem;
+            margin: 2rem 0;
+        }
+
+        .fake-ad, .classifieds {
+            font-size: 0.9rem;
+        }
+        .fake-ad strong {
+            color: var(--headline-color);
+            font-family: var(--font-sans);
+            display: block;
+            margin-bottom: 0.5rem;
+        }
+        .classifieds ul {
+            list-style: none;
+            padding: 0; margin: 0;
+            font-family: var(--font-mono);
+        }
+        .classifieds li {
+            border-bottom: 1px dashed var(--accent-color);
+            padding: 0.75rem 0;
+        }
+        .classifieds li:last-child { border-bottom: none; }
+
+        .interactive-panel .tabs {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+        }
+        .interactive-panel .tabs button {
+            all: unset;
+            cursor: pointer;
+            padding: 0.5rem 1rem;
+            font-family: var(--font-sans);
+            font-size: 0.9rem;
+            background-color: var(--accent-color);
+            color: var(--text-color);
+            border-radius: 4px;
+            transition: background-color 0.2s ease;
+        }
+        .interactive-panel .tabs button.active,
+        .interactive-panel .tabs button:hover {
+            background-color: var(--headline-color);
+            color: var(--bg-color);
+        }
+
+        .case-file-content {
+            font-size: 0.95rem;
+        }
+
+        .site-footer {
+            border-top: 2px solid var(--border-color);
+            margin-top: 4rem;
+            padding-top: 2rem;
+            text-align: center;
+            font-family: var(--font-mono);
+            font-size: 0.8rem;
+            color: var(--accent-color);
+        }
+        .site-footer .icons {
+            display: flex;
+            justify-content: center;
+            gap: 1.5rem;
+            margin-bottom: 1rem;
+        }
+        .site-footer .icons i { color: var(--text-color); }
+
+        /* Responsive */
+        @media (max-width: 1024px) {
+            .newspaper-grid {
+                grid-template-columns: 2fr 1fr;
+            }
+            .main-article { grid-column: 1 / 2; }
+            .sidebar { grid-column: 2 / 3; }
+            .content-column {
+                grid-column: 1 / 3;
+                grid-row: 2;
+                flex-direction: row;
+                flex-wrap: wrap;
+            }
+            .content-column .panel {
+                flex-basis: 45%;
+                flex-grow: 1;
+            }
+        }
+
+        @media (max-width: 768px) {
+            body { font-size: 16px; }
+            .container { padding: 1rem 1.5rem; }
+            .newspaper-grid {
+                grid-template-columns: 1fr;
+                gap: 2rem;
+            }
+            .main-article, .sidebar, .content-column {
+                grid-column: 1 / 2;
+            }
+            .content-column {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body x-data>
+    <div class="container">
+        <header class="masthead">
+            <h1 class="headline">The Daily Coo</h1>
+            <p class="tagline">All the News That's Fit to Perch</p>
+            <p class="date">VOL. I, NO. I — A Journal for the Urban Avian Condition — Est. 2026</p>
+        </header>
+
+        <main class="newspaper-grid">
+            <article class="main-article">
+                <h2 class="article-title">Feathers of Despair: City's Pigeons Suffering Unprecedented Rates of Existential Dread, Study Finds</h2>
+                <p class="byline">BY DR. BARNABY FINCH, LEAD ORNITHOLOGICAL PSYCHOLOGIST</p>
+                <p>They are the silent witnesses to our urban sprawl, the stoic observers of our daily commutes. But who watches the watchers? A groundbreaking, privately-funded study released yesterday reveals a startling epidemic sweeping through the city’s pigeon population: Pigeon Post-Traumatic Stress Disorder (PPTSD).</p>
+                <p>Our research, conducted over three years at the Finch Institute for Avian Reconciliation, indicates that 93% of urban pigeons exhibit symptoms of severe anxiety, including compulsive pecking, erratic flight patterns, and a profound, often misunderstood, disinterest in artisanal sourdough bread crusts.</p>
+                <blockquote class="pull-quote">"We've seen things you people wouldn't believe. Attack ships on fire off the shoulder of Orion. We've also seen a man in a hot dog costume weep openly on a Tuesday. It all takes a toll."</blockquote>
+                <p>"These are not merely 'flying rats'," I explained during a sparsely attended press conference. "They are living archives of our collective municipal sorrow. They see tourists with selfie sticks. They see failed parallel parking attempts. They bear witness to every dropped ice cream cone. This constant exposure to low-grade human tragedy has a cumulative, soul-crushing effect."</p>
+                <p>To combat this crisis, the Institute has opened the world's first therapeutic center for pigeons, featuring a live, 24/7 jazz ensemble to provide "a calming soundscape of post-bop improvisations." Early results are promising, though progress is occasionally hampered by our feline accounts manager, Mr. Scat, who has a habit of 'auditing' invoices directly from the keyboard.</p>
+            </article>
+
+            <aside class="sidebar">
+                <div class="panel op-ed">
+                    <h4>OP-ED</h4>
+                    <p><strong>Stop Calling Us 'Flying Rats'</strong></p>
+                    <p class="author" style="font-family: var(--font-mono); font-size: 0.8rem; color: var(--accent-color);">By "A Concerned Pigeon"</p>
+                    <p style="font-size: 0.9em;">We have a rich history. We delivered messages for empires. We are masters of aerial navigation. We can find a single dropped french fry in a 10-acre park. A little respect, please. We are Columba livia domestica, not some common sewer-dwelling rodent with wings.</p>
+                </div>
+
+                <div class="panel fake-ad">
+                    <strong>Grit & Gravel™</strong>
+                    <p>The Only Beak-Approved Pavement Supplement. Now with 20% more discarded hot dog bun! Boosts Gizzard Performance! Guaranteed to make statues more comfortable.</p>
+                </div>
+                
+                <div class="panel corrections">
+                    <h4>Corrections</h4>
+                    <p style="font-size: 0.9em;">In a previous pamphlet, we stated that our feline accounts manager, Mr. Scat, processes payments. We regret the error. He *interrogates* payments. All billing is final, especially transactions resulting in 'sdfklj$$'.</p>
+                </div>
+            </aside>
+
+            <div class="content-column">
+                <div class="panel classifieds">
+                    <h4>Classifieds</h4>
+                    <ul>
+                        <li>LOST: One marble eye. Sentimental value. Last seen near the statue of General Cornelius P. Wobbles. Responds to 'Clyde'.</li>
+                        <li>FOR SALE: Lightly-used breadcrumbs. Not sourdough. Contact Brenda at the fountain. No lowballers. I know what I have.</li>
+                        <li>WANTED: Accompaniment for rooftop duet. Must have experience with bebop and scat (the musical kind). No beginners.</li>
+                        <li>SERVICES: Statue cleaning. Will remove... uh... "organic buildup". Discreet. Ask for Tony.</li>
+                    </ul>
+                </div>
+                
+                <div class="panel interactive-panel" x-data="{ activeTab: 'finance' }">
+                    <h4>The Finch Archives: Declassified Case Files</h4>
+                    <div class="tabs">
+                        <button :class="{ 'active': activeTab === 'finance' }" @click="activeTab = 'finance'">Financial District</button>
+                        <button :class="{ 'active': activeTab === 'tourist' }" @click="activeTab = 'tourist'">Tourist Traps</button>
+                    </div>
+                    <div class="case-file-content">
+                        <div x-show="activeTab === 'finance'">
+                            <p><strong>Case #47: Bartholomew</strong><br>Presents with acute anxiety related to Q4 earnings reports and an irrational fear of men in suspenders. Prescribed a heavy rotation of Thelonious Monk.</p>
+                            <p><strong>Case #102: Susan</strong><br>Developed a complex persecution narrative involving predatory algorithms after observing stock tickers for too long. Believes the color red is "personally attacking her."</p>
+                        </div>
+                        <div x-show="activeTab === 'tourist'">
+                             <p><strong>Case #88: Gilbert</strong><br>Suffering from severe "selfie-stick fatigue" and complains of phantom "I ❤️ NY" logos in his vision. Therapy involves focusing on distant, uninteresting objects.</p>
+                            <p><strong>Case #214: The Twins</strong><br>Pip and Pop developed a synchronized startle-response after witnessing a street magician's "disappearing coin" trick one too many times. They now believe all currency is fundamentally ephemeral.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="panel services-panel">
+                    <h4>The Nest Egg Fund</h4>
+                    <p style="font-size:0.9em">Support the psychological wellbeing of our feathered co-habitants. All donations are tax-deductible*, subject to audit by Mr. Scat.</p>
+                    <ul style="list-style: none; padding: 0; font-size: 0.95em; font-family: var(--font-mono);">
+                        <li><strong>The Chirp-Check: $12.50</strong><br>(A 5-minute wellness evaluation)</li>
+                        <li style="margin-top: 1rem;"><strong>The Full Flutter: $78.99</strong><br>(45-min session w/ live jazz)</li>
+                        <li style="margin-top: 1rem;"><strong>The Cat Scan: Price Varies</strong><br>(An unpredictable invoice interrogation)</li>
+                    </ul>
+                </div>
+            </div>
+        </main>
+        
+        <footer class="site-footer">
+            <div class="icons">
+                <a href="#" aria-label="Pigeon Twitter"><i data-lucide="twitter"></i></a>
+                <a href="#" aria-label="Pigeon Instagram"><i data-lucide="instagram"></i></a>
+                <a href="#" aria-label="Pigeon Mail"><i data-lucide="mail"></i></a>
+            </div>
+            <p>"The Daily Coo" &copy; 2026 The Finch Institute for Avian Reconciliation.</p>
+            <p>We are not responsible for any sudden urges to coo, existential crises, or invoices altered by a cat.</p>
+        </footer>
+    </div>
+
+    <script src="/assets/js/alpine.min.js" defer></script>
+    <script src="/assets/js/gsap.min.js"></script>
+    <script src="/assets/js/lucide.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            lucide.createIcons();
+
+            const tl = gsap.timeline();
+
+            tl.fromTo('.masthead .headline', 
+                { y: 20, opacity: 0 }, 
+                { y: 0, opacity: 1, duration: 0.8, ease: 'power3.out', clearProps: 'all' }
+            )
+            .fromTo('.main-article', 
+                { y: 20, opacity: 0 }, 
+                { y: 0, opacity: 1, duration: 0.6, ease: 'power2.out', clearProps: 'all' }, 
+                "-=0.5"
+            );
+
+            gsap.utils.toArray('.panel').forEach((panel, i) => {
+                gsap.fromTo(panel, 
+                    { y: 30, opacity: 0 }, 
+                    { 
+                        y: 0, 
+                        opacity: 1, 
+                        duration: 0.7, 
+                        delay: 0.4 + i * 0.1,
+                        ease: 'power3.out',
+                        clearProps: 'all'
+                    }
+                );
+            });
+        });
+    </script>
+</body>
+</html>

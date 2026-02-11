@@ -1,0 +1,531 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FAUSI: For a More Stable Tomorrow</title>
+    <link rel="stylesheet" href="/assets/css/pico.min.css">
+    <link rel="stylesheet" href="/assets/css/fonts.css">
+    <style>
+        :root {
+            --background-color: #FDFBF7;
+            --text-color: #1a1a1a;
+            --accent-color: #d90429;
+            --muted-text: #555;
+            --border-color: #e0e0e0;
+            --font-heading: 'Space Grotesk', sans-serif;
+            --font-body: 'Inter', sans-serif;
+        }
+
+        body {
+            background-color: var(--background-color);
+            color: var(--text-color);
+            font-family: var(--font-body);
+            font-size: 16px;
+            line-height: 1.6;
+            margin: 0;
+            padding: 0;
+            overflow-x: hidden;
+        }
+
+        .container-fluid {
+            padding: 0;
+            margin: 0;
+        }
+
+        .scroll-container {
+            scroll-snap-type: y mandatory;
+            height: 100vh;
+            overflow-y: scroll;
+            overflow-x: hidden;
+        }
+
+        section {
+            height: 100vh;
+            width: 100vw;
+            scroll-snap-align: start;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 2rem;
+            position: relative;
+            overflow: hidden;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        h1, h2, h3, h4, h5, h6 {
+            font-family: var(--font-heading);
+            font-weight: 700;
+            color: var(--text-color);
+            margin-bottom: 1rem;
+            text-align: center;
+        }
+        
+        h1 { font-size: clamp(2.5rem, 8vw, 5rem); }
+        h2 { font-size: clamp(2rem, 6vw, 3.5rem); }
+        h3 { font-size: clamp(1.5rem, 4vw, 2.5rem); }
+
+        p, li, span, label, input, textarea, button {
+            color: var(--text-color);
+            font-size: 1rem;
+        }
+
+        p.muted {
+            color: var(--muted-text);
+            font-size: 0.9rem;
+        }
+
+        .text-accent { color: var(--accent-color); }
+
+        /* Ticker */
+        .ticker-wrap {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 44px;
+            background-color: var(--text-color);
+            color: var(--background-color);
+            padding: 0;
+            z-index: 100;
+            display: flex;
+            align-items: center;
+            overflow: hidden;
+        }
+        .ticker-move {
+            display: inline-block;
+            white-space: nowrap;
+            animation: ticker 40s linear infinite;
+        }
+        .ticker-item {
+            display: inline-block;
+            padding: 0 2rem;
+            font-family: var(--font-heading);
+            font-size: 0.9rem;
+        }
+        .ticker-item i { margin-right: 0.5rem; }
+        @keyframes ticker {
+            0% { transform: translateX(0); }
+            100% { transform: translateX(-50%); }
+        }
+
+        /* Section 1: Hero */
+        #hero .subtitle {
+            font-family: var(--font-heading);
+            font-size: clamp(1rem, 3vw, 1.5rem);
+            margin-bottom: 2rem;
+        }
+        #hero h1 {
+            line-height: 1;
+        }
+        .incident-counter {
+            margin-top: 2rem;
+            border: 2px solid var(--border-color);
+            padding: 1rem 2rem;
+            text-align: center;
+        }
+        .incident-counter h4 {
+            font-family: var(--font-body);
+            font-weight: 400;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            font-size: 0.8rem;
+            margin-bottom: 0.5rem;
+        }
+        .incident-counter .time {
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: clamp(2rem, 5vw, 3rem);
+            color: var(--accent-color);
+        }
+
+        /* Section 2: Mission */
+        .mission-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 2rem;
+            max-width: 900px;
+        }
+        @media (min-width: 768px) {
+            .mission-grid { grid-template-columns: 1fr 1fr; }
+        }
+        .mission-grid .footnote {
+            font-size: 0.8rem;
+            color: var(--muted-text);
+            border-top: 1px solid var(--border-color);
+            padding-top: 1rem;
+            margin-top: 1rem;
+        }
+
+        /* Section 3: Policy */
+        .policy-translator {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+            width: 100%;
+            max-width: 700px;
+        }
+        .policy-translator select {
+            background-color: var(--background-color);
+            border: 1px solid var(--text-color);
+            color: var(--text-color);
+            font-family: var(--font-heading);
+            font-size: 1.2rem;
+            text-align: center;
+            cursor: pointer;
+        }
+        .policy-output {
+            border: 1px dashed var(--accent-color);
+            padding: 2rem;
+            min-height: 150px;
+            background: #fff;
+        }
+        .policy-output h4 { font-size: 1.2rem; }
+
+        /* Section 4: Team */
+        .team-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 2rem;
+            width: 100%;
+            max-width: 1200px;
+        }
+        .team-card {
+            background-color: #fff;
+            border: 1px solid var(--border-color);
+            text-align: center;
+            padding: 2rem 1.5rem;
+            cursor: pointer;
+            position: relative;
+            transform-style: preserve-3d;
+            transition: transform 0.6s;
+        }
+        .team-card.is-flipped { transform: rotateY(180deg); }
+        .card-face {
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            backface-visibility: hidden;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 1.5rem;
+        }
+        .card-back { transform: rotateY(180deg); }
+        .team-card .role {
+            font-family: var(--font-heading);
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--accent-color);
+        }
+        .team-card .placeholder { height: 320px; }
+        
+        /* Section 5: Data */
+        .data-container { width: 100%; max-width: 1000px; }
+        .css-chart {
+            width: 100%; height: 250px;
+            background-color: white; border: 1px solid var(--border-color);
+            display: flex; align-items: flex-end; justify-content: space-around;
+            padding: 0 1rem;
+        }
+        .css-chart .bar {
+            width: 8%; background-color: var(--text-color);
+            animation: rise 2s ease-out;
+        }
+        @keyframes rise {
+            0% { height: 0; }
+        }
+
+        /* Section 6: Involve */
+        .involve-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 2rem;
+            width: 100%;
+            max-width: 900px;
+        }
+        @media (min-width: 768px) {
+            .involve-grid { grid-template-columns: 1fr 1fr; }
+        }
+        .volunteer-form label { font-family: var(--font-heading); }
+        .donate-section { text-align: center; }
+        .donate-button {
+            --background: var(--accent-color);
+            --color: white;
+            min-width: 44px;
+            min-height: 44px;
+            padding: 1rem 2rem;
+            font-family: var(--font-heading);
+            font-size: 1.2rem;
+            cursor: pointer;
+        }
+        .donation-tiers {
+            margin-top: 1rem;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 1rem;
+        }
+        .donation-tiers button {
+            --background: transparent;
+            --color: var(--text-color);
+            --border-color: var(--text-color);
+            font-size: 0.9rem;
+        }
+
+        /* Footer */
+        footer {
+            text-align: center;
+            padding: 2rem;
+            background-color: var(--text-color);
+            color: var(--background-color);
+            font-size: 0.9rem;
+        }
+        footer p {
+            margin: 0;
+            color: var(--background-color);
+        }
+        footer .socials {
+            margin-top: 1rem;
+        }
+        footer .socials a {
+            color: var(--background-color);
+            margin: 0 0.5rem;
+            text-decoration: none;
+        }
+        footer .socials i {
+            width: 20px;
+            height: 20px;
+        }
+    </style>
+</head>
+<body x-data="appState">
+    <div class="ticker-wrap">
+        <div class="ticker-move">
+            <template x-for="item in tickerItems.concat(tickerItems)">
+                <div class="ticker-item"><i data-lucide="bell-ring"></i><span x-text="item"></span></div>
+            </template>
+        </div>
+    </div>
+    
+    <div class="scroll-container">
+        <section id="hero">
+            <div class="container" style="text-align: center;">
+                <p class="subtitle">The Feline-Aquatic Urban Stability Initiative</p>
+                <h1>VOTE<br><span class="text-accent">FINNIUS</span></h1>
+                <p class="muted">(and Brenda)</p>
+                <div class="incident-counter">
+                    <h4>DAYS SINCE LAST SHELF-RELATED INCIDENT</h4>
+                    <div class="time">
+                        <span x-text="counter.days"></span>:<span x-text="counter.hours"></span>:<span x-text="counter.minutes"></span>:<span x-text="counter.seconds"></span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="mission">
+            <div class="container">
+                <h2>Stabilizing Shelves,<br>Stabilizing Society.</h2>
+                <div class="mission-grid">
+                    <div>
+                        <p>We believe that a stable home is the foundation of a stable city. Our core thesis posits a direct correlation between domestic object permanence and broader civic tranquility. Through a multi-pronged approach involving advanced feline behavioral analysis, aquatic-led policy making, and reinforced shelving infrastructure, FAUSI is pioneering a new era of urban harmony.</p>
+                        <p>Our pilot programs in District 4 have demonstrated a 47% reduction in Unforeseen Gravity Events (UGEs) and a 62% increase in mayoral candidate approval among non-sentient decorative gourds.</p>
+                    </div>
+                    <div>
+                        <p><strong>This is more than a campaign; it's a movement.</strong> A movement towards a future where coffee cups remain where they are placed, where goldfish are given the legislative authority they deserve, and where society can finally address the larger issues, free from the distraction of crashing pottery.</p>
+                        <p class="footnote" x-text="footnote"></p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="policy">
+            <div class="container">
+                <h2>The Finnius Doctrine</h2>
+                <p class="muted" style="max-width: 600px; margin: 0 auto 2rem auto;">Directives from our visionary founder, Ambassador Finnius, translated for mammalian comprehension.</p>
+                <div class="policy-translator" x-on:change="currentPolicy = $event.target.value">
+                    <select>
+                        <template x-for="(policy, key) in policies">
+                            <option :value="key" x-text="policy.title"></option>
+                        </template>
+                    </select>
+                    <div class="policy-output">
+                        <template x-if="policies[currentPolicy]">
+                            <div>
+                                <h4>Brenda's Interpretation:</h4>
+                                <p x-text="policies[currentPolicy].interpretation"></p>
+                            </div>
+                        </template>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="team">
+            <div class="container">
+                <h2>Our Leadership</h2>
+                <div class="team-grid">
+                    <template x-for="(member, index) in team">
+                        <article class="team-card" @click="member.flipped = !member.flipped" :class="{ 'is-flipped': member.flipped }">
+                           <div class="placeholder">
+                                <div class="card-face card-front">
+                                    <h3 x-text="member.name"></h3>
+                                    <p class="role" x-text="member.role"></p>
+                                    <p class="muted" x-text="member.public_bio"></p>
+                                    <button style="margin-top: 1rem; font-size: 0.8rem; --padding: 0.5rem 1rem;" disabled>Click for Details</button>
+                                </div>
+                                <div class="card-face card-back">
+                                    <h4 class="text-accent">The Real Story</h4>
+                                    <p x-text="member.private_bio"></p>
+                                </div>
+                           </div>
+                        </article>
+                    </template>
+                </div>
+            </div>
+        </section>
+        
+        <section id="data">
+            <div class="container data-container">
+                <h2>Data-Driven Governance</h2>
+                <p class="muted" style="max-width: 600px; margin: 0 auto 2rem auto;">Our strategies are informed by rigorous, peer-reviewed* analysis of the domestic environment. (*Peers are mostly cats).</p>
+                <h4 style="text-align: left; font-size: 1rem;">Feline-Induced Kinetic Disturbances (FIKD) - Monthly</h4>
+                <div class="css-chart">
+                    <div class="bar" style="height: 40%;"></div>
+                    <div class="bar" style="height: 60%;"></div>
+                    <div class="bar" style="height: 55%;"></div>
+                    <div class="bar" style="height: 80%;"></div>
+                    <div class="bar" style="height: 75%;"></div>
+                    <div class="bar" style="height: 90%;"></div>
+                    <div class="bar" style="height: 65%;"></div>
+                </div>
+                 <p class="muted" style="text-align: left; font-size: 0.8rem;">Note the spike in June, corresponding with the introduction of a particularly enticing laser pointer.</p>
+            </div>
+        </section>
+
+        <section id="involve">
+            <div class="container">
+                <h2>Join The Movement</h2>
+                <div class="involve-grid">
+                    <div class="volunteer-form">
+                        <h3>Volunteer</h3>
+                        <form>
+                            <label for="email">Your Email</label>
+                            <input type="email" id="email" name="email" placeholder="you@example.com" required>
+                            
+                            <label for="role">Preferred Role</label>
+                            <select id="role" name="role" required>
+                                <option>Gravity Event Documentation Specialist</option>
+                                <option>Official Water Clarion (Advanced Blub required)</option>
+                                <option>Feline-Canine Misinformation Monitor</option>
+                                <option>Shelf Stability Enforcement Officer</option>
+                            </select>
+                            
+                            <button type="submit" style="width: 100%;">I'm In</button>
+                        </form>
+                    </div>
+                    <div class="donate-section">
+                        <h3>Donate</h3>
+                        <p>Your contribution fuels our mission. And buys fish food. Mostly fish food.</p>
+                        <button class="donate-button" @click="showTiers = !showTiers">Support Us</button>
+                        <div x-show="showTiers" x-transition class="donation-tiers">
+                             <template x-for="tier in donationTiers">
+                                 <button @click="alert('Thank you for your donation of ' + tier.amount + '! ' + tier.desc)">
+                                     <span x-text="tier.amount"></span>
+                                 </button>
+                             </template>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <footer>
+        <div class="container">
+            <p>Paid for by The Committee to Elect a Goldfish (and Brenda, who is very tired).</p>
+            <p class="muted" style="font-size: 0.8rem;">FAUSI is a registered 501(c)(3) non-profit organization. Your donations are tax-deductible to the extent allowed by law and common sense.</p>
+            <div class="socials">
+                <a href="#"><i data-lucide="twitter"></i></a>
+                <a href="#"><i data-lucide="instagram"></i></a>
+                <a href="#"><i data-lucide="fish"></i></a>
+            </div>
+        </div>
+    </footer>
+
+    <script src="/assets/js/alpine.min.js" defer></script>
+    <script src="/assets/js/gsap.min.js"></script>
+    <script src="/assets/js/lucide.min.js"></script>
+
+    <script>
+        document.addEventListener('alpine:init', () => {
+            Alpine.data('appState', () => ({
+                // Ticker
+                tickerItems: [
+                    "BREAKING: Local cat discovers edge of table, civic unrest feared.",
+                    "POLL: 78% of voters believe Ambassador Finnius has 'strong moral clarity'.",
+                    "Brenda last seen muttering about 'gravitational constants' near the coffee machine.",
+                    "New policy initiative to provide tiny helmets for all household ceramics.",
+                    "OP-ED: Are shelves truly necessary for a modern society?",
+                ],
+                // Counter
+                counter: { days: 0, hours: 0, minutes: 0, seconds: 0 },
+                incidentDate: new Date('2026-02-10T14:00:00'),
+                initCounter() {
+                    setInterval(() => {
+                        const now = new Date();
+                        const diff = now - this.incidentDate;
+                        this.counter.days = Math.floor(diff / (1000 * 60 * 60 * 24)).toString().padStart(2, '0');
+                        this.counter.hours = Math.floor((diff / (1000 * 60 * 60)) % 24).toString().padStart(2, '0');
+                        this.counter.minutes = Math.floor((diff / 1000 / 60) % 60).toString().padStart(2, '0');
+                        this.counter.seconds = Math.floor((diff / 1000) % 60).toString().padStart(2, '0');
+                    }, 1000);
+                },
+                // Mission
+                footnote: "Please send help. And coffee. We're out of coffee. He won't let me buy more until the 'port infrastructure' is 'secure'. It's a fishbowl. - B.",
+                // Policy
+                currentPolicy: 'blub',
+                policies: {
+                    blub: {
+                        title: "Policy 1: 'Blub.'",
+                        interpretation: "A comprehensive, multi-stage infrastructure initiative to reinforce all load-bearing surfaces. Phase 1 focuses on bookshelves and coffee tables. Phase 2 will address the systemic instability of decorative mantels. He's very clear on this."
+                    },
+                    glub: {
+                        title: "Policy 2: 'Glub glub.'",
+                        interpretation: "Increased water filtration standards and a universal basic income paid in high-quality fish flakes. He believes a well-fed populace is a productive populace. I can't argue with that, but the paperwork is a nightmare."
+                    },
+                    bubble: {
+                        title: "Policy 3: '... (bubbles)'",
+                        interpretation: "A period of quiet contemplation to address the existential threat posed by vacuum cleaners. All campaign activities will be suspended on Tuesdays for 'deep thought'. I get to take a nap, so I'm calling this a win."
+                    }
+                },
+                // Team
+                team: [
+                    { name: 'Ambassador Finnius', role: 'Visionary & Mayoral Candidate', public_bio: 'A charismatic leader with a bold vision for a more stable and hydrated future.', private_bio: 'He stares at the wall for 18 hours a day. His grand vision is mostly about wanting more flakes. He has my vote.', flipped: false },
+                    { name: 'Brenda', role: 'Human Liaison & Campaign Manager', public_bio: 'A dedicated public servant and experienced nurse, translating aquatic policy for the masses.', private_bio: 'I have not slept in 72 hours. The cats are conspiring against me. The goldfish thinks he is a king. This was not in my nursing school curriculum.', flipped: false },
+                    { name: 'The Board', role: 'Agents of Chaos Feline Directors', public_bio: 'A dynamic board providing critical oversight and real-world stress testing of our stability initiatives.', private_bio: 'Their primary contribution is knocking things over to 'test gravity'. Mittens has a personal vendetta against my favorite mug. They are the opposition.', flipped: false }
+                ],
+                // Involve
+                showTiers: false,
+                donationTiers: [
+                    { amount: '$7.24', desc: 'One bag of premium fish flakes.'},
+                    { amount: '$28.50', desc: 'A weighted blanket for Brenda.'},
+                    { amount: '$112.00', desc: 'Structural analysis of the shelves.'},
+                    { amount: '$500.00', desc: 'A tiny crown for the Ambassador (non-negotiable).'}
+                ],
+                
+                init() {
+                    this.initCounter();
+                    lucide.createIcons();
+                    this.initAnimations();
+                },
+                initAnimations() {
+                    gsap.fromTo("#hero h1", { y: 50, opacity: 0 }, { y: 0, opacity: 1, duration: 1, delay: 0.5, clearProps:'opacity,transform' });
+                    gsap.fromTo(".incident-counter", { scale: 0.9, opacity: 0 }, { scale: 1, opacity: 1, duration: 0.8, delay: 1, clearProps:'opacity,transform' });
+                }
+            }));
+        });
+    </script>
+</body>
+</html>

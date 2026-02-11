@@ -1,0 +1,832 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Finsworth Gazette — Vol. XLVII, No. 3</title>
+<link rel="stylesheet" href="/assets/css/fonts.css">
+<style>
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+:root {
+  --pink: #FF2D87;
+  --blue: #0057FF;
+  --lime: #39FF14;
+  --yellow: #FFE818;
+  --bg: #FFF5F0;
+  --text: #1a1a1a;
+  --rule: #1a1a1a;
+  --accent-bg: #FFF0E8;
+  --card-bg: #ffffff;
+}
+
+body {
+  font-family: 'Crimson Pro', Georgia, serif;
+  background: var(--bg);
+  color: var(--text);
+  font-size: 18px;
+  line-height: 1.55;
+  overflow-x: hidden;
+}
+
+/* MASTHEAD */
+.masthead {
+  border-bottom: 6px double var(--rule);
+  padding: 12px 20px 8px;
+  text-align: center;
+  position: relative;
+  background: var(--card-bg);
+}
+.masthead-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 11px;
+  color: #333;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+.masthead h1 {
+  font-family: 'Playfair Display', serif;
+  font-size: clamp(2.5rem, 8vw, 5.5rem);
+  font-weight: 900;
+  letter-spacing: -0.02em;
+  line-height: 1;
+  margin: 8px 0 4px;
+  color: var(--text);
+}
+.masthead-motto {
+  font-style: italic;
+  font-size: 14px;
+  color: #333;
+  margin-bottom: 4px;
+}
+.masthead-rule {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 10px;
+  color: #444;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
+.masthead-rule::before, .masthead-rule::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--rule);
+}
+
+/* NAV / CATEGORY FILTERS */
+.cat-nav {
+  background: var(--text);
+  padding: 8px 20px;
+  display: flex;
+  gap: 4px;
+  flex-wrap: wrap;
+  justify-content: center;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+.cat-btn {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  padding: 6px 14px;
+  border: 2px solid transparent;
+  background: transparent;
+  color: #cccccc;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.cat-btn:hover { color: #ffffff; }
+.cat-btn.active {
+  background: var(--pink);
+  color: #ffffff;
+  border-color: var(--pink);
+}
+
+/* TICKER */
+.ticker-bar {
+  background: var(--pink);
+  color: #ffffff;
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 12px;
+  font-weight: 700;
+  padding: 6px 0;
+  overflow: hidden;
+  white-space: nowrap;
+}
+.ticker-inner {
+  display: inline-block;
+  animation: tickerScroll 30s linear infinite;
+}
+@keyframes tickerScroll {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+
+/* MAIN GRID */
+.gazette-grid {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 20px;
+  display: grid;
+  grid-template-columns: 1fr 2fr 1fr;
+  gap: 20px;
+}
+.col-left, .col-right { display: flex; flex-direction: column; gap: 20px; }
+.col-main { display: flex; flex-direction: column; gap: 20px; }
+
+/* ARTICLE STYLES */
+.article {
+  border-bottom: 1px solid #ccc;
+  padding-bottom: 16px;
+}
+.article-headline {
+  font-family: 'Playfair Display', serif;
+  font-size: clamp(1.3rem, 3vw, 1.8rem);
+  font-weight: 900;
+  line-height: 1.15;
+  margin-bottom: 6px;
+  color: var(--text);
+}
+.article-headline.lead {
+  font-size: clamp(1.8rem, 4vw, 2.8rem);
+}
+.article-byline {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 11px;
+  color: #444;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  margin-bottom: 8px;
+}
+.article-body {
+  font-size: 17px;
+  color: #222;
+  line-height: 1.6;
+}
+.article-body p { margin-bottom: 10px; }
+.article-tag {
+  display: inline-block;
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  padding: 2px 8px;
+  margin-bottom: 6px;
+}
+.tag-news { background: var(--blue); color: #ffffff; }
+.tag-opinion { background: var(--pink); color: #ffffff; }
+.tag-classifieds { background: var(--lime); color: #1a1a1a; }
+.tag-letters { background: var(--yellow); color: #1a1a1a; }
+.tag-corrections { background: #1a1a1a; color: #ffffff; }
+.tag-culture { background: #9B59B6; color: #ffffff; }
+
+/* PULL QUOTE */
+.pull-quote {
+  border-left: 5px solid var(--pink);
+  padding: 12px 16px;
+  font-family: 'Playfair Display', serif;
+  font-size: 1.4rem;
+  font-style: italic;
+  color: var(--text);
+  margin: 16px 0;
+  background: var(--accent-bg);
+  line-height: 1.35;
+}
+.pull-quote cite {
+  display: block;
+  font-size: 12px;
+  font-style: normal;
+  font-family: 'IBM Plex Mono', monospace;
+  color: #444;
+  margin-top: 6px;
+  text-transform: uppercase;
+}
+
+/* SIDEBAR AD BOXES */
+.sidebar-ad {
+  border: 3px solid var(--text);
+  padding: 16px;
+  text-align: center;
+  background: var(--card-bg);
+  position: relative;
+}
+.sidebar-ad::before {
+  content: 'ADVERTISEMENT';
+  position: absolute;
+  top: -9px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--bg);
+  padding: 0 8px;
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 9px;
+  color: #555;
+  letter-spacing: 0.15em;
+}
+.sidebar-ad h3 {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 1.1rem;
+  font-weight: 900;
+  text-transform: uppercase;
+  margin-bottom: 6px;
+  color: var(--text);
+}
+.sidebar-ad p {
+  font-size: 14px;
+  color: #333;
+  line-height: 1.45;
+}
+.sidebar-ad .price {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 1.5rem;
+  font-weight: 900;
+  color: var(--pink);
+  margin: 8px 0;
+}
+
+/* EXPAND/COLLAPSE */
+.expand-btn {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  background: none;
+  border: none;
+  color: var(--blue);
+  cursor: pointer;
+  padding: 4px 0;
+}
+.expand-btn:hover { text-decoration: underline; }
+
+/* CLASSIFIEDS GRID */
+.classifieds-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  gap: 12px;
+}
+.classified-card {
+  border: 2px dashed #999;
+  padding: 12px;
+  background: var(--card-bg);
+}
+.classified-card h4 {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 14px;
+  font-weight: 900;
+  text-transform: uppercase;
+  margin-bottom: 4px;
+  color: var(--text);
+}
+.classified-card p {
+  font-size: 14px;
+  color: #333;
+  line-height: 1.4;
+}
+
+/* LETTERS */
+.letter {
+  background: var(--card-bg);
+  border: 1px solid #ddd;
+  padding: 14px;
+  margin-bottom: 12px;
+}
+.letter-from {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 11px;
+  color: #444;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 4px;
+}
+.letter p { font-size: 15px; color: #222; }
+.editor-response {
+  margin-top: 8px;
+  padding-top: 8px;
+  border-top: 1px dashed #ccc;
+  font-style: italic;
+  font-size: 14px;
+  color: #333;
+}
+.editor-response strong { color: var(--text); }
+
+/* CORRECTIONS */
+.correction {
+  background: #1a1a1a;
+  color: #e0e0e0;
+  padding: 12px;
+  margin-bottom: 8px;
+  font-size: 14px;
+  line-height: 1.5;
+}
+.correction strong { color: #ffffff; }
+
+/* FOOTER */
+.gazette-footer {
+  background: var(--text);
+  color: #cccccc;
+  padding: 30px 20px;
+  text-align: center;
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 12px;
+  line-height: 1.6;
+  margin-top: 40px;
+}
+.gazette-footer strong { color: #ffffff; }
+
+/* WIFI BANNER */
+.wifi-banner {
+  background: linear-gradient(135deg, var(--blue), #6C3BF5);
+  color: #ffffff;
+  padding: 20px;
+  text-align: center;
+  border: 3px solid var(--text);
+  position: relative;
+}
+.wifi-banner h3 {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 1.2rem;
+  font-weight: 900;
+  text-transform: uppercase;
+  margin-bottom: 6px;
+}
+.wifi-banner p { font-size: 15px; color: #e0e0ff; }
+.wifi-banner .dance-name {
+  font-family: 'Playfair Display', serif;
+  font-size: 2rem;
+  font-weight: 900;
+  display: block;
+  margin: 8px 0;
+  color: var(--lime);
+}
+
+/* DARK MODE TOGGLE */
+.mode-toggle {
+  position: fixed;
+  top: 12px;
+  right: 12px;
+  z-index: 200;
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 11px;
+  background: var(--text);
+  color: #ffffff;
+  border: none;
+  padding: 6px 12px;
+  cursor: pointer;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+/* SECTION DIVIDERS */
+.section-header {
+  border-top: 3px solid var(--text);
+  border-bottom: 1px solid var(--text);
+  padding: 6px 0;
+  margin-bottom: 16px;
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 14px;
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--text);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+/* BREAKOUT SECTION */
+.breakout-section {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 0 20px 20px;
+}
+
+/* OPINION COLUMN */
+.opinion-col {
+  background: var(--accent-bg);
+  padding: 16px;
+  border: 1px solid #ddd;
+}
+
+/* RESPONSIVE */
+@media (max-width: 1024px) {
+  .gazette-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+  .col-right {
+    grid-column: 1 / -1;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+  }
+}
+@media (max-width: 768px) {
+  .gazette-grid {
+    grid-template-columns: 1fr;
+  }
+  .col-right {
+    grid-template-columns: 1fr;
+  }
+  .masthead h1 { font-size: 2.2rem; }
+  body { font-size: 16px; }
+  .cat-nav { padding: 6px 10px; gap: 2px; }
+  .cat-btn { font-size: 11px; padding: 5px 10px; }
+  .classifieds-grid { grid-template-columns: 1fr; }
+  .mode-toggle { top: auto; bottom: 60px; right: auto; left: 12px; }
+}
+
+/* HIDDEN UTILITY */
+[x-cloak] { display: none !important; }
+</style>
+</head>
+<body x-data="gazette()" x-cloak>
+
+<!-- MODE TOGGLE -->
+<button class="mode-toggle" @click="toggleEdition" x-text="edition === 'morning' ? '☀ Morning Ed.' : '🌙 Evening Ed.'"></button>
+
+<!-- TICKER -->
+<div class="ticker-bar">
+  <div class="ticker-inner">
+    <span>⚡ BREAKING: Gerald forgets quarterly earnings mid-sentence, pivots to speech about "the majesty of bubbles" ⚡ MARKETS: Acorn futures up 12% ⚡ WEATHER: Wet inside Gerald's bowl, dry outside ⚡ TRAFFIC: Dumpster behind Wendy's — expect delays (raccoons) ⚡ BREAKING: Gerald forgets quarterly earnings mid-sentence, pivots to speech about "the majesty of bubbles" ⚡ MARKETS: Acorn futures up 12% ⚡ WEATHER: Wet inside Gerald's bowl, dry outside ⚡ TRAFFIC: Dumpster behind Wendy's — expect delays (raccoons) ⚡&nbsp;&nbsp;&nbsp;</span>
+  </div>
+</div>
+
+<!-- MASTHEAD -->
+<header class="masthead">
+  <div class="masthead-top">
+    <span>Est. 2019 (Gerald thinks 2024)</span>
+    <span>Vol. XLVII, No. 3</span>
+    <span>$4.75 / Free if you do the dance</span>
+  </div>
+  <h1>The Finsworth Gazette</h1>
+  <div class="masthead-motto">"All the News That Fits in a 3-Second Memory"</div>
+  <div class="masthead-rule">
+    <span>Tuesday, February 11, 2026 — Published from the 47th-floor corner bowl, Finsworth Tower, Suite Aquatic</span>
+  </div>
+</header>
+
+<!-- CATEGORY NAV -->
+<nav class="cat-nav">
+  <template x-for="cat in categories" :key="cat">
+    <button class="cat-btn" :class="{ active: activeCategory === cat }" @click="activeCategory = cat" x-text="cat"></button>
+  </template>
+</nav>
+
+<!-- MAIN 3-COLUMN GRID -->
+<div class="gazette-grid">
+
+  <!-- LEFT COLUMN -->
+  <div class="col-left">
+    <!-- SIDEBAR AD: Bowl Water -->
+    <div class="sidebar-ad" x-show="showCat('all') || showCat('classifieds')">
+      <h3>Gerald's Motivational Bowl Water™</h3>
+      <div class="price">$47.99/bottle</div>
+      <p>"I've been swimming in it for years and look at me. I'm a CEO." — Gerald Finsworth III</p>
+      <p style="font-size:12px; color:#555; margin-top:8px;">Unfiltered. Unpasteurized. Contains trace amounts of Gerald. FDA status: pending since 2021.</p>
+    </div>
+
+    <!-- OPINION PIECE -->
+    <div class="opinion-col" x-show="showCat('all') || showCat('opinion')">
+      <span class="article-tag tag-opinion">Opinion</span>
+      <h2 class="article-headline" style="font-size:1.4rem;">Why I Started This Company (I Think)</h2>
+      <div class="article-byline">By Gerald Finsworth III, CEO & Founder — Dictated to Diane, transcribed with tears</div>
+      <div class="article-body">
+        <p>People ask me, "Gerald, why therapy?" And I always answer the same way: I open my mouth, a bubble comes out, and by the time it pops I've forgotten the question.</p>
+        <p>But I believe — truly, in my fins — that I had a transformative experience. Something happened. I don't know what. It was roughly 3 seconds long and it changed everything.</p>
+        <p>Was it a pellet? Was it a thought? Was it the gentle hum of the filter? Doesn't matter. What matters is that I looked at Diane through the glass and said,</p>
+      </div>
+      <div class="pull-quote">
+        "Diane, I want to help people. Also, what is this place? Who are you?"
+        <cite>— Gerald Finsworth III, allegedly, 2019</cite>
+      </div>
+      <div class="article-body" x-show="expanded.opinion" x-collapse>
+        <p>Diane, to her credit, was already wearing a suit. She'd been wearing it when I hired her. I don't remember hiring her. She says I did it "with my eyes." I have no reason to doubt this.</p>
+        <p>Within six weeks we had 14 raccoon therapists, a corner suite, and a mission statement I am told is "beautiful" but cannot recall. It's on the wall behind my bowl. I can only read it when Diane turns me around, which she does every Tuesday at 3pm for exactly 3 seconds.</p>
+        <p>To our clients: you're welcome. To our shareholders: I'm told we have those. To myself, three seconds from now: don't panic, you live here.</p>
+      </div>
+      <button class="expand-btn" @click="expanded.opinion = !expanded.opinion" x-text="expanded.opinion ? '▲ Less' : '▼ Continue reading'"></button>
+    </div>
+
+    <!-- SIDEBAR AD: Suit Cleaning -->
+    <div class="sidebar-ad" x-show="showCat('all') || showCat('classifieds')">
+      <h3>Ringtail & Sons<br>Bespoke Suit Laundering</h3>
+      <p style="font-style:italic;">"We get the dumpster smell out. Usually."</p>
+      <p style="font-size:13px; color:#333; margin-top:6px;">Specializing in raccoon-fit tailoring since 2020. We've seen things in those pockets you wouldn't believe. We don't judge. That's the therapists' job.</p>
+      <p style="font-size:14px; font-weight:700; margin-top:6px; color:var(--text);">15% off with code: TRASHPANDA</p>
+    </div>
+
+    <!-- WIFI BANNER -->
+    <div class="wifi-banner" x-show="showCat('all') || showCat('news')">
+      <h3>🔐 Today's WiFi Password</h3>
+      <span class="dance-name" x-text="wifiDances[currentDance]"></span>
+      <p>Perform in full view of reception desk. Diane will judge. There is no partial credit.</p>
+      <button style="margin-top:10px; background:var(--lime); color:#1a1a1a; border:none; padding:8px 16px; font-family:'Space Grotesk',sans-serif; font-weight:700; font-size:12px; text-transform:uppercase; cursor:pointer; letter-spacing:0.05em;" @click="nextDance">Password Changed — Next Dance →</button>
+    </div>
+  </div>
+
+  <!-- MAIN COLUMN -->
+  <div class="col-main">
+
+    <!-- LEAD STORY -->
+    <article class="article" x-show="showCat('all') || showCat('news')">
+      <span class="article-tag tag-news">Breaking News</span>
+      <h2 class="article-headline lead">Raccoon Therapists Report 340% Increase in Client Acorn Hoarding; Blame "Emotional Stockpiling"</h2>
+      <div class="article-byline">By Diane Washburne, Senior Correspondent &amp; Executive Assistant to Gerald's Bowl | Feb 11, 2026</div>
+      <div class="article-body">
+        <p>Finsworth & Associates' Q4 wellness audit has revealed a startling trend: clients are leaving therapy sessions with significantly more acorns than when they entered.</p>
+        <p>"We noticed it around October," said Dr. Bandit McScratch, Lead Emotional Wellness Raccoon (Paws Division). "A client would come in with maybe one acorn — a comfort acorn, perfectly normal — and leave with 40 to 60. Some were stuffing them into their socks."</p>
+        <p>The phenomenon, now internally classified as <strong>Emotional Stockpiling Syndrome (ESS)</strong>, appears to correlate directly with therapeutic breakthroughs. "The more we heal them, the more acorns they take," Dr. McScratch explained, adjusting his tie with both hands. "It's like their subconscious is saying, 'I deserve abundance.' And then their hands are saying, 'I deserve Dr. McScratch's personal acorn reserve.'"</p>
+      </div>
+      <div x-show="expanded.lead" x-collapse>
+        <div class="article-body">
+          <p>Gerald Finsworth III, CEO and Founder, was briefed on the situation at 2:47 PM. By 2:47 and 3 seconds, he had forgotten, turned gracefully to the left, and appeared to discover his plastic castle for what sources confirm is the 11,000th time.</p>
+          <p>When reached for comment, Gerald offered the following: "Ah. Yes. The thing. Which we discussed. Just now. Or possibly never. Diane, is this my office?"</p>
+          <p>The board has allocated $200,000 for acorn replacement and has installed locks on Dr. McScratch's desk drawers. Dr. McScratch was seen testing the locks. He opened them in under four seconds.</p>
+          <p>Clients have been asked to voluntarily limit acorn intake to 5 per session. Compliance sits at 0%.</p>
+        </div>
+      </div>
+      <button class="expand-btn" @click="expanded.lead = !expanded.lead" x-text="expanded.lead ? '▲ Collapse' : '▼ Read full story'"></button>
+    </article>
+
+    <!-- FEATURE: Employee of the Month -->
+    <article class="article" x-show="showCat('all') || showCat('culture')">
+      <span class="article-tag tag-culture">Culture</span>
+      <h2 class="article-headline">Employee of the Month: Kevin (Raccoon, Unlicensed, Floor 12)</h2>
+      <div class="article-byline">Staff Report | Feb 11, 2026</div>
+      <div class="article-body">
+        <p>Congratulations to Kevin, who has won Employee of the Month for the 14th consecutive month despite having no formal qualifications, no desk, and no memory of being hired.</p>
+        <p>"Kevin doesn't technically work here," confirmed HR Director Sandra Claws (raccoon, licensed, very tired). "He enters through a ceiling tile at 7:45 AM, sits in the break room eating yogurt lids, and leaves at 6 PM sharp. Clients love him. He has a 4.9 rating on our internal feedback system."</p>
+        <p>When asked about his therapeutic method, Kevin hissed, then fell asleep.</p>
+        <p>"That's the method," said one client, weeping. "He just <em>gets</em> it."</p>
+      </div>
+    </article>
+
+    <!-- NEWS: New Branch -->
+    <article class="article" x-show="showCat('all') || showCat('news')">
+      <span class="article-tag tag-news">Corporate News</span>
+      <h2 class="article-headline">Finsworth & Associates Opens 8th Location Inside Denny's Dumpster</h2>
+      <div class="article-byline">By Diane Washburne | Feb 10, 2026</div>
+      <div class="article-body">
+        <p>Finsworth & Associates is proud to announce the grand opening of our newest branch, located directly behind the Denny's on West 43rd Street, inside and slightly underneath the large green dumpster.</p>
+        <p>"Location is everything," said Gerald, who has never left his bowl. "I'm told this one has 'great energy' and 'at least two raccoons already living there,' which saves on relocation costs."</p>
+        <p>The branch will offer walk-in sessions (Tuesdays, 2-4 AM), couples counseling (bring your own milk crate to sit on), and a new service called "Dumpster Meditation," which is just sitting in the dumpster quietly.</p>
+        <p>Rent: $0/month. Eviction risk: high. Ambiance: "honestly kind of nice once you adjust," per Dr. Bandit McScratch.</p>
+      </div>
+    </article>
+
+    <!-- OPINION: The Dance -->
+    <article class="article" x-show="showCat('all') || showCat('opinion')">
+      <span class="article-tag tag-opinion">Opinion</span>
+      <h2 class="article-headline">I Did the Macarena for WiFi and I'd Do It Again</h2>
+      <div class="article-byline">By Trevor Nguyen, Client Since 2023</div>
+      <div class="article-body">
+        <p>When I first came to Finsworth & Associates, I was a broken man. I was also a man without WiFi. The receptionist — a raccoon in a turtleneck — looked me dead in the eyes and said, "The password is the Macarena. Full version. With feeling."</p>
+        <p>I laughed. She didn't. She never does. That's Diane.</p>
+        <p>I did the Macarena in a waiting room full of strangers. Somewhere around the third "Heeeeyyy Macarena," I felt something crack open inside me. Not my back (though that also happened). Something deeper.</p>
+      </div>
+      <div x-show="expanded.wifi_opinion" x-collapse>
+        <div class="article-body">
+          <p>By the time Diane nodded — barely, almost imperceptibly — and handed me a slip of paper that said "GeraldRules1987," I was crying. Real tears. In a lobby. Doing the Macarena.</p>
+          <p>That was two years ago. The dance changes every week. I've done the Sprinkler, the Running Man, something called "Gerald's Wiggle" that I'm still not sure I did correctly. Every time, I feel alive. Every time, Diane stares at me like I'm failing.</p>
+          <p>I love it here. Four stars. One star deducted because Kevin ate my granola bar.</p>
+        </div>
+      </div>
+      <button class="expand-btn" @click="expanded.wifi_opinion = !expanded.wifi_opinion" x-text="expanded.wifi_opinion ? '▲ Less' : '▼ Continue reading'"></button>
+    </article>
+
+    <!-- NEWS: Therapy Stats -->
+    <article class="article" x-show="showCat('all') || showCat('news')">
+      <span class="article-tag tag-news">Data</span>
+      <h2 class="article-headline">By the Numbers: Finsworth & Associates 2025 Annual Report</h2>
+      <div class="article-byline">Compiled by Diane Washburne | Feb 8, 2026</div>
+      <div class="article-body" style="column-count:2; column-gap:20px;">
+        <p><strong>14,307</strong> — Therapy sessions conducted</p>
+        <p><strong>3</strong> — Seconds of Gerald's longest uninterrupted thought</p>
+        <p><strong>847</strong> — Acorns reported missing from staff desks</p>
+        <p><strong>0</strong> — Acorn thefts solved</p>
+        <p><strong>62</strong> — WiFi dances performed in lobby</p>
+        <p><strong>1</strong> — Client who nailed "Gerald's Wiggle" (disputed)</p>
+        <p><strong>$4.2M</strong> — Annual revenue</p>
+        <p><strong>$4.1M</strong> — Spent on acorn replacement</p>
+        <p><strong>$47.99</strong> — Cost of one bottle of Gerald's Bowl Water™</p>
+        <p><strong>340%</strong> — Increase in emotional stockpiling</p>
+        <p><strong>14</strong> — Consecutive months Kevin has won Employee of the Month</p>
+        <p><strong>0</strong> — Times Kevin has acknowledged this</p>
+      </div>
+    </article>
+
+    <!-- CULTURE: Review -->
+    <article class="article" x-show="showCat('all') || showCat('culture')">
+      <span class="article-tag tag-culture">Review</span>
+      <h2 class="article-headline">Book Review: "Swimming in Circles: Leadership Lessons from a Bowl" by Gerald Finsworth III</h2>
+      <div class="article-byline">Reviewed by Dr. Bandit McScratch | Feb 6, 2026</div>
+      <div class="article-body">
+        <p>Gerald's debut book is 212 pages. Page 1 contains the sentence: "I have always believed that leadership is." The sentence ends there. Pages 2 through 211 are blank. Page 212 says: "In conclusion, see page 1."</p>
+        <p>It is, without question, the most honest business book I have ever read.</p>
+        <p>Amazon rating: 4.8 stars. Most common review: "Changed my life. Not sure how. Rating may not be accurate — I might be thinking of a different book."</p>
+        <p>Hardcover: $34.99. Paperback: $34.99. Gerald doesn't understand the concept of different prices. "Charge them the same," he said. "Fairness." Then he forgot what we were talking about.</p>
+      </div>
+    </article>
+  </div>
+
+  <!-- RIGHT COLUMN -->
+  <div class="col-right">
+
+    <!-- SIDEBAR AD: Therapy App -->
+    <div class="sidebar-ad" x-show="showCat('all') || showCat('classifieds')">
+      <h3>FinsApp™</h3>
+      <p style="font-weight:700; color:var(--text);">Therapy. In your pocket. Probably.</p>
+      <p style="font-size:13px; color:#333; margin-top:6px;">Gerald approved this app. Gerald does not know what an app is. Features: mood tracking (3-second intervals), acorn journal, emergency access to Kevin's yogurt lid ASMR recordings.</p>
+      <div class="price">$9.99/mo</div>
+      <p style="font-size:11px; color:#555;">*App does not exist yet. Payment processing is active.*</p>
+    </div>
+
+    <!-- LETTERS TO THE EDITOR -->
+    <div x-show="showCat('all') || showCat('letters')">
+      <div class="section-header">
+        <span>Letters to the Editor</span>
+        <span class="article-tag tag-letters" style="margin:0;">Letters</span>
+      </div>
+
+      <div class="letter">
+        <div class="letter-from">From: Margaret Huang, Long-Time Client</div>
+        <p>Dear Editor, I have been doing "The Worm" in your lobby every Tuesday for six months. Last week, Diane informed me the WiFi password had been "GeraldRules1987" the entire time and the dances "are not technically required." I demand a refund of my dignity.</p>
+        <div class="editor-response"><strong>Ed. note:</strong> The dances are required. Diane was testing you, Margaret. You failed.</div>
+      </div>
+
+      <div class="letter">
+        <div class="letter-from">From: Anonymous (but it's clearly Kevin)</div>
+        <p>Hello I am a human person and not a raccoon. I am writing to say that the yogurt lid supply in the break room has been "insufficient." I require more. This is a human need that I, a person, have. Thank you.</p>
+        <div class="editor-response"><strong>Ed. note:</strong> Kevin, we know it's you. Your paw prints are on the letter. HR has been notified. HR is also a raccoon. Nothing will happen.</div>
+      </div>
+
+      <div class="letter" x-show="expanded.letters" x-collapse>
+        <div class="letter-from">From: Gerald Finsworth III, CEO</div>
+        <p>Dear Editor of my own newspaper, who is also me: I have concerns about the direction of this publication. Specifically, I have forgotten what those concerns are. Please advise. Also, who are you?</p>
+        <div class="editor-response"><strong>Ed. note:</strong> Gerald, I am you. We've been over this. The column is doing fine. Please stop writing letters to yourself. Diane is tired.</div>
+      </div>
+
+      <div class="letter" x-show="expanded.letters" x-collapse>
+        <div class="letter-from">From: Dr. Patricia Ringtail, Floor 23</div>
+        <p>I would like to formally complain that the "Emotional Support Dumpster" on Floor 12 has been colonized by Kevin, who is sleeping inside it during business hours. My 2 PM client had to share the dumpster with Kevin. She said it was "actually the most healing session she's ever had." I am filing a grievance anyway.</p>
+        <div class="editor-response"><strong>Ed. note:</strong> Kevin's dumpster time is protected under Section 14(b) of the Employee Handbook, which Kevin wrote himself. In crayon. It is legally binding. We checked.</div>
+      </div>
+
+      <button class="expand-btn" @click="expanded.letters = !expanded.letters" x-text="expanded.letters ? '▲ Fewer letters' : '▼ More letters (' + 2 + ')'"></button>
+    </div>
+
+    <!-- CORRECTIONS -->
+    <div x-show="showCat('all') || showCat('corrections')" style="margin-top: 16px;">
+      <div class="section-header">
+        <span>Corrections & Retractions</span>
+        <span class="article-tag tag-corrections" style="margin:0;">Corrections</span>
+      </div>
+
+      <div class="correction">
+        <strong>Correction (Feb 10):</strong> Last week's issue stated Gerald Finsworth III has "the strategic vision of a Fortune 500 CEO." We regret the error. Gerald has the strategic vision of a goldfish. He is a goldfish. The Gazette apologizes for any confusion, particularly to Gerald, who was confused already.
+      </div>
+      <div class="correction">
+        <strong>Correction (Feb 7):</strong> We previously reported that Dr. McScratch "washes his hands before every session." Security footage confirms he licks them. The Gazette regrets the distinction.
+      </div>
+      <div class="correction">
+        <strong>Retraction (Feb 4):</strong> The article "Kevin Resigns in Dramatic Fashion" has been fully retracted. Kevin did not resign. Kevin walked out through a ceiling tile, which he does every day at 6 PM. We interpreted this incorrectly. Kevin cannot resign because Kevin was never hired. The Gazette regrets the 4-page spread.
+      </div>
+      <div class="correction">
+        <strong>Correction (Feb 1):</strong> Our "CEO Interview" column did not, as printed, contain an interview with Gerald. It contained 3 seconds of Gerald saying "Oh" followed by 45 minutes of Diane answering questions on his behalf. The Gazette does not consider this unusual but acknowledges it for the record.
+      </div>
+    </div>
+
+    <!-- AD: Gerald Merch -->
+    <div class="sidebar-ad" x-show="showCat('all') || showCat('classifieds')" style="margin-top:16px;">
+      <h3>Official Gerald Merch</h3>
+      <p style="font-weight:700; color:var(--text);">New: "I Forgot What I Stand For" T-Shirt</p>
+      <div class="price">$29.99</div>
+      <p style="font-size:13px; color:#333;">Also available: "Ask Me About My 3-Second Vision" mug ($18.99), "Diane Approved" tote bag ($22.99), and the limited-edition Kevin plushie that smells faintly of yogurt ($45.99, non-refundable, non-washable).</p>
+    </div>
+  </div>
+</div>
+
+<!-- CLASSIFIEDS SECTION — BREAKOUT -->
+<div class="breakout-section" x-show="showCat('all') || showCat('classifieds')">
+  <div class="section-header">
+    <span>Classifieds & Notices</span>
+    <span class="article-tag tag-classifieds" style="margin:0;">Classifieds</span>
+  </div>
+  <div class="classifieds-grid">
+    <div class="classified-card">
+      <h4>Seeking: WiFi Dance Tutor</h4>
+      <p>Must be fluent in Macarena, Running Man, Sprinkler, and "Gerald's Wiggle" (training provided for Wiggle — no one gets it first try). Hours: Mon-Fri, 8 AM to whenever Diane says you can stop. Competitive salary. Benefits include: WiFi access.</p>
+    </div>
+    <div class="classified-card">
+      <h4>Lost: One (1) Sense of Purpose</h4>
+      <p>Last seen during session with Dr. McScratch, Floor 9. Small, translucent, may have been an acorn in retrospect. Sentimental value. Reward: Gerald's Bowl Water™ (1 bottle). Contact: Diane.</p>
+    </div>
+    <div class="classified-card">
+      <h4>For Sale: Gently Used Business Suits (Raccoon-Fit)</h4>
+      <p>Sizes XS-L. Some have minor claw marks. One has what appears to be a granola bar in the breast pocket — do NOT remove it, that's Kevin's. Asking $75/suit or best offer. Bulk discount for therapy startups.</p>
+    </div>
+    <div class="classified-card">
+      <h4>Notice: Floor 12 Dumpster — Reservation Required</h4>
+      <p>Due to overwhelming demand, the Emotional Support Dumpster now requires a reservation. Slots available: Tues 3 AM, Thurs 3 AM, and "whenever Kevin isn't in it." Bring your own blanket. No food (Kevin will find it).</p>
+    </div>
+    <div class="classified-card">
+      <h4>Help Wanted: Fishbowl Cleaner (47th Floor)</h4>
+      <p>Must be comfortable maintaining eye contact with a goldfish who believes he is your boss. Must not ask Gerald questions — he will panic. Must rotate Gerald 180° every Tuesday at 3 PM so he can read his mission statement. Non-negotiable. $19/hr.</p>
+    </div>
+    <div class="classified-card">
+      <h4>Free: Motivational Posters (Damaged)</h4>
+      <p>Kevin has scratched inspirational messages into 14 posters on Floor 12. Messages include: "You Are Enough (Of A Distraction)," "Believe In Your Yogurt," and one that's just claw marks. First come, first served.</p>
+    </div>
+  </div>
+</div>
+
+<!-- PULL QUOTE BREAK -->
+<div style="max-width:900px; margin:20px auto; padding:0 20px;">
+  <div class="pull-quote" style="text-align:center; border-left:none; border-top:4px solid var(--pink); border-bottom:4px solid var(--pink);">
+    "I have always believed that leadership is."
+    <cite>— Gerald Finsworth III, "Swimming in Circles: Leadership Lessons from a Bowl," p. 1 (the only page with text)</cite>
+  </div>
+</div>
+
+<!-- FOOTER -->
+<footer class="gazette-footer">
+  <strong>The Finsworth Gazette</strong> is published weekly by Finsworth & Associates Emotional Wellness Corp.<br>
+  47th Floor, Finsworth Tower, Suite Aquatic | Editor-in-Chief: Gerald Finsworth III (goldfish)<br>
+  Managing Editor: Diane Washburne (raccoon) | Copy Editor: Kevin (unknown, possibly raccoon, refuses to confirm)<br><br>
+  Submissions: Leave them by the bowl. Diane will collect them when she's ready.<br>
+  Subscriptions: $4.75/week or perform "Gerald's Wiggle" at any Finsworth location for lifetime access.<br>
+  <strong>Unsubscribe:</strong> You can't. Gerald doesn't know what that means and Diane won't explain it to him.<br><br>
+  © 2026 Finsworth & Associates. All rights reserved. No acorns were harmed in the making of this publication.<br>
+  Kevin, if you're reading this: please return the stapler.
+</footer>
+
+<script src="/assets/js/alpine.min.js" defer></script>
+<script>
+document.addEventListener('alpine:init', function() {
+  Alpine.data('gazette', function() {
+    return {
+      activeCategory: 'all',
+      categories: ['all', 'news', 'opinion', 'culture', 'letters', 'corrections', 'classifieds'],
+      edition: 'morning',
+      currentDance: 0,
+      wifiDances: [
+        'The Macarena (Full, With Feeling)',
+        'The Sprinkler (Industrial Setting)',
+        'Gerald\'s Wiggle (Unverified)',
+        'The Running Man (In Place Only)',
+        'The Worm (Floor Has Been Sanitized)',
+        'Interpretive Jazz (Diane\'s Choice)',
+        'The Robot (Kevin Will Judge)',
+        'Freestyle (Minimum 45 Seconds)'
+      ],
+      expanded: {
+        lead: false,
+        opinion: false,
+        wifi_opinion: false,
+        letters: false
+      },
+      showCat: function(cat) {
+        return this.activeCategory === 'all' || this.activeCategory === cat;
+      },
+      toggleEdition: function() {
+        this.edition = this.edition === 'morning' ? 'evening' : 'morning';
+        if (this.edition === 'evening') {
+          document.body.style.background = '#1a1a1a';
+          document.body.style.color = '#e0e0e0';
+          document.documentElement.style.setProperty('--bg', '#1a1a1a');
+          document.documentElement.style.setProperty('--text', '#e0e0e0');
+          document.documentElement.style.setProperty('--rule', '#555');
+          document.documentElement.style.setProperty('--accent-bg', '#2a2a2a');
+          document.documentElement.style.setProperty('--card-bg', '#222222');
+        } else {
+          document.body.style.background = '#FFF5F0';
+          document.body.style.color = '#1a1a1a';
+          document.documentElement.style.setProperty('--bg', '#FFF5F0');
+          document.documentElement.style.setProperty('--text', '#1a1a1a');
+          document.documentElement.style.setProperty('--rule', '#1a1a1a');
+          document.documentElement.style.setProperty('--accent-bg', '#FFF0E8');
+          document.documentElement.style.setProperty('--card-bg', '#ffffff');
+        }
+      },
+      nextDance: function() {
+        this.currentDance = (this.currentDance + 1) % this.wifiDances.length;
+      }
+    };
+  });
+});
+</script>
+
+</body>
+</html>

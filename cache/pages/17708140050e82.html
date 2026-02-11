@@ -1,0 +1,461 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Goldworth & Gills Assurance</title>
+    <link rel="stylesheet" href="/assets/css/pico.min.css">
+    <link rel="stylesheet" href="/assets/css/fonts.css">
+    <style>
+        :root {
+            --brand-sand: #EADDC5;
+            --brand-terracotta: #C87A6C;
+            --brand-olive: #5F6A3A;
+            --brand-deep-green: #3D4525;
+            --brand-paper: #F7F5F0;
+            --text-dark: #2A2F1D;
+            --font-heading: 'Space Grotesk', sans-serif;
+            --font-body: 'IBM Plex Mono', monospace;
+            --font-accent: 'Playfair Display', serif;
+        }
+
+        body {
+            background-color: var(--brand-paper);
+            color: var(--text-dark);
+            font-family: var(--font-body);
+            font-size: 16px;
+            line-height: 1.6;
+            -webkit-font-smoothing: antialiased;
+            text-rendering: optimizeLegibility;
+            overflow-x: hidden;
+        }
+
+        h1, h2, h3, h4, h5, h6 {
+            font-family: var(--font-heading);
+            color: var(--brand-deep-green);
+        }
+
+        a { color: var(--brand-terracotta); }
+        a:hover { color: var(--brand-olive); }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 1rem;
+        }
+
+        /* --- Header & Nav --- */
+        .main-header {
+            background-color: #ffffffc0;
+            backdrop-filter: blur(8px);
+            border-bottom: 1px solid var(--brand-sand);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            padding: 0.5rem 0;
+        }
+
+        .main-nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-family: var(--font-accent);
+            font-weight: 700;
+            font-size: 1.5rem;
+            color: var(--brand-deep-green);
+            text-decoration: none;
+        }
+
+        .nav-links a {
+            margin-left: 1.5rem;
+            text-decoration: none;
+            font-family: var(--font-heading);
+            font-size: 1rem;
+            opacity: 0; /* Animated in by GSAP */
+        }
+
+        /* --- Hero Section --- */
+        #hero {
+            padding: 4rem 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 70vh;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        #hero::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: radial-gradient(circle at 10% 20%, var(--brand-sand), transparent 60%),
+                        radial-gradient(circle at 90% 80%, var(--brand-terracotta), transparent 70%);
+            opacity: 0.3;
+            z-index: -1;
+        }
+
+        .hero-content {
+            max-width: 700px;
+            opacity: 0; /* Animated in */
+        }
+
+        .hero-content h1 {
+            font-family: var(--font-accent);
+            font-size: clamp(2.5rem, 6vw, 4rem);
+            line-height: 1.1;
+            margin-bottom: 1rem;
+        }
+        .hero-content p {
+            font-size: 1.25rem;
+            color: var(--brand-olive);
+            max-width: 500px;
+            margin: 0 auto;
+        }
+
+        /* --- Dashboard Grid Section --- */
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+            padding: 4rem 1rem;
+        }
+
+        .panel {
+            background: #fff;
+            border: 1px solid var(--brand-sand);
+            border-radius: 8px;
+            padding: 2rem;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            position: relative;
+            overflow: hidden;
+            opacity: 0; /* Animated in */
+        }
+        
+        .panel:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.08);
+        }
+
+        .panel h3 {
+            margin-top: 0;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        /* CSS Art: Chairman Meow */
+        #chairman-panel {
+            background: linear-gradient(135deg, var(--brand-deep-green), var(--brand-olive));
+            color: var(--brand-paper);
+        }
+        #chairman-panel h3, #chairman-panel p { color: var(--brand-paper); }
+        
+        .cat-container {
+            margin: 1rem auto;
+            position: relative;
+            width: 200px;
+            height: 120px;
+        }
+
+        .cat-body {
+            position: absolute;
+            width: 120px;
+            height: 70px;
+            background: #333;
+            border-radius: 50% 50% 40% 40% / 60% 60% 40% 40%;
+            bottom: 20px;
+            left: 40px;
+            z-index: 2;
+        }
+
+        .cat-head {
+            position: absolute;
+            width: 60px;
+            height: 55px;
+            background: #333;
+            border-radius: 50%;
+            bottom: 50px;
+            left: 80px;
+            z-index: 3;
+        }
+        
+        .cat-ear {
+            position: absolute;
+            width: 0;
+            height: 0;
+            border-left: 10px solid transparent;
+            border-right: 10px solid transparent;
+            border-bottom: 20px solid #333;
+            top: -5px;
+        }
+        .cat-ear.left { left: 5px; transform: rotate(-20deg); }
+        .cat-ear.right { right: 5px; transform: rotate(20deg); }
+
+        .cat-tail {
+            position: absolute;
+            width: 80px;
+            height: 15px;
+            background: #333;
+            border-radius: 10px;
+            bottom: 20px;
+            left: -20px;
+            transform-origin: right center;
+            transform: rotate(20deg);
+            z-index: 1;
+        }
+
+        .document-stack {
+            position: absolute;
+            width: 150px;
+            height: 20px;
+            background: var(--brand-sand);
+            border: 1px solid var(--brand-terracotta);
+            border-radius: 3px;
+            bottom: 10px;
+            left: 25px;
+            box-shadow: 0 2px 0 var(--brand-sand), 0 4px 0 var(--brand-sand), 0 6px 0 var(--brand-sand);
+        }
+        
+        /* Interactive Aura */
+        .cat-container:hover .cat-head {
+            animation: glow 1.5s infinite ease-in-out;
+        }
+        
+        @keyframes glow {
+            0%, 100% { box-shadow: 0 0 15px 0px rgba(234, 221, 197, 0.4); }
+            50% { box-shadow: 0 0 30px 10px rgba(234, 221, 197, 0.7); }
+        }
+
+        /* --- Footer --- */
+        .main-footer {
+            text-align: center;
+            padding: 2rem 1rem;
+            margin-top: 4rem;
+            border-top: 1px solid var(--brand-sand);
+            font-size: 0.9rem;
+            color: var(--brand-olive);
+        }
+        
+        /* --- Responsive --- */
+        @media (max-width: 768px) {
+            .main-nav { flex-direction: column; gap: 1rem; }
+            .nav-links { display: flex; justify-content: center; flex-wrap: wrap; gap: 0.5rem; }
+            .nav-links a { margin-left: 0.5rem; font-size: 0.9rem; }
+            #hero { min-height: 50vh; padding: 2rem 1rem; }
+        }
+
+        @media (max-width: 375px) {
+            .dashboard-grid { grid-template-columns: 1fr; }
+            .hero-content h1 { font-size: 2rem; }
+            .hero-content p { font-size: 1rem; }
+        }
+        
+        /* Bottom-right corner reservation */
+        body::after {
+            content: '';
+            position: fixed;
+            bottom: 1rem;
+            right: 1rem;
+            width: 44px;
+            height: 44px;
+            pointer-events: none;
+        }
+
+    </style>
+</head>
+<body x-data>
+
+    <header class="main-header">
+        <div class="container">
+            <nav class="main-nav">
+                <a href="#" class="logo">Goldworth & Gills</a>
+                <div class="nav-links">
+                    <a href="#services">Silent Risks</a>
+                    <a href="#chairman-panel">The Chairman</a>
+                    <a href="#faq">Uncommon Questions</a>
+                </div>
+            </nav>
+        </div>
+    </header>
+
+    <main>
+        <section id="hero">
+            <div class="hero-content">
+                <h1>Insurance for the risks no one else sees.</h1>
+                <p>"The greatest financial dangers are the ones that operate in silence. Also, food flakes are currency. Blub." <br><em>– Finneas T. Goldworth, Founder (transcribed)</em></p>
+            </div>
+        </section>
+
+        <div class="container">
+            <div id="services" class="dashboard-grid">
+                
+                <div class="panel">
+                    <h3><i data-lucide="smartphone-nfc"></i>Phantom Vibration Shield</h3>
+                    <p>Comprehensive psychological coverage for the certainty that your phone vibrated in your pocket, when it, in fact, did not. We cover up to three 'phantom checks' per hour. Premiums start at $12.49/mo.</p>
+                </div>
+                
+                <div class="panel">
+                    <h3><i data-lucide="cloud-sun"></i>Existential Dread Premium</h3>
+                    <p>In the event of a sudden, crippling realization of your own insignificance in the vast cosmos, we provide a one-time payout of artisanal sourdough bread and a curated list of comforting cat videos. It's more than nothing.</p>
+                </div>
+
+                <div class="panel">
+                    <h3><i data-lucide="send"></i>Reply-All Calamity Fund</h3>
+                    <p>Accidentally sent a withering critique of your boss's new haircut to the entire company? Our fund covers emergency relocation services, a new identity, and a very convincing LinkedIn recommendation.</p>
+                </div>
+
+                <div class="panel">
+                    <h3><i data-lucide="user-x"></i>Sudden Mime Infestation</h3>
+                    <p>Our flagship policy. If your home or business is suddenly overrun by silent, gesturing performers, our elite squad will be dispatched to break down their invisible boxes and lead them away with an imaginary rope.</p>
+                </div>
+
+                <div class="panel" id="chairman-panel">
+                    <h3><i data-lucide="cat"></i>The Chairman's Process</h3>
+                    <p>Every application is placed before our Chief Risk Officer, Chairman Meow. His proprietary Nap-Based Vetting™️ algorithm is the gold standard. If he sleeps on it, the risk is too great. His intuition is purr-fect.</p>
+                    <div class="cat-container">
+                        <div class="document-stack"></div>
+                        <div class="cat-tail"></div>
+                        <div class="cat-body"></div>
+                        <div class="cat-head">
+                            <div class="cat-ear left"></div>
+                            <div class="cat-ear right"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="panel" id="faq">
+                    <h3><i data-lucide="help-circle"></i>Uncommon Questions</h3>
+                    <dl>
+                        <dt><strong>Is Mr. Goldworth actually a goldfish?</strong></dt>
+                        <dd>Mr. Goldworth's biological substrate is non-traditional, but his financial acumen is unparalleled. We focus on results, not species.</dd>
+                        <br>
+                        <dt><strong>Is this legal?</strong></dt>
+                        <dd>Our methods are... avant-garde. Our legal team (a very persuasive parrot) assures us we operate in a 'light-grey' area of maritime law.</dd>
+                         <br>
+                        <dt><strong>What are the Chairman's qualifications?</strong></dt>
+                        <dd>Nine lives of experience in calculated risks, expert-level pattern recognition (especially sunbeams), and a PhD in Applied Napping from a very prestigious cardboard box.</dd>
+                    </dl>
+                </div>
+
+            </div>
+        </div>
+    </main>
+
+    <footer class="main-footer">
+        <p>&copy; 2026 Goldworth & Gills Assurance. We're watching. Silently.</p>
+    </footer>
+
+    <script src="/assets/js/alpine.min.js" defer></script>
+    <script src="/assets/js/gsap.min.js"></script>
+    <script src="/assets/js/lucide.min.js"></script>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            lucide.createIcons();
+
+            // --- GSAP Animations ---
+            // Ensure GSAP is loaded
+            if (typeof gsap === 'undefined') {
+                console.error("GSAP not loaded");
+                return;
+            }
+
+            // Stagger nav links
+            gsap.fromTo(".nav-links a", 
+                { opacity: 0, y: -10 },
+                { opacity: 1, y: 0, duration: 0.5, stagger: 0.1, delay: 0.2, ease: "power2.out", clearProps: 'all' }
+            );
+
+            // Animate hero content
+            gsap.fromTo(".hero-content",
+                { opacity: 0, y: 30 },
+                { opacity: 1, y: 0, duration: 1, delay: 0.5, ease: "power3.out", clearProps: 'all' }
+            );
+            
+            // Stagger in panels on scroll
+            gsap.utils.toArray('.panel').forEach((panel, i) => {
+                gsap.fromTo(panel, 
+                    { opacity: 0, y: 50 },
+                    { 
+                        opacity: 1, 
+                        y: 0, 
+                        duration: 0.8,
+                        ease: "power3.out",
+                        scrollTrigger: {
+                            trigger: panel,
+                            start: "top 90%",
+                            toggleActions: "play none none none"
+                        },
+                        clearProps: 'all' 
+                    }
+                );
+            });
+            
+            // Panel hover interaction - morphing shape
+            const panels = document.querySelectorAll('.panel:not(#chairman-panel)');
+            panels.forEach(panel => {
+                let pseudoEl = document.createElement('div');
+                pseudoEl.style.position = 'absolute';
+                pseudoEl.style.top = '0';
+                pseudoEl.style.left = '0';
+                pseudoEl.style.width = '100%';
+                pseudoEl.style.height = '100%';
+                pseudoEl.style.backgroundColor = 'var(--brand-terracotta)';
+                pseudoEl.style.zIndex = '-1';
+                pseudoEl.style.clipPath = 'circle(0% at 100% 100%)';
+                pseudoEl.style.transition = 'clip-path 0.4s ease-in-out';
+                panel.appendChild(pseudoEl);
+
+                panel.addEventListener('mouseenter', () => {
+                    pseudoEl.style.clipPath = 'circle(150% at 100% 100%)';
+                    gsap.to(panel.querySelectorAll('h3, p, i'), { color: '#fff', duration: 0.3 });
+                });
+
+                panel.addEventListener('mouseleave', () => {
+                    pseudoEl.style.clipPath = 'circle(0% at 100% 100%)';
+                    gsap.to(panel.querySelector('h3'), { color: 'var(--brand-deep-green)', duration: 0.3 });
+                     gsap.to(panel.querySelector('h3 i'), { color: 'var(--brand-deep-green)', duration: 0.3 });
+                    gsap.to(panel.querySelectorAll('p'), { color: 'var(--text-dark)', duration: 0.3 });
+                });
+            });
+
+        });
+        
+        // A simple polyfill for scrollTrigger for this one-off page, as the full lib isn't included.
+        // This is a simplified version just for the panel animation.
+        (function() {
+            if (typeof gsap === 'undefined') return;
+            gsap.registerPlugin({
+                name: "scrollTrigger",
+                init(self) {
+                    let vars = self.vars;
+                    let trigger = document.querySelector(vars.trigger);
+                    if (!trigger) return;
+
+                    const observer = new IntersectionObserver((entries) => {
+                        entries.forEach(entry => {
+                            if (entry.isIntersecting) {
+                                self.animation.play();
+                                if(vars.toggleActions.split(' ')[3] === 'none'){
+                                   observer.unobserve(trigger);
+                                }
+                            }
+                        });
+                    }, { threshold: 0, rootMargin: `0px 0px -${(window.innerHeight * 0.1).toFixed(0)}px 0px` });
+                    
+                    observer.observe(trigger);
+                }
+            });
+        })();
+
+
+    </script>
+</body>
+</html>

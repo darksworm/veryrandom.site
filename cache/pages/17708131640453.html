@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Daily Mousse</title>
+    
+    <link rel="stylesheet" href="/assets/css/pico.min.css">
+    <link rel="stylesheet" href="/assets/css/fonts.css">
+    
+    <style>
+        :root {
+            --background-color: #FDFBF6;
+            --text-color: #1a1a1a;
+            --accent-color: #A92A2A;
+            --border-color: #e0e0e0;
+            --subtle-text-color: #555555;
+
+            --font-headline: 'Playfair Display', serif;
+            --font-body: 'Inter', sans-serif;
+            --font-meta: 'IBM Plex Mono', monospace;
+        }
+
+        body {
+            background-color: var(--background-color);
+            color: var(--text-color);
+            font-family: var(--font-body);
+            font-size: 16px;
+            line-height: 1.6;
+            padding: 0;
+            margin: 0;
+            overflow-x: hidden;
+        }
+
+        /* Typography */
+        h1, h2, h3, h4 {
+            font-family: var(--font-headline);
+            font-weight: 700;
+            color: var(--text-color);
+            margin: 0;
+        }
+        h1 { font-size: clamp(2.5rem, 6vw, 5rem); line-height: 1.1; }
+        h2 { font-size: clamp(1.8rem, 4vw, 2.5rem); margin-bottom: 1rem; }
+        h3 { font-size: clamp(1.2rem, 3vw, 1.5rem); margin-bottom: 0.5rem; }
+        p { margin-bottom: 1rem; max-width: 65ch; }
+        a { color: var(--accent-color); text-decoration: underline; text-decoration-thickness: 1px; }
+
+        /* Layout */
+        .container {
+            max-width: 1440px;
+            margin: 0 auto;
+            padding: 1rem 2rem;
+        }
+
+        /* Header */
+        .main-header {
+            text-align: center;
+            padding: 2rem 1rem;
+            border-bottom: 2px solid var(--text-color);
+            margin-bottom: 2rem;
+        }
+        .main-header .subtitle {
+            font-family: var(--font-meta);
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: var(--subtle-text-color);
+        }
+        .header-meta {
+            display: flex;
+            justify-content: space-between;
+            font-family: var(--font-meta);
+            font-size: 0.8rem;
+            color: var(--subtle-text-color);
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 0.5rem;
+            margin-bottom: 2rem;
+        }
+
+        /* Filter Nav */
+        .filter-nav {
+            display: flex;
+            justify-content: center;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+            margin-bottom: 3rem;
+        }
+        .filter-nav button {
+            background: transparent;
+            border: 1px solid var(--border-color);
+            color: var(--subtle-text-color);
+            font-family: var(--font-meta);
+            padding: 0.5rem 1rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            border-radius: 4px;
+            font-size: 0.9rem;
+        }
+        .filter-nav button.active,
+        .filter-nav button:hover,
+        .filter-nav button:focus {
+            background-color: var(--text-color);
+            color: var(--background-color);
+            border-color: var(--text-color);
+        }
+
+        /* Main Grid */
+        .main-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 3rem;
+        }
+        @media (min-width: 768px) {
+            .main-grid {
+                grid-template-columns: repeat(12, 1fr);
+            }
+        }
+        
+        /* Articles */
+        .article {
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 1.5rem;
+            transition: opacity 0.5s ease-in-out;
+        }
+        .headline-article { grid-column: 1 / -1; }
+        @media (min-width: 768px) {
+            .headline-article { grid-column: 1 / 9; }
+            .side-column { grid-column: 9 / -1; }
+            .col-span-6 { grid-column: span 6; }
+            .col-span-4 { grid-column: span 4; }
+        }
+        
+        .article .byline {
+            font-family: var(--font-meta);
+            font-size: 0.8rem;
+            color: var(--subtle-text-color);
+            margin-bottom: 1rem;
+        }
+        
+        .pull-quote {
+            font-family: var(--font-headline);
+            font-size: 1.5rem;
+            font-weight: 400;
+            line-height: 1.3;
+            color: var(--accent-color);
+            border-left: 3px solid var(--accent-color);
+            padding-left: 1rem;
+            margin: 2rem 0;
+        }
+        
+        .read-more-btn {
+            font-family: var(--font-meta);
+            font-size: 0.9rem;
+            text-decoration: none;
+            border-bottom: 1px dotted var(--accent-color);
+            cursor: pointer;
+        }
+        .read-more-content {
+            margin-top: 1rem;
+            padding-left: 1rem;
+            border-left: 2px solid var(--border-color);
+        }
+
+        /* Fake Ads */
+        .advertisement {
+            border: 1px solid var(--border-color);
+            padding: 1.5rem;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            height: 100%;
+        }
+        .advertisement .ad-title {
+            font-family: var(--font-headline);
+            font-weight: bold;
+            font-size: 1.2rem;
+            margin-bottom: 0.5rem;
+        }
+        .advertisement .ad-body {
+            font-size: 0.9rem;
+            color: var(--subtle-text-color);
+            margin-bottom: 1rem;
+        }
+        .advertisement .ad-cta {
+            font-family: var(--font-meta);
+            font-size: 0.8rem;
+            text-transform: uppercase;
+        }
+        .advertisement i {
+            margin-bottom: 1rem;
+        }
+
+        /* Classifieds & Corrections */
+        .classifieds-list li, .corrections-list li {
+            font-size: 0.9rem;
+            margin-bottom: 0.75rem;
+            border-bottom: 1px dashed var(--border-color);
+            padding-bottom: 0.75rem;
+        }
+        .classifieds-list li strong {
+            font-family: var(--font-meta);
+            text-transform: uppercase;
+            font-weight: 600;
+        }
+        
+        /* Footer */
+        .main-footer {
+            margin-top: 4rem;
+            padding: 2rem 1rem;
+            text-align: center;
+            font-family: var(--font-meta);
+            font-size: 0.8rem;
+            border-top: 1px solid var(--border-color);
+            color: var(--subtle-text-color);
+        }
+
+        /* Alpine transitions */
+        [x-cloak] { display: none !important; }
+        [x-show] {
+            transition: opacity 0.3s ease-in-out;
+        }
+    </style>
+</head>
+<body x-data="{ filter: 'all' }">
+
+    <header class="main-header container" id="header">
+        <h1>The Daily Mousse</h1>
+        <p class="subtitle">All The News That's Fit To Bake — And Everything Is Cake</p>
+    </header>
+
+    <div class="container">
+        <div class="header-meta">
+            <span id="date"></span>
+            <span>Est. 2024</span>
+            <span>Price: One Nibble</span>
+        </div>
+
+        <nav class="filter-nav">
+            <button @click="filter = 'all'" :class="{ 'active': filter === 'all' }">All News</button>
+            <button @click="filter = 'politics'" :class="{ 'active': filter === 'politics' }">Politics</button>
+            <button @click="filter = 'opinion'" :class="{ 'active': filter === 'opinion' }">Opinion</button>
+            <button @click="filter = 'classifieds'" :class="{ 'active': filter === 'classifieds' }">Classifieds</button>
+            <button @click="filter = 'community'" :class="{ 'active': filter === 'community' }">Community</button>
+        </nav>
+
+        <main class="main-grid">
+
+            <!-- HEADLINE ARTICLE -->
+            <article class="headline-article article" x-show="filter === 'all' || filter === 'politics'" x-transition>
+                <div class="animate-in">
+                    <h2 class="article-title">Nightclub Cat Announces Mayoral Bid on Platform of Fondant and Fury</h2>
+                    <p class="byline">By Bartholomew "Barty" Butterscotch, Editor-In-Chief</p>
+                    <p>In a move that has sent ripples through our confectionary city, Flapjack Fitzgerald, a tuxedo cat of questionable origin and proprietor of the infamous nightclub 'The Velvet Sponge', has declared his candidacy for mayor. His platform, unveiled atop a rapidly melting ice cream cake soapbox, promises "a sweet deal for everyone" and a total overhaul of our crumbling cookie infrastructure.</p>
+                    <p>Fitzgerald, himself a structurally ambitious seven-layer cake, has criticized incumbent Mayor Crumble for his "stale policies." The core of Fitzgerald's plan is the "Great Frosting Initiative," a controversial proposal to use industrial quantities of royal icing to patch the city's notorious potholes—a move structural engineers have called "deliciously doomed."</p>
+                    <blockquote class="pull-quote">"Is it fiscally responsible to build a new hospital out of Battenberg? No. Is it hilarious? Yes. The choice is clear."</blockquote>
+                    <p>Polls show a deeply divided populace. "I'm worried," said local resident Victoria Sponge, a concerned pound cake. "My child's school is a gingerbread house. One heavy rain and it's mush. We need stability, not sprinkles." Others are energized by Fitzgerald's chaotic vision. "Finally, someone's addressing the shortbread sidewalk issue," cheered a macaroon who wished to remain anonymous.</p>
+                    <div x-data="{ expanded: false }">
+                        <p x-show="!expanded">The election, scheduled for this fall, promises to be one of the most unpredictable in our city's history. This reporter, for one, is stocking up on forks and antacids...</p>
+                        <a @click="expanded = !expanded" class="read-more-btn" x-text="expanded ? 'Show Less' : 'Continue Reading'"></a>
+                        <div x-show="expanded" x-transition:enter x-cloak class="read-more-content">
+                            <p>Mayor Crumble's campaign, meanwhile, has been built on a message of 'proven ingredients.' His supporters point to the successful implementation of the Marzipan Monorail and the low unemployment rate among candy-makers. "We can't risk our city on a whim and a whisker," said Crumble's campaign manager, a stoic fruitcake. "Flapjack Fitzgerald is all style and no substance. Literally. He's mostly meringue."</p>
+                            <p>As the race heats up, so too does the city—both politically and literally. The Department of Public Works has issued a level 3 melt warning for all nougat-based public seating. The Daily Mousse will continue to provide tasteless, I mean, tasteful coverage as the story develops.</p>
+                        </div>
+                    </div>
+                </div>
+            </article>
+
+            <!-- SIDE COLUMN -->
+            <aside class="side-column" x-show="filter === 'all' || filter === 'politics' || filter === 'community'" x-transition>
+                <div class="advertisement" id="ad1">
+                     <i data-lucide="shield-check"></i>
+                    <h4 class="ad-title">GâteauGuard™</h4>
+                    <p class="ad-body">Your infrastructure is delicious. And vulnerable. Protect your assets from unexpected nibbles and structural failure. Now with extra butter!</p>
+                    <p class="ad-cta">Call 1-800-STALE-MATE</p>
+                </div>
+                 <div class="article" style="margin-top: 3rem;">
+                    <h3>Fact Check: Election Claims</h3>
+                    <ul class="classifieds-list">
+                       <li><strong>CLAIM:</strong> Fitzgerald can solve traffic with "rivers of caramel."<br><strong>RATING:</strong> Mostly False. Delicious, but impractical and a nightmare for diabetics.</li>
+                       <li><strong>CLAIM:</strong> Mayor Crumble's hat is a genuine croissant.<br><strong>RATING:</strong> True. And flaky.</li>
+                    </ul>
+                </div>
+            </aside>
+
+            <!-- OPINION -->
+            <article class="article col-span-6" x-show="filter === 'all' || filter === 'opinion'" x-transition>
+                <h3>This Whole Election is Half-Baked</h3>
+                <p class="byline">An Op-Ed by Barty Butterscotch</p>
+                <p>I've been a journalist for twenty cat years. I've covered the Great Catnip Bust, the Red Dot Riots, the scandal of the Phantom Pooper. I thought I'd seen it all. I was wrong. This mayoral race between a nightclub-owning cake-cat and a sentient pile of crumbs is an insult to our collective intelligence. One candidate wants to govern with frosting, the other thinks progress is a slightly less stale scone. It's a lose-lose situation, and I'm losing my appetite.</p>
+            </article>
+            
+            <article class="article col-span-6" x-show="filter === 'all' || filter === 'opinion'" x-transition>
+                <h3>Letter to the Editor</h3>
+                <p class="byline">From a Concerned Cherry Bakewell</p>
+                <p>To the editor, Am I the only one who sees the problem with electing a candidate who is, by his own admission, "mostly mousse"? What happens when we have a heatwave? Do we have a contingency plan for a molten mayor? I demand answers. My taxes are not for funding a city-wide air conditioning unit just to keep our leader from turning into a puddle.</p>
+            </article>
+
+            <!-- CLASSIFIEDS -->
+            <article class="article col-span-4" x-show="filter === 'all' || filter === 'classifieds'" x-transition>
+                 <h3>Classifieds</h3>
+                 <ul class="classifieds-list">
+                    <li><strong>FOR SALE:</strong> Lightly used scratching post. Smells of despair and buttercream. Some light gnawing. OBO.</li>
+                    <li><strong>LOST:</strong> My will to live. Also, a small squeaky mouse toy. Answers to 'Squeaky'. Last seen near the lemon-drizzle aqueduct.</li>
+                    <li><strong>PERSONALS:</strong> Single, sturdy fruitcake seeks same. No flings. Must be okay with long-term commitment (i.e. sitting on a shelf for 5+ years).</li>
+                 </ul>
+            </article>
+
+            <!-- OBITUARIES -->
+            <article class="article col-span-4" x-show="filter === 'all' || filter === 'community'" x-transition>
+                <h3>Community Notices</h3>
+                 <ul class="classifieds-list">
+                    <li><strong>OBITUARY:</strong> Stale, a day-old croissant left on the counter, passed away peacefully yesterday after a brief struggle with rigidity. He is survived by his crumbs. Services will be held at the local compost bin.</li>
+                    <li><strong>CORRECTIONS:</strong> In a previous issue, we stated the city treasury was a Black Forest gateau. It is, in fact, a Tiramisu. We regret the error and the subsequent diplomatic incident.</li>
+                </ul>
+            </article>
+            
+            <aside class="col-span-4" x-show="filter === 'all' || filter === 'community'" x-transition>
+                 <div class="advertisement" id="ad2">
+                     <i data-lucide="hammer"></i>
+                    <h4 class="ad-title">Soggy Bottom Boys, LLC</h4>
+                    <p class="ad-body">Has your foundation lost its structural integrity due to unforeseen moisture? You may be entitled to crumbsation. We fight for you!</p>
+                    <p class="ad-cta">Don't Get Crushed. Get Counsel.</p>
+                </div>
+            </aside>
+
+        </main>
+    </div>
+
+    <footer class="main-footer">
+        <p>&copy; <span id="year"></span> The Daily Mousse. A subsidiary of Butterscotch Media Conglomerate.</p>
+        <p>We are not responsible for any indigestion, existential or otherwise, resulting from our content. All persons, places, and pastries are fictitious. Any resemblance to real cakes, living or eaten, is purely coincidental.</p>
+    </footer>
+
+    <script src="/assets/js/alpine.min.js" defer></script>
+    <script src="/assets/js/gsap.min.js"></script>
+    <script src="/assets/js/lucide.min.js"></script>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Set dates
+            const today = new Date();
+            const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+            document.getElementById('date').textContent = today.toLocaleDateString('en-US', options);
+            document.getElementById('year').textContent = today.getFullYear();
+            
+            // Create icons
+            lucide.createIcons();
+
+            // GSAP Animations
+            // Use a try-catch in case GSAP doesn't load
+            try {
+                // Animate header
+                gsap.fromTo('#header', 
+                    { opacity: 0, y: -20 }, 
+                    { opacity: 1, y: 0, duration: 0.8, ease: 'power2.out' }
+                );
+
+                // Stagger-in articles
+                gsap.fromTo('.animate-in', 
+                    { opacity: 0, y: 20 },
+                    { 
+                        opacity: 1, 
+                        y: 0, 
+                        duration: 0.6, 
+                        stagger: 0.2, 
+                        ease: 'power2.out',
+                        scrollTrigger: {
+                            trigger: '.main-grid',
+                            start: 'top 80%',
+                        }
+                    }
+                );
+                
+                // Ad hover effects
+                 gsap.utils.toArray(['#ad1', '#ad2']).forEach(ad => {
+                    const icon = ad.querySelector('i');
+                    const tl = gsap.timeline({ paused: true });
+                    tl.to(ad, { scale: 1.03, borderColor: 'var(--accent-color)', duration: 0.3 })
+                      .to(icon, { rotate: 15, scale: 1.1, duration: 0.3 }, "<");
+                    
+                    ad.addEventListener('mouseenter', () => tl.play());
+                    ad.addEventListener('mouseleave', () => tl.reverse());
+                 });
+
+
+            } catch (error) {
+                console.error("Animation library (GSAP) not available.", error);
+            }
+        });
+    </script>
+
+</body>
+</html>

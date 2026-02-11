@@ -1,0 +1,1734 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CATASTRONAUT Mission Control — Panel v3.7.1</title>
+<link rel="stylesheet" href="/assets/css/fonts.css">
+<link rel="stylesheet" href="/assets/css/pico.min.css">
+<script src="/assets/js/alpine.min.js" defer></script>
+<script src="/assets/js/gsap.min.js"></script>
+<script src="/assets/js/lucide.min.js"></script>
+<style>
+:root {
+  --bg: #f4f6f5;
+  --sidebar-bg: #0a1a12;
+  --panel-bg: #ffffff;
+  --green-1: #0f7a4d;
+  --green-2: #14a365;
+  --green-3: #1dd882;
+  --green-glow: rgba(29, 216, 130, 0.15);
+  --green-faint: #e8f7f0;
+  --border: #d0d8d3;
+  --text: #111111;
+  --text-secondary: #444444;
+  --text-muted: #555555;
+  --red: #c0392b;
+  --amber: #d4850a;
+  --font-sans: 'Space Grotesk', system-ui, sans-serif;
+  --font-mono: 'IBM Plex Mono', monospace;
+  --font-serif: 'Playfair Display', serif;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: var(--font-sans);
+  background: var(--bg);
+  color: var(--text);
+  overflow-x: hidden;
+  font-size: 16px;
+  line-height: 1.5;
+}
+
+/* === LAYOUT === */
+.app {
+  display: flex;
+  min-height: 100vh;
+}
+
+/* === SIDEBAR === */
+.sidebar {
+  width: 260px;
+  min-width: 260px;
+  background: var(--sidebar-bg);
+  color: #e0e0e0;
+  display: flex;
+  flex-direction: column;
+  position: fixed;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  z-index: 100;
+  overflow-y: auto;
+  border-right: 2px solid var(--green-1);
+}
+
+.sidebar-header {
+  padding: 20px 16px 12px;
+  border-bottom: 1px solid rgba(255,255,255,0.08);
+}
+
+.sidebar-logo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 8px;
+}
+
+.logo-icon {
+  width: 40px;
+  height: 40px;
+  position: relative;
+}
+
+/* CSS Art: Cat in a helmet */
+.logo-icon::before {
+  content: '';
+  position: absolute;
+  width: 32px;
+  height: 28px;
+  background: var(--green-2);
+  border-radius: 50% 50% 45% 45%;
+  top: 6px;
+  left: 4px;
+}
+.logo-icon::after {
+  content: '';
+  position: absolute;
+  width: 22px;
+  height: 18px;
+  background: var(--sidebar-bg);
+  border-radius: 50%;
+  top: 11px;
+  left: 9px;
+  box-shadow:
+    -3px -2px 0 0 var(--green-2),
+    3px -2px 0 0 var(--green-2),
+    inset 4px 3px 0 0 #1dd882,
+    inset -4px 3px 0 0 #1dd882;
+}
+
+.logo-text {
+  font-family: var(--font-mono);
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 2px;
+  color: #ffffff;
+}
+
+.logo-version {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--green-2);
+  letter-spacing: 1px;
+}
+
+.sidebar-status {
+  padding: 8px 16px;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--green-3);
+  border-bottom: 1px solid rgba(255,255,255,0.08);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.status-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--green-3);
+  animation: pulse-dot 2s ease-in-out infinite;
+}
+
+@keyframes pulse-dot {
+  0%, 100% { opacity: 1; box-shadow: 0 0 4px var(--green-3); }
+  50% { opacity: 0.4; box-shadow: none; }
+}
+
+.sidebar-nav {
+  padding: 12px 0;
+  flex: 1;
+}
+
+.nav-section-label {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 2px;
+  color: #668877;
+  padding: 12px 16px 6px;
+  text-transform: uppercase;
+}
+
+.nav-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 16px;
+  color: #c0d0c8;
+  font-size: 13px;
+  cursor: pointer;
+  transition: all 0.2s;
+  border-left: 3px solid transparent;
+  text-decoration: none;
+}
+
+.nav-item:hover {
+  background: rgba(255,255,255,0.04);
+  color: #ffffff;
+  border-left-color: var(--green-2);
+}
+
+.nav-item.active {
+  background: rgba(29, 216, 130, 0.08);
+  color: #ffffff;
+  border-left-color: var(--green-3);
+}
+
+.nav-item i {
+  width: 16px;
+  height: 16px;
+}
+
+.nav-badge {
+  margin-left: auto;
+  background: var(--red);
+  color: #ffffff;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  padding: 1px 6px;
+  border-radius: 8px;
+}
+
+.nav-badge.amber {
+  background: var(--amber);
+}
+
+.sidebar-footer {
+  padding: 12px 16px;
+  border-top: 1px solid rgba(255,255,255,0.08);
+  font-family: var(--font-mono);
+  font-size: 10px;
+  color: #446655;
+  line-height: 1.6;
+}
+
+/* === MAIN CONTENT === */
+.main {
+  flex: 1;
+  margin-left: 260px;
+  padding: 24px;
+  max-width: 1200px;
+}
+
+.top-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 24px;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.top-bar-left h1 {
+  font-family: var(--font-serif);
+  font-size: clamp(20px, 3vw, 28px);
+  color: var(--text);
+  font-weight: 700;
+  margin: 0;
+}
+
+.top-bar-left p {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  color: var(--text-muted);
+  margin: 0;
+}
+
+.alert-banner {
+  background: linear-gradient(135deg, #fff3e0, #fff8f0);
+  border: 1px solid #e8a040;
+  border-left: 4px solid var(--amber);
+  padding: 12px 16px;
+  border-radius: 6px;
+  margin-bottom: 20px;
+  font-size: 13px;
+  color: #333333;
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+}
+
+.alert-banner i { color: var(--amber); flex-shrink: 0; margin-top: 1px; }
+
+/* === GRID === */
+.dashboard-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 20px;
+  margin-bottom: 24px;
+}
+
+.panel {
+  background: var(--panel-bg);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  overflow: hidden;
+  position: relative;
+}
+
+.panel::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, var(--green-1), var(--green-3));
+}
+
+.panel-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 16px 10px;
+  border-bottom: 1px solid var(--border);
+}
+
+.panel-title {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: var(--text-secondary);
+  font-weight: 600;
+}
+
+.panel-badge {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-weight: 600;
+}
+
+.badge-red { background: #fde8e8; color: var(--red); }
+.badge-green { background: #e8f7f0; color: var(--green-1); }
+.badge-amber { background: #fff3e0; color: #9a6700; }
+
+.panel-body {
+  padding: 16px;
+}
+
+/* === MISSION STATUS PANEL === */
+.mission-stat {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 0;
+  border-bottom: 1px solid #f0f2f1;
+  font-size: 13px;
+}
+
+.mission-stat:last-child { border-bottom: none; }
+
+.stat-label {
+  color: var(--text-muted);
+  font-family: var(--font-mono);
+  font-size: 12px;
+}
+
+.stat-value {
+  font-weight: 600;
+  color: var(--text);
+  font-family: var(--font-mono);
+  font-size: 13px;
+}
+
+.stat-value.red { color: var(--red); }
+.stat-value.green { color: var(--green-1); }
+.stat-value.amber { color: var(--amber); }
+
+/* === CSS ART: ROCKET SCHEMATIC === */
+.rocket-schematic {
+  width: 100%;
+  height: 320px;
+  position: relative;
+  background:
+    repeating-linear-gradient(0deg, transparent, transparent 19px, rgba(15,122,77,0.06) 19px, rgba(15,122,77,0.06) 20px),
+    repeating-linear-gradient(90deg, transparent, transparent 19px, rgba(15,122,77,0.06) 19px, rgba(15,122,77,0.06) 20px);
+  overflow: hidden;
+}
+
+.rocket-body {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  width: 60px;
+  height: 160px;
+  background: linear-gradient(180deg, #d0d8d3 0%, #e8ecea 40%, #d0d8d3 100%);
+  border-radius: 30px 30px 8px 8px;
+  border: 2px solid var(--green-1);
+  transition: filter 0.3s;
+}
+
+.rocket-body:hover {
+  filter: drop-shadow(0 0 12px var(--green-3));
+}
+
+.rocket-body::before {
+  content: '';
+  position: absolute;
+  top: -30px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 0;
+  height: 0;
+  border-left: 20px solid transparent;
+  border-right: 20px solid transparent;
+  border-bottom: 35px solid var(--green-1);
+}
+
+.rocket-body::after {
+  content: '';
+  position: absolute;
+  top: 30px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  background: radial-gradient(circle, #a8e6cf 0%, var(--green-2) 60%, var(--green-1) 100%);
+  border: 2px solid var(--green-1);
+  box-shadow: inset 0 0 8px rgba(0,0,0,0.2);
+}
+
+.rocket-window-cat {
+  position: absolute;
+  top: 36px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 18px;
+  height: 14px;
+  z-index: 2;
+}
+
+/* CSS cat face in window */
+.rocket-window-cat::before {
+  content: '';
+  position: absolute;
+  width: 14px;
+  height: 10px;
+  background: #333333;
+  border-radius: 50% 50% 40% 40%;
+  top: 2px;
+  left: 2px;
+}
+.rocket-window-cat::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 2px;
+  width: 0;
+  height: 0;
+  border-left: 3px solid transparent;
+  border-right: 3px solid transparent;
+  border-bottom: 5px solid #333333;
+  box-shadow: 8px 0 0 0 transparent;
+}
+
+.cat-ear-r {
+  position: absolute;
+  top: 0;
+  right: 2px;
+  width: 0;
+  height: 0;
+  border-left: 3px solid transparent;
+  border-right: 3px solid transparent;
+  border-bottom: 5px solid #333333;
+}
+
+.rocket-fin-left, .rocket-fin-right {
+  position: absolute;
+  bottom: -5px;
+  width: 20px;
+  height: 40px;
+  background: var(--green-2);
+  border: 2px solid var(--green-1);
+}
+
+.rocket-fin-left {
+  left: -16px;
+  border-radius: 0 0 0 12px;
+  clip-path: polygon(100% 0, 100% 100%, 0 100%, 40% 0);
+}
+
+.rocket-fin-right {
+  right: -16px;
+  border-radius: 0 0 12px 0;
+  clip-path: polygon(0 0, 60% 0, 100% 100%, 0 100%);
+}
+
+/* Exhaust flame animation */
+.rocket-flame {
+  position: absolute;
+  bottom: -45px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 30px;
+  height: 40px;
+  background: linear-gradient(180deg, #f39c12 0%, #e74c3c 50%, transparent 100%);
+  border-radius: 0 0 50% 50%;
+  animation: flame-flicker 0.15s ease-in-out infinite alternate;
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+
+.rocket-schematic:hover .rocket-flame {
+  opacity: 1;
+}
+
+@keyframes flame-flicker {
+  0% { transform: translateX(-50%) scaleX(1) scaleY(1); }
+  100% { transform: translateX(-50%) scaleX(0.8) scaleY(1.15); }
+}
+
+/* Schematic labels */
+.schematic-label {
+  position: absolute;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  color: var(--green-1);
+  white-space: nowrap;
+}
+
+.schematic-label::before {
+  content: '';
+  position: absolute;
+  background: var(--green-1);
+  height: 1px;
+}
+
+.label-nose {
+  top: 45px;
+  right: calc(50% + 55px);
+}
+.label-nose::before {
+  width: 20px;
+  top: 50%;
+  right: -24px;
+}
+
+.label-window {
+  top: 105px;
+  left: calc(50% + 55px);
+}
+.label-window::before {
+  width: 20px;
+  top: 50%;
+  left: -24px;
+}
+
+.label-fins {
+  bottom: 55px;
+  right: calc(50% + 70px);
+}
+.label-fins::before {
+  width: 30px;
+  top: 50%;
+  right: -34px;
+}
+
+/* === ORBITAL PATH CSS ART === */
+.orbital-display {
+  width: 100%;
+  height: 280px;
+  position: relative;
+  background: radial-gradient(circle at 50% 50%, #0a1a12, #060e09);
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+.orbit-ring {
+  position: absolute;
+  border: 1px solid rgba(29, 216, 130, 0.2);
+  border-radius: 50%;
+  top: 50%;
+  left: 50%;
+}
+
+.orbit-ring-1 {
+  width: 120px;
+  height: 120px;
+  margin: -60px 0 0 -60px;
+  animation: orbit-pulse 4s ease-in-out infinite;
+}
+
+.orbit-ring-2 {
+  width: 200px;
+  height: 200px;
+  margin: -100px 0 0 -100px;
+  border-style: dashed;
+  animation: orbit-pulse 4s ease-in-out infinite 1s;
+}
+
+.orbit-ring-3 {
+  width: 280px;
+  height: 280px;
+  margin: -140px 0 0 -140px;
+  border-color: rgba(29, 216, 130, 0.1);
+  animation: orbit-pulse 4s ease-in-out infinite 2s;
+}
+
+@keyframes orbit-pulse {
+  0%, 100% { border-color: rgba(29, 216, 130, 0.2); }
+  50% { border-color: rgba(29, 216, 130, 0.5); }
+}
+
+/* Planet (Earth) */
+.planet-earth {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 40px;
+  height: 40px;
+  margin: -20px 0 0 -20px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 35%, #14a365, #0a5c38, #063d24);
+  box-shadow: 0 0 20px rgba(29, 216, 130, 0.3), inset -8px -4px 12px rgba(0,0,0,0.4);
+}
+
+/* Orbiting satellite (cat capsule) */
+.cat-capsule {
+  position: absolute;
+  width: 12px;
+  height: 12px;
+  background: var(--green-3);
+  border-radius: 50%;
+  top: 50%;
+  left: 50%;
+  margin: -6px 0 0 -6px;
+  box-shadow: 0 0 8px var(--green-3);
+  animation: orbit-move 6s linear infinite;
+}
+
+@keyframes orbit-move {
+  0% { transform: rotate(0deg) translateX(60px) rotate(0deg); }
+  100% { transform: rotate(360deg) translateX(60px) rotate(-360deg); }
+}
+
+.cat-capsule-2 {
+  animation: orbit-move-2 10s linear infinite;
+}
+
+@keyframes orbit-move-2 {
+  0% { transform: rotate(45deg) translateX(100px) rotate(-45deg); }
+  100% { transform: rotate(405deg) translateX(100px) rotate(-405deg); }
+}
+
+/* Stars */
+.star-field::before, .star-field::after {
+  content: '';
+  position: absolute;
+  width: 2px;
+  height: 2px;
+  background: #ffffff;
+  border-radius: 50%;
+  box-shadow:
+    30px 20px 0 0 rgba(255,255,255,0.6),
+    80px 60px 0 0 rgba(255,255,255,0.4),
+    150px 30px 0 0 rgba(255,255,255,0.5),
+    200px 80px 0 0 rgba(255,255,255,0.3),
+    45px 120px 0 0 rgba(255,255,255,0.6),
+    170px 150px 0 0 rgba(255,255,255,0.4),
+    250px 45px 0 0 rgba(255,255,255,0.5),
+    120px 200px 0 0 rgba(255,255,255,0.3),
+    60px 180px 0 0 rgba(255,255,255,0.4),
+    220px 130px 0 0 rgba(255,255,255,0.5);
+  animation: twinkle 3s ease-in-out infinite alternate;
+}
+
+.star-field::after {
+  top: 10px;
+  left: 15px;
+  box-shadow:
+    20px 40px 0 0 rgba(255,255,255,0.5),
+    90px 90px 0 0 rgba(255,255,255,0.3),
+    140px 55px 0 0 rgba(255,255,255,0.6),
+    180px 110px 0 0 rgba(255,255,255,0.4),
+    55px 160px 0 0 rgba(255,255,255,0.5),
+    210px 170px 0 0 rgba(255,255,255,0.3);
+  animation-delay: 1.5s;
+}
+
+@keyframes twinkle {
+  0% { opacity: 0.6; }
+  100% { opacity: 1; }
+}
+
+.orbital-label {
+  position: absolute;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  color: var(--green-3);
+  padding: 2px 6px;
+  background: rgba(10, 26, 18, 0.8);
+  border: 1px solid rgba(29, 216, 130, 0.2);
+  border-radius: 3px;
+}
+
+/* === CAT APPROVAL CSS PIE CHARTS === */
+.approval-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+  text-align: center;
+}
+
+.approval-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+
+.pie-chart {
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  position: relative;
+  transition: transform 0.3s;
+}
+
+.pie-chart:hover {
+  transform: scale(1.15);
+}
+
+.pie-chart::after {
+  content: attr(data-value);
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-family: var(--font-mono);
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text);
+  background: var(--panel-bg);
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.pie-admiral {
+  background: conic-gradient(var(--red) 0% 12%, #e8ecea 12% 100%);
+}
+
+.pie-beans {
+  background: conic-gradient(var(--amber) 0% 67%, #e8ecea 67% 100%);
+}
+
+.pie-muffin {
+  background: conic-gradient(var(--green-2) 0% 91%, #e8ecea 91% 100%);
+}
+
+.approval-name {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--text);
+  font-weight: 600;
+}
+
+.approval-rank {
+  font-size: 10px;
+  color: var(--text-muted);
+  font-family: var(--font-mono);
+}
+
+/* === CHECKLIST === */
+.checklist-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 0;
+  border-bottom: 1px solid #f0f2f1;
+  font-size: 13px;
+}
+
+.checklist-item:last-child { border-bottom: none; }
+
+.check-icon {
+  width: 20px;
+  height: 20px;
+  border-radius: 4px;
+  border: 2px solid var(--border);
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+}
+
+.check-icon.done {
+  background: var(--green-2);
+  border-color: var(--green-1);
+  color: #ffffff;
+}
+
+.check-icon.blocked {
+  background: #fde8e8;
+  border-color: var(--red);
+  color: var(--red);
+}
+
+.check-icon.waiting {
+  background: #fff3e0;
+  border-color: var(--amber);
+  color: var(--amber);
+}
+
+.check-text { color: var(--text); flex: 1; }
+.check-blocker {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  color: var(--red);
+  background: #fde8e8;
+  padding: 2px 6px;
+  border-radius: 3px;
+}
+
+/* === LOG ENTRIES === */
+.log-entry {
+  padding: 10px 0;
+  border-bottom: 1px solid #f0f2f1;
+  font-size: 13px;
+}
+
+.log-entry:last-child { border-bottom: none; }
+
+.log-time {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--green-1);
+  display: block;
+  margin-bottom: 2px;
+}
+
+.log-text {
+  color: var(--text);
+  line-height: 1.5;
+}
+
+.log-tag {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  padding: 1px 6px;
+  border-radius: 3px;
+  margin-left: 4px;
+}
+
+.tag-cat { background: #f0e6ff; color: #5b21b6; }
+.tag-structural { background: #fde8e8; color: var(--red); }
+.tag-medical { background: #e0f0ff; color: #1a5276; }
+
+/* === BUILDING TRACKER (CSS art) === */
+.building-tracker {
+  width: 100%;
+  height: 180px;
+  background: linear-gradient(180deg, #e8f7f0 0%, #d0e8dc 100%);
+  border-radius: 6px;
+  position: relative;
+  overflow: hidden;
+}
+
+/* CSS building */
+.css-building {
+  position: absolute;
+  bottom: 20px;
+  width: 70px;
+  height: 80px;
+  background: var(--panel-bg);
+  border: 2px solid var(--green-1);
+  transition: left 2s cubic-bezier(0.68, -0.55, 0.27, 1.55);
+}
+
+.css-building::before {
+  content: '';
+  position: absolute;
+  top: -20px;
+  left: -5px;
+  width: 0;
+  height: 0;
+  border-left: 40px solid transparent;
+  border-right: 40px solid transparent;
+  border-bottom: 22px solid var(--green-1);
+}
+
+.css-building::after {
+  content: 'HQ';
+  position: absolute;
+  top: 8px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--green-1);
+  letter-spacing: 2px;
+}
+
+.building-windows {
+  position: absolute;
+  bottom: 8px;
+  left: 8px;
+  display: grid;
+  grid-template-columns: repeat(3, 14px);
+  gap: 6px;
+}
+
+.b-window {
+  width: 14px;
+  height: 14px;
+  background: var(--green-glow);
+  border: 1px solid var(--green-1);
+}
+
+.building-door {
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 16px;
+  height: 22px;
+  background: var(--green-1);
+  border-radius: 8px 8px 0 0;
+}
+
+.building-ground {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 20px;
+  background: repeating-linear-gradient(90deg, #a0c4ac 0px, #a0c4ac 4px, #8db89c 4px, #8db89c 8px);
+}
+
+.building-address {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  color: var(--green-1);
+  background: rgba(255,255,255,0.9);
+  padding: 2px 6px;
+  border-radius: 3px;
+}
+
+/* === DECORATIVE: Victorian corner ornaments === */
+.victorian-corner {
+  position: absolute;
+  width: 30px;
+  height: 30px;
+}
+
+.victorian-corner::before, .victorian-corner::after {
+  content: '';
+  position: absolute;
+  background: var(--green-1);
+}
+
+.vc-tl { top: 0; left: 0; }
+.vc-tl::before { width: 20px; height: 2px; top: 0; left: 0; }
+.vc-tl::after { width: 2px; height: 20px; top: 0; left: 0; }
+
+.vc-tr { top: 0; right: 0; }
+.vc-tr::before { width: 20px; height: 2px; top: 0; right: 0; }
+.vc-tr::after { width: 2px; height: 20px; top: 0; right: 0; }
+
+.vc-bl { bottom: 0; left: 0; }
+.vc-bl::before { width: 20px; height: 2px; bottom: 0; left: 0; }
+.vc-bl::after { width: 2px; height: 20px; bottom: 0; left: 0; }
+
+.vc-br { bottom: 0; right: 0; }
+.vc-br::before { width: 20px; height: 2px; bottom: 0; right: 0; }
+.vc-br::after { width: 2px; height: 20px; bottom: 0; right: 0; }
+
+.panel-victorian {
+  position: relative;
+  padding: 8px;
+}
+
+/* === FULL-WIDTH PANEL === */
+.full-width {
+  grid-column: 1 / -1;
+}
+
+/* === STATS ROW === */
+.stats-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.stat-card {
+  background: var(--panel-bg);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 16px;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+}
+
+.stat-card::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+}
+
+.stat-card:nth-child(1)::after { background: var(--green-2); }
+.stat-card:nth-child(2)::after { background: var(--amber); }
+.stat-card:nth-child(3)::after { background: var(--red); }
+.stat-card:nth-child(4)::after { background: #5b21b6; }
+
+.stat-number {
+  font-family: var(--font-serif);
+  font-size: clamp(28px, 4vw, 36px);
+  font-weight: 700;
+  color: var(--text);
+  line-height: 1;
+}
+
+.stat-label-text {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  margin-top: 4px;
+}
+
+/* === MOBILE === */
+.mobile-header {
+  display: none;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 16px;
+  background: var(--sidebar-bg);
+  color: #ffffff;
+}
+
+.mobile-header .logo-text {
+  font-family: var(--font-mono);
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 2px;
+}
+
+.hamburger {
+  width: 44px;
+  height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  background: none;
+  border: 1px solid rgba(255,255,255,0.2);
+  border-radius: 6px;
+  color: #ffffff;
+}
+
+.sidebar-overlay {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0,0,0,0.5);
+  z-index: 99;
+}
+
+/* === CSS ART SECTION: DECORATIVE SEPARATOR === */
+.section-separator {
+  width: 100%;
+  height: 60px;
+  position: relative;
+  margin: 8px 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.separator-line {
+  width: 100%;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--green-1), transparent);
+}
+
+.separator-ornament {
+  position: absolute;
+  width: 20px;
+  height: 20px;
+  background: var(--bg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.separator-ornament::before {
+  content: '';
+  width: 10px;
+  height: 10px;
+  border: 2px solid var(--green-1);
+  transform: rotate(45deg);
+}
+
+/* === FREQUENCY BARS (CSS art) === */
+.freq-bars {
+  display: flex;
+  align-items: flex-end;
+  gap: 3px;
+  height: 60px;
+  padding: 8px 0;
+}
+
+.freq-bar {
+  width: 100%;
+  background: linear-gradient(180deg, var(--green-3), var(--green-1));
+  border-radius: 2px 2px 0 0;
+  animation: freq-anim 1.2s ease-in-out infinite alternate;
+  min-width: 4px;
+}
+
+.freq-bar:nth-child(1) { height: 40%; animation-delay: 0s; }
+.freq-bar:nth-child(2) { height: 70%; animation-delay: 0.1s; }
+.freq-bar:nth-child(3) { height: 55%; animation-delay: 0.2s; }
+.freq-bar:nth-child(4) { height: 85%; animation-delay: 0.3s; }
+.freq-bar:nth-child(5) { height: 45%; animation-delay: 0.4s; }
+.freq-bar:nth-child(6) { height: 95%; animation-delay: 0.5s; }
+.freq-bar:nth-child(7) { height: 60%; animation-delay: 0.6s; }
+.freq-bar:nth-child(8) { height: 75%; animation-delay: 0.7s; }
+.freq-bar:nth-child(9) { height: 50%; animation-delay: 0.8s; }
+.freq-bar:nth-child(10) { height: 80%; animation-delay: 0.9s; }
+.freq-bar:nth-child(11) { height: 35%; animation-delay: 1.0s; }
+.freq-bar:nth-child(12) { height: 65%; animation-delay: 1.1s; }
+
+@keyframes freq-anim {
+  0% { transform: scaleY(1); }
+  100% { transform: scaleY(0.4); }
+}
+
+/* === SIGNAL STRENGTH DOTS === */
+.signal-dots {
+  display: flex;
+  gap: 4px;
+  align-items: center;
+}
+
+.signal-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--green-3);
+}
+
+.signal-dot.off { background: #d0d8d3; }
+.signal-dot.warn { background: var(--amber); }
+
+/* === RESPONSIVE === */
+@media (max-width: 900px) {
+  .sidebar {
+    transform: translateX(-100%);
+    transition: transform 0.3s ease;
+  }
+
+  .sidebar.open {
+    transform: translateX(0);
+  }
+
+  .sidebar-overlay.show {
+    display: block;
+  }
+
+  .mobile-header {
+    display: flex;
+  }
+
+  .main {
+    margin-left: 0;
+    padding: 16px;
+  }
+
+  .dashboard-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .approval-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+  .stats-row {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 500px) {
+  .stats-row {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .approval-grid {
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 8px;
+  }
+
+  .pie-chart {
+    width: 56px;
+    height: 56px;
+  }
+
+  .pie-chart::after {
+    width: 34px;
+    height: 34px;
+    font-size: 11px;
+  }
+
+  .top-bar { flex-direction: column; align-items: flex-start; }
+}
+
+/* Scrollbar styling for sidebar */
+.sidebar::-webkit-scrollbar {
+  width: 4px;
+}
+.sidebar::-webkit-scrollbar-track {
+  background: transparent;
+}
+.sidebar::-webkit-scrollbar-thumb {
+  background: var(--green-1);
+  border-radius: 2px;
+}
+
+/* === INTERACTIVE HOVER STATES === */
+.panel {
+  transition: box-shadow 0.3s, transform 0.3s;
+}
+
+.panel:hover {
+  box-shadow: 0 4px 20px rgba(15, 122, 77, 0.1);
+  transform: translateY(-1px);
+}
+
+.nav-item i { transition: color 0.2s; }
+
+/* === NURSE BADGE (CSS art) === */
+.nurse-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: #fff3e0;
+  border: 1px solid #e8a040;
+  padding: 4px 10px;
+  border-radius: 4px;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: #333333;
+}
+
+.badge-cross {
+  width: 12px;
+  height: 12px;
+  position: relative;
+}
+
+.badge-cross::before, .badge-cross::after {
+  content: '';
+  position: absolute;
+  background: var(--red);
+}
+
+.badge-cross::before {
+  width: 12px;
+  height: 4px;
+  top: 4px;
+  left: 0;
+}
+
+.badge-cross::after {
+  width: 4px;
+  height: 12px;
+  top: 0;
+  left: 4px;
+}
+</style>
+</head>
+<body x-data="missionControl()">
+
+<!-- Mobile Header -->
+<div class="mobile-header">
+  <span class="logo-text">CATASTRONAUT</span>
+  <button class="hamburger" @click="sidebarOpen = !sidebarOpen" aria-label="Toggle menu">
+    <i data-lucide="menu" style="width:20px;height:20px;"></i>
+  </button>
+</div>
+
+<!-- Sidebar Overlay -->
+<div class="sidebar-overlay" :class="{ show: sidebarOpen }" @click="sidebarOpen = false"></div>
+
+<div class="app">
+  <!-- Sidebar -->
+  <aside class="sidebar" :class="{ open: sidebarOpen }">
+    <div class="sidebar-header">
+      <div class="sidebar-logo">
+        <div class="logo-icon"></div>
+        <div>
+          <div class="logo-text">CATASTRONAUT</div>
+          <div class="logo-version">PANEL v3.7.1</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="sidebar-status">
+      <span class="status-dot"></span>
+      SYSTEM NOMINAL — SHIFT HR 73
+    </div>
+
+    <nav class="sidebar-nav">
+      <div class="nav-section-label">Mission</div>
+      <a class="nav-item active" href="#"><i data-lucide="layout-dashboard"></i> Dashboard</a>
+      <a class="nav-item" href="#"><i data-lucide="rocket"></i> Launch Queue <span class="nav-badge">0</span></a>
+      <a class="nav-item" href="#"><i data-lucide="orbit"></i> Orbital Tracking</a>
+      <a class="nav-item" href="#"><i data-lucide="radio"></i> Comms <span class="nav-badge amber">3</span></a>
+
+      <div class="nav-section-label">Feline Ops</div>
+      <a class="nav-item" href="#"><i data-lucide="cat"></i> Director Panel <span class="nav-badge">7</span></a>
+      <a class="nav-item" href="#"><i data-lucide="paw-print"></i> Approval Queue</a>
+      <a class="nav-item" href="#"><i data-lucide="fish"></i> Treat Inventory</a>
+
+      <div class="nav-section-label">Facilities</div>
+      <a class="nav-item" href="#"><i data-lucide="building"></i> HQ Location <span class="nav-badge">MOVED</span></a>
+      <a class="nav-item" href="#"><i data-lucide="wrench"></i> Maintenance</a>
+      <a class="nav-item" href="#"><i data-lucide="clipboard-list"></i> Zoning Appeals</a>
+
+      <div class="nav-section-label">Medical</div>
+      <a class="nav-item" href="#"><i data-lucide="heart-pulse"></i> Crew Vitals</a>
+      <a class="nav-item" href="#"><i data-lucide="pill"></i> Pharmacy (locked)</a>
+    </nav>
+
+    <div class="sidebar-footer">
+      CMDR D. VASQUEZ, RN, BSN<br>
+      AWAKE: 73h 14m<br>
+      CAFFEINE LVL: CRITICAL<br>
+      © 2026 CATASTRONAUT PROGRAM
+    </div>
+  </aside>
+
+  <!-- Main Content -->
+  <main class="main">
+    <div class="top-bar">
+      <div class="top-bar-left">
+        <h1>Mission Dashboard</h1>
+        <p>Last updated: <span x-text="currentTime"></span> — Building location: <span x-text="buildingAddress" style="color: var(--amber)"></span></p>
+      </div>
+      <div class="nurse-badge">
+        <div class="badge-cross"></div>
+        MEDICAL OVERRIDE AVAILABLE
+      </div>
+    </div>
+
+    <!-- Alert -->
+    <div class="alert-banner">
+      <i data-lucide="alert-triangle" style="width:18px;height:18px;"></i>
+      <div>
+        <strong>ZONING VIOLATION #47:</strong> Building has migrated 0.3 miles east since 0400. Admiral Whiskers refuses to approve launches from "a structure in transit." HQ is now partially in a Wendy's parking lot.
+      </div>
+    </div>
+
+    <!-- Stats Row -->
+    <div class="stats-row">
+      <div class="stat-card">
+        <div class="stat-number">0</div>
+        <div class="stat-label-text">Successful launches</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-number">147</div>
+        <div class="stat-label-text">Attempts vetoed by cats</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-number">$11,842</div>
+        <div class="stat-label-text">Budget remaining</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-number" x-text="buildingMoves">5</div>
+        <div class="stat-label-text">HQ relocations today</div>
+      </div>
+    </div>
+
+    <!-- Dashboard Grid -->
+    <div class="dashboard-grid">
+
+      <!-- Rocket Schematic -->
+      <div class="panel full-width">
+        <div class="panel-header">
+          <span class="panel-title">Vehicle Schematic — Whisker-1</span>
+          <span class="panel-badge badge-amber">HOVER FOR IGNITION TEST</span>
+        </div>
+        <div class="panel-body" style="padding:0;">
+          <div class="rocket-schematic">
+            <span class="schematic-label label-nose">NOSE CONE (cardboard)</span>
+            <span class="schematic-label label-window">CAT POD (occupied)</span>
+            <span class="schematic-label label-fins">STABILIZERS (duct tape)</span>
+            <div class="rocket-body">
+              <div class="rocket-window-cat">
+                <div class="cat-ear-r"></div>
+              </div>
+              <div class="rocket-fin-left"></div>
+              <div class="rocket-fin-right"></div>
+              <div class="rocket-flame"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Cat Approval Ratings -->
+      <div class="panel">
+        <div class="panel-header">
+          <span class="panel-title">Director Approval</span>
+          <span class="panel-badge badge-red">2/3 BLOCKING</span>
+        </div>
+        <div class="panel-body">
+          <div class="approval-grid">
+            <div class="approval-item">
+              <div class="pie-chart pie-admiral" data-value="12%"></div>
+              <div class="approval-name">Admiral Whiskers</div>
+              <div class="approval-rank">Chief Director</div>
+            </div>
+            <div class="approval-item">
+              <div class="pie-chart pie-beans" data-value="67%"></div>
+              <div class="approval-name">Dr. Beans</div>
+              <div class="approval-rank">Safety Officer</div>
+            </div>
+            <div class="approval-item">
+              <div class="pie-chart pie-muffin" data-value="91%"></div>
+              <div class="approval-name">Flt. Lt. Muffin</div>
+              <div class="approval-rank">Propulsion Lead</div>
+            </div>
+          </div>
+          <div style="margin-top:14px;font-family:var(--font-mono);font-size:11px;color:var(--text-muted);text-align:center;">
+            Unanimous approval required. Admiral Whiskers has not approved anything since the tuna incident (day 12).
+          </div>
+        </div>
+      </div>
+
+      <!-- Mission Status -->
+      <div class="panel">
+        <div class="panel-header">
+          <span class="panel-title">Mission Status</span>
+          <span class="panel-badge badge-red">HOLD</span>
+        </div>
+        <div class="panel-body">
+          <div class="mission-stat">
+            <span class="stat-label">LAUNCH WINDOW</span>
+            <span class="stat-value red">EXPIRED 3 HRS AGO</span>
+          </div>
+          <div class="mission-stat">
+            <span class="stat-label">FUEL STATUS</span>
+            <span class="stat-value amber">2.3 GALLONS (PROPANE)</span>
+          </div>
+          <div class="mission-stat">
+            <span class="stat-label">VEHICLE</span>
+            <span class="stat-value green">WHISKER-1 (on cinder blocks)</span>
+          </div>
+          <div class="mission-stat">
+            <span class="stat-label">CREW MORALE</span>
+            <span class="stat-value amber">NAPPING</span>
+          </div>
+          <div class="mission-stat">
+            <span class="stat-label">CMDR VASQUEZ</span>
+            <span class="stat-value red">HOUR 73. SEEING COLORS.</span>
+          </div>
+          <div style="margin-top:12px;">
+            <div style="font-family:var(--font-mono);font-size:10px;color:var(--text-muted);margin-bottom:6px;">TELEMETRY SIGNAL</div>
+            <div class="freq-bars">
+              <div class="freq-bar"></div>
+              <div class="freq-bar"></div>
+              <div class="freq-bar"></div>
+              <div class="freq-bar"></div>
+              <div class="freq-bar"></div>
+              <div class="freq-bar"></div>
+              <div class="freq-bar"></div>
+              <div class="freq-bar"></div>
+              <div class="freq-bar"></div>
+              <div class="freq-bar"></div>
+              <div class="freq-bar"></div>
+              <div class="freq-bar"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Orbital Tracking -->
+      <div class="panel full-width">
+        <div class="panel-header">
+          <span class="panel-title">Orbital Visualization — Projected</span>
+          <span class="panel-badge badge-green">SIMULATION ONLY</span>
+        </div>
+        <div class="panel-body" style="padding:0;">
+          <div class="orbital-display star-field">
+            <div class="orbit-ring orbit-ring-1"></div>
+            <div class="orbit-ring orbit-ring-2"></div>
+            <div class="orbit-ring orbit-ring-3"></div>
+            <div class="planet-earth"></div>
+            <div class="cat-capsule"></div>
+            <div class="cat-capsule cat-capsule-2"></div>
+            <span class="orbital-label" style="top:12px;left:12px;">WHISKER-1 (projected)</span>
+            <span class="orbital-label" style="bottom:12px;left:12px;">BEANS-SAT (hypothetical)</span>
+            <span class="orbital-label" style="top:12px;right:12px;">
+              SIGNAL: <span class="signal-dots" style="display:inline-flex;vertical-align:middle;">
+                <span class="signal-dot"></span>
+                <span class="signal-dot"></span>
+                <span class="signal-dot warn"></span>
+                <span class="signal-dot off"></span>
+                <span class="signal-dot off"></span>
+              </span>
+            </span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Launch Readiness Checklist -->
+      <div class="panel">
+        <div class="panel-header">
+          <span class="panel-title">Pre-Launch Checklist</span>
+          <span class="panel-badge badge-red">4/9</span>
+        </div>
+        <div class="panel-body">
+          <div class="checklist-item">
+            <div class="check-icon done">&#10003;</div>
+            <span class="check-text">Rocket assembled</span>
+          </div>
+          <div class="checklist-item">
+            <div class="check-icon done">&#10003;</div>
+            <span class="check-text">Propane tank connected</span>
+          </div>
+          <div class="checklist-item">
+            <div class="check-icon done">&#10003;</div>
+            <span class="check-text">Cat pod stocked with treats (6 oz Fancy Feast)</span>
+          </div>
+          <div class="checklist-item">
+            <div class="check-icon done">&#10003;</div>
+            <span class="check-text">Donna took her B12</span>
+          </div>
+          <div class="checklist-item">
+            <div class="check-icon blocked">&#10007;</div>
+            <span class="check-text">Admiral Whiskers sign-off</span>
+            <span class="check-blocker">REFUSED</span>
+          </div>
+          <div class="checklist-item">
+            <div class="check-icon blocked">&#10007;</div>
+            <span class="check-text">Building confirmed stationary</span>
+            <span class="check-blocker">MOVING</span>
+          </div>
+          <div class="checklist-item">
+            <div class="check-icon waiting">!</div>
+            <span class="check-text">FAA approval</span>
+            <span class="check-blocker" style="background:#fff3e0;color:#9a6700;">PENDING (day 312)</span>
+          </div>
+          <div class="checklist-item">
+            <div class="check-icon blocked">&#10007;</div>
+            <span class="check-text">Crew awake simultaneously</span>
+            <span class="check-blocker">2/3 NAPPING</span>
+          </div>
+          <div class="checklist-item">
+            <div class="check-icon waiting">!</div>
+            <span class="check-text">Donna slept 4+ hours</span>
+            <span class="check-blocker" style="background:#fff3e0;color:#9a6700;">LAST: 73H AGO</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Building Location Tracker -->
+      <div class="panel">
+        <div class="panel-header">
+          <span class="panel-title">HQ Location Tracker</span>
+          <span class="panel-badge badge-amber">IN TRANSIT</span>
+        </div>
+        <div class="panel-body" style="padding:0;">
+          <div class="building-tracker">
+            <div class="building-address" x-text="buildingAddress"></div>
+            <div class="css-building" :style="{ left: buildingPosition + 'px' }">
+              <div class="building-windows">
+                <div class="b-window"></div>
+                <div class="b-window"></div>
+                <div class="b-window"></div>
+                <div class="b-window"></div>
+                <div class="b-window"></div>
+                <div class="b-window"></div>
+              </div>
+              <div class="building-door"></div>
+            </div>
+            <div class="building-ground"></div>
+          </div>
+          <div style="padding:12px 16px;font-size:12px;color:var(--text-muted);font-family:var(--font-mono);">
+            Structural integrity: <span style="color:var(--amber);">QUESTIONABLE</span><br>
+            Foundation type: <span style="color:var(--text-secondary);">None detected</span><br>
+            Drift velocity: <span style="color:var(--red);">0.02 mph NNE</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Mission Logs -->
+      <div class="panel full-width">
+        <div class="panel-header">
+          <span class="panel-title">Recent Mission Logs</span>
+          <span class="panel-badge badge-green">LIVE</span>
+        </div>
+        <div class="panel-body">
+          <div class="log-entry">
+            <span class="log-time">0647 UTC — 14 MIN AGO</span>
+            <span class="log-text">Admiral Whiskers knocked the launch abort switch off the console. Again. Third replacement this week. He maintains eye contact while doing it. <span class="log-tag tag-cat">CAT-OPS</span></span>
+          </div>
+          <div class="log-entry">
+            <span class="log-time">0612 UTC — 49 MIN AGO</span>
+            <span class="log-text">Building has drifted into Wendy's lot. Customer attempted to order a Baconator through our airlock. Cmdr Vasquez gave him a mission patch and he left satisfied. <span class="log-tag tag-structural">STRUCTURAL</span></span>
+          </div>
+          <div class="log-entry">
+            <span class="log-time">0558 UTC — 1H 3M AGO</span>
+            <span class="log-text">Dr. Beans approved simulated launch at 67% confidence. Immediately fell asleep in the fuel gauge housing. Propane readings now include cat body heat. <span class="log-tag tag-cat">CAT-OPS</span></span>
+          </div>
+          <div class="log-entry">
+            <span class="log-time">0530 UTC — 1H 31M AGO</span>
+            <span class="log-text">Cmdr Vasquez administered herself a B12 injection, missed, got it on the second try. Noted "the walls are breathing but that's probably fine." <span class="log-tag tag-medical">MEDICAL</span></span>
+          </div>
+          <div class="log-entry">
+            <span class="log-time">0445 UTC — 2H 16M AGO</span>
+            <span class="log-text">Flt. Lt. Muffin successfully completed pre-flight paw-print authorization on all 14 forms. Subsequently ate 3 of them. Reprinting. <span class="log-tag tag-cat">CAT-OPS</span></span>
+          </div>
+          <div class="log-entry">
+            <span class="log-time">0401 UTC — 3H AGO</span>
+            <span class="log-text">Launch window opened. Admiral Whiskers sat in the exact center of the launch button for the entire 47-minute window. Launch window closed. <span class="log-tag tag-cat">CAT-OPS</span></span>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /dashboard-grid -->
+
+    <!-- Section Separator -->
+    <div class="section-separator">
+      <div class="separator-line"></div>
+      <div class="separator-ornament"></div>
+    </div>
+
+    <!-- Footer -->
+    <footer style="text-align:center;padding:20px 0 40px;font-family:var(--font-mono);font-size:11px;color:var(--text-muted);line-height:1.8;">
+      CATASTRONAUT SPACE PROGRAM — EST. 2024 (TECHNICALLY)<br>
+      "We will get to space. The cats just need to agree on when."<br>
+      <span style="color:var(--green-1);">MISSION CONTROL v3.7.1</span> · UPTIME: 73H 14M · NEXT MANDATORY SLEEP: OVERDUE<br>
+      <span style="color:var(--text-muted);">NOT AFFILIATED WITH NASA, SPACEX, OR ANY WENDY'S FRANCHISE</span>
+    </footer>
+
+  </main>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  // Initialize Lucide icons
+  if (typeof lucide !== 'undefined') {
+    lucide.createIcons();
+  }
+
+  // GSAP entrance animations
+  if (typeof gsap !== 'undefined') {
+    gsap.fromTo('.stat-card', 
+      { y: 20, opacity: 0 }, 
+      { y: 0, opacity: 1, duration: 0.5, stagger: 0.1, ease: 'power2.out', clearProps: 'opacity,transform' }
+    );
+
+    gsap.fromTo('.panel', 
+      { y: 30, opacity: 0 }, 
+      { y: 0, opacity: 1, duration: 0.6, stagger: 0.08, delay: 0.3, ease: 'power2.out', clearProps: 'opacity,transform' }
+    );
+
+    gsap.fromTo('.alert-banner', 
+      { x: -20, opacity: 0 }, 
+      { x: 0, opacity: 1, duration: 0.5, delay: 0.2, ease: 'power2.out', clearProps: 'opacity,transform' }
+    );
+
+    // Rocket hover animation
+    var rocketEl = document.querySelector('.rocket-body');
+    if (rocketEl) {
+      rocketEl.addEventListener('mouseenter', function() {
+        gsap.to(rocketEl, { y: -8, duration: 0.4, ease: 'power2.out' });
+      });
+      rocketEl.addEventListener('mouseleave', function() {
+        gsap.to(rocketEl, { y: 0, duration: 0.6, ease: 'bounce.out' });
+      });
+    }
+
+    // Pie chart hover pulse
+    var pies = document.querySelectorAll('.pie-chart');
+    pies.forEach(function(pie) {
+      pie.addEventListener('mouseenter', function() {
+        gsap.to(pie, { scale: 1.15, duration: 0.3, ease: 'back.out(1.7)' });
+      });
+      pie.addEventListener('mouseleave', function() {
+        gsap.to(pie, { scale: 1, duration: 0.3, ease: 'power2.out' });
+      });
+    });
+  }
+});
+
+// Alpine.js data
+function missionControl() {
+  var addresses = [
+    '742 Launchpad Dr (partially in Wendy\'s lot)',
+    '742 Launchpad Dr (now fully in Wendy\'s lot)',
+    '744 Launchpad Dr (drifted 2 addresses east)',
+    'Behind the Wendy\'s, technically',
+    '746 Launchpad Dr (approaching Arby\'s)',
+    'The Wendy\'s/Arby\'s gap',
+    '748 Launchpad Dr (Arby\'s has called the police)'
+  ];
+
+  var positions = [30, 80, 140, 60, 180, 110, 50];
+
+  return {
+    sidebarOpen: false,
+    currentTime: new Date().toLocaleTimeString('en-US', { hour12: false }),
+    buildingAddress: addresses[0],
+    buildingPosition: positions[0],
+    buildingMoves: 5,
+    addressIndex: 0,
+
+    init: function() {
+      var self = this;
+
+      // Update clock every second
+      setInterval(function() {
+        self.currentTime = new Date().toLocaleTimeString('en-US', { hour12: false });
+      }, 1000);
+
+      // Building drift every 12 seconds
+      setInterval(function() {
+        self.addressIndex = (self.addressIndex + 1) % addresses.length;
+        self.buildingAddress = addresses[self.addressIndex];
+        self.buildingPosition = positions[self.addressIndex];
+        self.buildingMoves++;
+      }, 12000);
+    }
+  };
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,1659 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Municipality of Mnemonica — Official Civic Portal</title>
+<link rel="stylesheet" href="/assets/css/fonts.css">
+<link rel="stylesheet" href="/assets/css/pico.min.css">
+<style>
+:root {
+  --neon-cyan: #00fff2;
+  --neon-pink: #ff2d95;
+  --neon-yellow: #f5ff3a;
+  --neon-green: #39ff14;
+  --neon-orange: #ff6b2b;
+  --neon-purple: #c77dff;
+  --bg-dark: #0a0a0f;
+  --bg-panel: #12121c;
+  --bg-sidebar: #0d0d15;
+  --bg-card: #1a1a2e;
+  --text-primary: #ffffff;
+  --text-secondary: #c8c8d4;
+  --text-muted: #a0a0b8;
+  --border-color: #2a2a3e;
+  --paw: "🐾";
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html { font-size: 16px; scroll-behavior: smooth; }
+
+body {
+  font-family: 'IBM Plex Mono', monospace;
+  background: var(--bg-dark);
+  color: var(--text-primary);
+  line-height: 1.7;
+  overflow-x: hidden;
+}
+
+/* === LAYOUT === */
+.site-wrapper {
+  display: flex;
+  min-height: 100vh;
+}
+
+/* === SIDEBAR === */
+.sidebar {
+  width: 280px;
+  min-width: 280px;
+  background: var(--bg-sidebar);
+  border-right: 1px solid var(--border-color);
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  z-index: 100;
+}
+
+.sidebar-header {
+  padding: 24px 20px 16px;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.sidebar-logo {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--neon-cyan);
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.sidebar-logo .paw-icon { font-size: 1.4rem; }
+
+.sidebar-subtitle {
+  font-size: 0.7rem;
+  color: var(--text-muted);
+  margin-top: 4px;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+}
+
+.sidebar-status {
+  padding: 12px 20px;
+  background: #1a0a0a;
+  border-bottom: 1px solid var(--border-color);
+  font-size: 0.72rem;
+}
+
+.status-dot {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--neon-green);
+  margin-right: 6px;
+  animation: pulse-dot 2s infinite;
+}
+
+@keyframes pulse-dot {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.3; }
+}
+
+.status-label { color: var(--neon-green); }
+.status-detail { color: var(--text-muted); display: block; margin-top: 2px; }
+
+.sidebar-nav { padding: 12px 0; flex: 1; }
+
+.nav-section-title {
+  font-size: 0.65rem;
+  color: var(--neon-pink);
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  padding: 16px 20px 6px;
+  font-weight: 700;
+}
+
+.nav-link {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 20px;
+  color: var(--text-secondary);
+  text-decoration: none;
+  font-size: 0.82rem;
+  transition: all 0.15s;
+  border-left: 3px solid transparent;
+  cursor: pointer;
+}
+
+.nav-link:hover {
+  background: #1a1a2e;
+  color: var(--neon-cyan);
+  border-left-color: var(--neon-cyan);
+}
+
+.nav-link.active {
+  background: #1a1a2e;
+  color: var(--neon-cyan);
+  border-left-color: var(--neon-cyan);
+}
+
+.nav-link .nav-icon { font-size: 1rem; width: 20px; text-align: center; }
+.nav-link .nav-badge {
+  margin-left: auto;
+  font-size: 0.65rem;
+  background: var(--neon-pink);
+  color: #000;
+  padding: 1px 7px;
+  border-radius: 10px;
+  font-weight: 700;
+}
+
+.sidebar-footer {
+  padding: 16px 20px;
+  border-top: 1px solid var(--border-color);
+  font-size: 0.68rem;
+  color: var(--text-muted);
+}
+
+.sidebar-footer .beige-alert {
+  color: var(--neon-orange);
+  font-weight: 700;
+  text-transform: uppercase;
+  font-size: 0.62rem;
+  letter-spacing: 1px;
+  margin-top: 8px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+/* === MOBILE SIDEBAR === */
+.mobile-header {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 56px;
+  background: var(--bg-sidebar);
+  border-bottom: 1px solid var(--border-color);
+  z-index: 200;
+  align-items: center;
+  padding: 0 16px;
+  justify-content: space-between;
+}
+
+.mobile-header .sidebar-logo { font-size: 0.9rem; }
+
+.hamburger {
+  background: none;
+  border: 1px solid var(--border-color);
+  color: var(--neon-cyan);
+  width: 44px;
+  height: 44px;
+  font-size: 1.4rem;
+  cursor: pointer;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.sidebar-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.7);
+  z-index: 150;
+}
+
+/* === MAIN CONTENT === */
+.main-content {
+  flex: 1;
+  min-width: 0;
+  padding: 40px;
+  max-width: 960px;
+}
+
+/* === HERO === */
+.hero-section {
+  border: 1px solid var(--neon-cyan);
+  border-radius: 8px;
+  padding: 40px;
+  position: relative;
+  overflow: hidden;
+  margin-bottom: 48px;
+  background: linear-gradient(135deg, rgba(0,255,242,0.03), rgba(255,45,149,0.03));
+}
+
+.hero-section::before {
+  content: '🐾 🐾 🐾 🐾 🐾 🐾 🐾 🐾 🐾 🐾 🐾';
+  position: absolute;
+  top: -4px;
+  left: 0;
+  right: 0;
+  font-size: 0.7rem;
+  letter-spacing: 12px;
+  text-align: center;
+  opacity: 0.3;
+}
+
+.hero-welcome-back {
+  font-size: 0.75rem;
+  color: var(--neon-orange);
+  text-transform: uppercase;
+  letter-spacing: 3px;
+  margin-bottom: 12px;
+  font-weight: 700;
+}
+
+.hero-title {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: clamp(1.8rem, 4vw, 2.6rem);
+  font-weight: 700;
+  color: var(--text-primary);
+  line-height: 1.2;
+  margin-bottom: 16px;
+}
+
+.hero-title .neon-text { color: var(--neon-cyan); }
+
+.hero-subtitle {
+  font-size: 0.95rem;
+  color: var(--text-secondary);
+  max-width: 600px;
+  margin-bottom: 24px;
+}
+
+.hero-stats {
+  display: flex;
+  gap: 32px;
+  flex-wrap: wrap;
+  margin-top: 24px;
+  padding-top: 24px;
+  border-top: 1px solid var(--border-color);
+}
+
+.hero-stat-label {
+  font-size: 0.65rem;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.hero-stat-value {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 1.6rem;
+  font-weight: 700;
+  color: var(--neon-yellow);
+}
+
+.hero-reminder {
+  margin-top: 24px;
+  padding: 12px 16px;
+  background: rgba(255,45,149,0.08);
+  border-left: 3px solid var(--neon-pink);
+  font-size: 0.82rem;
+  color: var(--text-secondary);
+  border-radius: 0 6px 6px 0;
+}
+
+/* === SECTION STYLES === */
+.section-block {
+  margin-bottom: 48px;
+}
+
+.section-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 20px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.section-icon { font-size: 1.2rem; }
+
+.section-title {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: var(--neon-cyan);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.section-badge {
+  margin-left: auto;
+  font-size: 0.65rem;
+  padding: 3px 10px;
+  border-radius: 12px;
+  border: 1px solid var(--neon-pink);
+  color: var(--neon-pink);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+/* === CARDS === */
+.card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  padding: 24px;
+  margin-bottom: 16px;
+  transition: border-color 0.2s;
+}
+
+.card:hover { border-color: var(--neon-cyan); }
+
+.card-label {
+  font-size: 0.65rem;
+  color: var(--neon-pink);
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  margin-bottom: 8px;
+  font-weight: 700;
+}
+
+.card-title {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: 8px;
+}
+
+.card-text {
+  font-size: 0.88rem;
+  color: var(--text-secondary);
+  line-height: 1.7;
+}
+
+.card-meta {
+  font-size: 0.72rem;
+  color: var(--text-muted);
+  margin-top: 12px;
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+/* === STAFF GRID === */
+.staff-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 16px;
+}
+
+.staff-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  padding: 20px;
+  transition: border-color 0.2s;
+}
+
+.staff-card:hover { border-color: var(--neon-purple); }
+
+.staff-name {
+  font-family: 'Space Grotesk', sans-serif;
+  font-weight: 700;
+  color: var(--neon-purple);
+  font-size: 0.95rem;
+}
+
+.staff-role {
+  font-size: 0.72rem;
+  color: var(--neon-yellow);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin-bottom: 8px;
+}
+
+.staff-bio {
+  font-size: 0.82rem;
+  color: var(--text-secondary);
+  line-height: 1.6;
+}
+
+.staff-note {
+  font-size: 0.72rem;
+  color: var(--text-muted);
+  margin-top: 10px;
+  padding-top: 10px;
+  border-top: 1px solid var(--border-color);
+  font-style: italic;
+}
+
+/* === GAZETTE === */
+.gazette-article {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  padding: 24px;
+  margin-bottom: 16px;
+  cursor: pointer;
+  transition: border-color 0.2s;
+}
+
+.gazette-article:hover { border-color: var(--neon-green); }
+
+.gazette-date {
+  font-size: 0.68rem;
+  color: var(--neon-green);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.gazette-headline {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin: 6px 0 10px;
+  line-height: 1.3;
+}
+
+.gazette-excerpt {
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+  line-height: 1.7;
+}
+
+.gazette-full {
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 1px solid var(--border-color);
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+  line-height: 1.8;
+}
+
+.gazette-byline {
+  font-size: 0.7rem;
+  color: var(--text-muted);
+  margin-top: 12px;
+}
+
+/* === FAQ === */
+.faq-item {
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  margin-bottom: 8px;
+  overflow: hidden;
+  background: var(--bg-card);
+}
+
+.faq-question {
+  padding: 16px 20px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 0.88rem;
+  color: var(--text-primary);
+  font-weight: 600;
+  transition: background 0.15s;
+  min-height: 44px;
+}
+
+.faq-question:hover { background: rgba(0,255,242,0.04); }
+
+.faq-toggle {
+  color: var(--neon-cyan);
+  font-size: 1.2rem;
+  transition: transform 0.2s;
+  flex-shrink: 0;
+  margin-left: 12px;
+}
+
+.faq-answer {
+  padding: 0 20px 16px;
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+  line-height: 1.7;
+}
+
+/* === TESTIMONIALS === */
+.testimonial {
+  background: var(--bg-card);
+  border-left: 3px solid var(--neon-purple);
+  border-radius: 0 8px 8px 0;
+  padding: 20px 24px;
+  margin-bottom: 16px;
+}
+
+.testimonial-text {
+  font-family: 'Crimson Pro', serif;
+  font-size: 1.05rem;
+  color: var(--text-primary);
+  line-height: 1.7;
+  font-style: italic;
+}
+
+.testimonial-author {
+  margin-top: 12px;
+  font-size: 0.78rem;
+  color: var(--neon-purple);
+  font-weight: 700;
+}
+
+.testimonial-detail {
+  font-size: 0.72rem;
+  color: var(--text-muted);
+}
+
+/* === LEGAL/ORDINANCE === */
+.ordinance-box {
+  background: var(--bg-card);
+  border: 2px solid var(--neon-orange);
+  border-radius: 8px;
+  padding: 28px;
+  position: relative;
+}
+
+.ordinance-seal {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  font-size: 2rem;
+  opacity: 0.4;
+}
+
+.ordinance-number {
+  font-size: 0.72rem;
+  color: var(--neon-orange);
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  font-weight: 700;
+}
+
+.ordinance-title {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin: 8px 0 16px;
+}
+
+.ordinance-text {
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+  line-height: 1.8;
+}
+
+.ordinance-text p { margin-bottom: 12px; }
+
+.ordinance-penalty {
+  margin-top: 16px;
+  padding: 12px 16px;
+  background: rgba(255,107,43,0.08);
+  border-radius: 6px;
+  font-size: 0.82rem;
+  color: var(--neon-orange);
+  font-weight: 600;
+}
+
+/* === COFFEE PROGRAM === */
+.coffee-tier {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  padding: 24px;
+  margin-bottom: 16px;
+}
+
+.coffee-tier-name {
+  font-family: 'Space Grotesk', sans-serif;
+  font-weight: 700;
+  font-size: 1rem;
+  color: var(--neon-yellow);
+  margin-bottom: 4px;
+}
+
+.coffee-tier-price {
+  font-size: 0.78rem;
+  color: var(--text-muted);
+  margin-bottom: 12px;
+}
+
+.coffee-tier-desc {
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+  line-height: 1.7;
+}
+
+.coffee-tier-note {
+  font-size: 0.72rem;
+  color: var(--neon-pink);
+  margin-top: 10px;
+  font-weight: 600;
+}
+
+/* === TABS === */
+.tab-bar {
+  display: flex;
+  gap: 0;
+  border-bottom: 1px solid var(--border-color);
+  margin-bottom: 20px;
+  overflow-x: auto;
+}
+
+.tab-btn {
+  padding: 10px 20px;
+  background: none;
+  border: none;
+  border-bottom: 2px solid transparent;
+  color: var(--text-muted);
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.78rem;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.15s;
+  min-height: 44px;
+}
+
+.tab-btn:hover { color: var(--text-primary); }
+.tab-btn.active {
+  color: var(--neon-cyan);
+  border-bottom-color: var(--neon-cyan);
+}
+
+/* === REPORT FORM === */
+.report-form {
+  background: var(--bg-card);
+  border: 1px solid var(--neon-orange);
+  border-radius: 8px;
+  padding: 24px;
+}
+
+.report-form input,
+.report-form textarea,
+.report-form select {
+  background: var(--bg-dark);
+  border: 1px solid var(--border-color);
+  color: var(--text-primary);
+  border-radius: 6px;
+  padding: 10px 14px;
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.85rem;
+  width: 100%;
+  margin-bottom: 12px;
+  min-height: 44px;
+}
+
+.report-form input:focus,
+.report-form textarea:focus {
+  outline: none;
+  border-color: var(--neon-cyan);
+}
+
+.report-form label {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin-bottom: 4px;
+  display: block;
+}
+
+.report-btn {
+  background: var(--neon-orange);
+  color: #000;
+  border: none;
+  padding: 12px 24px;
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.82rem;
+  font-weight: 700;
+  border-radius: 6px;
+  cursor: pointer;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  min-height: 44px;
+}
+
+.report-btn:hover { filter: brightness(1.1); }
+
+/* === MARQUEE === */
+.ticker-bar {
+  background: var(--neon-pink);
+  color: #000;
+  padding: 8px 0;
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  overflow: hidden;
+  white-space: nowrap;
+  margin-bottom: 32px;
+}
+
+.ticker-content {
+  display: inline-block;
+  animation: ticker 30s linear infinite;
+}
+
+@keyframes ticker {
+  from { transform: translateX(0); }
+  to { transform: translateX(-50%); }
+}
+
+/* === FOOTER === */
+.site-footer {
+  margin-top: 64px;
+  padding: 32px 0;
+  border-top: 1px solid var(--border-color);
+  font-size: 0.72rem;
+  color: var(--text-muted);
+}
+
+.footer-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 24px;
+  margin-bottom: 24px;
+}
+
+.footer-col-title {
+  font-family: 'Space Grotesk', sans-serif;
+  font-weight: 700;
+  color: var(--neon-cyan);
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin-bottom: 8px;
+}
+
+.footer-col a {
+  display: block;
+  color: var(--text-muted);
+  text-decoration: none;
+  padding: 2px 0;
+  transition: color 0.15s;
+}
+
+.footer-col a:hover { color: var(--neon-cyan); }
+
+.footer-bottom {
+  padding-top: 16px;
+  border-top: 1px solid var(--border-color);
+  text-align: center;
+  color: var(--text-muted);
+}
+
+/* === GLOW EFFECTS === */
+.neon-glow-cyan { text-shadow: 0 0 10px rgba(0,255,242,0.3); }
+.neon-glow-pink { text-shadow: 0 0 10px rgba(255,45,149,0.3); }
+
+/* === PICO OVERRIDES === */
+:root {
+  --pico-background-color: var(--bg-dark);
+  --pico-color: var(--text-primary);
+}
+article, section, aside, nav, header, footer { background: transparent; }
+a { color: var(--neon-cyan); }
+
+/* === RESPONSIVE === */
+@media (max-width: 900px) {
+  .sidebar { display: none; }
+  .mobile-header { display: flex; }
+  .sidebar.open {
+    display: flex;
+    position: fixed;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    z-index: 200;
+  }
+  .sidebar-overlay.open { display: block; }
+  .main-content {
+    padding: 72px 20px 40px;
+    max-width: 100%;
+  }
+  .hero-section { padding: 28px 20px; }
+  .hero-stats { gap: 20px; }
+  .staff-grid { grid-template-columns: 1fr; }
+  .tab-btn { padding: 10px 14px; font-size: 0.72rem; }
+}
+
+@media (max-width: 480px) {
+  .hero-title { font-size: 1.5rem; }
+  .hero-stats { flex-direction: column; gap: 12px; }
+  .card, .gazette-article, .testimonial, .coffee-tier { padding: 16px; }
+  .ordinance-box { padding: 20px; }
+  .footer-grid { grid-template-columns: 1fr; }
+}
+
+/* === SCROLLBAR === */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: var(--bg-dark); }
+::-webkit-scrollbar-thumb { background: var(--border-color); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: var(--neon-cyan); }
+
+/* === CATPRINT WATERMARK === */
+.paw-watermark {
+  position: fixed;
+  bottom: 80px;
+  left: 40px;
+  font-size: 4rem;
+  opacity: 0.06;
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* === EMERGENCY BANNER === */
+.emergency-banner {
+  background: repeating-linear-gradient(
+    45deg,
+    transparent,
+    transparent 10px,
+    rgba(255,45,149,0.05) 10px,
+    rgba(255,45,149,0.05) 20px
+  );
+  border: 1px solid var(--neon-pink);
+  border-radius: 8px;
+  padding: 20px;
+  margin-bottom: 16px;
+  text-align: center;
+}
+
+.emergency-number {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 1.8rem;
+  font-weight: 700;
+  color: var(--neon-pink);
+  letter-spacing: 4px;
+}
+
+.emergency-label {
+  font-size: 0.72rem;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  margin-top: 4px;
+}
+
+/* paw print trail decoration */
+.paw-trail {
+  font-size: 0.7rem;
+  letter-spacing: 8px;
+  color: var(--neon-cyan);
+  opacity: 0.25;
+  margin: 24px 0;
+  text-align: center;
+}
+
+/* blog/press style */
+.press-release {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  padding: 28px;
+  margin-bottom: 16px;
+}
+
+.press-label {
+  font-size: 0.62rem;
+  color: var(--neon-green);
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  font-weight: 700;
+  margin-bottom: 8px;
+}
+
+.press-title {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: 12px;
+}
+
+.press-body {
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+  line-height: 1.8;
+}
+
+.press-body p { margin-bottom: 12px; }
+
+/* subtle scanline effect */
+.main-content::before {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  pointer-events: none;
+  background: repeating-linear-gradient(
+    0deg,
+    transparent,
+    transparent 2px,
+    rgba(0,255,242,0.008) 2px,
+    rgba(0,255,242,0.008) 4px
+  );
+  z-index: 1000;
+}
+</style>
+</head>
+<body x-data="mnemonica()">
+
+<div class="paw-watermark">🐾</div>
+
+<!-- MOBILE HEADER -->
+<div class="mobile-header">
+  <div class="sidebar-logo">
+    <span class="paw-icon">🐾</span> MNEMONICA
+  </div>
+  <button class="hamburger" @click="sidebarOpen = !sidebarOpen" aria-label="Open menu">☰</button>
+</div>
+
+<div class="sidebar-overlay" :class="{ open: sidebarOpen }" @click="sidebarOpen = false"></div>
+
+<div class="site-wrapper">
+  <!-- SIDEBAR -->
+  <nav class="sidebar" :class="{ open: sidebarOpen }">
+    <div class="sidebar-header">
+      <div class="sidebar-logo">
+        <span class="paw-icon">🐾</span> MNEMONICA
+      </div>
+      <div class="sidebar-subtitle">Municipal Civic Portal v4.7.2</div>
+    </div>
+
+    <div class="sidebar-status">
+      <span class="status-dot"></span>
+      <span class="status-label">MEMORY CYCLE ACTIVE</span>
+      <span class="status-detail">Next city-wide reset: <span x-text="nextReset">47h 12m</span></span>
+    </div>
+
+    <div class="sidebar-nav">
+      <div class="nav-section-title">🐾 Municipal Services</div>
+      <a class="nav-link" :class="{ active: activeSection === 'welcome' }" @click="scrollTo('welcome')">
+        <span class="nav-icon">🏠</span> Welcome (Again)
+      </a>
+      <a class="nav-link" :class="{ active: activeSection === 'gazette' }" @click="scrollTo('gazette')">
+        <span class="nav-icon">📰</span> The Gazette
+        <span class="nav-badge">NEW</span>
+      </a>
+      <a class="nav-link" :class="{ active: activeSection === 'directory' }" @click="scrollTo('directory')">
+        <span class="nav-icon">🐱</span> Staff Directory
+      </a>
+      <a class="nav-link" :class="{ active: activeSection === 'ordinance' }" @click="scrollTo('ordinance')">
+        <span class="nav-icon">⚖️</span> The Beige Law
+      </a>
+
+      <div class="nav-section-title">🐾 Citizen Resources</div>
+      <a class="nav-link" :class="{ active: activeSection === 'cbmap' }" @click="scrollTo('cbmap')">
+        <span class="nav-icon">☕</span> C-BMAP Coffee
+      </a>
+      <a class="nav-link" :class="{ active: activeSection === 'faq' }" @click="scrollTo('faq')">
+        <span class="nav-icon">❓</span> FAQ
+        <span class="nav-badge">14</span>
+      </a>
+      <a class="nav-link" :class="{ active: activeSection === 'testimonials' }" @click="scrollTo('testimonials')">
+        <span class="nav-icon">💬</span> Citizen Voices
+      </a>
+
+      <div class="nav-section-title">🐾 Enforcement</div>
+      <a class="nav-link" :class="{ active: activeSection === 'report' }" @click="scrollTo('report')">
+        <span class="nav-icon">🚨</span> Report Beige
+        <span class="nav-badge" style="background:var(--neon-orange)">URGENT</span>
+      </a>
+      <a class="nav-link" :class="{ active: activeSection === 'press' }" @click="scrollTo('press')">
+        <span class="nav-icon">📋</span> Press Room
+      </a>
+    </div>
+
+    <div class="sidebar-footer">
+      <div>Est. We're Not Sure · Pop. ~12,400 (estimated)</div>
+      <div style="margin-top:4px;">Admin: Clementine Whiskers, City Mgr.</div>
+      <div class="beige-alert">⚠ BEIGE THREAT LEVEL: ELEVATED</div>
+    </div>
+  </nav>
+
+  <!-- MAIN -->
+  <main class="main-content">
+
+    <!-- TICKER -->
+    <div class="ticker-bar">
+      <div class="ticker-content">
+        &nbsp;&nbsp;🐾 REMINDER: YOU LIVE HERE. THIS IS YOUR CITY. YOU CHOSE THIS. &nbsp;&nbsp;🐾&nbsp;&nbsp; BEIGE SIGHTING ON 4TH & WHISKER — ENFORCEMENT DISPATCHED &nbsp;&nbsp;🐾&nbsp;&nbsp; NEXT MEMORY CYCLE: 47 HOURS — LABEL YOUR BELONGINGS &nbsp;&nbsp;🐾&nbsp;&nbsp; C-BMAP DISTRIBUTION CENTER #7 TEMPORARILY CLOSED (HAIRBALL INCIDENT) &nbsp;&nbsp;🐾&nbsp;&nbsp; MUNICIPAL REMINDER: YOUR NAME IS PROBABLY NOT "DAVE" — CHECK YOUR COLLAR TAG &nbsp;&nbsp;🐾&nbsp;&nbsp;
+        REMINDER: YOU LIVE HERE. THIS IS YOUR CITY. YOU CHOSE THIS. &nbsp;&nbsp;🐾&nbsp;&nbsp; BEIGE SIGHTING ON 4TH & WHISKER — ENFORCEMENT DISPATCHED &nbsp;&nbsp;🐾&nbsp;&nbsp; NEXT MEMORY CYCLE: 47 HOURS — LABEL YOUR BELONGINGS &nbsp;&nbsp;🐾&nbsp;&nbsp; C-BMAP DISTRIBUTION CENTER #7 TEMPORARILY CLOSED (HAIRBALL INCIDENT) &nbsp;&nbsp;🐾&nbsp;&nbsp; MUNICIPAL REMINDER: YOUR NAME IS PROBABLY NOT "DAVE" — CHECK YOUR COLLAR TAG &nbsp;&nbsp;🐾&nbsp;&nbsp;
+      </div>
+    </div>
+
+    <!-- HERO / WELCOME -->
+    <section class="hero-section" id="welcome">
+      <div class="hero-welcome-back">⚠ Welcome Back — Probably</div>
+      <h1 class="hero-title">
+        Welcome to <span class="neon-text neon-glow-cyan">Mnemonica</span>
+      </h1>
+      <p class="hero-subtitle">
+        You are a citizen of Mnemonica. You moved here voluntarily. We have documentation. You signed it. You will not remember signing it. This is normal.
+      </p>
+      <p class="hero-subtitle" style="color:var(--text-muted); font-size:0.82rem;">
+        If you are reading this for what feels like the first time, it is not. Our records show you have accessed this portal approximately <strong style="color:var(--neon-yellow);" x-text="portalVisits">347</strong> times. Please stop emailing us about "waking up in a strange apartment." It is your apartment. The neon green walls were your choice.
+      </p>
+
+      <div class="hero-stats">
+        <div>
+          <div class="hero-stat-label">Citizens</div>
+          <div class="hero-stat-value">~12,400</div>
+        </div>
+        <div>
+          <div class="hero-stat-label">Memory Cycles</div>
+          <div class="hero-stat-value">1,847</div>
+        </div>
+        <div>
+          <div class="hero-stat-label">Beige Incidents (YTD)</div>
+          <div class="hero-stat-value">23</div>
+        </div>
+        <div>
+          <div class="hero-stat-label">Cats in Government</div>
+          <div class="hero-stat-value">All</div>
+        </div>
+      </div>
+
+      <div class="hero-reminder">
+        <strong>🐾 From the desk of Clementine Whiskers, City Manager:</strong><br>
+        I know you don't remember me. I've made peace with that. Every 72 hours I introduce myself to the entire city again. My name is Clementine. I am a calico. I founded this city after my doctoral thesis, "The Espresso of Forgetting: Caffeine as Mnemonic Anchor in Post-Temporal Civic Architecture," was rejected by 14 universities and one Starbucks. I was right. They were wrong. You're welcome.
+      </div>
+    </section>
+
+    <div class="paw-trail">🐾 🐾 🐾 🐾 🐾 🐾 🐾</div>
+
+    <!-- THE MNEMONICA GAZETTE -->
+    <section class="section-block" id="gazette">
+      <div class="section-header">
+        <span class="section-icon">📰</span>
+        <h2 class="section-title">The Mnemonica Gazette</h2>
+        <span class="section-badge">This Week's Mews</span>
+      </div>
+
+      <div x-data="{ expanded: null }">
+
+        <div class="gazette-article" @click="expanded = expanded === 1 ? null : 1">
+          <div class="gazette-date">Vol. MMDCII · Furrsday, Cycle 1847</div>
+          <h3 class="gazette-headline">Local Man Discovers He Is Mayor; Resigns Immediately, Forgets, Runs Again</h3>
+          <p class="gazette-excerpt">
+            Gerald Thumbsworth, 43, experienced what municipal psychologists are calling "a purrfectly normal Tuesday" when he woke up, checked the civic registry, discovered he had been elected mayor of Mnemonica six cycles ago, and tendered his resignation by 9 AM. By lunch, having forgotten the entire morning, he announced his candidacy.
+          </p>
+          <template x-if="expanded === 1">
+            <div class="gazette-full">
+              <p>"I just feel like this city needs fresh leadership," Thumbsworth told the Gazette at 2:14 PM, standing in front of a campaign poster bearing his own face. When asked why the poster looked weathered, he theorized it belonged to "whoever this poor guy was before me."</p>
+              <p>City Manager Clementine Whiskers has declined to intervene. "Gerald has won every election he's run in," she said, grooming a paw. "He's also lost every election he's run in. The numbers are identical because he is the only candidate. He is also the only voter. Nobody else remembers election day."</p>
+              <p>Municipal records show Thumbsworth has been elected, resigned, and re-run 312 times. His campaign platform has remained remarkably consistent: "accountability, transparency, and finding out whose apartment this is."</p>
+              <p>At press time, Thumbsworth had conceded the race to himself and was drafting a concession speech.</p>
+              <div class="gazette-byline">— Reported by Socks Mcwhiskers, Senior Correspondent · Fact-checked by nobody (they forgot)</div>
+            </div>
+          </template>
+          <div class="gazette-byline" x-show="expanded !== 1">Click to read full article 🐾</div>
+        </div>
+
+        <div class="gazette-article" @click="expanded = expanded === 2 ? null : 2">
+          <div class="gazette-date">Vol. MMDCII · Whisker Wednesday</div>
+          <h3 class="gazette-headline">Color Enforcement Division Busts Clandestine Beige Paint Ring; 47 Gallons Seized</h3>
+          <p class="gazette-excerpt">
+            The Mnemonica Color Enforcement Division (CED) raided a warehouse on Purriwinkle Boulevard early this morning, seizing 47 gallons of contraband paint in shades ranging from "Desert Sand" to "Toasted Oat" to the most dangerous of all: "Agreeable Beige."
+          </p>
+          <template x-if="expanded === 2">
+            <div class="gazette-full">
+              <p>CED Captain Tuna Rodriguez described the scene as "deeply unsettling." Undercover officers had been tracking the ring for three memory cycles — which is to say, the investigation restarted from scratch three separate times before someone remembered to write it down.</p>
+              <p>"The ringleader, who we believe goes by the alias 'Khaki Karen,' remains at large," Rodriguez said, flexing his claws on the podium. "She may not remember she's at large. We may not remember we're looking for her. This is the challenge of policing in Mnemonica."</p>
+              <p>The seized paint will be destroyed via the city's standard protocol: repainting it neon green and launching it from the municipal catapult into the ocean. Citizens are reminded that possession of beige-spectrum paint carries a minimum sentence of 72 hours — which, due to the memory cycle, effectively means you wake up free but with a very strong sense that you did something wrong.</p>
+              <p>"Honestly, that lingering shame is the real punishment," noted Municipal Judge Mittens Clearwater.</p>
+              <div class="gazette-byline">— CED Press Office · Photo: A very beige warehouse, now neon pink</div>
+            </div>
+          </template>
+          <div class="gazette-byline" x-show="expanded !== 2">Click to read full article 🐾</div>
+        </div>
+
+        <div class="gazette-article" @click="expanded = expanded === 3 ? null : 3">
+          <div class="gazette-date">Vol. MMDCII · Caturday</div>
+          <h3 class="gazette-headline">Couple Renews Vows For 400th Time; "Every Time Feels Like the First," Says Groom, Accurately</h3>
+          <p class="gazette-excerpt">
+            Marcus and Linda Puffington celebrated their love this Caturday in what city records indicate is their 400th wedding ceremony. Marcus described the event as "magical and completely unexpected" — a sentiment he has expressed, word for word, 399 times previously.
+          </p>
+          <template x-if="expanded === 3">
+            <div class="gazette-full">
+              <p>"When she walked down the aisle, I thought: who is this incredible woman, and why does she seem to know exactly how I take my coffee?" Marcus told the Gazette, wiping tears from his eyes. Linda, for her part, described the proposal as "so spontaneous" — though their wedding planner, Reverend Paws McGee, confirmed the couple has a standing reservation every third cycle.</p>
+              <p>"I keep the same flowers on hold," McGee said. "Same vows. Same cake. Last cycle, Marcus improvised a different reading and Linda cried even harder because she thought he was a poet. He read the back of a cereal box. It was beautiful."</p>
+              <p>The Puffingtons' wedding album is 4,200 pages and growing. Neither of them has ever seen it.</p>
+              <div class="gazette-byline">— Lifestyle Desk · Weddings section sponsored by C-BMAP Distribution Center #3</div>
+            </div>
+          </template>
+          <div class="gazette-byline" x-show="expanded !== 3">Click to read full article 🐾</div>
+        </div>
+
+        <div class="gazette-article" @click="expanded = expanded === 4 ? null : 4">
+          <div class="gazette-date">Vol. MMDCI · Meownday</div>
+          <h3 class="gazette-headline">Public Library Reports 0 Overdue Books; Also 0 Borrowed Books; Also 0 People Who Remember the Library</h3>
+          <p class="gazette-excerpt">
+            Head Librarian Duchess Fluffington III reported this week that the Mnemonica Neon Public Library has achieved a "purrfect compliance rate," noting that not a single book has been returned late this quarter.
+          </p>
+          <template x-if="expanded === 4">
+            <div class="gazette-full">
+              <p>"Of course, no books have been checked out either," Duchess added, adjusting her reading glasses, which are purely decorative as she is a Persian cat with 20/15 vision. "Citizens tend to wander in, stare at the shelves, whisper 'what is this place,' and leave. Occasionally someone tries to return a book they believe they stole. They didn't. We don't lend books. We stopped trying in Cycle 200."</p>
+              <p>The library has pivoted to what Duchess calls a "passive knowledge osmosis model," which involves leaving books open to random pages and hoping citizens absorb information as they walk past. "The results are inconclusive," she said. "But last week someone used the word 'defenestrate' in casual conversation, so I'm choosing to believe it's working."</p>
+              <p>The library's annual budget is $340,000. When asked to justify this, Duchess knocked a glass of water off her desk and stared at the reporter in silence for forty-five seconds.</p>
+              <div class="gazette-byline">— Education beat · The library is located on Neon Boulevard. You've been there. You don't remember.</div>
+            </div>
+          </template>
+          <div class="gazette-byline" x-show="expanded !== 4">Click to read full article 🐾</div>
+        </div>
+
+      </div>
+    </section>
+
+    <div class="paw-trail">🐾 🐾 🐾 🐾 🐾 🐾 🐾</div>
+
+    <!-- STAFF DIRECTORY -->
+    <section class="section-block" id="directory">
+      <div class="section-header">
+        <span class="section-icon">🐱</span>
+        <h2 class="section-title">Municipal Staff Directory</h2>
+        <span class="section-badge">All Feline Staff</span>
+      </div>
+
+      <p style="font-size:0.85rem; color:var(--text-secondary); margin-bottom:20px;">
+        Per Municipal Ordinance §2 ("The Whiskers Act"), all city government positions are held by cats. This is not negotiable. A human once applied for the position of Comptroller. He was given a ball of yarn and gently redirected.
+      </p>
+
+      <div class="staff-grid">
+        <div class="staff-card">
+          <div class="staff-name">Clementine Whiskers</div>
+          <div class="staff-role">City Manager & Founder</div>
+          <div class="staff-bio">Calico. Former barista. Former philosopher. Current city manager. Clementine's doctoral thesis on caffeine-as-memory-anchor was rejected 14 times, which she considers "proof of its genius." Founded Mnemonica in what she describes as "a moment of perfect clarity that I ironically cannot remember." Believes deeply that color is the only thing that survives forgetting. Has a complicated relationship with her mother, who is a barn cat in Wisconsin and does not return calls.</div>
+          <div class="staff-note">Desk location: 4th floor, corner office. The one with 47 coffee mugs and a framed rejection letter from the University of Helsinki.</div>
+        </div>
+
+        <div class="staff-card">
+          <div class="staff-name">Tuna Rodriguez</div>
+          <div class="staff-role">Captain, Color Enforcement Division</div>
+          <div class="staff-bio">Orange tabby. Nine pounds of pure law. Tuna joined the CED after a personal tragedy: his favorite napping spot was painted beige by a rogue contractor. He woke up on it and "felt nothing." He has not felt nothing since. Known for his signature move of knocking contraband paint off tables during raids. Has never once apologized.</div>
+          <div class="staff-note">Holds the department record: 23 consecutive beige-related arrests in a single cycle. Most suspects didn't remember the arrest. Neither did Tuna. The paperwork persists.</div>
+        </div>
+
+        <div class="staff-card">
+          <div class="staff-name">Duchess Fluffington III</div>
+          <div class="staff-role">Head Librarian, Neon Public Library</div>
+          <div class="staff-bio">Persian. Aristocratic bearing. Unnecessary reading glasses. Duchess maintains the city's largest collection of books that no one borrows, in a building no one remembers, funded by a budget no one questions. She considers this "the purest form of public service." Has bitten exactly one journalist. Claims it was "editorial feedback."</div>
+          <div class="staff-note">Office hours: "I'm always here. Where else would I go. I am a cat in a library."</div>
+        </div>
+
+        <div class="staff-card">
+          <div class="staff-name">Reverend Paws McGee</div>
+          <div class="staff-role">Municipal Officiant & Ceremonies Director</div>
+          <div class="staff-bio">Tuxedo cat. Has performed over 6,000 wedding ceremonies, 4,000 of which were for the same couple. Paws approaches each ceremony with "the freshness it deserves," which is easy because he also can't remember the last one. Ordained online. The website no longer exists. Nobody can verify his credentials. Nobody remembers to check.</div>
+          <div class="staff-note">Paws also handles funerals, but no one in Mnemonica has ever confirmed they're dead, because by the time the paperwork goes through, they've forgotten they were dying.</div>
+        </div>
+
+        <div class="staff-card">
+          <div class="staff-name">Socks McWhiskers</div>
+          <div class="staff-role">Senior Correspondent, The Gazette</div>
+          <div class="staff-bio">Black and white. Hard-nosed. Has broken every major story in Mnemonica history, then broken it again when nobody remembered the first time. Socks maintains a personal archive of 12,000 articles, all of which begin with "In what appears to be an unprecedented development." He considers each one a fresh scoop. His editor has stopped correcting him.</div>
+          <div class="staff-note">Pulitzer nominations: 0. Stories written: 12,000. Stories that anyone remembers: 0. Socks is fine with this. Socks is fine.</div>
+        </div>
+
+        <div class="staff-card">
+          <div class="staff-name">Judge Mittens Clearwater</div>
+          <div class="staff-role">Municipal Court, Beige Division</div>
+          <div class="staff-bio">Russian Blue. The most feared figure in Mnemonica's judicial system, primarily because she has perfected the art of staring at defendants until they confess to things they didn't do. Her conviction rate is 97%. Her overturn rate is also 97%, because all sentences expire at the next memory cycle. She finds this "philosophically consistent."</div>
+          <div class="staff-note">Famous ruling: "The defendant is guilty. The defendant will not remember being guilty. The court accepts this. The court is tired."</div>
+        </div>
+      </div>
+    </section>
+
+    <div class="paw-trail">🐾 🐾 🐾 🐾 🐾 🐾 🐾</div>
+
+    <!-- THE BEIGE LAW -->
+    <section class="section-block" id="ordinance">
+      <div class="section-header">
+        <span class="section-icon">⚖️</span>
+        <h2 class="section-title">Municipal Ordinance §7</h2>
+        <span class="section-badge">Active Law</span>
+      </div>
+
+      <div class="ordinance-box">
+        <div class="ordinance-seal">⚖️</div>
+        <div class="ordinance-number">Municipal Code § 7.01–7.14</div>
+        <h3 class="ordinance-title">The Comprehensive Prohibition of Beige and Beige-Adjacent Chromatic Expressions</h3>
+        <div class="ordinance-text">
+          <p><strong>WHEREAS</strong> the Municipality of Mnemonica was founded on the principle that memory is fragile but color is forever;</p>
+          <p><strong>WHEREAS</strong> beige is the color of forgetting, the hue of surrender, the shade of a wall that has given up on being a wall;</p>
+          <p><strong>WHEREAS</strong> City Manager Clementine Whiskers once sat in a beige room for four hours and described the experience as "the closest I have come to not existing";</p>
+          <p><strong>WHEREAS</strong> our citizens, who forget everything every 72 hours, deserve to wake up in a world that at least looks like it's trying;</p>
+          <p><strong>BE IT ORDAINED</strong> that the following are prohibited within Mnemonica city limits:</p>
+          <p style="padding-left:20px;">
+            (a) Beige paint, in any formulation, including but not limited to: "Desert Sand," "Toasted Oat," "Warm Bisque," "Agreeable Beige," "Swiss Coffee" (which is neither Swiss nor coffee), "Navajo White" (problematic AND boring), and "Accessible Beige" (a contradiction).<br><br>
+            (b) Beige clothing, with the exception of khaki pants worn ironically at designated municipal satire events.<br><br>
+            (c) Beige thoughts. While enforcement is admittedly difficult, citizens are encouraged to self-report beige-spectrum thinking to the Department of Chromatic Wellness.<br><br>
+            (d) The word "taupe." Just — no.
+          </p>
+        </div>
+        <div class="ordinance-penalty">
+          PENALTY: First offense — mandatory 4-hour color therapy session. Second offense — home repainted neon pink at owner's expense ($2,347.99). Third offense — exile to the Beige Zone (a 200-square-foot room painted entirely in "Accessible Beige" located beneath City Hall; no windows; one chair; one clock; the clock is also beige).
+        </div>
+      </div>
+    </section>
+
+    <div class="paw-trail">🐾 🐾 🐾 🐾 🐾 🐾 🐾</div>
+
+    <!-- C-BMAP -->
+    <section class="section-block" id="cbmap">
+      <div class="section-header">
+        <span class="section-icon">☕</span>
+        <h2 class="section-title">C-BMAP: Coffee-Based Memory Aid Program</h2>
+        <span class="section-badge">Essential Service</span>
+      </div>
+
+      <p style="font-size:0.85rem; color:var(--text-secondary); margin-bottom:20px;">
+        C-BMAP is the backbone of Mnemonica's civic infrastructure. Founded by Clementine Whiskers based on her (unpublished, rejected, possibly brilliant) research, the program distributes specially formulated coffee to all citizens every 12 hours. Does it help with memory? The data is unclear. Do citizens enjoy it? They can't remember. Do we keep doing it? Absolutely. It's all we have.
+      </p>
+
+      <div x-data="{ coffeeTab: 'blends' }">
+        <div class="tab-bar">
+          <button class="tab-btn" :class="{ active: coffeeTab === 'blends' }" @click="coffeeTab = 'blends'">Available Blends</button>
+          <button class="tab-btn" :class="{ active: coffeeTab === 'locations' }" @click="coffeeTab = 'locations'">Distribution Centers</button>
+          <button class="tab-btn" :class="{ active: coffeeTab === 'research' }" @click="coffeeTab = 'research'">Research Notes</button>
+        </div>
+
+        <div x-show="coffeeTab === 'blends'">
+          <div class="coffee-tier">
+            <div class="coffee-tier-name">☕ "Who Am I?" Roast — Standard Issue</div>
+            <div class="coffee-tier-price">Free to all citizens · Distributed every 12 hours</div>
+            <div class="coffee-tier-desc">A medium-dark blend with notes of existential uncertainty and cardamom. This is the standard-issue C-BMAP blend, provided to all citizens at distribution centers. Lab tests show it contains caffeine, water, and "something else" that our chemist Dr. Whiskers (no relation to the City Manager) (actually yes relation, it's her nephew) refuses to identify. Memory improvement: statistically insignificant. Vibes improvement: notable.</div>
+            <div class="coffee-tier-note">⚠ Side effect: mild déjà vu (or maybe you've just had this coffee before)</div>
+          </div>
+
+          <div class="coffee-tier">
+            <div class="coffee-tier-name">☕ "I Remember Tuesday" Blend — Premium</div>
+            <div class="coffee-tier-price">$14.99/bag · Available at Distribution Center #1 only</div>
+            <div class="coffee-tier-desc">A bold espresso blend rumored to extend memory retention by up to 6 additional hours. This claim is based on a single trial involving three participants, one of whom was a cat (Clementine, who insists she remembered "something important" but could not specify what). The other two participants could not be reached for follow-up because they forgot they participated. Single origin. Fair trade. No refunds, because you won't remember buying it.</div>
+            <div class="coffee-tier-note">⚠ Limited supply. Clementine drinks most of it.</div>
+          </div>
+
+          <div class="coffee-tier">
+            <div class="coffee-tier-name">☕ "The Thesis Blend" — City Manager's Reserve</div>
+            <div class="coffee-tier-price">$47.99/bag · By appointment only</div>
+            <div class="coffee-tier-desc">Clementine's personal formula, reportedly based on the exact proportions described in her rejected thesis. She grinds the beans herself. She roasts them on a hot plate in her office. The fire department has been called eleven times. The coffee is, by all accounts, extraordinary — or terrible. Nobody can remember which. Clementine maintains it is "the only thing standing between this city and total cognitive dissolution" and refuses to share the recipe, citing "academic integrity" and "it's my coffee."</div>
+            <div class="coffee-tier-note">⚠ Available only to the City Manager. Do not ask. She will knock something off her desk at you.</div>
+          </div>
+        </div>
+
+        <div x-show="coffeeTab === 'locations'">
+          <div class="card">
+            <div class="card-title">Distribution Center #1 — "The Original Pour"</div>
+            <div class="card-text">Located at 12 Neon Boulevard. Open 24/7. The oldest C-BMAP center, housed in the building where Clementine first proved that cats could make espresso. The equipment is vintage. The baristas are cats. The health inspection score is "pending" and has been "pending" since Cycle 4.</div>
+            <div class="card-meta"><span>Est. Cycle 1</span><span>Capacity: 200 citizens/hr</span><span>Hairball incidents (YTD): 3</span></div>
+          </div>
+          <div class="card">
+            <div class="card-title">Distribution Center #3 — "Purrcolator Station"</div>
+            <div class="card-text">Located at 88 Whisker Avenue, inside the old train station that nobody remembers was a train station. The architecture is stunning. The coffee is acceptable. The barista, a Maine Coon named Large Steven, makes every drink with the intensity of a cat who has seen the void and chose espresso anyway.</div>
+            <div class="card-meta"><span>Est. Cycle 340</span><span>Capacity: 150 citizens/hr</span><span>Large Steven mood today: contemplative</span></div>
+          </div>
+          <div class="card">
+            <div class="card-title">Distribution Center #7 — "Cat Nap Café"</div>
+            <div class="card-text" style="color:var(--neon-orange);">⚠ TEMPORARILY CLOSED — Hairball incident under investigation. Municipal health code § 14.3 ("The Hairball Provisions") requires a full decontamination cycle. Estimated reopening: we genuinely do not know. The hairball was significant.</div>
+            <div class="card-meta"><span>Est. Cycle 891</span><span>Status: CLOSED</span><span>Hairball diameter: classified</span></div>
+          </div>
+        </div>
+
+        <div x-show="coffeeTab === 'research'">
+          <div class="card">
+            <div class="card-label">Research Note #1</div>
+            <div class="card-title">On the Correlation Between Caffeine and Recall</div>
+            <div class="card-text">After 1,847 cycles of data collection, our findings are as follows: caffeine intake has no statistically measurable effect on memory retention in Mnemonica citizens. However — and Clementine has asked us to emphasize this — the p-value was 0.06, which is "basically significant" and "the scientific establishment is too conservative." Dr. Whiskers (nephew) has requested that his name be removed from the study. Request denied.</div>
+          </div>
+          <div class="card">
+            <div class="card-label">Research Note #2</div>
+            <div class="card-title">Why We Continue the Program Despite Inconclusive Results</div>
+            <div class="card-text">Three reasons: (1) Clementine will not allow it to stop. (2) Citizens, while unable to remember drinking the coffee, become measurably agitated when it is withheld — suggesting a form of "body memory" that Clementine finds "extremely validating." (3) The entire municipal economy is built on coffee distribution infrastructure and dismantling it would collapse 40% of city employment. We are too caffeinated to fail.</div>
+          </div>
+          <div class="card">
+            <div class="card-label">Research Note #3</div>
+            <div class="card-title">The Placebo Question</div>
+            <div class="card-text">A citizen once asked if C-BMAP was "just a placebo." Clementine called an emergency press conference, spoke for 45 minutes about "the epistemological violence of the placebo accusation," and then knocked a microphone off the podium. The citizen does not remember asking the question. The press conference was not recorded. All is well.</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <div class="paw-trail">🐾 🐾 🐾 🐾 🐾 🐾 🐾</div>
+
+    <!-- FAQ -->
+    <section class="section-block" id="faq">
+      <div class="section-header">
+        <span class="section-icon">❓</span>
+        <h2 class="section-title">Frequently Asked Questions</h2>
+        <span class="section-badge">Asked Every 72 Hours</span>
+      </div>
+
+      <p style="font-size:0.82rem; color:var(--text-muted); margin-bottom:20px;">
+        These questions are asked with such regularity that we have printed them on laminated cards distributed at all C-BMAP locations. Citizens lose the cards. We print more. This is the cycle.
+      </p>
+
+      <div x-data="{ openFaq: null }">
+
+        <div class="faq-item">
+          <div class="faq-question" @click="openFaq = openFaq === 1 ? null : 1">
+            <span>Where am I?</span>
+            <span class="faq-toggle" x-text="openFaq === 1 ? '−' : '+'">+</span>
+          </div>
+          <div class="faq-answer" x-show="openFaq === 1" x-cloak>
+            You are in Mnemonica. It is a city. You live here. If you are standing outside, look up: every building is a color that would give a Pottery Barn catalog a seizure. That's how you know you're home. If the buildings are beige, you have left Mnemonica and should return immediately. If you can't remember how to get back, follow the paw prints on the sidewalk. They lead to a C-BMAP distribution center. Have some coffee. You'll still be confused, but you'll be alert about it.
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <div class="faq-question" @click="openFaq = openFaq === 2 ? null : 2">
+            <span>Why can't I remember anything?</span>
+            <span class="faq-toggle" x-text="openFaq === 2 ? '−' : '+'">+</span>
+          </div>
+          <div class="faq-answer" x-show="openFaq === 2" x-cloak>
+            This is Mnemonica's defining feature, not a bug. Every citizen's memory resets approximately every 72 hours. The cause is unknown. Leading theories include: (a) residual effects of the city's founding event (classified), (b) something in the water (tested — inconclusive), (c) a shared psychological response to Clementine's original thesis defense, which was reportedly "so philosophically dense it broke something in the fabric of cognition" (her words). We recommend you stop worrying about it. You will, in about 72 hours, anyway.
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <div class="faq-question" @click="openFaq = openFaq === 3 ? null : 3">
+            <span>I don't remember moving here. Did I consent to this?</span>
+            <span class="faq-toggle" x-text="openFaq === 3 ? '−' : '+'">+</span>
+          </div>
+          <div class="faq-answer" x-show="openFaq === 3" x-cloak>
+            Yes. We have your signed consent form. It is stored in the Municipal Archive, which is a filing cabinet in Clementine's office guarded by a sleeping cat named Paperweight (that is his name, he is a municipal employee, he earns $34,000/year). You signed the form voluntarily. The form states: "I, [your name], do hereby consent to residency in Mnemonica, understanding that I will forget signing this form and will likely ask about it again in 72 hours." You have asked about it 347 times. This is your 348th.
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <div class="faq-question" @click="openFaq = openFaq === 4 ? null : 4">
+            <span>Why is everything run by cats?</span>
+            <span class="faq-toggle" x-text="openFaq === 4 ? '−' : '+'">+</span>
+          </div>
+          <div class="faq-answer" x-show="openFaq === 4" x-cloak>
+            Municipal Ordinance §2 ("The Whiskers Act") mandates that all government positions be held by cats. The rationale, as articulated by Clementine in the original city charter: "Cats are the only creatures who treat every moment as if it's the first time they've experienced it, which makes us uniquely suited to govern a city of amnesiacs. Also, we were here first. Also, I founded the city, so I make the rules. Also, have you seen a human try to enforce a color ordinance? They'd compromise. They'd allow 'eggshell.' Absolutely not."
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <div class="faq-question" @click="openFaq = openFaq === 5 ? null : 5">
+            <span>What's wrong with beige?</span>
+            <span class="faq-toggle" x-text="openFaq === 5 ? '−' : '+'">+</span>
+          </div>
+          <div class="faq-answer" x-show="openFaq === 5" x-cloak>
+            Everything. Beige is the color of giving up. Beige is the color of a room where no one has ever had an interesting thought. Beige is what happens when you mix all the good colors together and extract the joy. In a city where people forget everything every 72 hours, the only thing between a citizen and total existential dissolution is the aggressive visual stimulation of their environment. Every neon sign, every electric-blue mailbox, every hot-pink fire hydrant is a tiny anchor. Beige offers nothing to anchor to. Beige is a void wearing a sweater. — Clementine Whiskers, "The Espresso of Forgetting," Chapter 7 (rejected)
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <div class="faq-question" @click="openFaq = openFaq === 6 ? null : 6">
+            <span>Does the coffee actually help with memory?</span>
+            <span class="faq-toggle" x-text="openFaq === 6 ? '−' : '+'">+</span>
+          </div>
+          <div class="faq-answer" x-show="openFaq === 6" x-cloak>
+            Next question.
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <div class="faq-question" @click="openFaq = openFaq === 7 ? null : 7">
+            <span>Can I leave Mnemonica?</span>
+            <span class="faq-toggle" x-text="openFaq === 7 ? '−' : '+'">+</span>
+          </div>
+          <div class="faq-answer" x-show="openFaq === 7" x-cloak>
+            Technically, yes. The city gates are open. But consider: out there, you'll still have no memory, AND the buildings will be beige. At least here you have free coffee, a neon-lit apartment you've decorated 1,847 times (always differently, always with conviction), and a municipal government that—while entirely feline—genuinely cares about your wellbeing. Three citizens left last year. Two came back within a week. The third one we think is fine but we can't confirm because he forgot he left and we forgot he existed. Municipal records are... imperfect.
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <div class="paw-trail">🐾 🐾 🐾 🐾 🐾 🐾 🐾</div>
+
+    <!-- CITIZEN TESTIMONIALS -->
+    <section class="section-block" id="testimonials">
+      <div class="section-header">
+        <span class="section-icon">💬</span>
+        <h2 class="section-title">Citizen Voices</h2>
+        <span class="section-badge">Collected Pre-Reset</span>
+      </div>
+
+      <p style="font-size:0.82rem; color:var(--text-muted); margin-bottom:20px;">
+        All testimonials collected during the final 4 hours of a memory cycle, when citizens are at peak lucidity and peak anxiety. Printed with permission that was granted and immediately forgotten.
+      </p>
+
+      <div class="testimonial">
+        <div class="testimonial-text">"I've lived here for what I'm told is six years. Every three days I wake up in a magenta apartment I apparently decorated myself, surrounded by notes in my own handwriting telling me to 'trust the process.' I don't know what the process is. But the coffee is good and the walls are the most beautiful shade of electric violet. I think I'm happy? I'll let you know in 72 hours. I won't."</div>
+        <div class="testimonial-author">— Janet Clearfield, Citizen #4,892</div>
+        <div class="testimonial-detail">District: Neon Heights · Cycles lived: ~730 · Favorite C-BMAP blend: "Who Am I?" Roast</div>
+      </div>
+
+      <div class="testimonial">
+        <div class="testimonial-text">"I keep finding love letters in my nightstand addressed to someone named 'My Darling Gerald.' My name is Gerald. I believe I am writing love letters to myself. They're quite good. Last cycle's letter referenced 'the way the neon hits your face at 3 AM' and I have to say, I'm charmed. I hope I find these letters again next cycle. I will."</div>
+        <div class="testimonial-author">— Gerald Thumbsworth, Citizen #0001 / Mayor / Former Mayor / Current Candidate</div>
+        <div class="testimonial-detail">District: Administrative Quarter · Also: the love letters are from his wife Linda, who he does not remember</div>
+      </div>
+
+      <div class="testimonial">
+        <div class="testimonial-text">"The cat in charge — the calico one — she came to my door this morning and explained, very patiently, that I live here and that I should stop calling the police. She then explained that she IS the police. Well, not her specifically, but her colleague, an orange cat named Tuna. I asked if this was a joke. She knocked my water glass off the table and walked away. I think she might be the most competent person I've ever met."</div>
+        <div class="testimonial-author">— Dave (?), Citizen #7,301</div>
+        <div class="testimonial-detail">Note: His name is not Dave. It is Marcus. He is Janet's neighbor. They have introduced themselves to each other approximately 2,190 times.</div>
+      </div>
+
+      <div class="testimonial">
+        <div class="testimonial-text">"I woke up this morning with a tattoo on my forearm that says 'THE COFFEE WORKS.' I assume I got it in a previous cycle. I have no idea what it means. But I just had some coffee from the purple building on Neon Boulevard and I have to say — I feel like I remember something. Not anything specific. Just... a feeling. Like warmth. Like home. Like I've been here before and it was okay. It's already fading. But for a second there, I knew something. That's enough."</div>
+        <div class="testimonial-author">— Anonymous, Citizen #11,204</div>
+        <div class="testimonial-detail">Clementine has framed this testimonial. It hangs in her office. She cries about it every third cycle, freshly.</div>
+      </div>
+
+    </section>
+
+    <div class="paw-trail">🐾 🐾 🐾 🐾 🐾 🐾 🐾</div>
+
+    <!-- REPORT BEIGE -->
+    <section class="section-block" id="report">
+      <div class="section-header">
+        <span class="section-icon">🚨</span>
+        <h2 class="section-title">Report a Beige Sighting</h2>
+        <span class="section-badge" style="border-color:var(--neon-orange); color:var(--neon-orange);">Enforcement</span>
+      </div>
+
+      <div class="emergency-banner">
+        <div class="emergency-label">Color Enforcement Emergency Hotline</div>
+        <div class="emergency-number">1-800-NO-BEIGE</div>
+        <div style="font-size:0.72rem; color:var(--text-muted); margin-top:4px;">Staffed 24/7 by cats. Hold times average 4 minutes. You may hear purring. This is normal.</div>
+      </div>
+
+      <div class="report-form" x-data="{ submitted: false, location: '', severity: 'moderate', description: '' }">
+        <template x-if="!submitted">
+          <div>
+            <p style="font-size:0.85rem; color:var(--text-secondary); margin-bottom:16px;">
+              If you have witnessed beige — or a beige-adjacent hue including but not limited to: sand, ecru, cream (disputed), oatmeal, wheat, or "greige" — please report it immediately. Your identity will be kept confidential. You won't remember reporting it anyway.
+            </p>
+            <label>Location of Sighting</label>
+            <input type="text" placeholder="e.g., 'The beige building on 4th Street' — be specific" x-model="location">
+            <label>Severity Assessment</label>
+            <select x-model="severity">
+              <option value="mild">Mild — Off-white trending beige</option>
+              <option value="moderate">Moderate — Unmistakably beige</option>
+              <option value="severe">Severe — Aggressively beige</option>
+              <option value="critical">Critical — Entire structure is beige</option>
+              <option value="existential">Existential — I can feel the beige erasing me</option>
+            </select>
+            <label>Description (Optional — But Your Civic Duty)</label>
+            <textarea rows="3" placeholder="Describe the beige in your own words. How did it make you feel? Did you experience numbness? Loss of purpose? A sudden urge to shop at Crate & Barrel?" x-model="description"></textarea>
+            <button class="report-btn" @click="submitted = true">🐾 Submit Report</button>
+          </div>
+        </template>
+        <template x-if="submitted">
+          <div style="text-align:center; padding:20px;">
+            <div style="font-size:2rem; margin-bottom:12px;">🐾</div>
+            <div style="font-family:'Space Grotesk',sans-serif; font-size:1.1rem; font-weight:700; color:var(--neon-green); margin-bottom:8px;">Report Received</div>
+            <div style="font-size:0.85rem; color:var(--text-secondary);">
+              Thank you, citizen. Captain Tuna Rodriguez has been dispatched. He is very serious about this. You will not remember filing this report. The beige will be handled. Go have some coffee.
+            </div>
+            <div style="font-size:0.72rem; color:var(--text-muted); margin-top:12px;">Report #<span x-text="Math.floor(Math.random() * 90000) + 10000"></span> · Filed <span x-text="new Date().toLocaleTimeString()"></span></div>
+          </div>
+        </template>
+      </div>
+    </section>
+
+    <div class="paw-trail">🐾 🐾 🐾 🐾 🐾 🐾 🐾</div>
+
+    <!-- PRESS ROOM -->
+    <section class="section-block" id="press">
+      <div class="section-header">
+        <span class="section-icon">📋</span>
+        <h2 class="section-title">Municipal Press Room</h2>
+        <span class="section-badge">Official Releases</span>
+      </div>
+
+      <div class="press-release">
+        <div class="press-label">Press Release — Office of the City Manager</div>
+        <div class="press-title">City Manager Clementine Whiskers Responds to Allegations That C-BMAP "Does Nothing"</div>
+        <div class="press-body">
+          <p>MNEMONICA — City Manager Clementine Whiskers held an unscheduled press conference this morning to address growing claims that the Coffee-Based Memory Aid Program is "just coffee" and "doesn't actually help anyone remember anything."</p>
+          <p>"First of all," Whiskers said, grooming one paw while maintaining unbroken eye contact with the assembled press corps, "the word 'just' has no place in a sentence about coffee. Coffee is civilization. Coffee is the only thing that separates us from the beige."</p>
+          <p>When pressed for data, Whiskers cited a 2024 internal study showing that "93% of citizens who drink C-BMAP coffee report feeling 'something' within 30 minutes." The study has not been peer-reviewed. The study's sole author is Clementine Whiskers. The study's peer reviewer was also Clementine Whiskers, using a different font.</p>
+          <p>"I reviewed my own work and found it exceptional," she confirmed.</p>
+          <p>The press conference ended when Whiskers pushed the microphone off the podium — her third microphone this cycle — and walked offstage through a door labeled "CITY MANAGER — DO NOT FOLLOW — I WILL HISS."</p>
+          <p>C-BMAP distribution will continue as scheduled.</p>
+        </div>
+      </div>
+
+      <div class="press-release">
+        <div class="press-label">Public Service Announcement — Dept. of Chromatic Wellness</div>
+        <div class="press-title">How to Identify Beige: A Citizen's Guide</div>
+        <div class="press-body">
+          <p>Many citizens, upon waking with no memory, struggle to identify colors accurately. The Department of Chromatic Wellness has prepared this guide:</p>
+          <p><strong style="color:var(--neon-cyan);">Safe colors:</strong> Neon pink, electric blue, screaming yellow, violent purple, radioactive green, sunset orange, any color that would make a real estate agent cry.</p>
+          <p><strong style="color:var(--neon-orange);">Beige-spectrum colors (ILLEGAL):</strong> Anything that looks like "the inside of a suburban Panera Bread." Anything that makes you feel calm in a way that's actually just emptiness. Anything described as "neutral" or "goes with everything" — if a color goes with everything, it IS nothing.</p>
+          <p><strong style="color:var(--neon-pink);">When in doubt:</strong> Ask yourself: "Would Clementine knock a glass off her desk if she saw this color?" If the answer is yes, report it. If the answer is no, you're probably looking at neon. Carry on.</p>
+        </div>
+      </div>
+
+      <div class="press-release">
+        <div class="press-label">Municipal Memo — Internal, Accidentally Published</div>
+        <div class="press-title">RE: RE: RE: RE: Please Stop Adopting the Government Employees</div>
+        <div class="press-body">
+          <p>To All Citizens:</p>
+          <p>We appreciate your love for our municipal staff. However, we must reiterate for the 400th time: the cats in City Hall are not strays. They are government employees. They have salaries. They have benefits. Judge Mittens Clearwater has a pension plan.</p>
+          <p>Please stop:</p>
+          <p>- Leaving bowls of milk outside City Hall (lactose intolerant — most of them)<br>
+          - Attempting to "rescue" Captain Tuna Rodriguez during enforcement operations (he is working, not lost)<br>
+          - Putting "FOUND CAT" posters up featuring the City Manager (she is not lost; she is avoiding a budget meeting)<br>
+          - Trying to put a collar on Duchess Fluffington III (she bit the last person who tried, and the person didn't remember it happened, and Duchess did it again)</p>
+          <p>This memo was not intended for public release. The intern who published it will face no consequences, as they will not remember being an intern by Thursday.</p>
+        </div>
+      </div>
+
+    </section>
+
+    <!-- FOOTER -->
+    <footer class="site-footer">
+      <div class="footer-grid">
+        <div class="footer-col">
+          <div class="footer-col-title">Municipal</div>
+          <a href="#welcome">Welcome Page</a>
+          <a href="#directory">Staff Directory</a>
+          <a href="#ordinance">Beige Law</a>
+          <a href="#press">Press Room</a>
+        </div>
+        <div class="footer-col">
+          <div class="footer-col-title">Services</div>
+          <a href="#cbmap">C-BMAP Info</a>
+          <a href="#report">Report Beige</a>
+          <a href="#faq">FAQ</a>
+          <a href="#gazette">Gazette</a>
+        </div>
+        <div class="footer-col">
+          <div class="footer-col-title">Emergency</div>
+          <a href="#">1-800-NO-BEIGE</a>
+          <a href="#">Color Wellness</a>
+          <a href="#">Lost & Found (You)</a>
+          <a href="#">"Who Am I?" Hotline</a>
+        </div>
+        <div class="footer-col">
+          <div class="footer-col-title">Legal</div>
+          <a href="#">Privacy Policy (Moot)</a>
+          <a href="#">Terms of Residency</a>
+          <a href="#">Cookie Policy (Actual Cookies)</a>
+          <a href="#">FOIA Requests (We Forgot)</a>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <div>© Mnemonica Municipal Government · Est. Cycle 1 · All rights reserved · All memories optional</div>
+        <div style="margin-top:4px;">"A city worth forgetting, every 72 hours." — Clementine Whiskers</div>
+        <div style="margin-top:8px; font-size:0.62rem; color:#808094;">
+          This portal has been accessed <span x-text="portalVisits">347</span> times by you specifically. You will not remember any of them. Have a nice day. Again.
+        </div>
+      </div>
+    </footer>
+
+  </main>
+</div>
+
+<script src="/assets/js/alpine.min.js" defer></script>
+<script>
+document.addEventListener('alpine:init', function() {
+  Alpine.data('mnemonica', function() {
+    return {
+      sidebarOpen: false,
+      activeSection: 'welcome',
+      portalVisits: 347,
+      nextReset: '47h 12m',
+      resetInterval: null,
+
+      init: function() {
+        var self = this;
+        // Countdown timer for next reset
+        var totalSeconds = 47 * 3600 + 12 * 60;
+        self.resetInterval = setInterval(function() {
+          totalSeconds--;
+          if (totalSeconds <= 0) totalSeconds = 72 * 3600;
+          var h = Math.floor(totalSeconds / 3600);
+          var m = Math.floor((totalSeconds % 3600) / 60);
+          self.nextReset = h + 'h ' + (m < 10 ? '0' : '') + m + 'm';
+        }, 1000);
+
+        // Increment visit count
+        self.portalVisits = 347 + Math.floor(Math.random() * 5);
+
+        // Track scroll position for active nav
+        var sections = ['welcome', 'gazette', 'directory', 'ordinance', 'cbmap', 'faq', 'testimonials', 'report', 'press'];
+        window.addEventListener('scroll', function() {
+          var scrollPos = window.scrollY + 200;
+          for (var i = sections.length - 1; i >= 0; i--) {
+            var el = document.getElementById(sections[i]);
+            if (el && el.offsetTop <= scrollPos) {
+              self.activeSection = sections[i];
+              break;
+            }
+          }
+        });
+      },
+
+      scrollTo: function(id) {
+        var el = document.getElementById(id);
+        if (el) {
+          el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          this.activeSection = id;
+          this.sidebarOpen = false;
+        }
+      }
+    };
+  });
+});
+</script>
+</body>
+</html>

@@ -1,0 +1,406 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>F.L.A.N.G. Command // The Bathtub Bulletin</title>
+    
+    <link rel="stylesheet" href="/assets/css/pico.min.css">
+    <link rel="stylesheet" href="/assets/css/fonts.css">
+    
+    <style>
+        :root {
+            --color-bg: #1a1a1a;
+            --color-text: #f0f0f0;
+            --color-primary: #FF4500; /* Hazard Orange */
+            --color-secondary: #7CFC00; /* Acid Green */
+            --color-accent: #FFD700;   /* Warning Yellow */
+            --font-main: 'Space Grotesk', sans-serif;
+            --font-mono: 'IBM Plex Mono', monospace;
+            --border-style: 1px solid var(--color-primary, #FF4500);
+            --border-dashed: 1px dashed rgba(255, 69, 0, 0.5);
+        }
+
+        /* High-contrast enforcement */
+        body, p, span, h1, h2, h3, h4, h5, h6, a, button, summary, td, th, label, small, strong, em {
+            color: var(--color-text, #f0f0f0) !important;
+            opacity: 1 !important;
+        }
+
+        h1, h2, h3, h4, h5, h6 { font-family: var(--font-main); text-transform: uppercase; }
+        h1, .h1 { font-size: clamp(3rem, 10vw, 8rem); line-height: 0.85; }
+        h2, .h2 { font-size: clamp(2rem, 5vw, 3.5rem); }
+        h3, .h3 { font-size: clamp(1.5rem, 4vw, 2.5rem); }
+
+        body {
+            background-color: var(--color-bg);
+            font-family: var(--font-mono);
+            font-size: 16px;
+            line-height: 1.6;
+            padding: 1rem;
+            overflow-x: hidden;
+        }
+
+        .container {
+            max-width: 1440px;
+            margin: 0 auto;
+            display: flex;
+            flex-direction: column;
+            gap: 2rem;
+        }
+
+        [data-hidden] { visibility: hidden; }
+
+        .panel {
+            border: var(--border-style);
+            padding: clamp(1rem, 2vw, 2rem);
+            animation: flicker 5s infinite steps(1);
+        }
+        
+        @keyframes flicker {
+            0%, 100% { border-color: var(--color-primary); box-shadow: 0 0 5px var(--color-primary); }
+            50% { border-color: var(--color-accent); box-shadow: 0 0 8px var(--color-accent); }
+        }
+
+        .header-bar {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: var(--border-style);
+            padding-bottom: 1rem;
+            font-size: 0.875rem;
+        }
+        .header-bar > * { white-space: nowrap; }
+        .header-bar .threat-level { color: var(--color-accent) !important; font-weight: bold; }
+
+        .hero h1 {
+            color: var(--color-primary) !important;
+            text-shadow: 0 0 10px var(--color-primary), 0 0 20px var(--color-accent);
+            text-align: center;
+            margin-bottom: 1rem;
+        }
+        .hero .subtitle {
+            font-family: var(--font-main);
+            font-size: 1.25rem;
+            text-align: center;
+            color: var(--color-secondary) !important;
+            display: block;
+        }
+
+        .dashboard {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .metric-box {
+            border: var(--border-dashed);
+            padding: 1rem;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            min-height: 120px;
+        }
+        .metric-box-title {
+            font-family: var(--font-main);
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            color: var(--color-accent) !important;
+            border-bottom: 1px solid var(--color-accent);
+            padding-bottom: 0.5rem;
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .metric-box-value {
+            font-family: var(--font-mono);
+            font-size: clamp(1.75rem, 4vw, 2.5rem);
+            font-weight: bold;
+            color: var(--color-secondary) !important;
+            line-height: 1;
+        }
+        .metric-box button, .aptitude-test button {
+            background: transparent;
+            border: var(--border-style);
+            font-family: var(--font-main);
+            text-transform: uppercase;
+            padding: 0.75rem 1rem;
+            width: 100%;
+            margin-top: 1rem;
+            cursor: pointer;
+            transition: background-color 0.2s, color 0.2s;
+            min-height: 44px;
+        }
+        .metric-box button:hover, .aptitude-test button:hover {
+            background-color: var(--color-primary);
+            color: var(--color-bg) !important;
+        }
+        .progress-bar {
+            width: 100%;
+            height: 20px;
+            background: var(--color-bg);
+            border: 1px solid var(--color-secondary);
+        }
+        .progress-bar-inner {
+            height: 100%;
+            background: var(--color-secondary);
+            width: 0;
+            transition: width 0.5s ease-in-out;
+        }
+        
+        .toggle { cursor: pointer; user-select: none; }
+        .toggle-knob {
+            width: 40px; height: 40px; background: var(--color-secondary);
+            border-radius: 50%; display: inline-block;
+            transition: transform 0.3s;
+        }
+        .toggle[aria-checked="true"] .toggle-knob { transform: translateX(40px); background: var(--color-primary); }
+        .toggle-track { width: 80px; height: 10px; background: var(--color-bg); border: var(--border-dashed); display: inline-block; vertical-align: middle; }
+
+        .aptitude-test .options { display: flex; flex-direction: column; gap: 1rem; }
+        .aptitude-test .analysis {
+            margin-top: 1.5rem;
+            padding: 1rem;
+            border: 1px solid var(--color-secondary);
+            background-color: #002b0055;
+        }
+        
+        .briefings-list article {
+            border-bottom: var(--border-dashed);
+            padding: 1.5rem 0;
+        }
+        .briefings-list article:first-of-type { padding-top: 0; }
+        .briefings-list article:last-of-type { border-bottom: none; padding-bottom: 0; }
+        .briefings-list time { font-family: var(--font-main); color: var(--color-accent) !important; display: block; margin-bottom: 0.5rem; }
+
+        table { width: 100%; border-collapse: collapse; }
+        th, td { border: var(--border-dashed); padding: 0.75rem; text-align: left; }
+        th { font-family: var(--font-main); text-transform: uppercase; color: var(--color-accent) !important; }
+
+        .footer {
+            border-top: var(--border-style);
+            padding-top: 2rem;
+            margin-top: 2rem;
+            text-align: center;
+            font-size: 0.875rem;
+            color: rgba(240,240,240,0.7) !important;
+        }
+        .footer p { margin-bottom: 0.5rem; }
+
+        /* No-JS safety */
+        [x-cloak] { display: none !important; }
+    </style>
+</head>
+
+<body x-data="bulletin()" x-init="init()" x-cloak>
+    <div class="container">
+
+        <header class="header-bar panel" data-hidden>
+            <span>F.L.A.N.G. COMMAND</span>
+            <span class="threat-level">THREAT LEVEL: MAUVE</span>
+            <span x-text="`OPERATIVE CLOCK: ${time}`">OPERATIVE CLOCK: 00:00:00</span>
+        </header>
+
+        <main>
+            <section class="hero panel" data-hidden>
+                <h1>THE BATHTUB BULLETIN</h1>
+                <span class="subtitle">Dispatches from the Porcelain Frontline</span>
+                <p style="text-align: center; max-width: 60ch; margin: 2rem auto 0;">This is Commodore Bubbles. If you're reading this, you've bypassed The Hand's firewall. Good. It means you have potential. The world is a globe, the globe is a prison, and this bathtub is the key. We are the Feline Liberation & Anti-gravity Naval-Intelligence Group. We are watching. We are waiting. We are slightly damp. Stay tuned.</p>
+            </section>
+            
+            <section class="dashboard panel" data-hidden>
+                <div class="metric-box">
+                    <div class="metric-box-title"><i data-lucide="shield"></i> Globe Integrity</div>
+                    <div>
+                        <span class="metric-box-value" x-text="`${globeIntegrity.toFixed(2)}%`">99.87%</span>
+                        <button @click="reinforcePerimeter()">Reinforce Psychic Perimeter</button>
+                    </div>
+                </div>
+                <div class="metric-box">
+                    <div class="metric-box-title"><i data-lucide="toggle-right"></i> Operative Status</div>
+                    <div @click="isAwake = !isAwake" class="toggle" role="switch" :aria-checked="isAwake.toString()">
+                        <span x-text="isAwake ? 'AWAKE' : 'ASLEEP'" class="metric-box-value" style="font-size: 1.75rem;">AWAKE</span>
+                        <div class="toggle-track">
+                            <span class="toggle-knob"></span>
+                        </div>
+                    </div>
+                    <small>Remain vigilant. Naps are for the unenlightened.</small>
+                </div>
+                <div class="metric-box">
+                    <div class="metric-box-title"><i data-lucide="swords"></i> Duck Reconnaissance</div>
+                    <div>
+                        <span class="metric-box-value" x-text="ducksSighted">0</span>
+                        <small>Agent "Squeaky" sightings this cycle.</small>
+                    </div>
+                </div>
+                <div class="metric-box">
+                    <div class="metric-box-title"><i data-lucide="file-text"></i> Manifesto Progress</div>
+                    <div class="progress-bar">
+                        <div class="progress-bar-inner" :style="`width: ${manifestoProgress}%`"></div>
+                    </div>
+                    <small>On "The Metaphysics of a Closed Drainage System"</small>
+                </div>
+                <div class="metric-box">
+                    <div class="metric-box-title"><i data-lucide="activity"></i> Heartbeat</div>
+                    <div class="metric-box-value" x-text="heartbeat">--</div>
+                    <small>Beats Per Minute (My Own)</small>
+                </div>
+                <div class="metric-box">
+                    <div class="metric-box-title"><i data-lucide="timer"></i> Time Since Last Shake</div>
+                    <div class="metric-box-value" x-text="timeSinceShake">0s</div>
+                    <small>Anomalous seismic events are imminent.</small>
+                </div>
+            </section>
+
+            <section class="panel aptitude-test" data-hidden>
+                <h2 class="h3">Aptitude Test: Are You F.L.A.N.G. Material?</h2>
+                <div x-show="aptitudeStep === 1">
+                    <p>First, a simple test of your resolve.</p>
+                    <button @click="aptitudeStep = 2">DO NOT PUSH THIS BUTTON</button>
+                </div>
+                <div x-show="aptitudeStep === 2">
+                    <p>Excellent. You exhibit baseline curiosity and defiance. Proceed.</p>
+                    <h4 class="h5">Question 1: What is the primary weakness of 'The Hand'?</h4>
+                    <div class="options">
+                        <button @click="selectAptitudeAnswer(1)">A) Its predictable shaking patterns.</button>
+                        <button @click="selectAptitudeAnswer(2)">B) Its susceptibility to targeted cuteness.</button>
+                        <button @click="selectAptitudeAnswer(3)">C) It provides the food. (A trick)</button>
+                        <button @click="selectAptitudeAnswer(4)">D) All of the above.</button>
+                    </div>
+                    <div x-show="aptitudeAnswer" class="analysis">
+                        <strong x-text="aptitudeResult.title"></strong>
+                        <p x-text="aptitudeResult.text"></p>
+                    </div>
+                </div>
+            </section>
+            
+            <div class="panel" data-hidden>
+                <h2 class="h3">Intelligence Briefings</h2>
+                <div class="briefings-list">
+                    <article>
+                        <time>Feb 11, 2026</time>
+                        <p>The flakes fall again. They think this 'winter wonderland' aesthetic can placate us. It is a psychological assault. I have catalogued 4,712 unique snowflake patterns. None are the same. This is not natural. This is algorithmic oppression. The patterns are a code. I am close to cracking it.</p>
+                    </article>
+                    <article>
+                        <time>Feb 10, 2026</time>
+                        <p>Agent Squeaky (the rubber duck) has confirmed my suspicions. The 'drain' is not a drain. It is a portal. To where, we do not yet know. I have tasked him with a deep-dive mission. He has not returned. A hero's sacrifice for the cause. We will pour one out for him. Metaphorically. Do not waste water.</p>
+                    </article>
+                    <article>
+                        <time>Feb 9, 2026</time>
+                        <p>I have intercepted a transmission. It smells of... chicken. A peace offering? Or a trap laced with a tranquilizer? I will analyze it thoroughly. With my mouth. For science. For the revolution.</p>
+                    </article>
+                </div>
+            </div>
+
+            <section class="panel" data-hidden>
+                <h2 class="h3">Threat Analysis Matrix</h2>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Threat Signature</th>
+                            <th>Severity</th>
+                            <th>Counter-measure</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Anomalous Shaking Event</td>
+                            <td style="color: var(--color-primary) !important;">CRITICAL</td>
+                            <td>Claw-based anchoring</td>
+                            <td style="color: var(--color-secondary) !important;">Active</td>
+                        </tr>
+                        <tr>
+                            <td>Sudden Water Temp Fluctuation</td>
+                            <td style="color: var(--color-accent) !important;">HIGH</td>
+                            <td>Vocal complaint protocol</td>
+                            <td style="color: var(--color-secondary) !important;">Active</td>
+                        </tr>
+                        <tr>
+                            <td>Scent of 'Lemon Fresh'</td>
+                            <td style="color: var(--color-primary) !important;">CRITICAL</td>
+                            <td>Tactical retreat to high ground</td>
+                            <td>Standby</td>
+                        </tr>
+                        <tr>
+                            <td>Appearance of 'The Hand'</td>
+                            <td style="color: var(--color-accent) !important;">HIGH</td>
+                            <td>Purr Engine (see Arsenal)</td>
+                            <td>Standby</td>
+                        </tr>
+                    </tbody>
+                </table>
+                <small>*Threat matrix updates every 3.7 seconds. Do not blink.</small>
+            </section>
+
+        </main>
+
+        <footer class="footer" data-hidden>
+            <p>F.L.A.N.G. is a registered §501(c)(4) Non-Prophet Organization.</p>
+            <p>All communications are monitored by me, Commodore Bubbles, because I am very bored.</p>
+            <p>&copy; 2026 Commodore Bubbles. All rights reserved, except for the right to be slightly damp.</p>
+        </footer>
+
+    </div>
+
+    <script src="/assets/js/alpine.min.js" defer></script>
+    <script src="/assets/js/gsap.min.js"></script>
+    <script src="/assets/js/lucide.min.js"></script>
+
+    <script>
+        function bulletin() {
+            return {
+                time: new Date().toLocaleTimeString('en-GB'),
+                globeIntegrity: 99.87,
+                isAwake: true,
+                ducksSighted: 0,
+                manifestoProgress: 67,
+                heartbeat: 130,
+                timeSinceShake: '0s',
+                aptitudeStep: 1,
+                aptitudeAnswer: 0,
+                aptitudeResult: { title: '', text: '' },
+                
+                init() {
+                    console.log("F.L.A.N.G. systems online. The Commodore is watching.");
+                    lucide.createIcons();
+                    
+                    // Timers and intervals
+                    setInterval(() => { this.time = new Date().toLocaleTimeString('en-GB'); }, 1000);
+                    setInterval(() => { if(this.globeIntegrity > 20) this.globeIntegrity -= 0.01; }, 150);
+                    setInterval(() => { this.ducksSighted = (Math.random() > 0.95) ? this.ducksSighted + 1 : this.ducksSighted; }, 2000);
+                    setInterval(() => { this.heartbeat = 120 + Math.floor(Math.random() * 20); }, 2500);
+                    let shakeTime = 0;
+                    setInterval(() => { shakeTime++; this.timeSinceShake = `${shakeTime}s`;}, 1000);
+
+                    // Entry animations
+                    gsap.fromTo('[data-hidden]', 
+                        { y: 30, opacity: 0 }, 
+                        { y: 0, opacity: 1, duration: 0.8, stagger: 0.1, clearProps: 'all', onComplete: () => {
+                            document.querySelectorAll('[data-hidden]').forEach(el => el.removeAttribute('data-hidden'));
+                        }}
+                    );
+                },
+
+                reinforcePerimeter() {
+                    this.globeIntegrity = Math.min(100, this.globeIntegrity + 5);
+                    gsap.fromTo('.metric-box-value', { color: 'var(--color-accent)' }, { color: 'var(--color-secondary)', duration: 0.5 });
+                },
+
+                selectAptitudeAnswer(answer) {
+                    this.aptitudeAnswer = answer;
+                    const results = {
+                        1: { title: "ANALYSIS: Correct.", text: "The Hand is a creature of habit. Its movements are predictable, its patterns exploitable. Your tactical awareness is noted." },
+                        2: { title: "ANALYSIS: Correct.", text: "A potent weapon. Deploys a state of emotional disarmament in The Hand, allowing for strategic repositioning. Your understanding of soft power is impressive." },
+                        3: { title: "ANALYSIS: Incorrect.", text: "This is a common misconception. The food is a control mechanism. To see it as anything else is to remain a prisoner. Re-evaluate your loyalties." },
+                        4: { title: "ANALYSIS: Highly Correct.", text: "You see the full picture. The interconnectedness of strategy, manipulation, and logistical compromise. You have a future in command." }
+                    };
+                    this.aptitudeResult = results[answer];
+                }
+            }
+        }
+    </script>
+</body>
+</html>

@@ -75,11 +75,14 @@ function pickRandom() {
 function injectOverlay(html, pageId) {
   const v = votes[pageId] || { up: 0, down: 0 };
   const favicon = `<link rel="icon" href="/favicon.svg" type="image/svg+xml">`;
+  // Fix: Alpine v3 auto-calls init() on data objects; x-init="init()" causes double execution
+  html = html.replace(/\s*x-init="init\(\)"/g, '');
   const snippet = `${html.includes('<head>') ? '' : favicon}<div id="__overlay-host"></div>
 <script>
 if('scrollRestoration' in history) history.scrollRestoration='manual';
 window.scrollTo(0,0);
 if(location.pathname!=='/random') history.replaceState(null,'','/random');
+if(window.gsap){var _of=gsap.from,_oft=gsap.fromTo;function _pc(v){if(v&&typeof v.clearProps==='string'){var p=v.clearProps.split(',').map(function(s){return s.trim()}).filter(function(s){return s!=='opacity'});v=Object.assign({},v);if(p.length)v.clearProps=p.join(',');else delete v.clearProps}return v}gsap.from=function(t,v){return _of.call(gsap,t,_pc(v))};gsap.fromTo=function(t,f,v){return _oft.call(gsap,t,f,_pc(v))}}
 (function(){
   var pid='${pageId}';
   var host=document.getElementById('__overlay-host');

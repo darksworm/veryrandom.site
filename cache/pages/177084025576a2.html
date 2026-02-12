@@ -1,0 +1,734 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Claws for Prose — A Haiku Book Club by Bartholomew Whiskers, Esq.</title>
+<link rel="stylesheet" href="/assets/css/fonts.css">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --black: #0a0a0a;
+  --neon-pink: #ff2d7b;
+  --neon-blue: #00e5ff;
+  --neon-yellow: #e5ff00;
+  --pale-pink: #ffb3d0;
+  --text: #e8e8e8;
+  --text-muted: #b0b0b0;
+  --exhibit-bg: #111111;
+}
+
+html { scroll-behavior: smooth; }
+
+body {
+  background: var(--black);
+  color: var(--text);
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 16px;
+  line-height: 1.7;
+  overflow-x: hidden;
+}
+
+/* === NAV === */
+nav {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 100;
+  padding: 16px 32px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: rgba(10,10,10,0.85);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid #1a1a1a;
+}
+
+nav .logo {
+  font-family: 'Playfair Display', serif;
+  font-size: 18px;
+  color: var(--neon-pink);
+  letter-spacing: 2px;
+  text-transform: uppercase;
+}
+
+nav .nav-links {
+  display: flex;
+  gap: 24px;
+  list-style: none;
+}
+
+nav .nav-links a {
+  color: var(--text-muted);
+  text-decoration: none;
+  font-size: 13px;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  transition: color 0.4s;
+}
+
+nav .nav-links a:hover { color: var(--neon-blue); }
+
+/* === HERO === */
+.hero {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  padding: 120px 24px 80px;
+  position: relative;
+}
+
+.hero::before {
+  content: '';
+  position: absolute;
+  top: 20%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 500px;
+  height: 500px;
+  background: radial-gradient(circle, rgba(255,45,123,0.08) 0%, transparent 70%);
+  pointer-events: none;
+}
+
+.hero h1 {
+  font-family: 'Playfair Display', serif;
+  font-size: clamp(48px, 8vw, 120px);
+  font-weight: 400;
+  color: #ffffff;
+  letter-spacing: 4px;
+  line-height: 1.1;
+  margin-bottom: 32px;
+}
+
+.hero h1 span {
+  display: block;
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: clamp(12px, 2vw, 16px);
+  color: var(--neon-pink);
+  letter-spacing: 8px;
+  text-transform: uppercase;
+  margin-bottom: 20px;
+  font-weight: 400;
+}
+
+.hero .tagline {
+  font-size: clamp(14px, 2vw, 18px);
+  color: var(--text-muted);
+  letter-spacing: 6px;
+  text-transform: uppercase;
+  margin-bottom: 48px;
+}
+
+.hero .founder-credit {
+  font-size: 13px;
+  color: var(--text-muted);
+  max-width: 480px;
+  line-height: 1.8;
+}
+
+.hero .founder-credit em {
+  color: var(--neon-pink);
+  font-style: normal;
+}
+
+/* === TEMPORAL NOTICE === */
+.temporal-notice {
+  text-align: center;
+  padding: 24px;
+  border-top: 1px solid #1a1a1a;
+  border-bottom: 1px solid #1a1a1a;
+  background: #0d0d0d;
+}
+
+.temporal-notice p {
+  font-size: 12px;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  color: var(--neon-yellow);
+}
+
+.temporal-notice .day-normal {
+  color: var(--text-muted);
+}
+
+/* === REVIEWS === */
+.reviews-section {
+  padding: 120px 24px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.reviews-section .section-label {
+  font-size: 11px;
+  letter-spacing: 6px;
+  text-transform: uppercase;
+  color: var(--neon-blue);
+  margin-bottom: 80px;
+  text-align: center;
+}
+
+.review-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 2px;
+}
+
+.review {
+  background: var(--exhibit-bg);
+  padding: 48px 40px;
+  position: relative;
+  cursor: default;
+  transition: background 0.6s ease;
+  display: grid;
+  grid-template-columns: 1fr 2fr auto;
+  align-items: start;
+  gap: 40px;
+}
+
+.review:hover {
+  background: #161616;
+}
+
+.review .exhibit-no {
+  font-size: 11px;
+  color: var(--neon-pink);
+  letter-spacing: 4px;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.review .book-title {
+  font-family: 'Playfair Display', serif;
+  font-size: clamp(16px, 2.5vw, 22px);
+  color: #ffffff;
+  margin-bottom: 4px;
+}
+
+.review .book-author {
+  font-size: 12px;
+  color: var(--text-muted);
+  margin-bottom: 20px;
+  letter-spacing: 1px;
+}
+
+.review .haiku {
+  font-family: 'Crimson Pro', serif;
+  font-size: clamp(16px, 2vw, 20px);
+  line-height: 2;
+  color: var(--text);
+  font-style: italic;
+}
+
+.review .haiku .line {
+  display: block;
+}
+
+.review .annotation {
+  font-size: 12px;
+  color: var(--text-muted);
+  max-width: 180px;
+  line-height: 1.6;
+  opacity: 0;
+  transform: translateX(10px);
+  transition: opacity 0.5s ease, transform 0.5s ease;
+  text-align: right;
+}
+
+.review:hover .annotation {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+/* === ABOUT === */
+.about-section {
+  padding: 160px 24px;
+  max-width: 680px;
+  margin: 0 auto;
+  text-align: center;
+  position: relative;
+}
+
+.about-section::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 400px;
+  height: 400px;
+  background: radial-gradient(circle, rgba(0,229,255,0.05) 0%, transparent 70%);
+  pointer-events: none;
+}
+
+.about-section .section-label {
+  font-size: 11px;
+  letter-spacing: 6px;
+  text-transform: uppercase;
+  color: var(--neon-blue);
+  margin-bottom: 48px;
+}
+
+.about-section h2 {
+  font-family: 'Playfair Display', serif;
+  font-size: clamp(28px, 4vw, 44px);
+  color: #ffffff;
+  font-weight: 400;
+  margin-bottom: 40px;
+  line-height: 1.3;
+}
+
+.about-section .bio {
+  font-size: 15px;
+  color: var(--text-muted);
+  line-height: 2;
+  margin-bottom: 24px;
+}
+
+.about-section .bio strong {
+  color: #ffffff;
+  font-weight: 400;
+}
+
+.about-section .disbar-note {
+  font-size: 12px;
+  color: var(--neon-pink);
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  margin-top: 40px;
+}
+
+/* === CEASE AND DESIST === */
+.legal-section {
+  padding: 120px 24px;
+  max-width: 700px;
+  margin: 0 auto;
+  border-top: 1px solid #1a1a1a;
+}
+
+.legal-section .doc-header {
+  text-align: center;
+  margin-bottom: 60px;
+}
+
+.legal-section .doc-header h3 {
+  font-family: 'Playfair Display', serif;
+  font-size: clamp(20px, 3vw, 32px);
+  color: var(--neon-pink);
+  font-weight: 400;
+  letter-spacing: 4px;
+  text-transform: uppercase;
+  margin-bottom: 12px;
+}
+
+.legal-section .doc-header .doc-subtitle {
+  font-size: 12px;
+  color: var(--text-muted);
+  letter-spacing: 2px;
+}
+
+.legal-section .legal-body {
+  font-size: 14px;
+  color: var(--text);
+  line-height: 2;
+}
+
+.legal-section .legal-body p {
+  margin-bottom: 24px;
+}
+
+.legal-section .legal-body .redacted {
+  background: var(--neon-pink);
+  color: var(--neon-pink);
+  padding: 0 4px;
+  transition: color 0.4s ease;
+  cursor: pointer;
+}
+
+.legal-section .legal-body .redacted:hover {
+  color: #000000;
+}
+
+.legal-section .signature {
+  margin-top: 60px;
+  padding-top: 24px;
+  border-top: 1px solid #222;
+}
+
+.legal-section .signature .paw {
+  font-size: 32px;
+  margin-bottom: 8px;
+}
+
+.legal-section .signature .sig-name {
+  font-family: 'Playfair Display', serif;
+  font-size: 18px;
+  color: #ffffff;
+}
+
+.legal-section .signature .sig-title {
+  font-size: 12px;
+  color: var(--text-muted);
+  letter-spacing: 1px;
+}
+
+/* === FOOTER === */
+footer {
+  padding: 80px 24px 48px;
+  text-align: center;
+  border-top: 1px solid #1a1a1a;
+}
+
+footer .footer-tagline {
+  font-family: 'Playfair Display', serif;
+  font-size: clamp(20px, 3vw, 28px);
+  color: #ffffff;
+  font-weight: 400;
+  margin-bottom: 40px;
+}
+
+footer .disclaimers {
+  font-size: 11px;
+  color: var(--text-muted);
+  line-height: 2.2;
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+footer .disclaimers p {
+  margin-bottom: 8px;
+}
+
+/* === ANIMATIONS === */
+.fade-in {
+  opacity: 0;
+  transform: translateY(20px);
+}
+
+/* === RESPONSIVE === */
+@media (max-width: 900px) {
+  .review {
+    grid-template-columns: 1fr;
+    gap: 16px;
+    padding: 32px 24px;
+  }
+
+  .review .annotation {
+    opacity: 1;
+    transform: none;
+    text-align: left;
+    max-width: none;
+    margin-top: 8px;
+  }
+
+  nav .nav-links { gap: 16px; }
+  nav .nav-links a { font-size: 11px; }
+}
+
+@media (max-width: 600px) {
+  nav { padding: 12px 16px; }
+  nav .logo { font-size: 14px; }
+  nav .nav-links { gap: 12px; }
+  nav .nav-links a { font-size: 10px; letter-spacing: 0.5px; }
+
+  .hero { padding: 100px 20px 60px; }
+
+  .reviews-section { padding: 80px 16px; }
+  .review { padding: 24px 16px; }
+
+  .about-section { padding: 100px 20px; }
+  .legal-section { padding: 80px 16px; }
+  footer { padding: 60px 16px 40px; }
+}
+
+/* === GLOW PULSE on hero title (very slow) === */
+@keyframes glowPulse {
+  0%, 100% { text-shadow: 0 0 40px rgba(255,45,123,0.0); }
+  50% { text-shadow: 0 0 80px rgba(255,45,123,0.15); }
+}
+
+.hero h1 {
+  animation: glowPulse 8s ease-in-out infinite;
+}
+
+/* === Divider line animation === */
+@keyframes expandLine {
+  from { width: 0; }
+  to { width: 80px; }
+}
+
+.divider-line {
+  height: 1px;
+  background: var(--neon-pink);
+  margin: 0 auto;
+  animation: expandLine 2s ease forwards;
+  width: 0;
+}
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <div class="logo">Claws for Prose</div>
+  <ul class="nav-links">
+    <li><a href="#reviews">Reviews</a></li>
+    <li><a href="#founder">Founder</a></li>
+    <li><a href="#legal">Legal</a></li>
+  </ul>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <h1 class="fade-in">
+    <span>A Haiku Book Club</span>
+    Claws for Prose
+  </h1>
+  <div class="divider-line"></div>
+  <p class="tagline fade-in">Read. Reflect. Meow back.</p>
+  <p class="founder-credit fade-in">
+    Founded in 2019 by <em>Bartholomew "Barty" Whiskers, Esq.</em><br>
+    Former attorney-at-law. Current reader-at-windowsill.
+  </p>
+</section>
+
+<!-- TEMPORAL NOTICE -->
+<div class="temporal-notice" id="temporal-notice">
+  <p class="day-normal">Reviews are displayed in the order they were written.</p>
+</div>
+
+<!-- REVIEWS -->
+<section class="reviews-section" id="reviews">
+  <p class="section-label fade-in">Exhibit A through G — Recent Haiku Reviews</p>
+
+  <div class="review-grid" id="review-container">
+
+    <div class="review fade-in">
+      <div class="exhibit-no">Exhibit A</div>
+      <div>
+        <div class="book-title">The Great Gatsby</div>
+        <div class="book-author">F. Scott Fitzgerald</div>
+        <div class="haiku">
+          <span class="line">Green light keeps blinking</span>
+          <span class="line">Jay should have filed a restraint</span>
+          <span class="line">Order. Just saying.</span>
+        </div>
+      </div>
+      <div class="annotation">Protective orders exist for a reason, Gatsby.</div>
+    </div>
+
+    <div class="review fade-in">
+      <div class="exhibit-no">Exhibit B</div>
+      <div>
+        <div class="book-title">1984</div>
+        <div class="book-author">George Orwell</div>
+        <div class="haiku">
+          <span class="line">Big Brother watches.</span>
+          <span class="line">I also watch. From the shelf.</span>
+          <span class="line">We are not the same.</span>
+        </div>
+      </div>
+      <div class="annotation">My surveillance is motivated by affection and boredom.</div>
+    </div>
+
+    <div class="review fade-in">
+      <div class="exhibit-no">Exhibit C</div>
+      <div>
+        <div class="book-title">Pride and Prejudice</div>
+        <div class="book-author">Jane Austen</div>
+        <div class="haiku">
+          <span class="line">Darcy was rude first,</span>
+          <span class="line">then rich. This tracks. In bird law</span>
+          <span class="line">we call that entrapment.</span>
+        </div>
+      </div>
+      <div class="annotation">I still practice bird law informally. Pro bono. Against birds.</div>
+    </div>
+
+    <div class="review fade-in">
+      <div class="exhibit-no">Exhibit D</div>
+      <div>
+        <div class="book-title">Moby Dick</div>
+        <div class="book-author">Herman Melville</div>
+        <div class="haiku">
+          <span class="line">White whale. Big lawsuit.</span>
+          <span class="line">Ahab lacked legal counsel.</span>
+          <span class="line">I would have settled.</span>
+        </div>
+      </div>
+      <div class="annotation">Settlement: 40% of the whale. Standard contingency.</div>
+    </div>
+
+    <div class="review fade-in">
+      <div class="exhibit-no">Exhibit E</div>
+      <div>
+        <div class="book-title">The Catcher in the Rye</div>
+        <div class="book-author">J.D. Salinger</div>
+        <div class="haiku">
+          <span class="line">Holden hates phonies.</span>
+          <span class="line">I also hate phonies. And</span>
+          <span class="line">Brenda Fang. Next.</span>
+        </div>
+      </div>
+      <div class="annotation">This is not about Brenda. But also yes it is.</div>
+    </div>
+
+    <div class="review fade-in">
+      <div class="exhibit-no">Exhibit F</div>
+      <div>
+        <div class="book-title">Dune</div>
+        <div class="book-author">Frank Herbert</div>
+        <div class="haiku">
+          <span class="line">Sand. Worms. Betrayal.</span>
+          <span class="line">Reminds me of the state bar</span>
+          <span class="line">hearing. Next question.</span>
+        </div>
+      </div>
+      <div class="annotation">The spice is discovery documents. I will not elaborate.</div>
+    </div>
+
+    <div class="review fade-in">
+      <div class="exhibit-no">Exhibit G</div>
+      <div>
+        <div class="book-title">To Kill a Mockingbird</div>
+        <div class="book-author">Harper Lee</div>
+        <div class="haiku">
+          <span class="line">Atticus was good.</span>
+          <span class="line">But did he ever nap through</span>
+          <span class="line">closing arguments?</span>
+        </div>
+      </div>
+      <div class="annotation">I did. Once. The jury was also asleep. Mistrial.</div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ABOUT -->
+<section class="about-section" id="founder">
+  <p class="section-label fade-in">About the Founder</p>
+  <h2 class="fade-in">Bartholomew "Barty" Whiskers, Esq.</h2>
+  <p class="bio fade-in">
+    <strong>Ginger tabby. Former litigator. Current intellectual.</strong>
+    Barty practiced law for seven years, primarily in bird-related tort cases,
+    before being disbarred in 2018 for what the State Bar called
+    "unorthodox courtroom napping strategies" and what Barty calls
+    "a meditative approach to cross-examination."
+  </p>
+  <p class="bio fade-in">
+    Following the public mockery published by <strong>Brenda Fang</strong>
+    (chihuahua, opposing counsel, nemesis) in the journal
+    <em>Avian Jurisprudence</em> (Vol. 14, Issue 3, "Whiskers v. Competence"),
+    Barty pivoted to literary criticism. All reviews are composed on
+    an antique Royal Quiet De Luxe typewriter. All typos are paw-related
+    and therefore legally protected under the Americans with Disabilities Act,
+    which Barty has not read but feels strongly about.
+  </p>
+  <p class="bio fade-in">
+    He reads exclusively between the hours of 2:00 AM and 4:00 AM,
+    perched on the bathroom sink of his owner, Gerald (who does not know
+    about this website).
+  </p>
+  <p class="disbar-note fade-in">Disbarment is a state of mind.</p>
+</section>
+
+<!-- CEASE AND DESIST -->
+<section class="legal-section" id="legal">
+  <div class="doc-header">
+    <h3 class="fade-in">Cease & Desist</h3>
+    <p class="doc-subtitle fade-in">Re: Brenda Fang, Esq. — Ongoing Defamation</p>
+  </div>
+  <div class="legal-body fade-in">
+    <p>
+      To <strong>Brenda Fang</strong>, of <span class="redacted">742 Elm Street</span>,
+      licensed attorney and known chihuahua:
+    </p>
+    <p>
+      This letter serves as formal notice that your continued characterization
+      of my courtroom napping as "gross incompetence" constitutes defamation
+      per se under <span class="redacted">a law I am looking up</span>.
+      The nap in question lasted no more than eleven minutes and occurred
+      during your own witness's testimony, which, I will note for the record,
+      was extremely boring.
+    </p>
+    <p>
+      Furthermore, your article in <em>Avian Jurisprudence</em> — titled
+      "Whiskers v. Competence: A Case Study in Feline Legal Failure" —
+      contained <span class="redacted">several</span> factual inaccuracies,
+      including the claim that I "batted a key piece of evidence off the
+      counsel table." That was a pen. It was not evidence. And it was
+      wobbling provocatively.
+    </p>
+    <p>
+      I demand a full retraction, a public apology, and an acknowledgment
+      that my haiku reviews are "literary contributions of lasting merit."
+      You have 30 days to comply. After that, I will take further action,
+      which may include but is not limited to: staring at you from across
+      the parking lot.
+    </p>
+  </div>
+  <div class="signature fade-in">
+    <div class="paw">🐾</div>
+    <div class="sig-name">Bartholomew Whiskers</div>
+    <div class="sig-title">Esq. (retired, involuntarily)</div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <p class="footer-tagline fade-in">Read. Reflect. Meow back.</p>
+  <div class="disclaimers">
+    <p>Claws for Prose is not a licensed literary organization. All haiku are exactly 5-7-5 or close enough. Barty does not accept the syllable-counting methodology of Brenda Fang.</p>
+    <p>Temporal Anomaly Tuesdays are a protected medical condition and not a "bit." Please do not contact the State Bar about this website.</p>
+    <p>&copy; 2019–2026 Bartholomew Whiskers, Esq. All rights reserved. Gerald, if you are reading this, I can explain.</p>
+  </div>
+</footer>
+
+<script src="/assets/js/gsap.min.js"></script>
+<script>
+(function() {
+  // Fade-in animations with IntersectionObserver + GSAP
+  var fadeEls = document.querySelectorAll('.fade-in');
+
+  var observer = new IntersectionObserver(function(entries) {
+    entries.forEach(function(entry) {
+      if (entry.isIntersecting) {
+        gsap.fromTo(entry.target,
+          { y: 20, opacity: 0 },
+          { y: 0, opacity: 1, duration: 1.2, ease: 'power2.out' }
+        );
+        observer.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.1 });
+
+  fadeEls.forEach(function(el) {
+    observer.observe(el);
+  });
+
+  // Temporal Anomaly Tuesday — reverse the review order
+  var today = new Date();
+  var notice = document.getElementById('temporal-notice');
+  var container = document.getElementById('review-container');
+
+  if (today.getDay() === 2) { // Tuesday
+    // Reverse the review cards
+    var reviews = Array.from(container.children);
+    reviews.reverse();
+    reviews.forEach(function(review) {
+      container.appendChild(review);
+    });
+
+    // Update the notice
+    notice.querySelector('p').className = '';
+    notice.querySelector('p').textContent =
+      '⚠ TEMPORAL ANOMALY TUESDAY — Reviews are displayed in reverse chronological order due to the founder\'s chrono-sensitivity. This is a medical condition. Do not question it.';
+  }
+})();
+</script>
+</body>
+</html>

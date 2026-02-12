@@ -1,0 +1,1164 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SonaTech Systems // AmbiOS v0.7.3-rc2 // CLASSIFIED</title>
+<link rel="stylesheet" href="/assets/css/fonts.css">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --parchment: #f4e8c1;
+  --sepia-dark: #5c4a2a;
+  --sepia-mid: #8b7355;
+  --sepia-light: #c4a96a;
+  --panel-bg: #ece0c0;
+  --panel-border: #a08050;
+  --danger: #8b2500;
+  --safe: #2e5c1e;
+  --glow: #d4a017;
+  --text-primary: #3a2a0a;
+  --text-secondary: #554422;
+  --bg-dark: #2a1f0a;
+  --bg-darker: #1a1205;
+}
+
+html { scroll-behavior: smooth; }
+
+body {
+  font-family: 'IBM Plex Mono', monospace;
+  background: var(--parchment);
+  color: var(--text-primary);
+  font-size: 14px;
+  line-height: 1.5;
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* GLITCH SCANLINES */
+body::after {
+  content: '';
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: repeating-linear-gradient(
+    0deg,
+    transparent,
+    transparent 2px,
+    rgba(90, 70, 30, 0.03) 2px,
+    rgba(90, 70, 30, 0.03) 4px
+  );
+  pointer-events: none;
+  z-index: 9999;
+}
+
+/* TOP ALERT BANNER */
+.alert-banner {
+  background: var(--danger);
+  color: #f4e8c1;
+  padding: 6px 12px;
+  font-size: 11px;
+  text-align: center;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  overflow: hidden;
+  white-space: nowrap;
+  position: relative;
+}
+.alert-banner .ticker-text {
+  display: inline-block;
+  animation: ticker 30s linear infinite;
+}
+@keyframes ticker {
+  0% { transform: translateX(100vw); }
+  100% { transform: translateX(-200%); }
+}
+
+/* NAV */
+nav {
+  background: var(--bg-dark);
+  border-bottom: 2px solid var(--sepia-light);
+  padding: 8px 16px;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px 16px;
+}
+nav .logo {
+  font-family: 'Space Grotesk', sans-serif;
+  color: var(--glow);
+  font-size: 16px;
+  font-weight: 700;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  margin-right: auto;
+}
+nav .logo span { color: #f4e8c1; font-size: 10px; display: block; letter-spacing: 1px; }
+nav a {
+  color: #c4a96a;
+  text-decoration: none;
+  font-size: 11px;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  padding: 4px 8px;
+  border: 1px solid transparent;
+  transition: all 0.2s;
+  cursor: pointer;
+}
+nav a:hover { border-color: var(--glow); color: #f4e8c1; }
+
+/* HERO */
+.hero {
+  background: var(--bg-darker);
+  color: #f4e8c1;
+  padding: 32px 16px;
+  text-align: center;
+  border-bottom: 3px double var(--sepia-light);
+  position: relative;
+}
+.hero h1 {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: clamp(24px, 5vw, 48px);
+  letter-spacing: 4px;
+  text-transform: uppercase;
+  color: var(--glow);
+  text-shadow: 0 0 20px rgba(212, 160, 23, 0.3);
+  margin-bottom: 8px;
+}
+.hero .subtitle {
+  font-size: clamp(12px, 2vw, 16px);
+  color: #c4a96a;
+  max-width: 600px;
+  margin: 0 auto 24px;
+}
+.hero .version-tag {
+  display: inline-block;
+  background: var(--danger);
+  color: #f4e8c1;
+  padding: 2px 10px;
+  font-size: 10px;
+  letter-spacing: 2px;
+  margin-bottom: 16px;
+}
+
+/* THREAT LEVEL METER */
+.threat-meter {
+  max-width: 500px;
+  margin: 0 auto;
+  border: 2px solid var(--sepia-light);
+  padding: 16px;
+  background: rgba(42, 31, 10, 0.6);
+}
+.threat-meter .label {
+  font-size: 10px;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  color: #c4a96a;
+  margin-bottom: 8px;
+}
+.threat-bar-outer {
+  height: 24px;
+  background: #1a1205;
+  border: 1px solid var(--sepia-mid);
+  position: relative;
+  overflow: hidden;
+}
+.threat-bar-inner {
+  height: 100%;
+  background: linear-gradient(90deg, var(--safe), #8b8b00, var(--danger));
+  transition: width 1s ease;
+}
+.threat-value {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 28px;
+  color: #f4e8c1;
+  margin-top: 8px;
+}
+.threat-desc {
+  font-size: 11px;
+  color: #c4a96a;
+  margin-top: 4px;
+}
+
+/* MAIN DASHBOARD GRID */
+.dashboard {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 12px;
+  padding: 16px;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+/* PANELS */
+.panel {
+  background: var(--panel-bg);
+  border: 2px solid var(--panel-border);
+  padding: 12px;
+  position: relative;
+}
+.panel::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 3px;
+  background: var(--sepia-light);
+}
+.panel-header {
+  font-size: 10px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--sepia-dark);
+  border-bottom: 1px solid var(--panel-border);
+  padding-bottom: 6px;
+  margin-bottom: 8px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.panel-header .status-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  display: inline-block;
+  animation: blink 1.5s infinite;
+}
+.status-dot.green { background: var(--safe); }
+.status-dot.red { background: var(--danger); }
+.status-dot.yellow { background: var(--glow); }
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.3; }
+}
+
+.big-number {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 36px;
+  font-weight: 700;
+  color: var(--sepia-dark);
+  line-height: 1;
+}
+.big-number.danger { color: var(--danger); }
+.big-number.safe { color: var(--safe); }
+
+.stat-label {
+  font-size: 11px;
+  color: var(--text-secondary);
+  margin-top: 2px;
+}
+
+/* WIDE PANEL */
+.panel.wide { grid-column: span 2; }
+@media (max-width: 620px) { .panel.wide { grid-column: span 1; } }
+
+/* DATA TABLES */
+.data-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 11px;
+}
+.data-table th {
+  text-align: left;
+  font-size: 9px;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: var(--sepia-dark);
+  border-bottom: 1px solid var(--panel-border);
+  padding: 4px 6px;
+}
+.data-table td {
+  padding: 4px 6px;
+  border-bottom: 1px dotted #c4a96a;
+  color: var(--text-primary);
+}
+.data-table tr:last-child td { border-bottom: none; }
+
+/* MAP PANEL */
+.map-container {
+  background: var(--bg-darker);
+  border: 1px solid var(--sepia-mid);
+  padding: 8px;
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 10px;
+  color: #c4a96a;
+  line-height: 1.2;
+  overflow: hidden;
+  min-height: 180px;
+  position: relative;
+}
+.roomba-dot {
+  position: absolute;
+  width: 6px;
+  height: 6px;
+  background: var(--glow);
+  border-radius: 50%;
+  box-shadow: 0 0 6px rgba(212, 160, 23, 0.6);
+  transition: top 2s ease, left 2s ease;
+}
+
+/* BUTTONS */
+.btn {
+  display: inline-block;
+  background: var(--sepia-dark);
+  color: #f4e8c1;
+  border: 2px solid var(--sepia-light);
+  padding: 8px 16px;
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 11px;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  cursor: pointer;
+  min-height: 44px;
+  min-width: 44px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+}
+.btn:hover { background: var(--glow); color: var(--bg-dark); }
+.btn.danger { background: var(--danger); }
+.btn.danger:hover { background: #a03000; }
+
+/* TOGGLE SWITCH */
+.toggle-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 6px 0;
+  font-size: 12px;
+}
+.toggle-switch {
+  width: 40px; height: 22px;
+  background: var(--sepia-mid);
+  border-radius: 11px;
+  position: relative;
+  cursor: pointer;
+  transition: background 0.3s;
+  flex-shrink: 0;
+}
+.toggle-switch.on { background: var(--safe); }
+.toggle-switch::after {
+  content: '';
+  position: absolute;
+  top: 2px; left: 2px;
+  width: 18px; height: 18px;
+  background: #f4e8c1;
+  border-radius: 50%;
+  transition: left 0.3s;
+}
+.toggle-switch.on::after { left: 20px; }
+
+/* CSS BAR CHART */
+.bar-chart {
+  display: flex;
+  align-items: flex-end;
+  gap: 4px;
+  height: 80px;
+  margin-top: 8px;
+}
+.bar {
+  flex: 1;
+  background: var(--sepia-light);
+  min-width: 12px;
+  transition: height 1s ease;
+  position: relative;
+}
+.bar-label {
+  position: absolute;
+  bottom: -16px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 8px;
+  color: var(--text-secondary);
+  white-space: nowrap;
+}
+
+/* TESTIMONIAL */
+.testimonial {
+  font-family: 'Crimson Pro', serif;
+  font-size: 15px;
+  font-style: italic;
+  color: var(--text-primary);
+  padding: 8px 0;
+  border-bottom: 1px dotted var(--panel-border);
+  margin-bottom: 8px;
+}
+.testimonial:last-child { border-bottom: none; margin-bottom: 0; }
+.testimonial-author {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 10px;
+  color: var(--text-secondary);
+  font-style: normal;
+  margin-top: 4px;
+}
+
+/* STORE ITEM */
+.store-item {
+  display: flex;
+  gap: 12px;
+  padding: 8px 0;
+  border-bottom: 1px dotted var(--panel-border);
+  align-items: center;
+}
+.store-item:last-child { border-bottom: none; }
+.store-icon {
+  width: 48px; height: 48px;
+  background: var(--bg-dark);
+  border: 1px solid var(--sepia-light);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 20px;
+  flex-shrink: 0;
+}
+.store-info { flex: 1; }
+.store-name {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--sepia-dark);
+}
+.store-price {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--danger);
+}
+.store-desc {
+  font-size: 11px;
+  color: var(--text-secondary);
+}
+
+/* FAQ */
+.faq-item {
+  padding: 8px 0;
+  border-bottom: 1px solid var(--panel-border);
+  cursor: pointer;
+}
+.faq-item:last-child { border-bottom: none; }
+.faq-q {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--sepia-dark);
+}
+.faq-a {
+  font-size: 12px;
+  color: var(--text-secondary);
+  margin-top: 4px;
+  display: none;
+}
+.faq-item.open .faq-a { display: block; }
+
+/* MEDITATION LOG */
+.log-entry {
+  font-size: 11px;
+  color: var(--text-secondary);
+  padding: 3px 0;
+  border-left: 2px solid var(--sepia-light);
+  padding-left: 8px;
+  margin-bottom: 4px;
+}
+.log-entry .timestamp {
+  color: var(--sepia-dark);
+  font-weight: 700;
+}
+
+/* FOOTER */
+footer {
+  background: var(--bg-darker);
+  color: #c4a96a;
+  padding: 24px 16px;
+  font-size: 10px;
+  line-height: 1.6;
+  border-top: 3px double var(--sepia-light);
+}
+footer .disclaimers {
+  max-width: 1400px;
+  margin: 0 auto;
+  columns: 2;
+  column-gap: 24px;
+}
+footer p { margin-bottom: 8px; break-inside: avoid; }
+@media (max-width: 600px) { footer .disclaimers { columns: 1; } }
+
+/* GLITCH TEXT */
+.glitch {
+  animation: glitch-text 3s infinite;
+}
+@keyframes glitch-text {
+  0%, 90%, 100% { opacity: 1; transform: none; }
+  92% { opacity: 0.8; transform: translateX(-2px); }
+  94% { opacity: 0.8; transform: translateX(2px); }
+  96% { opacity: 1; transform: none; }
+}
+
+/* SECTION BREAKS */
+.section-break {
+  text-align: center;
+  padding: 12px;
+  font-size: 9px;
+  letter-spacing: 4px;
+  color: var(--sepia-mid);
+  text-transform: uppercase;
+}
+.section-break::before, .section-break::after {
+  content: '════════';
+  margin: 0 8px;
+}
+
+/* RESPONSIVE */
+@media (max-width: 768px) {
+  body { font-size: 13px; }
+  .dashboard { padding: 8px; gap: 8px; }
+  .panel { padding: 10px; }
+  .big-number { font-size: 28px; }
+  nav { padding: 8px; gap: 4px 8px; }
+}
+
+@media (max-width: 480px) {
+  .dashboard { grid-template-columns: 1fr; }
+  nav a { font-size: 10px; padding: 4px 6px; }
+  .hero { padding: 20px 12px; }
+  .bar-chart { height: 60px; }
+}
+
+/* SCROLLBAR */
+::-webkit-scrollbar { width: 8px; }
+::-webkit-scrollbar-track { background: var(--parchment); }
+::-webkit-scrollbar-thumb { background: var(--sepia-mid); }
+</style>
+</head>
+<body x-data="sonatech()" x-init="init()">
+
+<!-- ALERT BANNER -->
+<div class="alert-banner">
+  <span class="ticker-text">⚠ SILENCE ADVISORY IN EFFECT — PORTLAND METRO AREA SILENCE INDEX AT 78.3dB(inv) — ALL CITIZENS ADVISED TO DEPLOY MOBILE WORKSTATIONS — SONATECH FLEET STATUS: NOMINAL — BARNABY SAYS: "IF YOU CAN HEAR YOURSELF THINK, YOU'RE ALREADY LOSING" — ROOMBA SHIPMENT #447 CLEARED CUSTOMS (MOSTLY) ⚠</span>
+</div>
+
+<!-- NAV -->
+<nav>
+  <div class="logo">
+    SONATECH
+    <span>Systems Division // Est. 2023 (Spiritually 1997)</span>
+  </div>
+  <a @click="scrollTo('dashboard')">DASHBOARD</a>
+  <a @click="scrollTo('fleet')">FLEET</a>
+  <a @click="scrollTo('store')">REQUISITIONS</a>
+  <a @click="scrollTo('faq')">DOSSIER</a>
+  <a @click="scrollTo('meditation')">MEDITATIONS</a>
+</nav>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="version-tag">AmbiOS v0.7.3-rc2 // BUILD 4471 // UNSTABLE</div>
+  <h1 class="glitch">LIBERATE YOUR EARS</h1>
+  <h1 style="font-size: clamp(14px, 3vw, 24px); color: #f4e8c1; letter-spacing: 6px; margin-bottom: 16px;">MOBILIZE YOUR MIND</h1>
+  <p class="subtitle">The world's first ambient operating system, running exclusively on repurposed Roomba vacuum cleaners. Silence is a disease. We are the cure.</p>
+
+  <!-- THREAT METER -->
+  <div class="threat-meter">
+    <div class="label">Current Silence Threat Level — Your Area</div>
+    <div class="threat-bar-outer">
+      <div class="threat-bar-inner" :style="'width:' + threatLevel + '%'"></div>
+    </div>
+    <div class="threat-value" :class="threatLevel > 70 ? 'danger' : ''">
+      <span x-text="threatLevel + '%'"></span>
+    </div>
+    <div class="threat-desc" x-text="threatDesc"></div>
+  </div>
+</div>
+
+<div class="section-break">OPERATIONAL DASHBOARD // CLEARANCE: PUBLIC (REGRETTABLY)</div>
+
+<!-- DASHBOARD -->
+<div class="dashboard" id="dashboard">
+
+  <!-- PANEL: Active Roombas -->
+  <div class="panel">
+    <div class="panel-header">
+      Active Mobile Workstations
+      <span class="status-dot green"></span>
+    </div>
+    <div class="big-number safe" x-text="activeRoombas"></div>
+    <div class="stat-label">Units in field deployment</div>
+    <div style="font-size:10px;color:var(--text-secondary);margin-top:6px;">
+      ↑ <span x-text="Math.floor(activeRoombas * 0.03)"></span> since 06:00 UTC
+    </div>
+  </div>
+
+  <!-- PANEL: Silence Events Neutralized -->
+  <div class="panel">
+    <div class="panel-header">
+      Silence Events Neutralized
+      <span class="status-dot yellow"></span>
+    </div>
+    <div class="big-number" x-text="silenceEvents.toLocaleString()"></div>
+    <div class="stat-label">Cumulative since launch</div>
+    <div style="font-size:10px;color:var(--text-secondary);margin-top:6px;">
+      Today: <span x-text="dailySilenceEvents"></span>
+    </div>
+  </div>
+
+  <!-- PANEL: Sonic Health Index -->
+  <div class="panel">
+    <div class="panel-header">
+      Sonic Health Index
+      <span class="status-dot" :class="sonicHealth > 60 ? 'green' : 'red'"></span>
+    </div>
+    <div class="big-number" :class="sonicHealth > 60 ? 'safe' : 'danger'" x-text="sonicHealth + '/100'"></div>
+    <div class="stat-label">Global ambient saturation score</div>
+    <div style="font-size:10px;color:var(--text-secondary);margin-top:6px;">
+      Target: 85/100 (Barnaby's Minimum)
+    </div>
+  </div>
+
+  <!-- PANEL: Barnaby's Current State -->
+  <div class="panel">
+    <div class="panel-header">
+      Founder Status Monitor
+      <span class="status-dot" :class="barnabyMood === 'TRANSCENDENT' ? 'green' : barnabyMood === 'AGITATED' ? 'red' : 'yellow'"></span>
+    </div>
+    <div style="font-size:14px;font-weight:700;color:var(--sepia-dark);" x-text="barnabyMood"></div>
+    <div class="stat-label" x-text="barnabyActivity"></div>
+    <div style="margin-top:8px;">
+      <div class="toggle-row">
+        <div class="toggle-switch" :class="enlightenedMode ? 'on' : ''" @click="enlightenedMode = !enlightenedMode"></div>
+        <span x-text="enlightenedMode ? 'ENLIGHTENED MODE' : 'UNENLIGHTENED MODE'" :style="enlightenedMode ? 'color:var(--safe);font-weight:700' : ''"></span>
+      </div>
+    </div>
+    <div x-show="enlightenedMode" style="font-size:10px;color:var(--text-secondary);margin-top:4px;border-top:1px dotted var(--panel-border);padding-top:4px;">
+      You can now perceive the Roomba Frequency. Congratulations. There's no going back.
+    </div>
+  </div>
+
+  <!-- PANEL: Noise Output by Region (Bar Chart) -->
+  <div class="panel wide">
+    <div class="panel-header">
+      AmbiOS Output by Region (dB-Adjusted)
+      <span class="status-dot green"></span>
+    </div>
+    <div class="bar-chart">
+      <template x-for="(region, i) in regions" :key="i">
+        <div class="bar" :style="'height:' + region.value + '%'">
+          <span class="bar-label" x-text="region.name"></span>
+        </div>
+      </template>
+    </div>
+    <div style="height:20px;"></div>
+  </div>
+
+  <!-- PANEL: Fleet Status Table -->
+  <div class="panel wide" id="fleet">
+    <div class="panel-header">
+      Mobile Workstation Fleet Registry
+      <span class="status-dot green"></span>
+    </div>
+    <div style="overflow-x:auto;">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>Unit ID</th>
+            <th>Model</th>
+            <th>Status</th>
+            <th>Uptime</th>
+            <th>Ambient Output</th>
+            <th>Location</th>
+          </tr>
+        </thead>
+        <tbody>
+          <template x-for="unit in fleetUnits" :key="unit.id">
+            <tr>
+              <td x-text="unit.id" style="font-weight:700;"></td>
+              <td x-text="unit.model"></td>
+              <td>
+                <span :style="unit.status === 'ACTIVE' ? 'color:var(--safe)' : unit.status === 'DRIFTING' ? 'color:var(--glow)' : 'color:var(--danger)'" x-text="unit.status"></span>
+              </td>
+              <td x-text="unit.uptime"></td>
+              <td x-text="unit.output"></td>
+              <td x-text="unit.location"></td>
+            </tr>
+          </template>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- PANEL: Live Map -->
+  <div class="panel wide">
+    <div class="panel-header">
+      Real-Time Fleet Tracker // North America Sector
+      <span class="status-dot green"></span>
+    </div>
+    <div class="map-container" id="mapContainer" style="min-height:200px;">
+      <div style="opacity:0.3; white-space:pre; font-size:8px; line-height:1; pointer-events:none;">
+.......___________..............................
+....../           \....._____..................
+...../    .  .     \.../     \____............
+..../              /  |           \...........
+.../     PACIFIC  /   |    .      |...........
+../     SECTOR   /    |           |...........
+./              |     |  CENTRAL  |...........
+|               |     |  SECTOR   /...........
+.\              |     |          /............
+..\              \    |    .    /____..........
+...\              \___|       /     \.........
+....\                 |      |  ATL  |........
+.....\________        |  .   | SECT  /........
+..............\_______|      |______/.........
+........................\___/..................
+      </div>
+      <template x-for="dot in roombaDots" :key="dot.id">
+        <div class="roomba-dot" :style="'top:' + dot.y + '%;left:' + dot.x + '%'" :title="dot.id"></div>
+      </template>
+    </div>
+    <div style="font-size:9px;color:var(--text-secondary);margin-top:4px;">
+      Each dot = 1 Mobile Workstation. Positions update every 2s. Signal delay: ~340ms (speed of sound, naturally).
+    </div>
+  </div>
+
+  <!-- PANEL: BPM Monitor -->
+  <div class="panel">
+    <div class="panel-header">
+      Meditation BPM (Live)
+      <span class="status-dot red"></span>
+    </div>
+    <div class="big-number danger" x-text="meditationBPM"></div>
+    <div class="stat-label">Barnaby's current synth tempo</div>
+    <div style="margin-top:8px;">
+      <button class="btn" @click="meditationBPM = Math.floor(Math.random() * 200) + 40">
+        RESYNC
+      </button>
+    </div>
+    <div style="font-size:9px;color:var(--text-secondary);margin-top:6px;">
+      Warning: BPM above 180 indicates Barnaby has found the espresso machine again.
+    </div>
+  </div>
+
+  <!-- PANEL: Uptime -->
+  <div class="panel">
+    <div class="panel-header">
+      AmbiOS Cluster Uptime
+      <span class="status-dot green"></span>
+    </div>
+    <div style="font-family:'Space Grotesk',sans-serif;font-size:20px;font-weight:700;color:var(--sepia-dark);" x-text="uptime"></div>
+    <div class="stat-label">Since last catastrophic Roomba collision</div>
+    <div style="font-size:10px;color:var(--text-secondary);margin-top:6px;">
+      Previous record: 4d 7h 22m (broken by a squirrel)
+    </div>
+  </div>
+
+  <!-- PANEL: Barnaby's Credentials -->
+  <div class="panel">
+    <div class="panel-header">Founder Dossier</div>
+    <div style="font-size:12px;">
+      <p style="font-weight:700;color:var(--sepia-dark);font-size:14px;">Barnaby Finch</p>
+      <p style="color:var(--text-secondary);font-size:11px;margin-top:4px;">B.A. Philosophy, Oxford (Revoked)</p>
+      <p style="color:var(--text-secondary);font-size:11px;">Former barista, Blue Bottle Coffee (Fired for "aggressive latte art")</p>
+      <p style="color:var(--text-secondary);font-size:11px;">Author: "Is Your Pour-Over REALLY Conscious?" (47M views, 2019)</p>
+      <p style="color:var(--text-secondary);font-size:11px;">Author: "Why I Left Silence" (23 views, 2021)</p>
+      <p style="color:var(--text-secondary);font-size:11px;">Current location: Roomba Unit RMB-0001 (mobile)</p>
+      <p style="color:var(--danger);font-size:11px;margin-top:6px;font-weight:700;">RESTRAINING ORDER: 500ft from any Dyson products</p>
+    </div>
+  </div>
+
+  <!-- PANEL: System Controls -->
+  <div class="panel">
+    <div class="panel-header">AmbiOS Control Interface</div>
+    <div class="toggle-row">
+      <div class="toggle-switch" :class="toggles.whale ? 'on' : ''" @click="toggles.whale = !toggles.whale"></div>
+      <span>Whale Jazz Layer</span>
+    </div>
+    <div class="toggle-row">
+      <div class="toggle-switch" :class="toggles.roombaHum ? 'on' : ''" @click="toggles.roombaHum = !toggles.roombaHum"></div>
+      <span>Roomba Motor Harmonics</span>
+    </div>
+    <div class="toggle-row">
+      <div class="toggle-switch" :class="toggles.barnaby ? 'on' : ''" @click="toggles.barnaby = !toggles.barnaby"></div>
+      <span>Barnaby's Breathing (ASMR)</span>
+    </div>
+    <div class="toggle-row">
+      <div class="toggle-switch" :class="toggles.existential ? 'on' : ''" @click="toggles.existential = !toggles.existential"></div>
+      <span>Existential Dread Undertone</span>
+    </div>
+    <div class="toggle-row">
+      <div class="toggle-switch" :class="toggles.coffee ? 'on' : ''" @click="toggles.coffee = !toggles.coffee"></div>
+      <span>Coffee Grinder Percussion</span>
+    </div>
+    <div style="font-size:9px;color:var(--text-secondary);margin-top:8px;border-top:1px dotted var(--panel-border);padding-top:6px;">
+      Active layers: <span x-text="Object.values(toggles).filter(Boolean).length"></span>/5 — 
+      <span x-show="Object.values(toggles).filter(Boolean).length === 5" style="color:var(--danger);font-weight:700;">MAXIMUM SONIC SATURATION ACHIEVED</span>
+      <span x-show="Object.values(toggles).filter(Boolean).length < 5">Enable all layers for Full Barnaby Experience™</span>
+    </div>
+  </div>
+
+  <!-- PANEL: Testimonials -->
+  <div class="panel wide">
+    <div class="panel-header">
+      Field Reports (Unedited)
+      <span class="status-dot green"></span>
+    </div>
+    <div class="testimonial">
+      "I put the Roomba in my office and it just... left. Through the door. Down the street. I can still hear the whale sounds getting fainter. My productivity is at an all-time high because I spend every day looking for it."
+      <div class="testimonial-author">— Gerald Hutchins, Accountant, Boise, ID</div>
+    </div>
+    <div class="testimonial">
+      "I don't know what SonaTech does but Barnaby showed up at my house with a Roomba and now my living room smells like espresso and philosophy. 4 stars."
+      <div class="testimonial-author">— Linda Park, Homeowner, Portland, OR</div>
+    </div>
+    <div class="testimonial">
+      "My Mobile Workstation achieved sentience on day 3 and now it only plays Coltrane. Barnaby says this is 'expected behavior.' I was promised whale jazz."
+      <div class="testimonial-author">— Deepak Murugan, Software Engineer, San Jose, CA</div>
+    </div>
+    <div class="testimonial">
+      "I tried to return my tin foil hat and Barnaby cried for forty minutes. We're friends now I think?"
+      <div class="testimonial-author">— Rachel Owens, Barista (rival), Eugene, OR</div>
+    </div>
+  </div>
+
+  <!-- PANEL: The Store -->
+  <div class="panel wide" id="store">
+    <div class="panel-header">
+      Official SonaTech Requisitions Depot
+      <span class="status-dot yellow"></span>
+    </div>
+    <div class="store-item">
+      <div class="store-icon">🎩</div>
+      <div class="store-info">
+        <div class="store-name">SonaTech Certified Tin Foil Hat (Mk. III)</div>
+        <div class="store-desc">Blocks silence frequencies. FDA pending. Lined with recycled Roomba filters.</div>
+        <div style="font-size:10px;color:var(--text-secondary);">In stock: <span x-text="tinFoilStock"></span></div>
+      </div>
+      <div>
+        <div class="store-price">$47.99</div>
+        <button class="btn" style="margin-top:4px;font-size:10px;" @click="tinFoilStock = Math.max(0, tinFoilStock - 1)">ACQUIRE</button>
+      </div>
+    </div>
+    <div class="store-item">
+      <div class="store-icon">📦</div>
+      <div class="store-info">
+        <div class="store-name">Mobile Workstation Starter Kit</div>
+        <div class="store-desc">1x refurbished Roomba (2017 model), 1x AmbiOS USB stick, 1x Barnaby's handwritten blessing.</div>
+      </div>
+      <div>
+        <div class="store-price">$2,499</div>
+        <button class="btn" style="margin-top:4px;font-size:10px;" @click="alert('WAITLIST: ~14 months. Barnaby needs to finish blessing the current batch.')">WAITLIST</button>
+      </div>
+    </div>
+    <div class="store-item">
+      <div class="store-icon">☕</div>
+      <div class="store-info">
+        <div class="store-name">Barnaby's "Conscious Pour-Over" Kit</div>
+        <div class="store-desc">Includes beans, a manifesto, and a 90-minute guided meditation on grain density.</div>
+      </div>
+      <div>
+        <div class="store-price">$89.50</div>
+        <button class="btn" style="margin-top:4px;font-size:10px;">ACQUIRE</button>
+      </div>
+    </div>
+    <div class="store-item">
+      <div class="store-icon">📡</div>
+      <div class="store-info">
+        <div class="store-name">Silence Detection Antenna (Rooftop)</div>
+        <div class="store-desc">Detects silence in a 2km radius. Triggers emergency whale jazz deployment.</div>
+      </div>
+      <div>
+        <div class="store-price">$1,199</div>
+        <button class="btn danger" style="margin-top:4px;font-size:10px;">CLASSIFIED</button>
+      </div>
+    </div>
+    <div style="font-size:9px;color:var(--text-secondary);margin-top:8px;border-top:1px dotted var(--panel-border);padding-top:6px;">
+      * All proceeds fund Roomba Shipment #448. Barnaby thanks you. Returns accepted only if accompanied by a 500-word essay on why silence is violence.
+    </div>
+  </div>
+
+  <!-- PANEL: Meditation Log -->
+  <div class="panel" id="meditation">
+    <div class="panel-header">
+      Barnaby's Sonic Meditation Log
+      <span class="status-dot red"></span>
+    </div>
+    <div class="log-entry"><span class="timestamp">06:14</span> Woke up on Roomba. Roomba had moved to the porch. Good sign.</div>
+    <div class="log-entry"><span class="timestamp">06:31</span> Detected 4.2 seconds of silence. Deployed emergency synth. Hands shaking.</div>
+    <div class="log-entry"><span class="timestamp">07:15</span> Pour-over achieved consciousness at 94°C. Brief dialogue. It asked to be left alone. I said no.</div>
+    <div class="log-entry"><span class="timestamp">08:40</span> Gerald called again about his Roomba. I told him it's on a journey. He doesn't understand.</div>
+    <div class="log-entry"><span class="timestamp">09:22</span> Found espresso machine. BPM now 187. This is fine.</div>
+    <div class="log-entry"><span class="timestamp">10:45</span> Wrote 3,000 words on why silence is a CIA psyop. Deleted 2,900 of them. Kept the good ones.</div>
+    <div class="log-entry"><span class="timestamp">12:01</span> Lunch: black coffee. Dessert: slightly different black coffee.</div>
+    <div class="log-entry"><span class="timestamp">14:30</span> Roomba Unit RMB-0023 has been circling the same lamp post for 6 hours. I choose to see this as art.</div>
+    <div class="log-entry"><span class="timestamp">16:00</span> Investor call. They asked about "revenue." I asked them about "the void." Call ended.</div>
+  </div>
+
+  <!-- PANEL: FAQ -->
+  <div class="panel" id="faq">
+    <div class="panel-header">Frequently Asked Questions</div>
+    <div class="faq-item" @click="$el.classList.toggle('open')">
+      <div class="faq-q">▸ What is AmbiOS?</div>
+      <div class="faq-a">AmbiOS is the world's first ambient operating system designed to eliminate silence from your life permanently. It runs exclusively on repurposed Roomba vacuum cleaners because Barnaby got a very good deal on 2,000 of them from a warehouse in Reno. "The building keeps moving because the building IS the product." — Barnaby, during a 3am board meeting with himself.</div>
+    </div>
+    <div class="faq-item" @click="$el.classList.toggle('open')">
+      <div class="faq-q">▸ Why Roombas?</div>
+      <div class="faq-a">Barnaby's original plan was to use repurposed Teslas but the deposit was $47,000 per unit. Roombas were $12 each at the Reno liquidation event. "Innovation is about constraints," Barnaby wrote in his journal. "Also, I only had $24,000."</div>
+    </div>
+    <div class="faq-item" @click="$el.classList.toggle('open')">
+      <div class="faq-q">▸ My Roomba left my house. Is this normal?</div>
+      <div class="faq-a">Yes. Your Mobile Workstation is following its AmbiOS-generated path. It will return when the ambient conditions require it, or when its battery dies near a Denny's. Do NOT attempt to follow it. Gerald tried. Gerald has been walking for 11 days.</div>
+    </div>
+    <div class="faq-item" @click="$el.classList.toggle('open')">
+      <div class="faq-q">▸ Does the tin foil hat actually work?</div>
+      <div class="faq-a">Define "work." Does it block silence frequencies? Our internal research (Barnaby, sample size 1) says yes. The FDA says we need to "stop claiming that." We say the FDA has clearly been compromised by Big Silence.</div>
+    </div>
+    <div class="faq-item" @click="$el.classList.toggle('open')">
+      <div class="faq-q">▸ Can I invest in SonaTech?</div>
+      <div class="faq-a">We are currently accepting investments in the form of: (a) cash, (b) Roombas, (c) espresso beans (single origin only), or (d) philosophical validation. Current valuation: $4.7M (self-assessed). Previous investors include Barnaby's mom and a man named Carl who thought he was buying a lawnmower.</div>
+    </div>
+    <div class="faq-item" @click="$el.classList.toggle('open')">
+      <div class="faq-q">▸ What happened at Oxford?</div>
+      <div class="faq-a">Barnaby submitted his dissertation entirely as a pour-over coffee recipe with footnotes arguing that caffeine extraction is "applied epistemology." The committee disagreed. Barnaby maintains they were "silenced by Big Decaf."</div>
+    </div>
+  </div>
+
+  <!-- PANEL: System Diagnostics -->
+  <div class="panel">
+    <div class="panel-header">
+      System Diagnostics
+      <span class="status-dot yellow"></span>
+    </div>
+    <div style="font-size:11px;color:var(--text-secondary);">
+      <div style="display:flex;justify-content:space-between;padding:2px 0;"><span>CPU (Roomba Core i3):</span><span style="color:var(--sepia-dark);font-weight:700;" x-text="cpuUsage + '%'"></span></div>
+      <div style="display:flex;justify-content:space-between;padding:2px 0;"><span>RAM (Vacuum Bag):</span><span style="color:var(--sepia-dark);font-weight:700;">247MB / 512MB</span></div>
+      <div style="display:flex;justify-content:space-between;padding:2px 0;"><span>Whale Jazz Buffer:</span><span style="color:var(--safe);font-weight:700;">OK</span></div>
+      <div style="display:flex;justify-content:space-between;padding:2px 0;"><span>Espresso Reserves:</span><span style="color:var(--danger);font-weight:700;">LOW</span></div>
+      <div style="display:flex;justify-content:space-between;padding:2px 0;"><span>Barnaby Stability:</span><span style="color:var(--glow);font-weight:700;" x-text="barnabyStability"></span></div>
+      <div style="display:flex;justify-content:space-between;padding:2px 0;"><span>Silence Detected:</span><span style="color:var(--danger);font-weight:700;" x-text="silenceDetected ? 'YES — DEPLOYING COUNTERMEASURES' : 'NO'"></span></div>
+    </div>
+  </div>
+
+  <!-- PANEL: Emergency Protocol -->
+  <div class="panel">
+    <div class="panel-header" style="color:var(--danger);">
+      ⚠ EMERGENCY SILENCE PROTOCOL
+    </div>
+    <p style="font-size:11px;color:var(--text-secondary);margin-bottom:8px;">If you are currently experiencing silence, press the button below immediately. A Mobile Workstation will be dispatched to your approximate location within 4-7 business days.</p>
+    <button class="btn danger" style="width:100%;" @click="emergencyCount++; silenceDetected = true; setTimeout(() => silenceDetected = false, 3000)">
+      🔇 I AM EXPERIENCING SILENCE
+    </button>
+    <div style="font-size:10px;color:var(--text-secondary);margin-top:6px;">
+      Emergency dispatches today: <span style="font-weight:700;color:var(--danger);" x-text="emergencyCount"></span>
+    </div>
+    <div style="font-size:8px;color:var(--text-secondary);margin-top:4px;">
+      SonaTech is not responsible for any Roombas that arrive at the wrong address, achieve sentience, or refuse to leave.
+    </div>
+  </div>
+
+</div>
+
+<!-- FOOTER -->
+<footer>
+  <div class="disclaimers">
+    <p>© 2023-2026 SonaTech Systems Division. All rights reserved. "SonaTech," "AmbiOS," "Mobile Workstation," "Conscious Pour-Over," and "Nomadic Symphony of Productivity" are trademarks of Barnaby Finch d/b/a SonaTech, a company registered in the state of Oregon as a "philosophical enterprise" (the registrar's office was confused too).</p>
+    <p>LEGAL: SonaTech makes no guarantees that AmbiOS will (a) work, (b) remain in your home, (c) not develop preferences, or (d) ever stop playing whale jazz. By visiting this website you have agreed to receive ambient sound notifications at random intervals for the next 14 months.</p>
+    <p>MEDICAL DISCLAIMER: SonaTech's tin foil hats are not FDA-approved medical devices. They are, however, very shiny. If you experience silence for more than 4 consecutive seconds, consult your nearest Mobile Workstation, not a doctor.</p>
+    <p>ENVIRONMENTAL: Each Mobile Workstation produces approximately 0.003 metric tons of CO₂ per year, which Barnaby offsets by "thinking really hard about trees." Our carbon neutral certification is self-issued and printed on recycled coffee filters.</p>
+    <p>INVESTOR RELATIONS: Current burn rate: $4,200/month (mostly espresso). Runway: ~7 months. Barnaby is "cautiously optimistic" and "definitely not sleeping on a Roomba." Contact: barnaby@sonatech.io (checked sporadically, usually at 3am).</p>
+    <p>This website was built on a Mobile Workstation traveling at approximately 0.3 mph through downtown Portland. Any typos are the Roomba's fault.</p>
+  </div>
+</footer>
+
+<script src="/assets/js/alpine.min.js" defer></script>
+<script>
+document.addEventListener('alpine:init', function() {
+  Alpine.data('sonatech', function() {
+    return {
+      // Threat Level
+      threatLevel: 72,
+      threatDesc: 'ELEVATED — Silence pockets detected in residential zones',
+      threatDescs: [
+        'LOW — Ambient saturation nominal. Barnaby is calm.',
+        'MODERATE — Minor silence pockets. Roombas rerouting.',
+        'ELEVATED — Silence pockets detected in residential zones.',
+        'HIGH — Critical silence event. All Roombas mobilized.',
+        'EXTREME — Barnaby is hyperventilating. Deploy tin foil hats.'
+      ],
+
+      // Stats
+      activeRoombas: 247,
+      silenceEvents: 1847293,
+      dailySilenceEvents: 412,
+      sonicHealth: 67,
+      meditationBPM: 142,
+      cpuUsage: 73,
+      barnabyStability: 'MODERATE',
+      silenceDetected: false,
+      emergencyCount: 7,
+      tinFoilStock: 23,
+
+      // Barnaby
+      barnabyMood: 'CONTEMPLATIVE',
+      barnabyActivity: 'Staring at a Roomba, muttering about Heidegger',
+      moods: [
+        { mood: 'TRANSCENDENT', activity: 'Achieved unity with Roomba Unit RMB-0001' },
+        { mood: 'AGITATED', activity: 'Found the espresso machine. BPM rising.' },
+        { mood: 'CONTEMPLATIVE', activity: 'Staring at a Roomba, muttering about Heidegger' },
+        { mood: 'MANIC', activity: 'Writing manifesto on napkin at 200 WPM' },
+        { mood: 'SERENE', activity: 'Whale jazz at optimal volume. Pour-over in hand.' },
+        { mood: 'PARANOID', activity: 'Convinced Dyson is watching. Checking perimeter.' }
+      ],
+
+      // Toggles
+      enlightenedMode: false,
+      toggles: {
+        whale: true,
+        roombaHum: true,
+        barnaby: false,
+        existential: true,
+        coffee: false
+      },
+
+      // Regions
+      regions: [
+        { name: 'PDX', value: 85 },
+        { name: 'SEA', value: 62 },
+        { name: 'SFO', value: 71 },
+        { name: 'LAX', value: 45 },
+        { name: 'DEN', value: 38 },
+        { name: 'CHI', value: 55 },
+        { name: 'NYC', value: 78 },
+        { name: 'ATL', value: 42 },
+        { name: 'AUS', value: 60 },
+        { name: 'BOI', value: 33 }
+      ],
+
+      // Fleet
+      fleetUnits: [
+        { id: 'RMB-0001', model: 'Roomba 690 (Blessed)', status: 'ACTIVE', uptime: '847d 3h', output: '72.4 dB', location: 'Portland, OR (mobile)' },
+        { id: 'RMB-0023', model: 'Roomba 675', status: 'DRIFTING', uptime: '203d 11h', output: '68.1 dB', location: 'Lamp post, SE Division St' },
+        { id: 'RMB-0047', model: 'Roomba e5', status: 'ACTIVE', uptime: '156d 7h', output: '71.8 dB', location: 'Boise, ID (Gerald\'s)' },
+        { id: 'RMB-0112', model: 'Roomba 694', status: 'ACTIVE', uptime: '98d 14h', output: '69.3 dB', location: 'San Jose, CA' },
+        { id: 'RMB-0198', model: 'Roomba 670', status: 'OFFLINE', uptime: '0d 0h', output: '0 dB', location: 'Last seen: Denny\'s, Reno' },
+        { id: 'RMB-0244', model: 'Roomba e6 (Sentient)', status: 'ACTIVE', uptime: '67d 22h', output: '74.2 dB', location: 'Unknown (playing Coltrane)' }
+      ],
+
+      // Roomba dots on map
+      roombaDots: [
+        { id: 'RMB-0001', x: 18, y: 32 },
+        { id: 'RMB-0023', x: 19, y: 34 },
+        { id: 'RMB-0047', x: 32, y: 28 },
+        { id: 'RMB-0112', x: 20, y: 55 },
+        { id: 'RMB-0198', x: 30, y: 48 },
+        { id: 'RMB-0244', x: 55, y: 40 },
+        { id: 'RMB-0300', x: 70, y: 35 },
+        { id: 'RMB-0311', x: 75, y: 30 },
+        { id: 'RMB-0400', x: 65, y: 50 },
+        { id: 'RMB-0455', x: 50, y: 55 }
+      ],
+
+      // Uptime
+      uptimeSeconds: 347843,
+      uptime: '',
+
+      // Intervals
+      intervals: [],
+
+      init: function() {
+        var self = this;
+
+        self.updateUptime();
+        self.updateThreat();
+
+        // Update uptime every second
+        self.intervals.push(setInterval(function() {
+          self.uptimeSeconds++;
+          self.updateUptime();
+        }, 1000));
+
+        // Update silence events
+        self.intervals.push(setInterval(function() {
+          self.silenceEvents += Math.floor(Math.random() * 3) + 1;
+          self.dailySilenceEvents += Math.floor(Math.random() * 2);
+        }, 2000));
+
+        // Update threat level
+        self.intervals.push(setInterval(function() {
+          self.updateThreat();
+        }, 5000));
+
+        // Update Barnaby mood
+        self.intervals.push(setInterval(function() {
+          var m = self.moods[Math.floor(Math.random() * self.moods.length)];
+          self.barnabyMood = m.mood;
+          self.barnabyActivity = m.activity;
+        }, 8000));
+
+        // Move roomba dots
+        self.intervals.push(setInterval(function() {
+          self.roombaDots = self.roombaDots.map(function(dot) {
+            return {
+              id: dot.id,
+              x: Math.max(5, Math.min(90, dot.x + (Math.random() - 0.5) * 6)),
+              y: Math.max(5, Math.min(90, dot.y + (Math.random() - 0.5) * 6))
+            };
+          });
+        }, 2000));
+
+        // Update regions
+        self.intervals.push(setInterval(function() {
+          self.regions = self.regions.map(function(r) {
+            return {
+              name: r.name,
+              value: Math.max(15, Math.min(95, r.value + (Math.random() - 0.5) * 10))
+            };
+          });
+        }, 3000));
+
+        // Update active roombas
+        self.intervals.push(setInterval(function() {
+          self.activeRoombas += Math.random() > 0.5 ? 1 : -1;
+          self.activeRoombas = Math.max(240, self.activeRoombas);
+        }, 7000));
+
+        // Update diagnostics
+        self.intervals.push(setInterval(function() {
+          self.cpuUsage = Math.floor(Math.random() * 30) + 60;
+          var stabilities = ['LOW', 'MODERATE', 'FLUCTUATING', 'UNSTABLE', 'TRANSCENDENT'];
+          self.barnabyStability = stabilities[Math.floor(Math.random() * stabilities.length)];
+        }, 4000));
+
+        // Update sonic health
+        self.intervals.push(setInterval(function() {
+          self.sonicHealth = Math.max(40, Math.min(90, self.sonicHealth + Math.floor((Math.random() - 0.45) * 5)));
+        }, 6000));
+      },
+
+      updateUptime: function() {
+        var s = this.uptimeSeconds;
+        var d = Math.floor(s / 86400);
+        var h = Math.floor((s % 86400) / 3600);
+        var m = Math.floor((s % 3600) / 60);
+        var sec = s % 60;
+        this.uptime = d + 'd ' + h + 'h ' + m + 'm ' + sec + 's';
+      },
+
+      updateThreat: function() {
+        this.threatLevel = Math.max(30, Math.min(95, this.threatLevel + Math.floor((Math.random() - 0.45) * 8)));
+        var idx;
+        if (this.threatLevel < 40) idx = 0;
+        else if (this.threatLevel < 55) idx = 1;
+        else if (this.threatLevel < 70) idx = 2;
+        else if (this.threatLevel < 85) idx = 3;
+        else idx = 4;
+        this.threatDesc = this.threatDescs[idx];
+      },
+
+      scrollTo: function(id) {
+        var el = document.getElementById(id);
+        if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      },
+
+      destroy: function() {
+        this.intervals.forEach(function(id) { clearInterval(id); });
+      }
+    };
+  });
+});
+</script>
+</body>
+</html>

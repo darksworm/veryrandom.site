@@ -1,0 +1,1449 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ouroboros OS — Total System Integration…Eventually</title>
+<link rel="stylesheet" href="/assets/css/fonts.css">
+<script defer src="/assets/js/alpine.min.js"></script>
+<script src="/assets/js/gsap.min.js"></script>
+<script src="/assets/js/lucide.min.js"></script>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --acid: #39ff14;
+    --yellow: #ffe600;
+    --orange: #ff6600;
+    --toxic-bg: #1a1a2e;
+    --window-bg: #0f0f23;
+    --window-border: #39ff14;
+    --text: #e8e8e8;
+    --text-muted: #b0b0b0;
+    --danger: #ff2244;
+  }
+
+  body {
+    font-family: 'IBM Plex Mono', monospace;
+    background: var(--toxic-bg);
+    color: var(--text);
+    min-height: 100vh;
+    overflow-x: hidden;
+    font-size: 14px;
+    line-height: 1.5;
+  }
+
+  /* DESKTOP WALLPAPER */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background:
+      repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(57,255,20,0.03) 2px, rgba(57,255,20,0.03) 4px),
+      repeating-linear-gradient(90deg, transparent, transparent 50px, rgba(255,230,0,0.02) 50px, rgba(255,230,0,0.02) 51px),
+      radial-gradient(ellipse at 30% 20%, rgba(57,255,20,0.08) 0%, transparent 50%),
+      radial-gradient(ellipse at 70% 80%, rgba(255,102,0,0.06) 0%, transparent 50%);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* TASKBAR */
+  .taskbar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 36px;
+    background: #0a0a18;
+    border-bottom: 2px solid var(--acid);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 12px;
+    z-index: 1000;
+    font-size: 12px;
+  }
+
+  .taskbar-left { display: flex; align-items: center; gap: 16px; }
+  .taskbar-right { display: flex; align-items: center; gap: 12px; }
+
+  .taskbar .logo {
+    color: var(--acid);
+    font-weight: 700;
+    font-size: 13px;
+    letter-spacing: 1px;
+  }
+
+  .taskbar .logo span { color: var(--orange); }
+
+  .threat-pill {
+    background: var(--danger);
+    color: #ffffff;
+    padding: 2px 8px;
+    border-radius: 3px;
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    animation: pulse-threat 1.5s ease-in-out infinite;
+  }
+
+  @keyframes pulse-threat {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.6; }
+  }
+
+  .taskbar-clock { color: var(--yellow); font-size: 11px; }
+
+  /* MAIN CONTENT */
+  .desktop {
+    padding: 48px 12px 80px;
+    max-width: 1400px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+
+  @media (min-width: 768px) {
+    .desktop {
+      padding: 52px 20px 80px;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+    }
+  }
+
+  @media (min-width: 1100px) {
+    .desktop {
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 18px;
+    }
+  }
+
+  /* WINDOW */
+  .window {
+    background: var(--window-bg);
+    border: 2px solid var(--window-border);
+    border-radius: 0;
+    overflow: hidden;
+    position: relative;
+  }
+
+  .window.orange { border-color: var(--orange); }
+  .window.yellow { border-color: var(--yellow); }
+  .window.danger { border-color: var(--danger); }
+  .window.wide {
+    grid-column: 1 / -1;
+  }
+
+  .window-title {
+    background: var(--window-border);
+    color: #000000;
+    padding: 4px 10px;
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .window.orange .window-title { background: var(--orange); }
+  .window.yellow .window-title { background: var(--yellow); }
+  .window.danger .window-title { background: var(--danger); color: #ffffff; }
+
+  .window-dots {
+    display: flex;
+    gap: 4px;
+  }
+
+  .window-dots span {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    display: inline-block;
+  }
+
+  .window-dots .d1 { background: #ff5f57; }
+  .window-dots .d2 { background: #ffbd2e; }
+  .window-dots .d3 { background: #28c840; }
+
+  .window-body {
+    padding: 14px;
+  }
+
+  /* HERO WINDOW */
+  .hero-body {
+    text-align: center;
+    padding: 28px 16px;
+  }
+
+  .hero-body h1 {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: clamp(28px, 5vw, 48px);
+    color: var(--acid);
+    line-height: 1.1;
+    margin-bottom: 8px;
+    text-shadow: 0 0 30px rgba(57,255,20,0.3);
+  }
+
+  .hero-body .tagline {
+    color: var(--yellow);
+    font-size: clamp(14px, 2.5vw, 18px);
+    margin-bottom: 16px;
+    font-style: italic;
+  }
+
+  .hero-body .riddle {
+    color: var(--text);
+    font-size: 14px;
+    max-width: 500px;
+    margin: 0 auto 20px;
+    border-left: 3px solid var(--orange);
+    padding-left: 12px;
+    text-align: left;
+  }
+
+  .hero-body .riddle cite {
+    display: block;
+    color: var(--text-muted);
+    font-size: 12px;
+    margin-top: 4px;
+  }
+
+  .btn {
+    display: inline-block;
+    padding: 10px 24px;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 13px;
+    font-weight: 700;
+    border: 2px solid;
+    cursor: pointer;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    transition: all 0.15s;
+    background: transparent;
+  }
+
+  .btn-acid {
+    border-color: var(--acid);
+    color: var(--acid);
+  }
+  .btn-acid:hover {
+    background: var(--acid);
+    color: #000000;
+  }
+
+  .btn-orange {
+    border-color: var(--orange);
+    color: var(--orange);
+  }
+  .btn-orange:hover {
+    background: var(--orange);
+    color: #000000;
+  }
+
+  .btn-yellow {
+    border-color: var(--yellow);
+    color: #000000;
+    background: var(--yellow);
+  }
+  .btn-yellow:hover {
+    background: #ccb800;
+  }
+
+  .btn-danger {
+    border-color: var(--danger);
+    color: var(--danger);
+  }
+
+  /* SYSTEM MONITOR */
+  .stat-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+  }
+
+  .stat-box {
+    background: rgba(57,255,20,0.05);
+    border: 1px solid rgba(57,255,20,0.2);
+    padding: 10px;
+    text-align: center;
+  }
+
+  .stat-box .stat-val {
+    font-size: 22px;
+    font-weight: 700;
+    color: var(--acid);
+    font-family: 'Space Grotesk', sans-serif;
+  }
+
+  .stat-box .stat-label {
+    font-size: 10px;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-top: 2px;
+  }
+
+  .stat-box.warning .stat-val { color: var(--yellow); }
+  .stat-box.warning { border-color: rgba(255,230,0,0.3); background: rgba(255,230,0,0.05); }
+  .stat-box.critical .stat-val { color: var(--danger); }
+  .stat-box.critical { border-color: rgba(255,34,68,0.3); background: rgba(255,34,68,0.05); }
+
+  /* BAR CHART */
+  .bar-chart {
+    display: flex;
+    align-items: flex-end;
+    gap: 4px;
+    height: 60px;
+    margin-top: 12px;
+    padding-top: 4px;
+    border-bottom: 1px solid rgba(57,255,20,0.2);
+  }
+
+  .bar {
+    flex: 1;
+    background: var(--acid);
+    min-height: 4px;
+    transition: height 0.5s ease;
+  }
+
+  .bar:nth-child(even) { background: var(--yellow); }
+  .bar:nth-child(3n) { background: var(--orange); }
+
+  .chart-label {
+    font-size: 9px;
+    color: var(--text-muted);
+    text-align: center;
+    margin-top: 4px;
+  }
+
+  /* CFO CAM */
+  .cfo-cam {
+    background: #000000;
+    border: 1px solid rgba(57,255,20,0.3);
+    padding: 20px;
+    text-align: center;
+    position: relative;
+    min-height: 140px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .cfo-cam::before {
+    content: '● REC';
+    position: absolute;
+    top: 8px;
+    left: 10px;
+    color: var(--danger);
+    font-size: 10px;
+    font-weight: 700;
+    animation: pulse-threat 1s ease-in-out infinite;
+  }
+
+  .cfo-cam::after {
+    content: 'CAM 03 — SHED INTERIOR';
+    position: absolute;
+    top: 8px;
+    right: 10px;
+    color: #888888;
+    font-size: 9px;
+  }
+
+  .cat-ascii {
+    font-size: 11px;
+    line-height: 1.2;
+    color: var(--text-muted);
+    white-space: pre;
+    font-family: 'IBM Plex Mono', monospace;
+  }
+
+  .cfo-status {
+    margin-top: 10px;
+    font-size: 11px;
+    color: var(--yellow);
+  }
+
+  /* FEATURES */
+  .feature-item {
+    border-bottom: 1px solid rgba(57,255,20,0.1);
+    padding: 10px 0;
+  }
+
+  .feature-item:last-child { border-bottom: none; }
+
+  .feature-item .fname {
+    color: var(--acid);
+    font-weight: 700;
+    font-size: 13px;
+    margin-bottom: 2px;
+  }
+
+  .feature-item .fdesc {
+    color: var(--text);
+    font-size: 12px;
+  }
+
+  .feature-item .friddle {
+    color: var(--text-muted);
+    font-size: 11px;
+    font-style: italic;
+    margin-top: 3px;
+  }
+
+  /* FAQ */
+  .faq-item {
+    border-bottom: 1px solid rgba(255,102,0,0.15);
+    padding: 10px 0;
+    cursor: pointer;
+  }
+
+  .faq-item:last-child { border-bottom: none; }
+
+  .faq-q {
+    color: var(--orange);
+    font-weight: 700;
+    font-size: 13px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .faq-a {
+    color: var(--text);
+    font-size: 12px;
+    margin-top: 6px;
+    padding-left: 12px;
+    border-left: 2px solid var(--orange);
+  }
+
+  /* TESTIMONIALS */
+  .testimonial {
+    border-bottom: 1px solid rgba(255,230,0,0.15);
+    padding: 10px 0;
+  }
+
+  .testimonial:last-child { border-bottom: none; }
+
+  .testimonial .tquote {
+    color: var(--text);
+    font-size: 12px;
+    font-style: italic;
+  }
+
+  .testimonial .tauthor {
+    color: var(--yellow);
+    font-size: 11px;
+    margin-top: 4px;
+  }
+
+  /* TICKER */
+  .ticker-wrap {
+    overflow: hidden;
+    background: #0a0a18;
+    border: 1px solid var(--danger);
+    padding: 6px 0;
+    margin-bottom: 0;
+  }
+
+  .ticker-content {
+    display: inline-block;
+    white-space: nowrap;
+    animation: ticker-scroll 30s linear infinite;
+    font-size: 11px;
+    color: var(--danger);
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+
+  @keyframes ticker-scroll {
+    0% { transform: translateX(100vw); }
+    100% { transform: translateX(-200%); }
+  }
+
+  /* TABLE */
+  .data-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 11px;
+  }
+
+  .data-table th {
+    text-align: left;
+    color: var(--acid);
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    padding: 6px 8px;
+    border-bottom: 1px solid rgba(57,255,20,0.3);
+  }
+
+  .data-table td {
+    padding: 5px 8px;
+    border-bottom: 1px solid rgba(57,255,20,0.08);
+    color: var(--text);
+  }
+
+  .data-table tr:hover td {
+    background: rgba(57,255,20,0.05);
+  }
+
+  .status-dot {
+    display: inline-block;
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    margin-right: 4px;
+  }
+
+  .status-dot.green { background: var(--acid); }
+  .status-dot.yellow { background: var(--yellow); }
+  .status-dot.red { background: var(--danger); }
+
+  /* PROGRESS BAR */
+  .progress-wrap {
+    background: rgba(57,255,20,0.1);
+    height: 16px;
+    width: 100%;
+    position: relative;
+    margin: 6px 0;
+  }
+
+  .progress-fill {
+    height: 100%;
+    background: var(--acid);
+    transition: width 1s ease;
+  }
+
+  .progress-label {
+    position: absolute;
+    right: 6px;
+    top: 1px;
+    font-size: 10px;
+    color: #000000;
+    font-weight: 700;
+  }
+
+  /* PAYMENT */
+  .payment-method {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 0;
+    border-bottom: 1px solid rgba(255,230,0,0.1);
+    font-size: 12px;
+  }
+
+  .payment-method:last-child { border-bottom: none; }
+
+  .payment-icon {
+    width: 32px;
+    height: 32px;
+    border: 1px solid var(--yellow);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--yellow);
+    font-size: 14px;
+    flex-shrink: 0;
+  }
+
+  /* LOG CONSOLE */
+  .console-log {
+    font-size: 11px;
+    line-height: 1.6;
+    max-height: 180px;
+    overflow-y: auto;
+  }
+
+  .console-log .log-line {
+    border-bottom: 1px solid rgba(57,255,20,0.05);
+    padding: 2px 0;
+  }
+
+  .log-time { color: #666666; }
+  .log-ok { color: var(--acid); }
+  .log-warn { color: var(--yellow); }
+  .log-err { color: var(--danger); }
+  .log-info { color: var(--text-muted); }
+
+  /* DREAM DOWNLOAD */
+  .download-zone {
+    text-align: center;
+    padding: 20px 10px;
+  }
+
+  .download-zone .big-icon {
+    font-size: 48px;
+    color: var(--acid);
+    margin-bottom: 10px;
+  }
+
+  /* FOOTER */
+  .site-footer {
+    text-align: center;
+    padding: 20px 16px 60px;
+    font-size: 10px;
+    color: #777777;
+    max-width: 800px;
+    margin: 0 auto;
+  }
+
+  .site-footer a {
+    color: var(--acid);
+    text-decoration: none;
+  }
+
+  /* BLINK CARET */
+  .caret {
+    display: inline-block;
+    width: 8px;
+    height: 14px;
+    background: var(--acid);
+    animation: blink 0.8s step-end infinite;
+    vertical-align: middle;
+    margin-left: 2px;
+  }
+
+  @keyframes blink {
+    50% { opacity: 0; }
+  }
+
+  /* TOGGLE SWITCH */
+  .toggle-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 6px 0;
+    border-bottom: 1px solid rgba(57,255,20,0.08);
+    font-size: 12px;
+  }
+
+  .toggle-switch {
+    width: 36px;
+    height: 18px;
+    background: #333333;
+    border-radius: 9px;
+    position: relative;
+    cursor: pointer;
+    transition: background 0.2s;
+    flex-shrink: 0;
+  }
+
+  .toggle-switch.on { background: var(--acid); }
+
+  .toggle-switch::after {
+    content: '';
+    position: absolute;
+    width: 14px;
+    height: 14px;
+    background: #ffffff;
+    border-radius: 50%;
+    top: 2px;
+    left: 2px;
+    transition: transform 0.2s;
+  }
+
+  .toggle-switch.on::after { transform: translateX(18px); }
+
+  /* MISC */
+  .text-acid { color: var(--acid); }
+  .text-orange { color: var(--orange); }
+  .text-yellow { color: var(--yellow); }
+  .text-danger { color: var(--danger); }
+  .text-muted { color: var(--text-muted); }
+  .text-xs { font-size: 10px; }
+  .text-sm { font-size: 12px; }
+  .mt-8 { margin-top: 8px; }
+  .mt-12 { margin-top: 12px; }
+  .mb-8 { margin-bottom: 8px; }
+  .fw-700 { font-weight: 700; }
+
+  .disclaimer {
+    font-size: 9px;
+    color: #777777;
+    margin-top: 8px;
+    line-height: 1.4;
+  }
+
+  .marquee-warn {
+    background: var(--yellow);
+    color: #000000;
+    font-size: 11px;
+    font-weight: 700;
+    padding: 4px 12px;
+    text-transform: uppercase;
+    text-align: center;
+    letter-spacing: 1px;
+  }
+
+  /* RESPONSIVE TWEAKS */
+  @media (max-width: 767px) {
+    .taskbar { font-size: 10px; padding: 0 8px; }
+    .stat-grid { grid-template-columns: 1fr 1fr; gap: 6px; }
+    .hero-body { padding: 20px 10px; }
+    .hero-body h1 { font-size: 26px; }
+    .window-body { padding: 10px; }
+    body { font-size: 13px; }
+    .cat-ascii { font-size: 9px; }
+  }
+</style>
+</head>
+<body x-data="ouroborosDesktop()">
+
+<!-- TASKBAR -->
+<div class="taskbar">
+  <div class="taskbar-left">
+    <div class="logo">◎ <span>OUROBOROS</span> OS</div>
+    <span class="threat-pill" x-text="'BIG PORCELAIN THREAT: ' + threatLevel"></span>
+  </div>
+  <div class="taskbar-right">
+    <span class="text-muted text-xs" x-text="'DREAMERS ONLINE: ' + dreamersOnline"></span>
+    <span class="taskbar-clock" x-text="clockTime"></span>
+  </div>
+</div>
+
+<!-- THREAT TICKER -->
+<div style="position:fixed;top:36px;left:0;right:0;z-index:999;">
+  <div class="ticker-wrap">
+    <div class="ticker-content">
+      ⚠ ALERT: Big Porcelain subsidiary detected probing dream sector 7G ⚠ Princess Flufferbutt has vetoed Q4 budget proposal (sleeping on it) ⚠ Firmware update 0.91b delayed: Arthur's shed lost power again ⚠ URGENT: Do NOT flush while dreaming — system conflict detected ⚠ Monero payment gateway experiencing "metaphysical latency" ⚠ New users: your first dream download may smell faintly of copper pipes ⚠
+    </div>
+  </div>
+</div>
+
+<div style="height: 62px;"></div>
+
+<!-- MAIN DESKTOP -->
+<div class="desktop">
+
+  <!-- HERO WINDOW -->
+  <div class="window wide">
+    <div class="window-title">
+      <span>welcome.exe — OUROBOROS OS v0.91b</span>
+      <div class="window-dots"><span class="d1"></span><span class="d2"></span><span class="d3"></span></div>
+    </div>
+    <div class="hero-body">
+      <h1>OUROBOROS OS</h1>
+      <div class="tagline">"The future… leaks."</div>
+      <div class="riddle">
+        "What runs without legs, crashes without walls, and installs itself where no plumber can reach?"
+        <cite>— Arthur "Drainpipe" Penhaligon, Founder & Chief Plumbing Officer, at the 2019 Bodmin Moor TED Talk (attendance: 4, including Princess Flufferbutt)</cite>
+      </div>
+      <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap;">
+        <button class="btn btn-acid" @click="dreamDownloadClicks++; downloadState = dreamDownloadClicks >= 3 ? 'error' : 'loading'">
+          <i data-lucide="cloud-download" style="width:14px;height:14px;vertical-align:middle;margin-right:4px;"></i>
+          DREAM DOWNLOAD
+        </button>
+        <button class="btn btn-orange" @click="showAboutArthur = !showAboutArthur">ABOUT THE FOUNDER</button>
+      </div>
+      <div class="mt-8 text-xs text-muted">
+        v0.91b — Pineal gland compatibility: 73.2% — Last updated: whenever Arthur woke up
+      </div>
+      <template x-if="downloadState === 'loading'">
+        <div class="mt-8">
+          <div class="text-sm text-acid">Attempting dream-state handshake…</div>
+          <div class="progress-wrap mt-8">
+            <div class="progress-fill" :style="'width:' + downloadProgress + '%'"></div>
+            <span class="progress-label" x-text="downloadProgress + '%'"></span>
+          </div>
+          <div class="text-xs text-muted mt-8">Tip: Close your eyes for faster download speeds.</div>
+        </div>
+      </template>
+      <template x-if="downloadState === 'error'">
+        <div class="mt-8" style="background:rgba(255,34,68,0.1);border:1px solid var(--danger);padding:12px;">
+          <div class="text-danger fw-700">ERROR 404_DREAM_NOT_FOUND</div>
+          <div class="text-sm mt-8">"What you seek flows downhill, but dreams flow up. Try again when Mercury is in the U-bend."</div>
+          <div class="text-xs text-muted mt-8">— Arthur, in lieu of actual technical support</div>
+        </div>
+      </template>
+    </div>
+  </div>
+
+  <!-- SYSTEM MONITOR -->
+  <div class="window">
+    <div class="window-title">
+      <span>sys_monitor.exe</span>
+      <div class="window-dots"><span class="d1"></span><span class="d2"></span><span class="d3"></span></div>
+    </div>
+    <div class="window-body">
+      <div class="stat-grid">
+        <div class="stat-box">
+          <div class="stat-val" x-text="dreamsIntercepted.toLocaleString()"></div>
+          <div class="stat-label">Dreams Intercepted</div>
+        </div>
+        <div class="stat-box warning">
+          <div class="stat-val" x-text="pipelineIntegrity + '%'"></div>
+          <div class="stat-label">Pipeline Integrity</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-val" x-text="cpuUsage + '%'"></div>
+          <div class="stat-label">Pineal Load</div>
+        </div>
+        <div class="stat-box critical">
+          <div class="stat-val" x-text="catInterference + '%'"></div>
+          <div class="stat-label">Cat Interference</div>
+        </div>
+      </div>
+      <div class="bar-chart">
+        <template x-for="(h, i) in dreamBars" :key="i">
+          <div class="bar" :style="'height:' + h + '%'"></div>
+        </template>
+      </div>
+      <div class="chart-label">Dream traffic — last 12 REM cycles</div>
+      <div class="disclaimer">* Pipeline integrity drops to 0% when Princess Flufferbutt sits on the router. This occurs approximately 14 times per day.</div>
+    </div>
+  </div>
+
+  <!-- CFO CAM -->
+  <div class="window yellow">
+    <div class="window-title">
+      <span>cfo_cam.exe — LIVE FEED</span>
+      <div class="window-dots"><span class="d1"></span><span class="d2"></span><span class="d3"></span></div>
+    </div>
+    <div class="window-body">
+      <div class="cfo-cam">
+        <div class="cat-ascii">
+    /\_/\
+   ( o.o )  z Z z
+    > ^ <
+   /|   |\
+  (_|   |_)
+~~~~~~~~~~~~~~~~~
+  [SOURCE CODE]</div>
+        <div class="cfo-status">
+          <span class="status-dot green"></span>
+          CFO STATUS: <span x-text="cfoStatus"></span>
+        </div>
+      </div>
+      <div class="mt-8 text-sm">
+        <strong class="text-yellow">Princess Flufferbutt</strong> — CFO since 2003. Has vetoed every budget proposal by sleeping on it. Approved the 2011 rebrand by purring.
+      </div>
+      <div class="mt-8">
+        <button class="btn btn-yellow" style="width:100%;font-size:11px;" @click="wakeCatAttempts++">
+          <template x-if="wakeCatAttempts === 0">
+            <span>ATTEMPT TO WAKE CFO</span>
+          </template>
+          <template x-if="wakeCatAttempts === 1">
+            <span>CFO HAS IGNORED YOUR REQUEST</span>
+          </template>
+          <template x-if="wakeCatAttempts === 2">
+            <span>CFO OPENED ONE EYE. THEN CLOSED IT.</span>
+          </template>
+          <template x-if="wakeCatAttempts >= 3">
+            <span>ACCESS DENIED BY CFO (purring menacingly)</span>
+          </template>
+        </button>
+      </div>
+      <div class="disclaimer">Princess Flufferbutt's salary: 3 tins of Sheba/day + unlimited nap rights. She has never attended a board meeting she didn't sleep through.</div>
+    </div>
+  </div>
+
+  <!-- ABOUT ARTHUR (conditional) -->
+  <template x-if="showAboutArthur">
+    <div class="window orange wide">
+      <div class="window-title">
+        <span>founder_bio.exe</span>
+        <button class="btn-acid" style="border:none;background:none;color:#000;cursor:pointer;font-weight:700;" @click="showAboutArthur = false">✕</button>
+      </div>
+      <div class="window-body">
+        <div style="display:grid;grid-template-columns:1fr;gap:16px;">
+          <div>
+            <div class="text-orange fw-700 mb-8" style="font-size:16px;">Arthur "Drainpipe" Penhaligon</div>
+            <div class="text-sm mb-8">Chief Plumbing Officer & Founder</div>
+            <div class="text-sm mb-8">
+              Born 1951, Bodmin, Cornwall. Licensed plumber 1972–1991. Achieved what he calls "Total Pipe Consciousness" after being submerged in a septic tank for 47 minutes during a job gone wrong in Launceston. Emerged speaking exclusively in riddles. Has not answered a direct question since.
+            </div>
+            <div class="text-sm mb-8">
+              Diet: Pickled onions, lukewarm Sanatogen tonic wine. Hobbies: staring at drains, arguing with Big Porcelain on internet forums (banned from 14). Lives in a shed on Bodmin Moor with Princess Flufferbutt and approximately 200 antique ball cocks.
+            </div>
+            <div class="text-sm" style="border-left:3px solid var(--orange);padding-left:10px;">
+              "When I emerged from that tank, the pipes spoke. They said: 'Arthur, the operating system of the mind has a leak. Fix it.' So I did. Or I'm trying. The cat keeps sitting on the manual."
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </template>
+
+  <!-- CORE FEATURES -->
+  <div class="window">
+    <div class="window-title">
+      <span>features.dll</span>
+      <div class="window-dots"><span class="d1"></span><span class="d2"></span><span class="d3"></span></div>
+    </div>
+    <div class="window-body">
+      <div class="feature-item">
+        <div class="fname">Dream-State Kernel</div>
+        <div class="fdesc">Installs directly into your REM cycle. No hard drive required. No hard drive <em>possible</em>.</div>
+        <div class="friddle">"Where does software live when the screen goes dark?"</div>
+      </div>
+      <div class="feature-item">
+        <div class="fname">PipelineOS™ Architecture</div>
+        <div class="fdesc">Every data stream flows through metaphorical copper piping. Throughput measured in gallons/thought.</div>
+        <div class="friddle">"What carries everything and holds nothing?"</div>
+      </div>
+      <div class="feature-item">
+        <div class="fname">Anti-Porcelain Firewall</div>
+        <div class="fdesc">Military-grade protection against Big Porcelain surveillance. They're watching your bathroom. We're watching them.</div>
+        <div class="friddle">"Who guards the guardian of the cistern?"</div>
+      </div>
+      <div class="feature-item">
+        <div class="fname">Feline Approval Protocol</div>
+        <div class="fdesc">All system changes require CFO authorization. Average approval time: 14 hours (nap-dependent).</div>
+        <div class="friddle">"What decides everything by doing nothing?"</div>
+      </div>
+      <div class="feature-item">
+        <div class="fname">Lucid Admin Mode</div>
+        <div class="fdesc">Gain root access by achieving lucidity mid-dream. Success rate: 2.3%. Side effects: seeing plumbing diagrams everywhere.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- BIG PORCELAIN THREAT TRACKER -->
+  <div class="window danger">
+    <div class="window-title">
+      <span>threat_tracker.exe — CLASSIFIED</span>
+      <div class="window-dots"><span class="d1"></span><span class="d2"></span><span class="d3"></span></div>
+    </div>
+    <div class="window-body">
+      <div class="text-danger fw-700 mb-8">⚠ BIG PORCELAIN INTELLIGENCE BRIEFING</div>
+      <div class="text-sm mb-8">Known Operatives:</div>
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>Entity</th>
+            <th>Threat</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Armitage Shanks Ltd.</td>
+            <td class="text-danger">CRITICAL</td>
+            <td><span class="status-dot red"></span>Active</td>
+          </tr>
+          <tr>
+            <td>Kohler Industries</td>
+            <td class="text-orange">HIGH</td>
+            <td><span class="status-dot red"></span>Active</td>
+          </tr>
+          <tr>
+            <td>TOTO Corporation</td>
+            <td class="text-orange">HIGH</td>
+            <td><span class="status-dot yellow"></span>Monitoring</td>
+          </tr>
+          <tr>
+            <td>American Standard</td>
+            <td class="text-yellow">MEDIUM</td>
+            <td><span class="status-dot yellow"></span>Monitoring</td>
+          </tr>
+          <tr>
+            <td>Roca Group</td>
+            <td class="text-yellow">MEDIUM</td>
+            <td><span class="status-dot green"></span>Dormant</td>
+          </tr>
+        </tbody>
+      </table>
+      <div class="mt-12">
+        <div class="text-xs text-muted mb-8">Porcelain Network Infiltration Attempts (last 30 days)</div>
+        <div class="progress-wrap">
+          <div class="progress-fill" style="width:78%;background:var(--danger);"></div>
+          <span class="progress-label" style="color:#ffffff;">78%</span>
+        </div>
+      </div>
+      <div class="disclaimer">Arthur has been banned from the Armitage Shanks customer forum, the Kohler subreddit, and three Cornwall parish council meetings for distributing pamphlets about this topic.</div>
+    </div>
+  </div>
+
+  <!-- SYSTEM SETTINGS / TOGGLES -->
+  <div class="window">
+    <div class="window-title">
+      <span>settings.cfg</span>
+      <div class="window-dots"><span class="d1"></span><span class="d2"></span><span class="d3"></span></div>
+    </div>
+    <div class="window-body">
+      <div class="toggle-row">
+        <span>Dream Encryption</span>
+        <div class="toggle-switch" :class="{'on': toggles.dreamEncrypt}" @click="toggles.dreamEncrypt = !toggles.dreamEncrypt"></div>
+      </div>
+      <div class="toggle-row">
+        <span>Anti-Porcelain Shield</span>
+        <div class="toggle-switch" :class="{'on': toggles.antiPorcelain}" @click="toggles.antiPorcelain = !toggles.antiPorcelain"></div>
+      </div>
+      <div class="toggle-row">
+        <span>Riddle-Mode Responses</span>
+        <div class="toggle-switch" :class="{'on': toggles.riddleMode}" @click="toggles.riddleMode = !toggles.riddleMode"></div>
+      </div>
+      <div class="toggle-row">
+        <span>Cat Override Permission</span>
+        <div class="toggle-switch" :class="{'on': toggles.catOverride}" @click="toggles.catOverride = false"></div>
+      </div>
+      <div class="toggle-row">
+        <span>Pipe Noise (Ambient)</span>
+        <div class="toggle-switch" :class="{'on': toggles.pipeNoise}" @click="toggles.pipeNoise = !toggles.pipeNoise"></div>
+      </div>
+      <div class="toggle-row">
+        <span>Sanatogen Reminder</span>
+        <div class="toggle-switch" :class="{'on': toggles.sanatogen}" @click="toggles.sanatogen = !toggles.sanatogen"></div>
+      </div>
+      <div class="disclaimer" x-show="!toggles.catOverride">"Cat Override Permission" cannot be enabled. The CFO has permanently revoked this setting.</div>
+      <div class="disclaimer" x-show="!toggles.riddleMode" style="color:var(--orange);">WARNING: Disabling Riddle Mode will cause Arthur to communicate in plain English. This has never actually been tested.</div>
+    </div>
+  </div>
+
+  <!-- SYSTEM LOGS -->
+  <div class="window">
+    <div class="window-title">
+      <span>sys_log.txt</span>
+      <div class="window-dots"><span class="d1"></span><span class="d2"></span><span class="d3"></span></div>
+    </div>
+    <div class="window-body">
+      <div class="console-log">
+        <template x-for="(log, i) in systemLogs" :key="i">
+          <div class="log-line">
+            <span class="log-time" x-text="log.time"></span>
+            <span :class="'log-' + log.level" x-text="log.msg"></span>
+          </div>
+        </template>
+      </div>
+      <div class="mt-8">
+        <button class="btn btn-acid" style="width:100%;font-size:10px;padding:6px;" @click="addRandomLog()">
+          REFRESH LOGS <span class="caret"></span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- FAQ -->
+  <div class="window orange">
+    <div class="window-title">
+      <span>faq.exe — FREQUENTLY ASKED RIDDLES</span>
+      <div class="window-dots"><span class="d1"></span><span class="d2"></span><span class="d3"></span></div>
+    </div>
+    <div class="window-body">
+      <div class="faq-item" @click="faqOpen = faqOpen === 1 ? 0 : 1">
+        <div class="faq-q">
+          <span>How do I install Ouroboros OS?</span>
+          <span x-text="faqOpen === 1 ? '−' : '+'"></span>
+        </div>
+        <div class="faq-a" x-show="faqOpen === 1" x-transition>
+          "What is installed was never not there. You do not download the river — you simply remember you were always swimming."<br><br>
+          <span class="text-muted text-xs">(In practical terms: fall asleep thinking about copper pipes. If you dream of a U-bend, the installation was successful.)</span>
+        </div>
+      </div>
+      <div class="faq-item" @click="faqOpen = faqOpen === 2 ? 0 : 2">
+        <div class="faq-q">
+          <span>What are the system requirements?</span>
+          <span x-text="faqOpen === 2 ? '−' : '+'"></span>
+        </div>
+        <div class="faq-a" x-show="faqOpen === 2" x-transition>
+          "Can a fish describe water? Can a pipe describe what flows through it? You are the system. The requirements are you."<br><br>
+          <span class="text-muted text-xs">(Minimum: a functioning pineal gland, 6+ hours of sleep, no active Kohler products within 15 meters.)</span>
+        </div>
+      </div>
+      <div class="faq-item" @click="faqOpen = faqOpen === 3 ? 0 : 3">
+        <div class="faq-q">
+          <span>Why is the cat your CFO?</span>
+          <span x-text="faqOpen === 3 ? '−' : '+'"></span>
+        </div>
+        <div class="faq-a" x-show="faqOpen === 3" x-transition>
+          "Who sleeps on money and yet owns nothing? Who approves by silence and denies by sitting? She was CFO before she knew. She was CFO before <em>I</em> knew."<br><br>
+          <span class="text-muted text-xs">(Princess Flufferbutt sat on the Articles of Incorporation in 2003. Arthur interpreted this as a binding vote. No one has challenged it.)</span>
+        </div>
+      </div>
+      <div class="faq-item" @click="faqOpen = faqOpen === 4 ? 0 : 4">
+        <div class="faq-q">
+          <span>What is Big Porcelain?</span>
+          <span x-text="faqOpen === 4 ? '−' : '+'"></span>
+        </div>
+        <div class="faq-a" x-show="faqOpen === 4" x-transition>
+          "What gleams white and swallows secrets? What sits in every home yet nobody questions? The throne you sit upon is not your throne. It reports to them."<br><br>
+          <span class="text-muted text-xs">(A consortium of toilet manufacturers Arthur believes are embedding surveillance firmware in flush mechanisms. He has filed 23 FOIA requests. All denied.)</span>
+        </div>
+      </div>
+      <div class="faq-item" @click="faqOpen = faqOpen === 5 ? 0 : 5">
+        <div class="faq-q">
+          <span>Can I get a refund?</span>
+          <span x-text="faqOpen === 5 ? '−' : '+'"></span>
+        </div>
+        <div class="faq-a" x-show="faqOpen === 5" x-transition>
+          "Can you un-dream a dream? Can you un-flush a flush? What is given in sleep cannot be returned in waking."<br><br>
+          <span class="text-muted text-xs">(No. All sales are final. Also, we're not entirely sure how you paid us.)</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TESTIMONIALS -->
+  <div class="window yellow">
+    <div class="window-title">
+      <span>reviews.dat — VERIFIED DREAMERS</span>
+      <div class="window-dots"><span class="d1"></span><span class="d2"></span><span class="d3"></span></div>
+    </div>
+    <div class="window-body">
+      <div class="testimonial">
+        <div class="tquote">"I fell asleep and dreamt I was debugging kernel panic in a sewer. When I woke up, my toilet had stopped running. Coincidence? Arthur says nothing is."</div>
+        <div class="tauthor">— Gerald M., Truro, Cornwall</div>
+      </div>
+      <div class="testimonial">
+        <div class="tquote">"I asked Arthur for tech support. He replied: 'When the wrench turns left, does the bolt know freedom or captivity?' My issue remains unresolved but I feel spiritually richer."</div>
+        <div class="tauthor">— Sandra K., Penzance</div>
+      </div>
+      <div class="testimonial">
+        <div class="tquote">"Princess Flufferbutt approved my feature request by sitting on it for 3 days. Most responsive CFO I've ever worked with."</div>
+        <div class="tauthor">— Dave L., Redruth</div>
+      </div>
+      <div class="testimonial">
+        <div class="tquote">"I tried to uninstall Ouroboros OS but Arthur just emailed me a photo of a drain and the word 'exactly.' I think about this daily."</div>
+        <div class="tauthor">— Fiona W., Launceston</div>
+      </div>
+      <div class="testimonial">
+        <div class="tquote">"Paid in antique ball cocks as instructed. Arthur sent me a handwritten riddle on the back of a Sanatogen label. I have never felt more seen."</div>
+        <div class="tauthor">— Craig T., Bodmin</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PAYMENT METHODS -->
+  <div class="window">
+    <div class="window-title">
+      <span>payment.cfg</span>
+      <div class="window-dots"><span class="d1"></span><span class="d2"></span><span class="d3"></span></div>
+    </div>
+    <div class="window-body">
+      <div class="text-acid fw-700 mb-8">ACCEPTED PAYMENT METHODS</div>
+      <div class="payment-method">
+        <div class="payment-icon">◈</div>
+        <div>
+          <div class="text-acid fw-700">Monero (XMR)</div>
+          <div class="text-xs text-muted">Because privacy is a pipe dream. Send to wallet: [REDACTED — ask Arthur in a dream]</div>
+        </div>
+      </div>
+      <div class="payment-method">
+        <div class="payment-icon">⚙</div>
+        <div>
+          <div class="text-yellow fw-700">Antique Ball Cocks</div>
+          <div class="text-xs text-muted">Pre-1960 preferred. Brass only. No reproductions. Arthur can tell.</div>
+        </div>
+      </div>
+      <div class="payment-method">
+        <div class="payment-icon">☽</div>
+        <div>
+          <div class="text-orange fw-700">Prophetic Dreams</div>
+          <div class="text-xs text-muted">Submit a dream containing plumbing imagery. Assessed by CFO (response time: 3–19 days).</div>
+        </div>
+      </div>
+      <div class="payment-method">
+        <div class="payment-icon">♨</div>
+        <div>
+          <div class="fw-700">Pickled Onions</div>
+          <div class="text-xs text-muted">Branston preferred. Minimum 3 jars. Arthur's personal reserve is running low.</div>
+        </div>
+      </div>
+      <div class="disclaimer">Ouroboros OS Ltd. is not registered with any financial authority, tax office, or plumbing board. Arthur believes money is "a riddle wrapped in a gasket."</div>
+    </div>
+  </div>
+
+  <!-- DREAM COMPATIBILITY CHECKER -->
+  <div class="window orange">
+    <div class="window-title">
+      <span>compat_check.exe</span>
+      <div class="window-dots"><span class="d1"></span><span class="d2"></span><span class="d3"></span></div>
+    </div>
+    <div class="window-body">
+      <div class="text-orange fw-700 mb-8">DREAM COMPATIBILITY SCANNER</div>
+      <div class="text-sm mb-8">Run a diagnostic to check if your subconscious is Ouroboros-ready.</div>
+      <button class="btn btn-orange" style="width:100%;font-size:11px;" @click="runCompatScan()">
+        <span x-text="compatScanning ? 'SCANNING PINEAL GLAND...' : (compatResult ? 'SCAN AGAIN' : 'RUN DIAGNOSTIC')"></span>
+      </button>
+      <template x-if="compatResult">
+        <div class="mt-12">
+          <table class="data-table">
+            <thead><tr><th>Module</th><th>Status</th></tr></thead>
+            <tbody>
+              <template x-for="(r, i) in compatResult" :key="i">
+                <tr>
+                  <td x-text="r.module"></td>
+                  <td :class="r.ok ? 'text-acid' : 'text-danger'" x-text="r.status"></td>
+                </tr>
+              </template>
+            </tbody>
+          </table>
+          <div class="mt-8 text-xs text-orange">Overall compatibility: <strong x-text="compatScore + '%'"></strong></div>
+          <div class="disclaimer">These results are generated by an algorithm Arthur wrote on the back of a napkin in 2007. Accuracy is "metaphysically guaranteed."</div>
+        </div>
+      </template>
+    </div>
+  </div>
+
+  <!-- VERSION HISTORY -->
+  <div class="window">
+    <div class="window-title">
+      <span>changelog.txt</span>
+      <div class="window-dots"><span class="d1"></span><span class="d2"></span><span class="d3"></span></div>
+    </div>
+    <div class="window-body">
+      <div class="text-acid fw-700 mb-8">RELEASE HISTORY</div>
+      <table class="data-table">
+        <thead><tr><th>Version</th><th>Date</th><th>Notes</th></tr></thead>
+        <tbody>
+          <tr><td class="text-acid">v0.91b</td><td>2024</td><td>Fixed dream leak causing users to see pipe fittings in nightmares</td></tr>
+          <tr><td>v0.90</td><td>2022</td><td>Princess Flufferbutt approved first update in 6 years (sat on keyboard)</td></tr>
+          <tr><td>v0.84</td><td>2016</td><td>Anti-Porcelain firewall added after "The Kohler Incident"</td></tr>
+          <tr><td>v0.71</td><td>2011</td><td>Rebranded from "DreamPipe" after cease-and-desist from actual pipe company</td></tr>
+          <tr><td>v0.50</td><td>2003</td><td>Princess Flufferbutt appointed CFO. All development paused for naps.</td></tr>
+          <tr><td>v0.01</td><td>1993</td><td>Initial release. Written on a damp napkin. One user (Arthur).</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- RIDDLE OF THE DAY -->
+  <div class="window wide" style="background:linear-gradient(135deg, #0f0f23 0%, #1a0a2e 100%);">
+    <div class="window-title">
+      <span>riddle_engine.exe — DAILY TRANSMISSION FROM ARTHUR</span>
+      <div class="window-dots"><span class="d1"></span><span class="d2"></span><span class="d3"></span></div>
+    </div>
+    <div class="window-body" style="text-align:center;padding:24px 16px;">
+      <div class="text-xs text-muted mb-8">RIDDLE #<span x-text="riddleNumber"></span> — TRANSMITTED <span x-text="riddleDate"></span></div>
+      <div style="font-family:'Playfair Display',serif;font-size:clamp(18px,3vw,26px);color:var(--acid);max-width:600px;margin:0 auto;line-height:1.4;" x-text="currentRiddle.text"></div>
+      <div class="mt-12" style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap;">
+        <button class="btn btn-acid" style="font-size:10px;" @click="revealAnswer = !revealAnswer" x-text="revealAnswer ? 'HIDE ANSWER' : 'REVEAL ANSWER (if you dare)'"></button>
+        <button class="btn btn-orange" style="font-size:10px;" @click="nextRiddle()">NEXT RIDDLE</button>
+      </div>
+      <div class="mt-12 text-orange" x-show="revealAnswer" x-transition x-text="currentRiddle.answer"></div>
+      <div class="disclaimer">Arthur transmits riddles between 2am and 4am GMT via a process he calls "pipe meditation." He has never explained what this means.</div>
+    </div>
+  </div>
+
+</div>
+
+<!-- FOOTER -->
+<div class="site-footer">
+  <div class="marquee-warn">⚠ FLUSH RESPONSIBLY ⚠ BIG PORCELAIN IS LISTENING ⚠ FLUSH RESPONSIBLY ⚠</div>
+  <div style="margin-top:12px;">
+    © 1993–2024 Ouroboros OS Ltd. Registered in Arthur's shed, Bodmin Moor, Cornwall, UK.<br>
+    Company number: PENDING (application lost — Princess Flufferbutt sleeping on it).<br>
+    All rights reserved. No rights understood.<br><br>
+    "What begins at the end and ends at the beginning? This website. And also a drain."<br><br>
+    <span class="text-muted">Ouroboros OS is not a real operating system, except in the ways that matter. Not endorsed by any plumbing board, technology company, or cat. Big Porcelain's legal team has asked us to clarify that they are "not a cabal." We note that's exactly what a cabal would say. Arthur's views on fluoride, 5G, and the spiritual properties of copper pipes are his own. Princess Flufferbutt has no comment. She never does.</span>
+  </div>
+</div>
+
+<script>
+document.addEventListener('alpine:init', function() {
+  Alpine.data('ouroborosDesktop', function() {
+    return {
+      // Clock
+      clockTime: '',
+
+      // Stats
+      dreamersOnline: 47,
+      dreamsIntercepted: 847293,
+      pipelineIntegrity: 73,
+      cpuUsage: 42,
+      catInterference: 89,
+      threatLevel: 'ELEVATED',
+
+      // Dream bars
+      dreamBars: [45, 72, 38, 91, 55, 83, 29, 67, 48, 76, 34, 88],
+
+      // CFO
+      cfoStatus: 'ASLEEP ON SOURCE CODE',
+      cfoStatuses: [
+        'ASLEEP ON SOURCE CODE',
+        'ASLEEP ON KEYBOARD',
+        'ASLEEP ON BUDGET REPORT',
+        'BRIEFLY AWAKE (yawning)',
+        'ASLEEP ON MOUSE (the device)',
+        'PURRING (interpreted as approval)',
+        'ASLEEP ON ARTHUR\'S LAP',
+        'STARING AT WALL (board meeting)',
+        'ASLEEP ON SERVER RACK',
+        'GROOMING (do not disturb)'
+      ],
+      wakeCatAttempts: 0,
+
+      // Toggles
+      toggles: {
+        dreamEncrypt: true,
+        antiPorcelain: true,
+        riddleMode: true,
+        catOverride: false,
+        pipeNoise: false,
+        sanatogen: true
+      },
+
+      // FAQ
+      faqOpen: 0,
+
+      // Download
+      dreamDownloadClicks: 0,
+      downloadState: null,
+      downloadProgress: 0,
+
+      // About
+      showAboutArthur: false,
+
+      // Compat scanner
+      compatScanning: false,
+      compatResult: null,
+      compatScore: 0,
+
+      // Riddles
+      riddleIndex: 0,
+      revealAnswer: false,
+      riddleNumber: 1847,
+      riddleDate: 'TODAY 03:17 GMT',
+      riddles: [
+        { text: '"I have cities but no houses, forests but no trees, and water but no fish. What am I, and why is Big Porcelain afraid of me?"', answer: 'A map. Big Porcelain fears cartography because it reveals the location of all their surveillance toilets.' },
+        { text: '"What has a head and a tail but no body, and can be found in every plumber\'s nightmare?"', answer: 'A coin dropped down a drain. Arthur lost £4.70 this way in 1987 and has never recovered.' },
+        { text: '"I speak without a mouth and hear without ears. I have no body, but I come alive when the pipes sing. What am I?"', answer: 'An echo. Or Ouroboros OS. Arthur maintains they are the same thing.' },
+        { text: '"The more you take from me, the larger I become. I live in every wall and under every floor. Big Porcelain tries to fill me but I always return. What am I?"', answer: 'A hole. Also: Arthur\'s operating budget.' },
+        { text: '"I go in hard, I come out soft. You blow me all day. What am I?"', answer: 'Chewing gum. Arthur was very insistent we include this one. We apologize.' }
+      ],
+
+      // System logs
+      systemLogs: [],
+      logMessages: [
+        { level: 'ok', msg: '[KERNEL] Dream pipeline nominal. Flow rate: 3.2 gal/thought.' },
+        { level: 'warn', msg: '[CFO] Princess Flufferbutt has shifted position. Re-calibrating source code access.' },
+        { level: 'err', msg: '[FIREWALL] Big Porcelain probe detected from IP: 192.168.KOHLER.7' },
+        { level: 'info', msg: '[ARTHUR] Riddle transmission queued. Content: incomprehensible as usual.' },
+        { level: 'ok', msg: '[PAYMENT] 2x antique ball cocks received. Brass verified. Arthur pleased.' },
+        { level: 'warn', msg: '[POWER] Shed generator fluctuating. Sanatogen reserves at 34%.' },
+        { level: 'err', msg: '[MEMORY] Dream buffer overflow — user dreamt about plumbing AND electricals simultaneously.' },
+        { level: 'info', msg: '[CFO] Nap duration: 4h 23m. Productivity: unchanged.' },
+        { level: 'ok', msg: '[SYSTEM] Pineal handshake successful with dreamer #847293.' },
+        { level: 'warn', msg: '[SECURITY] Arthur has posted on the Armitage Shanks forum again. Moderators alerted.' },
+        { level: 'err', msg: '[CRITICAL] Cat on router. All systems degraded.' },
+        { level: 'info', msg: '[UPDATE] v0.92 development paused. Arthur says "the pipes are not yet aligned."' },
+        { level: 'ok', msg: '[DRAIN] Metaphorical drain unclogged. Dream throughput +12%.' },
+        { level: 'warn', msg: '[DIET] Arthur\'s pickled onion supply below critical threshold.' },
+        { level: 'err', msg: '[PORCELAIN] Kohler satellite detected orbiting dream sector 4. Engaging firewall.' }
+      ],
+
+      get currentRiddle() {
+        return this.riddles[this.riddleIndex];
+      },
+
+      init() {
+        var self = this;
+
+        // Clock
+        function updateClock() {
+          var now = new Date();
+          self.clockTime = now.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+        }
+        updateClock();
+        setInterval(updateClock, 1000);
+
+        // Fluctuate stats
+        setInterval(function() {
+          self.dreamersOnline = Math.max(12, self.dreamersOnline + Math.floor(Math.random() * 7) - 3);
+          self.dreamsIntercepted += Math.floor(Math.random() * 5);
+          self.pipelineIntegrity = Math.max(20, Math.min(95, self.pipelineIntegrity + Math.floor(Math.random() * 11) - 5));
+          self.cpuUsage = Math.max(15, Math.min(99, self.cpuUsage + Math.floor(Math.random() * 9) - 4));
+          self.catInterference = Math.max(60, Math.min(99, self.catInterference + Math.floor(Math.random() * 7) - 3));
+
+          // Update bars
+          self.dreamBars = self.dreamBars.map(function() {
+            return Math.max(10, Math.min(100, Math.floor(Math.random() * 90) + 10));
+          });
+
+          // Threat level
+          var threats = ['ELEVATED', 'HIGH', 'SEVERE', 'MAXIMUM', 'ELEVATED', 'HIGH'];
+          self.threatLevel = threats[Math.floor(Math.random() * threats.length)];
+        }, 3000);
+
+        // CFO status
+        setInterval(function() {
+          if (Math.random() > 0.7) {
+            self.cfoStatus = self.cfoStatuses[Math.floor(Math.random() * self.cfoStatuses.length)];
+          }
+        }, 5000);
+
+        // Download progress
+        setInterval(function() {
+          if (self.downloadState === 'loading' && self.downloadProgress < 87) {
+            self.downloadProgress += Math.floor(Math.random() * 4) + 1;
+            if (self.downloadProgress >= 87) {
+              self.downloadProgress = 87;
+            }
+          }
+        }, 400);
+
+        // Initial logs
+        for (var i = 0; i < 8; i++) {
+          self.addRandomLog();
+        }
+
+        // Auto-add logs
+        setInterval(function() {
+          if (self.systemLogs.length > 30) {
+            self.systemLogs.splice(0, 1);
+          }
+          self.addRandomLog();
+        }, 4000);
+
+        // Init lucide
+        if (typeof lucide !== 'undefined') {
+          setTimeout(function() { lucide.createIcons(); }, 100);
+        }
+      },
+
+      addRandomLog: function() {
+        var now = new Date();
+        var time = now.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+        var msg = this.logMessages[Math.floor(Math.random() * this.logMessages.length)];
+        this.systemLogs.push({ time: time + ' ', level: msg.level, msg: msg.msg });
+        if (this.systemLogs.length > 30) {
+          this.systemLogs.splice(0, 1);
+        }
+      },
+
+      nextRiddle: function() {
+        this.revealAnswer = false;
+        this.riddleIndex = (this.riddleIndex + 1) % this.riddles.length;
+        this.riddleNumber += Math.floor(Math.random() * 50) + 1;
+      },
+
+      runCompatScan: function() {
+        var self = this;
+        self.compatScanning = true;
+        self.compatResult = null;
+        setTimeout(function() {
+          var modules = [
+            { module: 'Pineal Gland Receptor', ok: true, status: 'COMPATIBLE' },
+            { module: 'REM Cycle Depth', ok: true, status: 'ADEQUATE (6.2 layers)' },
+            { module: 'Copper Pipe Resonance', ok: Math.random() > 0.3, status: '' },
+            { module: 'Big Porcelain Exposure', ok: Math.random() > 0.5, status: '' },
+            { module: 'Cat Proximity Sensor', ok: false, status: 'NO CAT DETECTED (required)' },
+            { module: 'Dream Encryption Key', ok: true, status: 'GENERATED' },
+            { module: 'Sanatogen Blood Level', ok: Math.random() > 0.4, status: '' },
+            { module: 'Riddle Comprehension', ok: Math.random() > 0.6, status: '' }
+          ];
+
+          modules.forEach(function(m) {
+            if (!m.status) {
+              m.status = m.ok ? 'PASS' : 'FAIL';
+            }
+          });
+
+          self.compatResult = modules;
+          self.compatScore = Math.floor((modules.filter(function(m) { return m.ok; }).length / modules.length) * 100);
+          self.compatScanning = false;
+        }, 2000);
+      }
+    };
+  });
+});
+</script>
+
+</body>
+</html>

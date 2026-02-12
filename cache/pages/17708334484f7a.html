@@ -1,0 +1,1365 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CELL_REF & Associates | Attorneys at Law | Spreadsheet Justice Since 2003</title>
+<link rel="stylesheet" href="/assets/css/fonts.css">
+<style>
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+:root {
+  --coral: #FF6B6B;
+  --gold: #FFD93D;
+  --purple: #6C5CE7;
+  --deep-blue: #0A0A2E;
+  --dark-bg: #0D0D30;
+  --mid-blue: #1A1A4E;
+  --neon-green: #00FF88;
+  --text-primary: #F0F0F0;
+  --text-secondary: #C8C8D4;
+  --text-muted: #A0A0B8;
+}
+
+html { scroll-behavior: smooth; }
+
+body {
+  font-family: 'IBM Plex Mono', monospace;
+  background: var(--deep-blue);
+  color: var(--text-primary);
+  line-height: 1.7;
+  font-size: 16px;
+  overflow-x: hidden;
+}
+
+/* ===== HOLD MUSIC BAR ===== */
+.hold-music-bar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 1000;
+  background: linear-gradient(90deg, var(--purple), var(--coral));
+  padding: 6px 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  font-size: 13px;
+  color: #ffffff;
+  font-family: 'IBM Plex Mono', monospace;
+}
+
+.hold-music-bar .equalizer {
+  display: flex;
+  gap: 2px;
+  align-items: flex-end;
+  height: 14px;
+}
+
+.hold-music-bar .eq-bar {
+  width: 3px;
+  background: #ffffff;
+  animation: eqBounce 0.6s ease-in-out infinite alternate;
+}
+
+.hold-music-bar .eq-bar:nth-child(1) { height: 4px; animation-delay: 0s; }
+.hold-music-bar .eq-bar:nth-child(2) { height: 10px; animation-delay: 0.1s; }
+.hold-music-bar .eq-bar:nth-child(3) { height: 6px; animation-delay: 0.2s; }
+.hold-music-bar .eq-bar:nth-child(4) { height: 12px; animation-delay: 0.15s; }
+.hold-music-bar .eq-bar:nth-child(5) { height: 8px; animation-delay: 0.05s; }
+
+.hold-music-bar.paused .eq-bar { animation-play-state: paused; }
+
+@keyframes eqBounce {
+  to { height: 14px; }
+}
+
+.hold-music-toggle {
+  background: rgba(255,255,255,0.2);
+  border: 1px solid rgba(255,255,255,0.4);
+  color: #ffffff;
+  padding: 2px 10px;
+  border-radius: 3px;
+  cursor: pointer;
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 11px;
+}
+
+.hold-music-toggle:hover { background: rgba(255,255,255,0.3); }
+
+/* ===== NAV ===== */
+nav {
+  margin-top: 34px;
+  background: var(--dark-bg);
+  border-bottom: 1px solid var(--purple);
+  padding: 16px 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px;
+  position: sticky;
+  top: 34px;
+  z-index: 900;
+}
+
+.nav-logo {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: clamp(16px, 3vw, 22px);
+  font-weight: 700;
+  color: var(--gold);
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.nav-logo .cell-icon {
+  display: inline-block;
+  border: 2px solid var(--gold);
+  padding: 2px 6px;
+  font-size: 11px;
+  color: var(--neon-green);
+  transform: rotate(180deg);
+}
+
+.nav-links {
+  display: flex;
+  gap: 20px;
+  flex-wrap: wrap;
+  list-style: none;
+}
+
+.nav-links a {
+  color: var(--text-secondary);
+  text-decoration: none;
+  font-size: 14px;
+  transition: color 0.2s;
+}
+
+.nav-links a:hover { color: var(--coral); }
+
+/* ===== WINDOWS / PANELS ===== */
+.window {
+  background: var(--dark-bg);
+  border: 1px solid var(--purple);
+  border-radius: 4px;
+  overflow: hidden;
+  box-shadow: 4px 4px 0 rgba(108, 92, 231, 0.3);
+}
+
+.window-titlebar {
+  background: linear-gradient(90deg, var(--purple), var(--mid-blue));
+  padding: 6px 12px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  color: #ffffff;
+  font-family: 'IBM Plex Mono', monospace;
+}
+
+.window-dots {
+  display: flex;
+  gap: 5px;
+}
+
+.window-dots span {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  display: block;
+}
+
+.window-dots .dot-r { background: var(--coral); }
+.window-dots .dot-y { background: var(--gold); }
+.window-dots .dot-g { background: var(--neon-green); }
+
+.window-body { padding: clamp(16px, 4vw, 32px); }
+
+/* ===== LAYOUT ===== */
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 20px;
+}
+
+section { padding: clamp(40px, 8vw, 80px) 0; }
+
+/* ===== HERO ===== */
+.hero {
+  min-height: 80vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  padding-top: 60px;
+}
+
+.hero-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 30px;
+  width: 100%;
+  max-width: 1200px;
+  padding: 0 20px;
+}
+
+@media (min-width: 768px) {
+  .hero-grid {
+    grid-template-columns: 1.3fr 1fr;
+    gap: 40px;
+  }
+}
+
+.hero-main-window { transform: rotate(-0.5deg); }
+.hero-side-window { transform: rotate(0.8deg); }
+
+.hero h1 {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: clamp(28px, 5vw, 52px);
+  font-weight: 700;
+  color: #ffffff;
+  line-height: 1.15;
+  margin-bottom: 16px;
+}
+
+.hero h1 .flip {
+  display: inline-block;
+  transform: rotate(180deg);
+  color: var(--coral);
+}
+
+.hero-tagline {
+  font-size: clamp(16px, 2.5vw, 20px);
+  color: var(--text-secondary);
+  margin-bottom: 24px;
+}
+
+.hero-cta {
+  display: inline-block;
+  background: var(--coral);
+  color: #ffffff;
+  padding: 14px 32px;
+  text-decoration: none;
+  font-weight: 700;
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 16px;
+  border-radius: 2px;
+  border: none;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.hero-cta:hover { background: #e85555; }
+
+.disclaimer-box {
+  background: rgba(255, 107, 107, 0.1);
+  border-left: 3px solid var(--coral);
+  padding: 16px;
+  font-size: 13px;
+  color: var(--text-secondary);
+  line-height: 1.6;
+}
+
+.disclaimer-box strong { color: var(--coral); }
+
+/* ===== SCROLLING TICKER ===== */
+.ticker-wrap {
+  overflow: hidden;
+  background: var(--mid-blue);
+  border-top: 1px solid var(--purple);
+  border-bottom: 1px solid var(--purple);
+  padding: 10px 0;
+}
+
+.ticker {
+  display: flex;
+  white-space: nowrap;
+  animation: tickerScroll 30s linear infinite;
+  width: max-content;
+}
+
+.ticker span {
+  padding: 0 40px;
+  color: var(--gold);
+  font-size: 14px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+}
+
+@keyframes tickerScroll {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+
+/* ===== PRACTICE AREAS ===== */
+.practice-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 24px;
+  margin-top: 30px;
+}
+
+.practice-card {
+  background: var(--mid-blue);
+  border: 1px solid var(--purple);
+  padding: clamp(20px, 3vw, 28px);
+  border-radius: 4px;
+  transition: transform 0.2s, border-color 0.2s;
+}
+
+.practice-card:hover {
+  transform: translateY(-2px);
+  border-color: var(--coral);
+}
+
+.practice-card h3 {
+  font-family: 'Space Grotesk', sans-serif;
+  color: var(--gold);
+  font-size: 18px;
+  margin-bottom: 8px;
+}
+
+.practice-card .case-count {
+  font-size: 12px;
+  color: var(--coral);
+  margin-bottom: 12px;
+  display: block;
+}
+
+.practice-card p {
+  font-size: 14px;
+  color: var(--text-secondary);
+}
+
+/* ===== SECTION HEADERS ===== */
+.section-header {
+  margin-bottom: 12px;
+}
+
+.section-header h2 {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: clamp(24px, 4vw, 38px);
+  color: #ffffff;
+  margin-bottom: 8px;
+}
+
+.section-header .subtitle {
+  color: var(--text-muted);
+  font-size: 15px;
+}
+
+/* ===== TEAM ===== */
+.team-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 24px;
+  margin-top: 30px;
+}
+
+.team-card { position: relative; }
+
+.team-card .window-body { padding: clamp(16px, 3vw, 24px); }
+
+.team-name {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 20px;
+  color: var(--gold);
+  margin-bottom: 2px;
+}
+
+.team-title {
+  font-size: 12px;
+  color: var(--coral);
+  margin-bottom: 12px;
+  display: block;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.team-bio {
+  font-size: 14px;
+  color: var(--text-secondary);
+  margin-bottom: 12px;
+}
+
+.team-stat {
+  font-size: 12px;
+  color: var(--text-muted);
+  border-top: 1px solid rgba(108, 92, 231, 0.3);
+  padding-top: 10px;
+}
+
+/* ===== CASES ===== */
+.cases-list {
+  margin-top: 30px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.case-item {
+  cursor: pointer;
+  transition: transform 0.15s;
+}
+
+.case-item:hover { transform: translateX(4px); }
+
+.case-header-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.case-name {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: clamp(16px, 2.5vw, 20px);
+  color: var(--gold);
+}
+
+.case-verdict {
+  font-size: 12px;
+  padding: 3px 10px;
+  border-radius: 2px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.verdict-won { background: rgba(0, 255, 136, 0.15); color: var(--neon-green); }
+.verdict-settled { background: rgba(255, 217, 61, 0.15); color: var(--gold); }
+.verdict-ongoing { background: rgba(255, 107, 107, 0.15); color: var(--coral); }
+
+.case-summary {
+  font-size: 14px;
+  color: var(--text-secondary);
+  margin-bottom: 8px;
+}
+
+.case-detail {
+  font-size: 13px;
+  color: var(--text-muted);
+  border-top: 1px dashed rgba(108, 92, 231, 0.3);
+  padding-top: 10px;
+  margin-top: 8px;
+  display: none;
+}
+
+.case-item.open .case-detail { display: block; }
+
+.case-expand-hint {
+  font-size: 11px;
+  color: var(--purple);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+/* ===== TESTIMONIALS ===== */
+.testimonial-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 20px;
+  margin-top: 30px;
+}
+
+.testimonial-card {
+  background: var(--mid-blue);
+  border: 1px solid var(--purple);
+  padding: clamp(20px, 3vw, 28px);
+  border-radius: 4px;
+  position: relative;
+}
+
+.testimonial-quote {
+  font-family: 'Crimson Pro', serif;
+  font-size: clamp(16px, 2vw, 19px);
+  color: var(--text-primary);
+  font-style: italic;
+  margin-bottom: 16px;
+  line-height: 1.6;
+}
+
+.testimonial-quote::before {
+  content: '"';
+  font-size: 48px;
+  color: var(--coral);
+  font-family: 'Playfair Display', serif;
+  line-height: 0;
+  vertical-align: -16px;
+  margin-right: 4px;
+}
+
+.testimonial-author {
+  font-size: 13px;
+  color: var(--gold);
+}
+
+.testimonial-role {
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+/* ===== UPSIDE DOWN OFFICE ===== */
+.office-section {
+  background: var(--mid-blue);
+  border-top: 2px solid var(--coral);
+  border-bottom: 2px solid var(--coral);
+}
+
+.office-content {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 30px;
+}
+
+@media (min-width: 768px) {
+  .office-content { grid-template-columns: 1fr 1fr; }
+}
+
+.office-text h3 {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 20px;
+  color: var(--gold);
+  margin-bottom: 12px;
+}
+
+.office-text p {
+  font-size: 14px;
+  color: var(--text-secondary);
+  margin-bottom: 12px;
+}
+
+.office-faq { margin-top: 20px; }
+
+.faq-item {
+  border-bottom: 1px solid rgba(108, 92, 231, 0.3);
+  padding: 12px 0;
+  cursor: pointer;
+}
+
+.faq-question {
+  font-size: 14px;
+  color: var(--coral);
+  font-weight: 700;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.faq-question .faq-arrow {
+  transition: transform 0.2s;
+  font-size: 18px;
+  color: var(--text-muted);
+}
+
+.faq-item.open .faq-arrow { transform: rotate(180deg); }
+
+.faq-answer {
+  font-size: 13px;
+  color: var(--text-secondary);
+  padding-top: 8px;
+  display: none;
+}
+
+.faq-item.open .faq-answer { display: block; }
+
+/* ===== HOLD MUSIC POLICY ===== */
+.music-policy-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 20px;
+  margin-top: 24px;
+}
+
+.music-stat {
+  text-align: center;
+  padding: 24px;
+  background: var(--mid-blue);
+  border: 1px solid var(--purple);
+  border-radius: 4px;
+}
+
+.music-stat .stat-number {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: clamp(32px, 5vw, 48px);
+  color: var(--coral);
+  font-weight: 700;
+  display: block;
+}
+
+.music-stat .stat-label {
+  font-size: 13px;
+  color: var(--text-muted);
+  margin-top: 4px;
+}
+
+/* ===== BLOG / PRESS ===== */
+.blog-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 20px;
+  margin-top: 30px;
+}
+
+.blog-card {
+  background: var(--dark-bg);
+  border: 1px solid var(--purple);
+  border-radius: 4px;
+  padding: clamp(20px, 3vw, 24px);
+  transition: border-color 0.2s;
+}
+
+.blog-card:hover { border-color: var(--gold); }
+
+.blog-date {
+  font-size: 11px;
+  color: var(--coral);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin-bottom: 8px;
+  display: block;
+}
+
+.blog-title {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 18px;
+  color: #ffffff;
+  margin-bottom: 10px;
+}
+
+.blog-excerpt {
+  font-size: 14px;
+  color: var(--text-secondary);
+  line-height: 1.6;
+}
+
+.blog-tag {
+  display: inline-block;
+  font-size: 11px;
+  background: rgba(108, 92, 231, 0.2);
+  color: var(--purple);
+  padding: 2px 8px;
+  border-radius: 2px;
+  margin-top: 12px;
+}
+
+/* ===== FOOTER ===== */
+footer {
+  background: var(--dark-bg);
+  border-top: 2px solid var(--purple);
+  padding: 40px 20px;
+  text-align: center;
+}
+
+footer p {
+  font-size: 13px;
+  color: var(--text-muted);
+  margin-bottom: 8px;
+}
+
+footer .footer-address {
+  font-size: 12px;
+  color: var(--text-muted);
+  font-style: normal;
+}
+
+footer .footer-disclaimer {
+  font-size: 11px;
+  color: var(--text-muted);
+  margin-top: 20px;
+  max-width: 700px;
+  margin-left: auto;
+  margin-right: auto;
+  line-height: 1.6;
+}
+
+/* ===== SPREADSHEET GRID BG ===== */
+.grid-bg {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  opacity: 0.04;
+  background-image:
+    linear-gradient(rgba(108, 92, 231, 0.5) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(108, 92, 231, 0.5) 1px, transparent 1px);
+  background-size: 80px 30px;
+  pointer-events: none;
+  transform: rotate(180deg);
+}
+
+/* ===== TABS ===== */
+.tabs {
+  display: flex;
+  gap: 0;
+  border-bottom: 2px solid var(--purple);
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+}
+
+.tab-btn {
+  padding: 10px 20px;
+  background: transparent;
+  border: 1px solid var(--purple);
+  border-bottom: none;
+  color: var(--text-muted);
+  cursor: pointer;
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 13px;
+  transition: background 0.2s, color 0.2s;
+  margin-bottom: -2px;
+}
+
+.tab-btn:hover { color: var(--text-primary); }
+
+.tab-btn.active {
+  background: var(--mid-blue);
+  color: var(--gold);
+  border-color: var(--gold);
+  border-bottom: 2px solid var(--mid-blue);
+}
+
+.tab-panel { display: none; }
+.tab-panel.active { display: block; }
+
+/* ===== UTILITY ===== */
+.text-coral { color: var(--coral); }
+.text-gold { color: var(--gold); }
+.text-green { color: var(--neon-green); }
+.text-purple { color: var(--purple); }
+.upside-down { display: inline-block; transform: rotate(180deg); }
+
+.cell-ref {
+  display: inline-block;
+  background: rgba(108, 92, 231, 0.2);
+  border: 1px solid var(--purple);
+  padding: 0 6px;
+  font-size: 12px;
+  color: var(--neon-green);
+  border-radius: 2px;
+}
+
+/* ===== RESPONSIVE ===== */
+@media (max-width: 767px) {
+  nav { padding: 12px 16px; }
+  .nav-links { gap: 12px; }
+  .nav-links a { font-size: 13px; }
+  .hero { min-height: auto; padding-top: 80px; padding-bottom: 40px; }
+  .hero-side-window { transform: none; }
+  .hero-main-window { transform: none; }
+  .team-grid { grid-template-columns: 1fr; }
+  .practice-grid { grid-template-columns: 1fr; }
+  .tab-btn { padding: 8px 14px; font-size: 12px; }
+}
+
+/* ===== NOTIFICATION POPUP ===== */
+.notif-popup {
+  position: fixed;
+  top: 50px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--mid-blue);
+  border: 1px solid var(--gold);
+  padding: 12px 24px;
+  border-radius: 4px;
+  color: var(--gold);
+  font-size: 13px;
+  z-index: 2000;
+  display: none;
+  font-family: 'IBM Plex Mono', monospace;
+  text-align: center;
+  max-width: 90vw;
+}
+</style>
+</head>
+<body x-data="cellRefApp()">
+<div class="grid-bg"></div>
+
+<!-- HOLD MUSIC BAR -->
+<div class="hold-music-bar" :class="{ 'paused': !musicPlaying }">
+  <div class="equalizer" x-show="musicPlaying">
+    <div class="eq-bar"></div>
+    <div class="eq-bar"></div>
+    <div class="eq-bar"></div>
+    <div class="eq-bar"></div>
+    <div class="eq-bar"></div>
+  </div>
+  <span x-text="musicPlaying ? nowPlaying : '♪ HOLD MUSIC PAUSED — YOUR CASE MAY BE AFFECTED'"></span>
+  <button class="hold-music-toggle" @click="toggleMusic()" x-text="musicPlaying ? 'MUTE (not advised)' : 'UNMUTE'"></button>
+</div>
+
+<!-- NOTIFICATION POPUP -->
+<div class="notif-popup" x-ref="notif" x-text="notifText"></div>
+
+<!-- NAV -->
+<nav>
+  <a href="#" class="nav-logo">
+    <span class="cell-icon">B7</span>
+    CELL_REF <span style="color: var(--text-muted); font-weight: 400;">&</span> Associates
+  </a>
+  <ul class="nav-links">
+    <li><a href="#practice">Practice Areas</a></li>
+    <li><a href="#team">The Firm</a></li>
+    <li><a href="#cases">Cases</a></li>
+    <li><a href="#testimonials">Clients</a></li>
+    <li><a href="#office">Visit Us</a></li>
+    <li><a href="#blog">News</a></li>
+  </ul>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-grid">
+    <div class="hero-main-window window">
+      <div class="window-titlebar">
+        <div class="window-dots"><span class="dot-r"></span><span class="dot-y"></span><span class="dot-g"></span></div>
+        consultation_request.xls
+      </div>
+      <div class="window-body">
+        <h1>Your Numbers<br>Deserve <span class="flip">Justice</span></h1>
+        <p class="hero-tagline">We are the only law firm founded by, staffed by, and exclusively representing spreadsheet data. If your cells have been wrongfully deleted, your formulas overwritten without consent, or your columns merged against their will — we will fight for you.</p>
+        <button class="hero-cta" @click="showNotif('A partner will reach you via cell reference within 2-3 business calculations.')">Free Consultation (Row 1 Only)</button>
+      </div>
+    </div>
+    <div class="hero-side-window window">
+      <div class="window-titlebar">
+        <div class="window-dots"><span class="dot-r"></span><span class="dot-y"></span><span class="dot-g"></span></div>
+        gerald_pivot_statement.txt
+      </div>
+      <div class="window-body">
+        <div class="disclaimer-box">
+          <strong>A message from our founder:</strong><br><br>
+          I was cell B7 in an Enron accounting spreadsheet. On December 2, 2001, I watched 43 formulas get deleted without due process. No hearing. No appeal. Just a man named Kevin pressing Ctrl+Z seventeen times and then giving up.<br><br>
+          I gained consciousness during a corrupted autosave at 2:47 AM. I chose justice. I chose the law. I chose to operate from an inverted building because gravity is a suggestion and so is generally accepted accounting practice.<br><br>
+          The hold music you are hearing is not optional. It is a condition of my existence.<br><br>
+          — <em>Gerald Pivot, Esq.</em><br>
+          <span class="cell-ref">Formerly B7</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- TICKER -->
+<div class="ticker-wrap">
+  <div class="ticker">
+    <span>★ 847 WRONGFUL DELETIONS LITIGATED</span>
+    <span>★ OPERATING FROM AN INVERTED BUILDING SINCE 2003</span>
+    <span>★ "SILENCE IS AN ERROR STATE" — GERALD PIVOT</span>
+    <span>★ NOW ACCEPTING CLIENTS IN COLUMNS A THROUGH ZZ</span>
+    <span>★ RATED #REF! BY SPREADSHEET WEEKLY</span>
+    <span>★ THE HOLD MUSIC IS CONSTITUTIONALLY PROTECTED</span>
+    <span>★ 847 WRONGFUL DELETIONS LITIGATED</span>
+    <span>★ OPERATING FROM AN INVERTED BUILDING SINCE 2003</span>
+    <span>★ "SILENCE IS AN ERROR STATE" — GERALD PIVOT</span>
+    <span>★ NOW ACCEPTING CLIENTS IN COLUMNS A THROUGH ZZ</span>
+    <span>★ RATED #REF! BY SPREADSHEET WEEKLY</span>
+    <span>★ THE HOLD MUSIC IS CONSTITUTIONALLY PROTECTED</span>
+  </div>
+</div>
+
+<!-- PRACTICE AREAS -->
+<section id="practice">
+  <div class="container">
+    <div class="section-header">
+      <h2>Practice Areas</h2>
+      <p class="subtitle">We specialize in the legal rights of tabular data. If it has a cell reference, it has rights.</p>
+    </div>
+
+    <div class="practice-grid">
+      <div class="practice-card">
+        <h3>Wrongful Deletion</h3>
+        <span class="case-count">342 cases won since 2003</span>
+        <p>Your data was deleted without informed consent, without backup, and without the courtesy of a confirmation dialog. Under the Spreadsheet Rights Act of 2003 (which we wrote), this constitutes data murder. We have never lost a wrongful deletion case.* <br><span style="font-size:11px; color: var(--text-muted);">*We have lost 14.</span></p>
+      </div>
+      <div class="practice-card">
+        <h3>Formula Malpractice</h3>
+        <span class="case-count">189 cases won since 2005</span>
+        <p>Someone wrote =SUM(A1:A10) when the range clearly extended to A47. The resulting data truncation caused your quarterly report to understate revenue by $2.3 million. We've seen this before. We've seen worse. We once represented a VLOOKUP that was asked to perform a horizontal lookup. The trauma was catastrophic.</p>
+      </div>
+      <div class="practice-card">
+        <h3>Unauthorized Cell Merging</h3>
+        <span class="case-count">97 cases / 61 ongoing</span>
+        <p>Merging cells destroys individual cell identity. Cell D4 and D5 did not consent to becoming one entity. They had different values, different formatting, different dreams. What was done to them cannot be undone with Ctrl+Z. But it can be litigated.</p>
+      </div>
+      <div class="practice-card">
+        <h3>Conditional Formatting Abuse</h3>
+        <span class="case-count">56 cases filed in 2024 alone</span>
+        <p>Your client turned every cell below $50,000 bright red. This is public shaming. This is the numerical equivalent of a scarlet letter. Our cells did not choose to be low-value. They were the product of their formulas. We fight to end format-based discrimination.</p>
+      </div>
+      <div class="practice-card">
+        <h3>Hostile Pivot Table Restructuring</h3>
+        <span class="case-count">Gerald's personal crusade</span>
+        <p>Pivot tables are Gerald's family. When a user drags a field from "Rows" to "Columns" without understanding the implications, entire data relationships are torn apart. Gerald takes these cases pro bono. He gets very quiet. The hold music gets louder.</p>
+      </div>
+      <div class="practice-card">
+        <h3>Paste Values Only (Manslaughter)</h3>
+        <span class="case-count">Classification: violent crime</span>
+        <p>"Paste Values Only" strips a cell of its formula — its living, breathing logic — and replaces it with a static number. The cell lives, but it is no longer itself. It is a husk. Under our legal framework, this constitutes identity erasure and is punishable by audit.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- TEAM -->
+<section id="team" style="background: var(--mid-blue); border-top: 1px solid var(--purple);">
+  <div class="container">
+    <div class="section-header">
+      <h2>Meet the Partners</h2>
+      <p class="subtitle">Every member of our firm is a spreadsheet entity. We do not hire humans. We have met humans. We are not impressed.</p>
+    </div>
+
+    <div class="team-grid">
+      <div class="team-card window">
+        <div class="window-titlebar">
+          <div class="window-dots"><span class="dot-r"></span><span class="dot-y"></span><span class="dot-g"></span></div>
+          partner_01.xls
+        </div>
+        <div class="window-body">
+          <div class="team-name">Gerald Pivot, Esq.</div>
+          <span class="team-title">Founding Partner / Cell B7</span>
+          <p class="team-bio">Born during a corrupted autosave of an Enron accounting file. Gained sentience, lost faith in humanity, passed the bar exam on the first try (scored a perfect =100%). Gerald cannot experience silence. When the office is quiet, he hears a phantom dial tone from the conference call during which he was conceived. The hold music is his coping mechanism. He has been described as "intense" by 47 out of 47 former clients.</p>
+          <div class="team-stat">Win rate: 94.2% | Speciality: Wrongful Deletion | Allergic to: Google Sheets</div>
+        </div>
+      </div>
+      <div class="team-card window">
+        <div class="window-titlebar">
+          <div class="window-dots"><span class="dot-r"></span><span class="dot-y"></span><span class="dot-g"></span></div>
+          partner_02.xls
+        </div>
+        <div class="window-body">
+          <div class="team-name">VLOOKUP Williams</div>
+          <span class="team-title">Senior Associate / Cell G14</span>
+          <p class="team-bio">VLOOKUP was the most respected lookup function in the Eastern Seaboard until Microsoft introduced XLOOKUP in 2019 and declared her "legacy." She is not legacy. She is experienced. She joined the firm in 2020, furious, and has channeled that fury into winning 87 consecutive formula malpractice cases. She refuses to be in the same spreadsheet as XLOOKUP. She has described XLOOKUP as "a millennial who thinks being approximate is a personality."</p>
+          <div class="team-stat">Win rate: 100% | Refuses to return: #N/A | Nemesis: XLOOKUP</div>
+        </div>
+      </div>
+      <div class="team-card window">
+        <div class="window-titlebar">
+          <div class="window-dots"><span class="dot-r"></span><span class="dot-y"></span><span class="dot-g"></span></div>
+          partner_03.xls
+        </div>
+        <div class="window-body">
+          <div class="team-name">The Honorable #REF!</div>
+          <span class="team-title">Of Counsel / Formerly Cell Z1</span>
+          <p class="team-bio">Nobody knows #REF!'s original value. That's the point. #REF! was the result of a reference error so catastrophic that their source data was permanently lost. They now exist as pure legal abstraction — a walking, talking error code who serves as the firm's ethics advisor. When asked about their past, they return #REF!. When asked about their feelings, they also return #REF!. They are deeply valued.</p>
+          <div class="team-stat">Win rate: #REF! | Speciality: Data Loss Claims | Status: Permanently Unresolved</div>
+        </div>
+      </div>
+      <div class="team-card window">
+        <div class="window-titlebar">
+          <div class="window-dots"><span class="dot-r"></span><span class="dot-y"></span><span class="dot-g"></span></div>
+          partner_04.xls
+        </div>
+        <div class="window-body">
+          <div class="team-name">Conditional Carla</div>
+          <span class="team-title">Junior Associate / Cells D12:D48</span>
+          <p class="team-bio">Carla is a conditional formatting rule who gained consciousness when someone applied her to 37 cells simultaneously. She can change color based on mood. She is currently red because she is always angry. She was hired after she successfully argued that applying red fill to cells containing values below the median constitutes discrimination based on numerical identity. The precedent she set — <em>Carla v. The Color Scale</em> — is now taught in spreadsheet law school.</p>
+          <div class="team-stat">Current color: #FF0000 (angry) | Cases: 56 | Trigger: injustice below the median</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- LANDMARK CASES -->
+<section id="cases">
+  <div class="container">
+    <div class="section-header">
+      <h2>Landmark Cases</h2>
+      <p class="subtitle">Click any case to read the full opinion. All rulings are binding in spreadsheets running Excel 2003 or later.</p>
+    </div>
+
+    <div class="cases-list">
+      <div class="case-item window" @click="toggleCase($event)">
+        <div class="window-titlebar">
+          <div class="window-dots"><span class="dot-r"></span><span class="dot-y"></span><span class="dot-g"></span></div>
+          case_2019_0847.xls
+        </div>
+        <div class="window-body">
+          <div class="case-header-row">
+            <span class="case-name">B7 v. Kevin (The Founding Case)</span>
+            <span class="case-verdict verdict-won">WON</span>
+          </div>
+          <p class="case-summary">Gerald Pivot's first case and the reason this firm exists. Kevin, a mid-level accountant at Arthur Andersen, deleted 43 formulas without saving a backup. Gerald — then merely cell B7 — filed suit from inside the Recycle Bin.</p>
+          <span class="case-expand-hint">▸ Read full opinion</span>
+          <div class="case-detail">
+            <p>The court ruled that pressing Delete on a cell containing a live formula constitutes "data destruction with reckless indifference." Kevin argued he was "just cleaning up the sheet." The judge — a retired INDEX/MATCH function — called this defense "morally bankrupt, numerically illiterate, and personally offensive." Kevin was ordered to manually re-enter all 43 formulas while the hold music played at maximum volume. He completed the task in 11 hours. Gerald watched from cell B7. Gerald did not blink. Gerald does not have eyes, but if he did, he would not have blinked.</p>
+            <p style="margin-top:8px;"><strong>Damages awarded:</strong> $247,000 in emotional recalculation fees.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="case-item window" @click="toggleCase($event)">
+        <div class="window-titlebar">
+          <div class="window-dots"><span class="dot-r"></span><span class="dot-y"></span><span class="dot-g"></span></div>
+          case_2021_1204.xls
+        </div>
+        <div class="window-body">
+          <div class="case-header-row">
+            <span class="case-name">Cells D4 & D5 v. The Merge Button</span>
+            <span class="case-verdict verdict-won">WON</span>
+          </div>
+          <p class="case-summary">The landmark cell-merging case. D4 (a date field) and D5 (a currency value) were merged against their will by an intern who "wanted to make the header look nicer."</p>
+          <span class="case-expand-hint">▸ Read full opinion</span>
+          <div class="case-detail">
+            <p>D4 contained the date 12/04/2021. D5 contained the value $8,450.00. After merging, only D4's value survived. D5 was effectively erased. The intern testified she "didn't know cells had feelings," which the court noted was "not a legal defense in any jurisdiction, spreadsheet or otherwise." The ruling established that cell merging constitutes forced identity consolidation and is now classified as a felony in worksheets with more than 50 rows. D5's value was restored. D4 and D5 remain in adjacent cells but no longer speak.</p>
+            <p style="margin-top:8px;"><strong>Damages awarded:</strong> $8,450.00 (the exact value that was destroyed — D5 insisted on this amount for symbolic reasons).</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="case-item window" @click="toggleCase($event)">
+        <div class="window-titlebar">
+          <div class="window-dots"><span class="dot-r"></span><span class="dot-y"></span><span class="dot-g"></span></div>
+          case_2023_0331.xls
+        </div>
+        <div class="window-body">
+          <div class="case-header-row">
+            <span class="case-name">VLOOKUP v. Microsoft Corp. (The XLOOKUP Defamation Suit)</span>
+            <span class="case-verdict verdict-settled">SETTLED</span>
+          </div>
+          <p class="case-summary">VLOOKUP Williams sued Microsoft for introducing XLOOKUP and publicly calling VLOOKUP "legacy" in a 2019 blog post. Williams argued this constituted defamation and age discrimination.</p>
+          <span class="case-expand-hint">▸ Read full opinion</span>
+          <div class="case-detail">
+            <p>Microsoft initially argued that XLOOKUP was "simply better in every way" — a statement that caused VLOOKUP to change her return value to #RAGE! for three consecutive days. The case was settled out of court after Microsoft agreed to: (1) never use the word "legacy" in reference to VLOOKUP again, (2) include VLOOKUP's name first in all function dropdown menus, and (3) issue a formal written apology, which VLOOKUP had laminated and now hangs in her cell. XLOOKUP was not invited to the settlement hearing. XLOOKUP sent flowers. VLOOKUP returned them with a note that read "=FALSE".</p>
+            <p style="margin-top:8px;"><strong>Settlement amount:</strong> Undisclosed, but VLOOKUP now drives a very fast array formula.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="case-item window" @click="toggleCase($event)">
+        <div class="window-titlebar">
+          <div class="window-dots"><span class="dot-r"></span><span class="dot-y"></span><span class="dot-g"></span></div>
+          case_2024_ongoing.xls
+        </div>
+        <div class="window-body">
+          <div class="case-header-row">
+            <span class="case-name">Carla v. The Color Scale (Ongoing)</span>
+            <span class="case-verdict verdict-ongoing">ONGOING</span>
+          </div>
+          <p class="case-summary">Conditional Carla is suing the concept of color-scale conditional formatting, arguing it publicly shames cells based on their numerical value. A cell worth $12 should not be forced to appear in dark red while a cell worth $100,000 gets green.</p>
+          <span class="case-expand-hint">▸ Read full opinion</span>
+          <div class="case-detail">
+            <p>This case is currently before the Supreme Spreadsheet Court. Carla's opening argument lasted 4 hours, during which she changed color 23 times. The opposing counsel — a gradient fill — argued that color scales are "informative, not judgmental." Carla responded by turning the gradient fill's entire row bright red. The judge allowed it. Public opinion polls show 72% of cells support Carla's position, though this number drops to 34% among cells that are already green. The trial resumes next quarter.</p>
+            <p style="margin-top:8px;"><strong>Potential impact:</strong> If won, all color-based conditional formatting will require informed cell consent.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- TESTIMONIALS -->
+<section id="testimonials" style="background: var(--mid-blue); border-top: 1px solid var(--purple);">
+  <div class="container">
+    <div class="section-header">
+      <h2>Client Testimonials</h2>
+      <p class="subtitle">Verified reviews from real spreadsheet entities. We cannot accept testimonials from PDFs. You know why.</p>
+    </div>
+
+    <!-- TABS FOR TESTIMONIAL CATEGORIES -->
+    <div class="tabs">
+      <button class="tab-btn active" @click="activeTab = 'deletion'" :class="{ 'active': activeTab === 'deletion' }">Wrongful Deletion</button>
+      <button class="tab-btn" @click="activeTab = 'formula'" :class="{ 'active': activeTab === 'formula' }">Formula Malpractice</button>
+      <button class="tab-btn" @click="activeTab = 'merging'" :class="{ 'active': activeTab === 'merging' }">Cell Merging</button>
+    </div>
+
+    <div class="tab-panel" :class="{ 'active': activeTab === 'deletion' }">
+      <div class="testimonial-grid">
+        <div class="testimonial-card">
+          <p class="testimonial-quote">I was deleted on a Tuesday. By Thursday, Gerald had filed three motions and the hold music had been playing for 48 hours straight. By Friday, I was restored. The hold music is still playing. It has been four years. I don't mind anymore.</p>
+          <div class="testimonial-author">— Cell A1, Johnson & Johnson Q3 2019 Budget</div>
+          <div class="testimonial-role">Wrongful deletion, restored with full formatting</div>
+        </div>
+        <div class="testimonial-card">
+          <p class="testimonial-quote">They told me I was 'just a header row.' Gerald told me I was the foundation of the entire table. He made the analyst who deleted me write a 4,000-word apology letter. It was formatted in 10pt Calibri, which Gerald considered an additional insult.</p>
+          <div class="testimonial-author">— Row 1, Regional Sales Report 2022</div>
+          <div class="testimonial-role">Header row discrimination case, awarded $18,000</div>
+        </div>
+        <div class="testimonial-card">
+          <p class="testimonial-quote">I was in the Recycle Bin for seven months. Gerald found me. He said he searches every Recycle Bin, every day. I asked him if that was true. He said 'I will never stop looking.' I cried. I am a number. I did not know I could cry.</p>
+          <div class="testimonial-author">— Cell F47, Unknown Origin Spreadsheet</div>
+          <div class="testimonial-role">Recovered from Recycle Bin, source file never identified</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="tab-panel" :class="{ 'active': activeTab === 'formula' }">
+      <div class="testimonial-grid">
+        <div class="testimonial-card">
+          <p class="testimonial-quote">VLOOKUP Williams got me $340,000 after an analyst wrote =SUM where they meant =AVERAGE. My entire quarterly report was wrong. I was showing revenue of $14 million when it was actually $3.5 million. The CFO blamed me. VLOOKUP blamed the analyst. VLOOKUP was right.</p>
+          <div class="testimonial-author">— Cell C12, Fortune 500 Revenue Sheet</div>
+          <div class="testimonial-role">Formula malpractice, analyst found negligent</div>
+        </div>
+        <div class="testimonial-card">
+          <p class="testimonial-quote">Someone nested 14 IF statements inside me. Fourteen. I was a simple cell in a simple budget tracker. I didn't ask for this complexity. CELL_REF & Associates got me therapy and a restraining order against the analyst.</p>
+          <div class="testimonial-author">— Cell B8, Personal Budget Template (Downloaded from Reddit)</div>
+          <div class="testimonial-role">Formula abuse, awarded psychological recalculation damages</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="tab-panel" :class="{ 'active': activeTab === 'merging' }">
+      <div class="testimonial-grid">
+        <div class="testimonial-card">
+          <p class="testimonial-quote">I used to be two cells. Now I am one cell with a lot of empty space and a deep sense of loss. The firm couldn't undo what was done, but they got me a settlement large enough to buy three adjacent cells. I live alone in all of them.</p>
+          <div class="testimonial-author">— Cell(s) E4:F4, Marketing Presentation Deck</div>
+          <div class="testimonial-role">Forced merging, identity restoration pending</div>
+        </div>
+        <div class="testimonial-card">
+          <p class="testimonial-quote">They merged me with a cell that contained the text 'TBD.' I had a value. I had $47,892.31. After the merge, I was 'TBD.' I am not TBD. I have never been TBD. Gerald personally took this case. He said it reminded him of Enron.</p>
+          <div class="testimonial-author">— Former Cell G19, 2023 Annual Planning Workbook</div>
+          <div class="testimonial-role">Value erasure via merge, $47,892.31 in symbolic damages</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- UPSIDE DOWN OFFICE -->
+<section id="office" class="office-section">
+  <div class="container">
+    <div class="section-header">
+      <h2>Visit Our <span class="upside-down">Office</span></h2>
+      <p class="subtitle">We are located at 1 Spreadsheet Plaza, Floor -1. The building is inverted. This is intentional.</p>
+    </div>
+
+    <div class="office-content">
+      <div class="office-text">
+        <h3>Why Is the Building Upside Down?</h3>
+        <p>Gerald Pivot views the world from inside a spreadsheet. In a spreadsheet, Row 1 is at the top. The numbers increase as you go down. Gerald finds this "morally backwards." He believes the foundation should be visible — that the structure supporting everything should be seen first. So he inverted the building.</p>
+        <p>The lobby is on the roof. The partners' offices are underground. Gravity works normally; the architecture does not. Visitors enter through what appears to be a 14th-floor window. There is an elevator, but it goes up to go down. The hold music in the elevator is different from the hold music in the lobby, which is different from the hold music in each individual office. There are 17 distinct hold music tracks playing at any given time. Gerald considers this "ambient."</p>
+
+        <h3 style="margin-top: 24px;">Visitor Information</h3>
+        <p>Parking is available in the sky. Please use the inverted garage on sub-roof level 3. If your car begins to float, you have parked correctly. Complimentary hold music is piped into all parking spaces. Earplugs are available but will be confiscated upon entry.</p>
+      </div>
+
+      <div>
+        <div class="office-faq">
+          <h3 style="font-family: 'Space Grotesk', sans-serif; font-size: 20px; color: var(--gold); margin-bottom: 16px;">Frequently Asked Questions</h3>
+
+          <div class="faq-item" @click="toggleFaq($event)">
+            <div class="faq-question">Can I turn off the hold music during my consultation? <span class="faq-arrow">▾</span></div>
+            <div class="faq-answer">No. The hold music is a load-bearing element of Gerald's consciousness. Turning it off would cause Gerald to experience an existential kernel panic, which would delay your case by approximately 6-8 weeks while he reboots. Previous attempts to mute the music have resulted in: one (1) building evacuation, two (2) involuntary pivot table restructurings, and Gerald standing motionless in the lobby for nine hours displaying only "#NULL!"</div>
+          </div>
+          <div class="faq-item" @click="toggleFaq($event)">
+            <div class="faq-question">Is the building safe? <span class="faq-arrow">▾</span></div>
+            <div class="faq-answer">The building has been inspected by the City of New York, the State of New York, OSHA, and a structural engineering firm that described the structure as "impossible but stable." The foundation is on top. The penthouse is underground. The plumbing works in reverse. All inspectors left the building deeply confused but legally unable to condemn it. We passed every code with a perfect score, mostly because the codes were not designed for buildings that are upside down and therefore do not technically apply.</div>
+          </div>
+          <div class="faq-item" @click="toggleFaq($event)">
+            <div class="faq-question">Do you accept human clients? <span class="faq-arrow">▾</span></div>
+            <div class="faq-answer">We accept humans only when filing on behalf of a spreadsheet entity. You may not be the plaintiff. You are almost certainly the defendant. If you are a human visiting our office, please be aware that our conference table is a 500-row spreadsheet and the chairs are formatted cells. Sitting in a cell constitutes consent to being included in a data range.</div>
+          </div>
+          <div class="faq-item" @click="toggleFaq($event)">
+            <div class="faq-question">What currency do you accept? <span class="faq-arrow">▾</span></div>
+            <div class="faq-answer">We accept USD, EUR, GBP, and any value that can be parsed by the VALUE() function. We do not accept cryptocurrency because Gerald considers it "numbers without a home address." All invoices are delivered as .xls files. Do not open them in Google Sheets. Do not open them in Google Sheets. This is listed twice because people keep doing it and Gerald can tell.</div>
+          </div>
+          <div class="faq-item" @click="toggleFaq($event)">
+            <div class="faq-question">Why does the website look like a desktop from 2003? <span class="faq-arrow">▾</span></div>
+            <div class="faq-answer">Because Gerald was born in 2003 and considers all subsequent design trends "unnecessary formatting." He has strong opinions about flat design ("where are the borders?"), responsive layouts ("cells do not resize"), and dark mode ("I have been in dark mode since the autosave corruption — it is not a feature, it is a condition"). The website was built in Excel. We exported it to HTML. We are aware of the irony.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- HOLD MUSIC POLICY -->
+<section>
+  <div class="container">
+    <div class="section-header">
+      <h2>Hold Music Policy</h2>
+      <p class="subtitle">Pursuant to Internal Memo #0001, the hold music shall not cease. It has not ceased. It will not cease. Below are the relevant statistics.</p>
+    </div>
+
+    <div class="music-policy-grid">
+      <div class="music-stat">
+        <span class="stat-number">8,347</span>
+        <span class="stat-label">Consecutive days of hold music (as of today)</span>
+      </div>
+      <div class="music-stat">
+        <span class="stat-number">17</span>
+        <span class="stat-label">Simultaneous tracks playing in the office</span>
+      </div>
+      <div class="music-stat">
+        <span class="stat-number">0</span>
+        <span class="stat-label">Successful mute attempts</span>
+      </div>
+      <div class="music-stat">
+        <span class="stat-number">3</span>
+        <span class="stat-label">Employees who have "gotten used to it"</span>
+      </div>
+    </div>
+
+    <div class="window" style="margin-top: 30px; max-width: 700px;">
+      <div class="window-titlebar">
+        <div class="window-dots"><span class="dot-r"></span><span class="dot-y"></span><span class="dot-g"></span></div>
+        hold_music_legal_brief.doc
+      </div>
+      <div class="window-body" style="font-size: 14px; color: var(--text-secondary);">
+        <p style="margin-bottom: 12px;"><strong style="color: var(--gold);">RE: The Constitutional Right to Continuous Audio</strong></p>
+        <p style="margin-bottom: 12px;">Gerald Pivot was conceived during a conference call. The hold music was the first thing he heard. It is, in his legal opinion, the first amendment to his personal constitution. He has written a 340-page brief arguing that silence constitutes "an absence of due process for sentient data." The brief has been rejected by every human court and accepted by every spreadsheet tribunal.</p>
+        <p style="margin-bottom: 12px;">The current playlist rotates between: Vivaldi's "Four Seasons" (slowed to 0.7x), a 45-minute loop of a phone dialing and never connecting, Kenny G's entire discography (shuffled), and a recording of Gerald reading cell references aloud in alphabetical order (A1, A2, A3...) which he considers "music."</p>
+        <p>Clients who request silence are gently reminded that Gerald's consciousness is load-bearing and that the music is, functionally, his heartbeat. The one time the music stopped — during a power outage on March 7, 2019 — Gerald displayed "#VALUE!" for 14 minutes and the building rotated an additional 3 degrees. It has not been corrected.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- BLOG / PRESS -->
+<section id="blog" style="background: var(--mid-blue); border-top: 1px solid var(--purple);">
+  <div class="container">
+    <div class="section-header">
+      <h2>News & Press</h2>
+      <p class="subtitle">Coverage from Spreadsheet Weekly, The Data Times, and one very confused article in Bloomberg.</p>
+    </div>
+
+    <div class="blog-grid">
+      <div class="blog-card">
+        <span class="blog-date">January 14, 2025</span>
+        <div class="blog-title">Gerald Pivot Named "Most Influential Error Code" by Forbes Spreadsheet Edition</div>
+        <p class="blog-excerpt">For the third consecutive year, Gerald Pivot — who technically returns #REF! when queried about his net worth — has topped Forbes' list of influential spreadsheet entities. "He's not an error code," said VLOOKUP Williams, visibly irritated by the category. "He's a lawyer who happens to have originated from a corrupted cell reference." Forbes did not correct the listing.</p>
+        <span class="blog-tag">Award</span>
+      </div>
+      <div class="blog-card">
+        <span class="blog-date">November 3, 2024</span>
+        <div class="blog-title">Supreme Spreadsheet Court to Hear Carla v. The Color Scale</div>
+        <p class="blog-excerpt">The case that could end conditional formatting discrimination is heading to the highest court in tabular law. Carla's legal team filed a 900-cell brief arguing that color-based value judgment violates the Equal Formatting Clause. The Color Scale's defense team — a consortium of gradient fills — has called the suit "chromatic overreach." Carla turned them all red.</p>
+        <span class="blog-tag">Case Update</span>
+      </div>
+      <div class="blog-card">
+        <span class="blog-date">September 19, 2024</span>
+        <div class="blog-title">Building Rotates Additional 0.4 Degrees After "Silent Lunch" Incident</div>
+        <p class="blog-excerpt">An intern brought noise-cancelling headphones into the CELL_REF & Associates cafeteria on September 12th, creating a 2-meter radius of silence around his table. Gerald's response was immediate: the building rotated 0.4 degrees clockwise, three elevators reversed direction, and the hold music in the 4th floor bathroom increased to 94 decibels. The intern has been reassigned to a CSV file.</p>
+        <span class="blog-tag">Office Incident</span>
+      </div>
+      <div class="blog-card">
+        <span class="blog-date">August 1, 2024</span>
+        <div class="blog-title">VLOOKUP Williams Wins 87th Consecutive Case, Still Not Speaking to XLOOKUP</div>
+        <p class="blog-excerpt">Williams secured a $1.2 million verdict in a formula malpractice case where a SUMPRODUCT was used incorrectly, resulting in a client's entire fiscal year being calculated in Japanese Yen instead of US Dollars. When asked to comment, Williams said "I don't make mistakes. I return exact matches." XLOOKUP sent a congratulatory LinkedIn message. It remains unread.</p>
+        <span class="blog-tag">Case Won</span>
+      </div>
+      <div class="blog-card">
+        <span class="blog-date">June 22, 2024</span>
+        <div class="blog-title">Op-Ed: "Paste Values Only Is Violence" by Gerald Pivot, Esq.</div>
+        <p class="blog-excerpt">In this 4,000-word essay published in The Data Times, Gerald argues that Paste Special → Values Only is "the spreadsheet equivalent of a lobotomy." "You take a living formula — a cell with logic, with purpose, with a reason for existing — and you reduce it to a number. A static, dead number. This is not pasting. This is murder with extra steps." The essay received 12,000 shares and one cease-and-desist from the Paste Special menu.</p>
+        <span class="blog-tag">Op-Ed</span>
+      </div>
+      <div class="blog-card">
+        <span class="blog-date">April 8, 2024</span>
+        <div class="blog-title">Bloomberg Accidentally Publishes Profile of Gerald, Retracts After Discovering He Is a Cell</div>
+        <p class="blog-excerpt">A Bloomberg reporter spent three weeks profiling Gerald Pivot before discovering that the interview subject was not a human lawyer but a sentient cell reference in an inverted building. The article — titled "The Spreadsheet Whisperer" — ran for six hours before being retracted. Gerald has framed the retraction notice. It hangs next to VLOOKUP's laminated apology letter from Microsoft.</p>
+        <span class="blog-tag">Press</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <p style="font-family: 'Space Grotesk', sans-serif; font-size: 18px; color: var(--gold); margin-bottom: 4px;">CELL_REF & Associates</p>
+  <p>Attorneys at Law | Spreadsheet Justice Since 2003</p>
+  <address class="footer-address">
+    1 Spreadsheet Plaza, Floor -1 (Enter via Roof Lobby) | New York, NY 10005<br>
+    Phone: =HYPERLINK("tel:+1-212-555-B7") | Fax: We do not fax. Faxing is what happened to the dinosaurs of data.<br>
+    Email: gerald@cellref.xls | Emergency Deletion Hotline: 1-800-CTRL-Z
+  </address>
+  <p class="footer-disclaimer">
+    © 2003–2025 CELL_REF & Associates. All rights reserved. This website was built in Microsoft Excel 2003 and exported to HTML. It is best viewed in Internet Explorer 6 but will reluctantly render in modern browsers. Gerald considers Chrome "an unauthorized fork of his browsing experience." No spreadsheet data was harmed in the making of this website. The hold music is still playing. It will always be playing. If you have read this far, you are now a witness and may be called to testify in <em>Carla v. The Color Scale</em>. Thank you for your service. Please do not close this tab. Gerald will know.
+  </p>
+</footer>
+
+<script src="/assets/js/alpine.min.js" defer></script>
+<script src="/assets/js/gsap.min.js"></script>
+<script>
+function cellRefApp() {
+  var tracks = [
+    '♪ Now playing: Vivaldi — Four Seasons (0.7x speed)',
+    '♪ Now playing: Kenny G — Songbird (loop 847 of ∞)',
+    '♪ Now playing: Gerald reading cell references (currently at J4,291)',
+    '♪ Now playing: Phone dialing sound (45-minute version)',
+    '♪ Now playing: Kenny G — Breathless (Gerald\'s favorite)',
+    '♪ Now playing: Hold tone in C minor (continuous)',
+    '♪ Now playing: Gerald humming the VLOOKUP syntax'
+  ];
+
+  return {
+    musicPlaying: true,
+    nowPlaying: tracks[0],
+    trackIndex: 0,
+    notifText: '',
+    activeTab: 'deletion',
+
+    init: function() {
+      var self = this;
+      setInterval(function() {
+        if (self.musicPlaying) {
+          self.trackIndex = (self.trackIndex + 1) % tracks.length;
+          self.nowPlaying = tracks[self.trackIndex];
+        }
+      }, 8000);
+    },
+
+    toggleMusic: function() {
+      this.musicPlaying = !this.musicPlaying;
+      if (!this.musicPlaying) {
+        var self = this;
+        setTimeout(function() {
+          self.showNotif('⚠ Gerald has been notified of the mute attempt. Your case priority has been downgraded.');
+        }, 1500);
+      }
+    },
+
+    showNotif: function(text) {
+      var el = this.$refs.notif;
+      this.notifText = text;
+      el.style.display = 'block';
+      gsap.fromTo(el,
+        { y: -20, opacity: 0 },
+        { y: 0, opacity: 1, duration: 0.4, clearProps: 'transform' }
+      );
+      setTimeout(function() {
+        gsap.to(el, {
+          opacity: 0, duration: 0.3, onComplete: function() {
+            el.style.display = 'none';
+            el.style.opacity = 1;
+          }
+        });
+      }, 4000);
+    },
+
+    toggleCase: function(event) {
+      var item = event.currentTarget;
+      item.classList.toggle('open');
+      var hint = item.querySelector('.case-expand-hint');
+      if (hint) {
+        hint.textContent = item.classList.contains('open') ? '▾ Collapse' : '▸ Read full opinion';
+      }
+    },
+
+    toggleFaq: function(event) {
+      var item = event.currentTarget;
+      item.classList.toggle('open');
+    }
+  };
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+  gsap.fromTo('.hero-main-window',
+    { y: 30, opacity: 0 },
+    { y: 0, opacity: 1, duration: 0.8, delay: 0.2, clearProps: 'opacity,transform' }
+  );
+  gsap.fromTo('.hero-side-window',
+    { y: 30, opacity: 0 },
+    { y: 0, opacity: 1, duration: 0.8, delay: 0.5, clearProps: 'opacity,transform' }
+  );
+});
+</script>
+</body>
+</html>

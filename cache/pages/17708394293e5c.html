@@ -1,0 +1,1260 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Project Nightingale — To Touch The Stars... Eventually</title>
+<link rel="stylesheet" href="/assets/css/fonts.css">
+<style>
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+:root {
+  --magenta: #ff2d95;
+  --cyan: #00f0ff;
+  --chrome: #c0c0c0;
+  --dark-purple: #0d0221;
+  --mid-purple: #1a0533;
+  --deep-magenta: #4a0e3a;
+  --warm-cream: #f5e6d3;
+  --gold: #ffd700;
+  --tube-glow: #ff6b35;
+}
+
+html { scroll-behavior: smooth; }
+
+body {
+  font-family: 'Crimson Pro', Georgia, serif;
+  background: var(--dark-purple);
+  color: #e8e0f0;
+  overflow-x: hidden;
+  font-size: 18px;
+  line-height: 1.6;
+}
+
+/* ===== VACUUM TUBE CSS ART ===== */
+.tube {
+  position: relative;
+  width: 60px;
+  height: 100px;
+  display: inline-block;
+}
+.tube .glass {
+  position: absolute;
+  bottom: 20px;
+  left: 10px;
+  width: 40px;
+  height: 65px;
+  border-radius: 20px 20px 5px 5px;
+  background: linear-gradient(135deg, rgba(255,107,53,0.15), rgba(255,45,149,0.1));
+  border: 2px solid rgba(192,192,192,0.3);
+  box-shadow: inset 0 0 20px rgba(255,107,53,0.2), 0 0 15px rgba(255,107,53,0.1);
+}
+.tube .filament {
+  position: absolute;
+  bottom: 35px;
+  left: 22px;
+  width: 16px;
+  height: 30px;
+  border: 2px solid var(--tube-glow);
+  border-top: none;
+  border-radius: 0 0 8px 8px;
+  box-shadow: 0 0 10px var(--tube-glow), 0 0 20px rgba(255,107,53,0.5);
+  animation: filamentGlow 2s ease-in-out infinite alternate;
+}
+.tube .base {
+  position: absolute;
+  bottom: 0;
+  left: 5px;
+  width: 50px;
+  height: 25px;
+  background: linear-gradient(to bottom, #888, #555);
+  border-radius: 3px;
+}
+.tube .base::after {
+  content: '';
+  position: absolute;
+  bottom: -8px;
+  left: 10px;
+  width: 6px;
+  height: 8px;
+  background: var(--chrome);
+  box-shadow: 12px 0 0 var(--chrome), 24px 0 0 var(--chrome);
+  border-radius: 0 0 2px 2px;
+}
+@keyframes filamentGlow {
+  0% { box-shadow: 0 0 8px var(--tube-glow), 0 0 15px rgba(255,107,53,0.3); opacity: 0.7; }
+  100% { box-shadow: 0 0 15px var(--tube-glow), 0 0 30px rgba(255,107,53,0.6); opacity: 1; }
+}
+
+/* ===== CIRCUIT BOARD PATTERN ===== */
+.circuit-bg {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  pointer-events: none;
+  z-index: 0;
+  opacity: 0.06;
+  background-image:
+    linear-gradient(var(--cyan) 1px, transparent 1px),
+    linear-gradient(90deg, var(--cyan) 1px, transparent 1px),
+    linear-gradient(var(--magenta) 1px, transparent 1px),
+    linear-gradient(90deg, var(--magenta) 1px, transparent 1px);
+  background-size: 100px 100px, 100px 100px, 20px 20px, 20px 20px;
+}
+
+/* ===== NAV ===== */
+nav {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 100;
+  background: linear-gradient(to right, var(--dark-purple), var(--mid-purple));
+  border-bottom: 1px solid rgba(0,240,255,0.2);
+  padding: 0 clamp(16px, 4vw, 40px);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 60px;
+  backdrop-filter: blur(10px);
+}
+nav .logo {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: clamp(14px, 2.5vw, 18px);
+  font-weight: 700;
+  color: var(--cyan);
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  white-space: nowrap;
+}
+nav .live-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(255,45,149,0.15);
+  border: 1px solid var(--magenta);
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 11px;
+  color: var(--magenta);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+nav .live-dot {
+  width: 8px;
+  height: 8px;
+  background: var(--magenta);
+  border-radius: 50%;
+  animation: livePulse 1.5s ease-in-out infinite;
+}
+@keyframes livePulse {
+  0%, 100% { opacity: 1; box-shadow: 0 0 4px var(--magenta); }
+  50% { opacity: 0.3; box-shadow: none; }
+}
+nav .nav-links {
+  display: flex;
+  gap: clamp(12px, 3vw, 30px);
+  align-items: center;
+}
+nav .nav-links a {
+  color: #c0b8d0;
+  text-decoration: none;
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 13px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  transition: color 0.3s;
+}
+nav .nav-links a:hover { color: var(--cyan); }
+
+/* ===== HERO ===== */
+.hero {
+  position: relative;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 80px clamp(20px, 5vw, 60px) 40px;
+  overflow: hidden;
+}
+.hero::before {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: radial-gradient(ellipse at 30% 50%, rgba(255,45,149,0.12) 0%, transparent 50%),
+              radial-gradient(ellipse at 70% 30%, rgba(0,240,255,0.08) 0%, transparent 40%),
+              radial-gradient(ellipse at 50% 80%, rgba(255,107,53,0.06) 0%, transparent 30%);
+  animation: heroSwirl 20s linear infinite;
+}
+@keyframes heroSwirl {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.hero-content {
+  position: relative;
+  z-index: 2;
+  max-width: 800px;
+}
+
+/* CSS Art: Rocket with vacuum tubes */
+.rocket-art {
+  position: relative;
+  width: 200px;
+  height: 280px;
+  margin: 0 auto 40px;
+}
+.rocket-body {
+  position: absolute;
+  bottom: 40px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 70px;
+  height: 160px;
+  background: linear-gradient(135deg, #c0c0c0, #888, #c0c0c0);
+  border-radius: 35px 35px 10px 10px;
+  border: 2px solid rgba(0,240,255,0.3);
+  box-shadow: inset -10px 0 20px rgba(0,0,0,0.3), 0 0 20px rgba(0,240,255,0.1);
+}
+.rocket-body::before {
+  content: 'PN';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--magenta);
+  text-shadow: 0 0 10px rgba(255,45,149,0.5);
+}
+.rocket-window {
+  position: absolute;
+  bottom: 140px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 35%, var(--cyan), #005577);
+  border: 3px solid var(--chrome);
+  box-shadow: 0 0 15px rgba(0,240,255,0.4);
+}
+.rocket-fin-left, .rocket-fin-right {
+  position: absolute;
+  bottom: 30px;
+  width: 30px;
+  height: 60px;
+  background: linear-gradient(to bottom, var(--magenta), var(--deep-magenta));
+}
+.rocket-fin-left {
+  left: 35px;
+  clip-path: polygon(100% 0, 100% 100%, 0 100%);
+}
+.rocket-fin-right {
+  right: 35px;
+  clip-path: polygon(0 0, 0 100%, 100% 100%);
+}
+.rocket-flame {
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 40px;
+  height: 50px;
+  background: linear-gradient(to top, transparent, var(--tube-glow), var(--gold));
+  clip-path: polygon(20% 0, 80% 0, 100% 40%, 70% 100%, 30% 100%, 0 40%);
+  animation: flameFlicker 0.3s ease-in-out infinite alternate;
+  opacity: 0.8;
+}
+@keyframes flameFlicker {
+  0% { transform: translateX(-50%) scaleY(1) scaleX(1); }
+  100% { transform: translateX(-50%) scaleY(1.15) scaleX(0.9); }
+}
+
+/* Tube decorations on rocket */
+.rocket-tube-left, .rocket-tube-right {
+  position: absolute;
+  bottom: 80px;
+  width: 18px;
+  height: 35px;
+  border-radius: 9px 9px 3px 3px;
+  background: linear-gradient(135deg, rgba(255,107,53,0.2), rgba(255,45,149,0.1));
+  border: 1px solid rgba(192,192,192,0.3);
+}
+.rocket-tube-left { left: 48px; transform: rotate(-15deg); }
+.rocket-tube-right { right: 48px; transform: rotate(15deg); }
+.rocket-tube-left::after, .rocket-tube-right::after {
+  content: '';
+  position: absolute;
+  bottom: 8px;
+  left: 4px;
+  width: 10px;
+  height: 16px;
+  border: 1.5px solid var(--tube-glow);
+  border-top: none;
+  border-radius: 0 0 5px 5px;
+  box-shadow: 0 0 6px var(--tube-glow);
+  animation: filamentGlow 2.5s ease-in-out infinite alternate;
+}
+
+.hero h1 {
+  font-family: 'Playfair Display', serif;
+  font-size: clamp(36px, 7vw, 72px);
+  color: #ffffff;
+  line-height: 1.1;
+  margin-bottom: 8px;
+  text-shadow: 0 0 40px rgba(255,45,149,0.3);
+}
+.hero h1 span {
+  display: block;
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: clamp(12px, 2vw, 16px);
+  color: var(--cyan);
+  letter-spacing: 4px;
+  text-transform: uppercase;
+  margin-top: 12px;
+}
+.hero .motto {
+  font-style: italic;
+  color: #d0c0e0;
+  font-size: clamp(16px, 2.5vw, 22px);
+  margin-top: 20px;
+}
+.hero .motto em {
+  color: var(--gold);
+  font-style: italic;
+}
+
+/* ===== SECTION UTILITY ===== */
+section {
+  position: relative;
+  z-index: 1;
+  padding: clamp(40px, 8vw, 80px) clamp(16px, 5vw, 60px);
+}
+
+.section-title {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: clamp(11px, 1.5vw, 13px);
+  text-transform: uppercase;
+  letter-spacing: 4px;
+  color: var(--cyan);
+  margin-bottom: 12px;
+}
+.section-heading {
+  font-family: 'Playfair Display', serif;
+  font-size: clamp(28px, 5vw, 48px);
+  color: #ffffff;
+  margin-bottom: 30px;
+  line-height: 1.2;
+}
+
+/* ===== DIAGONAL CLIP SECTION DIVIDERS ===== */
+.clip-top {
+  clip-path: polygon(0 40px, 100% 0, 100% 100%, 0 100%);
+  padding-top: clamp(60px, 10vw, 100px);
+}
+.clip-bottom {
+  clip-path: polygon(0 0, 100% 0, 100% calc(100% - 40px), 0 100%);
+  padding-bottom: clamp(60px, 10vw, 100px);
+}
+
+/* ===== MISSION STATUS ===== */
+.mission-status {
+  background: linear-gradient(170deg, var(--mid-purple), #120228);
+  border-top: 1px solid rgba(0,240,255,0.15);
+}
+.status-board {
+  max-width: 900px;
+  margin: 0 auto;
+  background: rgba(0,0,0,0.4);
+  border: 1px solid rgba(0,240,255,0.2);
+  border-radius: 8px;
+  overflow: hidden;
+}
+.status-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px 24px;
+  background: rgba(0,240,255,0.05);
+  border-bottom: 1px solid rgba(0,240,255,0.15);
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.status-header h3 {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: clamp(14px, 2vw, 16px);
+  color: var(--cyan);
+  text-transform: uppercase;
+  letter-spacing: 2px;
+}
+.status-indicator {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 13px;
+  color: var(--gold);
+}
+.status-indicator::before {
+  content: '';
+  width: 10px;
+  height: 10px;
+  background: var(--gold);
+  border-radius: 50%;
+  animation: livePulse 2s ease-in-out infinite;
+}
+
+.status-row {
+  display: grid;
+  grid-template-columns: 140px 1fr;
+  padding: 16px 24px;
+  border-bottom: 1px solid rgba(255,255,255,0.05);
+  gap: 8px;
+}
+.status-row:last-child { border-bottom: none; }
+.status-label {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 12px;
+  color: #a090b8;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+.status-value {
+  color: #e0d8ee;
+  font-size: 16px;
+}
+.status-value.warning { color: var(--tube-glow); }
+.status-value.danger { color: var(--magenta); }
+
+/* ===== LAUNCH LOG ===== */
+.launch-log {
+  background: linear-gradient(185deg, #120228, var(--dark-purple));
+}
+.log-grid {
+  max-width: 1000px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 24px;
+}
+.log-card {
+  background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(255,45,149,0.15);
+  border-radius: 8px;
+  padding: 24px;
+  transition: border-color 0.3s, transform 0.3s, box-shadow 0.3s;
+  position: relative;
+  overflow: hidden;
+}
+.log-card:hover {
+  border-color: var(--magenta);
+  transform: translateY(-4px);
+  box-shadow: 0 8px 30px rgba(255,45,149,0.15);
+}
+.log-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: linear-gradient(to right, var(--magenta), var(--cyan));
+}
+.log-number {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 11px;
+  color: var(--cyan);
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  margin-bottom: 8px;
+}
+.log-title {
+  font-family: 'Playfair Display', serif;
+  font-size: 20px;
+  color: #ffffff;
+  margin-bottom: 8px;
+}
+.log-desc {
+  color: #c0b0d8;
+  font-size: 15px;
+  line-height: 1.5;
+  margin-bottom: 12px;
+}
+.log-altitude {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 12px;
+  color: var(--tube-glow);
+}
+
+/* ===== HAIKU REVIEWS ===== */
+.haiku-section {
+  background: linear-gradient(175deg, var(--deep-magenta), var(--dark-purple));
+}
+.haiku-grid {
+  max-width: 1000px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 30px;
+}
+.haiku-card {
+  text-align: center;
+  padding: 36px 24px;
+  position: relative;
+  background: rgba(0,0,0,0.2);
+  border-radius: 8px;
+  border-left: 3px solid var(--magenta);
+  transition: transform 0.3s;
+}
+.haiku-card:hover { transform: scale(1.03); }
+.haiku-text {
+  font-family: 'Playfair Display', serif;
+  font-size: clamp(17px, 2.5vw, 20px);
+  color: #ffffff;
+  line-height: 2;
+  font-style: italic;
+  margin-bottom: 16px;
+}
+.haiku-author {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 12px;
+  color: #b0a0c8;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+.haiku-stars {
+  color: var(--gold);
+  margin-top: 8px;
+  font-size: 14px;
+  letter-spacing: 2px;
+}
+
+/* ===== JAZZ LOUNGE ===== */
+.jazz-section {
+  background: linear-gradient(160deg, #0a0118, var(--mid-purple));
+  position: relative;
+  overflow: hidden;
+}
+.jazz-section::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 200px;
+  background: linear-gradient(to top, rgba(255,45,149,0.05), transparent);
+  pointer-events: none;
+}
+.jazz-content {
+  max-width: 900px;
+  margin: 0 auto;
+  position: relative;
+  z-index: 2;
+}
+.now-playing {
+  background: rgba(0,0,0,0.4);
+  border: 1px solid rgba(255,45,149,0.2);
+  border-radius: 8px;
+  padding: 24px 30px;
+  margin-bottom: 40px;
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+.eq-bars {
+  display: flex;
+  align-items: flex-end;
+  gap: 3px;
+  height: 30px;
+}
+.eq-bar {
+  width: 4px;
+  background: var(--magenta);
+  border-radius: 2px;
+  animation: eqBounce 0.8s ease-in-out infinite alternate;
+}
+.eq-bar:nth-child(1) { height: 10px; animation-delay: 0s; }
+.eq-bar:nth-child(2) { height: 20px; animation-delay: 0.15s; }
+.eq-bar:nth-child(3) { height: 14px; animation-delay: 0.3s; }
+.eq-bar:nth-child(4) { height: 24px; animation-delay: 0.1s; }
+.eq-bar:nth-child(5) { height: 8px; animation-delay: 0.25s; }
+@keyframes eqBounce {
+  0% { transform: scaleY(0.4); }
+  100% { transform: scaleY(1); }
+}
+.now-playing-text {
+  flex: 1;
+  min-width: 200px;
+}
+.now-playing-label {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 11px;
+  color: var(--magenta);
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  margin-bottom: 4px;
+}
+.now-playing-song {
+  font-family: 'Playfair Display', serif;
+  font-size: clamp(18px, 3vw, 24px);
+  color: #ffffff;
+  font-style: italic;
+}
+
+.trio-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 24px;
+}
+.trio-card {
+  background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(0,240,255,0.1);
+  border-radius: 8px;
+  padding: 28px 20px;
+  text-align: center;
+  transition: border-color 0.3s;
+}
+.trio-card:hover { border-color: var(--cyan); }
+.trio-instrument {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 11px;
+  color: var(--cyan);
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  margin-bottom: 8px;
+}
+.trio-name {
+  font-family: 'Playfair Display', serif;
+  font-size: 22px;
+  color: #ffffff;
+  margin-bottom: 10px;
+}
+.trio-bio {
+  color: #b8a8d0;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+/* ===== AETHERCORP RANT ===== */
+.rant-section {
+  background: linear-gradient(170deg, #1a0010, var(--dark-purple));
+}
+.rant-content {
+  max-width: 750px;
+  margin: 0 auto;
+}
+.manifesto {
+  background: rgba(255,45,149,0.05);
+  border-left: 4px solid var(--magenta);
+  padding: 30px;
+  border-radius: 0 8px 8px 0;
+  margin-bottom: 24px;
+}
+.manifesto p {
+  color: #e0d0f0;
+  font-size: clamp(16px, 2vw, 19px);
+  line-height: 1.7;
+  margin-bottom: 16px;
+}
+.manifesto p:last-child { margin-bottom: 0; }
+.manifesto .signature {
+  font-family: 'Playfair Display', serif;
+  font-style: italic;
+  color: var(--magenta);
+  font-size: 18px;
+  margin-top: 20px;
+}
+
+/* ===== DONATE ===== */
+.donate-section {
+  background: linear-gradient(165deg, var(--mid-purple), #0a0118);
+  text-align: center;
+}
+.donate-content {
+  max-width: 600px;
+  margin: 0 auto;
+}
+.donate-tagline {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: clamp(14px, 2vw, 18px);
+  color: #c0b0d8;
+  margin-bottom: 30px;
+}
+.donate-tiers {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 16px;
+  margin-bottom: 30px;
+}
+.donate-tier {
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(0,240,255,0.15);
+  border-radius: 8px;
+  padding: 24px 16px;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+.donate-tier:hover {
+  border-color: var(--cyan);
+  background: rgba(0,240,255,0.05);
+  transform: translateY(-3px);
+  box-shadow: 0 6px 20px rgba(0,240,255,0.1);
+}
+.tier-amount {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: clamp(24px, 4vw, 32px);
+  color: #ffffff;
+  font-weight: 700;
+}
+.tier-name {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 11px;
+  color: var(--cyan);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin-top: 6px;
+}
+.tier-perk {
+  color: #b0a0c8;
+  font-size: 13px;
+  margin-top: 8px;
+  line-height: 1.4;
+}
+.donate-note {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 12px;
+  color: #8070a0;
+}
+
+/* ===== FOOTER ===== */
+footer {
+  background: rgba(0,0,0,0.3);
+  border-top: 1px solid rgba(0,240,255,0.1);
+  padding: 40px clamp(16px, 5vw, 60px);
+}
+.footer-content {
+  max-width: 1000px;
+  margin: 0 auto;
+  display: flex;
+  justify-content: space-between;
+  align-items: start;
+  flex-wrap: wrap;
+  gap: 30px;
+}
+.footer-stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  gap: 20px;
+}
+.stat {
+  text-align: center;
+}
+.stat-number {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: clamp(24px, 4vw, 36px);
+  font-weight: 700;
+  color: var(--cyan);
+}
+.stat-label {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 10px;
+  color: #8878a0;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin-top: 4px;
+}
+.footer-legal {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 11px;
+  color: #605080;
+  max-width: 400px;
+  line-height: 1.6;
+}
+
+/* ===== BLINKING LIGHTS DECORATION ===== */
+.blinkers {
+  position: absolute;
+  display: flex;
+  gap: 12px;
+}
+.blink {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  animation: blinkLight 3s ease-in-out infinite;
+}
+.blink:nth-child(1) { background: var(--magenta); animation-delay: 0s; }
+.blink:nth-child(2) { background: var(--cyan); animation-delay: 0.7s; }
+.blink:nth-child(3) { background: var(--gold); animation-delay: 1.4s; }
+.blink:nth-child(4) { background: var(--tube-glow); animation-delay: 2.1s; }
+@keyframes blinkLight {
+  0%, 40%, 100% { opacity: 0.2; }
+  20% { opacity: 1; }
+}
+
+/* ===== DOILY DECORATION ===== */
+.doily {
+  position: absolute;
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  border: 2px solid rgba(192,192,192,0.08);
+  background: radial-gradient(circle, transparent 30%, rgba(192,192,192,0.03) 31%, transparent 32%,
+    transparent 45%, rgba(192,192,192,0.03) 46%, transparent 47%,
+    transparent 60%, rgba(192,192,192,0.03) 61%, transparent 62%);
+  pointer-events: none;
+}
+.doily::before {
+  content: '';
+  position: absolute;
+  inset: 10px;
+  border-radius: 50%;
+  border: 1px dashed rgba(192,192,192,0.06);
+}
+
+/* ===== INTERACTIVE HOVER SHAPES ===== */
+.morph-shape {
+  width: 80px;
+  height: 80px;
+  background: linear-gradient(135deg, var(--magenta), var(--cyan));
+  transition: all 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+  opacity: 0.15;
+  position: absolute;
+}
+.morph-shape:hover {
+  border-radius: 50%;
+  opacity: 0.4;
+  transform: rotate(180deg) scale(1.3);
+  box-shadow: 0 0 40px rgba(255,45,149,0.3);
+}
+
+/* ===== RESPONSIVE ===== */
+@media (max-width: 768px) {
+  nav .nav-links a { font-size: 11px; }
+  .status-row { grid-template-columns: 1fr; }
+  .status-label { margin-bottom: 2px; }
+  .rocket-art { transform: scale(0.8); margin-bottom: 20px; }
+  .doily { display: none; }
+  .morph-shape { display: none; }
+  .blinkers { display: none; }
+}
+@media (max-width: 480px) {
+  nav { padding: 0 12px; }
+  nav .nav-links { gap: 10px; }
+  nav .nav-links a { font-size: 10px; }
+  .now-playing { flex-direction: column; text-align: center; }
+}
+</style>
+</head>
+<body>
+<div class="circuit-bg"></div>
+
+<!-- Decorative elements -->
+<div class="doily" style="top: 300px; right: 5%; z-index:0;"></div>
+<div class="doily" style="top: 1400px; left: 3%; z-index:0;"></div>
+<div class="morph-shape" style="top: 250px; left: 8%; border-radius: 30% 70% 70% 30% / 30% 30% 70% 70%; z-index:0;"></div>
+<div class="morph-shape" style="top: 800px; right: 6%; border-radius: 60% 40% 30% 70% / 60% 30% 70% 40%; z-index:0;"></div>
+<div class="morph-shape" style="top: 2000px; left: 4%; border-radius: 40% 60% 60% 40% / 70% 30% 70% 30%; z-index:0;"></div>
+
+<nav>
+  <div class="logo">Project Nightingale</div>
+  <div class="nav-links">
+    <a href="#status">Status</a>
+    <a href="#launches">Launches</a>
+    <a href="#reviews">Reviews</a>
+    <a href="#lounge">Lounge</a>
+    <div class="live-badge">
+      <div class="live-dot"></div>
+      Jazz Live
+    </div>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="blinkers" style="top: 100px; left: 10%;">
+    <div class="blink"></div><div class="blink"></div><div class="blink"></div><div class="blink"></div>
+  </div>
+  <div class="blinkers" style="top: 160px; right: 12%;">
+    <div class="blink"></div><div class="blink"></div><div class="blink"></div><div class="blink"></div>
+  </div>
+  <div class="hero-content">
+    <div class="rocket-art">
+      <div class="rocket-fin-left"></div>
+      <div class="rocket-fin-right"></div>
+      <div class="rocket-body"></div>
+      <div class="rocket-window"></div>
+      <div class="rocket-tube-left"></div>
+      <div class="rocket-tube-right"></div>
+      <div class="rocket-flame"></div>
+    </div>
+    <h1>
+      Project Nightingale
+      <span>Museum of Magnificent Mistakes &bull; Space Division</span>
+    </h1>
+    <p class="motto">"Ad Astra Per Aspera... <em>and copious amounts of gin.</em>"</p>
+  </div>
+
+  <div style="position:absolute; bottom: 40px; left: 50%; transform: translateX(-50%); display: flex; gap: 20px;">
+    <div class="tube"><div class="glass"></div><div class="filament"></div><div class="base"></div></div>
+    <div class="tube"><div class="glass"></div><div class="filament"></div><div class="base"></div></div>
+    <div class="tube"><div class="glass"></div><div class="filament"></div><div class="base"></div></div>
+  </div>
+</section>
+
+<!-- MISSION STATUS -->
+<section class="mission-status clip-top" id="status">
+  <div style="max-width:900px; margin:0 auto;">
+    <p class="section-title">Mission Control</p>
+    <h2 class="section-heading">Current Status</h2>
+  </div>
+  <div class="status-board">
+    <div class="status-header">
+      <h3>System Dashboard</h3>
+      <div class="status-indicator">Recalibrating</div>
+    </div>
+    <div class="status-row">
+      <div class="status-label">Mission</div>
+      <div class="status-value">Nightingale-48 "Operation Gin Fizz"</div>
+    </div>
+    <div class="status-row">
+      <div class="status-label">Vehicle</div>
+      <div class="status-value warning">PN-XII "The Compensator" (rebuilt 6 times)</div>
+    </div>
+    <div class="status-row">
+      <div class="status-label">Fuel Status</div>
+      <div class="status-value danger">47% — Intern Kevin spilled the rest on Tuesday</div>
+    </div>
+    <div class="status-row">
+      <div class="status-label">Altitude Record</div>
+      <div class="status-value">342 ft (Launch 31, before it veered into the Tesco car park)</div>
+    </div>
+    <div class="status-row">
+      <div class="status-label">Days Since Incident</div>
+      <div class="status-value danger">0</div>
+    </div>
+    <div class="status-row">
+      <div class="status-label">Jazz Morale Index</div>
+      <div class="status-value">Melancholic-to-Resigned (nominal)</div>
+    </div>
+    <div class="status-row">
+      <div class="status-label">AetherCorp Threat</div>
+      <div class="status-value warning">Elevated. They posted another smug press release.</div>
+    </div>
+  </div>
+</section>
+
+<!-- LAUNCH LOG -->
+<section class="launch-log clip-top" id="launches">
+  <div style="max-width:1000px; margin:0 auto;">
+    <p class="section-title">Launch Archive</p>
+    <h2 class="section-heading">Recent Attempts</h2>
+  </div>
+  <div class="log-grid">
+    <div class="log-card">
+      <div class="log-number">Launch 47 &bull; Last Thursday</div>
+      <div class="log-title">"The Audacity"</div>
+      <div class="log-desc">Promising first 8 seconds. Then the starboard vacuum tube array overheated and the craft performed what we're calling an "unplanned lateral excursion" into Mrs. Pemberton's greenhouse. She's invoicing us for the orchids.</div>
+      <div class="log-altitude">Peak: 89 ft | Duration: 11s | Orchids destroyed: 14</div>
+    </div>
+    <div class="log-card">
+      <div class="log-number">Launch 44 &bull; 12 Jan</div>
+      <div class="log-title">"Evelyn's Folly II"</div>
+      <div class="log-desc">The craft achieved vertical lift but the nosecone detached at 200ft and embedded itself in the Little Piddling village sign. The body continued upward for another 142ft. We're counting this as two separate records.</div>
+      <div class="log-altitude">Peak: 342 ft (combined) | Status: Partial success</div>
+    </div>
+    <div class="log-card">
+      <div class="log-number">Launch 41 &bull; 28 Dec</div>
+      <div class="log-title">"New Year's Resolution"</div>
+      <div class="log-desc">Did not launch. Kevin had wired the ignition to the coffee machine. We discovered this when Sandra pressed the brew button and the launchpad caught fire. The coffee was fine.</div>
+      <div class="log-altitude">Peak: 0 ft | Coffee quality: Excellent</div>
+    </div>
+    <div class="log-card">
+      <div class="log-number">Launch 38 &bull; 15 Nov</div>
+      <div class="log-title">"The Dignified Retreat"</div>
+      <div class="log-desc">Launched successfully but the guidance system, sourced from a 1994 TomTom, directed the rocket toward Birmingham. We lost contact at 310ft. If you're in the West Midlands area and find a chrome cylinder with "PN" painted on it, that's ours.</div>
+      <div class="log-altitude">Peak: 310 ft | Current location: Unknown</div>
+    </div>
+  </div>
+</section>
+
+<!-- HAIKU REVIEWS -->
+<section class="haiku-section clip-top" id="reviews">
+  <div style="max-width:1000px; margin:0 auto;">
+    <p class="section-title">Visitor Reviews</p>
+    <h2 class="section-heading">Haiku Only, Please</h2>
+    <p style="color:#c0b0d8; max-width:600px; margin-bottom:40px; font-size:16px;">Per Evelyn's directive, all reviews of Project Nightingale launches must be submitted in haiku form. "If you can't express it in seventeen syllables, you haven't suffered enough." — E.P.</p>
+  </div>
+  <div class="haiku-grid">
+    <div class="haiku-card">
+      <div class="haiku-text">
+        Engine sputtered out<br>
+        Dreams of space now just debris<br>
+        Back to the drawing
+      </div>
+      <div class="haiku-author">— Gerald T., Season Pass Holder</div>
+      <div class="haiku-stars">&#9733;&#9733;&#9733;&#9734;&#9734;</div>
+    </div>
+    <div class="haiku-card">
+      <div class="haiku-text">
+        She said "this time, sure"<br>
+        Gin in hand, eyes full of hope<br>
+        Crater in the field
+      </div>
+      <div class="haiku-author">— Dr. Anish Patel, Health & Safety</div>
+      <div class="haiku-stars">&#9733;&#9733;&#9733;&#9733;&#9734;</div>
+    </div>
+    <div class="haiku-card">
+      <div class="haiku-text">
+        Jazz was beautiful<br>
+        Explosion was beautiful<br>
+        My car was not spared
+      </div>
+      <div class="haiku-author">— Margaret Oakes, Innocent Bystander</div>
+      <div class="haiku-stars">&#9733;&#9733;&#9734;&#9734;&#9734;</div>
+    </div>
+    <div class="haiku-card">
+      <div class="haiku-text">
+        Forty-seven tries<br>
+        A lesser fool would have stopped<br>
+        I respect this fool
+      </div>
+      <div class="haiku-author">— Kevin, Intern (Unpaid)</div>
+      <div class="haiku-stars">&#9733;&#9733;&#9733;&#9733;&#9733;</div>
+    </div>
+    <div class="haiku-card">
+      <div class="haiku-text">
+        The bassist just stares<br>
+        Into middle distance, lost<br>
+        Same song for three hours
+      </div>
+      <div class="haiku-author">— Phil Hartmann, Lounge Reviewer</div>
+      <div class="haiku-stars">&#9733;&#9733;&#9733;&#9733;&#9734;</div>
+    </div>
+    <div class="haiku-card">
+      <div class="haiku-text">
+        AetherCorp has cash<br>
+        We have duct tape and a dream<br>
+        And a gin surplus
+      </div>
+      <div class="haiku-author">— Evelyn P., Founder & Director</div>
+      <div class="haiku-stars">&#9733;&#9733;&#9733;&#9733;&#9733;</div>
+    </div>
+  </div>
+</section>
+
+<!-- JAZZ LOUNGE -->
+<section class="jazz-section clip-top" id="lounge">
+  <div class="jazz-content">
+    <p class="section-title">Launchpad Lounge</p>
+    <h2 class="section-heading">24/7 Live Jazz</h2>
+
+    <div class="now-playing">
+      <div class="eq-bars">
+        <div class="eq-bar"></div>
+        <div class="eq-bar"></div>
+        <div class="eq-bar"></div>
+        <div class="eq-bar"></div>
+        <div class="eq-bar"></div>
+      </div>
+      <div class="now-playing-text">
+        <div class="now-playing-label">Now Playing &bull; Hour 10,247</div>
+        <div class="now-playing-song">"Ballad for a Falling Object (Reprise)"</div>
+      </div>
+    </div>
+
+    <p style="color:#c0b0d8; margin-bottom:30px; max-width:650px;">The Apogee Three have been performing continuously in the Launchpad Lounge since October 2023. They are contractually obligated to play until we reach orbit. Morale varies.</p>
+
+    <div class="trio-grid">
+      <div class="trio-card">
+        <div class="trio-instrument">Upright Bass</div>
+        <div class="trio-name">Desmond Fairweather</div>
+        <div class="trio-bio">Former London Philharmonic. Lost a bet to Evelyn in 2022. Has not slept since March. His bass notes have begun to sound like weeping.</div>
+      </div>
+      <div class="trio-card">
+        <div class="trio-instrument">Piano</div>
+        <div class="trio-name">Yuki Tanaka-Smythe</div>
+        <div class="trio-bio">Classically trained, emotionally devastated. Composes one new piece per failed launch. Her catalogue now exceeds 47 works, all in minor keys.</div>
+      </div>
+      <div class="trio-card">
+        <div class="trio-instrument">Trumpet (Muted)</div>
+        <div class="trio-name">Clarence "Biscuit" Holloway</div>
+        <div class="trio-bio">Age 74. Says he's "seen worse gigs." Won't elaborate. The mute on his trumpet has not been removed since Launch 12. Nobody's asked why.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- AETHERCORP RANT -->
+<section class="rant-section clip-top">
+  <div class="rant-content">
+    <p class="section-title">Official Statement</p>
+    <h2 class="section-heading">RE: AetherCorp</h2>
+
+    <div class="manifesto">
+      <p>Let me be perfectly clear about AetherCorp and their gleaming, soulless, <em>obscenely well-funded</em> excuse for a space programme.</p>
+      <p>They have $4.2 billion. We have a weather balloon, three vacuum tubes from a 1962 Philips radiogram, and Desmond's bass, which I'm fairly certain has achieved sentience.</p>
+      <p>They have 300 aerospace engineers. We have Kevin. Kevin once wired our ignition system to the coffee machine. But Kevin has <em>heart</em>. Kevin cried during Launch 31 — not because it exploded, but because it was "the most beautiful thing he'd ever seen." That is what AetherCorp will never have.</p>
+      <p>Their CEO, Maximilian Stroud-Whitley, called our programme "charmingly quaint" on Radio 4. Charmingly quaint. I have been to space, Maximilian. Briefly. Emotionally. And I will get there physically if it takes every last penny of my inheritance and every orchid in Mrs. Pemberton's greenhouse.</p>
+      <p class="signature">— Evelyn Periwinkle, Director<br>Museum of Magnificent Mistakes, Space Division<br>Written at 3:47 AM, two gins in</p>
+    </div>
+  </div>
+</section>
+
+<!-- DONATE -->
+<section class="donate-section clip-top" id="donate">
+  <div class="donate-content">
+    <p class="section-title">Financial Matters</p>
+    <h2 class="section-heading">Fund Our Imminent Doom</h2>
+    <p class="donate-tagline">Your money will almost certainly be wasted. But it will be wasted <em style="color:var(--cyan);">beautifully</em>.</p>
+
+    <div class="donate-tiers">
+      <div class="donate-tier">
+        <div class="tier-amount">£5</div>
+        <div class="tier-name">Enabler</div>
+        <div class="tier-perk">A "thank you" email written by Kevin (spelling not guaranteed)</div>
+      </div>
+      <div class="donate-tier">
+        <div class="tier-amount">£25</div>
+        <div class="tier-name">Accomplice</div>
+        <div class="tier-perk">Name a vacuum tube. Ours have names. Yours can too.</div>
+      </div>
+      <div class="donate-tier">
+        <div class="tier-amount">£100</div>
+        <div class="tier-name">Co-Conspirator</div>
+        <div class="tier-perk">Front-row seat at next launch. Helmet provided. Waiver required.</div>
+      </div>
+      <div class="donate-tier">
+        <div class="tier-amount">£500</div>
+        <div class="tier-name">Patron of Chaos</div>
+        <div class="tier-perk">Evelyn will personally pour you a gin and explain where it all went wrong.</div>
+      </div>
+    </div>
+    <p class="donate-note">All donations are non-refundable, non-tax-deductible, and non-sensical. We are not a registered charity. We are barely a registered anything.</p>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-content">
+    <div class="footer-stats">
+      <div class="stat">
+        <div class="stat-number">47</div>
+        <div class="stat-label">Launches</div>
+      </div>
+      <div class="stat">
+        <div class="stat-number">0</div>
+        <div class="stat-label">Orbits</div>
+      </div>
+      <div class="stat">
+        <div class="stat-number">342</div>
+        <div class="stat-label">Feet (Record)</div>
+      </div>
+      <div class="stat">
+        <div class="stat-number">10,247</div>
+        <div class="stat-label">Hours of Jazz</div>
+      </div>
+    </div>
+    <div class="footer-legal">
+      Project Nightingale is a division of the Museum of Magnificent Mistakes, Little Piddling, UK. Est. 1998. We are not affiliated with AetherCorp, NASA, ESA, or any competent organisation. The Apogee Three are performing voluntarily (legally speaking). No pigeons were harmed in the making of this website. Several orchids were.
+    </div>
+  </div>
+</footer>
+
+<script src="/assets/js/gsap.min.js"></script>
+<script>
+(function() {
+  // Animate sections on scroll
+  const observer = new IntersectionObserver(function(entries) {
+    entries.forEach(function(entry) {
+      if (entry.isIntersecting) {
+        gsap.fromTo(entry.target,
+          { y: 30, opacity: 0 },
+          { y: 0, opacity: 1, duration: 0.8, ease: 'power2.out' }
+        );
+        observer.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.1 });
+
+  document.querySelectorAll('.status-board, .log-card, .haiku-card, .trio-card, .manifesto, .donate-tier, .now-playing').forEach(function(el) {
+    el.style.opacity = '0';
+    observer.observe(el);
+  });
+
+  // Stagger log cards
+  var logCards = document.querySelectorAll('.log-card');
+  var logObserver = new IntersectionObserver(function(entries) {
+    var visible = entries.filter(function(e) { return e.isIntersecting; });
+    if (visible.length) {
+      logCards.forEach(function(card, i) {
+        gsap.fromTo(card,
+          { y: 40, opacity: 0 },
+          { y: 0, opacity: 1, duration: 0.6, delay: i * 0.15, ease: 'power2.out' }
+        );
+      });
+      logObserver.disconnect();
+    }
+  }, { threshold: 0.1 });
+  if (logCards.length) logObserver.observe(logCards[0]);
+
+  // Haiku card stagger
+  var haikuCards = document.querySelectorAll('.haiku-card');
+  var haikuObserver = new IntersectionObserver(function(entries) {
+    var visible = entries.filter(function(e) { return e.isIntersecting; });
+    if (visible.length) {
+      haikuCards.forEach(function(card, i) {
+        gsap.fromTo(card,
+          { y: 30, opacity: 0, scale: 0.95 },
+          { y: 0, opacity: 1, scale: 1, duration: 0.5, delay: i * 0.1, ease: 'back.out(1.2)' }
+        );
+      });
+      haikuObserver.disconnect();
+    }
+  }, { threshold: 0.1 });
+  if (haikuCards.length) haikuObserver.observe(haikuCards[0]);
+
+  // Rocket hover float
+  var rocket = document.querySelector('.rocket-art');
+  if (rocket) {
+    gsap.to(rocket, {
+      y: -10,
+      duration: 2,
+      ease: 'sine.inOut',
+      yoyo: true,
+      repeat: -1
+    });
+  }
+
+  // Smooth nav scroll
+  document.querySelectorAll('nav a[href^="#"]').forEach(function(link) {
+    link.addEventListener('click', function(e) {
+      e.preventDefault();
+      var target = document.querySelector(this.getAttribute('href'));
+      if (target) {
+        target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+    });
+  });
+
+  // Days since incident counter (always 0, but animate it)
+  var dangerValues = document.querySelectorAll('.status-value.danger');
+  dangerValues.forEach(function(el) {
+    if (el.textContent.trim() === '0') {
+      setInterval(function() {
+        el.style.opacity = el.style.opacity === '0.5' ? '1' : '0.5';
+      }, 800);
+    }
+  });
+})();
+</script>
+</body>
+</html>

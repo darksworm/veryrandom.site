@@ -1,0 +1,1279 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Fuzzbottom Financial — Chainmail & Change</title>
+<link rel="stylesheet" href="/assets/css/fonts.css">
+<style>
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+:root {
+  --moss: #39FF14;
+  --moss-dark: #1a7a0a;
+  --stone: #1a1a1a;
+  --stone-mid: #2a2a2a;
+  --stone-light: #3a3a3a;
+  --parchment: #e8e0d0;
+  --rust: #8B4513;
+  --text: #e0e0e0;
+  --text-bright: #ffffff;
+  --text-dim: #b0b0b0;
+}
+
+html { scroll-behavior: smooth; }
+
+body {
+  font-family: 'IBM Plex Mono', monospace;
+  background: var(--stone);
+  color: var(--text);
+  min-height: 100vh;
+  overflow-x: hidden;
+  font-size: 16px;
+  line-height: 1.6;
+}
+
+/* === SIDEBAR === */
+.sidebar {
+  position: fixed;
+  top: 0; left: 0;
+  width: 260px;
+  height: 100vh;
+  background: var(--stone-mid);
+  border-right: 3px solid var(--moss);
+  z-index: 100;
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+}
+
+.sidebar-header {
+  padding: 24px 20px 16px;
+  border-bottom: 1px solid var(--stone-light);
+}
+
+.sidebar-header h1 {
+  font-family: 'Playfair Display', serif;
+  font-size: 18px;
+  color: var(--moss);
+  letter-spacing: 1px;
+  line-height: 1.3;
+}
+
+.sidebar-header .subtitle {
+  font-size: 11px;
+  color: var(--text-dim);
+  margin-top: 4px;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+}
+
+.sidebar-nav { padding: 16px 0; flex: 1; }
+
+.sidebar-nav a {
+  display: block;
+  padding: 10px 20px;
+  color: var(--text);
+  text-decoration: none;
+  font-size: 13px;
+  border-left: 3px solid transparent;
+  transition: all 0.2s;
+}
+
+.sidebar-nav a:hover {
+  background: var(--stone-light);
+  border-left-color: var(--moss);
+  color: var(--text-bright);
+}
+
+.sidebar-nav a .nav-icon {
+  display: inline-block;
+  width: 20px;
+  margin-right: 8px;
+  text-align: center;
+}
+
+.sidebar-status {
+  padding: 16px 20px;
+  border-top: 1px solid var(--stone-light);
+  font-size: 11px;
+}
+
+.status-dot {
+  display: inline-block;
+  width: 8px; height: 8px;
+  background: var(--moss);
+  border-radius: 50%;
+  margin-right: 6px;
+  animation: pulse-dot 2s infinite;
+}
+
+@keyframes pulse-dot {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.3; }
+}
+
+/* === MAIN CONTENT === */
+.main {
+  margin-left: 260px;
+  min-height: 100vh;
+}
+
+/* === MOBILE NAV === */
+.mobile-nav {
+  display: none;
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  height: 56px;
+  background: var(--stone-mid);
+  border-bottom: 3px solid var(--moss);
+  z-index: 101;
+  align-items: center;
+  padding: 0 16px;
+}
+
+.mobile-nav h1 {
+  font-family: 'Playfair Display', serif;
+  font-size: 16px;
+  color: var(--moss);
+}
+
+.hamburger {
+  background: none; border: none; cursor: pointer;
+  width: 44px; height: 44px;
+  display: flex; align-items: center; justify-content: center;
+}
+.hamburger span, .hamburger span::before, .hamburger span::after {
+  display: block; width: 24px; height: 2px;
+  background: var(--text-bright); position: relative;
+  transition: 0.3s;
+}
+.hamburger span::before, .hamburger span::after {
+  content: ''; position: absolute; left: 0;
+}
+.hamburger span::before { top: -7px; }
+.hamburger span::after { top: 7px; }
+
+/* === HERO === */
+.hero {
+  position: relative;
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  background: linear-gradient(180deg, var(--stone) 0%, #0d1a0d 100%);
+}
+
+/* Moss creep effect on hero */
+.hero::before {
+  content: '';
+  position: absolute;
+  bottom: 0; left: 0; right: 0;
+  height: 40%;
+  background: linear-gradient(0deg,
+    rgba(26, 122, 10, 0.3) 0%,
+    rgba(26, 122, 10, 0.1) 40%,
+    transparent 100%
+  );
+  pointer-events: none;
+}
+
+.hero::after {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background:
+    radial-gradient(ellipse 120px 120px at 10% 80%, rgba(57, 255, 20, 0.15), transparent),
+    radial-gradient(ellipse 80px 200px at 95% 60%, rgba(57, 255, 20, 0.1), transparent),
+    radial-gradient(ellipse 200px 60px at 50% 95%, rgba(57, 255, 20, 0.2), transparent);
+  pointer-events: none;
+  animation: moss-shift 8s ease-in-out infinite alternate;
+}
+
+@keyframes moss-shift {
+  0% { opacity: 0.6; }
+  100% { opacity: 1; }
+}
+
+.hero-content {
+  position: relative;
+  z-index: 2;
+  text-align: center;
+  padding: 40px 20px;
+}
+
+/* === CSS ART: CAT IN ARMOR HELMET === */
+.cat-helm {
+  width: 200px;
+  height: 240px;
+  margin: 0 auto 40px;
+  position: relative;
+  cursor: pointer;
+}
+
+/* Helmet body */
+.helm-body {
+  width: 160px;
+  height: 180px;
+  background: linear-gradient(135deg, #555 0%, #333 50%, #444 100%);
+  border-radius: 80px 80px 40px 40px;
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  border: 3px solid #666;
+  overflow: hidden;
+  transition: all 0.4s;
+}
+
+/* Visor slit */
+.helm-visor {
+  width: 120px;
+  height: 12px;
+  background: #111;
+  position: absolute;
+  top: 70px;
+  left: 50%;
+  transform: translateX(-50%);
+  border: 2px solid #555;
+}
+
+/* Cat eyes glowing through visor */
+.cat-eye {
+  width: 16px;
+  height: 10px;
+  background: var(--moss);
+  border-radius: 50%;
+  position: absolute;
+  top: 71px;
+  box-shadow: 0 0 12px var(--moss), 0 0 24px rgba(57, 255, 20, 0.4);
+  transition: all 0.3s;
+}
+.cat-eye.left { left: calc(50% - 30px); }
+.cat-eye.right { left: calc(50% + 14px); }
+
+/* Helmet crest / plume */
+.helm-crest {
+  width: 20px;
+  height: 60px;
+  background: linear-gradient(180deg, var(--moss) 0%, var(--moss-dark) 100%);
+  position: absolute;
+  top: -20px;
+  left: 50%;
+  transform: translateX(-50%);
+  border-radius: 10px 10px 0 0;
+  clip-path: polygon(30% 0%, 70% 0%, 100% 100%, 0% 100%);
+}
+
+/* Nose guard */
+.helm-nose {
+  width: 30px;
+  height: 50px;
+  background: linear-gradient(180deg, #555, #444);
+  position: absolute;
+  top: 55px;
+  left: 50%;
+  transform: translateX(-50%);
+  clip-path: polygon(50% 0%, 100% 30%, 80% 100%, 20% 100%, 0% 30%);
+  border: 1px solid #666;
+}
+
+/* Rivets */
+.rivet {
+  width: 8px; height: 8px;
+  background: radial-gradient(circle, #888 0%, #555 100%);
+  border-radius: 50%;
+  position: absolute;
+  border: 1px solid #999;
+}
+.rivet-1 { top: 40px; left: 20px; }
+.rivet-2 { top: 40px; right: 20px; }
+.rivet-3 { top: 100px; left: 15px; }
+.rivet-4 { top: 100px; right: 15px; }
+
+/* Moss on helmet */
+.helm-moss {
+  position: absolute;
+  background: var(--moss-dark);
+  border-radius: 50%;
+  opacity: 0.7;
+}
+.helm-moss-1 { width: 30px; height: 12px; bottom: 10px; left: 5px; }
+.helm-moss-2 { width: 20px; height: 8px; bottom: 25px; right: 10px; }
+.helm-moss-3 { width: 15px; height: 10px; top: 30px; left: 10px; opacity: 0.5; }
+
+/* Cat ears poking through armor */
+.cat-ear {
+  width: 0; height: 0;
+  position: absolute;
+  top: -10px;
+  border-left: 18px solid transparent;
+  border-right: 18px solid transparent;
+  border-bottom: 30px solid #555;
+}
+.cat-ear::after {
+  content: '';
+  position: absolute;
+  top: 8px; left: -12px;
+  border-left: 12px solid transparent;
+  border-right: 12px solid transparent;
+  border-bottom: 20px solid var(--moss-dark);
+}
+.cat-ear.left { left: 20px; transform: rotate(-10deg); }
+.cat-ear.right { right: 20px; transform: rotate(10deg); }
+
+/* Hover: visor opens, eyes intensify */
+.cat-helm:hover .cat-eye {
+  height: 14px;
+  box-shadow: 0 0 20px var(--moss), 0 0 40px rgba(57, 255, 20, 0.6);
+}
+.cat-helm:hover .helm-body {
+  border-color: var(--moss-dark);
+}
+
+.hero-title {
+  font-family: 'Playfair Display', serif;
+  font-size: clamp(28px, 5vw, 56px);
+  color: var(--text-bright);
+  margin-bottom: 8px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+}
+
+.hero-tagline {
+  font-size: clamp(14px, 2vw, 18px);
+  color: var(--moss);
+  margin-bottom: 40px;
+  letter-spacing: 4px;
+  text-transform: uppercase;
+}
+
+/* Countdown */
+.countdown {
+  display: flex;
+  gap: 16px;
+  justify-content: center;
+  flex-wrap: wrap;
+  margin-bottom: 24px;
+}
+
+.countdown-unit {
+  background: var(--stone-mid);
+  border: 1px solid var(--stone-light);
+  padding: 12px 16px;
+  min-width: 80px;
+  text-align: center;
+}
+
+.countdown-num {
+  font-size: clamp(24px, 4vw, 40px);
+  color: var(--text-bright);
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+.countdown-label {
+  font-size: 10px;
+  color: var(--text-dim);
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  margin-top: 4px;
+}
+
+.countdown-note {
+  font-size: 11px;
+  color: #777777;
+}
+
+/* === SECTION STYLING === */
+section {
+  padding: clamp(40px, 8vw, 80px) clamp(20px, 4vw, 60px);
+  border-top: 1px solid var(--stone-light);
+  position: relative;
+}
+
+.section-label {
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 4px;
+  color: var(--moss);
+  margin-bottom: 24px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--stone-light);
+  display: inline-block;
+}
+
+/* === MARKET OMENS DASHBOARD === */
+.omens {
+  background: var(--stone-mid);
+  position: relative;
+  overflow: hidden;
+}
+
+/* Animated pigeons */
+.pigeon-field {
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 120px;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.pigeon {
+  position: absolute;
+  font-size: 0;
+  animation: fly-across linear infinite;
+}
+
+.pigeon::before {
+  content: '';
+  display: block;
+  width: 30px;
+  height: 8px;
+  background: var(--text-dim);
+  clip-path: polygon(0% 50%, 30% 0%, 60% 50%, 100% 20%, 60% 50%, 30% 100%);
+  animation: flap 0.4s ease-in-out infinite alternate;
+}
+
+.pigeon:nth-child(1) { top: 20px; animation-duration: 12s; animation-delay: 0s; }
+.pigeon:nth-child(2) { top: 50px; animation-duration: 9s; animation-delay: -3s; }
+.pigeon:nth-child(3) { top: 35px; animation-duration: 15s; animation-delay: -7s; }
+.pigeon:nth-child(4) { top: 70px; animation-duration: 11s; animation-delay: -1s; }
+.pigeon:nth-child(5) { top: 15px; animation-duration: 14s; animation-delay: -5s; }
+
+@keyframes fly-across {
+  0% { left: -40px; }
+  100% { left: calc(100% + 40px); }
+}
+
+@keyframes flap {
+  0% { transform: scaleY(1); }
+  100% { transform: scaleY(-1); }
+}
+
+.omens-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 16px;
+  margin-top: 24px;
+  position: relative;
+  z-index: 2;
+}
+
+.omen-card {
+  background: var(--stone);
+  border: 1px solid var(--stone-light);
+  padding: 20px;
+  transition: all 0.3s;
+  cursor: default;
+}
+
+.omen-card:hover {
+  border-color: var(--moss);
+  box-shadow: 0 0 20px rgba(57, 255, 20, 0.1);
+}
+
+.omen-card:hover .omen-value {
+  text-shadow: 0 0 10px currentColor;
+}
+
+.omen-title {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  color: var(--text-dim);
+  margin-bottom: 8px;
+}
+
+.omen-value {
+  font-size: clamp(20px, 3vw, 28px);
+  font-weight: 700;
+  transition: text-shadow 0.3s;
+}
+
+.omen-value.positive { color: var(--moss); }
+.omen-value.negative { color: #ff4444; }
+.omen-value.neutral { color: var(--parchment); }
+
+.omen-detail {
+  font-size: 12px;
+  color: #888888;
+  margin-top: 6px;
+}
+
+.omen-reading {
+  margin-top: 24px;
+  padding: 20px;
+  background: var(--stone);
+  border-left: 3px solid var(--moss);
+  position: relative;
+  z-index: 2;
+}
+
+.omen-reading p {
+  font-family: 'Crimson Pro', serif;
+  font-size: 18px;
+  color: var(--text);
+  font-style: italic;
+}
+
+.omen-reading cite {
+  display: block;
+  font-size: 12px;
+  color: #888888;
+  margin-top: 8px;
+  font-style: normal;
+}
+
+/* === DRAGON'S HOARD === */
+.hoard {
+  background: linear-gradient(135deg, var(--stone) 0%, #1a0d0d 100%);
+}
+
+.hoard-card {
+  max-width: 500px;
+  border: 2px solid var(--moss);
+  padding: 32px;
+  position: relative;
+  margin-top: 24px;
+}
+
+.hoard-card::before {
+  content: 'HIGH RISK';
+  position: absolute;
+  top: -1px; right: -1px;
+  background: #ff4444;
+  color: var(--text-bright);
+  font-size: 10px;
+  padding: 4px 12px;
+  letter-spacing: 2px;
+  font-weight: 700;
+}
+
+/* Moss creep on card corners */
+.hoard-card::after {
+  content: '';
+  position: absolute;
+  bottom: 0; left: 0;
+  width: 80px; height: 40px;
+  background: radial-gradient(ellipse at bottom left, rgba(26, 122, 10, 0.4), transparent 70%);
+  pointer-events: none;
+}
+
+.hoard-name {
+  font-family: 'Playfair Display', serif;
+  font-size: clamp(22px, 3vw, 30px);
+  color: var(--text-bright);
+  margin-bottom: 4px;
+}
+
+.hoard-yield {
+  font-size: 14px;
+  color: var(--moss);
+  margin-bottom: 16px;
+}
+
+.hoard-desc {
+  font-size: 14px;
+  color: var(--text);
+  margin-bottom: 16px;
+  line-height: 1.7;
+}
+
+.hoard-price {
+  font-size: clamp(28px, 4vw, 36px);
+  color: var(--text-bright);
+  font-weight: 700;
+  margin-bottom: 8px;
+}
+
+.hoard-fine {
+  font-size: 11px;
+  color: #888888;
+  line-height: 1.5;
+}
+
+.hoard-btn {
+  display: inline-block;
+  margin-top: 20px;
+  padding: 14px 32px;
+  background: var(--moss);
+  color: var(--stone);
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 13px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  border: none;
+  cursor: pointer;
+  transition: all 0.3s;
+  min-height: 44px;
+}
+
+.hoard-btn:hover {
+  background: var(--text-bright);
+  box-shadow: 0 0 30px rgba(57, 255, 20, 0.3);
+}
+
+/* === PHILOSOPHY / FOLLY === */
+.folly {
+  background: var(--stone);
+}
+
+.folly-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 24px;
+  margin-top: 24px;
+}
+
+.tenet {
+  padding: 24px;
+  border: 1px solid var(--stone-light);
+  position: relative;
+  transition: all 0.4s;
+}
+
+.tenet:hover {
+  border-color: var(--moss);
+  transform: translateY(-2px);
+}
+
+/* Moss creep grows on hover */
+.tenet::after {
+  content: '';
+  position: absolute;
+  bottom: 0; left: 0; right: 0;
+  height: 0;
+  background: linear-gradient(0deg, rgba(26, 122, 10, 0.15), transparent);
+  transition: height 0.6s ease;
+  pointer-events: none;
+}
+
+.tenet:hover::after {
+  height: 100%;
+}
+
+.tenet-num {
+  font-size: 48px;
+  font-weight: 700;
+  color: var(--stone-light);
+  font-family: 'Playfair Display', serif;
+  line-height: 1;
+  margin-bottom: 12px;
+  transition: color 0.4s;
+}
+
+.tenet:hover .tenet-num {
+  color: var(--moss-dark);
+}
+
+.tenet h3 {
+  font-family: 'Playfair Display', serif;
+  font-size: 18px;
+  color: var(--text-bright);
+  margin-bottom: 8px;
+}
+
+.tenet p {
+  font-size: 14px;
+  color: var(--text);
+  line-height: 1.6;
+}
+
+/* === TESTIMONIALS === */
+.testimonials {
+  background: var(--stone-mid);
+}
+
+.testimonial-list {
+  margin-top: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.testimonial {
+  padding: 24px;
+  border-left: 3px solid var(--stone-light);
+  transition: border-color 0.3s;
+  max-width: 600px;
+}
+
+.testimonial:hover {
+  border-left-color: var(--moss);
+}
+
+.testimonial blockquote {
+  font-family: 'Crimson Pro', serif;
+  font-size: clamp(16px, 2vw, 20px);
+  color: var(--text);
+  font-style: italic;
+  line-height: 1.6;
+  margin: 0;
+}
+
+.testimonial cite {
+  display: block;
+  font-size: 12px;
+  color: #888888;
+  margin-top: 12px;
+  font-style: normal;
+  font-family: 'IBM Plex Mono', monospace;
+}
+
+.testimonial .stars {
+  color: var(--moss);
+  font-size: 14px;
+  margin-top: 4px;
+}
+
+/* === CSS ART: MOSS TERRAIN === */
+.moss-divider {
+  height: 60px;
+  position: relative;
+  overflow: hidden;
+  background: var(--stone);
+}
+
+.moss-divider::before {
+  content: '';
+  position: absolute;
+  bottom: 0; left: 0; right: 0;
+  height: 100%;
+  background:
+    radial-gradient(ellipse 60px 40px at 10% 100%, var(--moss-dark) 0%, transparent 70%),
+    radial-gradient(ellipse 100px 30px at 30% 100%, rgba(26, 122, 10, 0.5) 0%, transparent 70%),
+    radial-gradient(ellipse 50px 45px at 55% 100%, var(--moss-dark) 0%, transparent 70%),
+    radial-gradient(ellipse 120px 25px at 75% 100%, rgba(57, 255, 20, 0.2) 0%, transparent 70%),
+    radial-gradient(ellipse 80px 35px at 90% 100%, var(--moss-dark) 0%, transparent 70%);
+}
+
+/* === BROADSWORD STORE === */
+.store {
+  background: var(--stone);
+}
+
+.sword-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 20px;
+  margin-top: 24px;
+}
+
+.sword-card {
+  border: 1px solid var(--stone-light);
+  padding: 24px;
+  text-align: center;
+  position: relative;
+  transition: all 0.3s;
+}
+
+.sword-card:hover {
+  border-color: var(--rust);
+  background: rgba(139, 69, 19, 0.05);
+}
+
+/* CSS Sword */
+.css-sword {
+  width: 20px;
+  height: 100px;
+  margin: 0 auto 16px;
+  position: relative;
+}
+
+.sword-blade {
+  width: 12px;
+  height: 60px;
+  background: linear-gradient(90deg, #aaa, #ddd, #aaa);
+  margin: 0 auto;
+  clip-path: polygon(20% 0%, 80% 0%, 100% 90%, 50% 100%, 0% 90%);
+}
+
+.sword-guard {
+  width: 40px;
+  height: 8px;
+  background: linear-gradient(90deg, #8B6914, #D4A534, #8B6914);
+  margin: 0 auto;
+  border-radius: 2px;
+}
+
+.sword-grip {
+  width: 10px;
+  height: 24px;
+  background: repeating-linear-gradient(0deg, #5a3a1a, #5a3a1a 3px, #7a5a3a 3px, #7a5a3a 6px);
+  margin: 0 auto;
+}
+
+.sword-pommel {
+  width: 16px;
+  height: 10px;
+  background: radial-gradient(circle, #D4A534, #8B6914);
+  margin: 0 auto;
+  border-radius: 50%;
+}
+
+.sword-name {
+  font-family: 'Playfair Display', serif;
+  font-size: 16px;
+  color: var(--text-bright);
+  margin-bottom: 4px;
+}
+
+.sword-curse {
+  font-size: 11px;
+  color: #ff4444;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin-bottom: 8px;
+}
+
+.sword-price {
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--text-bright);
+}
+
+.sword-note {
+  font-size: 11px;
+  color: #888888;
+  margin-top: 4px;
+}
+
+/* === FOOTER === */
+footer {
+  padding: 40px clamp(20px, 4vw, 60px);
+  border-top: 3px solid var(--moss);
+  background: var(--stone-mid);
+  font-size: 11px;
+  color: #777777;
+  line-height: 1.8;
+}
+
+footer strong {
+  color: var(--text-dim);
+}
+
+/* === INTERACTIVE MOSS GROWTH CANVAS === */
+.moss-canvas {
+  position: relative;
+  height: 200px;
+  background: var(--stone-mid);
+  overflow: hidden;
+  cursor: crosshair;
+  border: 1px solid var(--stone-light);
+  margin-top: 24px;
+}
+
+.moss-canvas-label {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  font-size: 10px;
+  color: #777777;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  z-index: 2;
+  pointer-events: none;
+}
+
+.moss-spore {
+  position: absolute;
+  border-radius: 50%;
+  background: radial-gradient(circle, var(--moss), var(--moss-dark));
+  pointer-events: none;
+  animation: spore-grow 2s ease-out forwards;
+}
+
+@keyframes spore-grow {
+  0% { transform: scale(0); opacity: 1; }
+  60% { opacity: 0.8; }
+  100% { transform: scale(1); opacity: 0.4; }
+}
+
+/* === RESPONSIVE === */
+@media (max-width: 768px) {
+  .sidebar { display: none; }
+  .mobile-nav { display: flex; justify-content: space-between; }
+  .main { margin-left: 0; padding-top: 56px; }
+  .hero { min-height: calc(100vh - 56px); }
+  .countdown { gap: 8px; }
+  .countdown-unit { min-width: 60px; padding: 8px 10px; }
+  .hoard-card { padding: 20px; }
+  .cat-helm { width: 160px; height: 200px; transform: scale(0.85); }
+}
+
+@media (max-width: 480px) {
+  section { padding: 32px 16px; }
+  .omens-grid { grid-template-columns: 1fr; }
+  .sword-grid { grid-template-columns: 1fr; }
+  .folly-grid { grid-template-columns: 1fr; }
+}
+
+/* === SIDEBAR MOBILE EXPANDED === */
+.sidebar.open {
+  display: flex;
+}
+
+@media (max-width: 768px) {
+  .sidebar.open {
+    width: 260px;
+    z-index: 200;
+    box-shadow: 4px 0 30px rgba(0,0,0,0.6);
+  }
+  .sidebar-overlay {
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(0,0,0,0.5);
+    z-index: 199;
+  }
+}
+
+/* Rust hover effect utility */
+.rust-hover { transition: all 0.4s; }
+.rust-hover:hover { filter: sepia(0.5) saturate(2) hue-rotate(-20deg); }
+</style>
+</head>
+<body x-data="fuzzbottom()">
+
+<!-- Mobile Nav -->
+<div class="mobile-nav">
+  <h1>FUZZBOTTOM</h1>
+  <button class="hamburger" @click="sidebarOpen = !sidebarOpen" aria-label="Menu">
+    <span></span>
+  </button>
+</div>
+
+<!-- Sidebar overlay for mobile -->
+<div class="sidebar-overlay" x-show="sidebarOpen" @click="sidebarOpen = false" x-cloak style="display:none;"></div>
+
+<!-- Sidebar -->
+<nav class="sidebar" :class="{ 'open': sidebarOpen }">
+  <div class="sidebar-header">
+    <h1>FUZZBOTTOM<br>FINANCIAL</h1>
+    <div class="subtitle">Est. 2019 (Re-est. 2021)</div>
+  </div>
+  <div class="sidebar-nav">
+    <a href="#omens" @click="sidebarOpen = false"><span class="nav-icon">&#9670;</span> Market Omens</a>
+    <a href="#folly" @click="sidebarOpen = false"><span class="nav-icon">&#9671;</span> The Fuzzbottom Folly</a>
+    <a href="#hoard" @click="sidebarOpen = false"><span class="nav-icon">&#9672;</span> Dragon's Hoard Bonds</a>
+    <a href="#store" @click="sidebarOpen = false"><span class="nav-icon">&#9733;</span> Armoury & Merch</a>
+    <a href="#moss-lab" @click="sidebarOpen = false"><span class="nav-icon">&#9752;</span> Moss Laboratory</a>
+    <a href="#testimonials" @click="sidebarOpen = false"><span class="nav-icon">&#9676;</span> Client Testimony</a>
+  </div>
+  <div class="sidebar-status">
+    <span class="status-dot"></span>
+    <span x-text="'Pigeons tracked: ' + pigeonCount"></span>
+  </div>
+</nav>
+
+<!-- Main Content -->
+<div class="main">
+
+  <!-- HERO -->
+  <section class="hero" id="hero">
+    <div class="hero-content">
+      <div class="cat-helm rust-hover">
+        <div class="cat-ear left"></div>
+        <div class="cat-ear right"></div>
+        <div class="helm-crest"></div>
+        <div class="helm-body">
+          <div class="helm-visor"></div>
+          <div class="helm-nose"></div>
+          <div class="rivet rivet-1"></div>
+          <div class="rivet rivet-2"></div>
+          <div class="rivet rivet-3"></div>
+          <div class="rivet rivet-4"></div>
+          <div class="helm-moss helm-moss-1"></div>
+          <div class="helm-moss helm-moss-2"></div>
+          <div class="helm-moss helm-moss-3"></div>
+        </div>
+        <div class="cat-eye left"></div>
+        <div class="cat-eye right"></div>
+      </div>
+
+      <div class="hero-title">Chainmail<br>&amp; Change</div>
+      <div class="hero-tagline">Season 2 Premieres In</div>
+
+      <div class="countdown">
+        <div class="countdown-unit">
+          <div class="countdown-num" x-text="days">---</div>
+          <div class="countdown-label">Days</div>
+        </div>
+        <div class="countdown-unit">
+          <div class="countdown-num" x-text="hours">--</div>
+          <div class="countdown-label">Hours</div>
+        </div>
+        <div class="countdown-unit">
+          <div class="countdown-num" x-text="minutes">--</div>
+          <div class="countdown-label">Min</div>
+        </div>
+        <div class="countdown-unit">
+          <div class="countdown-num" x-text="seconds">--</div>
+          <div class="countdown-label">Sec</div>
+        </div>
+      </div>
+      <div class="countdown-note">Target date subject to pigeon omen confirmation</div>
+    </div>
+  </section>
+
+  <!-- MARKET OMENS -->
+  <section class="omens" id="omens">
+    <div class="pigeon-field">
+      <div class="pigeon"></div>
+      <div class="pigeon"></div>
+      <div class="pigeon"></div>
+      <div class="pigeon"></div>
+      <div class="pigeon"></div>
+    </div>
+
+    <div class="section-label">Market Omens — Live Dashboard</div>
+
+    <div class="omens-grid">
+      <div class="omen-card">
+        <div class="omen-title">Pigeon Vector</div>
+        <div class="omen-value positive">NNW ↑</div>
+        <div class="omen-detail">12 pigeons tracked since 6:41am</div>
+      </div>
+      <div class="omen-card">
+        <div class="omen-title">Moss Index</div>
+        <div class="omen-value positive">+3.7%</div>
+        <div class="omen-detail">North wall, 48hr growth rate</div>
+      </div>
+      <div class="omen-card">
+        <div class="omen-title">Feline Intuition</div>
+        <div class="omen-value neutral">HOLD</div>
+        <div class="omen-detail">Sir Reginald napped 4.2hrs (bullish)</div>
+      </div>
+      <div class="omen-card">
+        <div class="omen-title">Gauntlet Tightness</div>
+        <div class="omen-value negative">SELL</div>
+        <div class="omen-detail">Left gauntlet pinching — historically bearish</div>
+      </div>
+    </div>
+
+    <div class="omen-reading">
+      <p>"When the third pigeon banks left at the fountain, the market follows. I've been wrong about this exactly 147 times, which means I'm statistically due."</p>
+      <cite>— Sir Reginald Fuzzbottom III, Episode 7: "The Gauntlet Drops"</cite>
+    </div>
+  </section>
+
+  <div class="moss-divider"></div>
+
+  <!-- THE FUZZBOTTOM FOLLY -->
+  <section class="folly" id="folly">
+    <div class="section-label">The Fuzzbottom Folly — Investment Philosophy</div>
+
+    <div class="folly-grid">
+      <div class="tenet">
+        <div class="tenet-num">I</div>
+        <h3>Moss Remembers</h3>
+        <p>Every surface in our office is covered in moss. This is not neglect. Moss is a living ledger. Its growth patterns on the north wall have predicted 2 out of 19 market corrections. Those odds are better than Jim Cramer's.</p>
+      </div>
+      <div class="tenet">
+        <div class="tenet-num">II</div>
+        <h3>Armor Before Alpha</h3>
+        <p>You wouldn't enter battle without a breastplate. Why enter the market without greaves? All Fuzzbottom clients receive a mandatory chainmail fitting at onboarding. $340 fitting fee. Non-negotiable.</p>
+      </div>
+      <div class="tenet">
+        <div class="tenet-num">III</div>
+        <h3>The Pigeon Knows</h3>
+        <p>We employ no analysts. We employ no algorithms. We have 14 pigeons on retainer. Their flight patterns are cross-referenced with historical moss data. The system has never been backtested because we are afraid of what we'd find.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- DRAGON'S HOARD BONDS -->
+  <section class="hoard" id="hoard">
+    <div class="section-label">Featured Investment Vehicle</div>
+
+    <div class="hoard-card">
+      <div class="hoard-name">Dragon's Hoard Bond</div>
+      <div class="hoard-yield">Projected Yield: "Considerable" — 12-Month Term</div>
+      <div class="hoard-desc">
+        Backed by the estimated contents of a dragon's hoard located beneath a specific mountain that Sir Reginald will not name due to "ongoing territorial disputes with the wyrm." Minimum investment covers your share of the hoard plus a commemorative moss sample from the cave entrance.
+      </div>
+      <div class="hoard-price">$4,700 <span style="font-size:14px;font-weight:400;color:#b0b0b0;">/ bond</span></div>
+      <div class="hoard-fine">
+        Past performance is not indicative of future results. Dragon existence unverified. Moss sample ships in 6-8 weeks. Bond is non-transferable, non-refundable, and possibly non-existent. Fuzzbottom Financial assumes no liability for dragon-related incidents.
+      </div>
+      <button class="hoard-btn" @click="bondClicked = true" x-text="bondClicked ? 'SCROLL DISPATCHED BY RAVEN' : 'PLEDGE YOUR GOLD'"></button>
+    </div>
+  </section>
+
+  <div class="moss-divider"></div>
+
+  <!-- BROADSWORD STORE -->
+  <section class="store" id="store">
+    <div class="section-label">The Armoury — Signed Collectibles</div>
+
+    <div class="sword-grid">
+      <div class="sword-card">
+        <div class="css-sword">
+          <div class="sword-blade"></div>
+          <div class="sword-guard"></div>
+          <div class="sword-grip"></div>
+          <div class="sword-pommel"></div>
+        </div>
+        <div class="sword-name">Pennystrike</div>
+        <div class="sword-curse">Possibly Cursed</div>
+        <div class="sword-price">$189.99</div>
+        <div class="sword-note">Signed by Sir Reginald (paw print)</div>
+      </div>
+      <div class="sword-card">
+        <div class="css-sword" style="transform: rotate(5deg);">
+          <div class="sword-blade" style="background: linear-gradient(90deg, #8B6914, #D4A534, #8B6914);"></div>
+          <div class="sword-guard"></div>
+          <div class="sword-grip"></div>
+          <div class="sword-pommel"></div>
+        </div>
+        <div class="sword-name">Dividend Cleaver</div>
+        <div class="sword-curse">Definitely Cursed</div>
+        <div class="sword-price">$347.00</div>
+        <div class="sword-note">Moss inlay (living)</div>
+      </div>
+      <div class="sword-card">
+        <div class="css-sword" style="transform: rotate(-3deg);">
+          <div class="sword-blade" style="height: 80px;"></div>
+          <div class="sword-guard" style="width: 50px;"></div>
+          <div class="sword-grip"></div>
+          <div class="sword-pommel"></div>
+        </div>
+        <div class="sword-name">The Liquidator</div>
+        <div class="sword-curse">Legally Distinct From Cursed</div>
+        <div class="sword-price">$1,200.00</div>
+        <div class="sword-note">Used in S1E4 "The Margin Call Duel"</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- MOSS LABORATORY -->
+  <section class="omens" id="moss-lab" style="background: var(--stone);">
+    <div class="section-label">Moss Laboratory — Click to Cultivate</div>
+    <div class="moss-canvas" @click="growMoss($event)">
+      <div class="moss-canvas-label">Click anywhere to grow moss (financial data pending)</div>
+      <template x-for="spore in spores" :key="spore.id">
+        <div class="moss-spore"
+             :style="`left:${spore.x}px; top:${spore.y}px; width:${spore.size}px; height:${spore.size}px;`">
+        </div>
+      </template>
+    </div>
+  </section>
+
+  <div class="moss-divider"></div>
+
+  <!-- TESTIMONIALS -->
+  <section class="testimonials" id="testimonials">
+    <div class="section-label">Client Testimony</div>
+
+    <div class="testimonial-list">
+      <div class="testimonial">
+        <blockquote>"I went to Fuzzbottom for a simple 401k rollover. I left with a full suit of plate armor and a 'Moss Futures' portfolio. I'm down $23,000 but I've never felt safer."</blockquote>
+        <cite>— Gerald Hutchins, former client, current moss farmer</cite>
+        <div class="stars">&#9733;&#9733;&#9733;&#9734;&#9734;</div>
+      </div>
+      <div class="testimonial">
+        <blockquote>"The cat made me sign a document swearing fealty. I didn't read the fine print. Apparently I now owe tithes. The moss on my bond certificate is spreading to my desk."</blockquote>
+        <cite>— Sandra Okafor, Portfolio: Dragon's Hoard (x3)</cite>
+        <div class="stars">&#9733;&#9733;&#9733;&#9733;&#9734;</div>
+      </div>
+      <div class="testimonial">
+        <blockquote>"He knocked my water glass off the table mid-consultation. Twice. Then told me to short Tesla because a pigeon turned left. I shorted Tesla. The pigeon was right."</blockquote>
+        <cite>— Dave Perlman, S1 Fan Favorite, net worth undisclosed</cite>
+        <div class="stars">&#9733;&#9733;&#9733;&#9733;&#9733;</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer>
+    <p><strong>Fuzzbottom Financial LLC</strong> is not registered with the SEC, FINRA, or any regulatory body of any kingdom, fiefdom, or principality. Sir Reginald's knighthood was purchased for $45 at the Scranton Renaissance Faire (2017). "Chainmail & Change" is produced by Fuzzbottom Media, a subsidiary of Fuzzbottom Financial, a subsidiary of a cardboard box in Scranton, PA.</p>
+    <br>
+    <p>All moss on premises is intentional. The pigeons are independent contractors. Past performance is not indicative of future performance. Future performance is not indicative of anything. The dragon has not been independently verified.</p>
+    <br>
+    <p style="color: #555555;">© MMXXVI Fuzzbottom Financial LLC. All rights reserved. Moss rights reserved separately.</p>
+  </footer>
+
+</div>
+
+<script src="/assets/js/alpine.min.js" defer></script>
+<script>
+document.addEventListener('alpine:init', function() {
+  Alpine.data('fuzzbottom', function() {
+    return {
+      sidebarOpen: false,
+      bondClicked: false,
+      pigeonCount: 12,
+      days: '---',
+      hours: '--',
+      minutes: '--',
+      seconds: '--',
+      spores: [],
+      sporeId: 0,
+      _interval: null,
+
+      init: function() {
+        var self = this;
+        self.updateCountdown();
+        self._interval = setInterval(function() {
+          self.updateCountdown();
+        }, 1000);
+
+        // Slowly increment pigeon count
+        setInterval(function() {
+          if (Math.random() > 0.7) {
+            self.pigeonCount++;
+          }
+        }, 5000);
+      },
+
+      updateCountdown: function() {
+        // Season 2 premiere: a suspiciously distant date
+        var target = new Date('2029-03-15T20:00:00');
+        var now = new Date();
+        var diff = target - now;
+
+        if (diff <= 0) {
+          this.days = '0';
+          this.hours = '0';
+          this.minutes = '0';
+          this.seconds = '0';
+          return;
+        }
+
+        this.days = String(Math.floor(diff / 86400000));
+        this.hours = String(Math.floor((diff % 86400000) / 3600000)).padStart(2, '0');
+        this.minutes = String(Math.floor((diff % 3600000) / 60000)).padStart(2, '0');
+        this.seconds = String(Math.floor((diff % 60000) / 1000)).padStart(2, '0');
+      },
+
+      growMoss: function(e) {
+        var rect = e.currentTarget.getBoundingClientRect();
+        var x = e.clientX - rect.left;
+        var y = e.clientY - rect.top;
+        var size = 20 + Math.random() * 60;
+
+        this.spores.push({
+          id: this.sporeId++,
+          x: x - size / 2,
+          y: y - size / 2,
+          size: size
+        });
+
+        // Keep max 50 spores for performance
+        if (this.spores.length > 50) {
+          this.spores.shift();
+        }
+      },
+
+      destroy: function() {
+        if (this._interval) clearInterval(this._interval);
+      }
+    };
+  });
+});
+</script>
+
+</body>
+</html>

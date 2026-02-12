@@ -45,6 +45,12 @@ echo "Layout:  $LAYOUT"
 echo "Density: $DENSITY"
 echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
 
+echo "🧠 Expanding idea via AI..."
+EXPANDED_IDEA=$(node src/expand-idea.js "$IDEA" "$STYLE" "$COLOR" "$LAYOUT" "$DENSITY")
+echo "━━━ Creative Brief ━━━"
+echo "$EXPANDED_IDEA" | head -20
+echo "━━━━━━━━━━━━━━━━━━━━━━"
+
 ID="$(date +%s)$(printf '%04x' $RANDOM)"
 TARGET="cache/pages/${ID}.html"
 
@@ -64,7 +70,12 @@ Available fonts (via /assets/css/fonts.css): 'Space Grotesk' (modern sans), 'Pla
 
 You do NOT have to use all of them — pick what fits the creative direction. Do NOT use any other external resources.
 
-THE WORLD: ${IDEA}. If this concept doesn't click or feels forced, riff on it — take the general vibe, the category, the energy, and come up with something in that space that YOU find funny and can commit to. The idea is a starting point, not a cage.
+THE WORLD (seed idea): ${IDEA}
+
+CREATIVE BRIEF (from our creative director — treat this as inspiration, not a rigid spec. Cherry-pick the details you love, ignore the rest, and add your own spin):
+${EXPANDED_IDEA}
+
+If none of the above clicks or feels forced, riff on the general vibe, the category, the energy, and come up with something in that space that YOU find funny and can commit to. The seed idea and brief are starting points, not a cage.
 
 CRITICAL: Do NOT build a page that explains or showcases this concept. Do NOT make a meta page ABOUT the idea. Instead, build the ACTUAL website as if you ARE this business/organization/entity. The visitor should feel like they stumbled onto a real (but unhinged) website.
 

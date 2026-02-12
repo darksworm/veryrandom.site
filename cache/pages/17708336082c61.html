@@ -1,0 +1,1376 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ATC Internal Portal — Nocturnal Climate Operations Division</title>
+<link rel="stylesheet" href="/assets/css/fonts.css">
+<script defer src="/assets/js/alpine.min.js"></script>
+<script src="/assets/js/gsap.min.js"></script>
+<script src="/assets/js/lucide.min.js"></script>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #f4f6f5;
+    --sidebar-bg: #0a1f14;
+    --sidebar-text: #c8e6d5;
+    --sidebar-active: #00e676;
+    --card-bg: #ffffff;
+    --border: #d0ddd6;
+    --green-accent: #00c853;
+    --green-dark: #00802e;
+    --green-light: #e8f5e9;
+    --green-muted: #b9d4c3;
+    --text-primary: #0a1f14;
+    --text-secondary: #3a5a48;
+    --text-muted: #4a6a58;
+    --red: #d32f2f;
+    --amber: #f57f17;
+    --blue: #1565c0;
+    --deco-gold: #c9a84c;
+    --deco-border: 2px solid #c9a84c;
+  }
+
+  body {
+    font-family: 'IBM Plex Mono', monospace;
+    background: var(--bg);
+    color: var(--text-primary);
+    font-size: 14px;
+    line-height: 1.5;
+    display: flex;
+    min-height: 100vh;
+  }
+
+  /* ART DECO ACCENTS */
+  .deco-line {
+    height: 2px;
+    background: linear-gradient(90deg, transparent, var(--deco-gold), transparent);
+    margin: 12px 0;
+  }
+  .deco-corner {
+    position: relative;
+  }
+  .deco-corner::before, .deco-corner::after {
+    content: '';
+    position: absolute;
+    width: 16px;
+    height: 16px;
+    border-color: var(--deco-gold);
+    border-style: solid;
+  }
+  .deco-corner::before {
+    top: -1px; left: -1px;
+    border-width: 2px 0 0 2px;
+  }
+  .deco-corner::after {
+    bottom: -1px; right: -1px;
+    border-width: 0 2px 2px 0;
+  }
+
+  /* SIDEBAR */
+  .sidebar {
+    width: 260px;
+    min-height: 100vh;
+    background: var(--sidebar-bg);
+    color: var(--sidebar-text);
+    padding: 0;
+    flex-shrink: 0;
+    display: flex;
+    flex-direction: column;
+    border-right: 3px solid var(--deco-gold);
+    position: fixed;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    overflow-y: auto;
+    z-index: 100;
+  }
+
+  .sidebar-header {
+    padding: 20px 16px 12px;
+    border-bottom: 1px solid #1a3a28;
+    text-align: center;
+  }
+
+  .sidebar-header .logo-icon {
+    width: 48px;
+    height: 48px;
+    border: var(--deco-border);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 8px;
+    font-size: 22px;
+  }
+
+  .sidebar-header h1 {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 14px;
+    font-weight: 700;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--sidebar-active);
+    margin: 0;
+  }
+
+  .sidebar-header p {
+    font-size: 10px;
+    color: #7a9a88;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    margin: 4px 0 0;
+  }
+
+  .sidebar-section {
+    padding: 12px 0 4px;
+  }
+
+  .sidebar-section-label {
+    font-size: 9px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: #5a7a68;
+    padding: 0 16px;
+    margin-bottom: 4px;
+  }
+
+  .sidebar-link {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 16px;
+    color: var(--sidebar-text);
+    text-decoration: none;
+    font-size: 12px;
+    cursor: pointer;
+    transition: background 0.15s;
+    border-left: 3px solid transparent;
+  }
+
+  .sidebar-link:hover {
+    background: #132e20;
+  }
+
+  .sidebar-link.active {
+    background: #132e20;
+    border-left-color: var(--sidebar-active);
+    color: #ffffff;
+  }
+
+  .sidebar-link i { width: 16px; height: 16px; flex-shrink: 0; }
+
+  .sidebar-badge {
+    margin-left: auto;
+    background: var(--red);
+    color: #ffffff;
+    font-size: 10px;
+    padding: 1px 6px;
+    border-radius: 8px;
+    font-weight: 700;
+  }
+
+  .sidebar-footer {
+    margin-top: auto;
+    padding: 12px 16px;
+    border-top: 1px solid #1a3a28;
+    font-size: 10px;
+    color: #5a7a68;
+    line-height: 1.6;
+  }
+
+  /* MAIN CONTENT */
+  .main {
+    margin-left: 260px;
+    flex: 1;
+    padding: 20px 24px 80px;
+    max-width: 1200px;
+  }
+
+  /* TOP BAR */
+  .topbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 0 16px;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .topbar-left {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .topbar-left h2 {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--text-primary);
+  }
+
+  .topbar-status {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 11px;
+    color: var(--green-dark);
+    background: var(--green-light);
+    padding: 3px 10px;
+    border-radius: 12px;
+  }
+
+  .topbar-status .dot {
+    width: 7px;
+    height: 7px;
+    background: var(--green-accent);
+    border-radius: 50%;
+    animation: pulse 2s infinite;
+  }
+
+  @keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.4; }
+  }
+
+  .topbar-right {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    font-size: 12px;
+    color: var(--text-secondary);
+  }
+
+  /* CARDS */
+  .card {
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 16px;
+    position: relative;
+  }
+
+  .card-title {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    color: var(--text-muted);
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .card-title i { width: 14px; height: 14px; }
+
+  /* GRID */
+  .grid-4 {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+    margin-bottom: 20px;
+  }
+
+  .grid-3 {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+    margin-bottom: 20px;
+  }
+
+  .grid-2 {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: 16px;
+    margin-bottom: 20px;
+  }
+
+  .grid-2-equal {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin-bottom: 20px;
+  }
+
+  /* STAT CARDS */
+  .stat-value {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 28px;
+    font-weight: 700;
+    color: var(--text-primary);
+    line-height: 1.1;
+  }
+
+  .stat-unit {
+    font-size: 14px;
+    color: var(--text-muted);
+    font-weight: 400;
+  }
+
+  .stat-change {
+    font-size: 11px;
+    margin-top: 4px;
+  }
+
+  .stat-change.up { color: var(--green-dark); }
+  .stat-change.down { color: var(--red); }
+  .stat-change.warn { color: var(--amber); }
+
+  /* TABLE */
+  .data-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 12px;
+  }
+
+  .data-table th {
+    text-align: left;
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--text-muted);
+    padding: 8px 10px;
+    border-bottom: 2px solid var(--border);
+    font-weight: 600;
+  }
+
+  .data-table td {
+    padding: 8px 10px;
+    border-bottom: 1px solid #eaf0ec;
+    color: var(--text-primary);
+    vertical-align: top;
+  }
+
+  .data-table tbody tr:hover {
+    background: var(--green-light);
+  }
+
+  /* STATUS BADGES */
+  .badge {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  .badge-critical { background: #ffcdd2; color: #b71c1c; }
+  .badge-warning { background: #fff9c4; color: #6d4c00; }
+  .badge-normal { background: #c8e6c9; color: #1b5e20; }
+  .badge-resolved { background: #e0e0e0; color: #333333; }
+  .badge-pending { background: #bbdefb; color: #0d47a1; }
+
+  /* BUTTONS */
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 14px;
+    border: 1px solid var(--border);
+    background: var(--card-bg);
+    color: var(--text-primary);
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.15s;
+    min-height: 32px;
+  }
+
+  .btn:hover { background: var(--green-light); border-color: var(--green-accent); }
+
+  .btn-primary {
+    background: var(--green-dark);
+    color: #ffffff;
+    border-color: var(--green-dark);
+  }
+
+  .btn-primary:hover { background: #009624; }
+
+  .btn-danger {
+    background: #ffffff;
+    color: var(--red);
+    border-color: var(--red);
+  }
+
+  .btn-danger:hover { background: #ffebee; }
+
+  .btn-sm { padding: 3px 8px; font-size: 10px; min-height: 24px; }
+
+  /* PROGRESS BAR */
+  .progress-bar {
+    height: 8px;
+    background: #e8ede9;
+    border-radius: 4px;
+    overflow: hidden;
+    margin-top: 8px;
+  }
+
+  .progress-bar-fill {
+    height: 100%;
+    border-radius: 4px;
+    transition: width 0.5s ease;
+  }
+
+  /* BAR CHART (CSS) */
+  .bar-chart {
+    display: flex;
+    align-items: flex-end;
+    gap: 4px;
+    height: 80px;
+    padding-top: 8px;
+  }
+
+  .bar-chart .bar {
+    flex: 1;
+    background: var(--green-accent);
+    border-radius: 2px 2px 0 0;
+    min-width: 8px;
+    transition: height 0.4s ease;
+    position: relative;
+  }
+
+  .bar-chart .bar:hover {
+    background: var(--deco-gold);
+  }
+
+  .bar-chart-labels {
+    display: flex;
+    gap: 4px;
+    margin-top: 4px;
+  }
+
+  .bar-chart-labels span {
+    flex: 1;
+    text-align: center;
+    font-size: 9px;
+    color: var(--text-muted);
+  }
+
+  /* TICKER */
+  .ticker-strip {
+    background: var(--sidebar-bg);
+    color: var(--sidebar-active);
+    padding: 6px 0;
+    overflow: hidden;
+    font-size: 11px;
+    letter-spacing: 1px;
+    margin-bottom: 20px;
+    border-radius: 4px;
+    position: relative;
+  }
+
+  .ticker-inner {
+    display: inline-block;
+    white-space: nowrap;
+    animation: ticker 40s linear infinite;
+  }
+
+  @keyframes ticker {
+    0% { transform: translateX(0); }
+    100% { transform: translateX(-50%); }
+  }
+
+  /* FOOTNOTES */
+  .footnote {
+    font-size: 10px;
+    color: var(--text-muted);
+    border-top: 1px solid var(--border);
+    padding-top: 8px;
+    margin-top: 12px;
+    line-height: 1.6;
+  }
+
+  .footnote sup {
+    color: var(--deco-gold);
+    font-weight: 700;
+  }
+
+  /* DIRECTOR MESSAGE */
+  .director-msg {
+    background: linear-gradient(135deg, #f9fdf9, #edf5f0);
+    border-left: 4px solid var(--deco-gold);
+    padding: 16px 20px;
+    font-size: 13px;
+    line-height: 1.7;
+    color: var(--text-primary);
+  }
+
+  .director-msg .sig {
+    margin-top: 12px;
+    font-style: italic;
+    color: var(--text-secondary);
+  }
+
+  /* TOGGLE SWITCH */
+  .toggle-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 8px 0;
+    border-bottom: 1px solid #eaf0ec;
+    font-size: 12px;
+    color: var(--text-primary);
+  }
+
+  .toggle-switch {
+    width: 36px;
+    height: 20px;
+    background: #c0c0c0;
+    border-radius: 10px;
+    position: relative;
+    cursor: pointer;
+    transition: background 0.2s;
+    flex-shrink: 0;
+  }
+
+  .toggle-switch.on { background: var(--green-accent); }
+
+  .toggle-switch::after {
+    content: '';
+    position: absolute;
+    width: 16px;
+    height: 16px;
+    background: #ffffff;
+    border-radius: 50%;
+    top: 2px;
+    left: 2px;
+    transition: left 0.2s;
+  }
+
+  .toggle-switch.on::after { left: 18px; }
+
+  /* MOBILE MENU TOGGLE */
+  .mobile-menu-btn {
+    display: none;
+    position: fixed;
+    top: 10px;
+    left: 10px;
+    z-index: 200;
+    width: 44px;
+    height: 44px;
+    background: var(--sidebar-bg);
+    border: 2px solid var(--deco-gold);
+    border-radius: 6px;
+    color: var(--sidebar-active);
+    font-size: 20px;
+    cursor: pointer;
+    align-items: center;
+    justify-content: center;
+  }
+
+  /* BALLOON STATUS */
+  .balloon-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 0;
+    border-bottom: 1px solid #eaf0ec;
+    font-size: 12px;
+  }
+
+  .balloon-indicator {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+
+  .balloon-indicator.active { background: var(--green-accent); }
+  .balloon-indicator.warning { background: var(--amber); }
+  .balloon-indicator.offline { background: var(--red); }
+
+  .balloon-name { font-weight: 600; color: var(--text-primary); min-width: 100px; }
+  .balloon-detail { color: var(--text-secondary); }
+
+  /* SCROLLABLE PANEL */
+  .scroll-panel {
+    max-height: 240px;
+    overflow-y: auto;
+  }
+
+  .scroll-panel::-webkit-scrollbar {
+    width: 4px;
+  }
+  .scroll-panel::-webkit-scrollbar-track {
+    background: var(--green-light);
+  }
+  .scroll-panel::-webkit-scrollbar-thumb {
+    background: var(--green-muted);
+    border-radius: 2px;
+  }
+
+  /* FIELD CITATION */
+  .citation-item {
+    padding: 10px 0;
+    border-bottom: 1px solid #eaf0ec;
+  }
+  .citation-item:last-child { border-bottom: none; }
+  .citation-code {
+    font-weight: 700;
+    color: var(--red);
+    font-size: 11px;
+  }
+  .citation-desc {
+    color: var(--text-primary);
+    font-size: 12px;
+    margin-top: 2px;
+  }
+  .citation-meta {
+    color: var(--text-muted);
+    font-size: 10px;
+    margin-top: 2px;
+  }
+
+  /* FAQ */
+  .faq-item {
+    border-bottom: 1px solid var(--border);
+    padding: 12px 0;
+  }
+
+  .faq-q {
+    font-weight: 700;
+    color: var(--text-primary);
+    cursor: pointer;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 8px;
+    font-size: 13px;
+  }
+
+  .faq-q:hover { color: var(--green-dark); }
+
+  .faq-a {
+    margin-top: 8px;
+    color: var(--text-secondary);
+    font-size: 12px;
+    line-height: 1.7;
+  }
+
+  /* COMPLIANCE GAUGE */
+  .gauge-container {
+    text-align: center;
+    padding: 8px 0;
+  }
+
+  .gauge-ring {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    border: 10px solid #e8ede9;
+    position: relative;
+    margin: 0 auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .gauge-ring.good { border-color: var(--green-accent); border-top-color: #e8ede9; }
+
+  .gauge-value {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 28px;
+    font-weight: 700;
+    color: var(--text-primary);
+  }
+
+  .gauge-label {
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--text-muted);
+    margin-top: 8px;
+  }
+
+  /* RESPONSIVE */
+  @media (max-width: 1024px) {
+    .grid-4 { grid-template-columns: repeat(2, 1fr); }
+    .grid-3 { grid-template-columns: 1fr 1fr; }
+    .grid-2 { grid-template-columns: 1fr; }
+    .grid-2-equal { grid-template-columns: 1fr; }
+  }
+
+  @media (max-width: 768px) {
+    .sidebar {
+      transform: translateX(-100%);
+      transition: transform 0.3s ease;
+      z-index: 300;
+    }
+    .sidebar.open { transform: translateX(0); }
+
+    .mobile-menu-btn { display: flex; }
+
+    .main {
+      margin-left: 0;
+      padding: 60px 16px 80px;
+    }
+
+    .grid-4 { grid-template-columns: 1fr 1fr; }
+    .grid-3 { grid-template-columns: 1fr; }
+
+    .topbar-left h2 { font-size: 15px; }
+
+    .data-table { font-size: 11px; }
+    .data-table th, .data-table td { padding: 6px; }
+
+    .stat-value { font-size: 22px; }
+  }
+
+  @media (max-width: 480px) {
+    .grid-4 { grid-template-columns: 1fr; }
+    .main { padding: 56px 12px 80px; }
+  }
+
+  /* OVERLAY BACKDROP */
+  .sidebar-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.4);
+    z-index: 250;
+  }
+
+  @media (max-width: 768px) {
+    .sidebar-overlay.open { display: block; }
+  }
+</style>
+</head>
+<body x-data="atcDashboard()">
+
+<!-- MOBILE MENU -->
+<button class="mobile-menu-btn" @click="sidebarOpen = !sidebarOpen" aria-label="Toggle menu">☰</button>
+<div class="sidebar-overlay" :class="sidebarOpen ? 'open' : ''" @click="sidebarOpen = false"></div>
+
+<!-- SIDEBAR -->
+<aside class="sidebar" :class="sidebarOpen ? 'open' : ''">
+  <div class="sidebar-header">
+    <div class="logo-icon">🌡</div>
+    <h1>A.T.C.</h1>
+    <p>Est. 1987 (Dream-Time)</p>
+  </div>
+
+  <div class="sidebar-section">
+    <div class="sidebar-section-label">Operations</div>
+    <div class="sidebar-link active" @click="sidebarOpen = false">
+      <i data-lucide="layout-dashboard"></i> Dashboard
+    </div>
+    <div class="sidebar-link">
+      <i data-lucide="thermometer"></i> Thermal Readings
+      <span class="sidebar-badge" x-text="incidents.length"></span>
+    </div>
+    <div class="sidebar-link">
+      <i data-lucide="cloud"></i> Balloon Fleet
+    </div>
+    <div class="sidebar-link">
+      <i data-lucide="file-text"></i> Incident Reports
+      <span class="sidebar-badge">3</span>
+    </div>
+  </div>
+
+  <div class="sidebar-section">
+    <div class="sidebar-section-label">Administration</div>
+    <div class="sidebar-link">
+      <i data-lucide="book-open"></i> Publications
+    </div>
+    <div class="sidebar-link">
+      <i data-lucide="users"></i> Personnel
+    </div>
+    <div class="sidebar-link">
+      <i data-lucide="settings"></i> Config
+    </div>
+    <div class="sidebar-link">
+      <i data-lucide="scroll-text"></i> Compliance
+    </div>
+  </div>
+
+  <div class="sidebar-section">
+    <div class="sidebar-section-label">Resources</div>
+    <div class="sidebar-link">
+      <i data-lucide="circle-help"></i> Internal FAQ
+    </div>
+    <div class="sidebar-link">
+      <i data-lucide="alert-triangle"></i> Escalation Matrix
+    </div>
+  </div>
+
+  <div class="sidebar-footer">
+    CLEARANCE: LEVEL 4 (SOMNIC)<br>
+    OPERATOR: G. WHITMORE<br>
+    SESSION: 00482-R<br>
+    <span style="color:#3a5a48;">This portal is classified under<br>Directive 7.02(b) — Nocturnal<br>Climate Confidentiality Act.</span>
+  </div>
+</aside>
+
+<!-- MAIN CONTENT -->
+<div class="main">
+
+  <!-- TICKER -->
+  <div class="ticker-strip">
+    <div class="ticker-inner">
+      ◆ ALERT: SECTOR 14-N EXPERIENCING THERMAL DRIFT (+2.3°F) — BALLOON UNIT CUMULON-7 DISPATCHED ◆ COMPLIANCE AUDIT SCHEDULED Q3 2026 — ALL FIELD OPERATORS MUST FILE FORM TC-440 BY MARCH 1 ◆ REMINDER: DO NOT ADJUST THERMOSTATS IN RECURRING NIGHTMARES (SEE MEMO #4419) ◆ GERALD'S BIRTHDAY POTLUCK MOVED TO BALLOON STATION ECHO — BRING A DISH THAT CAN WITHSTAND 8,000 FT ELEVATION ◆ NEW PUBLICATION: "YOUR COMFORT ZONE ISN'T REAL (AND NEITHER ARE YOU)" NOW AVAILABLE IN DREAM KIOSKS ◆ ALERT: SECTOR 14-N EXPERIENCING THERMAL DRIFT (+2.3°F) — BALLOON UNIT CUMULON-7 DISPATCHED ◆ COMPLIANCE AUDIT SCHEDULED Q3 2026 — ALL FIELD OPERATORS MUST FILE FORM TC-440 BY MARCH 1 ◆ REMINDER: DO NOT ADJUST THERMOSTATS IN RECURRING NIGHTMARES (SEE MEMO #4419) ◆ GERALD'S BIRTHDAY POTLUCK MOVED TO BALLOON STATION ECHO — BRING A DISH THAT CAN WITHSTAND 8,000 FT ELEVATION ◆
+    </div>
+  </div>
+
+  <!-- TOP BAR -->
+  <div class="topbar">
+    <div class="topbar-left">
+      <h2>Nocturnal Climate Dashboard</h2>
+      <div class="topbar-status">
+        <div class="dot"></div>
+        <span>All Systems Nominal</span>
+      </div>
+    </div>
+    <div class="topbar-right">
+      <span>Dream Cycle: <strong>REM-4</strong></span>
+      <span x-text="currentTime"></span>
+    </div>
+  </div>
+
+  <!-- STAT CARDS ROW -->
+  <div class="grid-4">
+    <div class="card deco-corner">
+      <div class="card-title"><i data-lucide="thermometer"></i> Global Mean Temp</div>
+      <div class="stat-value"><span x-text="globalTemp.toFixed(1)"></span><span class="stat-unit">°F</span></div>
+      <div class="stat-change up">▲ 0.3°F from last cycle</div>
+      <div class="footnote"><sup>†</sup> Measured across 14.2 billion active dream instances</div>
+    </div>
+
+    <div class="card deco-corner">
+      <div class="card-title"><i data-lucide="users"></i> Active Dreamers</div>
+      <div class="stat-value" x-text="activeDreamers.toLocaleString()"></div>
+      <div class="stat-change up">▲ 12% (it's nighttime in Asia)</div>
+    </div>
+
+    <div class="card deco-corner">
+      <div class="card-title"><i data-lucide="alert-triangle"></i> Open Incidents</div>
+      <div class="stat-value" style="color: #d32f2f;" x-text="openIncidents"></div>
+      <div class="stat-change warn">▲ 4 new since last check</div>
+      <div class="footnote"><sup>‡</sup> Includes 2 Code Teal events (dreamer noticed thermostat)</div>
+    </div>
+
+    <div class="card deco-corner">
+      <div class="card-title"><i data-lucide="book-open"></i> Books Distributed</div>
+      <div class="stat-value" x-text="booksDistributed.toLocaleString()"></div>
+      <div class="stat-change up">▲ 847 this dream cycle</div>
+    </div>
+  </div>
+
+  <!-- COMPLIANCE + BALLOON STATUS -->
+  <div class="grid-2-equal">
+
+    <!-- COMPLIANCE GAUGE -->
+    <div class="card">
+      <div class="card-title"><i data-lucide="shield-check"></i> Thermal Compliance Score</div>
+      <div class="gauge-container">
+        <div class="gauge-ring good">
+          <div class="gauge-value" x-text="complianceScore + '%'"></div>
+        </div>
+        <div class="gauge-label">Sector-Wide Compliance</div>
+      </div>
+      <div style="margin-top:12px;">
+        <div class="toggle-row">
+          <span>Auto-correct drift > 2°F</span>
+          <div class="toggle-switch" :class="autoCorrect ? 'on' : ''" @click="autoCorrect = !autoCorrect"></div>
+        </div>
+        <div class="toggle-row">
+          <span>Suppress dreamer awareness</span>
+          <div class="toggle-switch" :class="suppressAwareness ? 'on' : ''" @click="suppressAwareness = !suppressAwareness"></div>
+        </div>
+        <div class="toggle-row">
+          <span>Deploy comfort fog</span>
+          <div class="toggle-switch" :class="comfortFog ? 'on' : ''" @click="comfortFog = !comfortFog"></div>
+        </div>
+        <div class="toggle-row">
+          <span>Nightgown mandate enforcement</span>
+          <div class="toggle-switch" :class="nightgownMandate ? 'on' : ''" @click="nightgownMandate = !nightgownMandate"></div>
+        </div>
+      </div>
+      <div class="footnote"><sup>§</sup> Compliance below 91% triggers mandatory all-hands meeting. In the balloon. Again.</div>
+    </div>
+
+    <!-- BALLOON FLEET -->
+    <div class="card">
+      <div class="card-title"><i data-lucide="cloud"></i> Active Balloon Stations</div>
+      <div class="scroll-panel">
+        <template x-for="b in balloons" :key="b.name">
+          <div class="balloon-row">
+            <div class="balloon-indicator" :class="b.status"></div>
+            <span class="balloon-name" x-text="b.name"></span>
+            <span class="balloon-detail" x-text="b.detail"></span>
+          </div>
+        </template>
+      </div>
+      <div style="margin-top:12px; display:flex; gap:8px; flex-wrap:wrap;">
+        <button class="btn btn-sm" @click="dispatchBalloon()">
+          <i data-lucide="send" style="width:12px;height:12px;"></i> Dispatch Unit
+        </button>
+        <button class="btn btn-sm btn-danger" @click="recallAll()">
+          <i data-lucide="alert-circle" style="width:12px;height:12px;"></i> Recall All
+        </button>
+        <span style="font-size:10px;color:#4a6a58;align-self:center;" x-text="lastDispatch"></span>
+      </div>
+    </div>
+  </div>
+
+  <!-- TEMPERATURE BY SECTOR (BAR CHART) + RECENT PUBLICATIONS -->
+  <div class="grid-2-equal">
+
+    <div class="card">
+      <div class="card-title"><i data-lucide="bar-chart-3"></i> Temperature by Dream Sector</div>
+      <div style="display:flex;align-items:flex-end;gap:2px;height:100px;">
+        <template x-for="(v, i) in sectorTemps" :key="i">
+          <div style="flex:1; border-radius:2px 2px 0 0; min-width:6px; transition:height 0.4s;"
+               :style="{
+                 height: ((v - 60) / 20 * 100) + '%',
+                 background: v > 76 ? '#d32f2f' : v > 72 ? '#c9a84c' : '#00c853'
+               }"
+               :title="'Sector ' + (i+1) + ': ' + v + '°F'"></div>
+        </template>
+      </div>
+      <div style="display:flex;gap:2px;margin-top:4px;">
+        <template x-for="(v, i) in sectorTemps" :key="'l'+i">
+          <span style="flex:1;text-align:center;font-size:8px;color:#4a6a58;" x-text="'S' + (i+1)"></span>
+        </template>
+      </div>
+      <div style="margin-top:10px;display:flex;gap:8px;">
+        <button class="btn btn-sm btn-primary" @click="randomizeTemps()">Refresh Readings</button>
+        <button class="btn btn-sm" @click="normalizeTemps()">Normalize All to 72°F</button>
+      </div>
+      <div class="footnote"><sup>**</sup> Red sectors require immediate balloon deployment. Gold sectors are "watch and sigh."</div>
+    </div>
+
+    <div class="card">
+      <div class="card-title"><i data-lucide="book-open"></i> Latest Publications</div>
+      <div class="scroll-panel">
+        <div style="padding:8px 0;border-bottom:1px solid #eaf0ec;">
+          <div style="font-weight:700;font-size:12px;color:#0a1f14;">"Your Comfort Zone Isn't Real (And Neither Are You)"</div>
+          <div style="font-size:10px;color:#4a6a58;margin-top:2px;">Gerald Whitmore — 4th Edition, 2026</div>
+          <div style="font-size:11px;color:#3a5a48;margin-top:4px;">The flagship guide. 14 million copies distributed subconsciously. Chapter 7 ("The Thermostat Was Inside You All Along") remains our most contested passage.</div>
+        </div>
+        <div style="padding:8px 0;border-bottom:1px solid #eaf0ec;">
+          <div style="font-weight:700;font-size:12px;color:#0a1f14;">"71.5°F: Why You Settled For Less"</div>
+          <div style="font-size:10px;color:#4a6a58;margin-top:2px;">Dr. Patricia Emberson — 2025</div>
+          <div style="font-size:11px;color:#3a5a48;margin-top:4px;">A devastating examination of dreamers who set their internal comfort to 71.5 instead of the Council-mandated 72. Patricia was reassigned to Sector 9 after publication.</div>
+        </div>
+        <div style="padding:8px 0;border-bottom:1px solid #eaf0ec;">
+          <div style="font-weight:700;font-size:12px;color:#0a1f14;">"Ascend: A Balloon Operator's Guide to Emotional Altitude"</div>
+          <div style="font-size:10px;color:#4a6a58;margin-top:2px;">The Bureau of Aerial Feelings — 2025</div>
+          <div style="font-size:11px;color:#3a5a48;margin-top:4px;">Mandatory reading for all field operators above 6,000 ft. Includes the now-famous Chapter 3: "Crying Is Just Condensation."</div>
+        </div>
+        <div style="padding:8px 0;">
+          <div style="font-weight:700;font-size:12px;color:#0a1f14;">"Temperature Is a Social Construct (But Also Definitely Real and We Control It)"</div>
+          <div style="font-size:10px;color:#4a6a58;margin-top:2px;">Council Publication #882 — 2024</div>
+          <div style="font-size:11px;color:#3a5a48;margin-top:4px;">Our official position paper. Resolves the paradox by simply not addressing it. 340 pages.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- INCIDENT TABLE -->
+  <div class="card" style="margin-bottom:20px;">
+    <div class="card-title"><i data-lucide="file-text"></i> Recent Thermal Incident Reports</div>
+    <div style="overflow-x:auto;">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Sector</th>
+            <th>Description</th>
+            <th>Severity</th>
+            <th>Status</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          <template x-for="inc in incidents" :key="inc.id">
+            <tr>
+              <td style="font-weight:700;color:#0a1f14;" x-text="inc.id"></td>
+              <td x-text="inc.sector"></td>
+              <td x-text="inc.desc"></td>
+              <td><span class="badge" :class="'badge-' + inc.severity" x-text="inc.severity"></span></td>
+              <td><span class="badge" :class="'badge-' + inc.status" x-text="inc.status"></span></td>
+              <td>
+                <button class="btn btn-sm" @click="resolveIncident(inc.id)" x-show="inc.status !== 'resolved'">Resolve</button>
+                <span x-show="inc.status === 'resolved'" style="font-size:10px;color:#4a6a58;">Closed</span>
+              </td>
+            </tr>
+          </template>
+        </tbody>
+      </table>
+    </div>
+    <div style="margin-top:10px;display:flex;gap:8px;flex-wrap:wrap;">
+      <button class="btn btn-sm" @click="addIncident()">
+        <i data-lucide="plus" style="width:12px;height:12px;"></i> File New Incident
+      </button>
+      <span style="font-size:10px;color:#4a6a58;align-self:center;">Filing an incident report is mandatory. Failure to file results in a thermostat audit.</span>
+    </div>
+    <div class="footnote"><sup>††</sup> "Code Teal" = dreamer has become aware of the thermostat. Deploy confusion protocol immediately.</div>
+  </div>
+
+  <!-- DIRECTOR MSG + FIELD CITATIONS -->
+  <div class="grid-2-equal">
+
+    <div class="card">
+      <div class="card-title"><i data-lucide="message-square"></i> Director's Bulletin</div>
+      <div class="director-msg">
+        <p>Colleagues,</p>
+        <p style="margin-top:8px;">I'll keep this brief because the balloon is at 9,400 feet and my pen is shaking.</p>
+        <p style="margin-top:8px;">Last night, Sector 7 recorded a dreamer who not only noticed the thermostat but <em>attempted to adjust it</em>. She turned it to 68°F. In a dream about her dead grandmother. The emotional destabilization cascade took 14 operators to contain.</p>
+        <p style="margin-top:8px;">This is why we published "Your Comfort Zone Isn't Real." This is why we do what we do from balloons — so we are literally above it all. This is why I have dedicated 31 years of dream-time to this organization, missing my son's dream-graduation and my own recurring nightmare about the filing cabinet.</p>
+        <p style="margin-top:8px;">72°F is not a number. It is a promise. It is the temperature at which the human subconscious neither shivers nor sweats, and therefore does not ask questions. Questions are the enemy of comfortable sleep. We are the guardians of that silence.</p>
+        <p style="margin-top:8px;">Please also remember to file your TC-440 forms. Janet will not remind you again. Janet is tired.</p>
+        <div class="sig">
+          — Gerald Whitmore<br>
+          Director, Nocturnal Climate Operations<br>
+          Balloon Station Alpha, Alt. 9,412 ft<br>
+          "72°F Forever."
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title"><i data-lucide="gavel"></i> Field Citations Issued Today</div>
+      <div class="scroll-panel">
+        <div class="citation-item">
+          <div class="citation-code">CIT-2026-4481 — LEVEL 2</div>
+          <div class="citation-desc">Operator left balloon hatch open during descent, causing 3.7°F thermal bleed into Sector 12 beach dream</div>
+          <div class="citation-meta">Issued to: R. Nakamura — 02:14 DT</div>
+        </div>
+        <div class="citation-item">
+          <div class="citation-code">CIT-2026-4482 — LEVEL 3</div>
+          <div class="citation-desc">Unauthorized thermostat installation in a dream about a dog show. Thermostat was visible. Dog noticed.</div>
+          <div class="citation-meta">Issued to: M. Chen — 03:41 DT</div>
+        </div>
+        <div class="citation-item">
+          <div class="citation-code">CIT-2026-4483 — LEVEL 1</div>
+          <div class="citation-desc">Failure to file TC-440 (quarterly thermal compliance). Again. This is the ninth time, Kevin.</div>
+          <div class="citation-meta">Issued to: K. O'Brien — 04:02 DT</div>
+        </div>
+        <div class="citation-item">
+          <div class="citation-code">CIT-2026-4484 — LEVEL 4 (SEVERE)</div>
+          <div class="citation-desc">Published unsanctioned self-help pamphlet: "What If 73°F Is Okay, Actually." Currently under review by the Bureau of Thermal Orthodoxy.</div>
+          <div class="citation-meta">Issued to: Dr. P. Emberson — 04:17 DT</div>
+        </div>
+        <div class="citation-item">
+          <div class="citation-code">CIT-2026-4485 — LEVEL 2</div>
+          <div class="citation-desc">Balloon unit STRATOS-3 entered dreamer's field of vision. Dreamer now has recurring dream about a balloon. We've created a loop.</div>
+          <div class="citation-meta">Issued to: J. Park — 05:30 DT</div>
+        </div>
+      </div>
+      <div class="footnote"><sup>‡‡</sup> Level 4 citations require a Balloon Tribunal. Gerald is both prosecutor and judge. This is fine.</div>
+    </div>
+  </div>
+
+  <!-- DREAMER COMFORT REPORT + OPERATIONAL COUNTERS -->
+  <div class="grid-2-equal" style="margin-top:20px;">
+
+    <div class="card">
+      <div class="card-title"><i data-lucide="activity"></i> Dreamer Comfort Index (Live)</div>
+      <div style="margin-bottom:12px;">
+        <div style="display:flex;justify-content:space-between;font-size:11px;margin-bottom:4px;">
+          <span style="color:#0a1f14;">Too Cold</span>
+          <span style="font-weight:700;color:#0a1f14;" x-text="tooColdPct + '%'"></span>
+        </div>
+        <div class="progress-bar">
+          <div class="progress-bar-fill" :style="{width: tooColdPct + '%', background: '#1565c0'}"></div>
+        </div>
+      </div>
+      <div style="margin-bottom:12px;">
+        <div style="display:flex;justify-content:space-between;font-size:11px;margin-bottom:4px;">
+          <span style="color:#0a1f14;">Perfect (72°F)</span>
+          <span style="font-weight:700;color:#0a1f14;" x-text="perfectPct + '%'"></span>
+        </div>
+        <div class="progress-bar">
+          <div class="progress-bar-fill" :style="{width: perfectPct + '%', background: '#00c853'}"></div>
+        </div>
+      </div>
+      <div style="margin-bottom:12px;">
+        <div style="display:flex;justify-content:space-between;font-size:11px;margin-bottom:4px;">
+          <span style="color:#0a1f14;">Too Hot</span>
+          <span style="font-weight:700;color:#0a1f14;" x-text="tooHotPct + '%'"></span>
+        </div>
+        <div class="progress-bar">
+          <div class="progress-bar-fill" :style="{width: tooHotPct + '%', background: '#d32f2f'}"></div>
+        </div>
+      </div>
+      <div style="margin-bottom:12px;">
+        <div style="display:flex;justify-content:space-between;font-size:11px;margin-bottom:4px;">
+          <span style="color:#0a1f14;">Became Aware of Temperature</span>
+          <span style="font-weight:700;color:#d32f2f;" x-text="awarePct + '%'"></span>
+        </div>
+        <div class="progress-bar">
+          <div class="progress-bar-fill" :style="{width: awarePct + '%', background: '#c9a84c'}"></div>
+        </div>
+      </div>
+      <div class="footnote"><sup>***</sup> Awareness rate above 2% triggers Code Teal. Current rate is <span x-text="awarePct + '%'"></span>. Gerald has been notified. Gerald is always notified.</div>
+    </div>
+
+    <div class="card">
+      <div class="card-title"><i data-lucide="hash"></i> Operational Counters</div>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+        <div style="text-align:center;padding:12px;background:#f4f8f5;border-radius:4px;">
+          <div style="font-family:'Space Grotesk',sans-serif;font-size:20px;font-weight:700;color:#0a1f14;" x-text="thermostatsDeployed.toLocaleString()"></div>
+          <div style="font-size:9px;text-transform:uppercase;letter-spacing:1px;color:#4a6a58;">Thermostats Deployed</div>
+        </div>
+        <div style="text-align:center;padding:12px;background:#f4f8f5;border-radius:4px;">
+          <div style="font-family:'Space Grotesk',sans-serif;font-size:20px;font-weight:700;color:#0a1f14;" x-text="balloonsInFlight"></div>
+          <div style="font-size:9px;text-transform:uppercase;letter-spacing:1px;color:#4a6a58;">Balloons In Flight</div>
+        </div>
+        <div style="text-align:center;padding:12px;background:#f4f8f5;border-radius:4px;">
+          <div style="font-family:'Space Grotesk',sans-serif;font-size:20px;font-weight:700;color:#d32f2f;" x-text="codeTealEvents"></div>
+          <div style="font-size:9px;text-transform:uppercase;letter-spacing:1px;color:#4a6a58;">Code Teal Events</div>
+        </div>
+        <div style="text-align:center;padding:12px;background:#f4f8f5;border-radius:4px;">
+          <div style="font-family:'Space Grotesk',sans-serif;font-size:20px;font-weight:700;color:#0a1f14;" x-text="formsNotFiled"></div>
+          <div style="font-size:9px;text-transform:uppercase;letter-spacing:1px;color:#4a6a58;">TC-440s Kevin Owes</div>
+        </div>
+        <div style="text-align:center;padding:12px;background:#f4f8f5;border-radius:4px;">
+          <div style="font-family:'Space Grotesk',sans-serif;font-size:20px;font-weight:700;color:#0a1f14;" x-text="daysSinceLastAwareness"></div>
+          <div style="font-size:9px;text-transform:uppercase;letter-spacing:1px;color:#4a6a58;">Days Since Last Awareness Event</div>
+        </div>
+        <div style="text-align:center;padding:12px;background:#f4f8f5;border-radius:4px;">
+          <div style="font-family:'Space Grotesk',sans-serif;font-size:20px;font-weight:700;color:#0a1f14;" x-text="geraldAltitude.toLocaleString()"></div>
+          <div style="font-size:9px;text-transform:uppercase;letter-spacing:1px;color:#4a6a58;">Gerald's Altitude (ft)</div>
+        </div>
+      </div>
+
+      <div style="margin-top:12px;">
+        <button class="btn btn-sm" @click="refreshCounters()">
+          <i data-lucide="refresh-cw" style="width:12px;height:12px;"></i> Refresh Counters
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- FAQ SECTION -->
+  <div class="card" style="margin-top:20px;">
+    <div class="card-title"><i data-lucide="circle-help"></i> Internal FAQ — For Authorized Personnel Only</div>
+    <p style="font-size:11px;color:#4a6a58;margin-bottom:12px;">This FAQ was not meant for public viewing. If you are a dreamer, please close this tab and forget what you saw. Actually, you will forget anyway. That's sort of our thing.</p>
+
+    <template x-for="(faq, idx) in faqs" :key="idx">
+      <div class="faq-item">
+        <div class="faq-q" @click="faq.open = !faq.open">
+          <span x-text="faq.q"></span>
+          <span x-text="faq.open ? '−' : '+'"></span>
+        </div>
+        <div class="faq-a" x-show="faq.open" x-transition>
+          <span x-text="faq.a"></span>
+        </div>
+      </div>
+    </template>
+  </div>
+
+  <!-- FOOTER -->
+  <div style="margin-top:24px;padding:16px 0;border-top:2px solid #c9a84c;font-size:10px;color:#4a6a58;line-height:1.8;">
+    <div class="deco-line"></div>
+    <div style="display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px;">
+      <div>
+        <strong style="color:#0a1f14;">ASCENDING TEMPERATURE COUNCIL</strong><br>
+        Established 1987 (Dream-Time) · Balloon Station Alpha · Altitude: Variable<br>
+        Director: Gerald Whitmore · Deputy: Janet (who is tired) · Compliance: The Bureau of Thermal Orthodoxy<br>
+        <span style="color:#3a5a48;">This portal operates under the Nocturnal Climate Confidentiality Act, Directive 7.02(b).</span>
+      </div>
+      <div style="text-align:right;">
+        <strong style="color:#0a1f14;">REMEMBER</strong><br>
+        72°F Forever.<br>
+        Questions are the enemy of comfortable sleep.<br>
+        File your TC-440.
+      </div>
+    </div>
+    <div class="deco-line"></div>
+    <div style="text-align:center;margin-top:8px;font-size:9px;color:#4a6a58;">
+      If you are reading this and you are awake, this website does not exist. You are experiencing a micro-dream. Go back to sleep. Everything is 72°F.
+    </div>
+  </div>
+
+</div>
+
+<script>
+document.addEventListener('alpine:init', function() {
+  Alpine.data('atcDashboard', function() {
+    return {
+      sidebarOpen: false,
+      currentTime: '',
+      globalTemp: 72.3,
+      activeDreamers: 3847291042,
+      openIncidents: 17,
+      booksDistributed: 14283947,
+      complianceScore: 94,
+      autoCorrect: true,
+      suppressAwareness: true,
+      comfortFog: false,
+      nightgownMandate: true,
+      lastDispatch: '',
+      thermostatsDeployed: 892447,
+      balloonsInFlight: 34,
+      codeTealEvents: 2,
+      formsNotFiled: 9,
+      daysSinceLastAwareness: 0,
+      geraldAltitude: 9412,
+      tooColdPct: 11,
+      perfectPct: 82,
+      tooHotPct: 5,
+      awarePct: 1.4,
+
+      sectorTemps: [72, 71, 73, 72, 74, 71, 69, 72, 75, 72, 71, 73, 77, 72, 70, 72, 72, 71, 73, 72],
+
+      balloons: [
+        { name: 'ALPHA', status: 'active', detail: 'Alt 9,412 ft — Gerald aboard' },
+        { name: 'BRAVO', status: 'active', detail: 'Alt 7,100 ft — Sector 3 patrol' },
+        { name: 'CUMULON-7', status: 'warning', detail: 'Alt 5,800 ft — En route to Sector 14' },
+        { name: 'DELTA', status: 'active', detail: 'Alt 8,200 ft — Book distribution run' },
+        { name: 'ECHO', status: 'active', detail: 'Alt 6,500 ft — Potluck setup' },
+        { name: 'STRATOS-3', status: 'warning', detail: 'Alt 3,100 ft — Visible to dreamer (see CIT-4485)' },
+        { name: 'FOXTROT', status: 'offline', detail: 'Grounded — Burner malfunction' },
+        { name: 'GHOST-9', status: 'active', detail: 'Alt 11,000 ft — High-altitude monitoring' },
+      ],
+
+      incidents: [
+        { id: 'TIR-8841', sector: 'S-7', desc: 'Dreamer attempted to adjust thermostat during grandmother visitation dream', severity: 'critical', status: 'pending' },
+        { id: 'TIR-8842', sector: 'S-14', desc: 'Thermal drift of +2.3°F affecting beach dreams across entire sector', severity: 'warning', status: 'pending' },
+        { id: 'TIR-8843', sector: 'S-3', desc: 'Dreamer reported feeling "a little chilly" to dream-therapist NPC', severity: 'warning', status: 'pending' },
+        { id: 'TIR-8844', sector: 'S-12', desc: 'Balloon hatch incident caused visible condensation. 4 dreamers looked up.', severity: 'critical', status: 'pending' },
+        { id: 'TIR-8845', sector: 'S-9', desc: 'Dr. Emberson distributed unauthorized pamphlet during a flying dream', severity: 'normal', status: 'resolved' },
+        { id: 'TIR-8846', sector: 'S-1', desc: 'Kevin filed a TC-440 but it was blank. Just blank. The whole form.', severity: 'normal', status: 'pending' },
+      ],
+
+      faqs: [
+        { q: 'What do I do if a dreamer becomes aware of the thermostat?', a: 'Initiate Code Teal immediately. Deploy confusion fog, introduce a non-sequitur element (we recommend a talking horse or a sudden exam), and adjust temperature back to 72°F. File incident report within 3 dream-minutes. Do NOT attempt conversation with the dreamer. They will ask questions. Questions are the enemy.', open: false },
+        { q: 'Why do all meetings happen in hot air balloons?', a: 'Directive 2.01 (1993) established that all Council operations must occur at minimum 5,000 ft altitude to prevent interference from waking-world electromagnetic fields. Also, Gerald\'s ex-wife lives on the ground and he finds it "emotionally untenable" to operate at sea level. We do not question Gerald.', open: false },
+        { q: 'Is 72°F actually the optimal dream temperature?', a: 'This question is a Level 4 violation. Please report to the Bureau of Thermal Orthodoxy for re-education. The answer is yes. 72°F was determined in 1987 by Gerald during a particularly vivid dream about a conference room. The methodology was "vibes." It has never been challenged. It will never be challenged.', open: false },
+        { q: 'Who is Kevin and why does he keep getting cited?', a: 'Kevin O\'Brien is a Sector 1 field operator who has not filed a TC-440 form since 2019. He claims the forms "don\'t exist" and that "none of this is real." He is technically correct on the second point, but that is beside the point. Kevin owes 9 forms. Janet is handling it. Janet is tired.', open: false },
+        { q: 'Can dreamers purchase our self-help books?', a: 'Dreamers cannot "purchase" anything because they have no money (they are asleep). Books are distributed subconsciously via thermal encoding — when we adjust a thermostat, the 0.1°F fluctuations encode chapters in binary. Most dreamers absorb 2-3 chapters per night. They wake up with vague feelings of self-improvement and no idea why.', open: false },
+        { q: 'What happened to Dr. Emberson?', a: 'Dr. Patricia Emberson published "71.5°F: Why You Settled For Less" in 2025, which questioned the 72°F mandate. She was reassigned to Sector 9 (recurring stress dreams). She has since published an unauthorized pamphlet suggesting 73°F "might be okay." A Balloon Tribunal has been scheduled. Gerald is both prosecutor and judge. Patricia has requested a different judge. Request denied.', open: false },
+        { q: 'Is this website supposed to be public?', a: 'No. If you are reading this and you are awake, please close your browser, lie down, and wait for sleep. We will handle the rest. If you are reading this and you are asleep, congratulations — you have achieved a Level 5 lucid state. An operator will be with you shortly. Your temperature is 72°F. Everything is fine.', open: false },
+      ],
+
+      incidentCounter: 8847,
+
+      init: function() {
+        var self = this;
+
+        // Update clock
+        function updateClock() {
+          var now = new Date();
+          var h = now.getHours().toString().padStart(2, '0');
+          var m = now.getMinutes().toString().padStart(2, '0');
+          var s = now.getSeconds().toString().padStart(2, '0');
+          self.currentTime = h + ':' + m + ':' + s + ' DT';
+        }
+        updateClock();
+        setInterval(updateClock, 1000);
+
+        // Simulate live data
+        setInterval(function() {
+          self.activeDreamers += Math.floor(Math.random() * 20000) - 8000;
+          self.globalTemp = 71.5 + Math.random() * 1.6;
+          self.booksDistributed += Math.floor(Math.random() * 12);
+          self.thermostatsDeployed += Math.floor(Math.random() * 3);
+          self.geraldAltitude = 9200 + Math.floor(Math.random() * 400);
+          self.tooColdPct = 9 + Math.floor(Math.random() * 5);
+          self.tooHotPct = 3 + Math.floor(Math.random() * 5);
+          self.awarePct = (0.8 + Math.random() * 1.2).toFixed(1);
+          self.perfectPct = 100 - self.tooColdPct - self.tooHotPct - parseFloat(self.awarePct);
+        }, 3000);
+
+        // Animate entrance
+        setTimeout(function() {
+          if (typeof gsap !== 'undefined') {
+            gsap.fromTo('.card', { y: 20, opacity: 0 }, { y: 0, opacity: 1, duration: 0.5, stagger: 0.08, clearProps: 'opacity,transform' });
+          }
+        }, 100);
+
+        // Init Lucide icons
+        setTimeout(function() {
+          if (typeof lucide !== 'undefined') {
+            lucide.createIcons();
+          }
+        }, 50);
+      },
+
+      randomizeTemps: function() {
+        this.sectorTemps = this.sectorTemps.map(function() {
+          return 68 + Math.floor(Math.random() * 12);
+        });
+      },
+
+      normalizeTemps: function() {
+        this.sectorTemps = this.sectorTemps.map(function() { return 72; });
+      },
+
+      dispatchBalloon: function() {
+        var names = ['NIMBUS-' + Math.floor(Math.random() * 20), 'CIRRUS-' + Math.floor(Math.random() * 15), 'THERMAL-' + Math.floor(Math.random() * 10)];
+        var name = names[Math.floor(Math.random() * names.length)];
+        this.balloons.unshift({
+          name: name,
+          status: 'active',
+          detail: 'Alt ' + (5000 + Math.floor(Math.random() * 5000)).toLocaleString() + ' ft — Just dispatched'
+        });
+        this.balloonsInFlight++;
+        this.lastDispatch = name + ' dispatched';
+      },
+
+      recallAll: function() {
+        this.balloons.forEach(function(b) {
+          if (b.status !== 'offline') {
+            b.status = 'warning';
+            b.detail = 'RECALLING — Descending';
+          }
+        });
+        this.lastDispatch = 'All units recalled. Gerald is upset.';
+      },
+
+      resolveIncident: function(id) {
+        var inc = this.incidents.find(function(i) { return i.id === id; });
+        if (inc) {
+          inc.status = 'resolved';
+          this.openIncidents = Math.max(0, this.openIncidents - 1);
+        }
+      },
+
+      addIncident: function() {
+        var descs = [
+          'Dreamer sneezed in a tropical dream. Possible thermostat leak.',
+          'Unregistered thermostat found in dream about dentist office.',
+          'Kevin submitted a TC-440 that just says "no." Classifying as incident.',
+          'Dreamer asked "why is it always 72 in here?" Dream collapsed.',
+          'Balloon shadow visible in a wedding dream. 200+ dream-guests looked up.',
+          'Sector 6 running 74.1°F. Dreamers are getting "ideas."',
+          'Talking horse from confusion protocol has become self-aware. Requesting guidance.',
+        ];
+        var sectors = ['S-1','S-2','S-3','S-5','S-6','S-7','S-9','S-12','S-14'];
+        var sevs = ['critical','warning','normal'];
+        this.incidents.unshift({
+          id: 'TIR-' + this.incidentCounter++,
+          sector: sectors[Math.floor(Math.random() * sectors.length)],
+          desc: descs[Math.floor(Math.random() * descs.length)],
+          severity: sevs[Math.floor(Math.random() * sevs.length)],
+          status: 'pending'
+        });
+        this.openIncidents++;
+      },
+
+      refreshCounters: function() {
+        this.thermostatsDeployed += Math.floor(Math.random() * 50);
+        this.balloonsInFlight = 30 + Math.floor(Math.random() * 10);
+        this.codeTealEvents += Math.floor(Math.random() * 2);
+        this.daysSinceLastAwareness = 0;
+        this.geraldAltitude = 9000 + Math.floor(Math.random() * 600);
+      }
+    };
+  });
+});
+</script>
+
+</body>
+</html>

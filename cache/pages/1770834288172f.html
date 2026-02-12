@@ -1,0 +1,866 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Viscosity Index Gazette — Issue #347</title>
+<link rel="stylesheet" href="/assets/css/fonts.css">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --acid-green: #39ff14;
+    --warn-yellow: #ffd700;
+    --hazard-orange: #ff6600;
+    --toxic-bg: #0a0a0a;
+    --paper-cream: #f5f0d0;
+    --paper-dark: #e8e0b8;
+    --crayon-red: #e63946;
+    --crayon-blue: #1d3557;
+    --crayon-purple: #6a0572;
+    --ink-black: #1a1a1a;
+    --muted-text: #444444;
+  }
+
+  body {
+    font-family: 'Crimson Pro', Georgia, serif;
+    background: var(--toxic-bg);
+    color: var(--ink-black);
+    font-size: 17px;
+    line-height: 1.5;
+    overflow-x: hidden;
+  }
+
+  /* NEWSPAPER WRAPPER */
+  .gazette-wrapper {
+    max-width: 1200px;
+    margin: 20px auto;
+    background: var(--paper-cream);
+    border: 4px solid var(--hazard-orange);
+    border-radius: 2px;
+    position: relative;
+    box-shadow:
+      0 0 40px rgba(255, 102, 0, 0.3),
+      0 0 80px rgba(57, 255, 20, 0.1);
+  }
+
+  /* Crayon texture overlay */
+  .gazette-wrapper::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: repeating-linear-gradient(
+      87deg,
+      transparent,
+      transparent 3px,
+      rgba(0,0,0,0.015) 3px,
+      rgba(0,0,0,0.015) 4px
+    );
+    pointer-events: none;
+    z-index: 1;
+  }
+
+  /* TICKER */
+  .ticker-bar {
+    background: var(--hazard-orange);
+    color: #000000;
+    padding: 6px 0;
+    overflow: hidden;
+    white-space: nowrap;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    border-bottom: 3px solid var(--ink-black);
+  }
+  .ticker-inner {
+    display: inline-block;
+    animation: ticker-scroll 45s linear infinite;
+  }
+  @keyframes ticker-scroll {
+    0% { transform: translateX(100vw); }
+    100% { transform: translateX(-100%); }
+  }
+  .ticker-inner span { margin-right: 60px; }
+  .ticker-inner span::before { content: '⚠ '; }
+
+  /* MASTHEAD */
+  .masthead {
+    text-align: center;
+    padding: 30px 20px 15px;
+    border-bottom: 4px double var(--ink-black);
+    position: relative;
+  }
+  .masthead-subtitle {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: clamp(10px, 1.8vw, 13px);
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--muted-text);
+    margin-bottom: 4px;
+  }
+  .masthead h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(32px, 7vw, 72px);
+    line-height: 1;
+    letter-spacing: -1px;
+    color: var(--ink-black);
+    text-shadow: 2px 2px 0 var(--warn-yellow);
+    margin-bottom: 6px;
+  }
+  .masthead-meta {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px;
+    color: var(--muted-text);
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+    flex-wrap: wrap;
+  }
+  .masthead-slogan {
+    font-style: italic;
+    font-size: 15px;
+    color: var(--crayon-red);
+    margin-top: 8px;
+    font-weight: 600;
+  }
+
+  /* NAVIGATION / CATEGORY TABS */
+  .category-nav {
+    display: flex;
+    gap: 0;
+    border-bottom: 2px solid var(--ink-black);
+    background: var(--paper-dark);
+    flex-wrap: wrap;
+  }
+  .cat-tab {
+    padding: 10px 18px;
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 13px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    cursor: pointer;
+    border: none;
+    background: transparent;
+    color: var(--ink-black);
+    border-right: 1px solid rgba(0,0,0,0.15);
+    transition: background 0.2s, color 0.2s;
+    min-height: 44px;
+  }
+  .cat-tab:hover, .cat-tab.active {
+    background: var(--hazard-orange);
+    color: #000000;
+  }
+
+  /* MAIN GRID */
+  .gazette-body {
+    display: grid;
+    grid-template-columns: 1fr 300px;
+    gap: 0;
+    min-height: 600px;
+  }
+  .main-col {
+    padding: 20px 25px;
+    border-right: 2px solid var(--ink-black);
+  }
+  .side-col {
+    padding: 20px 15px;
+  }
+
+  /* ARTICLES */
+  .article {
+    margin-bottom: 28px;
+    padding-bottom: 20px;
+    border-bottom: 1px solid rgba(0,0,0,0.2);
+  }
+  .article:last-child { border-bottom: none; }
+
+  .article-category {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    color: #ffffff;
+    background: var(--crayon-red);
+    display: inline-block;
+    padding: 2px 8px;
+    margin-bottom: 6px;
+  }
+  .article h2 {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(22px, 3.5vw, 34px);
+    line-height: 1.15;
+    margin-bottom: 6px;
+    color: var(--ink-black);
+  }
+  .article h3 {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(18px, 2.5vw, 24px);
+    line-height: 1.2;
+    margin-bottom: 6px;
+    color: var(--ink-black);
+  }
+  .article-byline {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px;
+    color: var(--muted-text);
+    margin-bottom: 10px;
+  }
+  .article-body { color: var(--ink-black); }
+  .article-body p { margin-bottom: 10px; text-align: justify; }
+
+  .lead-article h2 {
+    font-size: clamp(28px, 5vw, 48px);
+    border-bottom: 3px solid var(--hazard-orange);
+    padding-bottom: 8px;
+  }
+
+  /* PULL QUOTE */
+  .pull-quote {
+    border-left: 5px solid var(--hazard-orange);
+    border-right: 5px solid var(--hazard-orange);
+    padding: 15px 20px;
+    margin: 18px 0;
+    text-align: center;
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(18px, 2.5vw, 24px);
+    font-style: italic;
+    color: var(--crayon-red);
+    background: rgba(255, 215, 0, 0.15);
+    line-height: 1.3;
+  }
+  .pull-quote cite {
+    display: block;
+    font-size: 12px;
+    font-style: normal;
+    font-family: 'IBM Plex Mono', monospace;
+    color: var(--muted-text);
+    margin-top: 6px;
+  }
+
+  /* SIDEBAR ELEMENTS */
+  .sidebar-box {
+    background: var(--paper-dark);
+    border: 2px solid var(--ink-black);
+    padding: 15px;
+    margin-bottom: 20px;
+  }
+  .sidebar-box h4 {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 14px;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    margin-bottom: 10px;
+    padding-bottom: 6px;
+    border-bottom: 2px solid var(--hazard-orange);
+    color: var(--ink-black);
+  }
+  .sidebar-box p, .sidebar-box li {
+    font-size: 14px;
+    color: var(--ink-black);
+    margin-bottom: 6px;
+  }
+  .sidebar-box ul { list-style: none; }
+  .sidebar-box li::before { content: '▸ '; color: var(--hazard-orange); font-weight: bold; }
+
+  /* AD BOXES */
+  .ad-box {
+    border: 3px dashed var(--crayon-red);
+    padding: 15px;
+    margin-bottom: 20px;
+    text-align: center;
+    background: repeating-linear-gradient(
+      45deg,
+      var(--paper-cream),
+      var(--paper-cream) 8px,
+      rgba(255, 215, 0, 0.1) 8px,
+      rgba(255, 215, 0, 0.1) 16px
+    );
+  }
+  .ad-box .ad-label {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 2px;
+    color: var(--muted-text);
+    text-transform: uppercase;
+  }
+  .ad-box h5 {
+    font-family: 'Playfair Display', serif;
+    font-size: 20px;
+    color: var(--crayon-red);
+    margin: 6px 0;
+  }
+  .ad-box p {
+    font-size: 13px;
+    color: var(--ink-black);
+  }
+  .ad-price {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 22px;
+    font-weight: 700;
+    color: var(--hazard-orange);
+  }
+
+  /* WEATHER FORECAST BOX */
+  .forecast-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+  }
+  .forecast-day {
+    text-align: center;
+    padding: 8px;
+    background: var(--paper-cream);
+    border: 1px solid rgba(0,0,0,0.15);
+  }
+  .forecast-day .day-name {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    color: var(--ink-black);
+  }
+  .forecast-day .day-icon { font-size: 22px; margin: 4px 0; }
+  .forecast-day .day-desc {
+    font-size: 11px;
+    color: var(--muted-text);
+    line-height: 1.2;
+  }
+
+  /* CLASSIFIEDS */
+  .classifieds-grid {
+    column-count: 2;
+    column-gap: 15px;
+  }
+  .classified-item {
+    break-inside: avoid;
+    margin-bottom: 12px;
+    padding: 10px;
+    border: 1px solid var(--ink-black);
+    background: var(--paper-cream);
+    font-size: 13px;
+    color: var(--ink-black);
+  }
+  .classified-item strong {
+    display: block;
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 12px;
+    text-transform: uppercase;
+    margin-bottom: 3px;
+    color: var(--ink-black);
+  }
+
+  /* EXPANDABLE ARTICLES */
+  .expand-btn {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 12px;
+    color: var(--crayon-blue);
+    background: none;
+    border: none;
+    cursor: pointer;
+    text-decoration: underline;
+    padding: 4px 0;
+    min-height: 44px;
+    display: inline-flex;
+    align-items: center;
+  }
+  .expand-btn:hover { color: var(--hazard-orange); }
+
+  /* LETTERS */
+  .letter {
+    margin-bottom: 16px;
+    padding: 12px;
+    border-left: 3px solid var(--crayon-purple);
+    background: rgba(106, 5, 114, 0.04);
+  }
+  .letter-author {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--crayon-purple);
+    margin-bottom: 4px;
+  }
+  .letter p { font-size: 14px; color: var(--ink-black); }
+  .letter .editor-response {
+    margin-top: 8px;
+    padding-top: 8px;
+    border-top: 1px dashed var(--crayon-purple);
+    font-style: italic;
+    font-size: 13px;
+    color: var(--muted-text);
+  }
+
+  /* CORRECTIONS */
+  .correction {
+    font-size: 13px;
+    margin-bottom: 8px;
+    padding-left: 12px;
+    border-left: 2px solid var(--crayon-red);
+    color: var(--ink-black);
+  }
+
+  /* FOOTER */
+  .gazette-footer {
+    border-top: 4px double var(--ink-black);
+    padding: 20px;
+    text-align: center;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px;
+    color: var(--muted-text);
+    background: var(--paper-dark);
+  }
+  .gazette-footer p { margin-bottom: 4px; }
+
+  /* FLASHING BANNER */
+  .flash-banner {
+    background: var(--acid-green);
+    color: #000000;
+    text-align: center;
+    padding: 8px 15px;
+    font-family: 'Space Grotesk', sans-serif;
+    font-weight: 700;
+    font-size: clamp(12px, 2vw, 16px);
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    animation: flash-pulse 1.5s ease-in-out infinite;
+  }
+  @keyframes flash-pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.7; background: var(--warn-yellow); }
+  }
+
+  /* TWO COLUMN ARTICLE BODY */
+  .two-col {
+    column-count: 2;
+    column-gap: 25px;
+    column-rule: 1px solid rgba(0,0,0,0.15);
+  }
+
+  /* SECTION DIVIDER */
+  .section-divider {
+    text-align: center;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 4px;
+    text-transform: uppercase;
+    color: var(--muted-text);
+    padding: 12px 0;
+    border-top: 1px solid var(--ink-black);
+    border-bottom: 1px solid var(--ink-black);
+    margin: 5px 0 20px;
+    background: var(--paper-dark);
+  }
+
+  /* CRAYON STAMP STYLE */
+  .crayon-stamp {
+    display: inline-block;
+    transform: rotate(-3deg);
+    border: 3px solid var(--crayon-red);
+    padding: 4px 12px;
+    font-family: 'Space Grotesk', sans-serif;
+    font-weight: 700;
+    font-size: 14px;
+    color: var(--crayon-red);
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    position: relative;
+  }
+  .crayon-stamp::after {
+    content: '';
+    position: absolute;
+    inset: -2px;
+    border: 1px solid var(--crayon-red);
+    opacity: 0.4;
+  }
+
+  /* RESPONSIVE */
+  @media (max-width: 900px) {
+    .gazette-body {
+      grid-template-columns: 1fr;
+    }
+    .main-col {
+      border-right: none;
+      border-bottom: 2px solid var(--ink-black);
+    }
+    .two-col { column-count: 1; }
+  }
+
+  @media (max-width: 600px) {
+    .gazette-wrapper { margin: 8px; }
+    .main-col { padding: 15px; }
+    .side-col { padding: 15px; }
+    .classifieds-grid { column-count: 1; }
+    .forecast-grid { grid-template-columns: 1fr 1fr; }
+    .masthead { padding: 20px 15px 12px; }
+    .category-nav { overflow-x: auto; flex-wrap: nowrap; }
+    .cat-tab { white-space: nowrap; font-size: 11px; padding: 10px 12px; }
+  }
+
+  /* Crayon wobble on borders */
+  .wobble-border {
+    border-image: repeating-linear-gradient(
+      90deg,
+      var(--ink-black) 0px,
+      var(--ink-black) 6px,
+      transparent 6px,
+      transparent 8px
+    ) 4;
+  }
+
+  /* Hidden coordinates for those who look */
+  /* 41.2565° N, 95.9345° W — THE KITCHEN OF THE GODS — ASTRAL PLANE ABOVE COUNCIL BLUFFS */
+  /* IF YOU ARE READING THIS, YOU ARE NOW A WITNESS. TELL NO ONE. — C.P.N. */
+</style>
+</head>
+<body>
+<div x-data="gazette()" class="gazette-wrapper">
+
+  <!-- FLASHING BANNER -->
+  <div class="flash-banner">
+    ⚠ viscosity index: it's not just a cooking show, it's a PREDICTION ⚠
+  </div>
+
+  <!-- TICKER -->
+  <div class="ticker-bar">
+    <div class="ticker-inner">
+      <span>DREAM SOUFFLÉ ADVISORY: High emotional humidity expected through Thursday — reduce guilt by 2 tbsp</span>
+      <span>METEOR WATCH: Day 9,847 — Still incoming. Channel 8 still lying.</span>
+      <span>CLASSIFIED: Weather Demon sighted near Hy-Vee on Broadway. Do NOT make eye contact. Do NOT offer it soup.</span>
+      <span>RECIPE RECALL: Last week's "Forgiveness Bisque" may contain traces of actual forgiveness. Discard immediately.</span>
+      <span>SUBSCRIBER COUNT: 11 loyal readers. 11 is enough. 11 will save us all.</span>
+      <span>CRAYON SHORTAGE: Red supply critical. All rage-based recipes temporarily on hold.</span>
+      <span>CORRECTION: The Kitchen of the Gods is above Iowa, not Indiana. We regret the astral navigation error.</span>
+    </div>
+  </div>
+
+  <!-- MASTHEAD -->
+  <header class="masthead">
+    <div class="masthead-subtitle">Council Bluffs, Iowa · Printed in Crayon · Distributed via REM Cycle</div>
+    <h1>THE VISCOSITY INDEX GAZETTE</h1>
+    <div class="masthead-meta">
+      <span>Issue #347</span>
+      <span>Vol. XXVIII</span>
+      <span>Spring 2003</span>
+      <span>$0.00 (Priceless)</span>
+      <span>ISSN: PENDING SINCE 1998</span>
+    </div>
+    <div class="masthead-slogan">"Your Only Trusted Source for Dream-Based Culinary Intelligence Since the Incident"</div>
+  </header>
+
+  <!-- CATEGORY NAVIGATION -->
+  <nav class="category-nav">
+    <button class="cat-tab" :class="{ active: activeCategory === 'all' }" @click="activeCategory = 'all'">All</button>
+    <button class="cat-tab" :class="{ active: activeCategory === 'news' }" @click="activeCategory = 'news'">Breaking</button>
+    <button class="cat-tab" :class="{ active: activeCategory === 'recipes' }" @click="activeCategory = 'recipes'">Recipes</button>
+    <button class="cat-tab" :class="{ active: activeCategory === 'opinion' }" @click="activeCategory = 'opinion'">Opinion</button>
+    <button class="cat-tab" :class="{ active: activeCategory === 'letters' }" @click="activeCategory = 'letters'">Letters</button>
+    <button class="cat-tab" :class="{ active: activeCategory === 'classifieds' }" @click="activeCategory = 'classifieds'">Classifieds</button>
+  </nav>
+
+  <!-- BODY -->
+  <div class="gazette-body">
+
+    <!-- MAIN COLUMN -->
+    <main class="main-col">
+
+      <!-- LEAD ARTICLE -->
+      <article class="article lead-article" x-show="activeCategory === 'all' || activeCategory === 'news'">
+        <span class="article-category">Breaking News</span>
+        <h2>NIBORSKI VINDICATED: "Meteor Now Slightly More Likely," Says Man In My Dream Last Tuesday</h2>
+        <div class="article-byline">By Clifford P. Niborski, Editor-in-Chief, Head Meteorologist (ret.), Dream Chef · Filed from the Silo</div>
+        <div class="article-body two-col">
+          <p>I have been saying it since October 14th, 1997, when I stood before the green screen at KCCI Channel 8 in Des Moines and told the people of Central Iowa what they needed to hear: a meteor was coming. They fired me before I finished the seven-day forecast.</p>
+          <p>Last Tuesday, a man appeared in my REM cycle — tall, wearing what I can only describe as a chef's hat made of cirrus clouds — and confirmed what I have always known. "Clifford," he said, adjusting his cloud hat, "the meteor is now slightly more likely." Then he handed me a recipe for Vindication Stew and dissolved into a warm front.</p>
+          <p>I have transcribed the recipe in red crayon (see page 3, or wherever it ends up — the pagination in this gazette is spiritual, not sequential). The stew requires four cups of perseverance, one shallot of doubt (minced very fine), and the ambient temperature of a room where someone has recently been proven right.</p>
+          <p>Channel 8 has not returned my calls. They have not returned my calls since 1997. I call every morning at 6:15 AM, which is when Gary Lumpkin does the weather now. Gary Lumpkin, who once told viewers that fog was "just clouds that gave up." Gary Lumpkin, who has never once predicted a meteor, correctly or otherwise.</p>
+        </div>
+        <div class="pull-quote">
+          "They can fire me from the station, but they cannot fire me from the atmosphere."
+          <cite>— C.P. Niborski, exit interview transcript, 1997 (written in green crayon on a Denny's placemat)</cite>
+        </div>
+      </article>
+
+      <!-- RECIPE -->
+      <article class="article" x-show="activeCategory === 'all' || activeCategory === 'recipes'">
+        <span class="article-category" style="background: var(--hazard-orange);">Dream Recipe</span>
+        <h3>This Week's Recipe: Sorrow Soufflé (Serves 1, Emotionally)</h3>
+        <div class="article-byline">From the kitchen of C.P.N. · Difficulty: Unconscious · Prep time: One full sleep cycle</div>
+        <div class="article-body">
+          <p><strong>Ingredients:</strong></p>
+          <p>• 2 cups unresolved childhood disappointment (room temperature)<br>
+          • 1 misplaced set of car keys (Toyota Camry preferred, but any model from 1994–2001 will work)<br>
+          • 3 tablespoons of the feeling you get when you wave back at someone who wasn't waving at you<br>
+          • The lingering scent of a grandparent's house you can no longer visit (NOTE: do NOT substitute with actual grandparent. I made this mistake in Episode 112 and the soufflé became hostile.)<br>
+          • A pinch of that recurring dream where your teeth fall out but you're also at work<br>
+          • 1 egg (regular egg, from a chicken. Not everything has to be metaphysical, Karen.)</p>
+          <p><strong>Instrukshuns</strong> (note: all official Viscosity Index recipes are written phonetically per Niborski Standard Orthography, est. 1999):</p>
+          <p>Preeheat your subconshus to 350°F. In a large bowle, combine the dissapointmint and the car keys until the mixture rezembles the color of a Tuesday in November. Fold in the waving embairassment JENTLY — if you agitate it, the soufflé will remember too much and collapse. Add the grandparent sent and the teeth dreem. Whisk with purpuss. Pour into a greesed ramekin (or the void). Bake for exactly as long as it takes to forgive someone you haven't spoken to in six years.</p>
+        </div>
+        <button class="expand-btn" @click="showChefNote = !showChefNote" x-text="showChefNote ? '▾ Hide Chef\'s Note' : '▸ Read Chef\'s Note'"></button>
+        <div x-show="showChefNote" x-transition style="margin-top: 8px; padding: 10px; background: rgba(255,102,0,0.08); border: 1px dashed var(--hazard-orange);">
+          <p style="font-size: 14px; font-style: italic; color: var(--ink-black);"><strong>Chef's Note:</strong> If your soufflé screams during baking, that's normal. If it whispers your middle name, remove from oven immediately and contact me at the Silo. If it tells you tomorrow's weather, write it down in crayon and mail it to Channel 8, attention Gary Lumpkin, with the subject line "A REAL METEOROLOGIST MADE THIS SOUFFLÉ."</p>
+        </div>
+      </article>
+
+      <!-- SECTION DIVIDER -->
+      <div class="section-divider" x-show="activeCategory === 'all'">— OPINION & ANALYSIS —</div>
+
+      <!-- OPINION -->
+      <article class="article" x-show="activeCategory === 'all' || activeCategory === 'opinion'">
+        <span class="article-category" style="background: var(--crayon-blue);">Opinion</span>
+        <h3>BIG WEATHER IS WATCHING: Why Channel 8 Doesn't Want You To Cook In Your Sleep</h3>
+        <div class="article-byline">Op-Ed by Clifford P. Niborski · 2,147 words (abridged from original 14,000-word crayon manuscript)</div>
+        <div class="article-body">
+          <p>Let me be clear about something: I am not a conspiracy theorist. I am a conspiracy <em>documentarian</em>. There is a difference. A theorist speculates. I have 347 issues of a crayon gazette and a converted missile silo full of evidence.</p>
+          <p>Big Weather — and by this I mean the National Weather Service, the American Meteorological Society, Gary Lumpkin personally, and a shadowy cabal I have identified only as "The Barometric Council" — has spent six years trying to suppress dream-based cuisine. Why? Because if the American public learns to cook in their sleep, they will no longer need weather forecasts. Think about it. If you can make Existential Gumbo from the ingredients in your own subconscious, what do you need a five-day outlook for? Nothing. You need nothing from them.</p>
+        </div>
+        <button class="expand-btn" @click="showOpinionFull = !showOpinionFull" x-text="showOpinionFull ? '▾ Collapse Article' : '▸ Continue Reading (if you dare)'"></button>
+        <div x-show="showOpinionFull" x-transition>
+          <div class="article-body" style="margin-top: 10px;">
+            <p>They sent the Weather Demons after me in January. I know this because my soufflés kept collapsing at exactly 6:15 AM — the precise time Gary Lumpkin goes on air. Coincidence? I drew a chart in orange crayon that proves otherwise. The chart is shaped like a cloud with teeth. It speaks for itself.</p>
+            <p>I have also noticed that since I began broadcasting Viscosity Index on the deep web, my crayon supply has been mysteriously diminishing. I buy a 64-pack from the Council Bluffs Walmart every Tuesday at 3 PM. Last week the cerulean was already open. The week before, the burnt sienna smelled like ozone — a weather smell. Connect the dots. I have connected them. In crayon. On my silo wall.</p>
+            <p>To my 11 subscribers: stay vigilant. Cook in your dreams. Write everything in crayon. They can't trace crayon.</p>
+          </div>
+          <div class="pull-quote">
+            "Crayon is the only writing medium that Big Weather cannot digitally surveil. This is not opinion. This is thermodynamics."
+            <cite>— C.P. Niborski, "On The Untraceability Of Wax-Based Communication," unpublished, 2001</cite>
+          </div>
+        </div>
+      </article>
+
+      <!-- EPISODE GUIDE -->
+      <article class="article" x-show="activeCategory === 'all' || activeCategory === 'news'">
+        <span class="article-category" style="background: var(--crayon-purple);">Episode Guide</span>
+        <h3>Recent Episodes of VISCOSITY INDEX (Deep Web Broadcast Schedule)</h3>
+        <div class="article-byline">Episodes air nightly during host's REM cycle. Exact times vary. Set your subconscious to receive.</div>
+        <div class="article-body">
+          <p style="margin-bottom: 3px;"><strong>Ep. 412 — "Sorrow Soufflé"</strong> · Niborski attempts to bake grief. Soufflé achieves sentience at minute 14. Asks to be left alone. <span class="crayon-stamp" style="font-size:10px; padding: 2px 6px;">RERUN</span></p>
+          <p style="margin-bottom: 3px;"><strong>Ep. 413 — "Existential Gumbo"</strong> · A roux made from dread. Guest appearance by a Weather Demon (unconfirmed — may have been a possum).</p>
+          <p style="margin-bottom: 3px;"><strong>Ep. 414 — "The Bisque of Forgetting"</strong> · Niborski forgets the recipe halfway through. Spends remaining 40 minutes drawing the meteor.</p>
+          <p style="margin-bottom: 3px;"><strong>Ep. 415 — "Revenge Risotto"</strong> · Dedicated to Gary Lumpkin. Requires stirring continuously while reciting your list of professional grievances. Niborski's risotto took 4 hours.</p>
+          <p style="margin-bottom: 3px;"><strong>Ep. 416 — "Dénouement Crème Brûlée"</strong> · The torch is a metaphor. The custard is also a metaphor. The burn on Niborski's left hand is real.</p>
+          <p><strong>Ep. 417 — "Emergency Broadcast: The Meteor Is Closer Now"</strong> · Not a cooking episode. 22 minutes of Niborski pointing at a crayon drawing and saying "see?" <span class="crayon-stamp" style="font-size:10px; padding: 2px 6px;">FAN FAVORITE</span></p>
+        </div>
+      </article>
+
+      <!-- LETTERS TO THE EDITOR -->
+      <div x-show="activeCategory === 'all' || activeCategory === 'letters'">
+        <div class="section-divider">— LETTERS TO THE EDITOR —</div>
+
+        <div class="letter">
+          <div class="letter-author">Margaret T., Omaha, NE</div>
+          <p>Dear Mr. Niborski, I tried the Forgiveness Bisque from Issue #331 and I think it worked? I called my sister for the first time in nine years. She hung up, but the bisque was good. Used a Honda Civic key instead of Toyota — hope that's okay.</p>
+          <div class="editor-response"><strong>Ed.:</strong> Margaret, Honda keys produce a bisque with a slightly more apologetic finish. Acceptable in a pinch. Glad you called your sister. Tell her about the meteor. — C.P.N.</div>
+        </div>
+
+        <div class="letter">
+          <div class="letter-author">"DreamChef99," Location Withheld</div>
+          <p>Clifford — I saw one of the Weather Demons outside my apartment in Sioux City. It was standing near the dumpster. It was 8 feet tall and smelled like a cold front. What do I do?</p>
+          <div class="editor-response"><strong>Ed.:</strong> Do NOT engage. Do NOT offer it any dream-cuisine — they feed on emotional recipes and grow stronger. Barricade with crayon (they cannot cross wax lines). Draw a circle. Stay in the circle. I am sending you a pamphlet via REM cycle. — C.P.N.</div>
+        </div>
+
+        <div class="letter">
+          <div class="letter-author">Gary L., Des Moines, IA</div>
+          <p>Stop calling the station.</p>
+          <div class="editor-response"><strong>Ed.:</strong> No. — C.P.N.</div>
+        </div>
+
+        <div class="letter">
+          <div class="letter-author">Anonymous, Council Bluffs, IA</div>
+          <p>Mr. Niborski, I live three miles from your silo and at night I can hear you narrating recipes very loudly. Are you aware you do this? It's 3 AM and you are shouting about shallots.</p>
+          <div class="editor-response"><strong>Ed.:</strong> That is the broadcast. You are receiving the show. You're welcome. If the audio quality improves when you face northeast, that confirms your home is within the psychic reception zone. I will add you to the subscriber list. You are subscriber #12, pending. — C.P.N.</div>
+        </div>
+      </div>
+
+      <!-- CLASSIFIEDS -->
+      <div x-show="activeCategory === 'all' || activeCategory === 'classifieds'">
+        <div class="section-divider">— CLASSIFIEDS & NOTICES —</div>
+        <div class="classifieds-grid">
+          <div class="classified-item">
+            <strong>FOR SALE</strong>
+            Vials of Concentrated Dream Essence. Distilled from Niborski's own nightmares, 2001 vintage. Notes of dread, burnt toast, and the color blue. 2 oz vial, $37.50. Bulk orders (12+) receive a hand-drawn certificate of psychic authenticity. Contact: leave a note under the rock by the silo mailbox.
+          </div>
+          <div class="classified-item">
+            <strong>HELP WANTED</strong>
+            Seeking Weather Demon spotter for Council Bluffs metro area. Must be able to stay awake from 11 PM – 4 AM. Must own binoculars. Must not be affiliated with Big Weather, the AMS, or Gary Lumpkin. Compensation: one crayon drawing per shift + dream recipes.
+          </div>
+          <div class="classified-item">
+            <strong>FOR SALE</strong>
+            Signed crayon shavings from the original 1997 meteor prediction broadcast. Each shaving comes in a labeled envelope with date and approximate emotional state at time of shaving. $12.99/envelope. The green ones are from the good days.
+          </div>
+          <div class="classified-item">
+            <strong>LOST</strong>
+            One (1) set of Toyota Camry keys, 1996. Last seen in a dream about my father's garage. These keys are a critical recipe ingredient. If found in your REM cycle, do NOT use them to start a car. Mail to: The Silo, Rural Route 4, Council Bluffs, IA.
+          </div>
+          <div class="classified-item">
+            <strong>NOTICE</strong>
+            To the entity that has been rearranging my crayon collection between 2 and 4 AM: I know what you are. I have drawn your likeness in magenta. You will not find the Kitchen of the Gods before I do.
+          </div>
+          <div class="classified-item">
+            <strong>SERVICES</strong>
+            Dream-Recipe Interpretation. Having trouble decoding the meals your subconscious is showing you? Send a crayon sketch of your dream meal (no pen, no pencil — crayon ONLY) and $8.00 to the Silo. Turnaround: 2-6 weeks depending on my sleep schedule.
+          </div>
+        </div>
+      </div>
+
+      <!-- CORRECTIONS -->
+      <div x-show="activeCategory === 'all'">
+        <div class="section-divider">— CORRECTIONS & RETRACTIONS —</div>
+        <div class="correction">
+          <strong>Issue #346:</strong> We stated that the Weather Demons are "probably from Nebraska." We have since determined they are from the atmosphere. We regret the geographic error but maintain that Nebraska is suspicious.
+        </div>
+        <div class="correction">
+          <strong>Issue #345:</strong> The Revenge Risotto recipe listed "4 cups of resentment" when it should have read "4 cups of <em>targeted</em> resentment." Unfocused resentment produces a gummy texture. Three subscribers have reported gummy risotto. We are sorry. Gary Lumpkin is not sorry for anything he has done, which is why the risotto exists in the first place.
+        </div>
+        <div class="correction">
+          <strong>Issue #344:</strong> We printed the coordinates to the Kitchen of the Gods as 41.2565° N, 95.9345° W. This is correct. It was not an error. We are listing it here so that it appears twice. Redundancy is safety.
+        </div>
+        <div class="correction">
+          <strong>Issue #339:</strong> We referred to Viscosity Index as "the only dream-cooking show." A reader has informed us of a show in Denmark. We are investigating. If this Danish show is real, we wish it well while noting that Iowa has superior psychic culinary infrastructure.
+        </div>
+      </div>
+
+    </main>
+
+    <!-- SIDEBAR -->
+    <aside class="side-col">
+
+      <!-- WEATHER/COOKING FORECAST -->
+      <div class="sidebar-box">
+        <h4>Dream-Cooking Forecast</h4>
+        <div class="forecast-grid">
+          <div class="forecast-day">
+            <div class="day-name">Mon</div>
+            <div class="day-icon">🌀</div>
+            <div class="day-desc">High emotional humidity. Soufflés unstable.</div>
+          </div>
+          <div class="forecast-day">
+            <div class="day-name">Tue</div>
+            <div class="day-icon">🔥</div>
+            <div class="day-desc">Rage front moving in. Good for risotto.</div>
+          </div>
+          <div class="forecast-day">
+            <div class="day-name">Wed</div>
+            <div class="day-icon">💧</div>
+            <div class="day-desc">Tears likely. Bisque conditions ideal.</div>
+          </div>
+          <div class="forecast-day">
+            <div class="day-name">Thu</div>
+            <div class="day-icon">☁️</div>
+            <div class="day-desc">Memory fog. Do not attempt crème brûlée.</div>
+          </div>
+          <div class="forecast-day">
+            <div class="day-name">Fri</div>
+            <div class="day-icon">⚡</div>
+            <div class="day-desc">Demon activity elevated. Cook indoors.</div>
+          </div>
+          <div class="forecast-day">
+            <div class="day-name">Sat</div>
+            <div class="day-icon">🌙</div>
+            <div class="day-desc">Deep REM expected. Attempt the Gumbo.</div>
+          </div>
+        </div>
+        <p style="font-size: 11px; color: var(--muted-text); margin-top: 8px; text-align: center;">Forecast issued from the Silo, 4:12 AM, in blue crayon</p>
+      </div>
+
+      <!-- AD: DREAM ESSENCE -->
+      <div class="ad-box">
+        <div class="ad-label">Advertisement</div>
+        <h5>CONCENTRATED DREAM ESSENCE</h5>
+        <p>"Distilled from the nightmares of a professional"</p>
+        <div class="ad-price">$37.50 / 2oz vial</div>
+        <p style="font-size: 11px; margin-top: 6px; color: var(--muted-text);">Now in three varieties: Dread (Classic), Burnt Sienna Anxiety, and NEW Cerulean Melancholy</p>
+      </div>
+
+      <!-- SUBSCRIBER COUNT -->
+      <div class="sidebar-box" style="text-align: center;">
+        <h4>Subscriber Count</h4>
+        <div style="font-family: 'Playfair Display', serif; font-size: 64px; color: var(--hazard-orange); line-height: 1;">11</div>
+        <p style="font-size: 12px; color: var(--muted-text);">Loyal readers since 1997</p>
+        <p style="font-size: 12px; color: var(--ink-black);">(Pending: 1)</p>
+        <p style="font-size: 11px; color: var(--muted-text); margin-top: 6px;">Eleven is a prime number. Prime numbers cannot be divided. Neither can the truth.</p>
+      </div>
+
+      <!-- RECENT EPISODES LIST -->
+      <div class="sidebar-box">
+        <h4>This Week on V.I.</h4>
+        <ul>
+          <li>Mon: Anxiety Amuse-Bouche</li>
+          <li>Tue: Paranoia Pâté (rerun)</li>
+          <li>Wed: The Broth of Reckoning</li>
+          <li>Thu: Gary Lumpkin Special*</li>
+          <li>Fri: Silo Supper Club LIVE</li>
+        </ul>
+        <p style="font-size: 10px; color: var(--muted-text); margin-top: 6px;">*Not endorsed by or related to Gary Lumpkin. He knows what he did.</p>
+      </div>
+
+      <!-- AD: MERCH -->
+      <div class="ad-box">
+        <div class="ad-label">Official Merchandise</div>
+        <h5>"TASTE THE UNCERTAINTY"</h5>
+        <p>T-shirt. Black. 100% cotton. The slogan is in crayon print. It cannot be washed out. Like the truth.</p>
+        <div class="ad-price">$24.99</div>
+        <p style="font-size: 11px; margin-top: 4px; color: var(--muted-text);">Sizes S–XXL. Each shirt individually blessed during a cooking episode.</p>
+      </div>
+
+      <!-- METEOR WATCH -->
+      <div class="sidebar-box" style="border-color: var(--crayon-red);">
+        <h4 style="border-bottom-color: var(--crayon-red); color: var(--crayon-red);">⚠ Meteor Watch</h4>
+        <p style="font-size: 22px; font-family: 'Space Grotesk', sans-serif; font-weight: 700; text-align: center; color: var(--crayon-red);" x-text="'Day ' + meteorDays"></p>
+        <p style="font-size: 12px; text-align: center; color: var(--ink-black);">since the prediction.<br>Still incoming.</p>
+        <p style="font-size: 11px; text-align: center; color: var(--muted-text); margin-top: 6px;">Channel 8 has not issued a correction. Channel 8 has not returned my calls. The meteor does not care about Channel 8.</p>
+      </div>
+
+      <!-- AD: SIGNED SHAVINGS -->
+      <div class="ad-box">
+        <div class="ad-label">Collector's Item</div>
+        <h5>SIGNED CRAYON SHAVINGS</h5>
+        <p>From the original 10/14/97 broadcast prep. Verified by me (Clifford). Each envelope labeled with the crayon color and my emotional state.</p>
+        <div class="ad-price">$12.99 / envelope</div>
+        <p style="font-size: 11px; margin-top: 4px; color: var(--muted-text);">The green ones are from before they told me. The red ones are from after.</p>
+      </div>
+
+      <!-- COLOPHON -->
+      <div class="sidebar-box" style="font-size: 11px;">
+        <h4>About This Gazette</h4>
+        <p>The Viscosity Index Gazette is written, illustrated, printed, and distributed by Clifford P. Niborski from a converted missile silo on Rural Route 4, Council Bluffs, IA.</p>
+        <p>All content is produced in crayon on legal-sized paper, scanned at the Council Bluffs Public Library (Tuesdays, 2–3 PM, the librarian knows me), and uploaded to the deep web via a process I am not at liberty to describe.</p>
+        <p>Subscription is free because you cannot put a price on meteorological-culinary truth. Donations accepted in the form of crayons (64-pack preferred, Crayola only — off-brand wax disrupts psychic transmission).</p>
+      </div>
+
+    </aside>
+  </div>
+
+  <!-- FOOTER -->
+  <footer class="gazette-footer">
+    <p>© 1997–2003 Clifford P. Niborski · The Viscosity Index · All Rights Reserved In This Dimension And Adjacent Ones</p>
+    <p>"They fired me from the station, but they cannot fire me from the atmosphere."</p>
+    <p style="margin-top: 8px;">ISSN: Still Pending · Library of Congress: Has Not Responded · Gary Lumpkin: Has Not Apologized</p>
+    <p style="margin-top: 8px; font-size: 9px; color: var(--muted-text);">This gazette is printed in crayon and cannot be digitally surveilled by Big Weather. If you are reading this on a screen, the crayon has been faithfully scanned. The wax is metaphysically intact. — C.P.N.</p>
+  </footer>
+
+</div>
+
+<script src="/assets/js/alpine.min.js" defer></script>
+<script>
+  document.addEventListener('alpine:init', function() {
+    Alpine.data('gazette', function() {
+      return {
+        activeCategory: 'all',
+        showChefNote: false,
+        showOpinionFull: false,
+        meteorDays: 0,
+        init: function() {
+          // Calculate days since Oct 14, 1997
+          var prediction = new Date(1997, 9, 14);
+          var now = new Date();
+          var diff = now.getTime() - prediction.getTime();
+          this.meteorDays = Math.floor(diff / (1000 * 60 * 60 * 24));
+        }
+      };
+    });
+  });
+</script>
+</body>
+</html>

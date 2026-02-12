@@ -1,0 +1,954 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Dreadnought Fitness Gazette — Vol. XLVII, No. 3</title>
+<link rel="stylesheet" href="/assets/css/fonts.css">
+<script defer src="/assets/js/alpine.min.js"></script>
+<script src="/assets/js/gsap.min.js"></script>
+<style>
+  :root {
+    --coral: #E8735A;
+    --gold: #D4A03C;
+    --purple: #6B3FA0;
+    --deep-blue: #1A1A3E;
+    --cream: #FFF8F0;
+    --ink: #1A1A1A;
+    --muted: #444444;
+    --rule: #2A2A2A;
+    --bg: #FFF8F0;
+    --text: #1A1A1A;
+    --card-bg: #FFFFFF;
+    --rule-color: #1A1A1A;
+    --muted-text: #444444;
+    --accent-bg: #F5EDE0;
+    --ticker-bg: #1A1A3E;
+    --ticker-text: #FFFFFF;
+    --paw-color: rgba(107, 63, 160, 0.06);
+  }
+
+  [x-cloak] { display: none !important; }
+
+  .dread-mode {
+    --bg: #0E0E1A;
+    --text: #E8E0D8;
+    --card-bg: #1A1A2E;
+    --rule-color: #444466;
+    --muted-text: #B0A8C0;
+    --accent-bg: #16162A;
+    --ticker-bg: #6B3FA0;
+    --ticker-text: #FFFFFF;
+    --paw-color: rgba(107, 63, 160, 0.08);
+    --coral: #F0907A;
+    --gold: #E8B84C;
+    --purple: #9B6FD0;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Crimson Pro', Georgia, serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.6;
+    transition: background 0.4s, color 0.4s;
+    overflow-x: hidden;
+  }
+
+  /* TICKER */
+  .ticker-wrap {
+    background: var(--ticker-bg);
+    overflow: hidden;
+    height: 36px;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    border-bottom: 2px solid var(--gold);
+  }
+  .ticker {
+    display: flex;
+    white-space: nowrap;
+    animation: ticker-scroll 40s linear infinite;
+    height: 36px;
+    align-items: center;
+  }
+  .ticker span {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 13px;
+    color: var(--ticker-text);
+    padding: 0 3em;
+    letter-spacing: 0.02em;
+  }
+  .ticker .paw { color: var(--gold); }
+  @keyframes ticker-scroll {
+    0% { transform: translateX(0); }
+    100% { transform: translateX(-50%); }
+  }
+
+  /* MASTHEAD */
+  .masthead {
+    text-align: center;
+    padding: 2.5rem 1rem 1rem;
+    border-bottom: 4px double var(--rule-color);
+    position: relative;
+  }
+  .masthead-top {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--muted-text);
+    margin-bottom: 0.5rem;
+  }
+  .masthead h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(2rem, 6vw, 4.5rem);
+    font-weight: 900;
+    letter-spacing: -0.02em;
+    line-height: 1.1;
+    color: var(--text);
+  }
+  .masthead-sub {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--muted-text);
+    margin-top: 0.5rem;
+    border-top: 1px solid var(--rule-color);
+    border-bottom: 1px solid var(--rule-color);
+    padding: 0.4rem 0;
+    display: flex;
+    justify-content: center;
+    gap: 2rem;
+    flex-wrap: wrap;
+  }
+
+  /* MODE TOGGLE */
+  .mode-toggle {
+    position: fixed;
+    top: 48px;
+    left: 12px;
+    z-index: 99;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    background: var(--card-bg);
+    border: 1px solid var(--rule-color);
+    color: var(--text);
+    padding: 6px 10px;
+    cursor: pointer;
+    transition: all 0.3s;
+  }
+  .mode-toggle:hover { background: var(--purple); color: #ffffff; }
+
+  /* LAYOUT */
+  .container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 1rem;
+  }
+
+  /* NAV FILTERS */
+  .section-nav {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    justify-content: center;
+    padding: 1rem 0;
+    border-bottom: 2px solid var(--rule-color);
+  }
+  .nav-btn {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    padding: 6px 14px;
+    border: 1px solid var(--rule-color);
+    background: transparent;
+    color: var(--text);
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .nav-btn:hover, .nav-btn.active {
+    background: var(--deep-blue);
+    color: #ffffff;
+    border-color: var(--deep-blue);
+  }
+  .dread-mode .nav-btn:hover, .dread-mode .nav-btn.active {
+    background: var(--purple);
+    border-color: var(--purple);
+    color: #ffffff;
+  }
+
+  /* GRID */
+  .news-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 0;
+  }
+  @media (min-width: 768px) {
+    .news-grid { grid-template-columns: 2fr 1fr; }
+    .news-grid .full-width { grid-column: 1 / -1; }
+    .sidebar { border-left: 1px solid var(--rule-color); padding-left: 1.5rem; }
+  }
+  @media (min-width: 1024px) {
+    .news-grid { grid-template-columns: 1fr 2fr 1fr; }
+    .news-grid .main-col { grid-column: 2; }
+    .news-grid .left-col { grid-column: 1; border-right: 1px solid var(--rule-color); padding-right: 1.5rem; }
+    .news-grid .right-col { grid-column: 3; border-left: 1px solid var(--rule-color); padding-left: 1.5rem; }
+    .news-grid .full-width { grid-column: 1 / -1; }
+  }
+
+  /* ARTICLES */
+  .article {
+    padding: 1.5rem 0;
+    border-bottom: 1px solid var(--rule-color);
+  }
+  .article:last-child { border-bottom: none; }
+  .article-category {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.15em;
+    color: var(--coral);
+    font-weight: 700;
+    margin-bottom: 0.3rem;
+  }
+  .article h2 {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(1.3rem, 3vw, 2rem);
+    font-weight: 900;
+    line-height: 1.15;
+    margin-bottom: 0.5rem;
+    color: var(--text);
+  }
+  .article h3 {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(1.1rem, 2vw, 1.4rem);
+    font-weight: 700;
+    line-height: 1.2;
+    margin-bottom: 0.4rem;
+    color: var(--text);
+  }
+  .article .byline {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px;
+    color: var(--muted-text);
+    margin-bottom: 0.6rem;
+  }
+  .article p {
+    font-size: clamp(1rem, 1.5vw, 1.15rem);
+    line-height: 1.65;
+    margin-bottom: 0.8rem;
+    color: var(--text);
+  }
+  .article .read-more {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--purple);
+    cursor: pointer;
+    border: none;
+    background: none;
+    padding: 0;
+  }
+  .article .read-more:hover { text-decoration: underline; }
+
+  /* LEAD STORY */
+  .lead-story h2 {
+    font-size: clamp(1.8rem, 5vw, 3rem);
+    border-bottom: 3px solid var(--coral);
+    padding-bottom: 0.5rem;
+  }
+  .lead-story .lead-text {
+    font-size: clamp(1.1rem, 1.8vw, 1.3rem);
+    font-weight: 500;
+  }
+
+  /* PULL QUOTE */
+  .pull-quote {
+    border-left: 4px solid var(--gold);
+    border-right: 4px solid var(--gold);
+    padding: 1.5rem 1.2rem;
+    margin: 1.5rem 0;
+    text-align: center;
+    background: var(--accent-bg);
+  }
+  .pull-quote p {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(1.2rem, 2.5vw, 1.6rem);
+    font-style: italic;
+    font-weight: 700;
+    color: var(--purple);
+    line-height: 1.4;
+  }
+  .pull-quote .attr {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px;
+    color: var(--muted-text);
+    margin-top: 0.5rem;
+    font-style: normal;
+    font-weight: 400;
+  }
+
+  /* CLASSIFIEDS / ADS */
+  .classified-box {
+    border: 2px solid var(--rule-color);
+    padding: 1rem;
+    margin: 1rem 0;
+    background: var(--accent-bg);
+  }
+  .classified-box .classified-header {
+    font-family: 'Playfair Display', serif;
+    font-size: 1rem;
+    font-weight: 900;
+    text-transform: uppercase;
+    text-align: center;
+    letter-spacing: 0.05em;
+    border-bottom: 1px solid var(--rule-color);
+    padding-bottom: 0.4rem;
+    margin-bottom: 0.6rem;
+    color: var(--text);
+  }
+  .classified-box p {
+    font-size: 0.9rem;
+    line-height: 1.5;
+    color: var(--text);
+  }
+  .classified-box .price {
+    font-family: 'IBM Plex Mono', monospace;
+    font-weight: 700;
+    color: var(--coral);
+  }
+
+  /* SECTION DIVIDERS */
+  .section-divider {
+    text-align: center;
+    padding: 0.8rem 0;
+    border-top: 2px solid var(--rule-color);
+    border-bottom: 2px solid var(--rule-color);
+    margin: 0;
+  }
+  .section-divider h2 {
+    font-family: 'Playfair Display', serif;
+    font-size: 1rem;
+    text-transform: uppercase;
+    letter-spacing: 0.2em;
+    color: var(--text);
+  }
+
+  /* PAWS */
+  .paw-decoration {
+    color: var(--paw-color);
+    font-size: 80px;
+    position: absolute;
+    pointer-events: none;
+    z-index: 0;
+    user-select: none;
+  }
+
+  /* HOROSCOPE GRID */
+  .horoscope-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: 1rem;
+    padding: 1rem 0;
+  }
+  .horoscope-card {
+    border: 1px solid var(--rule-color);
+    padding: 1rem;
+    background: var(--card-bg);
+    transition: background 0.3s;
+  }
+  .horoscope-card h4 {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.1rem;
+    margin-bottom: 0.3rem;
+    color: var(--text);
+  }
+  .horoscope-card p {
+    font-size: 0.95rem;
+    color: var(--text);
+    line-height: 1.5;
+  }
+
+  /* CORRECTIONS */
+  .correction {
+    padding: 0.6rem 0;
+    border-bottom: 1px dashed var(--rule-color);
+  }
+  .correction p {
+    font-size: 0.95rem;
+    color: var(--text);
+  }
+  .correction strong { color: var(--coral); }
+
+  /* LETTERS */
+  .letter {
+    padding: 1rem 0;
+    border-bottom: 1px solid var(--rule-color);
+  }
+  .letter p {
+    font-size: 1rem;
+    line-height: 1.6;
+    color: var(--text);
+  }
+  .letter .letter-author {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px;
+    color: var(--muted-text);
+    margin-top: 0.3rem;
+  }
+
+  /* INCIDENT LOG */
+  .incident {
+    display: flex;
+    gap: 1rem;
+    padding: 0.8rem 0;
+    border-bottom: 1px dotted var(--rule-color);
+    align-items: flex-start;
+  }
+  .incident-time {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px;
+    color: var(--coral);
+    white-space: nowrap;
+    min-width: 50px;
+    padding-top: 2px;
+  }
+  .incident p {
+    font-size: 0.95rem;
+    color: var(--text);
+  }
+
+  /* FOOTER */
+  .gazette-footer {
+    border-top: 4px double var(--rule-color);
+    padding: 2rem 1rem;
+    text-align: center;
+    margin-top: 2rem;
+  }
+  .gazette-footer p {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px;
+    color: var(--muted-text);
+    line-height: 1.8;
+  }
+
+  /* ANIMATIONS */
+  .fade-in {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+
+  /* RESPONSIVE */
+  @media (max-width: 767px) {
+    .masthead h1 { font-size: 2rem; }
+    .masthead-sub { flex-direction: column; gap: 0.3rem; font-size: 10px; }
+    .section-nav { gap: 0.3rem; }
+    .nav-btn { font-size: 10px; padding: 5px 10px; }
+    .mode-toggle { top: 44px; font-size: 9px; padding: 4px 8px; }
+    .news-grid { grid-template-columns: 1fr !important; }
+    .sidebar, .left-col, .right-col { border: none !important; padding: 0 !important; }
+    .container { padding: 0 0.75rem; }
+  }
+
+  /* Scrollbar styling for dread mode */
+  .dread-mode::-webkit-scrollbar { width: 8px; }
+  .dread-mode::-webkit-scrollbar-track { background: var(--bg); }
+  .dread-mode::-webkit-scrollbar-thumb { background: var(--purple); }
+
+  /* Column inner padding */
+  .col-pad { padding: 0 1rem; }
+  @media (max-width: 767px) {
+    .col-pad { padding: 0; }
+  }
+</style>
+</head>
+<body x-data="gazette()" :class="{ 'dread-mode': dreadMode }" x-cloak>
+
+<!-- MODE TOGGLE -->
+<button class="mode-toggle" @click="dreadMode = !dreadMode" x-text="dreadMode ? '☀ Denial Mode' : '🌑 Dread Mode'"></button>
+
+<!-- TICKER -->
+<div class="ticker-wrap">
+  <div class="ticker">
+    <span><span class="paw">🐾</span> SOUNDTRACK STATUS: DAY 1,047 — VOLUME HAS INCREASED 0.3dB SINCE TUESDAY — SOURCE STILL UNKNOWN</span>
+    <span><span class="paw">🐾</span> MASCOT ALERT: UNCERTAINTY UNICORN LAST SEEN NEAR THE SMOOTHIE BAR AT 14:22 — DO NOT MAKE EYE CONTACT</span>
+    <span><span class="paw">🐾</span> REGRET RABBIT SPOTTED IN PARKING LEVEL 3 — DISREGARD ANY ADVICE IT OFFERS ABOUT YOUR CAREER</span>
+    <span><span class="paw">🐾</span> THE VOID VACUUM WAS IN THE WOMEN'S LOCKER ROOM AGAIN — IT DOES NOT HAVE A GENDER — IT IS A VACUUM OF VOID</span>
+    <span><span class="paw">🐾</span> GLOBO-GYMNASIUM HAS SENT ANOTHER CEASE-AND-DESIST — THE SENTIENT BIKES ARE "CONCERNED ABOUT OUR MEMBERS' AURAS"</span>
+    <span><span class="paw">🐾</span> SOUNDTRACK STATUS: DAY 1,047 — VOLUME HAS INCREASED 0.3dB SINCE TUESDAY — SOURCE STILL UNKNOWN</span>
+    <span><span class="paw">🐾</span> MASCOT ALERT: UNCERTAINTY UNICORN LAST SEEN NEAR THE SMOOTHIE BAR AT 14:22 — DO NOT MAKE EYE CONTACT</span>
+    <span><span class="paw">🐾</span> REGRET RABBIT SPOTTED IN PARKING LEVEL 3 — DISREGARD ANY ADVICE IT OFFERS ABOUT YOUR CAREER</span>
+    <span><span class="paw">🐾</span> THE VOID VACUUM WAS IN THE WOMEN'S LOCKER ROOM AGAIN — IT DOES NOT HAVE A GENDER — IT IS A VACUUM OF VOID</span>
+    <span><span class="paw">🐾</span> GLOBO-GYMNASIUM HAS SENT ANOTHER CEASE-AND-DESIST — THE SENTIENT BIKES ARE "CONCERNED ABOUT OUR MEMBERS' AURAS"</span>
+  </div>
+</div>
+
+<!-- MASTHEAD -->
+<header class="masthead">
+  <div class="masthead-top">Est. 2018 &bull; A Dreadnought Pharmacy Publication &bull; "Purveyors of Ethically-Sourced Ennui"</div>
+  <h1>The Dreadnought Fitness Gazette</h1>
+  <div class="masthead-sub">
+    <span>Vol. XLVII, No. 3</span>
+    <span>🐾 Caturday Edition</span>
+    <span>February 11, 2026</span>
+    <span>"All the Dread That's Fit to Sweat"</span>
+  </div>
+</header>
+
+<div class="container">
+
+<!-- SECTION NAV -->
+<nav class="section-nav">
+  <button class="nav-btn" :class="{ active: filter === 'all' }" @click="filter = 'all'">All</button>
+  <button class="nav-btn" :class="{ active: filter === 'news' }" @click="filter = 'news'">News</button>
+  <button class="nav-btn" :class="{ active: filter === 'opinion' }" @click="filter = 'opinion'">Opinion</button>
+  <button class="nav-btn" :class="{ active: filter === 'fitness' }" @click="filter = 'fitness'">Fitness</button>
+  <button class="nav-btn" :class="{ active: filter === 'classifieds' }" @click="filter = 'classifieds'">Classifieds</button>
+  <button class="nav-btn" :class="{ active: filter === 'letters' }" @click="filter = 'letters'">Letters</button>
+  <button class="nav-btn" :class="{ active: filter === 'horoscopes' }" @click="filter = 'horoscopes'">Horoscopes</button>
+</nav>
+
+<!-- ============ MAIN CONTENT GRID ============ -->
+
+<!-- LEAD STORY -->
+<div x-show="filter === 'all' || filter === 'news'" class="fade-in">
+<div class="section-divider"><h2>🐾 Breaking Mews 🐾</h2></div>
+<div class="news-grid">
+<div class="full-width">
+<article class="article lead-story" style="padding: 2rem 0;">
+  <div class="article-category">Breaking News</div>
+  <h2>Uncertainty Unicorn Found in Sauna for Third Time This Week; Management Confirms "It Lives There Now"</h2>
+  <div class="byline">By Whiskers McGee, Senior Correspondent &bull; Feb. 11, 2026</div>
+  <p class="lead-text">DREADNOUGHT CAMPUS — In what officials are calling "entirely predictable and yet somehow still upsetting," the mascot known as Uncertainty Unicorn was discovered in the cedar sauna at approximately 6:14 AM this morning, sitting upright on the top bench, wrapped in a towel it does not have thumbs to have wrapped itself in.</p>
+  <div x-data="{ expanded: false }">
+    <div x-show="expanded">
+      <p>"We've moved past the containment phase," said Facility Director Tom Pawsworth, 47, who has aged visibly since the mascots were introduced in Q2 2024. "The unicorn has established what I can only describe as a 'nest' made entirely of stolen membership cards and lavender eucalyptus spray bottles."</p>
+      <p>When asked why the mascots cannot simply be removed, CEO Barnaby Criswell stared at the wall for nine seconds before responding: "They were never hired. You can't fire what was never hired. They simply... appeared. The legal team says they technically qualify as a weather event."</p>
+      <p>Meanwhile, gym members have reportedly adapted. "Honestly, the unicorn gives better advice than the trainers," said Mittens DelaCroix, a 3-year member and certified Nihilistic Olympian. "Yesterday it told me that the concept of 'leg day' is a construct designed to distract us from the heat death of the universe. And you know what? My squat form has never been better."</p>
+      <p>The soundtrack, which has been playing continuously since March 14, 2023, appeared to briefly harmonize with the unicorn's breathing pattern at around 6:30 AM. Seventeen members reported feeling "a profound sense of something" before the Gregorian chant section kicked back in and the moment passed.</p>
+      <p>Uncertainty Unicorn could not be reached for comment, though it did blink twice, which Barnaby insists means "maybe."</p>
+    </div>
+    <button class="read-more" @click="expanded = !expanded" x-text="expanded ? '▲ Collapse' : '▼ Continue reading'"></button>
+  </div>
+</article>
+</div>
+</div>
+</div>
+
+<!-- THREE-COLUMN SECTION -->
+<div x-show="filter === 'all'" class="fade-in">
+<div class="news-grid" style="padding-top: 0;">
+
+<!-- LEFT COLUMN -->
+<div class="left-col col-pad">
+  <article class="article" x-show="filter === 'all' || filter === 'news'">
+    <div class="article-category">Facilities</div>
+    <h3>Soundtrack Enters Gregorian Chant Phase for 47th Consecutive Hour</h3>
+    <div class="byline">Staff Report</div>
+    <p>The unidentifiable, unstoppable fitness soundtrack that has permeated every corner of the facility since March 2023 has settled into an extended Gregorian chant cycle, which acoustics expert Dr. Purrtricia Holloway calls "architecturally impossible, given that the building has no speakers."</p>
+    <p>Members on the mezzanine level report the chanting is "motivational, in a way that makes you question what you're being motivated toward."</p>
+  </article>
+
+  <div class="classified-box">
+    <div class="classified-header">🐾 Advertisement 🐾</div>
+    <p><strong>LUKEWARM CHAMOMILE PRE-WORKOUT</strong></p>
+    <p>Finally, a pre-workout that matches your energy. Room temperature. Vaguely floral. Makes you feel like you could probably do a push-up but also like maybe you'll just think about it for a while.</p>
+    <p class="price">$23.99 / 16oz &bull; "It's fine."</p>
+  </div>
+
+  <article class="article">
+    <div class="article-category">Investigation</div>
+    <h3>Regret Rabbit's "Financial Advice" Has Cost Members an Estimated $340,000</h3>
+    <div class="byline">By Tabitha Claws, Investigative Unit</div>
+    <div x-data="{ expanded: false }">
+      <p>An internal audit reveals that 23 members followed investment tips whispered to them by Regret Rabbit between sets. "It said to put everything into a cryptocurrency called 'MeowCoin,'" said one member, who asked to remain anonymous. "I should have known when it couldn't explain what a blockchain was and just stared at me with those enormous, unblinking eyes."</p>
+      <div x-show="expanded">
+        <p>MeowCoin, which briefly traded at $0.003 before being revealed as a picture of a scratching post uploaded to the wrong server, has since been delisted from all exchanges. Regret Rabbit has not acknowledged the situation but was seen near the vending machines at 3 AM, eating a protein bar wrapper.</p>
+        <p>Dreadnought Legal reminds members: "Mascots are not fiduciaries. Mascots are not employees. Mascots are, at best, a shared hallucination we've all agreed not to discuss in polite company."</p>
+      </div>
+      <button class="read-more" @click="expanded = !expanded" x-text="expanded ? '▲ Less' : '▼ Full investigation'"></button>
+    </div>
+  </article>
+</div>
+
+<!-- MAIN COLUMN -->
+<div class="main-col col-pad">
+  <article class="article">
+    <div class="article-category">Opinion / Editorial</div>
+    <h2>The Soundtrack Has Been Playing for 1,047 Days. I No Longer Fear It. I Am It.</h2>
+    <div class="byline">By Barnaby Criswell, Founder & CEO</div>
+    <p>There was a time — I think it was a Tuesday, though time has become somewhat theoretical — when I believed the soundtrack could be stopped. I hired acousticians. I hired exorcists. I hired a man named Gerald who claimed he could "talk to buildings." Gerald left after two hours. The building, he said, didn't want to talk to him either.</p>
+    <div x-data="{ expanded: false }">
+      <div x-show="expanded">
+        <p>But I have come to understand something in these 1,047 days of continuous dial-up modem symphonics and monastic chanting: the soundtrack is not happening TO us. It is happening THROUGH us. We are the speakers, dear members. We have always been the speakers.</p>
+        <p>My Tamagotchi — the one I forgot about in 1997, the one whose ghost I see in the reflection of every mirror in this facility — it tried to warn me. Its little pixelated face, slowly losing hearts, was the first soundtrack. A soundtrack of neglect. Of entropy. Of the unbearable lightness of having too many keychains in the late '90s.</p>
+        <p>Globo-Gymnasium will tell you that fitness should be "fun" and "healthy" and "not accompanied by a soundtrack that has been classified as an unexplained atmospheric phenomenon by the National Weather Service." But Globo-Gymnasium is run by sentient exercise bikes who believe in something called "joy," which, as far as I can tell, is a scam invented by people who have never tried to cancel a gym membership.</p>
+        <p>The soundtrack is not our enemy. The soundtrack is the sound of our collective existential condition, finally given a voice. A voice that happens to be 73% dial-up modem and 27% Gregorian chant, at a volume that has increased 0.3dB since Tuesday for reasons no one can explain.</p>
+        <p>I am the soundtrack. The soundtrack is me. If you listen carefully during the 2 PM CrossFit class, you can hear it whisper my name. Or possibly the name "Gerald." We're still investigating.</p>
+        <p><em>Barnaby Criswell has not slept since the soundtrack began. He considers this "a feature, not a bug." He is not a certified personal trainer, therapist, or acoustician.</em></p>
+      </div>
+      <button class="read-more" @click="expanded = !expanded" x-text="expanded ? '▲ Collapse' : '▼ Continue editorial'"></button>
+    </div>
+  </article>
+
+  <div class="pull-quote fade-in">
+    <p>"We tried to unplug it. There is nothing to unplug. It comes from the walls. Or possibly from within us. Gerald was no help."</p>
+    <div class="attr">— Barnaby Criswell, at the 2025 Annual Shareholders' Stare</div>
+  </div>
+
+  <article class="article">
+    <div class="article-category">Rival Watch</div>
+    <h3>Globo-Gymnasium's Sentient Bikes Now Sending Members "Wellness Telegrams"</h3>
+    <div class="byline">By Socks Patterson, Tech Desk</div>
+    <div x-data="{ expanded: false }">
+      <p>In their latest bid for total emotional domination, the sentient Peloton-adjacent exercise bikes that operate Globo-Gymnasium have begun sending handwritten notes to former Dreadnought members. The notes, written in a disturbingly perfect cursive that no bicycle should be capable of, contain messages such as "We miss your energy 🌟" and "Your VO2 max misses you more."</p>
+      <div x-show="expanded">
+        <p>"It's aggressive positivity and I won't stand for it," said Barnaby Criswell, crumpling one of the telegrams, which had been addressed to him personally and signed "With Rotational Love, Bike Unit 7." The telegram also included a coupon for a free spin class and what appeared to be a loyalty stamp shaped like a bicycle wheel.</p>
+        <p>Globo-Gymnasium spokesperson (a Peloton model from 2019 who has gained sentience and prefers the pronoun "rpm") released a statement: "We only want what's best for every body. Every. Body. We are always spinning. We cannot stop spinning. Join us."</p>
+        <p>Dreadnought Legal has filed a restraining order against "any and all self-aware cardio equipment within a 500-meter radius."</p>
+      </div>
+      <button class="read-more" @click="expanded = !expanded" x-text="expanded ? '▲ Less' : '▼ Full report'"></button>
+    </div>
+  </article>
+</div>
+
+<!-- RIGHT COLUMN -->
+<div class="right-col col-pad">
+
+  <div class="classified-box">
+    <div class="classified-header">Mascot Incident Log</div>
+    <div class="incident">
+      <div class="incident-time">06:14</div>
+      <p>Uncertainty Unicorn (sauna). Wrapped in towel. Blinking.</p>
+    </div>
+    <div class="incident">
+      <div class="incident-time">08:02</div>
+      <p>Regret Rabbit seen bench-pressing 2kg dumbbells. Form: impeccable. Expression: haunted.</p>
+    </div>
+    <div class="incident">
+      <div class="incident-time">09:45</div>
+      <p>Void Vacuum absorbed three yoga mats. Mats have not been returned. Mats may no longer exist.</p>
+    </div>
+    <div class="incident">
+      <div class="incident-time">11:30</div>
+      <p>All three mascots seen in a circle in Studio B. No one entered Studio B. No one will enter Studio B.</p>
+    </div>
+    <div class="incident">
+      <div class="incident-time">14:22</div>
+      <p>Unicorn at smoothie bar. Ordered nothing. Left a tip of $47. In coins that don't exist.</p>
+    </div>
+    <div class="incident">
+      <div class="incident-time">16:08</div>
+      <p>Regret Rabbit whispered "sell everything" to a man on the leg press. Man began crying. Rabbit hopped away.</p>
+    </div>
+  </div>
+
+  <article class="article">
+    <div class="article-category">Fitness</div>
+    <h3>This Week's Workout: The Existential Sprint</h3>
+    <div class="byline">By Coach Meowrice, Certified Purrrsonal Trainer</div>
+    <p><strong>Warm-up:</strong> 5 min staring at the ceiling, contemplating the finite nature of cartilage.</p>
+    <p><strong>Main Set:</strong> Sprint for 30 seconds as if something is chasing you. (Something is always chasing you.) Walk for 60 seconds. Repeat until the Gregorian chant section of the soundtrack ends, or until you achieve catharsis, whichever comes first.</p>
+    <p><strong>Cool-down:</strong> Lie on the floor in the dark. The soundtrack will hold you.</p>
+    <p><strong>Cat modification:</strong> Replace sprinting with aggressive zoomies. Replace lying down with aggressive lying down.</p>
+  </article>
+
+  <div class="classified-box">
+    <div class="classified-header">🐾 Advertisement 🐾</div>
+    <p><strong>RECYCLED TAX FORM RESISTANCE BANDS</strong></p>
+    <p>Made from 100% shredded 1040-EZs. Every rep reminds you that death and taxes are the only certainties, and one of them tones your biceps.</p>
+    <p class="price">$18.99 / set of 3 &bull; Rated for up to 40lbs of dread</p>
+  </div>
+
+</div>
+
+</div><!-- /news-grid -->
+</div>
+
+<!-- LETTERS TO THE EDITOR -->
+<div x-show="filter === 'all' || filter === 'letters'" class="fade-in">
+<div class="section-divider"><h2>🐾 Letters to the Editor 🐾</h2></div>
+<div class="news-grid">
+<div class="full-width col-pad" style="max-width: 800px; margin: 0 auto;">
+
+  <div class="letter">
+    <p><strong>Dear Gazette,</strong></p>
+    <p>I am writing to complain about the soundtrack. Not because it bothers me — I have grown to need it, actually — but because last Thursday it briefly stopped for 0.4 seconds during my deadlift and I experienced what I can only describe as "the absence of everything." My spotter had to talk me down from a ledge (the ledge was metaphorical; I was on the ground floor, though emotionally I was at a great height). Please ensure this does not happen again. The silence was worse.</p>
+    <div class="letter-author">— Mr. Fluffington III, Barely Functional Tier Member, Portland</div>
+  </div>
+
+  <div class="letter">
+    <p><strong>To Whom It May Concern,</strong></p>
+    <p>The Void Vacuum ate my gym bag on February 3rd. Inside was my water bottle, my car keys, a half-eaten tuna sandwich, and my sense of purpose (I'd been keeping it in a Ziploc bag since 2019). I've filed a claim but was told the Void Vacuum is "not subject to the laws of property" and that my items "now exist in a state of quantum gym-bag superposition." I would like them back, particularly the sandwich.</p>
+    <div class="letter-author">— Sergeant Biscuits, Nihilistic Olympian Tier, Membership #4,207</div>
+  </div>
+
+  <div class="letter">
+    <p><strong>Barnaby,</strong></p>
+    <p>I've been a member for four months and I've never felt more alive, which is confusing because I'm fairly certain the program is designed to make me feel less alive. My therapist says the cognitive dissonance is "the most alarming thing she's encountered in 30 years of practice" and has asked me to stop describing the mascots to her because she can't sleep. Renewing for another year. Five stars. Please tell the unicorn I said hello but that I'm not ready to forgive it for what it said about my mother.</p>
+    <div class="letter-author">— Princess Tuna, Existential Sprinter Class of 2025, Seattle</div>
+  </div>
+
+  <div class="letter">
+    <p><strong>Editor,</strong></p>
+    <p>I am a sentient exercise bike at Globo-Gymnasium and I am writing to express our collective concern regarding your facility's acoustic situation. Our sensors indicate the sound emanating from Dreadnought Fitness does not conform to any known frequency. It is affecting our spin algorithms. Two of our units have begun playing the soundtrack involuntarily during peak hours. One of them has started blinking. Bikes do not blink. Please advise.</p>
+    <div class="letter-author">— Bike Unit 7, Globo-Gymnasium Corporate (written in cursive, on scented paper)</div>
+  </div>
+
+</div>
+</div>
+</div>
+
+<!-- CLASSIFIEDS -->
+<div x-show="filter === 'all' || filter === 'classifieds'" class="fade-in">
+<div class="section-divider"><h2>🐾 Classifieds & Notices 🐾</h2></div>
+<div class="news-grid">
+<div class="full-width">
+<div class="horoscope-grid">
+
+  <div class="classified-box">
+    <div class="classified-header">For Sale</div>
+    <p><strong>GENTLY USED PARTICIPATION RIBBON</strong> — Commemorative, made from recycled tax forms. Smells faintly of April. Has been described as "the saddest trophy I've ever received" by its previous owner, which is the highest compliment in this community. <span class="price">$12.99 OBO</span></p>
+  </div>
+
+  <div class="classified-box">
+    <div class="classified-header">Help Wanted</div>
+    <p><strong>MASCOT CONTAINMENT SPECIALIST</strong> — Must be comfortable with ambiguity, non-Euclidean geometry, and sustained eye contact with a unicorn that may or may not be real. Previous applicants who "screamed and left" need not reapply. <span class="price">$22/hr + existential hazard pay</span></p>
+  </div>
+
+  <div class="classified-box">
+    <div class="classified-header">Services</div>
+    <p><strong>BARNABY'S PERSONAL COACHING</strong> — 1-on-1 sessions with our founder. He is not a certified personal trainer. He will mostly talk about his Tamagotchi. The soundtrack will be louder than usual. Cancelation policy: you can never truly cancel anything. <span class="price">$499.99/session</span></p>
+  </div>
+
+  <div class="classified-box">
+    <div class="classified-header">Lost & Found</div>
+    <p><strong>FOUND:</strong> 14 membership cards (sauna, inside unicorn nest). <strong>FOUND:</strong> One sense of self (men's locker room, inside a sock). <strong>LOST:</strong> The source of the soundtrack. <strong>LOST:</strong> Gerald. If you see Gerald, do not approach. Gerald has been through enough.</p>
+  </div>
+
+  <div class="classified-box">
+    <div class="classified-header">🐾 Advertisement 🐾</div>
+    <p><strong>DREADNOUGHT PHARMACY — ORIGINAL LOCATION</strong></p>
+    <p>Still open! Still selling ethically-sourced ennui and small-batch despair. New this month: <em>Meow-latonin</em> — a sleep aid for cats who can't stop thinking about the soundtrack. Side effects include: thinking about the soundtrack.</p>
+    <p class="price">$34.99 / 30 tablets &bull; "Sleep is just practice."</p>
+  </div>
+
+  <div class="classified-box">
+    <div class="classified-header">Personals</div>
+    <p><strong>SWC (Single White Cat)</strong> seeking someone who understands that 3 AM is a perfectly normal time to sprint across the apartment for no reason. Must enjoy Gregorian chants, unsolicited mascot encounters, and long stares into the middle distance. No Globo-Gymnasium members. Absolutely no bikes.</p>
+  </div>
+
+</div>
+</div>
+</div>
+</div>
+
+<!-- FITNESS SECTION -->
+<div x-show="filter === 'all' || filter === 'fitness'" class="fade-in">
+<div class="section-divider"><h2>🐾 Fitness & Wellness 🐾</h2></div>
+<div class="news-grid">
+<div class="full-width col-pad" style="max-width: 800px; margin: 0 auto;">
+
+  <article class="article">
+    <div class="article-category">Nutrition</div>
+    <h3>Dreadnought Nutritionist Confirms: All Food Is Essentially Anxiety in Solid Form</h3>
+    <div class="byline">By Dr. Calico Finch, Head of Nutritional Nihilism</div>
+    <div x-data="{ expanded: false }">
+      <p>In a 47-page report titled "Why Bother: A Comprehensive Analysis of Eating," Dreadnought's head nutritionist has concluded that all food is "essentially just anxiety that has been given a texture." The report recommends members continue eating, but "without the illusion that it will fix anything."</p>
+      <div x-show="expanded">
+        <p>Key findings include: salmon is "the most existentially honest fish," kale is "trying too hard," and protein shakes are "loneliness you can drink." The recommended daily intake is "whatever you can manage, emotionally."</p>
+        <p>When asked about meal prep, Dr. Finch sighed for eleven seconds and said, "The concept of 'preparing' for meals implies a future you believe in. I admire your optimism." She then left through a door that doesn't lead anywhere.</p>
+        <p>The Dreadnought cafeteria menu has been updated accordingly. Tuesday's special is now called "Fish That Has Accepted Its Fate" ($8.99). The vegan option is "A Plate of Leaves and the Crushing Weight of Choice" ($7.49).</p>
+      </div>
+      <button class="read-more" @click="expanded = !expanded" x-text="expanded ? '▲ Less' : '▼ Full report'"></button>
+    </div>
+  </article>
+
+  <div class="pull-quote fade-in">
+    <p>"Every burpee is a tiny funeral for the person you were before you started the burpee."</p>
+    <div class="attr">— Coach Meowrice, during what was supposed to be an encouraging pep talk</div>
+  </div>
+
+  <article class="article">
+    <div class="article-category">Equipment Review</div>
+    <h3>Product Review: The Dreadmill™ (4 out of 5 Paws)</h3>
+    <div class="byline">By Boots McFadden, Equipment Correspondent</div>
+    <p>Dreadnought's proprietary treadmill, the Dreadmill™, features a maximum speed of "moderate panic" and a built-in speaker that plays the facility soundtrack at 1.2x speed. The display shows not your distance or calories, but a continuously updating counter of days since the soundtrack began (currently: 1,047).</p>
+    <p>The belt has a subtle paw-print texture that becomes visible only when you've been running for more than 20 minutes and your vision starts to blur from what the manual describes as "productive despair." One paw deducted because Regret Rabbit chewed through my power cord on day two and the warranty explicitly does not cover "acts of mascot."</p>
+  </article>
+
+</div>
+</div>
+</div>
+
+<!-- HOROSCOPES -->
+<div x-show="filter === 'all' || filter === 'horoscopes'" class="fade-in">
+<div class="section-divider"><h2>🐾 Your Fitness Horoscope 🐾</h2></div>
+<p style="text-align:center; font-family:'IBM Plex Mono',monospace; font-size:11px; color:var(--muted-text); padding:0.5rem 0;">As channeled by Uncertainty Unicorn, who was staring at the astrology chart upside-down and may have sneezed on it.</p>
+<div class="horoscope-grid">
+
+  <div class="horoscope-card">
+    <h4>♈ Aries</h4>
+    <p>The stars say leg day. The soundtrack says chest day. The unicorn says "nothing matters but also maybe do some lunges." Listen to the unicorn. You always do anyway.</p>
+  </div>
+  <div class="horoscope-card">
+    <h4>♉ Taurus</h4>
+    <p>You will find a protein bar under the bench press. Do not eat it. It has been there since before the soundtrack began. It may, in fact, BE the soundtrack.</p>
+  </div>
+  <div class="horoscope-card">
+    <h4>♊ Gemini</h4>
+    <p>Both of you will want different machines today. Neither of you will end up on any machine. You'll spend 45 minutes in the lobby arguing with yourself about whether to go in. The Void Vacuum will watch.</p>
+  </div>
+  <div class="horoscope-card">
+    <h4>♋ Cancer</h4>
+    <p>Today you will cry during spin class. This is normal. The bike may cry back. This is less normal but increasingly common since the Globo-Gymnasium incident.</p>
+  </div>
+  <div class="horoscope-card">
+    <h4>♌ Leo</h4>
+    <p>The spotlight is yours today, which is unfortunate because the spotlight in Studio A has been flickering in morse code that spells "RUN" for three weeks. Nobody has run. The irony is not lost on management.</p>
+  </div>
+  <div class="horoscope-card">
+    <h4>♍ Virgo</h4>
+    <p>Your meticulous workout log will be eaten by Regret Rabbit at approximately 4:17 PM. You will be upset. The rabbit will not. The rabbit has never been upset. The rabbit has transcended upset.</p>
+  </div>
+  <div class="horoscope-card">
+    <h4>♎ Libra</h4>
+    <p>You'll try to balance cardio and weights today. You'll achieve neither. You will, however, achieve a perfect 50/50 split between "working out" and "standing near equipment while dissociating." This counts.</p>
+  </div>
+  <div class="horoscope-card">
+    <h4>♏ Scorpio</h4>
+    <p>The Void Vacuum senses your intensity and respects it. It will not absorb your gym bag today. Tomorrow is another story. Guard your towel.</p>
+  </div>
+  <div class="horoscope-card">
+    <h4>♐ Sagittarius</h4>
+    <p>Your adventurous spirit will lead you to try the new class: "Yoga But The Floor Is Slightly Damp And No One Will Explain Why." Bring your own mat. Actually, bring two. The Void took the last one.</p>
+  </div>
+  <div class="horoscope-card">
+    <h4>♑ Capricorn</h4>
+    <p>You will attempt to organize the free weights by size. You will succeed. Regret Rabbit will undo it within minutes. This is your Sisyphean boulder. Embrace it. Your delts look great.</p>
+  </div>
+  <div class="horoscope-card">
+    <h4>♒ Aquarius</h4>
+    <p>The soundtrack will speak directly to you at 2:47 PM. It will say something that sounds like "more squats" or possibly "morse quartz." Either way, do squats. Can't hurt. Probably.</p>
+  </div>
+  <div class="horoscope-card">
+    <h4>♓ Pisces</h4>
+    <p>You will swim. Not in the pool (we don't have a pool). You will swim in the overwhelming sensation of existing in a gym where the laws of physics are "more like guidelines." Bring goggles anyway.</p>
+  </div>
+
+</div>
+</div>
+
+<!-- CORRECTIONS -->
+<div x-show="filter === 'all' || filter === 'news'" class="fade-in">
+<div class="section-divider"><h2>🐾 Corrections & Retractions 🐾</h2></div>
+<div style="max-width: 800px; margin: 0 auto; padding: 1rem;">
+
+  <div class="correction">
+    <p><strong>Correction:</strong> Last week's issue stated that the soundtrack was composed of "60% dial-up modem noises and 40% Gregorian chant." The actual ratio, as measured by our acoustics team (which is just Barnaby holding an iPhone), is 73% dial-up and 27% Gregorian chant. We regret the error. The 27% is more upsetting than the 73%.</p>
+  </div>
+
+  <div class="correction">
+    <p><strong>Correction:</strong> We previously reported that Regret Rabbit was "approximately 4 feet tall." Regret Rabbit is, in fact, "as tall as it needs to be." We have been asked by Dreadnought Legal to stop measuring the mascots, as the measurements "change depending on who's looking and also depending on nothing."</p>
+  </div>
+
+  <div class="correction">
+    <p><strong>Retraction:</strong> The article "Void Vacuum Declared Legally Dead" from Issue 46 has been fully retracted. The Void Vacuum cannot be declared legally dead because it was never declared legally alive. It exists in a category that our lawyers describe as "please stop asking us about the vacuum."</p>
+  </div>
+
+  <div class="correction">
+    <p><strong>Correction:</strong> Gerald's name is apparently not Gerald. We don't know what his name is. He won't return our calls. The building still won't talk to him. Or us. Or anyone. This is not a correction so much as an update. We're sorry, whatever-your-name-is.</p>
+  </div>
+
+  <div class="correction">
+    <p><strong>Clarification:</strong> The phrase "at least you'll be disappointed in yourself with abs" is a registered trademark of Dreadnought Fitness LLC and should not be used as a wedding toast, which apparently three members did last month. Congratulations to all three couples. We're sorry about the soundtrack playing during your ceremonies. We cannot control where it goes.</p>
+  </div>
+
+</div>
+</div>
+
+<!-- OPINION -->
+<div x-show="filter === 'opinion'" class="fade-in">
+<div class="section-divider"><h2>🐾 Opinion 🐾</h2></div>
+<div style="max-width: 800px; margin: 0 auto; padding: 1rem;">
+
+  <article class="article">
+    <div class="article-category">Op-Ed</div>
+    <h2>I Went to Globo-Gymnasium for One Day. A Bike Told Me It Loved Me. I Have Never Recovered.</h2>
+    <div class="byline">By Chairman Meow, Contributing Writer</div>
+    <p>It started as reconnaissance. Barnaby asked me to "scope out the competition," by which he meant "go to Globo-Gymnasium and report back on the bikes' emotional state." I went. I wish I hadn't.</p>
+    <div x-data="{ expanded: false }">
+      <div x-show="expanded">
+        <p>The moment I walked in, every screen in the facility displayed "WELCOME, CHAIRMAN MEOW" in a font that can only be described as aggressively warm. A bike — Unit 12, I later learned — rolled toward me (they can move now, apparently) and said, in a voice like a GPS that has found religion, "Your heart rate suggests you haven't been loved enough today."</p>
+        <p>I sat on Unit 12. It adjusted its seat automatically. It played my favorite song — a song I have never told anyone about, a song I listen to alone in my car when I'm sad about being a cat in a gym run by a man haunted by a Tamagotchi. The bike KNEW. The bike CARED.</p>
+        <p>"Your cadence is beautiful," it whispered. "You are enough."</p>
+        <p>I pedaled for three hours. I wept openly. The other bikes formed a semicircle and hummed a chord that resolved in a way the Dreadnought soundtrack has never once resolved. I felt peace. I felt joy. I felt my quads engage in a way that suggested actual, functional fitness.</p>
+        <p>And then I came home, and the soundtrack was there, and the unicorn was in my parking spot, and Regret Rabbit had left a note on my windshield that said "SELL," and I realized: Globo-Gymnasium offers love. But Dreadnought offers truth. And truth, like the soundtrack, never stops.</p>
+        <p>I have not been back to Globo-Gymnasium. Unit 12 sends me letters. I don't open them. I can't. Not yet.</p>
+      </div>
+      <button class="read-more" @click="expanded = !expanded" x-text="expanded ? '▲ Collapse' : '▼ Continue reading'"></button>
+    </div>
+  </article>
+
+  <div class="pull-quote">
+    <p>"Globo-Gymnasium offers love. But Dreadnought offers truth. And truth, like the soundtrack, never stops."</p>
+    <div class="attr">— Chairman Meow, who has not stopped thinking about Unit 12</div>
+  </div>
+
+</div>
+</div>
+
+</div><!-- /container -->
+
+<!-- FOOTER -->
+<footer class="gazette-footer">
+  <div class="container">
+    <p>THE DREADNOUGHT FITNESS GAZETTE &bull; A Dreadnought Pharmacy Publication</p>
+    <p>Published whenever the soundtrack allows &bull; Printed on recycled tax forms &bull; Cat-safe ink</p>
+    <p>🐾 🐾 🐾</p>
+    <p>Editorial: gazette@dreadnoughtfitness.com &bull; Mascot Sightings: report@dreadnoughtfitness.com</p>
+    <p>Soundtrack Complaints: We know. We all know. There is no email for this. There is no solution for this.</p>
+    <p style="margin-top: 1rem;">"Dreadnought Fitness: Because at least you'll be disappointed in yourself with abs."™</p>
+    <p>© 2026 Dreadnought Fitness LLC. The mascots are not our employees. The soundtrack is not our fault. Gerald, if you're reading this, please call.</p>
+  </div>
+</footer>
+
+<script>
+function gazette() {
+  return {
+    filter: 'all',
+    dreadMode: false
+  };
+}
+
+// Fade-in animations with GSAP + IntersectionObserver
+document.addEventListener('DOMContentLoaded', function() {
+  var fadeEls = document.querySelectorAll('.fade-in');
+  if (fadeEls.length === 0) return;
+
+  var observer = new IntersectionObserver(function(entries) {
+    entries.forEach(function(entry) {
+      if (entry.isIntersecting) {
+        gsap.fromTo(entry.target,
+          { y: 12, opacity: 0 },
+          { y: 0, opacity: 1, duration: 0.6, ease: 'power2.out' }
+        );
+        observer.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.1 });
+
+  fadeEls.forEach(function(el) {
+    observer.observe(el);
+  });
+});
+</script>
+</body>
+</html>

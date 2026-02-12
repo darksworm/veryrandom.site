@@ -1,0 +1,1090 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Abyssal Bonds — Underwater Dating for the Formerly Nefarious</title>
+<link rel="stylesheet" href="/assets/css/fonts.css">
+<script defer src="/assets/js/alpine.min.js"></script>
+<script src="/assets/js/gsap.min.js"></script>
+<script src="/assets/js/lucide.min.js"></script>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #0a0a0a;
+    --surface: #141414;
+    --surface2: #1c1c1c;
+    --border: #2a2a2a;
+    --text: #e8e8e8;
+    --text-muted: #aaaaaa;
+    --accent: #ff1493;
+    --accent-dim: #c4107a;
+    --crayon-border: 3px solid var(--accent);
+  }
+
+  body {
+    font-family: 'IBM Plex Mono', monospace;
+    background: var(--bg);
+    color: var(--text);
+    font-size: 16px;
+    line-height: 1.6;
+    overflow-x: hidden;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* Crayon texture on borders */
+  .crayon-box {
+    border: 3px solid var(--accent);
+    border-radius: 2px;
+    position: relative;
+  }
+  .crayon-box::before {
+    content: '';
+    position: absolute;
+    inset: -1px;
+    border: 2px solid transparent;
+    border-image: repeating-linear-gradient(
+      90deg,
+      var(--accent) 0px,
+      var(--accent) 4px,
+      transparent 4px,
+      transparent 7px
+    ) 2;
+    pointer-events: none;
+    opacity: 0.4;
+  }
+
+  a { color: var(--accent); text-decoration: none; }
+  a:hover { text-decoration: underline; }
+
+  .container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 20px;
+  }
+
+  /* NAV */
+  nav {
+    border-bottom: 2px solid var(--border);
+    padding: 16px 0;
+    position: sticky;
+    top: 0;
+    background: var(--bg);
+    z-index: 100;
+  }
+  .nav-inner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+  .nav-logo {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(18px, 3vw, 24px);
+    font-weight: 700;
+    color: var(--accent);
+    letter-spacing: -0.5px;
+  }
+  .nav-logo span { color: var(--text); font-weight: 400; }
+  .nav-links {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    list-style: none;
+  }
+  .nav-links a {
+    color: var(--text-muted);
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    padding: 6px 10px;
+    border: 1px solid var(--border);
+    transition: all 0.2s;
+  }
+  .nav-links a:hover {
+    color: var(--accent);
+    border-color: var(--accent);
+    text-decoration: none;
+  }
+
+  /* HERO */
+  .hero {
+    padding: clamp(40px, 8vw, 100px) 0;
+    border-bottom: 2px solid var(--border);
+    position: relative;
+  }
+  .hero-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 40px;
+    align-items: start;
+  }
+  .hero h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(32px, 5vw, 64px);
+    line-height: 1.1;
+    font-weight: 900;
+    margin-bottom: 20px;
+  }
+  .hero h1 em {
+    color: var(--accent);
+    font-style: normal;
+    text-decoration: underline wavy var(--accent);
+    text-underline-offset: 6px;
+  }
+  .hero-sub {
+    font-size: clamp(14px, 1.8vw, 18px);
+    color: var(--text-muted);
+    margin-bottom: 30px;
+    max-width: 500px;
+  }
+  .hero-notice {
+    background: var(--surface);
+    border-left: 4px solid var(--accent);
+    padding: 16px 20px;
+    font-size: 13px;
+    color: var(--text-muted);
+    margin-top: 20px;
+  }
+  .hero-notice strong { color: var(--accent); }
+  .hero-stats {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+  }
+  .stat-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    padding: 20px;
+  }
+  .stat-card .number {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(28px, 4vw, 48px);
+    font-weight: 900;
+    color: var(--accent);
+    line-height: 1;
+    margin-bottom: 8px;
+  }
+  .stat-card .label {
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    color: var(--text-muted);
+  }
+
+  /* SECTIONS */
+  section {
+    padding: clamp(40px, 6vw, 80px) 0;
+    border-bottom: 1px solid var(--border);
+  }
+  .section-label {
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    color: var(--accent);
+    margin-bottom: 8px;
+    font-weight: 700;
+  }
+  .section-title {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(24px, 3.5vw, 42px);
+    font-weight: 900;
+    margin-bottom: 16px;
+    line-height: 1.15;
+  }
+  .section-desc {
+    color: var(--text-muted);
+    max-width: 600px;
+    margin-bottom: 40px;
+    font-size: 14px;
+  }
+
+  /* DENSE GRID (How It Works) */
+  .process-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 2px;
+    background: var(--border);
+  }
+  .process-card {
+    background: var(--surface);
+    padding: clamp(20px, 3vw, 32px);
+  }
+  .process-card .step-num {
+    font-family: 'Playfair Display', serif;
+    font-size: 48px;
+    font-weight: 900;
+    color: var(--accent);
+    opacity: 0.3;
+    line-height: 1;
+    margin-bottom: 12px;
+  }
+  .process-card h3 {
+    font-size: 16px;
+    font-weight: 700;
+    margin-bottom: 8px;
+    color: var(--text);
+  }
+  .process-card p {
+    font-size: 13px;
+    color: var(--text-muted);
+    line-height: 1.5;
+  }
+
+  /* PROFILES */
+  .profiles-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
+    gap: 20px;
+  }
+  .profile-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    overflow: hidden;
+  }
+  .profile-header {
+    padding: 20px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+  }
+  .profile-name {
+    font-family: 'Playfair Display', serif;
+    font-size: 20px;
+    font-weight: 700;
+  }
+  .profile-alias {
+    font-size: 12px;
+    color: var(--accent);
+    margin-top: 2px;
+  }
+  .profile-status {
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    padding: 4px 10px;
+    border: 1px solid var(--border);
+    color: var(--text-muted);
+  }
+  .profile-status.active { border-color: #2ecc71; color: #2ecc71; }
+  .profile-status.premium { border-color: var(--accent); color: var(--accent); }
+  .profile-body {
+    padding: 20px;
+    font-size: 13px;
+    color: var(--text-muted);
+    line-height: 1.6;
+  }
+  .profile-body strong { color: var(--text); }
+  .profile-tags {
+    padding: 12px 20px;
+    border-top: 1px solid var(--border);
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+  .tag {
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    padding: 3px 8px;
+    border: 1px solid var(--border);
+    color: var(--text-muted);
+  }
+  .profile-expand-btn {
+    display: block;
+    width: 100%;
+    background: none;
+    border: none;
+    border-top: 1px solid var(--border);
+    padding: 12px;
+    color: var(--accent);
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 12px;
+    cursor: pointer;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    transition: background 0.2s;
+  }
+  .profile-expand-btn:hover { background: var(--surface2); }
+  .profile-extra {
+    padding: 0 20px 20px;
+    font-size: 13px;
+    color: var(--text-muted);
+    line-height: 1.6;
+    border-top: 1px dashed var(--border);
+    padding-top: 16px;
+  }
+  .profile-extra h4 {
+    color: var(--accent);
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    margin-bottom: 8px;
+  }
+
+  /* COMPATIBILITY */
+  .compat-table-wrap {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+  .compat-table {
+    width: 100%;
+    min-width: 600px;
+    border-collapse: collapse;
+    font-size: 13px;
+  }
+  .compat-table th, .compat-table td {
+    border: 1px solid var(--border);
+    padding: 12px 16px;
+    text-align: left;
+  }
+  .compat-table th {
+    background: var(--surface);
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--accent);
+    font-weight: 700;
+  }
+  .compat-table td { color: var(--text-muted); }
+  .compat-table tr:hover td { background: var(--surface); }
+  .compat-score {
+    display: inline-block;
+    padding: 2px 8px;
+    font-weight: 700;
+    font-size: 12px;
+  }
+  .compat-score.high { color: #2ecc71; border: 1px solid #2ecc71; }
+  .compat-score.mid { color: #f39c12; border: 1px solid #f39c12; }
+  .compat-score.low { color: var(--accent); border: 1px solid var(--accent); }
+  .compat-score.catastrophic { color: #e74c3c; border: 1px solid #e74c3c; }
+
+  /* TESTIMONIALS */
+  .testimonials-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 20px;
+  }
+  .testimonial {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    padding: clamp(20px, 3vw, 32px);
+  }
+  .testimonial blockquote {
+    font-family: 'Crimson Pro', serif;
+    font-size: clamp(16px, 2vw, 20px);
+    font-style: italic;
+    color: var(--text);
+    line-height: 1.5;
+    margin-bottom: 16px;
+  }
+  .testimonial .attribution {
+    font-size: 12px;
+    color: var(--text-muted);
+  }
+  .testimonial .attribution strong { color: var(--accent); }
+  .testimonial .outcome {
+    margin-top: 12px;
+    font-size: 11px;
+    padding: 8px 12px;
+    background: var(--surface2);
+    border-left: 2px solid var(--accent);
+    color: var(--text-muted);
+  }
+
+  /* TABS */
+  .tab-bar {
+    display: flex;
+    border-bottom: 2px solid var(--border);
+    margin-bottom: 30px;
+    overflow-x: auto;
+    gap: 0;
+  }
+  .tab-btn {
+    background: none;
+    border: none;
+    padding: 12px 20px;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--text-muted);
+    cursor: pointer;
+    white-space: nowrap;
+    border-bottom: 2px solid transparent;
+    margin-bottom: -2px;
+    transition: all 0.2s;
+  }
+  .tab-btn:hover { color: var(--text); }
+  .tab-btn.active {
+    color: var(--accent);
+    border-bottom-color: var(--accent);
+  }
+
+  /* FAQ */
+  .faq-item {
+    border-bottom: 1px solid var(--border);
+  }
+  .faq-q {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    background: none;
+    border: none;
+    padding: 20px 0;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--text);
+    cursor: pointer;
+    text-align: left;
+    gap: 16px;
+  }
+  .faq-q:hover { color: var(--accent); }
+  .faq-q .toggle-icon {
+    font-size: 20px;
+    color: var(--accent);
+    flex-shrink: 0;
+    transition: transform 0.2s;
+  }
+  .faq-a {
+    padding: 0 0 20px;
+    font-size: 13px;
+    color: var(--text-muted);
+    line-height: 1.7;
+    max-width: 700px;
+  }
+  .faq-a em { color: var(--text); font-style: normal; }
+
+  /* ETHELRED'S CORNER */
+  .blog-post {
+    max-width: 700px;
+  }
+  .blog-post .date {
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    color: var(--text-muted);
+    margin-bottom: 16px;
+  }
+  .blog-post h3 {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(22px, 3vw, 32px);
+    font-weight: 900;
+    margin-bottom: 20px;
+    line-height: 1.2;
+  }
+  .blog-post p {
+    margin-bottom: 16px;
+    font-size: 14px;
+    color: var(--text-muted);
+    line-height: 1.7;
+  }
+  .blog-post p strong { color: var(--text); }
+  .blog-post .crayon-note {
+    background: var(--surface);
+    border: 2px dashed var(--accent);
+    padding: 16px 20px;
+    font-size: 13px;
+    color: var(--accent);
+    margin: 24px 0;
+    font-style: italic;
+  }
+
+  /* PRESS */
+  .press-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 16px;
+  }
+  .press-item {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    padding: 20px;
+  }
+  .press-item .source {
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    color: var(--accent);
+    margin-bottom: 8px;
+  }
+  .press-item .headline {
+    font-family: 'Crimson Pro', serif;
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--text);
+    line-height: 1.3;
+    margin-bottom: 8px;
+  }
+  .press-item .excerpt {
+    font-size: 12px;
+    color: var(--text-muted);
+    line-height: 1.5;
+  }
+
+  /* FOOTER */
+  footer {
+    padding: 40px 0;
+    border-top: 2px solid var(--accent);
+  }
+  .footer-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 30px;
+    margin-bottom: 30px;
+  }
+  .footer-col h4 {
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    color: var(--accent);
+    margin-bottom: 12px;
+  }
+  .footer-col p, .footer-col li {
+    font-size: 12px;
+    color: var(--text-muted);
+    line-height: 1.6;
+    list-style: none;
+  }
+  .footer-col li { margin-bottom: 4px; }
+  .footer-legal {
+    border-top: 1px solid var(--border);
+    padding-top: 20px;
+    font-size: 11px;
+    color: #666666;
+    line-height: 1.6;
+  }
+
+  /* UTILITIES */
+  .accent { color: var(--accent); }
+  .mt-sm { margin-top: 12px; }
+  .mb-sm { margin-bottom: 12px; }
+
+  /* CRAYON SCRAWL DECORATION */
+  .crayon-scrawl {
+    font-family: 'Playfair Display', serif;
+    font-style: italic;
+    color: var(--accent);
+    position: relative;
+  }
+  .crayon-scrawl::after {
+    content: '';
+    position: absolute;
+    bottom: -2px;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: repeating-linear-gradient(
+      90deg,
+      var(--accent) 0px,
+      var(--accent) 6px,
+      transparent 6px,
+      transparent 10px
+    );
+    opacity: 0.5;
+  }
+
+  /* RESPONSIVE */
+  @media (max-width: 768px) {
+    .hero-grid {
+      grid-template-columns: 1fr;
+    }
+    .hero-stats {
+      grid-template-columns: 1fr 1fr;
+    }
+    .nav-links {
+      display: none;
+    }
+    .profiles-grid {
+      grid-template-columns: 1fr;
+    }
+    .compat-table { font-size: 12px; }
+    .compat-table th, .compat-table td { padding: 8px 10px; }
+  }
+
+  @media (max-width: 480px) {
+    .hero-stats {
+      grid-template-columns: 1fr;
+    }
+    .stat-card .number { font-size: 36px; }
+    .tab-btn { padding: 10px 14px; font-size: 11px; }
+  }
+
+  /* NO SCROLLBAR on overflow areas */
+  .compat-table-wrap::-webkit-scrollbar { height: 4px; }
+  .compat-table-wrap::-webkit-scrollbar-thumb { background: var(--border); }
+
+  .fade-in { opacity: 0; transform: translateY(16px); }
+</style>
+</head>
+<body>
+
+<!-- ═══════════════════ NAV ═══════════════════ -->
+<nav>
+  <div class="container nav-inner">
+    <div class="nav-logo">ABYSSAL <span>BONDS</span></div>
+    <ul class="nav-links">
+      <li><a href="#how">Protocol</a></li>
+      <li><a href="#profiles">Active Members</a></li>
+      <li><a href="#compat">Compatibility</a></li>
+      <li><a href="#testimonials">Field Reports</a></li>
+      <li><a href="#faq">Inquiries</a></li>
+      <li><a href="#ethelred">Ethelred's Corner</a></li>
+    </ul>
+  </div>
+</nav>
+
+<!-- ═══════════════════ HERO ═══════════════════ -->
+<section class="hero">
+  <div class="container">
+    <div class="hero-grid">
+      <div>
+        <h1 class="fade-in">Find Your <em>Co-Conspirator</em></h1>
+        <p class="hero-sub fade-in">Underwater matchmaking for the formerly nefarious. All documentation rendered in crayon. No surveillance. No Sunshine & Sparkles mixers. No "accidental" oxygen tank failures.</p>
+        <div class="hero-notice fade-in">
+          <strong>DEPTH CLEARANCE REQUIRED.</strong> Abyssal Bonds operates exclusively below 200 meters. Surface-dwellers, hero sympathizers, and anyone who has ever used the phrase "team building exercise" are not welcome. Current wait time for profile activation: <strong>14 weeks</strong> (the kraken is backlogged).
+        </div>
+      </div>
+      <div class="hero-stats fade-in">
+        <div class="stat-card">
+          <div class="number">847</div>
+          <div class="label">Active Members</div>
+        </div>
+        <div class="stat-card">
+          <div class="number">23</div>
+          <div class="label">Successful Matches (All Time)</div>
+        </div>
+        <div class="stat-card">
+          <div class="number">6</div>
+          <div class="label">Still Speaking to Each Other</div>
+        </div>
+        <div class="stat-card">
+          <div class="number">$499</div>
+          <div class="label">/Month (No Refunds)</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════ HOW IT WORKS ═══════════════════ -->
+<section id="how">
+  <div class="container">
+    <div class="section-label fade-in">Enrollment Protocol</div>
+    <h2 class="section-title fade-in">How It Works (It Mostly Doesn't)</h2>
+    <p class="section-desc fade-in">Our three-step process was designed by Dr. Meredith Blackpool (formerly "The Abyssal Surgeon") and has been described by the International Court of The Hague as "not technically illegal."</p>
+  </div>
+  <div class="process-grid fade-in">
+    <div class="process-card">
+      <div class="step-num">01</div>
+      <h3>Crayon Intake Form</h3>
+      <p>Complete the 47-page intake form using only the crayons provided. We accept Burnt Sienna, Midnight Betrayal, and our proprietary shade "Ethelred's Regret" (#3b0014). Pencil submissions are fed to the eels. No exceptions. The form asks standard questions: name, alias, number of active warrants, tentacle count (if applicable), and a 500-word essay titled "Why I Deserve Love Despite Everything."</p>
+    </div>
+    <div class="process-card">
+      <div class="step-num">02</div>
+      <h3>The 72-Hour Evaluation</h3>
+      <p>Conducted entirely through interpretive dance in a pressurized chamber at 340 meters depth. You will be assessed on emotional vulnerability, kraken compatibility, and your ability to express the concept of "trust" using only your left arm. Pass rate: 12%. Most failures occur during the "Betrayal Waltz" segment, which I personally choreographed and which I personally believe is fair.</p>
+    </div>
+    <div class="process-card">
+      <div class="step-num">03</div>
+      <h3>Submersion & Matching</h3>
+      <p>Your profile is carved into a basalt tablet and lowered into the Matching Trench (coordinates classified). Our algorithm — a blind octopus named Gerald who selects tablets by feel — has a 2.7% accuracy rate, which is higher than Tinder's. Gerald has been with us since 2018 and is the only employee who has never filed a complaint against me, personally.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════ PROFILES ═══════════════════ -->
+<section id="profiles" x-data="{ expanded: {} }">
+  <div class="container">
+    <div class="section-label fade-in">Currently Seeking</div>
+    <h2 class="section-title fade-in">Active Member Profiles</h2>
+    <p class="section-desc fade-in">The following members have authorized their profiles for surface-web display. All information was transcribed from crayon and may contain inaccuracies. Several may contain outright lies. One is definitely lying about their age.</p>
+
+    <div class="profiles-grid">
+
+      <!-- PROFILE 1 -->
+      <div class="profile-card fade-in">
+        <div class="profile-header">
+          <div>
+            <div class="profile-name">Margaret "The Barnacle" Chen</div>
+            <div class="profile-alias">fka "Madam Suction Cup" · Member since 2019</div>
+          </div>
+          <div class="profile-status active">Online (3m depth)</div>
+        </div>
+        <div class="profile-body">
+          <strong>Age:</strong> 74 (claims 68) · <strong>Villainy:</strong> Maritime Adhesion Specialist<br>
+          <strong>Looking for:</strong> Someone who won't try to peel me off things. Literally. My ex-henchman Carl kept trying to "help" by removing me from submarines during heists. That's not help, Carl. That's sabotage.<br>
+          <strong>Ideal date:</strong> Clinging to the hull of a decommissioned aircraft carrier, watching the bioluminescent plankton. Silence preferred. I've had enough of talking.
+        </div>
+        <div class="profile-tags">
+          <span class="tag">No Heroes</span>
+          <span class="tag">Adhesion-Positive</span>
+          <span class="tag">Quiet Evenings</span>
+          <span class="tag">Tentacle-Adjacent</span>
+        </div>
+        <button class="profile-expand-btn" @click="expanded['margaret'] = !expanded['margaret']" x-text="expanded['margaret'] ? '− Collapse Dossier' : '+ Expand Full Dossier'">+ Expand Full Dossier</button>
+        <div class="profile-extra" x-show="expanded['margaret']" x-cloak>
+          <h4>Compatibility Notes (by Ethelred)</h4>
+          <p>Margaret is one of our most reliable members, in the sense that she has never missed a payment and has only attempted to adhere to my submarine twice. Her previous matches include Reg "The Undertow" Paulson (lasted 3 weeks; he couldn't handle the suction noises) and Dr. Victor Pale (lasted 2 days; she adhered to his escape pod during a disagreement about soup). I believe Margaret's ideal partner is someone with a very thick wetsuit and realistic expectations about personal space. Compatibility with aquatic members: high. Compatibility with anyone who values their hull integrity: low.</p>
+        </div>
+      </div>
+
+      <!-- PROFILE 2 -->
+      <div class="profile-card fade-in">
+        <div class="profile-header">
+          <div>
+            <div class="profile-name">Reg "The Undertow" Paulson</div>
+            <div class="profile-alias">fka "Captain Whirlpool" · Member since 2017</div>
+          </div>
+          <div class="profile-status premium">Premium Abyss</div>
+        </div>
+        <div class="profile-body">
+          <strong>Age:</strong> 81 · <strong>Villainy:</strong> Large-Scale Tidal Manipulation (Retired)<br>
+          <strong>Looking for:</strong> Companionship. That's it. I don't need a heist partner. I don't need someone who "gets" me. I need someone who'll sit next to me at 400 meters and not talk about the old days. Everyone always wants to talk about Helsinki. Helsinki was 1994. Let it go.<br>
+          <strong>Dealbreakers:</strong> People who say "synergy." People who bring up Helsinki. Margaret.
+        </div>
+        <div class="profile-tags">
+          <span class="tag">Quiet Type</span>
+          <span class="tag">Helsinki Truther</span>
+          <span class="tag">No Adhesion</span>
+        </div>
+        <button class="profile-expand-btn" @click="expanded['reg'] = !expanded['reg']" x-text="expanded['reg'] ? '− Collapse Dossier' : '+ Expand Full Dossier'">+ Expand Full Dossier</button>
+        <div class="profile-extra" x-show="expanded['reg']" x-cloak>
+          <h4>Compatibility Notes (by Ethelred)</h4>
+          <p>Reg is our longest-tenured member and the only person who has been on more failed dates through this service than I have through all other services combined. (That's not a competition. I'm fine.) He pays the $499 premium tier on time every month, has never complained about Gerald's selections, and once thanked me for "at least trying," which is the nicest thing anyone has said to me since my grandfather's bouncy castle incident. His ideal match is someone who understands that silence at depth is not awkwardness — it's respect. Previous matches: 11. Restraining orders: 2. Both from Margaret.</p>
+        </div>
+      </div>
+
+      <!-- PROFILE 3 -->
+      <div class="profile-card fade-in">
+        <div class="profile-header">
+          <div>
+            <div class="profile-name">Dr. Yuki Tanaka-Volkov</div>
+            <div class="profile-alias">fka "The Benthic Mathematician" · Member since 2021</div>
+          </div>
+          <div class="profile-status">Dormant (migrating)</div>
+        </div>
+        <div class="profile-body">
+          <strong>Age:</strong> 59 · <strong>Villainy:</strong> Weaponized Calculus / Submarine Topology<br>
+          <strong>Looking for:</strong> An intellectual equal who can appreciate that I once nearly collapsed the global bond market using nothing but a TI-84 calculator and a grudge. My therapist says I "use achievements as a substitute for emotional connection." My therapist is a sea cucumber that K3 assigned me, so I question her credentials.<br>
+          <strong>Ideal date:</strong> Collaborating on proofs at a hydrothermal vent. Wine optional. Correct notation mandatory.
+        </div>
+        <div class="profile-tags">
+          <span class="tag">Intellectual</span>
+          <span class="tag">TI-84 Loyalist</span>
+          <span class="tag">Anti-K3</span>
+          <span class="tag">Proof-Based Romance</span>
+        </div>
+        <button class="profile-expand-btn" @click="expanded['yuki'] = !expanded['yuki']" x-text="expanded['yuki'] ? '− Collapse Dossier' : '+ Expand Full Dossier'">+ Expand Full Dossier</button>
+        <div class="profile-extra" x-show="expanded['yuki']" x-cloak>
+          <h4>Compatibility Notes (by Ethelred)</h4>
+          <p>Dr. Tanaka-Volkov joined after K3's "Sunshine & Sparkles" mixer paired her with a retired henchman whose idea of intellectual conversation was debating whether Die Hard is a Christmas movie. (It is. This is not up for discussion.) She has the highest Henchman-to-Heart Ratio score in our database — 0.97 out of a possible 1.0 — meaning she has almost completely replaced her need for henchmen with genuine emotional capacity. I find this admirable and also slightly threatening. Gerald selected her three times in one week, which either means she's highly compatible with our members or Gerald has developed a crush. I'm monitoring the situation.</p>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════ COMPATIBILITY CHART ═══════════════════ -->
+<section id="compat">
+  <div class="container">
+    <div class="section-label fade-in">Crayon-Verified Analytics</div>
+    <h2 class="section-title fade-in">Kraken Bait Compatibility Matrix</h2>
+    <p class="section-desc fade-in">Calculated by Gerald (the octopus), transcribed by me (Ethelred), and rendered in Cerulean Blue crayon on waterproof card stock. Accuracy: debatable. Legal standing: none.</p>
+
+    <div class="compat-table-wrap fade-in">
+      <table class="compat-table">
+        <thead>
+          <tr>
+            <th>Pairing</th>
+            <th>Score</th>
+            <th>Gerald's Notes</th>
+            <th>My Notes</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>Margaret + Reg</strong></td>
+            <td><span class="compat-score catastrophic">0.03</span></td>
+            <td>Gerald threw both tablets into the trench</td>
+            <td>Under no circumstances. The restraining orders are still active. I'm not paying for another arbitration.</td>
+          </tr>
+          <tr>
+            <td><strong>Yuki + Reg</strong></td>
+            <td><span class="compat-score mid">0.54</span></td>
+            <td>Gerald placed tablets adjacent, then fell asleep</td>
+            <td>Promising. Both value silence. Concern: Yuki may attempt to calculate the relationship, and Reg may interpret this as "talking about the old days."</td>
+          </tr>
+          <tr>
+            <td><strong>Margaret + Yuki</strong></td>
+            <td><span class="compat-score high">0.78</span></td>
+            <td>Gerald stacked the tablets. Unprecedented.</td>
+            <td>Gerald has never stacked before. I don't know what this means. It could mean high compatibility or it could mean his arthritis is acting up. I've scheduled a follow-up evaluation.</td>
+          </tr>
+          <tr>
+            <td><strong>Reg + Anyone</strong></td>
+            <td><span class="compat-score low">0.22</span></td>
+            <td>Gerald pushed Reg's tablet to the edge</td>
+            <td>Reg has been "to the edge" for nine years. I keep telling him that vulnerability is not weakness, but he says that's exactly what someone from K3 would say, and then we sit in silence for twenty minutes. Reg, if you're reading this: I'm not from K3. We've been over this.</td>
+          </tr>
+          <tr>
+            <td><strong>Ethelred + [REDACTED]</strong></td>
+            <td><span class="compat-score catastrophic">N/A</span></td>
+            <td>Gerald hid my tablet under a rock</td>
+            <td>This column shouldn't be here. I'm the administrator, not a member. Gerald's assessment is irrelevant. I'm deleting this row. [ROW NOT DELETED: CRAYON IS PERMANENT]</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════ TESTIMONIALS ═══════════════════ -->
+<section id="testimonials" x-data="{ tab: 'success' }">
+  <div class="container">
+    <div class="section-label fade-in">Field Reports</div>
+    <h2 class="section-title fade-in">What Our Members Say</h2>
+
+    <div class="tab-bar fade-in">
+      <button class="tab-btn" :class="{ active: tab === 'success' }" @click="tab = 'success'">Successes (6)</button>
+      <button class="tab-btn" :class="{ active: tab === 'incidents' }" @click="tab = 'incidents'">Incidents (41)</button>
+      <button class="tab-btn" :class="{ active: tab === 'legal' }" @click="tab = 'legal'">Pending Litigation (7)</button>
+    </div>
+
+    <!-- SUCCESS TAB -->
+    <div x-show="tab === 'success'" class="testimonials-grid">
+      <div class="testimonial">
+        <blockquote>"We met at 380 meters during the Betrayal Waltz evaluation. He stepped on my foot. I electrocuted his dive suit. We've been inseparable since."</blockquote>
+        <div class="attribution"><strong>Ingrid "Shockwave" Lund</strong> & <strong>Daisuke "The Gentle Tsunami" Ito</strong></div>
+        <div class="outcome">UPDATE: Still together. Jointly operate a hydrothermal vent bed & breakfast. 4.2 stars on the internal review board. One complaint about the eels.</div>
+      </div>
+      <div class="testimonial">
+        <blockquote>"Ethelred's matching algorithm paired me with my ex-nemesis. I was furious. Turns out, 30 years of obsessive rivalry is basically the same neural pathway as love. Who knew."</blockquote>
+        <div class="attribution"><strong>Colonel Patricia Vex</strong> & <strong>The Unnamed Horror of Sector 7</strong></div>
+        <div class="outcome">UPDATE: Married (ceremony conducted in crayon, legally binding in 3 micronations). Currently expecting their first minion.</div>
+      </div>
+      <div class="testimonial">
+        <blockquote>"I was skeptical about being matched by an octopus. Then Gerald picked my tablet and Hector's tablet and smashed them together so hard they cracked. I thought, well, that's either fate or property damage. Turns out it was both."</blockquote>
+        <div class="attribution"><strong>Lynne "Madame Frostbite" Okafor</strong></div>
+        <div class="outcome">UPDATE: Lynne and Hector separated after 14 months but remain "heist-compatible." They rob things together every other Thursday. Ethelred counts this as a success.</div>
+      </div>
+    </div>
+
+    <!-- INCIDENTS TAB -->
+    <div x-show="tab === 'incidents'" class="testimonials-grid">
+      <div class="testimonial">
+        <blockquote>"The 72-hour evaluation would have gone fine if Ethelred hadn't played 'Careless Whisper' during the Vulnerability Tango. I panicked. The airlock breached. No one was seriously injured."</blockquote>
+        <div class="attribution"><strong>Anonymous Member #0441</strong></div>
+        <div class="outcome">INCIDENT REPORT #0441-B: Airlock breach confirmed. 'Careless Whisper' has been removed from the evaluation playlist. Ethelred maintains it was "emotionally appropriate."</div>
+      </div>
+      <div class="testimonial">
+        <blockquote>"My date showed up to the hydrothermal vent with a PowerPoint about synergy. A POWERPOINT. Underwater. I had to be physically restrained."</blockquote>
+        <div class="attribution"><strong>Reg "The Undertow" Paulson</strong></div>
+        <div class="outcome">INCIDENT REPORT #0219-C: Reg's response was "proportionate to the provocation" per our internal review. The PowerPoint presenter has been banned. Their membership fee was not refunded.</div>
+      </div>
+      <div class="testimonial">
+        <blockquote>"Gerald matched me with a literal rock. Not a person named Rock. An actual piece of basalt. When I complained, Ethelred said 'Gerald sees potential where others see geology.' I want my $499 back."</blockquote>
+        <div class="attribution"><strong>Victor "Pale Reef" Nasseri</strong></div>
+        <div class="outcome">INCIDENT REPORT #0387-A: Gerald's selection stands. Our Terms of Service (page 34, paragraph 12, written in Burnt Sienna) clearly state that "all matches are final, including geological matches." Victor is now dating the rock. It seems to be going well.</div>
+      </div>
+    </div>
+
+    <!-- LEGAL TAB -->
+    <div x-show="tab === 'legal'" class="testimonials-grid">
+      <div class="testimonial">
+        <blockquote>"I am suing Abyssal Bonds for emotional distress, property damage, and the unauthorized use of my interpretive dance footage in what Ethelred calls a 'training montage.'"</blockquote>
+        <div class="attribution"><strong>Margaret "The Barnacle" Chen</strong> · Case #AB-2024-0012</div>
+        <div class="outcome">LEGAL STATUS: Pending. Ethelred's defense: "The footage was educational and Margaret's Betrayal Waltz was, frankly, inspirational. I stand by the montage."</div>
+      </div>
+      <div class="testimonial">
+        <blockquote>"The Terms of Service state refunds are available 'when the ocean freezes.' I have submitted evidence that a small section of the Arctic Ocean is, in fact, frozen. Ethelred's legal team — which is just Ethelred in a different hat — has rejected my claim."</blockquote>
+        <div class="attribution"><strong>Dr. Yuki Tanaka-Volkov</strong> · Case #AB-2024-0019</div>
+        <div class="outcome">LEGAL STATUS: Under review. Ethelred has counter-argued that the Arctic Ocean "doesn't count" and that the clause specifically refers to "our ocean, the one with Gerald in it." The judge (a retired villain named Barb) has requested a recess.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════ FAQ ═══════════════════ -->
+<section id="faq" x-data="{ open: null }">
+  <div class="container">
+    <div class="section-label fade-in">Inquiries</div>
+    <h2 class="section-title fade-in">Frequently Asked Questions</h2>
+    <p class="section-desc fade-in">Answered personally by Ethelred Von Doom III, with increasing reluctance.</p>
+
+    <div class="fade-in">
+
+      <div class="faq-item">
+        <button class="faq-q" @click="open = open === 1 ? null : 1">
+          <span>Why does everything have to be in crayon?</span>
+          <span class="toggle-icon" x-text="open === 1 ? '−' : '+'">+</span>
+        </button>
+        <div class="faq-a" x-show="open === 1" x-cloak>
+          Because K3 confiscated my pens. All of them. Even the novelty one shaped like a swordfish that my grandfather gave me before the bouncy castle incident. They said it was a "security risk." A <em>pen</em>, Brenda. A pen shaped like a swordfish is not a security risk. It's a memento. So now everything is in crayon because that's what they left me with, and I have made it policy because if I have to suffer this indignity, so does everyone else. Next question.
+        </div>
+      </div>
+
+      <div class="faq-item">
+        <button class="faq-q" @click="open = open === 2 ? null : 2">
+          <span>Is $499/month really the best price you can offer?</span>
+          <span class="toggle-icon" x-text="open === 2 ? '−' : '+'">+</span>
+        </button>
+        <div class="faq-a" x-show="open === 2" x-cloak>
+          Yes. Do you know how much it costs to maintain a submarine, feed an octopus a specialized diet of ethically sourced crab, pay off three separate maritime authorities, and keep an adequate supply of waterproof crayons? It's $498. The extra dollar is my salary. I make one dollar a month. I am not getting rich off this. I am barely getting fed off this. The $499 is fair and I will not be taking further questions on pricing. (There is a $299 "Shallow End" tier but it only grants you access to Gerald's rejected matches, which are mostly rocks and one very confused manatee.)
+        </div>
+      </div>
+
+      <div class="faq-item">
+        <button class="faq-q" @click="open = open === 3 ? null : 3">
+          <span>What is your success rate, honestly?</span>
+          <span class="toggle-icon" x-text="open === 3 ? '−' : '+'">+</span>
+        </button>
+        <div class="faq-a" x-show="open === 3" x-cloak>
+          Define "success." If success means "two people met and did not immediately attempt to destroy each other," our rate is 34%. If success means "a lasting romantic connection," our rate is 2.7%. If success means "at least one party described the experience as 'not the worst thing that has ever happened to me,'" our rate is a very respectable 61%. I choose to focus on that last number. It's higher than K3's mixer, where the success rate for "not the worst thing" is 8%, primarily because of the oxygen tank situation, which they <em>still</em> refuse to address.
+        </div>
+      </div>
+
+      <div class="faq-item">
+        <button class="faq-q" @click="open = open === 4 ? null : 4">
+          <span>Who is Gerald and why is an octopus making matches?</span>
+          <span class="toggle-icon" x-text="open === 4 ? '−' : '+'">+</span>
+        </button>
+        <div class="faq-a" x-show="open === 4" x-cloak>
+          Gerald is a Giant Pacific Octopus, approximately 7 years old, and the most emotionally intelligent member of my staff (there are two of us). I found him in 2018 during what I will only describe as "a very bad night" involving a lost submarine, three expired flares, and a moment of genuine existential despair. Gerald approached my viewport and pressed one tentacle against the glass. I pressed my hand against it from the other side. We stayed like that for forty minutes. He's been with me since. His matching method — selecting basalt tablets by texture and weight — has no scientific basis whatsoever, but it has a higher accuracy rate than any dating algorithm on the surface, and more importantly, Gerald has never once suggested I attend a Sunshine & Sparkles mixer. He is my best friend. That is not relevant to this FAQ but I'm leaving it in.
+        </div>
+      </div>
+
+      <div class="faq-item">
+        <button class="faq-q" @click="open = open === 5 ? null : 5">
+          <span>Are you okay, Ethelred?</span>
+          <span class="toggle-icon" x-text="open === 5 ? '−' : '+'">+</span>
+        </button>
+        <div class="faq-a" x-show="open === 5" x-cloak>
+          This is a dating service FAQ, not a therapy session. Please restrict your questions to topics related to membership, pricing, depth clearance, or krakenology. I am fine. Gerald is fine. The submarine needs repairs but that's a funding issue, not an emotional one. I don't know why you'd ask that. I said I was fine. Please move on to the next question. There isn't one? Good. Fine. I'm going to go check on Gerald.
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════ ETHELRED'S CORNER ═══════════════════ -->
+<section id="ethelred">
+  <div class="container">
+    <div class="section-label fade-in">Ethelred's Corner</div>
+    <h2 class="section-title fade-in">Administrator's Log</h2>
+
+    <div class="blog-post fade-in">
+      <div class="date">Entry dated: November 14, 2024 · Depth: 340m · Crayon: Midnight Betrayal</div>
+      <h3>On the Subject of K3's Latest Outrage, and Why I Will Never Forgive Brenda</h3>
+      <p>It has come to my attention that the Kiddie Krèche Kollective has launched their own "underwater dating experience," which they are calling — and I need you to sit down for this — <strong>"Splash of Love."</strong></p>
+      <p>"Splash of Love." They're calling it "Splash of Love." As if the word "splash" has any place in serious underwater matchmaking. A splash is what happens at the surface. A splash is what children do in paddling pools. What we do at Abyssal Bonds happens at <strong>depth</strong>, where the pressure would crush a paddling pool into a disc the size of a postage stamp, along with any child foolish enough to be in it. (I am not threatening children. I am making a point about physics.)</p>
+      <div class="crayon-note">[Editor's note: This section was originally four times longer. It has been trimmed for legal reasons. Ethelred's full remarks about Brenda, K3's activity coordinator, are available in the sealed archives. The phrase "bouncy castle apologist" appears seventeen times.]</div>
+      <p>K3's program is, predictably, a disaster. Their "matching system" involves a roulette wheel, a bag of gummy bears, and what Brenda describes as "vibes." Their first mixer resulted in three burst oxygen tanks (their signature move), one unplanned surfacing, and a 74-year-old retired doomsday architect sobbing into a pool noodle. That man was Reg. Reg came to me afterward. He didn't say anything. He just sat in my submarine for two hours, staring at Gerald.</p>
+      <p>I gave him a crayon and a piece of card stock. He drew a circle. I don't know what the circle meant. I didn't ask. That's the difference between Abyssal Bonds and K3. <strong>We don't ask about the circle. We just let you draw it.</strong></p>
+      <p>Membership applications can be submitted via the crayon drop-box at Trench Marker 7. Please allow 14 weeks for processing. Gerald is doing his best.</p>
+      <p>— Ethelred Von Doom III, Founder & Sole Human Employee, Abyssal Bonds LLC (a submarine-based limited liability company, registered in no recognized jurisdiction)</p>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════ PRESS ═══════════════════ -->
+<section>
+  <div class="container">
+    <div class="section-label fade-in">As Seen In (Sort Of)</div>
+    <h2 class="section-title fade-in">Press Coverage</h2>
+    <div class="press-grid fade-in">
+      <div class="press-item">
+        <div class="source">The Marianas Tribune</div>
+        <div class="headline">"Local Man Runs Dating App From Submarine, Insists He's Fine"</div>
+        <div class="excerpt">An in-depth profile of Ethelred Von Doom III, the self-described "reluctant romantic" who has facilitated 23 matches and zero successful first dates (by his own admission).</div>
+      </div>
+      <div class="press-item">
+        <div class="source">Retired Villains Quarterly</div>
+        <div class="headline">"Gerald the Octopus: Matchmaker, Prophet, or Just Hungry?"</div>
+        <div class="excerpt">RVQ investigates the 2.7% accuracy rate that Ethelred claims is "statistically miraculous" and marine biologists call "random chance consistent with tablet-grabbing behavior in cephalopods."</div>
+      </div>
+      <div class="press-item">
+        <div class="source">K3 Internal Newsletter</div>
+        <div class="headline">"Reminder: Abyssal Bonds Is NOT Affiliated With Us"</div>
+        <div class="excerpt">K3 activity coordinator Brenda Walsh issued a statement distancing the retirement community from "Mr. Von Doom's unauthorized submarine project," adding, "We wish him well, but he really needs to stop calling about the pens."</div>
+      </div>
+      <div class="press-item">
+        <div class="source">International Court of The Hague</div>
+        <div class="headline">"Technically Not Illegal: The Abyssal Bonds Ruling"</div>
+        <div class="excerpt">In a landmark 2022 decision, the ICJ ruled that operating an underwater dating service from an unregistered submarine using an octopus as a matchmaking algorithm is "not explicitly prohibited by existing maritime law, but deeply concerning."</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════ FOOTER ═══════════════════ -->
+<footer>
+  <div class="container">
+    <div class="footer-grid">
+      <div class="footer-col">
+        <h4>Abyssal Bonds LLC</h4>
+        <p>Founded 2017 by Ethelred Von Doom III. Operated from an undisclosed submarine. Powered by geothermal vents and spite. Gerald is employee of the month every month because Gerald is the only other employee.</p>
+      </div>
+      <div class="footer-col">
+        <h4>Contact</h4>
+        <ul>
+          <li>Crayon Drop-Box: Trench Marker 7</li>
+          <li>Emergency Flare Frequency: 47.3 MHz</li>
+          <li>Carrier Pigeon: "Steve" (waterproofed)</li>
+          <li>Do NOT contact via K3. They will not forward messages. They never have.</li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4>Legal</h4>
+        <ul>
+          <li>No refunds (see: frozen ocean clause)</li>
+          <li>Registered in 0 jurisdictions</li>
+          <li>All crayons property of Abyssal Bonds</li>
+          <li>Gerald's decisions are final</li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-legal">
+      &copy; 2017–2024 Abyssal Bonds LLC. All rights reserved insofar as rights can be reserved by an entity that exists in no recognized legal framework. "Abyssal Bonds," "Kraken Bait Budgeting," "The Betrayal Waltz," and "Ethelred's Regret (#3b0014)" are trademarks of nothing because we cannot file trademarks from a submarine. This website was written entirely in Midnight Betrayal crayon and transcribed by an intern who lasted four hours before citing "the atmosphere" as their reason for quitting. Gerald sends his regards. Ethelred does not. Ethelred is busy. Please stop asking if Ethelred is okay.
+    </div>
+  </div>
+</footer>
+
+<script>
+  // Initialize Lucide icons
+  document.addEventListener('DOMContentLoaded', function() {
+    if (typeof lucide !== 'undefined') {
+      lucide.createIcons();
+    }
+
+    // Fade-in animations using IntersectionObserver + GSAP
+    var fadeEls = document.querySelectorAll('.fade-in');
+    if (fadeEls.length > 0 && typeof gsap !== 'undefined') {
+      var observer = new IntersectionObserver(function(entries) {
+        entries.forEach(function(entry) {
+          if (entry.isIntersecting) {
+            gsap.fromTo(entry.target,
+              { y: 16, opacity: 0 },
+              { y: 0, opacity: 1, duration: 0.6, ease: 'power2.out' }
+            );
+            observer.unobserve(entry.target);
+          }
+        });
+      }, { threshold: 0.1 });
+
+      fadeEls.forEach(function(el) {
+        observer.observe(el);
+      });
+    }
+  });
+</script>
+
+</body>
+</html>

@@ -1,0 +1,1084 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Schrödinger's Solutions — Quantum Optimization Through Applied Plumbing Theory</title>
+<link rel="stylesheet" href="/assets/css/fonts.css">
+<script defer src="/assets/js/alpine.min.js"></script>
+<script src="/assets/js/gsap.min.js"></script>
+<script src="/assets/js/lucide.min.js"></script>
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --orange: #FF6600;
+  --black: #0a0a0a;
+  --white: #f5f5f0;
+  --gray: #1a1a1a;
+  --mid: #555555;
+  --light-gray: #e8e8e3;
+}
+
+html { scroll-behavior: smooth; }
+
+body {
+  font-family: 'Space Grotesk', sans-serif;
+  background: var(--white);
+  color: var(--black);
+  line-height: 1.6;
+  overflow-x: hidden;
+  font-size: 17px;
+}
+
+/* TYPOGRAPHY */
+h1, h2, h3, h4 { font-family: 'Playfair Display', serif; line-height: 1.15; }
+.mono { font-family: 'IBM Plex Mono', monospace; }
+
+h1 { font-size: clamp(2.4rem, 6vw, 5rem); font-weight: 900; }
+h2 { font-size: clamp(1.8rem, 4vw, 3rem); font-weight: 700; }
+h3 { font-size: clamp(1.2rem, 2.5vw, 1.6rem); font-weight: 700; }
+
+a { color: var(--orange); text-decoration: none; }
+a:hover { text-decoration: underline; }
+
+/* LAYOUT */
+section {
+  min-height: 100vh;
+  padding: clamp(3rem, 8vw, 6rem) clamp(1.2rem, 5vw, 4rem);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  position: relative;
+}
+
+.container {
+  max-width: 1100px;
+  width: 100%;
+  margin: 0 auto;
+}
+
+/* NAV */
+nav {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 100;
+  background: var(--black);
+  color: var(--white);
+  padding: 0.8rem clamp(1.2rem, 5vw, 4rem);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+nav .logo {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.85rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--orange);
+}
+
+nav .nav-links {
+  display: flex;
+  gap: 1.5rem;
+  flex-wrap: wrap;
+}
+
+nav .nav-links a {
+  color: #cccccc;
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-family: 'IBM Plex Mono', monospace;
+  transition: color 0.2s;
+}
+
+nav .nav-links a:hover { color: var(--orange); text-decoration: none; }
+
+/* HERO */
+.hero {
+  background: var(--black);
+  color: var(--white);
+  min-height: 100vh;
+  padding-top: 5rem;
+  text-align: center;
+}
+
+.hero h1 { margin-bottom: 1.5rem; }
+.hero h1 span { color: var(--orange); }
+
+.hero-riddle {
+  font-family: 'Crimson Pro', serif;
+  font-style: italic;
+  font-size: clamp(1.1rem, 2.5vw, 1.4rem);
+  color: #cccccc;
+  max-width: 650px;
+  margin: 0 auto 2.5rem;
+  line-height: 1.7;
+}
+
+.hero-meta {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.8rem;
+  color: #999999;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.hero-meta span { color: var(--orange); font-weight: 700; }
+
+/* COUNTDOWN */
+.countdown-box {
+  margin: 3rem auto 0;
+  background: #111111;
+  border: 2px solid var(--orange);
+  padding: 2rem;
+  max-width: 600px;
+  text-align: center;
+}
+
+.countdown-box h3 {
+  color: var(--orange);
+  font-family: 'IBM Plex Mono', monospace;
+  text-transform: uppercase;
+  font-size: 0.75rem;
+  letter-spacing: 0.15em;
+  margin-bottom: 1rem;
+}
+
+.countdown-digits {
+  display: flex;
+  justify-content: center;
+  gap: 1.5rem;
+  flex-wrap: wrap;
+}
+
+.countdown-unit {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.countdown-unit .num {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: clamp(2rem, 5vw, 3.5rem);
+  font-weight: 700;
+  color: var(--white);
+  line-height: 1;
+}
+
+.countdown-unit .label {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.65rem;
+  color: #888888;
+  text-transform: uppercase;
+  letter-spacing: 0.15em;
+  margin-top: 0.4rem;
+}
+
+.countdown-cat {
+  font-family: 'Crimson Pro', serif;
+  font-style: italic;
+  color: #aaaaaa;
+  font-size: 0.95rem;
+  margin-top: 1.2rem;
+}
+
+/* RIDDLE OF THE WEEK */
+.riddle-section { background: var(--white); }
+
+.riddle-card {
+  background: var(--black);
+  color: var(--white);
+  padding: clamp(2rem, 5vw, 3.5rem);
+  position: relative;
+  overflow: hidden;
+}
+
+.riddle-card::before {
+  content: '?';
+  position: absolute;
+  right: -20px;
+  top: -40px;
+  font-size: 15rem;
+  font-family: 'Playfair Display', serif;
+  color: #1a1a1a;
+  font-weight: 900;
+  line-height: 1;
+  pointer-events: none;
+}
+
+.riddle-label {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.7rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--orange);
+  margin-bottom: 1.5rem;
+  display: inline-block;
+  border-bottom: 1px solid var(--orange);
+  padding-bottom: 0.3rem;
+}
+
+.riddle-text {
+  font-family: 'Crimson Pro', serif;
+  font-size: clamp(1.3rem, 3vw, 1.8rem);
+  line-height: 1.6;
+  color: #e0e0e0;
+  margin-bottom: 2rem;
+  position: relative;
+  z-index: 1;
+}
+
+.riddle-answer {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.9rem;
+  background: #111;
+  padding: 1.2rem;
+  border-left: 3px solid var(--orange);
+  color: #e0e0e0;
+  position: relative;
+  z-index: 1;
+}
+
+.riddle-btn {
+  background: var(--orange);
+  color: var(--black);
+  border: none;
+  padding: 0.7rem 1.5rem;
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.85rem;
+  font-weight: 700;
+  cursor: pointer;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  transition: background 0.2s;
+  position: relative;
+  z-index: 1;
+}
+
+.riddle-btn:hover { background: #e55b00; }
+
+.riddle-fine-print {
+  font-size: 0.75rem;
+  color: #888888;
+  font-family: 'IBM Plex Mono', monospace;
+  margin-top: 1rem;
+  position: relative;
+  z-index: 1;
+}
+
+/* SERVICES */
+.services-section { background: var(--light-gray); }
+
+.services-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 2rem;
+  margin-top: 2.5rem;
+}
+
+.service-card {
+  background: var(--white);
+  padding: 2rem;
+  border: 1px solid #d0d0d0;
+  transition: border-color 0.2s;
+}
+
+.service-card:hover { border-color: var(--orange); }
+
+.service-card h3 { margin-bottom: 0.8rem; }
+
+.service-card .service-price {
+  font-family: 'IBM Plex Mono', monospace;
+  color: var(--orange);
+  font-size: 0.8rem;
+  font-weight: 700;
+  margin-bottom: 1rem;
+  display: block;
+}
+
+.service-card p { color: #333333; font-size: 0.95rem; }
+
+.service-card .service-note {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.75rem;
+  color: var(--mid);
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid #d0d0d0;
+}
+
+/* BOARD OF DIRECTORS */
+.board-section { background: var(--black); color: var(--white); }
+
+.board-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 2rem;
+  margin-top: 2.5rem;
+}
+
+.board-card {
+  background: #111;
+  padding: 2rem;
+  border-top: 3px solid var(--orange);
+}
+
+.board-card h3 { color: var(--orange); margin-bottom: 0.3rem; }
+
+.board-card .board-title {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.7rem;
+  color: #999999;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  margin-bottom: 1.2rem;
+}
+
+.board-card .board-bio {
+  font-family: 'Crimson Pro', serif;
+  font-style: italic;
+  color: #cccccc;
+  line-height: 1.7;
+  font-size: 0.95rem;
+}
+
+.board-card .board-veto {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.75rem;
+  color: var(--orange);
+  margin-top: 1.2rem;
+  padding-top: 1rem;
+  border-top: 1px solid #222;
+}
+
+/* HAIKU REVIEWS */
+.haiku-section { background: var(--white); }
+
+.haiku-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 1.5rem;
+  margin-top: 2.5rem;
+}
+
+.haiku-card {
+  padding: 2rem;
+  border: 1px solid #d0d0d0;
+  background: var(--light-gray);
+}
+
+.haiku-card .haiku-text {
+  font-family: 'Crimson Pro', serif;
+  font-size: 1.1rem;
+  line-height: 1.8;
+  color: var(--black);
+  margin-bottom: 1.2rem;
+}
+
+.haiku-card .haiku-author {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.7rem;
+  color: var(--mid);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
+
+.haiku-card .haiku-stars {
+  color: var(--orange);
+  font-size: 1.2rem;
+  margin-bottom: 0.8rem;
+  letter-spacing: 0.2em;
+}
+
+/* THE WALTER METHOD */
+.method-section { background: var(--light-gray); }
+
+.method-steps {
+  margin-top: 2.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.method-step {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 1.5rem;
+  padding: 2rem 0;
+  border-bottom: 1px solid #c0c0c0;
+  align-items: start;
+}
+
+.method-step:last-child { border-bottom: none; }
+
+.method-num {
+  font-family: 'Playfair Display', serif;
+  font-size: 3rem;
+  font-weight: 900;
+  color: var(--orange);
+  line-height: 1;
+  width: 60px;
+  text-align: center;
+}
+
+.method-step h3 { margin-bottom: 0.5rem; }
+.method-step p { color: #333333; font-size: 0.95rem; }
+
+.method-step .method-note {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.75rem;
+  color: var(--mid);
+  margin-top: 0.8rem;
+}
+
+/* FAQ */
+.faq-section { background: var(--black); color: var(--white); }
+
+.faq-list {
+  margin-top: 2.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.faq-item {
+  border-bottom: 1px solid #222;
+  overflow: hidden;
+}
+
+.faq-question {
+  padding: 1.5rem 0;
+  cursor: pointer;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+}
+
+.faq-question h3 {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 1rem;
+  font-weight: 600;
+  color: #e0e0e0;
+}
+
+.faq-question .faq-toggle {
+  color: var(--orange);
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 1.5rem;
+  font-weight: 300;
+  flex-shrink: 0;
+  transition: transform 0.2s;
+  width: 1.5rem;
+  text-align: center;
+}
+
+.faq-answer {
+  padding-bottom: 1.5rem;
+  color: #bbbbbb;
+  font-size: 0.95rem;
+  line-height: 1.7;
+}
+
+/* PRESS */
+.press-section { background: var(--white); }
+
+.press-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 2rem;
+  margin-top: 2.5rem;
+}
+
+.press-card {
+  padding: 2rem;
+  border: 1px solid #d0d0d0;
+  background: var(--light-gray);
+}
+
+.press-card .press-source {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.7rem;
+  color: var(--mid);
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  margin-bottom: 0.8rem;
+}
+
+.press-card h3 { font-size: 1.1rem; margin-bottom: 0.8rem; }
+.press-card p { color: #333333; font-size: 0.9rem; }
+
+/* FOOTER */
+footer {
+  background: var(--black);
+  color: #888888;
+  padding: 3rem clamp(1.2rem, 5vw, 4rem);
+  text-align: center;
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.75rem;
+  line-height: 2;
+}
+
+footer .footer-riddle {
+  font-family: 'Crimson Pro', serif;
+  font-style: italic;
+  color: #666666;
+  font-size: 0.9rem;
+  margin-bottom: 1.5rem;
+  max-width: 500px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+footer span { color: var(--orange); }
+
+/* SECTION HEADERS */
+.section-label {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.7rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--orange);
+  margin-bottom: 1rem;
+  display: inline-block;
+}
+
+.section-label-light {
+  color: var(--orange);
+}
+
+.section-subtitle {
+  font-family: 'Crimson Pro', serif;
+  font-style: italic;
+  font-size: clamp(1rem, 2vw, 1.2rem);
+  color: var(--mid);
+  margin-top: 0.8rem;
+  max-width: 600px;
+}
+
+.section-subtitle-light {
+  color: #aaaaaa;
+}
+
+/* ORANGE PILL */
+.orange-pill {
+  display: inline-block;
+  background: var(--orange);
+  color: var(--black);
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.65rem;
+  font-weight: 700;
+  padding: 0.2rem 0.6rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
+
+/* MEMPHIS DECORATIONS */
+.memphis-circle {
+  position: absolute;
+  border: 3px solid var(--orange);
+  border-radius: 50%;
+  pointer-events: none;
+  opacity: 0.15;
+}
+
+.memphis-triangle {
+  position: absolute;
+  width: 0;
+  height: 0;
+  border-left: 30px solid transparent;
+  border-right: 30px solid transparent;
+  border-bottom: 52px solid var(--orange);
+  pointer-events: none;
+  opacity: 0.1;
+}
+
+.memphis-line {
+  position: absolute;
+  height: 3px;
+  background: var(--orange);
+  pointer-events: none;
+  opacity: 0.1;
+}
+
+/* ANIMATIONS */
+.fade-up {
+  opacity: 0;
+  transform: translateY(30px);
+}
+
+/* RESPONSIVE */
+@media (max-width: 768px) {
+  nav .nav-links { gap: 1rem; }
+  nav .nav-links a { font-size: 0.7rem; }
+  
+  section { min-height: auto; padding: clamp(4rem, 10vw, 6rem) 1.2rem; }
+  .hero { min-height: 100vh; }
+  
+  .services-grid, .board-grid, .haiku-grid, .press-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .method-step { grid-template-columns: 1fr; gap: 0.5rem; }
+  .method-num { width: auto; text-align: left; font-size: 2rem; }
+  
+  .countdown-digits { gap: 1rem; }
+}
+
+@media (max-width: 480px) {
+  nav { flex-direction: column; align-items: flex-start; }
+  nav .nav-links { width: 100%; justify-content: flex-start; }
+  
+  .riddle-card::before { font-size: 8rem; right: -10px; }
+}
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <div class="logo">Schrödinger's Solutions</div>
+  <div class="nav-links">
+    <a href="#services">Services</a>
+    <a href="#board">Board</a>
+    <a href="#reviews">Reviews</a>
+    <a href="#method">Method</a>
+    <a href="#faq">FAQ</a>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section class="hero" x-data="countdown()">
+  <div class="container" style="text-align:center;">
+    <div class="fade-up">
+      <div class="orange-pill" style="margin-bottom:2rem;">Est. 1999 · Plumbing-Adjacent Since 2003</div>
+      <h1>Your pipes are <span>leaking data.</span><br>We speak in riddles<br>so you don't have to.</h1>
+      <p class="hero-riddle">"I flow through walls yet have no body. I carry secrets yet cannot speak. When I break, fortunes weep. What am I? Your legacy codebase. Also, actual pipes."<br>— Walter "The Wrench" Witherspoon, Founder & Chief Riddler</p>
+      <p class="hero-meta">Quantum Optimization · Feline Quality Assurance · <span>Riddle-Driven Development™</span></p>
+    </div>
+
+    <!-- COUNTDOWN -->
+    <div class="countdown-box fade-up">
+      <h3>⏱ Next Feline Quality Assurance Audit</h3>
+      <div class="countdown-digits">
+        <div class="countdown-unit">
+          <span class="num" x-text="days">00</span>
+          <span class="label">Days</span>
+        </div>
+        <div class="countdown-unit">
+          <span class="num" x-text="hours">00</span>
+          <span class="label">Hours</span>
+        </div>
+        <div class="countdown-unit">
+          <span class="num" x-text="minutes">00</span>
+          <span class="label">Minutes</span>
+        </div>
+        <div class="countdown-unit">
+          <span class="num" x-text="seconds">00</span>
+          <span class="label">Seconds</span>
+        </div>
+      </div>
+      <p class="countdown-cat">Chairman Meow is watching. Chairman Meow is always watching.</p>
+    </div>
+  </div>
+
+  <!-- Memphis decorations -->
+  <div class="memphis-circle" style="width:200px;height:200px;top:15%;left:-60px;"></div>
+  <div class="memphis-triangle" style="bottom:10%;right:5%;transform:rotate(25deg);"></div>
+  <div class="memphis-line" style="width:150px;top:40%;right:8%;transform:rotate(-15deg);"></div>
+</section>
+
+<!-- RIDDLE OF THE WEEK -->
+<section class="riddle-section" id="riddle" x-data="{ revealed: false }">
+  <div class="container">
+    <span class="section-label">Riddle of the Week · Vol. 347</span>
+    <div class="riddle-card" style="margin-top:1.5rem;">
+      <span class="riddle-label">Walter's Weekly Conundrum</span>
+      <p class="riddle-text">"Three threads enter a mutex. One carries truth, one carries garbage, and one carries the hopes of a Series B that should never have been funded. The garbage collector sleeps. The truth waits. The hopes? They were already dead. Which thread exits first, and why is it always the wrong one?"</p>
+      
+      <template x-if="!revealed">
+        <div>
+          <button class="riddle-btn" @click="revealed = true">Reveal the Answer</button>
+          <p class="riddle-fine-print">Enlightenment or a 10% discount. Results may vary. Void where prohibited by cats.</p>
+        </div>
+      </template>
+      <template x-if="revealed">
+        <div class="riddle-answer">
+          <strong style="color:var(--orange);">Walter says:</strong> "The answer, as with all pipes, is that they all exit simultaneously into the floor drain of inevitability. Your 10% discount has been forwarded to Chairman Meow for approval. Current approval rate: 3%."
+        </div>
+      </template>
+    </div>
+  </div>
+  <div class="memphis-circle" style="width:100px;height:100px;bottom:10%;right:15%;"></div>
+</section>
+
+<!-- SERVICES -->
+<section class="services-section" id="services">
+  <div class="container">
+    <span class="section-label">Our Services</span>
+    <h2>Quantum Optimization<br>Through Applied Plumbing Theory</h2>
+    <p class="section-subtitle">Every system is a pipe. Every bug is a leak. We find the leaks. Then we speak about them cryptically until you figure it out yourself. That's the process.</p>
+
+    <div class="services-grid">
+      <div class="service-card fade-up">
+        <h3>The Zeno</h3>
+        <span class="service-price">$47.99/month — You'll never quite reach full optimization</span>
+        <p>Our entry-level paradox package. We analyze your codebase and tell you what's wrong, but only in the form of increasingly specific limericks. Each limerick gets you 50% closer to the answer. You never fully arrive. That's the point.</p>
+        <div class="service-note">Includes: 4 limericks/month · 1 interpretive dance consultation (15 min, Bulgarian folk music provided) · Email support (responses in riddle form, 72-hour SLA)</div>
+      </div>
+
+      <div class="service-card fade-up">
+        <h3>The Fermi</h3>
+        <span class="service-price">$199.99/month — Approximately correct, give or take</span>
+        <p>Our mid-tier estimation package. We estimate how many bugs are in your system using back-of-envelope calculations performed on actual envelopes. Walter personally licks each envelope shut. The estimates are surprisingly accurate. The envelopes smell like copper fittings.</p>
+        <div class="service-note">Includes: Everything in Zeno · 12 limericks/month · 2 interpretive dance sessions (30 min each) · Priority riddle hotline · 1 feline QA audit per quarter</div>
+      </div>
+
+      <div class="service-card fade-up">
+        <h3>The Grandfather</h3>
+        <span class="service-price">$849.99/month — Go back in time and prevent the bug from being born</span>
+        <p>Our enterprise paradox tier. We embed a consultant (Walter, wearing a tinfoil hat) in your office for one week per month. He will wander your halls muttering about "the interconnectedness of all sewage systems" and occasionally fixing critical production bugs by accident while looking for the bathroom.</p>
+        <div class="service-note">Includes: Everything in Fermi · Unlimited limericks · Walter on-site (travel + tinfoil hat expenses billed separately) · Weekly feline QA audits · Chairman Meow's personal cell number (he will not answer)</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- BOARD OF DIRECTORS -->
+<section class="board-section" id="board">
+  <div class="container">
+    <span class="section-label section-label-light">The Board of Directors</span>
+    <h2 style="color:var(--white);">Quality Assurance<br>Is Not a Democracy</h2>
+    <p class="section-subtitle section-subtitle-light">Each board member holds absolute veto power over all project deliverables. Appeals may be submitted in writing, but will be sat upon.</p>
+
+    <div class="board-grid">
+      <div class="board-card fade-up">
+        <h3>Chairman Meow</h3>
+        <div class="board-title">Chief Executive Inspector · Ginger Tabby · Age 7</div>
+        <p class="board-bio">With golden eyes that pierce through code,<br>He sits upon his velvet throne,<br>No project ships without his nod,<br>No blue shall live — this much is known.<br>He once rejected Stripe's whole stack.</p>
+        <div class="board-veto">Vetoes to date: 847 · Approval rate: 3.1% · Known bias: Rejects anything involving the color blue, rounded corners, or "vibes-based architecture"</div>
+      </div>
+
+      <div class="board-card fade-up">
+        <h3>Sergeant Whiskers</h3>
+        <div class="board-title">VP of Napping & Compliance · Tuxedo · Age 4</div>
+        <p class="board-bio">In black and white, she judges all,<br>Each semicolon, bracket, brace,<br>She sleeps through sprints but wakes to find<br>A missing null check, out of place.<br>Her naps last longer than your standups.</p>
+        <div class="board-veto">Vetoes to date: 312 · Approval rate: 11% · Known bias: Automatically rejects any PR submitted between 2-4 PM (nap time). Also dislikes Comic Sans and anyone named "Kevin."</div>
+      </div>
+
+      <div class="board-card fade-up">
+        <h3>Professor Beans</h3>
+        <div class="board-title">Director of Existential Risk · Calico · Age 12</div>
+        <p class="board-bio">The eldest sage upon the board,<br>Her gaze has seen frameworks rise and fall,<br>She knew that Angular would wane,<br>She warned of PHP. She warned of all.<br>Nobody listened. Beans remembers.</p>
+        <div class="board-veto">Vetoes to date: 2,341 · Approval rate: 0.4% · Known bias: Rejects everything. Has approved exactly 9 projects in her career. Three were blank documents. The others were pictures of fish.</div>
+      </div>
+
+      <div class="board-card fade-up">
+        <h3>Lieutenant Fluffington III</h3>
+        <div class="board-title">Head of Morale & Destruction · Maine Coon · Age 2</div>
+        <p class="board-bio">A gentle giant, soft of paw,<br>Who loves to knock things off the desk,<br>Your laptop, coffee, hopes, and dreams,<br>He'll swat them all — he thinks it's best.<br>He ate a USB drive once. It shipped.</p>
+        <div class="board-veto">Vetoes to date: 54 · Approval rate: 67% · Known bias: Approves everything he can physically sit on. Rejects anything stored exclusively in the cloud. "If I can't nap on it, it doesn't exist."</div>
+      </div>
+    </div>
+  </div>
+  <div class="memphis-circle" style="width:300px;height:300px;bottom:-100px;left:-100px;"></div>
+  <div class="memphis-line" style="width:200px;top:15%;right:10%;transform:rotate(30deg);"></div>
+</section>
+
+<!-- HAIKU REVIEWS -->
+<section class="haiku-section" id="reviews">
+  <div class="container">
+    <span class="section-label">Client Testimonials</span>
+    <h2>What Our Clients<br>Wrote in Haiku</h2>
+    <p class="section-subtitle">Per our Terms of Service (Section 14, Clause 7b), all client reviews must be submitted in haiku form. We did not ask for this. The cats insisted.</p>
+
+    <div class="haiku-grid">
+      <div class="haiku-card fade-up">
+        <div class="haiku-stars">★★★★★</div>
+        <p class="haiku-text">Walter spoke in code<br>I understood none of it<br>Server works now though</p>
+        <span class="haiku-author">— Brenda Holloway, CTO, NexusByte Solutions</span>
+      </div>
+
+      <div class="haiku-card fade-up">
+        <div class="haiku-stars">★★★★☆</div>
+        <p class="haiku-text">Cat rejected us<br>Three times. Fourth time we removed<br>All the blue. It shipped.</p>
+        <span class="haiku-author">— Marcus Chen, Lead Engineer, QuantumLeap.io</span>
+      </div>
+
+      <div class="haiku-card fade-up">
+        <div class="haiku-stars">★★★★★</div>
+        <p class="haiku-text">He danced for two hours<br>To Bulgarian folk songs<br>Found the memory leak</p>
+        <span class="haiku-author">— Priya Patel, VP Engineering, DataForge</span>
+      </div>
+
+      <div class="haiku-card fade-up">
+        <div class="haiku-stars">★★★☆☆</div>
+        <p class="haiku-text">The limerick said<br>"Your database weeps at night"<br>He was right. It did.</p>
+        <span class="haiku-author">— Tom Greenfield, Founder, StackHarbor</span>
+      </div>
+
+      <div class="haiku-card fade-up">
+        <div class="haiku-stars">★★★★★</div>
+        <p class="haiku-text">Professor Beans stared<br>At our code for seven hours<br>Then approved the fish</p>
+        <span class="haiku-author">— Yuki Tanaka, SRE, CloudPurr Systems</span>
+      </div>
+
+      <div class="haiku-card fade-up">
+        <div class="haiku-stars">★★☆☆☆</div>
+        <p class="haiku-text">Paid eight hundred bucks<br>Walter fixed our whole backend<br>By finding men's room</p>
+        <span class="haiku-author">— Derek Shultz, CEO, PivotBase (acquired)</span>
+      </div>
+
+      <div class="haiku-card fade-up">
+        <div class="haiku-stars">★★★★★</div>
+        <p class="haiku-text">He wore the tin hat<br>Muttered about sewage pipes<br>Our latency dropped</p>
+        <span class="haiku-author">— Amara Osei, Platform Lead, RunwayML</span>
+      </div>
+
+      <div class="haiku-card fade-up">
+        <div class="haiku-stars">★★★★☆</div>
+        <p class="haiku-text">Fluffington sat on<br>Our production server and<br>It just... started working</p>
+        <span class="haiku-author">— Jake Morrison, DevOps, Monolith Inc.</span>
+      </div>
+
+      <div class="haiku-card fade-up">
+        <div class="haiku-stars">★☆☆☆☆</div>
+        <p class="haiku-text">I asked for a quote<br>He said "the wrench knows the way"<br>Still have no invoice</p>
+        <span class="haiku-author">— Linda Chu, Procurement, FortuneTech</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- THE WALTER METHOD -->
+<section class="method-section" id="method">
+  <div class="container">
+    <span class="section-label">The Walter Method™</span>
+    <h2>How an Engagement Works</h2>
+    <p class="section-subtitle">Refined over 27 years. Questioned by many. Understood by none. Effective 93% of the time (the other 7% were Kevin's fault).</p>
+
+    <div class="method-steps">
+      <div class="method-step fade-up">
+        <div class="method-num">1</div>
+        <div>
+          <h3>The Summoning</h3>
+          <p>You email Walter. Walter does not check email. Walter's email is monitored by Lieutenant Fluffington III, who occasionally bats the mouse across the keyboard and accidentally responds. If Fluffington replies, you have been accepted. If silence, try again during non-nap hours (there are no non-nap hours).</p>
+          <div class="method-note">Average response time: 11 days. Fastest response: 3 minutes (Fluffington was chasing the cursor).</div>
+        </div>
+      </div>
+
+      <div class="method-step fade-up">
+        <div class="method-num">2</div>
+        <div>
+          <h3>The Interpretive Dance Consultation</h3>
+          <p>Walter arrives at your office in steel-toed boots and a tinfoil hat. He connects his phone to your conference room speakers and plays a curated playlist of Bulgarian folk music (heavy on the gaida, light on the kaval). He then performs an interpretive dance that represents your system architecture. The dance lasts between 45 minutes and 3 hours. There is no intermission. You may not look away.</p>
+          <div class="method-note">Walter's dance has correctly identified 14 zero-day vulnerabilities, 3 embezzlement schemes, and 1 ghost in a server room in Duluth.</div>
+        </div>
+      </div>
+
+      <div class="method-step fade-up">
+        <div class="method-num">3</div>
+        <div>
+          <h3>The Limerick Scoping Phase</h3>
+          <p>Based on his dance findings, Walter crafts a bespoke limerick that defines your project scope. The limerick is your SOW. It is legally binding in 14 states and the territory of Guam. Example: "A database rotting in prod / had schemas that even God / would look at and cry / then silently die / your indexes, frankly, are odd."</p>
+          <div class="method-note">Limerick accuracy rate: 97.2%. The 2.8% failure rate is attributed to projects involving Kevin.</div>
+        </div>
+      </div>
+
+      <div class="method-step fade-up">
+        <div class="method-num">4</div>
+        <div>
+          <h3>The Feline Quality Assurance Audit</h3>
+          <p>All deliverables are printed on A3 paper and laid on the floor of the Audit Chamber (Walter's garage). The four members of the Board of Directors are released. They walk across the papers. Pages they sit on are approved. Pages they ignore are sent back for revision. Pages they shred are deleted from version control permanently. There is no appeals process.</p>
+          <div class="method-note">Chairman Meow once rejected an entire Kubernetes migration by falling asleep on the rollback plan. The client later admitted this was the correct call.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="memphis-triangle" style="top:5%;right:8%;transform:rotate(-15deg);"></div>
+</section>
+
+<!-- FAQ -->
+<section class="faq-section" id="faq" x-data="{ open: null }">
+  <div class="container">
+    <span class="section-label section-label-light">Frequently Asked Questions</span>
+    <h2 style="color:var(--white);">You Have Questions.<br>Walter Has Riddles.</h2>
+
+    <div class="faq-list">
+      <div class="faq-item">
+        <div class="faq-question" @click="open = open === 1 ? null : 1">
+          <h3>Is Walter actually a plumber?</h3>
+          <span class="faq-toggle" x-text="open === 1 ? '−' : '+'">+</span>
+        </div>
+        <div class="faq-answer" x-show="open === 1" x-collapse.duration.300ms>
+          Walter holds a Class 4 Master Plumber certification from the state of New York (currently suspended following the 1998 incident, which we are contractually forbidden from discussing). He also holds a certificate in "Quantum Thought Leadership" from an online university that no longer exists. Both qualifications are equally relevant to what we do here.
+        </div>
+      </div>
+
+      <div class="faq-item">
+        <div class="faq-question" @click="open = open === 2 ? null : 2">
+          <h3>Why do the cats have veto power?</h3>
+          <span class="faq-toggle" x-text="open === 2 ? '−' : '+'">+</span>
+        </div>
+        <div class="faq-answer" x-show="open === 2" x-collapse.duration.300ms>
+          In Q3 2019, we ran a controlled experiment: for six months, project approvals were handled by a committee of three senior engineers. For the following six months, by the cats. Client satisfaction scores were 34% higher under feline governance. Bug escape rate dropped 61%. We haven't looked back. The engineers now report to Sergeant Whiskers. They seem happier.
+        </div>
+      </div>
+
+      <div class="faq-item">
+        <div class="faq-question" @click="open = open === 3 ? null : 3">
+          <h3>What happened in 1998?</h3>
+          <span class="faq-toggle" x-text="open === 3 ? '−' : '+'">+</span>
+        </div>
+        <div class="faq-answer" x-show="open === 3" x-collapse.duration.300ms>
+          We are contractually forbidden from discussing the 1998 incident. What we can say is that it took place at the Northeast Regional Plumbing Convention in Syracuse, it involved a misdiagnosis of "existential dread" in a copper fitting, and Walter was asked to leave but was never technically banned. He maintains to this day that the fitting was, in fact, experiencing existential dread, and that history has vindicated him. The fitting was later found corroded from the inside. Draw your own conclusions.
+        </div>
+      </div>
+
+      <div class="faq-item">
+        <div class="faq-question" @click="open = open === 4 ? null : 4">
+          <h3>Can I just get normal consulting without the riddles?</h3>
+          <span class="faq-toggle" x-text="open === 4 ? '−' : '+'">+</span>
+        </div>
+        <div class="faq-answer" x-show="open === 4" x-collapse.duration.300ms>
+          No. Walter physically cannot communicate in non-riddle form. We hired a speech therapist in 2021. She quit after three sessions, citing "an inability to determine whether the client was speaking in metaphor or describing an actual plumbing emergency." Walter described her departure as "the river that flows uphill eventually finds the sky." We're still not sure if that was a riddle or a threat.
+        </div>
+      </div>
+
+      <div class="faq-item">
+        <div class="faq-question" @click="open = open === 5 ? null : 5">
+          <h3>Why does Chairman Meow hate the color blue?</h3>
+          <span class="faq-toggle" x-text="open === 5 ? '−' : '+'">+</span>
+        </div>
+        <div class="faq-answer" x-show="open === 5" x-collapse.duration.300ms>
+          We commissioned a veterinary behavioral study. The results were inconclusive but suggested it may be related to an early kittenhood trauma involving a blue yarn ball and a ceiling fan. What we know empirically is this: any deliverable containing the hex value #0000FF or anything within a 40-degree hue range of it will be immediately shredded. One client tried to sneak in a "midnight navy" (#191970). Chairman Meow knew. Chairman Meow always knows.
+        </div>
+      </div>
+
+      <div class="faq-item">
+        <div class="faq-question" @click="open = open === 6 ? null : 6">
+          <h3>Who is Kevin?</h3>
+          <span class="faq-toggle" x-text="open === 6 ? '−' : '+'">+</span>
+        </div>
+        <div class="faq-answer" x-show="open === 6" x-collapse.duration.300ms>
+          Kevin was a junior developer who interned with us in the summer of 2022. In his first week, he committed directly to main, used <code>!important</code> on 47 CSS rules, named a variable <code>data2_final_FINAL_v3</code>, and fed Professor Beans a grape (grapes are toxic to cats; Beans is fine, but she has never forgiven him). Kevin now works at a Fortune 500 company. We do not speak his name. When something goes wrong, it is attributed to Kevin retroactively.
+        </div>
+      </div>
+
+      <div class="faq-item">
+        <div class="faq-question" @click="open = open === 7 ? null : 7">
+          <h3>Do you have any actual technical credentials?</h3>
+          <span class="faq-toggle" x-text="open === 7 ? '−' : '+'">+</span>
+        </div>
+        <div class="faq-answer" x-show="open === 7" x-collapse.duration.300ms>
+          Walter can solder a copper pipe joint in 11 seconds. He once fixed a production database by "listening to it breathe" (he placed his ear against the server rack for forty minutes, then changed one index). He does not know what Kubernetes is, but he correctly predicted its market cap trajectory based on "the sound the word makes when you say it underwater." His LinkedIn lists his title as "Pipe Whisperer & Quantum Custodian." He has 12,000 followers. He has never posted.
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PRESS -->
+<section class="press-section">
+  <div class="container">
+    <span class="section-label">In the Press</span>
+    <h2>They Wrote About Us.<br>We Don't Know Why.</h2>
+
+    <div class="press-grid">
+      <div class="press-card fade-up">
+        <div class="press-source">TechCrunch · March 2024</div>
+        <h3>"We sent a reporter. She came back different."</h3>
+        <p>After a three-hour interpretive dance session, our reporter abandoned her article and enrolled in plumbing school. She describes the experience as "the most productive meeting I've ever attended" and "I can hear the pipes now."</p>
+      </div>
+
+      <div class="press-card fade-up">
+        <div class="press-source">Wired · November 2023</div>
+        <h3>"The cats are, somehow, right."</h3>
+        <p>An independent analysis of 200 projects vetted by Schrödinger's feline board found that cat-approved projects had a 94% success rate, while cat-rejected projects had a 12% success rate. "We can't explain it," said the lead researcher. "But we've started running our own PRs past a tabby."</p>
+      </div>
+
+      <div class="press-card fade-up">
+        <div class="press-source">The New York Times · July 2024</div>
+        <h3>"He fixed our paywall. We didn't ask him to."</h3>
+        <p>Walter visited our offices to fix a leaking faucet in the third-floor bathroom. While there, he muttered something about "the flow of information being obstructed by a corroded valve of greed" and rewrote 14 lines of JavaScript. Our page load time dropped 40%. The faucet still leaks.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-riddle">"What has roots that nobody sees, is taller than trees, up, up it goes, and yet never grows? Your AWS bill. Also a mountain. But mostly your AWS bill."</div>
+  <p>
+    <span>Schrödinger's Solutions</span> · Est. 1999 · Poughkeepsie, NY<br>
+    "Caution, for the future is under construction, and the blueprints are written in the language of purrs and probabilities."<br><br>
+    All deliverables subject to feline approval · Terms of Service written in limerick form<br>
+    © 2024 Schrödinger's Solutions LLC · A Walter "The Wrench" Witherspoon Joint · <span>Chairman Meow approved this footer (after 3 rejections)</span>
+  </p>
+</footer>
+
+<script>
+// Alpine countdown component
+document.addEventListener('alpine:init', () => {
+  Alpine.data('countdown', () => {
+    // Next audit: a random-ish future date (next Thursday at 3pm)
+    const now = new Date();
+    const target = new Date(now);
+    // Find next Thursday
+    const daysUntilThursday = (4 - now.getDay() + 7) % 7 || 7;
+    target.setDate(target.getDate() + daysUntilThursday);
+    target.setHours(15, 0, 0, 0);
+
+    return {
+      days: '00',
+      hours: '00',
+      minutes: '00',
+      seconds: '00',
+      _target: target.getTime(),
+      init() {
+        this._tick();
+        setInterval(() => this._tick(), 1000);
+      },
+      _tick() {
+        const diff = Math.max(0, this._target - Date.now());
+        const s = Math.floor(diff / 1000);
+        this.days = String(Math.floor(s / 86400)).padStart(2, '0');
+        this.hours = String(Math.floor((s % 86400) / 3600)).padStart(2, '0');
+        this.minutes = String(Math.floor((s % 3600) / 60)).padStart(2, '0');
+        this.seconds = String(s % 60).padStart(2, '0');
+      }
+    };
+  });
+});
+
+// GSAP fade-up animations
+document.addEventListener('DOMContentLoaded', () => {
+  lucide.createIcons();
+
+  const fadeEls = document.querySelectorAll('.fade-up');
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach((entry) => {
+      if (entry.isIntersecting) {
+        gsap.fromTo(entry.target,
+          { y: 30, opacity: 0 },
+          { y: 0, opacity: 1, duration: 0.7, ease: 'power2.out' }
+        );
+        observer.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.15 });
+
+  fadeEls.forEach(el => observer.observe(el));
+});
+</script>
+
+</body>
+</html>

@@ -1,0 +1,785 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>INK MEOW — Feline Body Modification Collective | Station Pallas</title>
+<link rel="stylesheet" href="/assets/css/fonts.css">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --acid:#a8ff04;--warn:#ffd600;--hazard:#ff6d00;--deep:#0a0a0f;--panel:#111118;
+  --panel-border:#2a2a35;--text:#e8e8e8;--text-dim:#aaaaaa;--red:#ff2244;
+  --cyan:#00e5ff;--portal:#c158ff;
+}
+html{scroll-behavior:smooth}
+body{
+  font-family:'Space Grotesk',sans-serif;background:var(--deep);color:var(--text);
+  line-height:1.5;font-size:16px;overflow-x:hidden;
+}
+a{color:var(--acid);text-decoration:none}
+a:hover{text-decoration:underline}
+
+/* NAV */
+.nav{
+  position:sticky;top:0;z-index:100;background:#08080dee;
+  border-bottom:1px solid var(--panel-border);backdrop-filter:blur(12px);
+  padding:0.5rem 1rem;display:flex;align-items:center;gap:1rem;flex-wrap:wrap;
+}
+.nav-brand{
+  font-family:'Playfair Display',serif;font-size:1.2rem;font-weight:700;
+  color:var(--acid);letter-spacing:2px;white-space:nowrap;
+}
+.nav-status{display:flex;gap:0.75rem;flex-wrap:wrap;margin-left:auto;font-size:0.75rem}
+.status-pill{
+  display:inline-flex;align-items:center;gap:0.35rem;
+  padding:0.2rem 0.6rem;border-radius:100px;background:var(--panel);
+  border:1px solid var(--panel-border);color:var(--text);white-space:nowrap;
+}
+.status-dot{width:6px;height:6px;border-radius:50%;display:inline-block}
+.dot-green{background:var(--acid);box-shadow:0 0 6px var(--acid)}
+.dot-yellow{background:var(--warn);box-shadow:0 0 6px var(--warn)}
+.dot-red{background:var(--red);box-shadow:0 0 6px var(--red)}
+.dot-portal{background:var(--portal);box-shadow:0 0 6px var(--portal);animation:pulse 1.5s infinite}
+
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:0.4}}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:0}}
+@keyframes slide{0%{transform:translateX(100%)}100%{transform:translateX(-100%)}}
+@keyframes jazzPulse{0%,100%{text-shadow:0 0 8px var(--hazard)}50%{text-shadow:0 0 20px var(--hazard),0 0 40px var(--warn)}}
+
+/* HERO */
+.hero{
+  padding:3rem 1rem 2rem;text-align:center;
+  background:linear-gradient(180deg,#0f0f18 0%,#0a0a0f 100%);
+  border-bottom:2px solid var(--acid);position:relative;overflow:hidden;
+}
+.hero::before{
+  content:'';position:absolute;inset:0;
+  background:repeating-linear-gradient(90deg,transparent,transparent 60px,#ffffff06 60px,#ffffff06 61px),
+             repeating-linear-gradient(0deg,transparent,transparent 60px,#ffffff06 60px,#ffffff06 61px);
+  pointer-events:none;
+}
+.hero-title{
+  font-family:'Playfair Display',serif;font-size:clamp(2.5rem,8vw,5rem);
+  font-weight:900;color:var(--acid);letter-spacing:6px;
+  text-shadow:0 0 30px #a8ff0444;position:relative;
+}
+.hero-sub{
+  font-size:clamp(0.8rem,2vw,1rem);color:var(--warn);letter-spacing:4px;
+  text-transform:uppercase;margin-top:0.5rem;
+}
+.hero-tagline{
+  font-family:'IBM Plex Mono',monospace;font-size:clamp(0.75rem,1.5vw,0.9rem);
+  color:var(--text-dim);margin-top:1rem;max-width:600px;margin-inline:auto;
+}
+.jazz-threat{
+  margin-top:1.5rem;display:inline-flex;align-items:center;gap:0.75rem;
+  padding:0.75rem 1.5rem;border:2px solid var(--hazard);border-radius:4px;
+  background:#1a120a;cursor:pointer;user-select:none;
+}
+.jazz-threat-label{font-size:0.7rem;color:var(--hazard);text-transform:uppercase;letter-spacing:2px}
+.jazz-threat-level{font-size:1.5rem;font-weight:900;font-family:'IBM Plex Mono',monospace}
+
+/* GRID DASHBOARD */
+.dashboard{
+  display:grid;
+  grid-template-columns:repeat(auto-fill,minmax(280px,1fr));
+  gap:1px;background:var(--panel-border);
+  border:1px solid var(--panel-border);margin:0;
+}
+.panel{
+  background:var(--panel);padding:1.25rem;position:relative;
+  display:flex;flex-direction:column;
+}
+.panel-header{
+  font-size:0.65rem;text-transform:uppercase;letter-spacing:2px;
+  color:var(--warn);margin-bottom:0.75rem;
+  padding-bottom:0.5rem;border-bottom:1px solid var(--panel-border);
+  display:flex;justify-content:space-between;align-items:center;
+}
+.panel-header .live-dot{
+  width:5px;height:5px;border-radius:50%;background:var(--red);
+  animation:blink 1s infinite;
+}
+.big-number{
+  font-family:'IBM Plex Mono',monospace;font-size:clamp(2rem,5vw,3rem);
+  font-weight:900;line-height:1;
+}
+.panel-note{font-size:0.75rem;color:var(--text-dim);margin-top:auto;padding-top:0.5rem}
+
+/* INCIDENT TICKER */
+.ticker-wrap{
+  background:#0d0d00;border-top:1px solid var(--warn);border-bottom:1px solid var(--warn);
+  overflow:hidden;white-space:nowrap;padding:0.5rem 0;
+}
+.ticker-inner{
+  display:inline-block;animation:slide 40s linear infinite;
+  font-family:'IBM Plex Mono',monospace;font-size:0.8rem;color:var(--warn);
+}
+.ticker-inner span{margin-right:3rem}
+
+/* SERVICES */
+.services{padding:2rem 1rem;max-width:1200px;margin:0 auto}
+.section-title{
+  font-family:'Playfair Display',serif;font-size:clamp(1.5rem,4vw,2.2rem);
+  color:var(--acid);margin-bottom:0.25rem;
+}
+.section-sub{font-size:0.8rem;color:var(--text-dim);margin-bottom:1.5rem}
+.services-grid{
+  display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));
+  gap:1rem;
+}
+.service-card{
+  background:var(--panel);border:1px solid var(--panel-border);
+  padding:1.25rem;border-radius:2px;position:relative;overflow:hidden;
+  transition:border-color 0.3s;
+}
+.service-card:hover{border-color:var(--acid)}
+.service-name{font-size:1.1rem;font-weight:700;color:var(--text);margin-bottom:0.25rem}
+.service-price{
+  font-family:'IBM Plex Mono',monospace;font-size:0.9rem;color:var(--acid);
+  margin-bottom:0.5rem;
+}
+.service-desc{font-size:0.85rem;color:var(--text-dim);line-height:1.6}
+.service-warning{
+  font-size:0.7rem;color:var(--hazard);margin-top:0.75rem;
+  padding-top:0.5rem;border-top:1px solid #2a1a00;
+}
+
+/* CONVERTER */
+.converter{
+  background:#0a0f05;border:1px solid var(--acid);border-radius:2px;
+  padding:1.25rem;margin:2rem auto;max-width:500px;
+}
+.converter-title{font-size:0.7rem;text-transform:uppercase;letter-spacing:2px;color:var(--acid);margin-bottom:0.75rem}
+.converter-row{display:flex;align-items:center;gap:0.75rem;flex-wrap:wrap}
+.converter input{
+  background:var(--deep);border:1px solid var(--panel-border);color:var(--text);
+  font-family:'IBM Plex Mono',monospace;font-size:1rem;padding:0.5rem;
+  width:120px;border-radius:2px;
+}
+.converter-result{font-family:'IBM Plex Mono',monospace;font-size:1rem;color:var(--warn)}
+.converter-rate{font-size:0.7rem;color:var(--text-dim);margin-top:0.5rem}
+
+/* KOMMITTEE */
+.kommittee{padding:2rem 1rem;max-width:1200px;margin:0 auto}
+.kommittee-grid{
+  display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:0.75rem;
+}
+.cat-card{
+  background:var(--panel);border:1px solid var(--panel-border);
+  padding:1rem;text-align:center;cursor:pointer;transition:all 0.2s;
+  border-radius:2px;
+}
+.cat-card:hover{border-color:var(--warn);transform:translateY(-2px)}
+.cat-card.flipped{background:#1a1a05;border-color:var(--warn)}
+.cat-emoji{font-size:2rem;margin-bottom:0.25rem}
+.cat-name{font-size:0.9rem;font-weight:700;color:var(--text)}
+.cat-title{font-size:0.7rem;color:var(--warn);text-transform:uppercase;letter-spacing:1px}
+.cat-secret{font-size:0.75rem;color:var(--text-dim);margin-top:0.5rem;display:none}
+.cat-card.flipped .cat-secret{display:block}
+
+/* FAQ */
+.faq{padding:2rem 1rem;max-width:800px;margin:0 auto}
+.faq-item{
+  border:1px solid var(--panel-border);margin-bottom:0.5rem;
+  background:var(--panel);border-radius:2px;overflow:hidden;
+}
+.faq-q{
+  padding:1rem;cursor:pointer;font-weight:600;color:var(--text);
+  display:flex;justify-content:space-between;align-items:center;
+  font-size:0.95rem;
+}
+.faq-q:hover{color:var(--acid)}
+.faq-a{
+  padding:0 1rem 1rem;font-size:0.85rem;color:var(--text-dim);
+  line-height:1.7;display:none;
+}
+.faq-item.open .faq-a{display:block}
+.faq-interrupt{
+  font-family:'IBM Plex Mono',monospace;color:var(--hazard);
+  font-size:0.75rem;margin-top:0.5rem;
+}
+
+/* JAZZ SCHEDULE */
+.jazz{padding:2rem 1rem;max-width:1000px;margin:0 auto}
+.jazz table{width:100%;border-collapse:collapse;font-size:0.85rem}
+.jazz th{
+  text-align:left;padding:0.75rem;background:var(--panel);
+  color:var(--warn);font-size:0.7rem;text-transform:uppercase;
+  letter-spacing:1px;border-bottom:2px solid var(--warn);
+}
+.jazz td{
+  padding:0.75rem;border-bottom:1px solid var(--panel-border);color:var(--text);
+}
+.jazz tr:hover td{background:#111118}
+.risk-low{color:var(--acid)}
+.risk-med{color:var(--warn)}
+.risk-high{color:var(--hazard)}
+.risk-critical{color:var(--red);font-weight:700}
+
+/* SHELF STATUS BAR CHART */
+.bar-chart{display:flex;align-items:flex-end;gap:4px;height:80px;margin-top:0.5rem}
+.bar{
+  flex:1;background:var(--acid);border-radius:2px 2px 0 0;
+  min-width:8px;transition:height 0.5s;position:relative;
+}
+.bar-label{
+  position:absolute;bottom:-18px;left:50%;transform:translateX(-50%);
+  font-size:0.55rem;color:var(--text-dim);white-space:nowrap;
+}
+
+/* EMERGENCY BUTTON */
+.emergency-btn{
+  display:block;margin:2rem auto;padding:1rem 2rem;
+  background:var(--red);color:#ffffff;font-weight:900;font-size:1rem;
+  border:2px solid #ff4466;cursor:pointer;text-transform:uppercase;
+  letter-spacing:2px;border-radius:2px;transition:all 0.2s;
+  font-family:'Space Grotesk',sans-serif;
+}
+.emergency-btn:hover{background:#cc1133;box-shadow:0 0 20px #ff224444}
+.emergency-btn:active{transform:scale(0.97)}
+.emergency-msg{
+  text-align:center;font-size:0.8rem;color:var(--text-dim);
+  margin-top:0.5rem;min-height:1.2rem;
+}
+
+/* DISCLAIMERS */
+.disclaimers{
+  padding:2rem 1rem;max-width:1000px;margin:0 auto;
+  font-size:0.7rem;color:#777777;line-height:1.8;
+  border-top:1px solid var(--panel-border);
+}
+.disclaimers p{margin-bottom:0.75rem}
+.footnote-ref{color:var(--warn);cursor:help}
+
+/* FOOTER */
+.footer{
+  text-align:center;padding:2rem 1rem 4rem;
+  font-size:0.7rem;color:#666666;
+  border-top:1px solid var(--panel-border);
+}
+.footer-brand{
+  font-family:'Playfair Display',serif;font-size:1.2rem;
+  color:var(--acid);margin-bottom:0.5rem;
+}
+
+/* RESPONSIVE */
+@media(max-width:768px){
+  .nav{justify-content:center;text-align:center}
+  .nav-status{margin-left:0;justify-content:center}
+  .dashboard{grid-template-columns:1fr 1fr}
+  .services-grid{grid-template-columns:1fr}
+  .kommittee-grid{grid-template-columns:repeat(auto-fill,minmax(150px,1fr))}
+  .converter-row{flex-direction:column;align-items:flex-start}
+}
+@media(max-width:480px){
+  .dashboard{grid-template-columns:1fr}
+  .hero-title{letter-spacing:2px}
+}
+</style>
+</head>
+<body x-data="inkMeow()">
+
+<!-- NAV -->
+<nav class="nav">
+  <div class="nav-brand">☣ INK MEOW</div>
+  <div class="nav-status">
+    <span class="status-pill"><span class="status-dot dot-green"></span> Station Online</span>
+    <span class="status-pill"><span class="status-dot dot-yellow"></span> Orbit Stable-ish</span>
+    <span class="status-pill"><span class="status-dot" :class="portalOpen ? 'dot-portal' : 'dot-green'"
+      x-text="portalOpen ? '4D BREACH' : 'Portal Sealed'"></span></span>
+    <span class="status-pill"><span class="status-dot dot-red" style="animation:blink 0.5s infinite"></span> <span x-text="shelfKnocks + ' items displaced'"></span></span>
+  </div>
+</nav>
+
+<!-- HERO -->
+<header class="hero">
+  <h1 class="hero-title">INK MEOW</h1>
+  <p class="hero-sub">Feline Body Modification Collective — Est. 2342</p>
+  <p class="hero-tagline">Bio-luminescent tattoos · Synth-fur implants · Cybernetic whisker augmentation<br>
+  Performed under the supervision of the Feline Arts & Standards Kommittee (F.A.S.K.)<br>
+  Now orbiting Proxima Centauri B · Station Pallas · Docking Bay 7</p>
+
+  <div class="jazz-threat" @click="cycleJazzThreat()">
+    <div>
+      <div class="jazz-threat-label">Jazz Threat Level</div>
+      <div class="jazz-threat-level" :style="'color:' + jazzColors[jazzLevel]"
+           x-text="jazzLevels[jazzLevel]"
+           :class="jazzLevel >= 3 ? 'jazz-anim' : ''"></div>
+    </div>
+  </div>
+</header>
+
+<!-- TICKER -->
+<div class="ticker-wrap">
+  <div class="ticker-inner">
+    <span>⚠ INCIDENT 2342-1847: Sgt. Whiskers knocked 14 bottles of Cosmic Catnip Anesthetic off Shelf G-7. Cleanup crew dispatched.</span>
+    <span>♪ The Schrödinger's Cats are now performing "Bebop in B-Flat Minor (Interdimensional Mix)" in Lounge 4. Earplugs available at reception.</span>
+    <span>⚠ RECALL NOTICE: Batch #4419 "Nebula Noir" ink found to be 40% actual nebula. Refunds in CKU only.</span>
+    <span>⚠ Lt. Fluffernaut has been formally reprimanded for batting a client's freshly tattooed arm. Again.</span>
+    <span>♪ PORTAL ALERT: The saxophone solo at 14:00 ST may cause minor interdimensional bleeding. Avoid Deck 9.</span>
+    <span>⚠ Chairman Meow Zedong reminds all staff: the laser pointer collection is NOT a toy. It is ART.</span>
+    <span>⚠ SHELF STATUS: 73% of station shelves have been cleared. Restocking ETA: never, probably.</span>
+    <span>♪ Tonight: "Jazz & Jaw Implants" — live tattooing to freeform jazz. Waivers required.</span>
+  </div>
+</div>
+
+<!-- DASHBOARD -->
+<section class="dashboard">
+  <div class="panel">
+    <div class="panel-header">Items Knocked Off Shelves Today <span class="live-dot"></span></div>
+    <div class="big-number" style="color:var(--hazard)" x-text="shelfKnocks"></div>
+    <div style="margin-top:0.5rem">
+      <button @click="knockShelf()" style="background:var(--panel);border:1px solid var(--hazard);color:var(--hazard);padding:0.3rem 0.8rem;cursor:pointer;font-size:0.75rem;border-radius:2px;font-family:'Space Grotesk',sans-serif">
+        Simulate Cat Encounter
+      </button>
+    </div>
+    <div class="panel-note">Station avg: 247/day · Record: 1,843 (The Incident)</div>
+  </div>
+
+  <div class="panel">
+    <div class="panel-header">Current Wait Time</div>
+    <div class="big-number" style="color:var(--cyan)" x-text="waitTime + ' hrs'"></div>
+    <div class="panel-note">Delays due to mandatory jazz break every 45 min</div>
+  </div>
+
+  <div class="panel">
+    <div class="panel-header">Portal to 4th Dimension</div>
+    <div class="big-number" :style="'color:' + (portalOpen ? 'var(--portal)' : 'var(--acid)')" x-text="portalOpen ? 'OPEN' : 'SEALED'"></div>
+    <div style="margin-top:0.5rem">
+      <button @click="portalOpen = !portalOpen" style="background:var(--panel);border:1px solid var(--portal);color:var(--portal);padding:0.3rem 0.8rem;cursor:pointer;font-size:0.75rem;border-radius:2px;font-family:'Space Grotesk',sans-serif"
+        x-text="portalOpen ? 'Attempt Seal' : 'Poke It'"></button>
+    </div>
+    <div class="panel-note" x-text="portalOpen ? 'Sax solo in progress. Containment compromised.' : 'Last breach: 3 hrs ago. Cause: trombone.'"></div>
+  </div>
+
+  <div class="panel">
+    <div class="panel-header">Active Tattoo Sessions</div>
+    <div class="big-number" style="color:var(--warn)" x-text="activeSessions"></div>
+    <div class="panel-note" x-text="activeSessions > 0 ? pausedSessions + ' paused (cat on client)' : 'All artists napping'"></div>
+  </div>
+
+  <div class="panel">
+    <div class="panel-header">CKU Exchange Rate <span class="live-dot"></span></div>
+    <div class="big-number" style="color:var(--acid)" x-text="ckuRate.toFixed(2)"></div>
+    <div class="panel-note">CKU per 1 Earth Credit · Updated every <span x-text="ckuCountdown + 's'"></span></div>
+  </div>
+
+  <div class="panel">
+    <div class="panel-header">Kommittee Approval Rating</div>
+    <div class="big-number" style="color:var(--warn)" x-text="approvalRating + '%'"></div>
+    <div class="panel-note">Down 12% since "The Catnip Anesthetic Incident"</div>
+  </div>
+
+  <div class="panel">
+    <div class="panel-header">Shelf Displacement — Last 8 Hours</div>
+    <div class="bar-chart">
+      <template x-for="(val, i) in shelfChart" :key="i">
+        <div class="bar" :style="'height:' + val + '%;background:' + (val > 70 ? 'var(--red)' : val > 40 ? 'var(--hazard)' : 'var(--acid)')">
+          <span class="bar-label" x-text="(i*1 + shelfChartStart) + ':00'"></span>
+        </div>
+      </template>
+    </div>
+    <div class="panel-note" style="margin-top:1.5rem">Peak displacement correlates with jazz set times</div>
+  </div>
+
+  <div class="panel">
+    <div class="panel-header">Pending Lawsuits</div>
+    <div class="big-number" style="color:var(--red)" x-text="lawsuits"></div>
+    <div class="panel-note">Including 1 from the Galactic Federation of Sentient Plants (ongoing)</div>
+  </div>
+</section>
+
+<!-- SERVICES -->
+<section class="services">
+  <h2 class="section-title">Services & Pricing</h2>
+  <p class="section-sub">All prices in Cosmic Kibble Units (CKU). Exchange rate fluctuates. We do not accept Dogecoin. Not anymore.</p>
+
+  <!-- CKU CONVERTER -->
+  <div class="converter">
+    <div class="converter-title">CKU ↔ Earth Credit Converter</div>
+    <div class="converter-row">
+      <input type="number" x-model.number="converterInput" min="0" placeholder="CKU" @input="convertCKU()">
+      <span style="color:var(--text-dim);font-size:0.9rem">CKU =</span>
+      <span class="converter-result" x-text="converterResult + ' EC'"></span>
+    </div>
+    <div class="converter-rate">Current rate: 1 EC = <span x-text="ckuRate.toFixed(2)"></span> CKU · Rate changes every 15s · We are not responsible for financial loss</div>
+  </div>
+
+  <div class="services-grid">
+    <div class="service-card">
+      <div class="service-name">Bio-Luminescent Tattoo (Standard)</div>
+      <div class="service-price">450 CKU (~<span x-text="(450/ckuRate).toFixed(2)"></span> EC)</div>
+      <div class="service-desc">Our signature glow-in-the-dark ink sourced from the bioluminescent kelp forests of Kepler-442b. Glows for 8-12 years. May attract moths. Available in 14 colors including "Void Magenta" and "Existential Teal."</div>
+      <div class="service-warning">⚠ Not suitable for clients allergic to kelp, space, or existential dread</div>
+    </div>
+    <div class="service-card">
+      <div class="service-name">Subdermal Synth-Fur Implant</div>
+      <div class="service-price">1,200 CKU (~<span x-text="(1200/ckuRate).toFixed(2)"></span> EC)</div>
+      <div class="service-desc">Why have skin when you could have fur? Our patented GeneWeave™ process grafts synthetic fur in patterns approved by F.A.S.K. Popular options: tabby, calico, "that one hairless look" (ironic). Takes 6 weeks to fully sprout.</div>
+      <div class="service-warning">⚠ Side effects include purring, sudden urge to knock things off tables, and an irrational fear of cucumbers</div>
+    </div>
+    <div class="service-card">
+      <div class="service-name">Cybernetic Whisker Augmentation</div>
+      <div class="service-price">2,800 CKU (~<span x-text="(2800/ckuRate).toFixed(2)"></span> EC)</div>
+      <div class="service-desc">Titanium-alloy whiskers with spatial awareness sensors. Feel doorways before you hit them. Detect mood shifts in a 30-meter radius. Pairs with our WhiskerLink™ app (sold separately, app currently broken).</div>
+      <div class="service-warning">⚠ Do NOT go through metal detectors. Do NOT pet other people's cats. Warranty void if whiskers used as lockpicks.</div>
+    </div>
+    <div class="service-card">
+      <div class="service-name">The Full Chairman</div>
+      <div class="service-price">8,500 CKU (~<span x-text="(8500/ckuRate).toFixed(2)"></span> EC)</div>
+      <div class="service-desc">Our premium package: full-body bioluminescent tattoo, synth-fur chest panel, whisker augmentation, and a complementary tail mod. You will, legally speaking, become 34% cat. Includes commemorative certificate signed by Chairman Meow Zedong (paw print).</div>
+      <div class="service-warning">⚠ Process takes 11 hours. Jazz exposure unavoidable. You will hear the saxophone. There is no escape from the saxophone.</div>
+    </div>
+    <div class="service-card">
+      <div class="service-name">Emergency Ink Correction</div>
+      <div class="service-price">150 CKU (~<span x-text="(150/ckuRate).toFixed(2)"></span> EC)</div>
+      <div class="service-desc">For when Lt. Fluffernaut walks across your back mid-session and the artist sneezes. We fix it. No judgment. Happens 4-6 times daily. We've streamlined the process.</div>
+      <div class="service-warning">⚠ Original "mistake" preserved in our gallery wall of shame, Deck 3</div>
+    </div>
+    <div class="service-card">
+      <div class="service-name">Jazz-Reactive Ink (Experimental)</div>
+      <div class="service-price">3,400 CKU (~<span x-text="(3400/ckuRate).toFixed(2)"></span> EC)</div>
+      <div class="service-desc">Tattoo pigments that shift color in response to live jazz frequencies. Blues make it blue. Free jazz makes it vibrate slightly. That one saxophone solo makes it temporarily open a window to the 4th dimension. Still in beta.</div>
+      <div class="service-warning">⚠ EXPERIMENTAL. Last 3 clients reported "seeing colors that don't exist." One hasn't come back from Dimension 4. Kevin says he's fine probably.</div>
+    </div>
+  </div>
+</section>
+
+<!-- KOMMITTEE -->
+<section class="kommittee">
+  <h2 class="section-title">The Feline Arts & Standards Kommittee</h2>
+  <p class="section-sub">Click a member to reveal their classified incident report. All 17 members must approve your design. Average approval time: 6 weeks. Fastest ever: 6 weeks.</p>
+  <div class="kommittee-grid">
+    <template x-for="cat in kommittee" :key="cat.name">
+      <div class="cat-card" :class="cat.flipped ? 'flipped' : ''" @click="cat.flipped = !cat.flipped">
+        <div class="cat-emoji" x-text="cat.emoji"></div>
+        <div class="cat-name" x-text="cat.name"></div>
+        <div class="cat-title" x-text="cat.title"></div>
+        <div class="cat-secret" x-text="cat.secret"></div>
+      </div>
+    </template>
+  </div>
+</section>
+
+<!-- EMERGENCY RESTOCK -->
+<section style="padding:2rem 1rem;text-align:center">
+  <button class="emergency-btn" @click="emergencyRestock()">
+    ⚠ Emergency Shelf Restocking ⚠
+  </button>
+  <div class="emergency-msg" x-text="emergencyMsg"></div>
+</section>
+
+<!-- JAZZ SCHEDULE -->
+<section class="jazz">
+  <h2 class="section-title">Jazz Schedule — The Schrödinger's Cats</h2>
+  <p class="section-sub">Performances are mandatory. Noise-canceling headphones confiscated at the door by order of the Kommittee.</p>
+  <table>
+    <thead>
+      <tr>
+        <th>Time (ST)</th>
+        <th>Set</th>
+        <th>Portal Risk</th>
+        <th>Shelf Threat</th>
+        <th>Notes</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>06:00</td>
+        <td>Dawn Meowditations</td>
+        <td class="risk-low">LOW</td>
+        <td>~12 items</td>
+        <td>Ambient. Tolerable. Cats still asleep.</td>
+      </tr>
+      <tr>
+        <td>09:00</td>
+        <td>Whisker Bossa Nova</td>
+        <td class="risk-low">LOW</td>
+        <td>~28 items</td>
+        <td>Cats waking up. Beginning to notice shelves exist.</td>
+      </tr>
+      <tr>
+        <td>12:00</td>
+        <td>Hard Bop Lunch Hour</td>
+        <td class="risk-med">MODERATE</td>
+        <td>~64 items</td>
+        <td>Drummer gets enthusiastic. Cats get ideas.</td>
+      </tr>
+      <tr>
+        <td>14:00</td>
+        <td>The Saxophone Solo</td>
+        <td class="risk-critical">CRITICAL</td>
+        <td>~189 items</td>
+        <td>THIS IS THE ONE. Portal usually opens. All shelves compromised.</td>
+      </tr>
+      <tr>
+        <td>17:00</td>
+        <td>Cool Jazz Happy Hour</td>
+        <td class="risk-med">MODERATE</td>
+        <td>~71 items</td>
+        <td>Miles Davis covers. Cats mildly hypnotized.</td>
+      </tr>
+      <tr>
+        <td>20:00</td>
+        <td>Free Jazz Chaos Set</td>
+        <td class="risk-high">HIGH</td>
+        <td>~143 items</td>
+        <td>Improvised. Unpredictable. Last week a piano disappeared.</td>
+      </tr>
+      <tr>
+        <td>23:00</td>
+        <td>Late Night Lullabies</td>
+        <td class="risk-low">LOW</td>
+        <td>~19 items</td>
+        <td>Soft. Gentle. Cats asleep on the instruments.</td>
+      </tr>
+      <tr>
+        <td>03:00</td>
+        <td>The Forbidden Set</td>
+        <td class="risk-critical">UNKNOWN</td>
+        <td>???</td>
+        <td>We don't talk about the 03:00 set. Kevin was there once. Kevin doesn't talk about it either.</td>
+      </tr>
+    </tbody>
+  </table>
+</section>
+
+<!-- FAQ -->
+<section class="faq">
+  <h2 class="section-title">Frequently Asked Questions</h2>
+  <p class="section-sub">Updated daily. Mostly because new questions arise from new incidents.</p>
+
+  <div class="faq-item" @click="$el.classList.toggle('open')">
+    <div class="faq-q">Is Chairman Meow Zedong actually an AI piloting a genetically engineered cat body? <span x-text="$el.parentElement.classList.contains('open') ? '−' : '+'"></span></div>
+    <div class="faq-a">No. Absolutely not. The Chairman is a real cat with real fur and real opinions about your tattoo design. The fact that he types 140 WPM and speaks fluent Mandarin is simply the result of good breeding. Next question.
+      <div class="faq-interrupt">[EDITOR'S NOTE: Three keyboards were knocked off desks during the writing of this response.]</div>
+    </div>
+  </div>
+
+  <div class="faq-item" @click="$el.classList.toggle('open')">
+    <div class="faq-q">Why is there always jazz? <span x-text="$el.parentElement.classList.contains('open') ? '−' : '+'"></span></div>
+    <div class="faq-a">The Schrödinger's Cats have a 200-year residency contract signed during the station's founding. We've consulted 4 lawyers. The contract is airtight. We've tried to negotiate. The bassist just stared at us. We've accepted our fate. You should too.
+      <div class="faq-interrupt">[A cymbal crash is heard in the background. Two ink bottles fall off Shelf C-4.]</div>
+    </div>
+  </div>
+
+  <div class="faq-item" @click="$el.classList.toggle('open')">
+    <div class="faq-q">What happened with the Cosmic Catnip Anesthetic? <span x-text="$el.parentElement.classList.contains('open') ? '−' : '+'"></span></div>
+    <div class="faq-a">We briefly used catnip-derived anesthetic because it was "organic" and "locally sourced" (from the hydroponic bay on Deck 12). It worked great on the cats. It worked differently on humans. Client #4417 described the experience as "becoming one with the concept of furniture." We've since switched to standard anesthetic. Client #4417 still calls us sometimes. She misses being a couch.
+    </div>
+  </div>
+
+  <div class="faq-item" @click="$el.classList.toggle('open')">
+    <div class="faq-q">Can I bring my dog to the station? <span x-text="$el.parentElement.classList.contains('open') ? '−' : '+'"></span></div>
+    <div class="faq-a">No.
+      <div class="faq-interrupt">[The entire Kommittee has left the room. This FAQ session is now over. The jazz has gotten louder.]</div>
+    </div>
+  </div>
+
+  <div class="faq-item" @click="$el.classList.toggle('open')">
+    <div class="faq-q">What's the deal with the 4th dimension portal? <span x-text="$el.parentElement.classList.contains('open') ? '−' : '+'"></span></div>
+    <div class="faq-a">During a particularly intense saxophone solo on stardate 2342.187, our lead saxophonist Coltrane (yes, he legally changed his name) hit a frequency that apparently corresponds to the resonance threshold of spacetime in this sector. A portal opened. Things came through. We don't discuss what things. The portal now opens and closes roughly in sync with jazz intensity. We've applied for a research grant. It was denied. We applied again listing it as "ventilation."
+    </div>
+  </div>
+
+  <div class="faq-item" @click="$el.classList.toggle('open')">
+    <div class="faq-q">Who is Kevin? <span x-text="$el.parentElement.classList.contains('open') ? '−' : '+'"></span></div>
+    <div class="faq-a">Kevin is our human intern. He applied for a 3-month graphic design internship in 2342. It is now 2342. He has been here for what he describes as "either 6 months or 6 years, time doesn't work right near the portal." He maintains the website, feeds the Kommittee, and has developed a thousand-yard stare that customers find "concerning." Kevin is fine. Kevin is always fine. Kevin would like you to know the website looks best in dark mode. There is no light mode. There never was.
+    </div>
+  </div>
+</section>
+
+<!-- TESTIMONIALS -->
+<section style="padding:2rem 1rem;max-width:1000px;margin:0 auto">
+  <h2 class="section-title">Client Reviews</h2>
+  <p class="section-sub">4.2 stars on GalacticYelp (was 4.7 before The Incident)</p>
+  <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:1rem;margin-top:1rem">
+    <div style="background:var(--panel);border:1px solid var(--panel-border);padding:1rem;border-radius:2px">
+      <div style="color:var(--warn);font-size:0.8rem;margin-bottom:0.5rem">★★★★★</div>
+      <div style="font-size:0.85rem;color:var(--text);line-height:1.6">"Got the bioluminescent sleeve. Absolutely gorgeous. Only downside: I'm now visible from low orbit and the moths are relentless. 3 cats sat on me during the session. Worth it."</div>
+      <div style="font-size:0.75rem;color:var(--text-dim);margin-top:0.5rem">— Zara Chen, Proxima Colony 7</div>
+    </div>
+    <div style="background:var(--panel);border:1px solid var(--panel-border);padding:1rem;border-radius:2px">
+      <div style="color:var(--warn);font-size:0.8rem;margin-bottom:0.5rem">★★★☆☆</div>
+      <div style="font-size:0.85rem;color:var(--text);line-height:1.6">"Whisker augmentation works great. I can feel barometric pressure changes and my neighbor's disappointment. However, during installation the saxophone solo started and I briefly ceased to exist in 3 dimensions. Took 20 minutes to re-materialize. No one apologized."</div>
+      <div style="font-size:0.75rem;color:var(--text-dim);margin-top:0.5rem">— Dmitri Volkov, Station Resident</div>
+    </div>
+    <div style="background:var(--panel);border:1px solid var(--panel-border);padding:1rem;border-radius:2px">
+      <div style="color:var(--warn);font-size:0.8rem;margin-bottom:0.5rem">★★★★☆</div>
+      <div style="font-size:0.85rem;color:var(--text);line-height:1.6">"The Full Chairman package changed my life. I am now 34% cat. I have knocked 7 things off my desk today and I feel no remorse. The jazz follows me everywhere, even at home. I think the tattoo is a receiver. Kevin won't return my calls."</div>
+      <div style="font-size:0.75rem;color:var(--text-dim);margin-top:0.5rem">— Anonymous (legal reasons)</div>
+    </div>
+  </div>
+</section>
+
+<!-- DISCLAIMERS -->
+<section class="disclaimers">
+  <h3 style="color:var(--warn);font-size:0.8rem;margin-bottom:1rem;text-transform:uppercase;letter-spacing:2px">Legal Disclaimers & Notices</h3>
+  <p><span class="footnote-ref">†</span> Ink Meow is not responsible for interdimensional displacement, temporal anomalies, spontaneous purring, or the inexplicable urge to push objects off flat surfaces experienced after any procedure.</p>
+  <p><span class="footnote-ref">‡</span> "The Full Chairman" package may result in a legal reclassification of your species under Galactic Federation Code §447.2(b). Ink Meow provides no legal counsel regarding your new taxonomic status.</p>
+  <p><span class="footnote-ref">§</span> The jazz cannot be stopped. We have tried. Do not ask us to try again. The last attempt resulted in what is now known as "The Trombone Singularity" and we lost Deck 14 for three weeks.</p>
+  <p><span class="footnote-ref">¶</span> Cosmic Kibble Unit (CKU) is not recognized as legal tender by any known government, corporation, or sentient entity. Its value is determined by a proprietary algorithm that factors in: current fish prices on Kepler-442b, the mood of the Kommittee, and whether the portal is open.</p>
+  <p><span class="footnote-ref">**</span> Chairman Meow Zedong is a real cat. All rumors to the contrary are slander and will be prosecuted to the full extent of whatever legal system we can find that takes payment in CKU.</p>
+  <p><span class="footnote-ref">††</span> Kevin is fine.</p>
+</section>
+
+<!-- FOOTER -->
+<footer class="footer">
+  <div class="footer-brand">☣ INK MEOW</div>
+  <p>Station Pallas · Docking Bay 7 · Proxima Centauri B Orbit</p>
+  <p>Est. 2342 · F.A.S.K. License #00017 · "We're Still Open, Somehow"</p>
+  <p style="margin-top:0.5rem">Website maintained by Kevin · Last updated: <span x-text="lastUpdated"></span> · Shelf status: <span x-text="shelfStatus"></span></p>
+  <p style="margin-top:1rem;color:#444444">© 2342 Ink Meow Feline Body Modification Collective. All rights reserved.<br>If you are reading this from the 4th dimension, please return our pianist.</p>
+</footer>
+
+<script src="/assets/js/alpine.min.js" defer></script>
+<script>
+document.addEventListener('alpine:init', function() {
+  Alpine.data('inkMeow', function() {
+    return {
+      shelfKnocks: 247,
+      waitTime: 4.5,
+      portalOpen: false,
+      activeSessions: 3,
+      pausedSessions: 1,
+      ckuRate: 7.43,
+      ckuCountdown: 15,
+      approvalRating: 61,
+      lawsuits: 12,
+      jazzLevel: 1,
+      jazzLevels: ['Ambient', 'Groovy', 'Intense', 'CRITICAL', 'OH NO'],
+      jazzColors: ['#a8ff04', '#ffd600', '#ff6d00', '#ff2244', '#ff2244'],
+      shelfChart: [25, 40, 55, 92, 60, 78, 45, 30],
+      shelfChartStart: 6,
+      converterInput: 100,
+      converterResult: '0.00',
+      emergencyMsg: '',
+      lastUpdated: 'just now',
+      shelfStatus: 'compromised',
+
+      kommittee: [
+        { name: 'Chairman Meow Zedong', title: 'Supreme Leader', emoji: '🐱', secret: 'Types 140 WPM. No comment.', flipped: false },
+        { name: 'Sgt. Whiskers', title: 'Shelf Liaison', emoji: '🐈', secret: 'Personally responsible for 40% of shelf incidents.', flipped: false },
+        { name: 'Lt. Fluffernaut', title: 'Client Relations', emoji: '🐈‍⬛', secret: 'Has walked across 312 clients mid-tattoo this quarter.', flipped: false },
+        { name: 'Dr. Purrscilla', title: 'Chief Medical', emoji: '🐱', secret: 'Invented the Cosmic Catnip Anesthetic. Regrets nothing.', flipped: false },
+        { name: 'Admiral Beans', title: 'Station Security', emoji: '🐈', secret: 'Sleeps 22 hours/day. Security incidents up 300%.', flipped: false },
+        { name: 'Prof. Mittens', title: 'Ink Research', emoji: '🐈‍⬛', secret: 'Created Jazz-Reactive Ink. Lost 2 clients to Dimension 4.', flipped: false },
+        { name: 'Capt. Noodle', title: 'Tail Specialist', emoji: '🐱', secret: 'Claims to have 10 lives. Currently on life 7.', flipped: false },
+        { name: 'Mx. Biscuit', title: 'Design Approval', emoji: '🐈', secret: 'Has rejected every design submitted since March. Every. Single. One.', flipped: false },
+        { name: 'Baron von Floof', title: 'Finance', emoji: '🐈‍⬛', secret: 'Invented the CKU. Cannot explain how it works.', flipped: false },
+        { name: 'Duchess Toe Beans', title: 'Quality Control', emoji: '🐱', secret: 'Quality standards: "if I can sit on it, it passes."', flipped: false },
+        { name: 'Sir Hissworth', title: 'Legal Counsel', emoji: '🐈', secret: 'Has never won a case. Has bitten 3 opposing counsel.', flipped: false },
+        { name: 'Coltrane', title: 'Jazz Director', emoji: '🎷', secret: 'Not a cat. A saxophone that achieved sentience. We think.', flipped: false },
+        { name: 'Agent Whisper', title: 'Portal Ops', emoji: '🐈‍⬛', secret: 'Can see into Dimension 4. Will not discuss what she sees.', flipped: false },
+        { name: 'The Kitten', title: 'Apprentice', emoji: '🐱', secret: 'Actual name: Gerald. 8 years old. Not a kitten. Very sensitive about it.', flipped: false },
+        { name: 'Comrade Patches', title: 'Morale Officer', emoji: '🐈', secret: 'Morale has decreased every month since appointment.', flipped: false },
+        { name: 'Old Tony', title: 'Elder Advisor', emoji: '🐈‍⬛', secret: 'Predates the station. No one knows how he got here.', flipped: false },
+        { name: 'Kevin', title: 'Human Intern', emoji: '😐', secret: 'Please send help. The jazz never stops. I can hear it in my dreams.', flipped: false }
+      ],
+
+      init() {
+        this.convertCKU();
+        this.startTimers();
+      },
+
+      startTimers: function() {
+        var self = this;
+
+        // CKU rate fluctuation
+        setInterval(function() {
+          self.ckuCountdown--;
+          if (self.ckuCountdown <= 0) {
+            self.ckuCountdown = 15;
+            self.ckuRate = 5 + Math.random() * 8;
+            self.ckuRate = Math.round(self.ckuRate * 100) / 100;
+            self.convertCKU();
+          }
+        }, 1000);
+
+        // Random shelf knocks
+        setInterval(function() {
+          if (Math.random() > 0.6) {
+            self.shelfKnocks += Math.floor(Math.random() * 3) + 1;
+          }
+        }, 3000);
+
+        // Active sessions fluctuation
+        setInterval(function() {
+          if (Math.random() > 0.7) {
+            self.activeSessions = Math.max(0, Math.min(8, self.activeSessions + (Math.random() > 0.5 ? 1 : -1)));
+            self.pausedSessions = Math.floor(Math.random() * (self.activeSessions + 1));
+          }
+        }, 5000);
+
+        // Wait time fluctuation
+        setInterval(function() {
+          self.waitTime = Math.round((3 + Math.random() * 5) * 10) / 10;
+        }, 8000);
+
+        // Approval rating drift
+        setInterval(function() {
+          self.approvalRating = Math.max(12, Math.min(78, self.approvalRating + (Math.random() > 0.5 ? 1 : -1)));
+        }, 4000);
+
+        // Bar chart updates
+        setInterval(function() {
+          for (var i = 0; i < self.shelfChart.length; i++) {
+            self.shelfChart[i] = Math.max(10, Math.min(100, self.shelfChart[i] + Math.floor(Math.random() * 21) - 10));
+          }
+        }, 3000);
+
+        // Last updated
+        setInterval(function() {
+          var msgs = ['just now', 'moments ago', '2s ago', 'right now', 'kevin just hit save'];
+          self.lastUpdated = msgs[Math.floor(Math.random() * msgs.length)];
+        }, 5000);
+
+        // Shelf status
+        setInterval(function() {
+          var statuses = ['compromised', 'dire', 'deplorable', 'actively collapsing', 'nominal (just kidding)', 'cats everywhere'];
+          self.shelfStatus = statuses[Math.floor(Math.random() * statuses.length)];
+        }, 7000);
+      },
+
+      knockShelf: function() {
+        var amount = Math.floor(Math.random() * 12) + 3;
+        this.shelfKnocks += amount;
+      },
+
+      cycleJazzThreat: function() {
+        this.jazzLevel = (this.jazzLevel + 1) % this.jazzLevels.length;
+        if (this.jazzLevel >= 3) {
+          this.portalOpen = true;
+        }
+      },
+
+      convertCKU: function() {
+        if (this.converterInput && this.ckuRate > 0) {
+          this.converterResult = (this.converterInput / this.ckuRate).toFixed(2);
+        } else {
+          this.converterResult = '0.00';
+        }
+      },
+
+      emergencyRestock: function() {
+        var msgs = [
+          'Restocking initiated... Sgt. Whiskers immediately knocked 14 items back off.',
+          'Shelves restocked. Wait. No. The cats found out. It\'s worse now.',
+          'Kevin has been dispatched with a cart. Kevin reports "they\'re watching me."',
+          'Restock failed. The Kommittee vetoed it. Reason: "shelves look better empty."',
+          'ALERT: Restocking triggered a jazz crescendo. Portal is open. Shelves are gone.',
+          'Partial restock complete. 73 items recovered. 4 items appear to be from Dimension 4.',
+          'Kevin tried. Kevin failed. Kevin is sitting in the supply closet. Kevin needs a minute.',
+          'The shelves have been restocked but the items are all slightly to the left of where they should be. Cats suspicious.'
+        ];
+        this.emergencyMsg = msgs[Math.floor(Math.random() * msgs.length)];
+        this.shelfKnocks += Math.floor(Math.random() * 20) + 5;
+      }
+    };
+  });
+});
+</script>
+</body>
+</html>

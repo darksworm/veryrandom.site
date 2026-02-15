@@ -863,6 +863,324 @@ hr {
 
 <script src="/assets/js/alpine.min.js" defer></script>
 <script>
+/* === DIAL-UP SOUND SYNTHESIZER === */
+var DialUpSynth = (function(){
+  var ctx = null;
+  var masterGain = null;
+  var activeNodes = [];
+  var loopTimer = null;
+
+  function getCtx(){
+    if(!ctx){
+      ctx = new (window.AudioContext || window.webkitAudioContext)();
+      masterGain = ctx.createGain();
+      masterGain.gain.value = 0.3;
+      masterGain.connect(ctx.destination);
+    }
+    if(ctx.state === 'suspended') ctx.resume();
+    return ctx;
+  }
+
+  function stopAll(){
+    if(loopTimer){ clearTimeout(loopTimer); loopTimer = null; }
+    activeNodes.forEach(function(n){ try{ n.stop(); }catch(e){} try{ n.disconnect(); }catch(e){} });
+    activeNodes = [];
+  }
+
+  /* Create filtered noise burst */
+  function noiseBurst(ac, startT, dur, freq, Q, gain){
+    var bufSize = ac.sampleRate * dur;
+    var buf = ac.createBuffer(1, bufSize, ac.sampleRate);
+    var data = buf.getChannelData(0);
+    for(var i = 0; i < bufSize; i++) data[i] = (Math.random() * 2 - 1);
+    var src = ac.createBufferSource();
+    src.buffer = buf;
+    var filt = ac.createBiquadFilter();
+    filt.type = 'bandpass';
+    filt.frequency.value = freq;
+    filt.Q.value = Q;
+    var g = ac.createGain();
+    g.gain.setValueAtTime(gain, startT);
+    g.gain.exponentialRampToValueAtTime(0.001, startT + dur);
+    src.connect(filt);
+    filt.connect(g);
+    g.connect(masterGain);
+    src.start(startT);
+    src.stop(startT + dur);
+    activeNodes.push(src);
+  }
+
+  /* Create a tone at given freq */
+  function tone(ac, startT, dur, freq, type, gain, endGain){
+    var osc = ac.createOscillator();
+    osc.type = type || 'sine';
+    osc.frequency.setValueAtTime(freq, startT);
+    var g = ac.createGain();
+    g.gain.setValueAtTime(gain, startT);
+    if(endGain !== undefined) g.gain.exponentialRampToValueAtTime(Math.max(endGain, 0.001), startT + dur);
+    osc.connect(g);
+    g.connect(masterGain);
+    osc.start(startT);
+    osc.stop(startT + dur);
+    activeNodes.push(osc);
+    return osc;
+  }
+
+  /* Sweep oscillator from freq1 to freq2 */
+  function sweep(ac, startT, dur, f1, f2, type, gain){
+    var osc = ac.createOscillator();
+    osc.type = type || 'sine';
+    osc.frequency.setValueAtTime(f1, startT);
+    osc.frequency.linearRampToValueAtTime(f2, startT + dur);
+    var g = ac.createGain();
+    g.gain.setValueAtTime(gain, startT);
+    g.gain.exponentialRampToValueAtTime(0.001, startT + dur);
+    osc.connect(g);
+    g.connect(masterGain);
+    osc.start(startT);
+    osc.stop(startT + dur);
+    activeNodes.push(osc);
+  }
+
+  /* Each modem preset builds a unique ~20s dial-up sequence */
+  var presets = [
+    /* 0: Saskatchewan 1994 — Hayes 2400, slow, hesitant, retries */
+    function(ac, t){
+      var dur = 22;
+      /* Dial tone */
+      tone(ac, t, 1.2, 350, 'sine', 0.15);
+      tone(ac, t, 1.2, 440, 'sine', 0.12);
+      /* DTMF dialing — slow, 7 digits */
+      var dtmf = [[697,1209],[770,1336],[852,1209],[697,1336],[770,1477],[852,1209],[941,1336]];
+      for(var d=0;d<7;d++){
+        tone(ac, t+1.4+d*0.28, 0.18, dtmf[d][0], 'sine', 0.12);
+        tone(ac, t+1.4+d*0.28, 0.18, dtmf[d][1], 'sine', 0.12);
+      }
+      /* Ring — two bursts */
+      tone(ac, t+3.8, 0.8, 440, 'sine', 0.06);
+      tone(ac, t+3.8, 0.8, 480, 'sine', 0.06);
+      tone(ac, t+5.2, 0.8, 440, 'sine', 0.06);
+      tone(ac, t+5.2, 0.8, 480, 'sine', 0.06);
+      /* Carrier answer — 2100Hz */
+      tone(ac, t+6.8, 1.5, 2100, 'sine', 0.10, 0.04);
+      /* Failed handshake — noise burst, pause, retry */
+      noiseBurst(ac, t+8.5, 0.6, 1800, 4, 0.15);
+      /* Silence / pause — "the hesitation" */
+      /* Retry carrier */
+      tone(ac, t+10.5, 1.0, 2100, 'sine', 0.08, 0.03);
+      /* V.22 handshake — low baud, gentle */
+      sweep(ac, t+11.8, 1.5, 1200, 2400, 'sine', 0.10);
+      tone(ac, t+11.8, 1.5, 1200, 'square', 0.03);
+      /* Scrambled data negotiation */
+      noiseBurst(ac, t+13.5, 2.0, 1600, 3, 0.08);
+      sweep(ac, t+13.5, 2.0, 1000, 2200, 'sawtooth', 0.04);
+      /* Training */
+      tone(ac, t+16.0, 2.0, 1200, 'sine', 0.06, 0.02);
+      tone(ac, t+16.0, 2.0, 2400, 'sine', 0.03, 0.01);
+      /* Connected hiss */
+      noiseBurst(ac, t+18.5, 3.5, 2000, 1, 0.03);
+      return dur;
+    },
+
+    /* 1: Helsinki 1998 — Nokia V.34, soft, melodic, apologetic */
+    function(ac, t){
+      var dur = 20;
+      /* Soft dial tone — European style */
+      tone(ac, t, 0.8, 425, 'sine', 0.10);
+      /* Pulse dialing (not DTMF) — clicks */
+      for(var d=0;d<9;d++){
+        noiseBurst(ac, t+1.0+d*0.15, 0.04, 3000, 8, 0.20);
+      }
+      /* European ring (single tone, rhythmic) */
+      tone(ac, t+2.8, 0.4, 425, 'sine', 0.08);
+      tone(ac, t+4.0, 0.4, 425, 'sine', 0.08);
+      /* Answer tone */
+      tone(ac, t+5.2, 2.0, 2100, 'sine', 0.07, 0.03);
+      /* V.34 handshake — rich, layered tones */
+      tone(ac, t+7.4, 0.8, 1829, 'sine', 0.08);
+      tone(ac, t+7.4, 0.8, 1867, 'sine', 0.06); /* close frequencies = beating */
+      sweep(ac, t+8.4, 1.2, 600, 3200, 'sine', 0.07);
+      sweep(ac, t+8.4, 1.2, 3200, 600, 'triangle', 0.04);
+      /* Negotiation — gentle warble */
+      for(var w=0;w<6;w++){
+        tone(ac, t+9.8+w*0.3, 0.25, 1200 + w*200, 'sine', 0.06, 0.02);
+      }
+      /* Carrier training — two friends recognizing each other */
+      tone(ac, t+11.8, 2.5, 1800, 'sine', 0.06, 0.03);
+      tone(ac, t+12.3, 2.0, 1200, 'sine', 0.05, 0.02);
+      sweep(ac, t+14.5, 1.5, 1800, 1200, 'sine', 0.05);
+      /* Data mode hiss */
+      noiseBurst(ac, t+16.5, 3.5, 2400, 1.5, 0.03);
+      tone(ac, t+16.5, 3.5, 1800, 'sine', 0.02, 0.005);
+      return dur;
+    },
+
+    /* 2: Houston 1997 — USR 56K, LOUD, aggressive handshake */
+    function(ac, t){
+      var dur = 18;
+      /* Dial tone — strong */
+      tone(ac, t, 0.6, 350, 'sine', 0.18);
+      tone(ac, t, 0.6, 440, 'sine', 0.18);
+      /* Fast DTMF */
+      var dtmf = [[941,1336],[697,1209],[852,1477],[770,1209],[697,1477],[852,1336],[941,1209],[770,1477],[697,1336],[852,1209]];
+      for(var d=0;d<10;d++){
+        tone(ac, t+0.7+d*0.12, 0.08, dtmf[d][0], 'sine', 0.15);
+        tone(ac, t+0.7+d*0.12, 0.08, dtmf[d][1], 'sine', 0.15);
+      }
+      /* Quick ring */
+      tone(ac, t+2.2, 0.5, 440, 'sine', 0.08);
+      tone(ac, t+2.2, 0.5, 480, 'sine', 0.08);
+      /* LOUD answer tone */
+      tone(ac, t+3.2, 1.0, 2100, 'sine', 0.14, 0.06);
+      /* V.90 handshake — aggressive frequency sweeps */
+      sweep(ac, t+4.4, 0.6, 300, 3500, 'sawtooth', 0.10);
+      sweep(ac, t+5.0, 0.6, 3500, 300, 'sawtooth', 0.10);
+      noiseBurst(ac, t+4.4, 1.2, 2200, 5, 0.12);
+      /* Rapid alternating tones */
+      for(var r=0;r<12;r++){
+        tone(ac, t+5.8+r*0.15, 0.12, r%2?2400:1200, 'square', 0.06);
+      }
+      /* Full speed negotiation — screaming */
+      noiseBurst(ac, t+7.8, 2.0, 2600, 6, 0.14);
+      sweep(ac, t+7.8, 2.0, 1600, 2800, 'sine', 0.08);
+      sweep(ac, t+8.8, 1.0, 2800, 1600, 'triangle', 0.06);
+      /* Training — still loud */
+      tone(ac, t+10.0, 2.0, 1800, 'sine', 0.08, 0.03);
+      noiseBurst(ac, t+10.0, 2.0, 1800, 3, 0.06);
+      /* V.90 digital handoff */
+      for(var v=0;v<8;v++){
+        tone(ac, t+12.2+v*0.2, 0.15, 1200+v*250, 'sine', 0.06, 0.02);
+      }
+      /* Connected */
+      noiseBurst(ac, t+14.0, 4.0, 2000, 1, 0.04);
+      return dur;
+    },
+
+    /* 3: São Paulo 2001 — Motorola 56K during thunderstorm */
+    function(ac, t){
+      var dur = 21;
+      /* Dial tone with line noise */
+      tone(ac, t, 1.0, 350, 'sine', 0.12);
+      tone(ac, t, 1.0, 440, 'sine', 0.10);
+      noiseBurst(ac, t, 1.0, 100, 0.5, 0.06); /* line hum */
+      /* DTMF + thunder rumble underneath */
+      var dtmf = [[770,1209],[852,1336],[697,1477],[941,1209],[770,1336],[852,1477],[697,1209],[941,1336]];
+      for(var d=0;d<8;d++){
+        tone(ac, t+1.2+d*0.18, 0.12, dtmf[d][0], 'sine', 0.10);
+        tone(ac, t+1.2+d*0.18, 0.12, dtmf[d][1], 'sine', 0.10);
+      }
+      noiseBurst(ac, t+1.5, 1.5, 80, 0.3, 0.10); /* distant thunder */
+      /* Ring with crackle */
+      tone(ac, t+3.2, 0.6, 440, 'sine', 0.06);
+      noiseBurst(ac, t+3.4, 0.2, 4000, 2, 0.08); /* crackle */
+      tone(ac, t+4.4, 0.6, 440, 'sine', 0.06);
+      /* Answer */
+      tone(ac, t+5.6, 1.5, 2100, 'sine', 0.09, 0.04);
+      noiseBurst(ac, t+5.6, 1.5, 60, 0.5, 0.04); /* line hum persists */
+      /* Handshake fighting through interference */
+      sweep(ac, t+7.3, 1.0, 800, 3000, 'sine', 0.08);
+      noiseBurst(ac, t+7.8, 0.3, 5000, 3, 0.12); /* lightning snap */
+      noiseBurst(ac, t+8.5, 2.0, 1800, 4, 0.10);
+      /* Thunder during negotiation */
+      noiseBurst(ac, t+9.5, 2.0, 60, 0.3, 0.12);
+      /* Trying harder — retrain */
+      sweep(ac, t+10.8, 1.5, 1200, 2600, 'sine', 0.08);
+      sweep(ac, t+10.8, 1.5, 2600, 1200, 'triangle', 0.04);
+      tone(ac, t+12.5, 2.0, 1800, 'sine', 0.06, 0.03);
+      noiseBurst(ac, t+13.0, 0.2, 5000, 3, 0.08); /* another crackle */
+      /* Final connect through the storm */
+      noiseBurst(ac, t+14.8, 3.0, 2000, 1.5, 0.04);
+      noiseBurst(ac, t+14.8, 3.0, 80, 0.4, 0.03); /* rumble */
+      tone(ac, t+14.8, 3.0, 1800, 'sine', 0.02, 0.005);
+      noiseBurst(ac, t+18.0, 3.0, 2000, 1, 0.03);
+      return dur;
+    },
+
+    /* 4: Tokyo 1999 — NTT-ME ISDN, precise, fast, 4 seconds */
+    function(ac, t){
+      var dur = 12;
+      /* No dial tone — ISDN digital call setup */
+      /* Rapid digital handshake */
+      for(var d=0;d<4;d++){
+        tone(ac, t+0.1+d*0.08, 0.06, 1800+d*100, 'square', 0.08);
+      }
+      /* V.110 sync — precise tones */
+      tone(ac, t+0.6, 0.3, 2100, 'sine', 0.10);
+      tone(ac, t+1.0, 0.3, 1800, 'sine', 0.10);
+      /* Training — fast, precise */
+      tone(ac, t+1.5, 0.8, 1200, 'sine', 0.08, 0.04);
+      tone(ac, t+1.5, 0.8, 2400, 'sine', 0.04, 0.02);
+      /* Digital data burst */
+      for(var r=0;r<20;r++){
+        tone(ac, t+2.5+r*0.06, 0.04, r%2?2400:1200, 'square', 0.05);
+      }
+      /* Connected — clean */
+      noiseBurst(ac, t+4.0, 2.0, 3000, 2, 0.02);
+      /* Then just a very faint carrier for the rest */
+      tone(ac, t+4.0, 8.0, 1800, 'sine', 0.015, 0.005);
+      noiseBurst(ac, t+6.0, 6.0, 2400, 1, 0.015);
+      return dur;
+    },
+
+    /* 5: Manchester 1996 — Pace V.34, the one with the pause at 2.3s */
+    function(ac, t){
+      var dur = 20;
+      /* UK dial tone (continuous 350+440) */
+      tone(ac, t, 1.0, 350, 'sine', 0.12);
+      tone(ac, t, 1.0, 440, 'sine', 0.12);
+      /* DTMF */
+      var dtmf = [[852,1209],[697,1336],[770,1477],[941,1209],[697,1336],[852,1477],[770,1209],[852,1336],[941,1477],[697,1209],[770,1336]];
+      for(var d=0;d<11;d++){
+        tone(ac, t+1.2+d*0.16, 0.10, dtmf[d%dtmf.length][0], 'sine', 0.10);
+        tone(ac, t+1.2+d*0.16, 0.10, dtmf[d%dtmf.length][1], 'sine', 0.10);
+      }
+      /* UK double-ring */
+      tone(ac, t+3.4, 0.3, 400, 'sine', 0.06);
+      tone(ac, t+3.4, 0.3, 450, 'sine', 0.06);
+      tone(ac, t+3.8, 0.3, 400, 'sine', 0.06);
+      tone(ac, t+3.8, 0.3, 450, 'sine', 0.06);
+      /* Answer */
+      tone(ac, t+5.0, 1.0, 2100, 'sine', 0.09, 0.04);
+      /* V.34 handshake begins */
+      sweep(ac, t+6.2, 0.8, 600, 3200, 'sine', 0.07);
+      /* THE PAUSE AT 2.3 SECONDS INTO HANDSHAKE — "doubt" */
+      /* (silence from ~7.0 to ~7.8) */
+      /* Resume — slower, like it's deciding */
+      sweep(ac, t+8.0, 1.0, 3200, 600, 'sine', 0.06);
+      tone(ac, t+8.0, 1.0, 1800, 'triangle', 0.04);
+      /* Negotiation — careful */
+      for(var w=0;w<4;w++){
+        tone(ac, t+9.2+w*0.5, 0.4, 1200+w*300, 'sine', 0.06, 0.03);
+      }
+      noiseBurst(ac, t+9.2, 2.0, 1600, 3, 0.07);
+      /* Training */
+      tone(ac, t+11.5, 2.5, 1800, 'sine', 0.06, 0.02);
+      tone(ac, t+11.5, 2.5, 1200, 'sine', 0.03, 0.01);
+      /* Data mode */
+      noiseBurst(ac, t+14.5, 5.5, 2000, 1.5, 0.03);
+      tone(ac, t+14.5, 5.5, 1800, 'sine', 0.015, 0.005);
+      return dur;
+    }
+  ];
+
+  function play(idx){
+    stopAll();
+    var ac = getCtx();
+    var t = ac.currentTime + 0.05;
+    var dur = presets[idx](ac, t);
+
+    /* Loop after the sequence finishes */
+    loopTimer = setTimeout(function loopFn(){
+      activeNodes = [];
+      var t2 = ac.currentTime + 0.05;
+      dur = presets[idx](ac, t2);
+      loopTimer = setTimeout(loopFn, dur * 1000 + 500);
+    }, dur * 1000 + 500);
+  }
+
+  return { play: play, stop: stopAll };
+})();
+
 document.addEventListener('alpine:init', function() {
   Alpine.data('dialUpArchive', function() {
     return {
@@ -975,6 +1293,7 @@ document.addEventListener('alpine:init', function() {
         if (card.playing) {
           card.playing = false;
           card.progress = 0;
+          DialUpSynth.stop();
           if (self.progressTimers[idx]) {
             clearInterval(self.progressTimers[idx]);
             delete self.progressTimers[idx];
@@ -991,9 +1310,11 @@ document.addEventListener('alpine:init', function() {
             delete self.progressTimers[i];
           }
         });
+        DialUpSynth.stop();
 
         card.playing = true;
         card.progress = 0;
+        DialUpSynth.play(idx);
 
         self.progressTimers[idx] = setInterval(function() {
           card.progress += 0.5;

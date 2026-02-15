@@ -1,0 +1,1271 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Millennium Bug Bounties — The Future Is Worth Paying Attention To</title>
+<link rel="stylesheet" href="/assets/css/fonts.css">
+<script defer src="/assets/js/alpine.min.js"></script>
+<script src="/assets/js/gsap.min.js"></script>
+<script src="/assets/js/lucide.min.js"></script>
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg: #0a0e1a;
+  --bg-card: #121829;
+  --text: #e0e6f0;
+  --yellow: #f5d523;
+  --blue: #69b3e7;
+  --rose: #f7cac9;
+  --grid-line: rgba(105, 179, 231, 0.15);
+  --font-head: 'Unbounded', sans-serif;
+  --font-body: 'Fira Code', monospace;
+  --font-accent: 'Caveat', cursive;
+}
+
+html { scroll-behavior: smooth; }
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font-body);
+  font-size: 16px;
+  line-height: 1.6;
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+}
+
+h1, h2, h3, h4 {
+  font-family: var(--font-head);
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+a { color: var(--blue); text-decoration: none; }
+a:hover { text-decoration: underline; }
+
+.accent-font { font-family: var(--font-accent); }
+
+/* SPINE LAYOUT */
+.spine {
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 0 20px;
+}
+
+.section-divider {
+  border: none;
+  border-top: 1px solid var(--grid-line);
+  margin: 0;
+}
+
+/* ═══════════════ HERO ═══════════════ */
+.hero {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+  padding: 60px 20px;
+}
+
+.hero-binary {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  opacity: 0.06;
+  font-family: var(--font-body);
+  font-size: 14px;
+  line-height: 1.4;
+  color: var(--blue);
+  word-break: break-all;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.hero-content {
+  position: relative;
+  z-index: 1;
+  max-width: 700px;
+}
+
+.hero-label {
+  font-family: var(--font-head);
+  font-size: clamp(11px, 2vw, 13px);
+  text-transform: uppercase;
+  letter-spacing: 4px;
+  color: var(--blue);
+  margin-bottom: 16px;
+}
+
+.hero h1 {
+  font-size: clamp(28px, 6vw, 52px);
+  color: var(--yellow);
+  margin-bottom: 24px;
+}
+
+.hero-story {
+  font-size: clamp(14px, 2.5vw, 16px);
+  color: #b0b8c8;
+  max-width: 600px;
+  margin: 0 auto 40px;
+  line-height: 1.7;
+}
+
+/* COUNTDOWN CLOCK */
+.countdown-wrap {
+  margin-bottom: 40px;
+}
+
+.countdown {
+  font-family: var(--font-head);
+  font-size: clamp(36px, 8vw, 72px);
+  color: var(--yellow);
+  letter-spacing: 4px;
+  position: relative;
+  display: inline-block;
+}
+
+.countdown .digit {
+  display: inline-block;
+  position: relative;
+}
+
+.countdown .separator {
+  color: #3a4060;
+  margin: 0 2px;
+}
+
+@keyframes glitch-clip {
+  0%, 100% { clip-path: inset(0 0 0 0); transform: translate(0); }
+  20% { clip-path: inset(20% 0 40% 0); transform: translate(-2px, 1px); }
+  40% { clip-path: inset(60% 0 10% 0); transform: translate(2px, -1px); }
+  60% { clip-path: inset(10% 0 70% 0); transform: translate(-1px, 2px); }
+  80% { clip-path: inset(50% 0 20% 0); transform: translate(1px, -2px); }
+}
+
+.countdown-label {
+  font-family: var(--font-accent);
+  font-size: clamp(18px, 3vw, 24px);
+  color: var(--rose);
+  margin-top: 8px;
+}
+
+/* CTA BUTTON */
+.cta-btn {
+  display: inline-block;
+  background: var(--yellow);
+  color: #0a0e1a;
+  font-family: var(--font-head);
+  font-size: clamp(14px, 2vw, 16px);
+  font-weight: 700;
+  padding: 16px 36px;
+  border: none;
+  cursor: pointer;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  transition: transform 0.2s, box-shadow 0.2s;
+  min-height: 48px;
+}
+
+.cta-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 20px rgba(245, 213, 35, 0.3);
+}
+
+/* PREDICTION FORM */
+.pred-form {
+  background: var(--bg-card);
+  border: 1px solid var(--grid-line);
+  padding: 32px;
+  margin-top: 32px;
+  max-width: 500px;
+  width: 100%;
+  text-align: left;
+  display: none;
+}
+
+.pred-form.open { display: block; }
+
+.pred-form label {
+  display: block;
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  color: var(--blue);
+  margin-bottom: 6px;
+  margin-top: 16px;
+}
+
+.pred-form label:first-child { margin-top: 0; }
+
+.pred-form input, .pred-form textarea {
+  width: 100%;
+  background: var(--bg);
+  border: 1px solid #2a3050;
+  color: var(--text);
+  font-family: var(--font-body);
+  font-size: 14px;
+  padding: 12px;
+  outline: none;
+  min-height: 48px;
+}
+
+.pred-form input:focus, .pred-form textarea:focus {
+  border-color: var(--yellow);
+}
+
+.pred-form textarea { resize: vertical; min-height: 80px; }
+
+.pred-form .submit-row {
+  margin-top: 20px;
+  text-align: center;
+}
+
+.pred-form .submit-btn {
+  background: var(--yellow);
+  color: #0a0e1a;
+  font-family: var(--font-head);
+  font-size: 14px;
+  font-weight: 700;
+  padding: 14px 32px;
+  border: none;
+  cursor: pointer;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  min-height: 48px;
+}
+
+.flash-overlay {
+  position: fixed;
+  inset: 0;
+  background: var(--yellow);
+  opacity: 0;
+  pointer-events: none;
+  z-index: 9999;
+}
+
+.confirmation-msg {
+  text-align: center;
+  padding: 24px;
+  font-family: var(--font-accent);
+  font-size: 22px;
+  color: var(--yellow);
+  display: none;
+}
+
+.confirmation-msg.show { display: block; }
+
+/* ═══════════════ HOW IT WORKS ═══════════════ */
+.how-section {
+  padding: 80px 0;
+}
+
+.how-section h2 {
+  text-align: center;
+  font-size: clamp(22px, 4vw, 32px);
+  color: var(--yellow);
+  margin-bottom: 8px;
+}
+
+.how-subtitle {
+  text-align: center;
+  font-family: var(--font-accent);
+  font-size: 20px;
+  color: var(--rose);
+  margin-bottom: 48px;
+}
+
+.how-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1px;
+  background: var(--grid-line);
+  border: 1px solid var(--grid-line);
+}
+
+.how-card {
+  background: var(--bg-card);
+  padding: 32px 24px;
+  text-align: center;
+}
+
+.how-card .step-num {
+  font-family: var(--font-head);
+  font-size: 48px;
+  color: var(--yellow);
+  opacity: 0.3;
+  margin-bottom: 12px;
+}
+
+.how-card .step-icon {
+  margin-bottom: 16px;
+  color: var(--blue);
+}
+
+.how-card h3 {
+  font-size: 16px;
+  color: var(--text);
+  margin-bottom: 10px;
+}
+
+.how-card p {
+  font-size: 13px;
+  color: #8891a5;
+  line-height: 1.5;
+}
+
+/* ═══════════════ LEADERBOARD ═══════════════ */
+.leaderboard-section {
+  padding: 80px 0;
+}
+
+.leaderboard-section h2 {
+  font-size: clamp(22px, 4vw, 32px);
+  color: var(--yellow);
+  margin-bottom: 8px;
+}
+
+.leaderboard-subtitle {
+  font-family: var(--font-accent);
+  font-size: 20px;
+  color: var(--rose);
+  margin-bottom: 32px;
+}
+
+.doge-ticker {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--bg-card);
+  border: 1px solid #2a3050;
+  padding: 8px 16px;
+  font-size: 12px;
+  color: var(--yellow);
+  margin-bottom: 24px;
+}
+
+.doge-ticker .blink-dot {
+  width: 8px;
+  height: 8px;
+  background: var(--yellow);
+  border-radius: 50%;
+  animation: blink 1.5s infinite;
+}
+
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.2; }
+}
+
+.lb-table-wrap {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.lb-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+}
+
+.lb-table th {
+  background: var(--bg-card);
+  color: var(--blue);
+  font-family: var(--font-head);
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  padding: 14px 12px;
+  text-align: left;
+  border-bottom: 1px solid var(--grid-line);
+  white-space: nowrap;
+}
+
+.lb-table th.sortable {
+  cursor: pointer;
+  user-select: none;
+  min-height: 48px;
+}
+
+.lb-table th.sortable:hover { color: var(--yellow); }
+
+.lb-table td {
+  padding: 12px;
+  border-bottom: 1px solid var(--grid-line);
+  vertical-align: middle;
+}
+
+.lb-table tr.top-3 td { color: var(--yellow); }
+
+.lb-table tr {
+  transition: transform 0.4s ease, opacity 0.4s ease;
+}
+
+.rank-cell {
+  font-family: var(--font-head);
+  font-size: 18px;
+  width: 40px;
+}
+
+.prophet-name { color: var(--blue); font-weight: 600; white-space: nowrap; }
+.prediction-snippet { font-size: 12px; color: #8891a5; max-width: 280px; }
+.accuracy-cell { font-family: var(--font-head); }
+.doge-cell { color: var(--yellow); white-space: nowrap; }
+
+/* ═══════════════ MUSEUM ═══════════════ */
+.museum-section {
+  padding: 80px 0;
+}
+
+.museum-section h2 {
+  font-size: clamp(22px, 4vw, 32px);
+  color: var(--yellow);
+  margin-bottom: 8px;
+}
+
+.museum-subtitle {
+  font-family: var(--font-accent);
+  font-size: 20px;
+  color: var(--rose);
+  margin-bottom: 40px;
+}
+
+.museum-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1px;
+  background: var(--grid-line);
+  border: 1px solid var(--grid-line);
+}
+
+.museum-card {
+  background: var(--bg-card);
+  padding: 28px 20px;
+  position: relative;
+  overflow: hidden;
+  transition: transform 0.2s;
+}
+
+.museum-card:hover {
+  z-index: 2;
+}
+
+.museum-card .prediction-text {
+  font-size: 15px;
+  color: var(--text);
+  margin-bottom: 12px;
+  line-height: 1.5;
+}
+
+.museum-card .prediction-date {
+  font-size: 12px;
+  color: #5a6380;
+  margin-bottom: 16px;
+}
+
+.museum-card .busted-stamp {
+  font-family: var(--font-head);
+  font-size: 14px;
+  color: var(--rose);
+  text-transform: uppercase;
+  letter-spacing: 3px;
+  transform: rotate(-6deg);
+  display: inline-block;
+  border: 2px solid var(--rose);
+  padding: 4px 12px;
+  margin-bottom: 12px;
+}
+
+.museum-card .editorial-note {
+  font-family: var(--font-accent);
+  font-size: 18px;
+  color: #8891a5;
+  font-style: italic;
+}
+
+/* Glitch effect on hover */
+.museum-card::before,
+.museum-card::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: inherit;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.1s;
+}
+
+.museum-card:hover::before {
+  opacity: 0.7;
+  background: rgba(245, 213, 35, 0.03);
+  animation: rgb-split 0.3s steps(2) 1;
+}
+
+@keyframes rgb-split {
+  0% { transform: translate(0); filter: hue-rotate(0deg); }
+  25% { transform: translate(-3px, 1px); filter: hue-rotate(90deg); }
+  50% { transform: translate(2px, -2px); filter: hue-rotate(180deg); }
+  75% { transform: translate(-1px, 3px); filter: hue-rotate(270deg); }
+  100% { transform: translate(0); filter: hue-rotate(0deg); }
+}
+
+/* ═══════════════ MAP SECTION ═══════════════ */
+.map-section {
+  padding: 80px 0;
+}
+
+.map-section h2 {
+  font-size: clamp(22px, 4vw, 32px);
+  color: var(--yellow);
+  margin-bottom: 8px;
+}
+
+.map-subtitle {
+  font-family: var(--font-accent);
+  font-size: 20px;
+  color: var(--rose);
+  margin-bottom: 40px;
+}
+
+.map-container {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 2 / 1;
+  background: #0d1225;
+  border: 1px solid var(--grid-line);
+  overflow: hidden;
+}
+
+.map-svg {
+  width: 100%;
+  height: 100%;
+}
+
+.map-dot {
+  cursor: pointer;
+}
+
+.map-dot circle.pulse {
+  fill: var(--yellow);
+  animation: dot-pulse 2.5s ease-in-out infinite;
+}
+
+.map-dot circle.core {
+  fill: var(--yellow);
+}
+
+@keyframes dot-pulse {
+  0%, 100% { opacity: 0.3; r: 8; }
+  50% { opacity: 0; r: 16; }
+}
+
+.map-tooltip {
+  position: absolute;
+  background: var(--bg-card);
+  border: 1px solid var(--yellow);
+  padding: 10px 14px;
+  font-size: 12px;
+  color: var(--text);
+  max-width: 220px;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.2s;
+  z-index: 10;
+}
+
+.map-tooltip.visible { opacity: 1; }
+
+.capsule-counter {
+  text-align: center;
+  margin-top: 24px;
+  font-family: var(--font-head);
+  font-size: clamp(14px, 3vw, 18px);
+  color: var(--blue);
+}
+
+.capsule-counter span { color: var(--yellow); }
+
+/* ═══════════════ FAQ BUNKER ═══════════════ */
+.faq-section {
+  padding: 80px 0;
+}
+
+.faq-section h2 {
+  font-size: clamp(22px, 4vw, 32px);
+  color: var(--yellow);
+  margin-bottom: 8px;
+}
+
+.faq-subtitle {
+  font-family: var(--font-accent);
+  font-size: 20px;
+  color: var(--rose);
+  margin-bottom: 40px;
+}
+
+.faq-classification {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 3px;
+  color: #5a6380;
+  margin-bottom: 24px;
+  border: 1px solid #2a3050;
+  display: inline-block;
+  padding: 6px 14px;
+}
+
+.faq-item {
+  border: 1px solid var(--grid-line);
+  margin-bottom: -1px;
+}
+
+.faq-question {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 18px 20px;
+  cursor: pointer;
+  background: var(--bg-card);
+  font-family: var(--font-body);
+  font-size: 14px;
+  color: var(--text);
+  min-height: 52px;
+  border: none;
+  width: 100%;
+  text-align: left;
+}
+
+.faq-question:hover { color: var(--yellow); }
+
+.faq-question .toggle-icon {
+  color: var(--blue);
+  font-family: var(--font-head);
+  font-size: 18px;
+  flex-shrink: 0;
+  margin-left: 12px;
+  transition: transform 0.3s;
+}
+
+.faq-answer {
+  background: var(--bg);
+  padding: 20px;
+  font-size: 14px;
+  color: #8891a5;
+  line-height: 1.7;
+  position: relative;
+  overflow: hidden;
+}
+
+.faq-answer .grandpa-note {
+  font-family: var(--font-accent);
+  font-size: 18px;
+  color: var(--rose);
+  margin-top: 12px;
+  display: block;
+}
+
+.scanline-flash {
+  position: absolute;
+  inset: 0;
+  background: repeating-linear-gradient(
+    0deg,
+    transparent,
+    transparent 2px,
+    rgba(105, 179, 231, 0.03) 2px,
+    rgba(105, 179, 231, 0.03) 4px
+  );
+  opacity: 0;
+  pointer-events: none;
+  animation: none;
+}
+
+@keyframes scanline-in {
+  0% { opacity: 0.8; }
+  100% { opacity: 0; }
+}
+
+/* ═══════════════ FOOTER ═══════════════ */
+.site-footer {
+  padding: 60px 0 40px;
+  border-top: 1px solid var(--grid-line);
+  text-align: center;
+}
+
+.footer-story {
+  font-size: 14px;
+  color: #5a6380;
+  max-width: 540px;
+  margin: 0 auto 24px;
+  line-height: 1.7;
+}
+
+.footer-grandpa {
+  font-family: var(--font-accent);
+  font-size: 22px;
+  color: var(--rose);
+  margin-bottom: 24px;
+}
+
+.footer-links {
+  font-size: 12px;
+  color: #3a4060;
+  margin-bottom: 24px;
+}
+
+.footer-links a {
+  color: #3a4060;
+  margin: 0 12px;
+}
+
+.footer-links a:hover { color: var(--blue); }
+
+.footer-cursor {
+  display: inline-block;
+  width: 8px;
+  height: 18px;
+  background: var(--blue);
+  animation: blink 1s step-end infinite;
+}
+
+/* ═══════════════ FADE IN ANIMATION ═══════════════ */
+.fade-in {
+  opacity: 0;
+  transform: translateY(30px);
+}
+
+/* ═══════════════ RESPONSIVE ═══════════════ */
+@media (max-width: 768px) {
+  .how-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .museum-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .lb-table { font-size: 12px; }
+  .lb-table th, .lb-table td { padding: 10px 8px; }
+  .prediction-snippet { max-width: 160px; }
+}
+
+@media (max-width: 480px) {
+  .museum-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .countdown {
+    letter-spacing: 2px;
+  }
+
+  .pred-form {
+    padding: 20px;
+  }
+}
+</style>
+</head>
+<body x-data="site()">
+
+<!-- FLASH OVERLAY -->
+<div class="flash-overlay" x-ref="flash"></div>
+
+<!-- ═══════════════ HERO ═══════════════ -->
+<section class="hero">
+  <div class="hero-binary" aria-hidden="true" x-ref="binaryBg"></div>
+  <div class="hero-content">
+    <div class="hero-label fade-in">Millennium Bug Bounties</div>
+    <h1 class="fade-in">The Future Is Worth Paying Attention To</h1>
+    <p class="hero-story fade-in">My grandfather filled three basement rooms with canned beans and shortwave radios because he was certain the clocks would kill us all on January 1st, 2000. He was wrong about the apocalypse. He was right that the future is worth paying attention to.</p>
+
+    <div class="countdown-wrap fade-in">
+      <div class="countdown" x-ref="clock">
+        <span class="digit" x-ref="d0">0</span><span class="digit" x-ref="d1">0</span>
+        <span class="separator">:</span>
+        <span class="digit" x-ref="d2">0</span><span class="digit" x-ref="d3">0</span>
+        <span class="separator">:</span>
+        <span class="digit" x-ref="d4">0</span><span class="digit" x-ref="d5">0</span>
+        <span class="separator">:</span>
+        <span class="digit" x-ref="d6">0</span><span class="digit" x-ref="d7">0</span>
+      </div>
+      <div class="countdown-label">Time since Y2K didn't end the world</div>
+    </div>
+
+    <button class="cta-btn fade-in" @click="formOpen = !formOpen">Submit Your Prediction</button>
+
+    <div class="pred-form fade-in" :class="{ 'open': formOpen && !submitted }">
+      <label for="prediction">Your Prediction</label>
+      <textarea id="prediction" x-model="prediction" placeholder="By 2040, all dentists will be replaced by..."></textarea>
+      <label for="targetYear">Target Year</label>
+      <input id="targetYear" type="number" x-model="targetYear" placeholder="2040" min="2026" max="3000">
+      <label for="prophetName">Your Prophet Name</label>
+      <input id="prophetName" type="text" x-model="prophetName" placeholder="CassandraOfSuburbia">
+      <div class="submit-row">
+        <button class="submit-btn" @click="submitPrediction()">Seal Capsule</button>
+      </div>
+    </div>
+
+    <div class="confirmation-msg" :class="{ 'show': submitted }">
+      CAPSULE SEALED.<br>
+      You'll know in <span x-text="targetYear ? (targetYear - 2026) : '?'" ></span> years.
+    </div>
+  </div>
+</section>
+
+<hr class="section-divider">
+
+<!-- ═══════════════ HOW IT WORKS ═══════════════ -->
+<section class="how-section">
+  <div class="spine">
+    <h2 class="fade-in">How It Works</h2>
+    <p class="how-subtitle fade-in">"Hoard Predictions, Not Beans"</p>
+    <div class="how-grid">
+      <div class="how-card fade-in">
+        <div class="step-num">01</div>
+        <div class="step-icon"><i data-lucide="send" style="width:32px;height:32px"></i></div>
+        <h3>Submit a Prediction</h3>
+        <p>Write what you think will happen. Pick a year. Commit to your anxiety in writing, like a responsible prophet.</p>
+      </div>
+      <div class="how-card fade-in">
+        <div class="step-num">02</div>
+        <div class="step-icon"><i data-lucide="users" style="width:32px;height:32px"></i></div>
+        <h3>Community Judges</h3>
+        <p>Other worried strangers vote on plausibility. Consensus forms like weather fronts of collective dread.</p>
+      </div>
+      <div class="how-card fade-in">
+        <div class="step-num">03</div>
+        <div class="step-icon"><i data-lucide="trophy" style="width:32px;height:32px"></i></div>
+        <h3>Prophets Earn Doge</h3>
+        <p>When the date arrives, accurate seers collect Dogecoin. Currency of the future, valued by dogs and prophets.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<hr class="section-divider">
+
+<!-- ═══════════════ LEADERBOARD ═══════════════ -->
+<section class="leaderboard-section">
+  <div class="spine">
+    <h2 class="fade-in">Prophet Leaderboard</h2>
+    <p class="leaderboard-subtitle fade-in">"The Ones Who Saw It Coming"</p>
+
+    <div class="doge-ticker fade-in">
+      <div class="blink-dot"></div>
+      <span>LIVE</span>
+      <span>1 DOGE = $0.0031 USD</span>
+    </div>
+
+    <div class="lb-table-wrap fade-in">
+      <table class="lb-table">
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Prophet</th>
+            <th>Prediction</th>
+            <th class="sortable" @click="sortLeaderboard('accuracy')">Accuracy <span x-text="sortCol === 'accuracy' ? (sortDir === 1 ? '▲' : '▼') : ''"></span></th>
+            <th class="sortable" @click="sortLeaderboard('doge')">Earnings <span x-text="sortCol === 'doge' ? (sortDir === 1 ? '▲' : '▼') : ''"></span></th>
+          </tr>
+        </thead>
+        <tbody>
+          <template x-for="(p, i) in prophets" :key="p.name">
+            <tr :class="{ 'top-3': i < 3 }">
+              <td class="rank-cell" x-text="i + 1"></td>
+              <td class="prophet-name" x-text="p.name"></td>
+              <td class="prediction-snippet" x-text="p.prediction"></td>
+              <td class="accuracy-cell" x-text="p.accuracy + '%'"></td>
+              <td class="doge-cell" x-text="'Ð ' + p.doge.toLocaleString()"></td>
+            </tr>
+          </template>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<hr class="section-divider">
+
+<!-- ═══════════════ MUSEUM ═══════════════ -->
+<section class="museum-section">
+  <div class="spine">
+    <h2 class="fade-in">Bug Bounty Museum</h2>
+    <p class="museum-subtitle fade-in">"Magnificent Failures"</p>
+    <div class="museum-grid">
+      <div class="museum-card fade-in">
+        <p class="prediction-text">"Personal flying cars in every garage by 2010"</p>
+        <p class="prediction-date">Due: 2010 · Submitted: 1957</p>
+        <div class="busted-stamp">BUSTED</div>
+        <p class="editorial-note">We got Uber instead. The garage is for Amazon boxes now.</p>
+      </div>
+      <div class="museum-card fade-in">
+        <p class="prediction-text">"The paperless office will be standard by 1995"</p>
+        <p class="prediction-date">Due: 1995 · Submitted: 1975</p>
+        <div class="busted-stamp">BUSTED</div>
+        <p class="editorial-note">Paper consumption doubled. We printed out our emails.</p>
+      </div>
+      <div class="museum-card fade-in">
+        <p class="prediction-text">"Permanent lunar colony by 2020"</p>
+        <p class="prediction-date">Due: 2020 · Submitted: 1969</p>
+        <div class="busted-stamp">BUSTED</div>
+        <p class="editorial-note">We went once, proved we could, then lost interest like an ex.</p>
+      </div>
+      <div class="museum-card fade-in">
+        <p class="prediction-text">"Television will be a flash in the pan"</p>
+        <p class="prediction-date">Due: 1950 · Submitted: 1939</p>
+        <div class="busted-stamp">BUSTED</div>
+        <p class="editorial-note">The pan is still flashing. We just made it pocket-sized.</p>
+      </div>
+      <div class="museum-card fade-in">
+        <p class="prediction-text">"Nuclear power will make electricity too cheap to meter"</p>
+        <p class="prediction-date">Due: 1975 · Submitted: 1954</p>
+        <div class="busted-stamp">BUSTED</div>
+        <p class="editorial-note">My electricity bill disagrees with metered precision.</p>
+      </div>
+      <div class="museum-card fade-in">
+        <p class="prediction-text">"All disease will be eradicated by the year 2000"</p>
+        <p class="prediction-date">Due: 2000 · Submitted: 1967</p>
+        <div class="busted-stamp">BUSTED</div>
+        <p class="editorial-note">We did invent WebMD, which replaced diseases with anxiety.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<hr class="section-divider">
+
+<!-- ═══════════════ MAP ═══════════════ -->
+<section class="map-section">
+  <div class="spine">
+    <h2 class="fade-in">Time Capsule Map</h2>
+    <p class="map-subtitle fade-in">"Everyone Is Afraid Somewhere"</p>
+
+    <div class="map-container fade-in" x-ref="mapContainer">
+      <svg class="map-svg" viewBox="0 0 800 400" preserveAspectRatio="xMidYMid meet">
+        <!-- Simplified continent shapes -->
+        <g fill="#1a2340" stroke="#1e2a4a" stroke-width="0.5">
+          <!-- North America -->
+          <path d="M120,80 L200,60 L240,80 L230,120 L210,160 L180,180 L140,190 L120,170 L100,140 L90,120 Z"/>
+          <!-- South America -->
+          <path d="M180,220 L210,200 L230,220 L240,270 L220,320 L190,340 L170,310 L160,270 Z"/>
+          <!-- Europe -->
+          <path d="M380,70 L420,60 L450,70 L440,100 L420,120 L390,110 L370,90 Z"/>
+          <!-- Africa -->
+          <path d="M380,140 L430,130 L460,160 L450,230 L420,280 L380,270 L360,220 L370,170 Z"/>
+          <!-- Asia -->
+          <path d="M460,50 L580,40 L650,60 L680,100 L660,150 L600,170 L540,160 L480,130 L450,100 Z"/>
+          <!-- Australia -->
+          <path d="M620,260 L680,250 L710,270 L700,310 L660,320 L630,300 L620,280 Z"/>
+        </g>
+
+        <!-- Capsule dots -->
+        <template x-for="(dot, i) in mapDots" :key="i">
+          <g class="map-dot" @mouseenter="showTooltip($event, dot)" @mouseleave="hideTooltip()" @touchstart="showTooltip($event, dot)">
+            <circle class="pulse" :cx="dot.x" :cy="dot.y" r="8" opacity="0.3" :style="'animation-delay:' + (i * 0.4) + 's'"/>
+            <circle class="core" :cx="dot.x" :cy="dot.y" r="3"/>
+          </g>
+        </template>
+      </svg>
+      <div class="map-tooltip" x-ref="tooltip" :class="{ 'visible': tooltipVisible }" :style="'left:' + tooltipX + 'px; top:' + tooltipY + 'px'">
+        <span x-text="tooltipText"></span>
+      </div>
+    </div>
+
+    <p class="capsule-counter fade-in"><span>14,307</span> capsules sealed across 89 countries</p>
+  </div>
+</section>
+
+<hr class="section-divider">
+
+<!-- ═══════════════ FAQ BUNKER ═══════════════ -->
+<section class="faq-section">
+  <div class="spine">
+    <h2 class="fade-in">The FAQ Bunker</h2>
+    <p class="faq-subtitle fade-in">"Yes, Our Servers Survived Y2K"</p>
+    <div class="faq-classification fade-in">CLASSIFICATION: MOSTLY DECLASSIFIED</div>
+
+    <div class="fade-in">
+      <template x-for="(faq, i) in faqs" :key="i">
+        <div class="faq-item">
+          <button class="faq-question" @click="toggleFaq(i)">
+            <span x-text="faq.q"></span>
+            <span class="toggle-icon" :style="faq.open ? 'transform:rotate(45deg)' : ''">+</span>
+          </button>
+          <div x-show="faq.open" x-collapse.duration.300ms class="faq-answer" x-ref="'faq' + i">
+            <div class="scanline-flash" :class="{ 'flash-active': faq.justOpened }"></div>
+            <p x-html="faq.a"></p>
+          </div>
+        </div>
+      </template>
+    </div>
+  </div>
+</section>
+
+<hr class="section-divider">
+
+<!-- ═══════════════ FOOTER ═══════════════ -->
+<footer class="site-footer">
+  <div class="spine">
+    <p class="footer-story fade-in">In 2029, Anya sold Millennium Bug Bounties to a collective of retired meteorologists and amateur radio operators. She moved to Kyoto to study kintsugi — the art of repairing broken things with gold. The predictions kept coming. The platform kept running. The prophets never stopped.</p>
+    <p class="footer-grandpa fade-in"><em>"The robots are still coming." —Grandpa Sharma, 2029</em></p>
+    <div class="footer-links fade-in">
+      <a href="#" @click.prevent>About</a>
+      <a href="#" @click.prevent>Terms of Prophecy</a>
+      <a href="#" @click.prevent>Doomsday API</a>
+      <a href="#" @click.prevent>Contact the Void</a>
+    </div>
+    <div class="fade-in"><span class="footer-cursor"></span></div>
+  </div>
+</footer>
+
+<script>
+document.addEventListener('alpine:init', function() {
+  Alpine.data('site', function() {
+    return {
+      formOpen: false,
+      submitted: false,
+      prediction: '',
+      targetYear: '',
+      prophetName: '',
+      sortCol: 'accuracy',
+      sortDir: -1,
+      tooltipVisible: false,
+      tooltipX: 0,
+      tooltipY: 0,
+      tooltipText: '',
+      prophets: [
+        { name: 'CassandraVHS', prediction: 'Streaming services will collapse under their own weight by 2028', accuracy: 94, doge: 48200 },
+        { name: 'Y2KSurvivor', prediction: 'Physical mail will become a luxury service by 2027', accuracy: 91, doge: 41800 },
+        { name: 'NostradamusJr', prediction: 'Self-checkout will outnumber cashiers globally by 2026', accuracy: 89, doge: 37600 },
+        { name: 'BunkerBeth', prediction: 'A major city will ban personal cars within city limits', accuracy: 82, doge: 29100 },
+        { name: 'OracleOfOhio', prediction: 'AI-generated music will chart in the Billboard top 10', accuracy: 78, doge: 22400 },
+        { name: 'ProphetMargins', prediction: 'The first trillionaire will be in the water business', accuracy: 71, doge: 18700 },
+        { name: 'DoomScroller99', prediction: 'A country will recognize an AI as a legal entity', accuracy: 65, doge: 12300 },
+        { name: 'CanOpener2K', prediction: 'Canned food will make a lifestyle comeback among Gen Alpha', accuracy: 58, doge: 8900 }
+      ],
+      mapDots: [
+        { x: 160, y: 120, text: '"Bees will unionize by 2031" — Portland, OR' },
+        { x: 200, y: 160, text: '"All currency becomes edible by 2045" — Mexico City' },
+        { x: 190, y: 270, text: '"Gravity becomes optional on Tuesdays" — São Paulo' },
+        { x: 400, y: 85, text: '"The last email will be sent in 2033" — Berlin' },
+        { x: 415, y: 200, text: '"Sahara reforests itself by 2050" — Lagos' },
+        { x: 520, y: 80, text: '"Sleep becomes downloadable" — Moscow' },
+        { x: 600, y: 130, text: '"Chopsticks replace all utensils globally" — Tokyo' },
+        { x: 650, y: 280, text: '"Kangaroos develop language" — Sydney' },
+        { x: 140, y: 100, text: '"Potatoes declared sentient by 2035" — Vancouver' },
+        { x: 390, y: 100, text: '"Rain becomes carbonated" — London' },
+        { x: 560, y: 150, text: '"All doors become automatic" — Mumbai' },
+        { x: 480, y: 110, text: '"Mountains start shrinking noticeably" — Almaty' }
+      ],
+      faqs: [
+        {
+          q: 'Is my prediction stored on a Y2K-compliant server?',
+          a: 'All predictions are stored on servers that survived the millennium transition. We cannot guarantee survival past Y3K. Our infrastructure team consists of one retired COBOL programmer and a cat that walks on keyboards. <span class="grandpa-note">Grandpa\'s note: "I told them to use punch cards."</span>',
+          open: false,
+          justOpened: false
+        },
+        {
+          q: 'What happens if the Dogecoin blockchain collapses?',
+          a: 'If Dogecoin collapses, prophets will be compensated in vintage canned goods, which—according to our actuarial models—have a more stable long-term value than most fiat currencies. Your grandfather was right about something after all. <span class="grandpa-note">Grandpa\'s note: "Beans never go to zero."</span>',
+          open: false,
+          justOpened: false
+        },
+        {
+          q: 'Can I submit a prediction about the end of predictions?',
+          a: 'Yes. This is known as a "meta-prophecy" and it triggers a recursive validation loop in our system that makes the COBOL programmer very upset. We allow it anyway because who are we to limit the scope of human dread. <span class="grandpa-note">Grandpa\'s note: "This is exactly what the machines want."</span>',
+          open: false,
+          justOpened: false
+        },
+        {
+          q: 'How are predictions verified when the target date arrives?',
+          a: 'A panel of volunteers — retired librarians, insomniacs, and people who still read newspapers — reviews predictions against documented reality. Disputes are resolved by coin flip. The coin is a Dogecoin. It has never landed. <span class="grandpa-note">Grandpa\'s note: "Trust no one. Especially coins."</span>',
+          open: false,
+          justOpened: false
+        },
+        {
+          q: 'What if my prediction comes true early?',
+          a: 'Early prophecy fulfillment earns a 1.5x Dogecoin multiplier and the honorary title of "Premature Oracle." This title cannot be revoked. It will follow you. Your children will inherit it. We do not apologize for this. <span class="grandpa-note">Grandpa\'s note: "Being early is the same as being wrong, except lonelier."</span>',
+          open: false,
+          justOpened: false
+        }
+      ],
+
+      init() {
+        var self = this;
+
+        // Generate binary background
+        this.generateBinary();
+
+        // Countdown glitch loop
+        this.startGlitch();
+
+        // Initialize Lucide icons
+        this.$nextTick(function() {
+          if (typeof lucide !== 'undefined') {
+            lucide.createIcons();
+          }
+        });
+
+        // Scroll-triggered fade-ins with GSAP + IntersectionObserver
+        this.$nextTick(function() {
+          self.setupScrollAnimations();
+        });
+      },
+
+      generateBinary: function() {
+        var bg = this.$refs.binaryBg;
+        if (!bg) return;
+        var str = '';
+        var fragments = ['01', '10', '2000', '1999', 'Y2K', '00:00', 'EOF', 'NULL', '##', '>>>'];
+        for (var i = 0; i < 2000; i++) {
+          str += fragments[Math.floor(Math.random() * fragments.length)] + ' ';
+        }
+        bg.textContent = str;
+      },
+
+      startGlitch: function() {
+        var self = this;
+        var digits = [this.$refs.d0, this.$refs.d1, this.$refs.d2, this.$refs.d3, this.$refs.d4, this.$refs.d5, this.$refs.d6, this.$refs.d7];
+        setInterval(function() {
+          var idx = Math.floor(Math.random() * digits.length);
+          var d = digits[idx];
+          if (!d) return;
+          var orig = d.textContent;
+          d.textContent = Math.floor(Math.random() * 10);
+          d.style.color = '#69b3e7';
+          d.style.textShadow = '0 0 8px #69b3e7';
+          setTimeout(function() {
+            d.textContent = orig;
+            d.style.color = '';
+            d.style.textShadow = '';
+          }, 200);
+        }, 800);
+      },
+
+      setupScrollAnimations: function() {
+        var items = document.querySelectorAll('.fade-in');
+        if (typeof IntersectionObserver === 'undefined' || typeof gsap === 'undefined') return;
+
+        var observer = new IntersectionObserver(function(entries) {
+          entries.forEach(function(entry) {
+            if (entry.isIntersecting) {
+              gsap.fromTo(entry.target,
+                { opacity: 0, y: 30 },
+                { opacity: 1, y: 0, duration: 0.8, ease: 'power2.out', delay: parseFloat(entry.target.dataset.delay || 0) }
+              );
+              observer.unobserve(entry.target);
+            }
+          });
+        }, { threshold: 0.1 });
+
+        items.forEach(function(item, i) {
+          // Stagger children within grids
+          var parent = item.parentElement;
+          if (parent && (parent.classList.contains('how-grid') || parent.classList.contains('museum-grid'))) {
+            var siblings = Array.prototype.slice.call(parent.querySelectorAll('.fade-in'));
+            var idx = siblings.indexOf(item);
+            item.dataset.delay = (idx * 0.1).toString();
+          }
+          observer.observe(item);
+        });
+      },
+
+      submitPrediction: function() {
+        if (!this.prediction || !this.targetYear || !this.prophetName) return;
+        var self = this;
+        var flash = this.$refs.flash;
+        if (flash) {
+          gsap.fromTo(flash, { opacity: 0.8 }, { opacity: 0, duration: 0.5 });
+        }
+        this.submitted = true;
+        this.formOpen = false;
+      },
+
+      sortLeaderboard: function(col) {
+        if (this.sortCol === col) {
+          this.sortDir = this.sortDir * -1;
+        } else {
+          this.sortCol = col;
+          this.sortDir = -1;
+        }
+        var dir = this.sortDir;
+        var key = col;
+        this.prophets = this.prophets.slice().sort(function(a, b) {
+          return (a[key] - b[key]) * dir;
+        });
+        // Blink the ticker
+        var ticker = document.querySelector('.doge-ticker');
+        if (ticker) {
+          ticker.style.borderColor = '#f5d523';
+          setTimeout(function() { ticker.style.borderColor = '#2a3050'; }, 400);
+        }
+      },
+
+      showTooltip: function(event, dot) {
+        var container = this.$refs.mapContainer;
+        if (!container) return;
+        var rect = container.getBoundingClientRect();
+        var svgRect = container.querySelector('.map-svg');
+        if (!svgRect) return;
+        var svgW = svgRect.getBoundingClientRect().width;
+        var svgH = svgRect.getBoundingClientRect().height;
+        var scaleX = svgW / 800;
+        var scaleY = svgH / 400;
+        var svgOffset = svgRect.getBoundingClientRect();
+        this.tooltipX = (dot.x * scaleX) + (svgOffset.left - rect.left) + 10;
+        this.tooltipY = (dot.y * scaleY) + (svgOffset.top - rect.top) - 40;
+        this.tooltipText = dot.text;
+        this.tooltipVisible = true;
+      },
+
+      hideTooltip: function() {
+        this.tooltipVisible = false;
+      },
+
+      toggleFaq: function(index) {
+        var faq = this.faqs[index];
+        var wasOpen = faq.open;
+        this.faqs.forEach(function(f, i) {
+          f.open = false;
+          f.justOpened = false;
+        });
+        if (!wasOpen) {
+          faq.open = true;
+          faq.justOpened = true;
+          var self = this;
+          setTimeout(function() {
+            faq.justOpened = false;
+          }, 500);
+        }
+      }
+    };
+  });
+});
+</script>
+
+<style>
+/* FAQ collapse transition via Alpine x-collapse plugin fallback */
+[x-show] {
+  transition: all 0.3s ease;
+}
+
+/* Scanline flash active state */
+.flash-active .scanline-flash,
+.faq-answer:has(.flash-active) .scanline-flash {
+  animation: scanline-in 0.5s ease-out 1;
+}
+
+/* Extra scanline approach without :has() */
+.faq-answer .scanline-flash {
+  animation: none;
+}
+
+[x-show] .scanline-flash {
+  animation: scanline-in 0.6s ease-out 1;
+}
+</style>
+
+</body>
+</html>

@@ -1,0 +1,865 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lunchthief.ai — Fridge Surveillance for the Perpetually Wronged</title>
+<link rel="stylesheet" href="/assets/css/fonts.css">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg: #E8E0D0;
+  --text: #2B2B2B;
+  --accent: #1F4E8C;
+  --card: #C4CFA0;
+  --border: #2B2B2B;
+  --shame: #B83232;
+  --font-heading: 'Archivo Black', sans-serif;
+  --font-body: 'IBM Plex Mono', monospace;
+  --font-caveat: 'Caveat', cursive;
+}
+
+html { scroll-behavior: smooth; }
+
+body {
+  font-family: var(--font-body);
+  font-size: 16px;
+  line-height: 1.6;
+  color: var(--text);
+  background: var(--bg);
+  overflow-x: hidden;
+}
+
+h1, h2, h3, h4 {
+  font-family: var(--font-heading);
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+}
+
+.caveat {
+  font-family: var(--font-caveat);
+  font-size: 1.4rem;
+  color: var(--shame);
+  transform: rotate(-2deg);
+  display: inline-block;
+}
+
+/* ═══ GLOBAL LAYOUT ═══ */
+.section {
+  padding: 3rem 1.5rem;
+  max-width: 1200px;
+  margin: 0 auto 2rem;
+  opacity: 0;
+  transform: translateY(20px);
+}
+
+.section-bordered {
+  border: 3px solid var(--border);
+  background: var(--bg);
+}
+
+.full-width {
+  max-width: 100%;
+  padding-left: 2rem;
+  padding-right: 2rem;
+}
+
+/* ═══ HERO ═══ */
+.hero {
+  min-height: 90vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 4rem 2rem;
+  position: relative;
+}
+
+.hero-inner {
+  max-width: 1200px;
+  margin: 0 auto;
+  width: 100%;
+  display: grid;
+  grid-template-columns: 1fr 300px;
+  gap: 2rem;
+  align-items: center;
+}
+
+.hero h1 {
+  font-size: clamp(2.4rem, 6vw, 4.5rem);
+  margin-bottom: 1.5rem;
+  text-transform: uppercase;
+  max-width: 700px;
+}
+
+.hero-sub {
+  font-size: 1rem;
+  max-width: 550px;
+  margin-bottom: 2rem;
+  line-height: 1.7;
+}
+
+.cta-btn {
+  display: inline-block;
+  font-family: var(--font-heading);
+  font-size: 1.1rem;
+  background: var(--accent);
+  color: #FFFFFF;
+  border: 3px solid var(--border);
+  padding: 1rem 2.5rem;
+  text-decoration: none;
+  cursor: pointer;
+  min-height: 44px;
+  min-width: 44px;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.cta-btn:hover {
+  transform: translate(-2px, -2px);
+  box-shadow: 4px 4px 0 var(--border);
+}
+
+/* Camera */
+.camera-wrap {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.camera-svg {
+  width: 220px;
+  height: 220px;
+}
+
+/* ═══ HOW IT WORKS ═══ */
+.how-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1.2fr;
+  gap: 1.5rem;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.how-card {
+  background: var(--card);
+  border: 3px solid var(--border);
+  padding: 2rem 1.5rem;
+  position: relative;
+}
+
+.how-card .step-num {
+  font-family: var(--font-heading);
+  font-size: 3rem;
+  color: var(--accent);
+  margin-bottom: 0.5rem;
+}
+
+.how-card p {
+  font-size: 0.95rem;
+}
+
+.how-card .caveat-note {
+  position: absolute;
+  bottom: -18px;
+  right: 10px;
+}
+
+.how-card i[data-lucide] {
+  width: 32px;
+  height: 32px;
+  margin-bottom: 0.5rem;
+  display: block;
+}
+
+/* ═══ HALL OF SHAME ═══ */
+.shame-section {
+  border: 4px solid var(--border);
+  padding: 2.5rem 2rem;
+}
+
+.shame-section h2 {
+  font-size: clamp(1.6rem, 3.5vw, 2.4rem);
+  margin-bottom: 0.5rem;
+}
+
+.shame-subtitle {
+  font-size: 0.85rem;
+  margin-bottom: 2rem;
+  color: var(--shame);
+  font-weight: 700;
+}
+
+.shame-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.9rem;
+}
+
+.shame-table th {
+  font-family: var(--font-heading);
+  text-align: left;
+  padding: 0.75rem 1rem;
+  border-bottom: 3px solid var(--border);
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.shame-table td {
+  padding: 0.75rem 1rem;
+  border-bottom: 1px solid var(--border);
+  vertical-align: middle;
+}
+
+.shame-table tr.top-offender td {
+  color: var(--shame);
+  font-weight: 700;
+}
+
+.shame-table .score {
+  font-family: var(--font-heading);
+  font-size: 1.3rem;
+  display: inline-block;
+}
+
+.row-flash {
+  animation: rowFlash 0.3s ease-out;
+}
+
+@keyframes rowFlash {
+  0% { background: var(--shame); }
+  100% { background: transparent; }
+}
+
+.score-bounce {
+  animation: scoreBounce 0.4s ease-out;
+}
+
+@keyframes scoreBounce {
+  0% { transform: scale(1); }
+  40% { transform: scale(1.2); }
+  100% { transform: scale(1); }
+}
+
+/* ═══ TESTIMONIALS ═══ */
+.test-grid {
+  display: grid;
+  grid-template-columns: 1.4fr 1fr;
+  gap: 2rem;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.pull-quote {
+  background: var(--card);
+  border: 3px solid var(--border);
+  padding: 2.5rem 2rem;
+  position: relative;
+}
+
+.pull-quote blockquote {
+  font-size: 1.2rem;
+  line-height: 1.6;
+  margin-bottom: 1rem;
+}
+
+.pull-quote cite {
+  font-size: 0.85rem;
+  font-style: normal;
+  font-weight: 700;
+}
+
+.blog-teaser {
+  border: 3px solid var(--border);
+  padding: 2rem 1.5rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.blog-teaser h3 {
+  font-size: 1.1rem;
+  margin-bottom: 0.75rem;
+  line-height: 1.3;
+}
+
+.blog-teaser .comment-count {
+  font-size: 0.85rem;
+  color: var(--accent);
+  font-weight: 700;
+}
+
+/* ═══ PRICING ═══ */
+.pricing-grid {
+  display: grid;
+  grid-template-columns: 1fr 1.15fr 1fr;
+  gap: 1.5rem;
+  max-width: 1200px;
+  margin: 0 auto;
+  align-items: start;
+}
+
+.price-card {
+  border: 3px solid var(--border);
+  padding: 2rem 1.5rem;
+  background: var(--bg);
+  transition: transform 0.2s, box-shadow 0.2s;
+  position: relative;
+  cursor: default;
+}
+
+.price-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 6px 6px 0 var(--border);
+}
+
+.price-card:hover .caveat-wiggle {
+  animation: wiggle 0.4s ease-in-out infinite;
+}
+
+@keyframes wiggle {
+  0%, 100% { transform: rotate(-2deg); }
+  50% { transform: rotate(2deg); }
+}
+
+.price-card.featured {
+  background: var(--accent);
+  color: #FFFFFF;
+  padding-top: 2.5rem;
+  padding-bottom: 2.5rem;
+}
+
+.price-card.featured .price-name,
+.price-card.featured .price-amount,
+.price-card.featured li {
+  color: #FFFFFF;
+}
+
+.price-name {
+  font-family: var(--font-heading);
+  font-size: 1.3rem;
+  margin-bottom: 0.5rem;
+}
+
+.price-amount {
+  font-family: var(--font-heading);
+  font-size: 2.2rem;
+  margin-bottom: 1rem;
+}
+
+.price-card ul {
+  list-style: none;
+  padding: 0;
+  margin-bottom: 1.5rem;
+}
+
+.price-card li {
+  font-size: 0.85rem;
+  padding: 0.4rem 0;
+  border-bottom: 1px solid var(--border);
+}
+
+.price-card.featured li {
+  border-color: rgba(255,255,255,0.3);
+}
+
+.price-card .caveat-wiggle {
+  display: inline-block;
+  font-family: var(--font-caveat);
+  font-size: 1.2rem;
+  color: var(--shame);
+  transform: rotate(-2deg);
+  margin-top: 0.5rem;
+}
+
+.price-card.featured .caveat-wiggle {
+  color: #FFD700;
+}
+
+/* ═══ FAQ ═══ */
+.faq-section {
+  max-width: 800px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.faq-item {
+  border: 3px solid var(--border);
+  margin-bottom: -3px;
+}
+
+.faq-question {
+  font-family: var(--font-heading);
+  font-size: 1rem;
+  padding: 1.25rem 1.5rem;
+  cursor: pointer;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  min-height: 44px;
+  background: transparent;
+  border: none;
+  width: 100%;
+  text-align: left;
+  color: var(--text);
+}
+
+.faq-question:hover {
+  background: var(--card);
+}
+
+.faq-question .arrow {
+  font-size: 1.2rem;
+  transition: transform 0.3s;
+  flex-shrink: 0;
+  margin-left: 1rem;
+}
+
+.faq-question.open .arrow {
+  transform: rotate(90deg);
+}
+
+.faq-answer {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.4s ease, padding 0.4s ease;
+  padding: 0 1.5rem;
+  font-size: 0.9rem;
+  line-height: 1.7;
+}
+
+.faq-answer.open {
+  max-height: 300px;
+  padding: 0 1.5rem 1.5rem;
+}
+
+/* ═══ FOOTER ═══ */
+.footer {
+  border-top: 4px solid var(--border);
+  padding: 3rem 2rem;
+  font-size: 0.8rem;
+  line-height: 1.7;
+}
+
+.footer-inner {
+  max-width: 1200px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: 1.5fr 1fr;
+  gap: 2rem;
+}
+
+.partner-badge {
+  display: inline-block;
+  border: 2px solid var(--border);
+  padding: 0.5rem 1rem;
+  font-family: var(--font-heading);
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  margin-top: 1rem;
+}
+
+.footer-founders {
+  font-size: 0.85rem;
+  text-align: right;
+}
+
+.footer-founders a {
+  color: var(--accent);
+  text-decoration: none;
+}
+
+/* ═══ RESPONSIVE ═══ */
+@media (max-width: 900px) {
+  .hero-inner {
+    grid-template-columns: 1fr;
+  }
+  .camera-wrap {
+    order: -1;
+    justify-content: flex-start;
+  }
+  .camera-svg { width: 150px; height: 150px; }
+  .how-grid {
+    grid-template-columns: 1fr;
+  }
+  .test-grid {
+    grid-template-columns: 1fr;
+  }
+  .pricing-grid {
+    grid-template-columns: 1fr;
+  }
+  .footer-inner {
+    grid-template-columns: 1fr;
+  }
+  .footer-founders {
+    text-align: left;
+  }
+}
+
+@media (max-width: 600px) {
+  .section {
+    padding: 2rem 1rem;
+    margin-bottom: 1rem;
+  }
+  .hero {
+    padding: 3rem 1rem;
+    min-height: 80vh;
+  }
+  .shame-table {
+    font-size: 0.75rem;
+  }
+  .shame-table th, .shame-table td {
+    padding: 0.5rem 0.5rem;
+  }
+  .full-width {
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
+}
+
+/* ═══ STATIC FLICKER ═══ */
+@keyframes flicker {
+  0%, 20%, 40%, 60%, 80%, 100% { opacity: 1; }
+  10%, 30%, 50%, 70%, 90% { opacity: 0.3; }
+}
+
+.camera-boot {
+  animation: flicker 0.5s steps(1) forwards;
+}
+</style>
+</head>
+<body>
+
+<!-- ═══ HERO ═══ -->
+<section class="section full-width hero" id="hero">
+  <div class="hero-inner">
+    <div>
+      <h1>Someone Took Your Lunch. We Took It Personally.</h1>
+      <p class="hero-sub">Lunchthief.ai deploys facial recognition cameras inside office refrigerators to identify, document, and professionally humiliate food thieves. Enterprise-grade surveillance for a deeply personal problem.</p>
+      <a href="#pricing" class="cta-btn">Protect Your Tupperware</a>
+    </div>
+    <div class="camera-wrap">
+      <svg class="camera-svg camera-boot" viewBox="0 0 220 220" xmlns="http://www.w3.org/2000/svg" id="cameraSvg">
+        <!-- Camera body -->
+        <rect x="30" y="80" width="140" height="90" rx="8" fill="#2B2B2B"/>
+        <!-- Camera mount -->
+        <rect x="85" y="170" width="30" height="30" fill="#2B2B2B"/>
+        <rect x="70" y="195" width="60" height="10" rx="3" fill="#2B2B2B"/>
+        <!-- Lens housing -->
+        <circle cx="100" cy="125" r="35" fill="#444"/>
+        <circle cx="100" cy="125" r="28" fill="#1F4E8C"/>
+        <!-- Googly eye white -->
+        <circle cx="100" cy="125" r="22" fill="#FFFFFF"/>
+        <!-- Googly eye pupil -->
+        <circle cx="100" cy="125" r="10" fill="#2B2B2B" id="pupil"/>
+        <!-- Camera top detail -->
+        <rect x="45" y="75" width="25" height="12" rx="3" fill="#444"/>
+        <!-- Red recording dot -->
+        <circle cx="155" cy="90" r="5" fill="#B83232">
+          <animate attributeName="opacity" values="1;0.3;1" dur="2s" repeatCount="indefinite"/>
+        </circle>
+      </svg>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ HOW IT WORKS ═══ -->
+<section class="section" id="how">
+  <h2 style="font-size: clamp(1.6rem, 3.5vw, 2.4rem); margin-bottom: 2rem; padding-left: 0.5rem;">Operational Protocol</h2>
+  <div class="how-grid">
+    <div class="how-card">
+      <div class="step-num">01</div>
+      <i data-lucide="camera" style="color: var(--text);"></i>
+      <p><strong>Camera sees thief.</strong> Our proprietary FridgeCam&trade; unit activates on door-open events and captures 4K footage of every hand that enters the refrigerator. Yes, every hand.</p>
+    </div>
+    <div class="how-card">
+      <div class="step-num">02</div>
+      <i data-lucide="scan-face" style="color: var(--text);"></i>
+      <p><strong>AI identifies thief.</strong> Facial recognition cross-references against your company directory. Match confidence: 99.7%. The remaining 0.3% is Brad from IT who wears sunglasses indoors.</p>
+    </div>
+    <div class="how-card" style="position: relative;">
+      <div class="step-num">03</div>
+      <i data-lucide="mail" style="color: var(--text);"></i>
+      <p><strong>Email shames thief.</strong> An algorithmically crafted passive-aggressive email is dispatched within 90 seconds. Subject line calibrated to maximum guilt at minimum HR liability.</p>
+      <span class="caveat-note caveat">cc'd to their manager, obviously.</span>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ HALL OF SHAME ═══ -->
+<section class="section shame-section" id="shame" x-data="shameBoard()">
+  <h2>Hall of Shame</h2>
+  <p class="shame-subtitle">Updated Daily. Mercy Updated Never.</p>
+  <div style="overflow-x: auto;">
+    <table class="shame-table">
+      <thead>
+        <tr>
+          <th>Rank</th>
+          <th>Offender</th>
+          <th>Dept.</th>
+          <th>Last Item Stolen</th>
+          <th>Shame Score</th>
+        </tr>
+      </thead>
+      <tbody>
+        <template x-for="(row, i) in rows" :key="i">
+          <tr :class="{ 'top-offender': i === 0, 'row-flash': row.flashing }" @animationend="row.flashing = false">
+            <td x-text="i + 1"></td>
+            <td x-text="row.name"></td>
+            <td x-text="row.dept"></td>
+            <td x-text="row.item"></td>
+            <td><span class="score" :class="{ 'score-bounce': row.bouncing }" @animationend="row.bouncing = false" x-text="row.score"></span></td>
+          </tr>
+        </template>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- ═══ TESTIMONIALS ═══ -->
+<section class="section" id="testimonials">
+  <h2 style="font-size: clamp(1.4rem, 3vw, 2rem); margin-bottom: 2rem;">Field Reports</h2>
+  <div class="test-grid">
+    <div class="pull-quote">
+      <blockquote>"47% reduction in snack shrinkage. I finally eat my own granola bar. I look at it in the morning and I know it will be there at 2 PM. I haven't felt this kind of security since before the merger."</blockquote>
+      <cite>— Brenda Holloway, Accounting, Meridian Solutions Inc.</cite>
+    </div>
+    <div class="blog-teaser">
+      <div>
+        <h3>Navigating HR: When Is Lunch Thievery a Fireable Offense?</h3>
+        <p style="font-size: 0.85rem; margin: 0.75rem 0;">An exhaustive legal and moral analysis of the line between communal snacking and grand larceny, as it pertains to Section 4.2.1 of your employee handbook.</p>
+        <span class="comment-count">73 comments</span>
+      </div>
+      <span class="caveat" style="margin-top: 1rem;">HR still hasn't responded.</span>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ PRICING ═══ -->
+<section class="section" id="pricing">
+  <h2 style="font-size: clamp(1.6rem, 3.5vw, 2.4rem); margin-bottom: 0.5rem;">Select Your Protection Level</h2>
+  <p style="font-size: 0.85rem; margin-bottom: 2rem;">All plans include a 30-day free trial. Because the first theft is on us. The rest are on them.</p>
+  <div class="pricing-grid">
+    <div class="price-card">
+      <div class="price-name">The Intern</div>
+      <div class="price-amount">$0/mo</div>
+      <ul>
+        <li>1 FridgeCam unit</li>
+        <li>Strongly worded emails</li>
+        <li>Basic offender profiles</li>
+        <li>Weekly shame digest</li>
+      </ul>
+      <a href="#" class="cta-btn" style="font-size: 0.85rem; padding: 0.7rem 1.5rem;">Start Free</a>
+    </div>
+    <div class="price-card featured">
+      <div class="price-name">The Manager</div>
+      <div class="price-amount">$29/mo</div>
+      <ul>
+        <li>5 FridgeCam units</li>
+        <li>Passive-aggressive emails</li>
+        <li>Active-aggressive emails</li>
+        <li>LinkedIn Fridge Watcher&trade; extension</li>
+        <li>Real-time theft alerts</li>
+        <li>Departmental shame analytics</li>
+      </ul>
+      <a href="#" class="cta-btn" style="font-size: 0.85rem; padding: 0.7rem 1.5rem; background: #FFFFFF; color: var(--accent);">Upgrade Now</a>
+    </div>
+    <div class="price-card">
+      <div class="price-name">The Corporate Citadel</div>
+      <div class="price-amount">$249/mo</div>
+      <ul>
+        <li>Unlimited FridgeCam units</li>
+        <li>On-site Lunchthief consultant</li>
+        <li>Custom shame algorithms</li>
+        <li>Executive fridge vault access</li>
+        <li>Quarterly offender tribunals</li>
+      </ul>
+      <a href="#" class="cta-btn" style="font-size: 0.85rem; padding: 0.7rem 1.5rem;">Contact Sales</a>
+      <span class="caveat-wiggle">yes, we send a person to your office.</span>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ FAQ ═══ -->
+<section class="section faq-section" id="faq" x-data="faqAccordion()">
+  <h2 style="font-size: clamp(1.6rem, 3.5vw, 2.4rem); margin-bottom: 2rem;">Frequently Asked Questions</h2>
+
+  <template x-for="(item, i) in items" :key="i">
+    <div class="faq-item">
+      <button class="faq-question" :class="{ 'open': openIndex === i }" @click="toggle(i)" type="button">
+        <span x-text="item.q"></span>
+        <span class="arrow">&#9654;</span>
+      </button>
+      <div class="faq-answer" :class="{ 'open': openIndex === i }">
+        <p x-html="item.a"></p>
+      </div>
+    </div>
+  </template>
+</section>
+
+<!-- ═══ FOOTER ═══ -->
+<footer class="section full-width footer" id="footer">
+  <div class="footer-inner">
+    <div>
+      <p style="margin-bottom: 1rem;">DISCLAIMER: Lunchthief.ai is a surveillance product. By deploying our cameras in your office refrigerator, you acknowledge that you are surveilling a communal appliance. We are not responsible for any workplace relationships damaged by the revelation that Todd has been eating your leftover risotto every Tuesday since 2019. All shame scores are algorithmically generated and do not constitute a legal verdict, though they probably should.</p>
+      <div class="partner-badge">Official Partner — Artisan & Stack Sandwich Co.</div>
+    </div>
+    <div class="footer-founders">
+      <p style="font-size: 0.95rem; margin-bottom: 0.5rem;"><strong>Built by Bertram Foote</strong> (rage)<br><strong>and Anya Sharma</strong> (AI)</p>
+      <p>Est. 2024</p>
+      <p style="margin-top: 1rem;">tips@lunchthief.ai</p>
+    </div>
+  </div>
+</footer>
+
+<script src="/assets/js/gsap.min.js"></script>
+<script src="/assets/js/alpine.min.js" defer></script>
+<script src="/assets/js/lucide.min.js"></script>
+<script>
+// ═══ LUCIDE ICONS ═══
+document.addEventListener('DOMContentLoaded', function() {
+  if (typeof lucide !== 'undefined') {
+    lucide.createIcons();
+  }
+});
+
+// ═══ GOOGLY EYE TRACKING ═══
+(function() {
+  var pupil = document.getElementById('pupil');
+  var svg = document.getElementById('cameraSvg');
+  var isMobile = window.matchMedia('(max-width: 768px)').matches;
+  var cx = 100, cy = 125, maxR = 10;
+
+  if (isMobile) {
+    var angle = 0;
+    setInterval(function() {
+      angle += 0.03;
+      var offsetX = Math.sin(angle) * maxR;
+      var offsetY = Math.cos(angle * 0.5) * 3;
+      pupil.setAttribute('cx', cx + offsetX);
+      pupil.setAttribute('cy', cy + offsetY);
+    }, 50);
+  } else {
+    document.addEventListener('mousemove', function(e) {
+      var rect = svg.getBoundingClientRect();
+      var svgCenterX = rect.left + rect.width / 2;
+      var svgCenterY = rect.top + rect.height * 0.57;
+      var dx = e.clientX - svgCenterX;
+      var dy = e.clientY - svgCenterY;
+      var dist = Math.sqrt(dx * dx + dy * dy);
+      var clampDist = Math.min(dist, 200);
+      var ratio = clampDist / 200;
+      var px = cx + (dx / (dist || 1)) * maxR * ratio;
+      var py = cy + (dy / (dist || 1)) * maxR * ratio;
+      pupil.setAttribute('cx', px);
+      pupil.setAttribute('cy', py);
+    });
+  }
+})();
+
+// ═══ GSAP SECTION REVEALS ═══
+(function() {
+  if (typeof gsap === 'undefined') return;
+
+  var sections = document.querySelectorAll('.section');
+  var observer = new IntersectionObserver(function(entries) {
+    entries.forEach(function(entry) {
+      if (entry.isIntersecting) {
+        var el = entry.target;
+        gsap.fromTo(el, 
+          { opacity: 0, y: 20 }, 
+          { opacity: 1, y: 0, duration: 0.6, ease: 'power2.out' }
+        );
+
+        var children = el.querySelectorAll('.how-card, .pull-quote, .blog-teaser, .price-card, .faq-item');
+        if (children.length > 0) {
+          gsap.fromTo(children,
+            { opacity: 0, y: 15 },
+            { opacity: 1, y: 0, duration: 0.5, stagger: 0.1, ease: 'power2.out', delay: 0.2 }
+          );
+        }
+
+        observer.unobserve(el);
+      }
+    });
+  }, { threshold: 0.1 });
+
+  sections.forEach(function(s) {
+    observer.observe(s);
+  });
+})();
+
+// ═══ ALPINE: SHAME LEADERBOARD ═══
+document.addEventListener('alpine:init', function() {
+  Alpine.data('shameBoard', function() {
+    return {
+      rows: [
+        { name: 'D████ from Marketing', dept: 'Marketing', item: 'Artisanal yogurt (blueberry lavender)', score: 14, flashing: false, bouncing: false },
+        { name: 'T███ from Engineering', dept: 'Engineering', item: 'Clearly labeled pad thai', score: 11, flashing: false, bouncing: false },
+        { name: 'S████ from Sales', dept: 'Sales', item: 'Half a burrito (the GOOD half)', score: 9, flashing: false, bouncing: false },
+        { name: 'K██ from Legal', dept: 'Legal', item: 'Homemade lasagna (entire tray)', score: 7, flashing: false, bouncing: false },
+        { name: 'J████ from HR', dept: 'HR', item: 'Oat milk (not even sorry)', score: 5, flashing: false, bouncing: false },
+        { name: 'M███ from Finance', dept: 'Finance', item: 'Birthday cake slice (labeled)', score: 4, flashing: false, bouncing: false }
+      ],
+      init: function() {
+        var self = this;
+        setInterval(function() {
+          var idx = Math.floor(Math.random() * self.rows.length);
+          self.rows[idx].score++;
+          self.rows[idx].flashing = true;
+          self.rows[idx].bouncing = true;
+        }, 5000);
+      }
+    };
+  });
+
+  Alpine.data('faqAccordion', function() {
+    return {
+      openIndex: null,
+      items: [
+        {
+          q: 'What if I accidentally took someone\'s apple?',
+          a: 'Our AI distinguishes between intentional theft and honest confusion with 94.2% accuracy. If the system flags you in error, you may submit an appeal via Form LT-7B, which will be reviewed within 3–5 business days. In the meantime, the email has already been sent. We recommend buying them a replacement apple and leaving it on their desk with a handwritten note. The note template is available on our Resources page.',
+          delay: false
+        },
+        {
+          q: 'Has anyone been fired over this?',
+          a: 'We cannot comment on specific personnel actions taken by our clients. We can confirm that 23 employees across our network have been "transitioned to external opportunities" within 30 days of reaching a Shame Score of 20. Correlation is not causation. But it is correlation.',
+          delay: false
+        },
+        {
+          q: 'Is this legal?',
+          a: '<span id="legal-answer"></span>',
+          delay: true
+        },
+        {
+          q: 'What about the blockchain rival, FridgeChain?',
+          a: 'FridgeChain stores every refrigerator transaction on an immutable ledger, which sounds impressive until you realize nobody needs a permanent, decentralized record of who moved the hummus. Their token, $SNACK, lost 94% of its value in Q3. We use proven surveillance technology. They use buzzwords. Your lunch deserves better than a whitepaper.',
+          delay: false
+        }
+      ],
+      toggle: function(i) {
+        var self = this;
+        if (this.openIndex === i) {
+          this.openIndex = null;
+          return;
+        }
+        this.openIndex = i;
+
+        if (this.items[i].delay) {
+          var target = document.getElementById('legal-answer');
+          if (target) {
+            target.textContent = '';
+            setTimeout(function() {
+              target.textContent = 'Next question.';
+            }, 1000);
+          }
+        }
+      }
+    };
+  });
+});
+</script>
+</body>
+</html>

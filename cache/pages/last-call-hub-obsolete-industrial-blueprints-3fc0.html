@@ -1,0 +1,1132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Last Call Hub — Obsolete Industrial Blueprints</title>
+<link rel="stylesheet" href="/assets/css/fonts.css">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg: #2B2D2F;
+  --bg-card: #363839;
+  --text: #E8E4DC;
+  --accent: #6B8A9E;
+  --red: #A45A4A;
+  --sage: #8B9E7C;
+  --grid-line: rgba(107,138,158,0.08);
+}
+
+html { scroll-behavior: smooth; }
+
+body {
+  background-color: var(--bg);
+  color: var(--text);
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 16px;
+  line-height: 1.6;
+  overflow-x: hidden;
+  position: relative;
+}
+
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image:
+    linear-gradient(var(--grid-line) 1px, transparent 1px),
+    linear-gradient(90deg, var(--grid-line) 1px, transparent 1px);
+  background-size: 40px 40px;
+  pointer-events: none;
+  z-index: 0;
+}
+
+#dust-canvas {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 9998;
+}
+
+.wrapper { position: relative; z-index: 1; }
+
+.container { max-width: 1100px; margin: 0 auto; padding: 0 20px; }
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: 'Oswald', sans-serif;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text);
+}
+
+a { color: var(--accent); text-decoration: none; }
+a:hover { text-decoration: underline; }
+
+.caveat {
+  font-family: 'Caveat', cursive;
+  color: var(--sage);
+  font-size: 1.25em;
+}
+
+.stamp {
+  font-family: 'Oswald', sans-serif;
+  text-transform: uppercase;
+  color: var(--red);
+  border: 3px solid var(--red);
+  padding: 4px 12px;
+  display: inline-block;
+  letter-spacing: 0.1em;
+  font-weight: 700;
+}
+
+.section-fade { opacity: 0; transform: translateY(30px); }
+
+/* ═══ TOP BAR ═══ */
+.top-bar {
+  padding: 12px 0;
+  border-bottom: 1px solid rgba(232,228,220,0.1);
+  font-size: 0.75rem;
+  letter-spacing: 0.15em;
+  color: #999;
+}
+
+/* ═══ HERO ═══ */
+.hero {
+  padding: 80px 0 60px;
+  position: relative;
+  overflow: hidden;
+  min-height: 70vh;
+  display: flex;
+  align-items: center;
+}
+
+.hero-clip {
+  clip-path: inset(0 0 100% 0);
+}
+
+.hero-content { position: relative; z-index: 2; }
+
+.hero h1 {
+  font-size: clamp(3rem, 10vw, 7rem);
+  line-height: 0.95;
+  margin-bottom: 16px;
+}
+
+.hero-tagline {
+  font-size: clamp(1.1rem, 3vw, 1.5rem);
+  margin-bottom: 40px;
+}
+
+.hero-blueprint-wrapper {
+  position: relative;
+  display: inline-block;
+  margin-top: 30px;
+}
+
+.hero-blueprint {
+  width: clamp(200px, 40vw, 340px);
+  height: clamp(150px, 30vw, 260px);
+  background: var(--bg-card);
+  border: 1px solid var(--accent);
+  position: relative;
+  transform: rotate(15deg);
+  overflow: hidden;
+  box-shadow: 4px 4px 20px rgba(0,0,0,0.4);
+}
+
+.hero-blueprint::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(rgba(107,138,158,0.15) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(107,138,158,0.15) 1px, transparent 1px);
+  background-size: 20px 20px;
+}
+
+.hero-blueprint::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse at 70% 80%, rgba(164,90,74,0.1) 0%, transparent 70%);
+}
+
+.blueprint-inner-lines {
+  position: absolute;
+  inset: 20px;
+  border: 1px solid rgba(107,138,158,0.25);
+}
+
+.blueprint-inner-lines::before {
+  content: '';
+  position: absolute;
+  top: 30%;
+  left: 10%;
+  width: 80%;
+  height: 1px;
+  background: rgba(107,138,158,0.2);
+}
+
+.blueprint-inner-lines::after {
+  content: '';
+  position: absolute;
+  top: 60%;
+  left: 10%;
+  width: 60%;
+  height: 1px;
+  background: rgba(107,138,158,0.2);
+}
+
+.blueprint-circle {
+  position: absolute;
+  width: 60px;
+  height: 60px;
+  border: 1px solid rgba(107,138,158,0.3);
+  border-radius: 50%;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
+.blueprint-circle::before {
+  content: '';
+  position: absolute;
+  width: 1px;
+  height: 100%;
+  left: 50%;
+  background: rgba(107,138,158,0.2);
+}
+
+.blueprint-circle::after {
+  content: '';
+  position: absolute;
+  height: 1px;
+  width: 100%;
+  top: 50%;
+  background: rgba(107,138,158,0.2);
+}
+
+.hero-stamp {
+  position: absolute;
+  bottom: -10px;
+  right: -20px;
+  transform: rotate(-8deg) scale(1.5);
+  font-size: 0.6rem;
+  z-index: 3;
+  opacity: 0;
+  white-space: nowrap;
+}
+
+/* ═══ SCANNER LINE ═══ */
+.scanner-line {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 3px;
+  background: linear-gradient(90deg, transparent, var(--accent), rgba(107,138,158,0.8), var(--accent), transparent);
+  z-index: 10;
+  opacity: 0;
+  box-shadow: 0 0 20px rgba(107,138,158,0.5), 0 0 60px rgba(107,138,158,0.2);
+}
+
+/* ═══ FEATURED ═══ */
+.featured {
+  padding: 80px 0;
+  background: var(--bg-card);
+}
+
+.featured-blueprint {
+  width: 100%;
+  max-width: 700px;
+  height: clamp(200px, 40vw, 400px);
+  background: #2a3540;
+  border: 1px solid var(--accent);
+  position: relative;
+  margin: 30px auto;
+  overflow: hidden;
+}
+
+.featured-blueprint::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(rgba(107,138,158,0.12) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(107,138,158,0.12) 1px, transparent 1px);
+  background-size: 24px 24px;
+}
+
+.featured-watermark {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%) rotate(-30deg);
+  font-family: 'Oswald', sans-serif;
+  font-size: clamp(1.5rem, 4vw, 3rem);
+  color: rgba(107,138,158,0.08);
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  pointer-events: none;
+}
+
+.featured-blueprint .faded-edges {
+  position: absolute;
+  inset: 0;
+  box-shadow: inset 0 0 60px rgba(43,45,47,0.7);
+  pointer-events: none;
+}
+
+.bp-schematic {
+  position: absolute;
+  inset: 30px;
+  border: 1px solid rgba(107,138,158,0.2);
+}
+
+.bp-schematic-circle {
+  position: absolute;
+  border: 1px solid rgba(107,138,158,0.18);
+  border-radius: 50%;
+}
+
+.bp-schematic-circle.c1 { width: 100px; height: 100px; top: 20%; left: 15%; }
+.bp-schematic-circle.c2 { width: 60px; height: 60px; top: 40%; left: 60%; }
+.bp-schematic-circle.c3 { width: 80px; height: 80px; top: 55%; left: 30%; }
+
+.bp-schematic-line {
+  position: absolute;
+  background: rgba(107,138,158,0.15);
+}
+.bp-schematic-line.l1 { width: 60%; height: 1px; top: 35%; left: 20%; }
+.bp-schematic-line.l2 { width: 1px; height: 50%; top: 25%; left: 45%; }
+.bp-schematic-line.l3 { width: 40%; height: 1px; top: 70%; left: 30%; transform: rotate(-15deg); }
+
+.featured-price {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  background: var(--bg);
+  padding: 6px 14px;
+  font-family: 'Oswald', sans-serif;
+  font-size: 1.2rem;
+  color: var(--accent);
+  z-index: 2;
+}
+
+.featured-writeup {
+  max-width: 700px;
+  margin: 0 auto;
+  font-size: 0.9rem;
+  line-height: 1.8;
+}
+
+.featured-note {
+  max-width: 700px;
+  margin: 20px auto 0;
+  text-align: right;
+}
+
+/* ═══ OCR TICKER ═══ */
+.ocr-section {
+  padding: 60px 0;
+  overflow: hidden;
+}
+
+.ocr-track-wrapper {
+  overflow: hidden;
+  position: relative;
+  padding: 20px 0;
+}
+
+.ocr-track {
+  display: flex;
+  gap: 24px;
+  width: max-content;
+  animation: ocrScroll 40s linear infinite;
+}
+
+.ocr-track-wrapper:hover .ocr-track {
+  animation-play-state: paused;
+}
+
+@keyframes ocrScroll {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+
+.ocr-card {
+  flex-shrink: 0;
+  width: 320px;
+  background: var(--bg-card);
+  border: 1px solid rgba(232,228,220,0.08);
+  padding: 20px;
+  font-size: 0.85rem;
+  position: relative;
+  cursor: pointer;
+  perspective: 800px;
+  min-height: 120px;
+}
+
+.ocr-card-inner {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  transition: transform 0.6s;
+  transform-style: preserve-3d;
+}
+
+.ocr-card.flipped .ocr-card-inner {
+  transform: rotateY(180deg);
+}
+
+.ocr-card-front, .ocr-card-back {
+  backface-visibility: hidden;
+}
+
+.ocr-card-back {
+  position: absolute;
+  inset: 0;
+  transform: rotateY(180deg);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.ocr-card::before {
+  content: '';
+  position: absolute;
+  top: -2px;
+  left: 10%;
+  right: 10%;
+  height: 4px;
+  background: repeating-linear-gradient(90deg, var(--bg-card) 0px, var(--bg-card) 4px, transparent 4px, transparent 8px);
+}
+
+.ocr-label {
+  font-size: 0.65rem;
+  color: #777;
+  letter-spacing: 0.1em;
+  margin-bottom: 8px;
+}
+
+/* ═══ ARCHIVE GRID ═══ */
+.archive {
+  padding: 80px 0;
+  background: var(--bg-card);
+}
+
+.archive-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 30px;
+  margin-top: 40px;
+}
+
+.bp-card {
+  background: var(--bg);
+  border: 1px solid rgba(232,228,220,0.06);
+  padding: 0;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.bp-card:hover {
+  transform: rotate(0deg) !important;
+  box-shadow: 0 0 25px rgba(107,138,158,0.2);
+}
+
+.bp-card-scan {
+  width: 100%;
+  height: 160px;
+  background: #2a3540;
+  position: relative;
+  overflow: hidden;
+}
+
+.bp-card-scan::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(rgba(107,138,158,0.1) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(107,138,158,0.1) 1px, transparent 1px);
+  background-size: 16px 16px;
+}
+
+.bp-card-scan-shape {
+  position: absolute;
+  border: 1px solid rgba(107,138,158,0.2);
+  border-radius: 50%;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 60px;
+  height: 60px;
+}
+
+.bp-card-scan-line {
+  position: absolute;
+  background: rgba(107,138,158,0.15);
+}
+
+.bp-card:hover .scan-line-anim {
+  animation: scanSweep 0.6s ease-out;
+}
+
+@keyframes scanSweep {
+  0% { top: 0; opacity: 1; }
+  100% { top: 100%; opacity: 0; }
+}
+
+.scan-line-anim {
+  position: absolute;
+  top: -2px;
+  left: 0;
+  width: 100%;
+  height: 2px;
+  background: rgba(107,138,158,0.5);
+  opacity: 0;
+  z-index: 2;
+}
+
+.bp-card-body { padding: 20px; }
+
+.bp-card-title {
+  font-size: 1rem;
+  margin-bottom: 8px;
+}
+
+.bp-card-meta {
+  font-size: 0.75rem;
+  color: #999;
+  margin-bottom: 10px;
+}
+
+.bp-card-desc {
+  font-size: 0.8rem;
+  color: #bbb;
+  margin-bottom: 12px;
+  line-height: 1.5;
+}
+
+.bp-card-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.bp-card-price {
+  font-family: 'Oswald', sans-serif;
+  font-size: 1.1rem;
+  color: var(--accent);
+}
+
+.grade-badge {
+  font-family: 'Oswald', sans-serif;
+  font-size: 0.7rem;
+  letter-spacing: 0.08em;
+  padding: 3px 10px;
+  border: 1px solid;
+}
+
+.grade-a { border-color: var(--sage); color: var(--sage); }
+.grade-b { border-color: var(--accent); color: var(--accent); }
+.grade-c { border-color: #C4A95A; color: #C4A95A; }
+.grade-d { border-color: var(--red); color: var(--red); }
+
+.water-damage-overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(170deg, transparent 30%, rgba(107,138,158,0.12) 45%, rgba(90,80,60,0.15) 60%, transparent 75%);
+  pointer-events: none;
+  z-index: 1;
+}
+
+.as-is-stamp {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  z-index: 3;
+  font-size: 0.6rem;
+  transform: rotate(-6deg) scale(1.5);
+  opacity: 0;
+}
+
+/* ═══ GRADING ═══ */
+.grading {
+  padding: 80px 0;
+}
+
+.grade-table {
+  width: 100%;
+  margin-top: 30px;
+  border-collapse: collapse;
+}
+
+.grade-table tr {
+  border-bottom: 1px solid rgba(232,228,220,0.06);
+}
+
+.grade-table td {
+  padding: 16px 12px;
+  vertical-align: top;
+  font-size: 0.85rem;
+}
+
+.grade-table td:first-child {
+  font-family: 'Oswald', sans-serif;
+  white-space: nowrap;
+  width: 180px;
+  letter-spacing: 0.05em;
+}
+
+@media (max-width: 600px) {
+  .grade-table td:first-child { width: auto; }
+  .grade-table td { display: block; padding: 8px 0; }
+  .grade-table tr { display: block; padding: 12px 0; }
+}
+
+/* ═══ FAQ ═══ */
+.faq {
+  padding: 80px 0;
+  background: var(--bg-card);
+}
+
+.faq-item {
+  border-bottom: 1px solid rgba(232,228,220,0.06);
+  padding: 20px 0;
+}
+
+.faq-question {
+  font-family: 'Oswald', sans-serif;
+  font-size: 1.1rem;
+  cursor: pointer;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  min-height: 44px;
+  letter-spacing: 0.03em;
+  user-select: none;
+}
+
+.faq-question::after {
+  content: '+';
+  font-size: 1.4rem;
+  color: var(--accent);
+  flex-shrink: 0;
+  margin-left: 16px;
+  transition: transform 0.3s;
+}
+
+.faq-item.open .faq-question::after {
+  transform: rotate(45deg);
+}
+
+.faq-answer {
+  overflow: hidden;
+  max-height: 0;
+  transition: max-height 0.4s ease;
+  font-size: 0.85rem;
+  line-height: 1.7;
+  color: #bbb;
+}
+
+.faq-item.open .faq-answer {
+  max-height: 400px;
+}
+
+.faq-answer-inner {
+  padding: 16px 0 8px;
+}
+
+.typewriter-text {
+  display: inline;
+}
+
+/* ═══ FOOTER ═══ */
+.site-footer {
+  padding: 60px 0 40px;
+  border-top: 1px solid rgba(232,228,220,0.06);
+}
+
+.footer-bios {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 30px;
+  margin-bottom: 40px;
+  font-size: 0.8rem;
+  line-height: 1.7;
+}
+
+@media (max-width: 600px) {
+  .footer-bios { grid-template-columns: 1fr; }
+}
+
+.footer-bio-name {
+  font-family: 'Oswald', sans-serif;
+  letter-spacing: 0.08em;
+  margin-bottom: 4px;
+  color: var(--accent);
+}
+
+.footer-closing {
+  text-align: center;
+  margin-top: 30px;
+  padding-top: 30px;
+  border-top: 1px solid rgba(232,228,220,0.04);
+}
+
+.footer-watermark {
+  font-size: 0.6rem;
+  color: #555;
+  letter-spacing: 0.2em;
+  margin-top: 16px;
+}
+
+/* ═══ UTILITIES ═══ */
+.mb-sm { margin-bottom: 10px; }
+.mb-md { margin-bottom: 20px; }
+.mb-lg { margin-bottom: 40px; }
+.text-accent { color: var(--accent); }
+.text-red { color: var(--red); }
+.text-muted { color: #999; }
+
+/* ═══ RESPONSIVE ═══ */
+@media (max-width: 768px) {
+  .hero { padding: 60px 0 40px; min-height: auto; }
+  .hero h1 { font-size: clamp(2.5rem, 12vw, 4rem); }
+  .archive-grid { grid-template-columns: 1fr; gap: 24px; }
+  .ocr-card { width: 260px; }
+  .featured-blueprint { height: 200px; }
+}
+</style>
+</head>
+<body>
+
+<canvas id="dust-canvas"></canvas>
+
+<div class="wrapper">
+
+  <!-- ═══ TOP BAR ═══ -->
+  <div class="top-bar">
+    <div class="container">
+      LAST CALL HUB / OBSOLETE INDUSTRIAL BLUEPRINTS / EST. 2007
+    </div>
+  </div>
+
+  <!-- ═══ HERO ═══ -->
+  <section class="hero">
+    <div class="scanner-line" id="scanner-line"></div>
+    <div class="container hero-clip" id="hero-content">
+      <div class="hero-content">
+        <h1>Last Call<br>Hub</h1>
+        <p class="hero-tagline caveat">est. 2007 — scanning until my back gave out</p>
+        <div class="hero-blueprint-wrapper">
+          <div class="hero-blueprint">
+            <div class="blueprint-inner-lines"></div>
+            <div class="blueprint-circle"></div>
+          </div>
+          <div class="hero-stamp stamp as-is-stamp-hero" id="hero-stamp">
+            ASBESTOS MITIGATION<br>COMPLIANCE
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══ FEATURED ═══ -->
+  <section class="featured section-fade" data-section>
+    <div class="container">
+      <h2 class="mb-md">Featured Blueprint of the Month</h2>
+      <div class="featured-blueprint">
+        <div class="featured-watermark">LAST CALL HUB</div>
+        <div class="faded-edges"></div>
+        <div class="bp-schematic">
+          <div class="bp-schematic-circle c1"></div>
+          <div class="bp-schematic-circle c2"></div>
+          <div class="bp-schematic-circle c3"></div>
+          <div class="bp-schematic-line l1"></div>
+          <div class="bp-schematic-line l2"></div>
+          <div class="bp-schematic-line l3"></div>
+        </div>
+        <div class="featured-price">$24.00</div>
+      </div>
+      <div class="featured-writeup">
+        <h3 class="mb-sm">Gyroscopic Stabilizer Assembly — Skyhawk Airship (1937)</h3>
+        <p class="text-muted mb-md">CAT# LCH-0447 &nbsp;|&nbsp; CONDITION: GRADE B — RESPECTABLE &nbsp;|&nbsp; 3 SHEETS, 24"×36"</p>
+        <p>The Skyhawk was supposed to revolutionize transcontinental cargo. It did not. What it did produce was an extraordinarily detailed gyroscopic stabilizer design by a draftsman named Leonard Pugh, who spent nine months on these plans and then watched the prototype break apart over Lake Huron in under four minutes. The stabilizer worked perfectly. Everything else did not. We have all three sheets, including the one with Leonard's coffee ring that the OCR interprets as a pressure gauge.</p>
+      </div>
+      <div class="featured-note">
+        <p class="caveat">Found this one behind the radiator. Still smells like pipe tobacco.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══ OCR TICKER ═══ -->
+  <section class="ocr-section section-fade" data-section>
+    <div class="container">
+      <h2 class="mb-md">OCR Errors Hall of Fame</h2>
+      <p class="text-muted mb-lg" style="font-size:0.85rem;">Our Ricoh FW770 sees what it wants to see. Click any card to see what it was supposed to say.</p>
+    </div>
+    <div class="ocr-track-wrapper">
+      <div class="ocr-track" id="ocr-track">
+        <!-- Cards injected by JS -->
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══ ARCHIVE ═══ -->
+  <section class="archive section-fade" data-section>
+    <div class="container">
+      <h2 class="mb-sm">Browse the Archive</h2>
+      <p class="text-muted mb-lg" style="font-size:0.85rem;">1,247 scans. 800+ unique designs. All crooked.</p>
+      <div class="archive-grid" id="archive-grid">
+        <!-- Cards injected by JS -->
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══ GRADING ═══ -->
+  <section class="grading section-fade" data-section>
+    <div class="container">
+      <h2 class="mb-md">The Grading System</h2>
+      <table class="grade-table">
+        <tr>
+          <td style="color:#8B9E7C;">GRADE A — PRISTINE</td>
+          <td>The scan is straight. The text is legible. We don't know how this happened. Possibly a different scanner. We do not have a different scanner.</td>
+        </tr>
+        <tr>
+          <td style="color:#6B8A9E;">GRADE B — RESPECTABLE</td>
+          <td>Minor creases, slight yellowing, one or two OCR hallucinations. You can read it without squinting. Represents the best our equipment can do on a good day.</td>
+        </tr>
+        <tr>
+          <td style="color:#C4A95A;">GRADE C — CHARACTER-BUILDING</td>
+          <td>The 15-degree lean is present. Some water damage. The OCR has opinions about what words mean. You will need context clues and possibly a magnifying glass.</td>
+        </tr>
+        <tr>
+          <td style="color:#A45A4A;">GRADE D — BARELY LEGIBLE</td>
+          <td>You can tell it was once a blueprint. We think. Sold for the historical significance and the story you'll tell. May contain accidental barbecue sauce provenance.</td>
+        </tr>
+      </table>
+      <p class="caveat" style="text-align:right; margin-top:24px;">I made this system at 2am and I stand by it.</p>
+    </div>
+  </section>
+
+  <!-- ═══ FAQ ═══ -->
+  <section class="faq section-fade" data-section>
+    <div class="container">
+      <h2 class="mb-md">Frequently Asked Questions</h2>
+      <div id="faq-list">
+        <div class="faq-item" data-faq>
+          <div class="faq-question" data-faq-q>Why are some of these scans rotated 15 degrees?</div>
+          <div class="faq-answer">
+            <div class="faq-answer-inner">
+              <span class="typewriter-text" data-tw>The Ricoh FW770 flatbed scanner we used for approximately 94% of our catalog developed a persistent alignment fault sometime around 2009 that pulled every scan 15 degrees to the left. We discovered this after scanning roughly 400 documents. We could not afford a new scanner. We adapted. The 15-degree lean is now considered a hallmark of authenticity. If your scan is straight, it's probably a forgery.</span>
+            </div>
+          </div>
+        </div>
+        <div class="faq-item" data-faq>
+          <div class="faq-question" data-faq-q>Who is Blueprint Central and why do they keep emailing us?</div>
+          <div class="faq-answer">
+            <div class="faq-answer-inner">
+              <span class="typewriter-text" data-tw>Blueprint Central is a corporate digitization firm that has been sending us acquisition offers since 2011. Their latest email described our collection as "charmingly unprocessed." We are not for sale. They do not have a scanner that smells like pipe tobacco. They would not understand.</span>
+            </div>
+          </div>
+        </div>
+        <div class="faq-item" data-faq>
+          <div class="faq-question" data-faq-q>Where is Agnes?</div>
+          <div class="faq-answer">
+            <div class="faq-answer-inner">
+              <span class="typewriter-text" data-tw>We don't know. The scanner is still warm.</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══ FOOTER ═══ -->
+  <footer class="site-footer section-fade" data-section>
+    <div class="container">
+      <div class="footer-bios">
+        <div>
+          <div class="footer-bio-name">PERIWINKLE, A.</div>
+          <div>ROLE: CHIEF ARCHIVIST</div>
+          <div>STATUS: UNKNOWN SINCE 2012</div>
+        </div>
+        <div>
+          <div class="footer-bio-name">CRANE, B.</div>
+          <div>ROLE: WEBMASTER (BETWEEN SHIFTS)</div>
+          <div>STATUS: REPORTEDLY KYRGYZSTAN</div>
+        </div>
+      </div>
+      <div class="footer-closing">
+        <p class="caveat" style="font-size:1.4em;">These things were here. These people made them. Someone should give a damn.</p>
+        <div class="footer-watermark">LAST CALL HUB — V2.3 — RUNNING ON BART'S OLD THINKPAD</div>
+      </div>
+    </div>
+  </footer>
+
+</div>
+
+<script src="/assets/js/gsap.min.js"></script>
+<script>
+(function() {
+  "use strict";
+
+  // ═══ OCR DATA ═══
+  var ocrData = [
+    { ocr: "LUBRICANT SPEC: APPLY LIBERAL AMOUNTS OF BARBECUE SAUCE", real: "LUBRICANT SPEC: APPLY LIBERAL AMOUNTS OF SAE-30 MOTOR OIL", note: "The Ricoh has strong opinions about condiments." },
+    { ocr: "GEAR RATIO: 14:1 (OR POSSIBLY LINGUINE)", real: "GEAR RATIO: 14:1 (OR POSSIBLY 14.5:1)", note: "To be fair, the handwriting was terrible." },
+    { ocr: "MATERIAL: BOROSILICATE GLASS → BARBECUE SASS", real: "MATERIAL: BOROSILICATE GLASS — BATCH #655", note: "The sass was implied." },
+    { ocr: "TORQUE SPEC: 45 FT-LBS OF EMOTIONAL DAMAGE", real: "TORQUE SPEC: 45 FT-LBS ± 5 FT-LBS TOLERANCE", note: "Honestly the OCR version is more accurate." },
+    { ocr: "CAUTION: DO NOT OPERATE WHILE YEARNING", real: "CAUTION: DO NOT OPERATE WHILE TURNING SHAFT HOUSING", note: "Good advice either way." },
+    { ocr: "PRESSURE RATING: 200 PSI OF UNRESOLVED GRIEF", real: "PRESSURE RATING: 200 PSI — UNRELIEVED, SEE FIG. 4", note: "The scanner sees into your soul." },
+    { ocr: "WELD TYPE: FULL PENETRATION OF THE HUMAN CONDITION", real: "WELD TYPE: FULL PENETRATION — BUTT JOINT, SEE DETAIL C", note: "Leonard Pugh did not intend this." },
+    { ocr: "DIMENSION: 4.5\" × FOREVER", real: "DIMENSION: 4.5\" × 7.25\" O.D.", note: "The smudge was load-bearing." }
+  ];
+
+  // Build OCR ticker (doubled for seamless loop)
+  var track = document.getElementById("ocr-track");
+  var allCards = ocrData.concat(ocrData);
+  allCards.forEach(function(item) {
+    var card = document.createElement("div");
+    card.className = "ocr-card";
+    card.innerHTML =
+      '<div class="ocr-card-inner">' +
+        '<div class="ocr-card-front">' +
+          '<div class="ocr-label">OCR OUTPUT:</div>' +
+          '<div>' + item.ocr + '</div>' +
+        '</div>' +
+        '<div class="ocr-card-back">' +
+          '<div class="ocr-label">ACTUAL TEXT:</div>' +
+          '<div style="color:#6B8A9E;margin-bottom:8px;">' + item.real + '</div>' +
+          '<div class="caveat" style="font-size:0.95em;">' + item.note + '</div>' +
+        '</div>' +
+      '</div>';
+    card.addEventListener("click", function() {
+      card.classList.toggle("flipped");
+    });
+    track.appendChild(card);
+  });
+
+  // ═══ ARCHIVE CARDS DATA ═══
+  var archiveData = [
+    { title: "1943 Acme Lathe Modification Kit", cat: "LCH-0012", grade: "A", gradeClass: "grade-a", gradeLabel: "PRISTINE", price: "$18.00", desc: "The one from the filing cabinet. The one that started all of this. Two sheets, no water damage, no barbecue sauce.", rotation: -2, flood: false },
+    { title: "Pneumatic Riveter Assembly — Hartford Forge Co.", cat: "LCH-0198", grade: "B", gradeClass: "grade-b", gradeLabel: "RESPECTABLE", price: "$14.00", desc: "Clean lines, minor yellowing on sheet 2. OCR only hallucinated once (read 'flange' as 'flamingo').", rotation: 1.5, flood: false },
+    { title: "Municipal Water Pump Housing — Milltown, 1961", cat: "LCH-0334", grade: "C", gradeClass: "grade-c", gradeLabel: "CHARACTER-BUILDING", price: "$8.00", desc: "The 15-degree lean is strong with this one. Cross-referencing with Fig. 3 requires rotating your head.", rotation: -3, flood: false },
+    { title: "Overhead Crane Gearbox — Dockside Foundry", cat: "LCH-0511", grade: "B", gradeClass: "grade-b", gradeLabel: "RESPECTABLE", price: "$16.00", desc: "Four sheets. Draftsman signed each one. Someone cared about this gearbox more than most people care about anything.", rotation: 2, flood: false },
+    { title: "Centrifugal Governor — Milltown Steam Plant", cat: "LCH-0089", grade: "D", gradeClass: "grade-d", gradeLabel: "BARELY LEGIBLE", price: "<s style='color:#777;'>$12.00</s> $3.60", desc: "Lost to the Great Milltown Flood of '09. Historically significant. Visually devastating.", rotation: -1, flood: true },
+    { title: "Industrial Boiler Feedwater System — 1952", cat: "LCH-0267", grade: "C", gradeClass: "grade-c", gradeLabel: "CHARACTER-BUILDING", price: "$10.00", desc: "The OCR read the title as 'Industrial Broiler Fishwater System.' We kept both versions.", rotation: 3, flood: false }
+  ];
+
+  var archiveGrid = document.getElementById("archive-grid");
+  archiveData.forEach(function(item) {
+    var card = document.createElement("div");
+    card.className = "bp-card";
+    card.style.transform = "rotate(" + item.rotation + "deg)";
+    var floodHTML = item.flood ? '<div class="water-damage-overlay"></div><div class="as-is-stamp stamp" data-stamp>AS-IS / 70% OFF</div>' : '';
+    var shapeStyle = "width:" + (40 + Math.random()*40) + "px;height:" + (40 + Math.random()*40) + "px;";
+    card.innerHTML =
+      '<div class="bp-card-scan">' +
+        '<div class="bp-card-scan-shape" style="' + shapeStyle + '"></div>' +
+        '<div class="bp-card-scan-line" style="width:60%;height:1px;top:30%;left:20%;"></div>' +
+        '<div class="bp-card-scan-line" style="width:1px;height:40%;top:30%;left:55%;"></div>' +
+        '<div class="scan-line-anim"></div>' +
+        floodHTML +
+      '</div>' +
+      '<div class="bp-card-body">' +
+        '<h4 class="bp-card-title">' + item.title + '</h4>' +
+        '<div class="bp-card-meta">CAT# ' + item.cat + '</div>' +
+        '<div class="bp-card-desc">' + item.desc + '</div>' +
+        '<div class="bp-card-footer">' +
+          '<span class="bp-card-price">' + item.price + '</span>' +
+          '<span class="grade-badge ' + item.gradeClass + '">' + item.gradeLabel + '</span>' +
+        '</div>' +
+      '</div>';
+    archiveGrid.appendChild(card);
+  });
+
+  // ═══ HERO ANIMATION ═══
+  var scannerLine = document.getElementById("scanner-line");
+  var heroContent = document.getElementById("hero-content");
+  var heroStamp = document.getElementById("hero-stamp");
+
+  // Start with black overlay effect via clip-path
+  gsap.set(heroContent, { clipPath: "inset(0 0 100% 0)" });
+  gsap.set(scannerLine, { opacity: 1, top: 0 });
+
+  var heroTl = gsap.timeline({ delay: 0.5 });
+  heroTl.fromTo(scannerLine,
+    { top: "0%" },
+    { top: "100%", duration: 1.2, ease: "power2.inOut" }
+  );
+  heroTl.fromTo(heroContent,
+    { clipPath: "inset(0 0 100% 0)" },
+    { clipPath: "inset(0 0 0% 0)", duration: 1.2, ease: "power2.inOut" },
+    0
+  );
+  heroTl.to(scannerLine, { opacity: 0, duration: 0.3 }, 1.0);
+  // Stamp slam
+  heroTl.fromTo(heroStamp,
+    { scale: 1.5, rotation: -15, opacity: 0 },
+    { scale: 1, rotation: -8, opacity: 1, duration: 0.3, ease: "back.out(2)" },
+    1.0
+  );
+
+  // ═══ SCROLL ANIMATIONS ═══
+  var sections = document.querySelectorAll("[data-section]");
+  var sectionObserver = new IntersectionObserver(function(entries) {
+    entries.forEach(function(entry) {
+      if (entry.isIntersecting) {
+        var el = entry.target;
+        gsap.fromTo(el,
+          { opacity: 0, y: 30 },
+          { opacity: 1, y: 0, duration: 0.6, ease: "power2.out" }
+        );
+        // Stagger children in grids
+        var children = el.querySelectorAll(".bp-card, .grade-table tr");
+        if (children.length > 0) {
+          gsap.fromTo(children,
+            { opacity: 0, y: 20 },
+            { opacity: 1, y: 0, duration: 0.5, ease: "power2.out", stagger: 0.1, delay: 0.2 }
+          );
+        }
+        sectionObserver.unobserve(el);
+      }
+    });
+  }, { threshold: 0.1 });
+
+  sections.forEach(function(s) { sectionObserver.observe(s); });
+
+  // Stamp slam for flood card
+  var floodStamps = document.querySelectorAll("[data-stamp]");
+  var stampObserver = new IntersectionObserver(function(entries) {
+    entries.forEach(function(entry) {
+      if (entry.isIntersecting) {
+        gsap.fromTo(entry.target,
+          { scale: 1.5, rotation: -12, opacity: 0 },
+          { scale: 1, rotation: -6, opacity: 1, duration: 0.3, ease: "back.out(2)" }
+        );
+        stampObserver.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.3 });
+  floodStamps.forEach(function(s) { stampObserver.observe(s); });
+
+  // ═══ FAQ ACCORDION WITH TYPEWRITER ═══
+  var faqItems = document.querySelectorAll("[data-faq]");
+  faqItems.forEach(function(item) {
+    var question = item.querySelector("[data-faq-q]");
+    var twSpan = item.querySelector("[data-tw]");
+    var fullText = twSpan.textContent;
+    var hasTyped = false;
+
+    question.addEventListener("click", function() {
+      // Close others
+      faqItems.forEach(function(other) {
+        if (other !== item && other.classList.contains("open")) {
+          other.classList.remove("open");
+        }
+      });
+
+      item.classList.toggle("open");
+
+      if (item.classList.contains("open") && !hasTyped) {
+        hasTyped = true;
+        twSpan.textContent = "";
+        var i = 0;
+        var interval = setInterval(function() {
+          if (i < fullText.length) {
+            twSpan.textContent += fullText.charAt(i);
+            i++;
+          } else {
+            clearInterval(interval);
+          }
+        }, 20);
+      }
+    });
+  });
+
+  // ═══ DUST MOTES ═══
+  var canvas = document.getElementById("dust-canvas");
+  var ctx = canvas.getContext("2d");
+  var particles = [];
+  var mouseX = -1000, mouseY = -1000;
+
+  function resizeCanvas() {
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+  }
+  resizeCanvas();
+  window.addEventListener("resize", resizeCanvas);
+
+  document.addEventListener("mousemove", function(e) {
+    mouseX = e.clientX;
+    mouseY = e.clientY;
+  });
+
+  function createParticle() {
+    return {
+      x: Math.random() * canvas.width,
+      y: Math.random() * canvas.height,
+      size: Math.random() * 2 + 0.5,
+      speedY: Math.random() * 0.3 + 0.1,
+      speedX: (Math.random() - 0.5) * 0.2,
+      opacity: Math.random() * 0.15 + 0.15,
+      vx: 0,
+      vy: 0
+    };
+  }
+
+  for (var i = 0; i < 50; i++) {
+    particles.push(createParticle());
+  }
+
+  function animateDust() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    for (var i = 0; i < particles.length; i++) {
+      var p = particles[i];
+      var dx = p.x - mouseX;
+      var dy = p.y - (mouseY);
+      var dist = Math.sqrt(dx * dx + dy * dy);
+
+      if (dist < 150 && dist > 0) {
+        var force = (150 - dist) / 150;
+        p.vx += (dx / dist) * force * 0.8;
+        p.vy += (dy / dist) * force * 0.8;
+      }
+
+      p.vx *= 0.96;
+      p.vy *= 0.96;
+
+      p.x += p.speedX + p.vx;
+      p.y += p.speedY + p.vy;
+
+      if (p.y > canvas.height + 10) {
+        p.y = -10;
+        p.x = Math.random() * canvas.width;
+      }
+      if (p.x < -10) p.x = canvas.width + 10;
+      if (p.x > canvas.width + 10) p.x = -10;
+
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+      ctx.fillStyle = "rgba(232,228,220," + p.opacity + ")";
+      ctx.fill();
+    }
+
+    requestAnimationFrame(animateDust);
+  }
+  animateDust();
+
+})();
+</script>
+</body>
+</html>

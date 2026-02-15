@@ -1,0 +1,1279 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Corkboard Solutions — Every Thread Matters</title>
+<link rel="stylesheet" href="/assets/css/fonts.css">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --cork: #C4A882;
+  --ink: #2C2417;
+  --card: #F5E6C8;
+  --red-pin: #B83A3A;
+  --teal: #5B8A8A;
+  --mustard: #D4A03C;
+  --card-shadow: rgba(44, 36, 23, 0.3);
+}
+
+html { scroll-behavior: smooth; }
+
+body {
+  font-family: 'Fira Code', monospace;
+  font-size: 16px;
+  line-height: 1.6;
+  color: var(--ink);
+  background-color: var(--cork);
+  background-image:
+    repeating-linear-gradient(0deg, transparent, transparent 20px, rgba(44,36,23,0.03) 20px, rgba(44,36,23,0.03) 21px),
+    repeating-linear-gradient(90deg, transparent, transparent 20px, rgba(44,36,23,0.03) 20px, rgba(44,36,23,0.03) 21px),
+    radial-gradient(ellipse at 20% 50%, rgba(44,36,23,0.06) 0%, transparent 50%),
+    radial-gradient(ellipse at 80% 20%, rgba(44,36,23,0.04) 0%, transparent 40%);
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+h1, h2, h3, h4 { font-family: 'Permanent Marker', cursive; color: var(--ink); letter-spacing: 1px; }
+.handwritten { font-family: 'Caveat', cursive; }
+
+a { color: var(--teal); text-decoration: underline; text-decoration-style: wavy; }
+a:hover { color: var(--red-pin); }
+
+/* Cork texture overlay */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image:
+    url("data:image/svg+xml,%3Csvg width='200' height='200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23n)' opacity='0.06'/%3E%3C/svg%3E");
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* ── LAYOUT ── */
+.page-wrapper {
+  display: flex;
+  min-height: 100vh;
+  position: relative;
+  z-index: 1;
+}
+
+/* ── SIDEBAR ── */
+.sidebar {
+  width: 220px;
+  min-width: 220px;
+  background: #3D3226;
+  color: #F5E6C8;
+  padding: 24px 16px;
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  overflow-y: auto;
+  z-index: 100;
+  border-right: 3px solid #2C2417;
+}
+
+.sidebar h3 {
+  font-size: 1.3rem;
+  color: var(--mustard);
+  margin-bottom: 16px;
+  text-align: center;
+  border-bottom: 2px dashed #5B8A8A;
+  padding-bottom: 10px;
+}
+
+.pin-legend-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 8px;
+  cursor: pointer;
+  border-radius: 4px;
+  transition: background 0.2s;
+  min-height: 44px;
+  font-family: 'Caveat', cursive;
+  font-size: 1.2rem;
+}
+
+.pin-legend-item:hover { background: rgba(245,230,200,0.1); }
+.pin-legend-item.active { background: rgba(245,230,200,0.2); }
+
+.pin-dot {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  box-shadow: inset -2px -2px 3px rgba(0,0,0,0.3), 1px 1px 2px rgba(0,0,0,0.2);
+}
+
+.pin-dot.red { background: var(--red-pin); }
+.pin-dot.blue { background: #4A7FB5; }
+.pin-dot.yellow { background: var(--mustard); }
+.pin-dot.green { background: #5A8A5A; }
+.pin-dot.all { background: linear-gradient(135deg, var(--red-pin) 25%, #4A7FB5 25%, #4A7FB5 50%, var(--mustard) 50%, var(--mustard) 75%, #5A8A5A 75%); }
+
+.sidebar-note {
+  margin-top: 24px;
+  padding: 12px;
+  background: var(--card);
+  color: var(--ink);
+  font-family: 'Caveat', cursive;
+  font-size: 1.1rem;
+  border-radius: 2px;
+  transform: rotate(-1deg);
+  box-shadow: 2px 2px 6px rgba(0,0,0,0.2);
+}
+
+/* ── MAIN CONTENT ── */
+.main-content {
+  flex: 1;
+  padding: 32px 24px;
+  max-width: 1200px;
+  min-width: 0;
+}
+
+/* ── HERO ── */
+.hero {
+  position: relative;
+  background: #3D3226;
+  padding: 48px 32px;
+  margin-bottom: 48px;
+  border-radius: 2px;
+  overflow: hidden;
+  box-shadow: 4px 4px 20px rgba(0,0,0,0.3);
+}
+
+.hero::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(45deg, transparent 48%, var(--red-pin) 48%, var(--red-pin) 52%, transparent 52%),
+    linear-gradient(-30deg, transparent 46%, var(--red-pin) 46%, var(--red-pin) 48%, transparent 48%),
+    linear-gradient(70deg, transparent 44%, var(--red-pin) 44%, var(--red-pin) 46%, transparent 46%);
+  opacity: 0.15;
+  pointer-events: none;
+}
+
+.hero-pins {
+  display: flex;
+  justify-content: center;
+  gap: 40px;
+  margin-bottom: 24px;
+}
+
+.hero-pin-photo {
+  width: 80px;
+  height: 80px;
+  background: var(--card);
+  border: 3px solid #F5E6C8;
+  box-shadow: 2px 2px 8px rgba(0,0,0,0.4);
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.hero-pin-photo::before {
+  content: '';
+  position: absolute;
+  top: -8px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: var(--red-pin);
+  box-shadow: inset -2px -2px 4px rgba(0,0,0,0.3), 0 2px 4px rgba(0,0,0,0.3);
+  z-index: 2;
+}
+
+.hero-pin-photo i { color: var(--ink); opacity: 0.5; }
+
+.hero h1 {
+  font-size: clamp(1.8rem, 4vw, 3rem);
+  color: #F5E6C8;
+  text-align: center;
+  position: relative;
+  z-index: 1;
+  line-height: 1.3;
+}
+
+.hero-manifesto {
+  font-family: 'Caveat', cursive;
+  font-size: clamp(1.2rem, 2.5vw, 1.6rem);
+  color: #F5E6C8;
+  text-align: center;
+  margin-top: 16px;
+  position: relative;
+  z-index: 1;
+}
+
+.hero-timestamp {
+  text-align: center;
+  margin-top: 20px;
+  font-size: 0.85rem;
+  color: var(--red-pin);
+  font-family: 'Fira Code', monospace;
+  position: relative;
+  z-index: 1;
+}
+
+.blink-dot {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  background: var(--red-pin);
+  border-radius: 50%;
+  margin-right: 6px;
+  vertical-align: middle;
+  animation: blink-pulse 1.5s infinite;
+}
+
+@keyframes blink-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.2; }
+}
+
+/* Fluorescent flicker */
+@keyframes flicker {
+  0%, 89%, 91%, 93%, 100% { opacity: 1; filter: brightness(1); }
+  90% { opacity: 0.7; filter: brightness(1.3); }
+  92% { opacity: 0.85; filter: brightness(0.9); }
+}
+
+.flicker { animation: flicker 9s infinite; }
+
+/* ── SECTION TITLES ── */
+.section-title {
+  font-size: clamp(1.5rem, 3vw, 2.2rem);
+  margin-bottom: 8px;
+  position: relative;
+  display: inline-block;
+}
+
+.section-title::after {
+  content: '';
+  position: absolute;
+  bottom: -4px;
+  left: 0;
+  width: 100%;
+  height: 3px;
+  background: var(--red-pin);
+}
+
+.section-subtitle {
+  font-family: 'Caveat', cursive;
+  font-size: 1.2rem;
+  color: var(--teal);
+  margin-bottom: 24px;
+}
+
+/* ── PIN OF THE WEEK ── */
+.potw {
+  background: var(--card);
+  padding: 32px;
+  margin-bottom: 48px;
+  border: 3px solid var(--mustard);
+  box-shadow: 4px 4px 16px var(--card-shadow), 0 0 0 2px var(--ink);
+  position: relative;
+  transform: rotate(-0.5deg);
+}
+
+.potw::before {
+  content: '';
+  position: absolute;
+  top: -10px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: var(--mustard);
+  box-shadow: inset -3px -3px 5px rgba(0,0,0,0.3), 0 3px 6px rgba(0,0,0,0.3);
+  z-index: 2;
+}
+
+.potw-badge {
+  display: inline-block;
+  background: var(--mustard);
+  color: var(--ink);
+  font-family: 'Permanent Marker', cursive;
+  font-size: 0.9rem;
+  padding: 4px 12px;
+  margin-bottom: 12px;
+}
+
+.potw h3 { font-size: clamp(1.3rem, 2.5vw, 1.8rem); margin-bottom: 8px; }
+
+.potw-meta {
+  font-size: 0.85rem;
+  color: var(--teal);
+  margin-bottom: 12px;
+}
+
+.potw-annotation {
+  font-family: 'Caveat', cursive;
+  color: var(--red-pin);
+  font-size: 1.15rem;
+  margin-top: 12px;
+  padding-left: 16px;
+  border-left: 3px solid var(--red-pin);
+}
+
+.verified-badge {
+  display: inline-block;
+  background: var(--teal);
+  color: #F5E6C8;
+  font-size: 0.8rem;
+  padding: 3px 10px;
+  border-radius: 2px;
+  margin-top: 8px;
+  font-family: 'Fira Code', monospace;
+}
+
+/* ── BOARD CARDS ── */
+.board-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 24px;
+  margin-bottom: 48px;
+  perspective: 1000px;
+}
+
+.theory-card-wrapper {
+  perspective: 800px;
+  transition: opacity 0.3s, filter 0.3s;
+}
+
+.theory-card-wrapper.dimmed {
+  opacity: 0.25;
+  filter: grayscale(0.8);
+}
+
+.theory-card {
+  position: relative;
+  cursor: pointer;
+  transform-style: preserve-3d;
+  transition: transform 0.6s;
+  min-height: 260px;
+}
+
+.theory-card.flipped { transform: rotateY(180deg); }
+
+.card-front, .card-back {
+  position: absolute;
+  inset: 0;
+  backface-visibility: hidden;
+  background: var(--card);
+  padding: 24px 20px 20px;
+  box-shadow: 3px 3px 10px var(--card-shadow);
+  border-radius: 2px;
+}
+
+.card-back {
+  transform: rotateY(180deg);
+  background: #EDD9B5;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.card-pin {
+  position: absolute;
+  top: -8px;
+  left: 24px;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  box-shadow: inset -2px -2px 4px rgba(0,0,0,0.3), 0 2px 4px rgba(0,0,0,0.3);
+  z-index: 2;
+}
+
+.card-pin.red { background: var(--red-pin); }
+.card-pin.blue { background: #4A7FB5; }
+.card-pin.yellow { background: var(--mustard); }
+.card-pin.green { background: #5A8A5A; }
+
+.card-category {
+  display: inline-block;
+  font-size: 0.7rem;
+  padding: 2px 8px;
+  border-radius: 2px;
+  margin-bottom: 8px;
+  font-family: 'Fira Code', monospace;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.cat-govt { background: #B83A3A33; color: var(--red-pin); border: 1px solid var(--red-pin); }
+.cat-et { background: #4A7FB533; color: #3A6A9E; border: 1px solid #4A7FB5; }
+.cat-finance { background: #D4A03C33; color: #A07A20; border: 1px solid var(--mustard); }
+.cat-pharma { background: #5A8A5A33; color: #3D6D3D; border: 1px solid #5A8A5A; }
+
+.card-front h4 { font-size: 1.1rem; margin-bottom: 6px; line-height: 1.3; }
+.card-submitter { font-size: 0.8rem; color: var(--teal); margin-bottom: 8px; }
+.card-excerpt { font-size: 0.85rem; line-height: 1.5; }
+.card-connections {
+  margin-top: 10px;
+  font-size: 0.75rem;
+  color: var(--red-pin);
+  font-family: 'Caveat', cursive;
+  font-size: 1rem;
+}
+
+.card-back h4 {
+  font-family: 'Caveat', cursive;
+  font-size: 1.4rem;
+  color: var(--red-pin);
+  margin-bottom: 8px;
+}
+
+.card-back p {
+  font-family: 'Caveat', cursive;
+  font-size: 1.15rem;
+  line-height: 1.4;
+  margin-bottom: 6px;
+}
+
+.depth-meter {
+  margin-top: 8px;
+  background: #C4A882;
+  height: 10px;
+  border-radius: 5px;
+  overflow: hidden;
+}
+
+.depth-meter-fill {
+  height: 100%;
+  background: var(--red-pin);
+  border-radius: 5px;
+  transition: width 0.4s;
+}
+
+.depth-label {
+  font-family: 'Caveat', cursive;
+  font-size: 1rem;
+  color: var(--teal);
+  margin-top: 4px;
+}
+
+/* ── RABBIT HOLE TRACKER ── */
+.rabbit-hole {
+  margin-bottom: 48px;
+  background: #3D3226;
+  padding: 32px;
+  border-radius: 2px;
+  box-shadow: 4px 4px 16px rgba(0,0,0,0.3);
+}
+
+.rabbit-hole h2, .rabbit-hole .section-subtitle { color: #F5E6C8; }
+.rabbit-hole .section-title::after { background: var(--mustard); }
+
+.rh-canvas-wrapper {
+  position: relative;
+  width: 100%;
+  height: 350px;
+  margin-bottom: 20px;
+}
+
+.rh-canvas-wrapper canvas {
+  width: 100%;
+  height: 100%;
+}
+
+.rh-slider-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.rh-slider-wrapper label {
+  font-family: 'Permanent Marker', cursive;
+  color: var(--mustard);
+  font-size: 1.1rem;
+  white-space: nowrap;
+}
+
+.rh-slider {
+  flex: 1;
+  min-width: 150px;
+  -webkit-appearance: none;
+  appearance: none;
+  height: 8px;
+  background: #5B8A8A;
+  border-radius: 4px;
+  outline: none;
+  cursor: pointer;
+}
+
+.rh-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: var(--red-pin);
+  cursor: pointer;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.4);
+}
+
+.rh-slider::-moz-range-thumb {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: var(--red-pin);
+  cursor: pointer;
+  border: none;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.4);
+}
+
+.rh-depth-label {
+  font-family: 'Caveat', cursive;
+  font-size: 1.2rem;
+  color: #F5E6C8;
+  min-width: 120px;
+}
+
+/* ── COINS & RANKS ── */
+.coins-section { margin-bottom: 48px; }
+
+.leaderboard {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 16px;
+  margin-bottom: 32px;
+}
+
+.leader-card {
+  background: var(--card);
+  padding: 16px;
+  box-shadow: 3px 3px 8px var(--card-shadow);
+  text-align: center;
+  position: relative;
+}
+
+.leader-rank {
+  font-family: 'Permanent Marker', cursive;
+  font-size: 1.8rem;
+  color: var(--mustard);
+}
+
+.leader-name {
+  font-size: 0.9rem;
+  color: var(--teal);
+  margin: 4px 0;
+}
+
+.leader-coins {
+  font-family: 'Caveat', cursive;
+  font-size: 1.2rem;
+  color: var(--red-pin);
+}
+
+.tier-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 20px;
+}
+
+.tier-card {
+  background: var(--card);
+  padding: 20px;
+  box-shadow: 3px 3px 10px var(--card-shadow);
+  position: relative;
+}
+
+.tier-card::before {
+  content: '';
+  position: absolute;
+  top: -7px;
+  left: 20px;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: var(--mustard);
+  box-shadow: inset -2px -2px 3px rgba(0,0,0,0.3);
+}
+
+.tier-name {
+  font-family: 'Permanent Marker', cursive;
+  font-size: 1.1rem;
+  color: var(--red-pin);
+  margin-bottom: 4px;
+}
+
+.tier-price {
+  font-family: 'Caveat', cursive;
+  font-size: 1.3rem;
+  color: var(--mustard);
+  margin-bottom: 8px;
+}
+
+.tier-card p { font-size: 0.85rem; }
+
+/* ── FORUM PREVIEW ── */
+.forum-section { margin-bottom: 48px; }
+
+.forum-thread {
+  background: var(--card);
+  padding: 20px;
+  margin-bottom: 16px;
+  box-shadow: 2px 2px 8px var(--card-shadow);
+  border-left: 4px solid var(--teal);
+}
+
+.forum-thread:nth-child(2) { border-left-color: var(--red-pin); }
+.forum-thread:nth-child(3) { border-left-color: var(--mustard); }
+
+.forum-thread-title {
+  font-family: 'Permanent Marker', cursive;
+  font-size: 1rem;
+  margin-bottom: 6px;
+}
+
+.forum-meta {
+  font-size: 0.8rem;
+  color: var(--teal);
+  margin-bottom: 8px;
+}
+
+.forum-snippet { font-size: 0.85rem; line-height: 1.5; }
+
+/* ── FOOTER ── */
+.site-footer {
+  background: #3D3226;
+  padding: 32px;
+  border-radius: 2px;
+  box-shadow: 4px 4px 16px rgba(0,0,0,0.3);
+  margin-bottom: 80px;
+}
+
+.site-footer h2 { color: #F5E6C8; }
+.site-footer .section-title::after { background: var(--mustard); }
+
+.footer-bio {
+  color: #F5E6C8;
+  font-size: 0.9rem;
+  line-height: 1.7;
+  max-width: 700px;
+  margin-top: 16px;
+}
+
+.footer-bio .redacted {
+  background: var(--red-pin);
+  color: var(--red-pin);
+  padding: 0 4px;
+  cursor: pointer;
+  transition: color 0.3s;
+}
+
+.footer-bio .redacted:hover { color: #F5E6C8; }
+
+.status-badge {
+  display: inline-block;
+  margin-top: 16px;
+  padding: 6px 14px;
+  background: var(--teal);
+  color: #F5E6C8;
+  font-size: 0.85rem;
+  font-family: 'Fira Code', monospace;
+}
+
+.scrambled-email {
+  margin-top: 12px;
+  font-size: 0.85rem;
+  color: #F5E6C8;
+  font-family: 'Caveat', cursive;
+  font-size: 1.1rem;
+}
+
+/* ── MOBILE SIDEBAR ── */
+.mobile-toggle {
+  display: none;
+  position: fixed;
+  top: 12px;
+  left: 12px;
+  z-index: 200;
+  width: 44px;
+  height: 44px;
+  background: #3D3226;
+  border: 2px solid var(--mustard);
+  color: #F5E6C8;
+  font-size: 1.4rem;
+  cursor: pointer;
+  border-radius: 4px;
+  font-family: 'Permanent Marker', cursive;
+  line-height: 1;
+}
+
+/* ── PUSHPIN DROP ── */
+.drop-in {
+  opacity: 0;
+  transform: translateY(-60px);
+}
+
+/* ── STRING CONNECTIONS ── */
+.string-canvas {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 50;
+}
+
+/* ── RESPONSIVE ── */
+@media (max-width: 900px) {
+  .sidebar {
+    position: fixed;
+    left: -240px;
+    transition: left 0.3s;
+    z-index: 150;
+  }
+  .sidebar.open { left: 0; }
+  .mobile-toggle { display: flex; align-items: center; justify-content: center; }
+  .main-content { padding: 60px 16px 32px; }
+  .hero { padding: 32px 20px; }
+  .potw { padding: 24px 16px; }
+  .board-grid { grid-template-columns: 1fr; }
+  .rabbit-hole { padding: 20px; }
+}
+
+@media (max-width: 480px) {
+  .hero-pins { gap: 20px; }
+  .hero-pin-photo { width: 60px; height: 60px; }
+  .leaderboard { grid-template-columns: 1fr 1fr; }
+  .tier-cards { grid-template-columns: 1fr; }
+}
+</style>
+</head>
+<body x-data="corkboard()">
+
+<canvas class="string-canvas" id="stringCanvas"></canvas>
+
+<button class="mobile-toggle" @click="sidebarOpen = !sidebarOpen" aria-label="Toggle pin legend">
+  <i data-lucide="pin" style="width:20px;height:20px;"></i>
+</button>
+
+<div class="page-wrapper">
+  <!-- SIDEBAR / PIN LEGEND -->
+  <aside class="sidebar" :class="{ 'open': sidebarOpen }">
+    <h3>PIN LEGEND</h3>
+
+    <div class="pin-legend-item" :class="{ 'active': filter === 'all' }" @click="setFilter('all')">
+      <span class="pin-dot all"></span> <span>All Theories</span>
+    </div>
+    <div class="pin-legend-item" :class="{ 'active': filter === 'govt' }" @click="setFilter('govt')">
+      <span class="pin-dot red"></span> <span>Government</span>
+    </div>
+    <div class="pin-legend-item" :class="{ 'active': filter === 'et' }" @click="setFilter('et')">
+      <span class="pin-dot blue"></span> <span>Extraterrestrial</span>
+    </div>
+    <div class="pin-legend-item" :class="{ 'active': filter === 'finance' }" @click="setFilter('finance')">
+      <span class="pin-dot yellow"></span> <span>Financial</span>
+    </div>
+    <div class="pin-legend-item" :class="{ 'active': filter === 'pharma' }" @click="setFilter('pharma')">
+      <span class="pin-dot green"></span> <span>Pharmaceutical</span>
+    </div>
+
+    <div class="sidebar-note">
+      <strong>Agnes's Note:</strong><br>
+      If a pin goes missing from your card, it means someone noticed. Move to a new card color immediately. — A.P.
+    </div>
+    <div class="sidebar-note" style="transform:rotate(1.5deg); margin-top:12px;">
+      <strong>REMINDER:</strong><br>
+      The vending machine on floor 3 of the Wichita Falls library has been "out of order" since 2014. Coincidence?
+    </div>
+  </aside>
+
+  <!-- MAIN CONTENT -->
+  <main class="main-content">
+
+    <!-- HERO -->
+    <section class="hero flicker" id="hero">
+      <div class="hero-pins">
+        <div class="hero-pin-photo" style="transform:rotate(-4deg)"><i data-lucide="eye" style="width:32px;height:32px;"></i></div>
+        <div class="hero-pin-photo" style="transform:rotate(2deg)"><i data-lucide="file-text" style="width:32px;height:32px;"></i></div>
+        <div class="hero-pin-photo" style="transform:rotate(-1deg)"><i data-lucide="lock" style="width:32px;height:32px;"></i></div>
+      </div>
+      <h1>CORKBOARD SOLUTIONS</h1>
+      <p class="hero-manifesto">"The world keeps telling us to stop asking questions and go back to sleep. I will not go back to sleep. I literally can't. But even if I could, I wouldn't."</p>
+      <p class="hero-manifesto" style="font-size:1rem; margin-top:8px;">— Agnes Plumtree, Founder & Chief Indexer</p>
+      <div class="hero-timestamp">
+        <span class="blink-dot"></span>
+        LAST UPDATED: 4:17 AM CST &nbsp;|&nbsp; ACTIVE THREADS: 2,847 &nbsp;|&nbsp; PINS DEPLOYED: 14,203
+      </div>
+    </section>
+
+    <!-- PIN OF THE WEEK -->
+    <section class="potw" id="potw">
+      <span class="potw-badge">PIN OF THE WEEK</span>
+      <h3>The Bohemian Grove's Biometric Surveillance Network</h3>
+      <div class="potw-meta">
+        Submitted by <strong>Xanthippe_TruthSeeker</strong> &nbsp;|&nbsp; Category: Government (Red Pin) &nbsp;|&nbsp; Filed: 02/10/2026
+      </div>
+      <p>Three separate satellite image archives show identical thermal signatures emanating from the Grove's northwest quadrant during non-event months. Cross-reference with FAA restricted airspace logs (NOTAM #7734-B through #7741-B) and the pattern becomes unavoidable: someone is scanning. Not for weapons. Not for contraband. For <em>faces</em>. The biometric grid matches patent filings from a Palo Alto shell company dissolved in 2019 — dissolved, but its AWS instances are still active. I checked.</p>
+      <div class="potw-annotation">
+        Agnes's Note: I spent 11 hours verifying Xanthippe's NOTAM references. They check out. The shell company, "Clearview Dynamics," shares a registered agent with two DOD contractors. I have the filing numbers. I keep them in a fireproof box. Not here. Not digital. — A.P., 4:02 AM
+      </div>
+      <span class="verified-badge">VERIFIED CROSS-REFS: 14</span>
+    </section>
+
+    <!-- THE BOARD -->
+    <div style="margin-bottom:48px;">
+      <h2 class="section-title">THE BOARD</h2>
+      <p class="section-subtitle handwritten">Click any card to flip it. Hover to see the strings. Every connection is real.</p>
+
+      <div class="board-grid" id="boardGrid">
+        <template x-for="(card, i) in cards" :key="i">
+          <div class="theory-card-wrapper drop-in"
+               :class="{ 'dimmed': filter !== 'all' && card.cat !== filter }"
+               :style="'transform: rotate(' + card.rot + 'deg);'"
+               :data-cat="card.cat"
+               @mouseenter="showStrings(i)"
+               @mouseleave="hideStrings()">
+            <div class="theory-card" :class="{ 'flipped': card.flipped }" @click="card.flipped = !card.flipped" style="min-height:260px;">
+              <div class="card-front">
+                <div class="card-pin" :class="card.pinColor"></div>
+                <span class="card-category" :class="card.catClass" x-text="card.catLabel"></span>
+                <h4 x-text="card.title"></h4>
+                <div class="card-submitter" x-text="'by ' + card.author"></div>
+                <p class="card-excerpt" x-text="card.excerpt"></p>
+                <div class="card-connections" x-text="'🔗 ' + card.connections + ' connections'"></div>
+              </div>
+              <div class="card-back">
+                <h4>Agnes's Cross-References:</h4>
+                <p x-text="card.backNote"></p>
+                <div class="depth-meter">
+                  <div class="depth-meter-fill" :style="'width:' + card.depth + '%'"></div>
+                </div>
+                <div class="depth-label" x-text="'Rabbit Hole Depth: ' + card.depthLabel"></div>
+              </div>
+            </div>
+          </div>
+        </template>
+      </div>
+    </div>
+
+    <!-- RABBIT HOLE TRACKER -->
+    <section class="rabbit-hole" id="rabbitHole">
+      <h2 class="section-title">RABBIT HOLE TRACKER</h2>
+      <p class="section-subtitle handwritten">Slide to descend. Each level reveals connections they don't want you to see.</p>
+
+      <div class="rh-canvas-wrapper">
+        <canvas id="rhCanvas"></canvas>
+      </div>
+
+      <div class="rh-slider-wrapper">
+        <label for="depthSlider">HOW FAR DOWN?</label>
+        <input type="range" id="depthSlider" class="rh-slider" min="1" max="5" step="1" x-model="depth" @input="drawRabbitHole()">
+        <span class="rh-depth-label" x-text="depthLabels[depth - 1]"></span>
+      </div>
+    </section>
+
+    <!-- CORKBOARD COINS & RANKS -->
+    <section class="coins-section">
+      <h2 class="section-title">CORKBOARD COINS & RANKS</h2>
+      <p class="section-subtitle handwritten">Every verified cross-reference earns coins. Coins earn trust. Trust earns access.</p>
+
+      <div class="leaderboard">
+        <div class="leader-card" style="transform:rotate(-1deg)">
+          <div class="leader-rank">#1</div>
+          <div class="leader-name">Xanthippe_TruthSeeker</div>
+          <div class="leader-coins">14,892 coins</div>
+          <div style="font-size:0.75rem;color:var(--teal);margin-top:4px;">Master Cartographer</div>
+        </div>
+        <div class="leader-card" style="transform:rotate(1.5deg)">
+          <div class="leader-rank">#2</div>
+          <div class="leader-name">NightOwl_Wichita</div>
+          <div class="leader-coins">11,204 coins</div>
+          <div style="font-size:0.75rem;color:var(--teal);margin-top:4px;">Senior Archivist</div>
+        </div>
+        <div class="leader-card" style="transform:rotate(-2deg)">
+          <div class="leader-rank">#3</div>
+          <div class="leader-name">FluorideSkeptic_88</div>
+          <div class="leader-coins">9,671 coins</div>
+          <div style="font-size:0.75rem;color:var(--teal);margin-top:4px;">Pattern Analyst</div>
+        </div>
+        <div class="leader-card" style="transform:rotate(0.5deg)">
+          <div class="leader-rank">#4</div>
+          <div class="leader-name">OperationPaperclip2</div>
+          <div class="leader-coins">7,339 coins</div>
+          <div style="font-size:0.75rem;color:var(--teal);margin-top:4px;">Thread Puller</div>
+        </div>
+      </div>
+
+      <div class="tier-cards">
+        <div class="tier-card" style="transform:rotate(1deg)">
+          <div class="tier-name">String & Pin Patron</div>
+          <div class="tier-price">$5/mo</div>
+          <p>Access to the public board, one monthly pin allocation, and Agnes's weekly "What I Noticed at 3 AM" dispatch. You are part of the solution now.</p>
+        </div>
+        <div class="tier-card" style="transform:rotate(-1.5deg)">
+          <div class="tier-name">Cork Fragment Contributor</div>
+          <div class="tier-price">$15/mo</div>
+          <p>Everything above plus priority cross-referencing, access to the Yellow Pin Financial cluster, and a quarterly phone call with Agnes. She will not discuss Barney.</p>
+        </div>
+        <div class="tier-card" style="transform:rotate(2deg)">
+          <div class="tier-name">Master Conspiracy Cartographer</div>
+          <div class="tier-price">$50/mo</div>
+          <p>Full board access. Direct submission pipeline. Your theories get Agnes's personal annotations within 72 hours. Includes a physical index card mailed monthly with a real pushpin. The pin is not decorative.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- TINFOIL HAT FORUM -->
+    <section class="forum-section">
+      <h2 class="section-title">THE TINFOIL HAT FORUM</h2>
+      <p class="section-subtitle handwritten">Preview — full access requires String & Pin Patron tier or higher</p>
+
+      <div class="forum-thread" style="transform:rotate(-0.5deg)">
+        <div class="forum-thread-title">PROPOSAL: Add a Purple Pin for Time Manipulation Theories</div>
+        <div class="forum-meta">Started by <strong>ChronoDissident</strong> · 14 hours ago · 47 replies · <span style="color:var(--red-pin);">HEATED</span></div>
+        <p class="forum-snippet">Look, I respect the existing color system. Agnes built it and it works. But we have 19 active threads about temporal anomalies filed under "Government" and 6 under "Extraterrestrial" and they NEED their own pin. Time doesn't belong to a government. Time doesn't belong to aliens. Time belongs to itself, and that's the whole problem...</p>
+      </div>
+
+      <div class="forum-thread" style="transform:rotate(0.3deg)">
+        <div class="forum-thread-title">MISSING PINS ALERT: 47 Entries from the Fluoride Cluster Vanished Overnight</div>
+        <div class="forum-meta">Started by <strong>FluorideSkeptic_88</strong> · 3 days ago · 112 replies · <span style="color:var(--red-pin);">URGENT</span></div>
+        <p class="forum-snippet">I am not being paranoid. I cataloged every single entry in the Fluoride sub-board last Tuesday. There were 203. This morning there are 156. That is 47 missing entries. Agnes says she's "looking into a database hiccup" but since when does a database hiccup only eat entries about sodium fluoride supply chains? I have screenshots. I have timestamps...</p>
+      </div>
+
+      <div class="forum-thread" style="transform:rotate(-0.8deg)">
+        <div class="forum-thread-title">Agnes Appreciation Thread (No Conspiracies, Just Gratitude)</div>
+        <div class="forum-meta">Started by <strong>NightOwl_Wichita</strong> · 1 week ago · 89 replies · <span style="color:var(--teal);">WHOLESOME</span></div>
+        <p class="forum-snippet">I know this isn't what the forum is for, but I just want to say that Agnes answered my cross-reference request at 4:41 AM on a Sunday. She attached six scanned library microfiche pages. One of them had a coffee ring on it. That's dedication. That's someone who cares about the truth more than sleep. Thank you Agnes. We see you.</p>
+      </div>
+    </section>
+
+    <!-- FOOTER -->
+    <footer class="site-footer" id="footer">
+      <h2 class="section-title">ABOUT AGNES</h2>
+      <div class="footer-bio">
+        <p>My name is Agnes Plumtree. I worked the night shift at Wichita Falls Public Library from 2009 to 2016. I haven't slept more than four consecutive hours since the night I found the discrepancy in the periodicals index — the one they told me was "a printing error." Printing errors don't have classification numbers that correspond to sealed FOIA requests. I know because I checked. That was the night Corkboard Solutions was born, on an actual corkboard, in my kitchen, with actual pins.</p>
+        <p style="margin-top:12px;">The technical infrastructure was initially maintained by <span class="redacted" title="Hover to reveal">[REDACTED — SEE RED PIN #4471]</span>, who is no longer affiliated with this organization for reasons I have documented in triplicate and filed under Dewey Decimal 364.1 (Criminal Offenses — General). I now handle all operations personally.</p>
+        <p style="margin-top:12px;">I do not accept unsolicited phone calls. I do not use social media. I do not open attachments from email addresses containing more than two consecutive numbers. These are not preferences. These are protocols.</p>
+        <div class="status-badge"><span class="blink-dot"></span> LAST KNOWN STATUS: ACTIVE</div>
+        <p class="scrambled-email">Contact: a&#103;nes [dot] plum&#116;ree [at] cork&#98;oardsolutions [dot] org — subject line must contain your pin color or it will be filtered</p>
+      </div>
+    </footer>
+
+  </main>
+</div>
+
+<script src="/assets/js/gsap.min.js"></script>
+<script src="/assets/js/alpine.min.js" defer></script>
+<script src="/assets/js/lucide.min.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  if (typeof lucide !== 'undefined') {
+    lucide.createIcons();
+  }
+});
+
+function corkboard() {
+  return {
+    sidebarOpen: false,
+    filter: 'all',
+    depth: 1,
+    hoveredCard: -1,
+    depthLabels: [
+      'Level 1: Surface — "Official Explanations"',
+      'Level 2: Cracks — "Inconsistencies They Missed"',
+      'Level 3: Pattern — "Too Many Coincidences"',
+      'Level 4: Network — "They All Know Each Other"',
+      'Level 5: Core — "Agnes Was Right About Everything"'
+    ],
+    cards: [
+      {
+        title: 'Municipal Water pH Calibration Discrepancies (2018-2024)',
+        author: 'FluorideSkeptic_88',
+        excerpt: 'Six years of quarterly water reports from 14 mid-sized cities. The pH numbers are fine. Too fine. Statistically impossible consistency unless someone is editing the reports before publication.',
+        cat: 'govt', pinColor: 'red', catClass: 'cat-govt', catLabel: 'GOVERNMENT',
+        connections: 8, rot: -2.5, flipped: false, depth: 65, depthLabel: 'Deep — Municipal Records Required',
+        backNote: 'Cross-ref with EPA budget reallocations 2019 Q3. Note the timing: same quarter they "upgraded" the testing lab equipment. New equipment, same numbers? — A.P.'
+      },
+      {
+        title: 'The Grocery Store Frequency: Why Every Store Plays the Same 40 Songs',
+        author: 'SonicDissident',
+        excerpt: 'Muzak Holdings was dissolved in 2013, but someone is still coordinating. I recorded ambient audio in 23 grocery chains across 9 states. The playlist rotation is identical to within 4 minutes.',
+        cat: 'finance', pinColor: 'yellow', catClass: 'cat-finance', catLabel: 'FINANCIAL',
+        connections: 5, rot: 3.2, flipped: false, depth: 40, depthLabel: 'Moderate — Publicly Verifiable',
+        backNote: 'Follow the licensing fees. Whoever owns these playlists is collecting from every chain simultaneously. Check ASCAP filings under "Ambient Solutions LLC." — A.P.'
+      },
+      {
+        title: 'Satellite Constellation "Gaps" Over Rural Kansas (Weekly Pattern)',
+        author: 'NightOwl_Wichita',
+        excerpt: 'Every Thursday between 2:14 AM and 2:31 AM CST, there is a 17-minute gap in publicly trackable satellite coverage over a 40-mile radius centered on coordinates I will not publish here.',
+        cat: 'govt', pinColor: 'red', catClass: 'cat-govt', catLabel: 'GOVERNMENT',
+        connections: 12, rot: -1, flipped: false, depth: 85, depthLabel: 'Critical — Physical Verification Needed',
+        backNote: 'I have confirmed this independently using three separate tracking services. The gap is real. NightOwl drove out to the coordinates once. They came back and would not discuss what they saw for two weeks. — A.P.'
+      },
+      {
+        title: 'The Voyager Golden Record Contains an Unlisted Track',
+        author: 'DeepSpaceArchivist',
+        excerpt: 'NASA published 27 audio tracks on the Golden Record manifest. Spectral analysis of the full recording reveals a 28th segment: 4.7 seconds of structured data hidden in what they labeled "calibration silence."',
+        cat: 'et', pinColor: 'blue', catClass: 'cat-et', catLabel: 'EXTRATERRESTRIAL',
+        connections: 7, rot: 2.8, flipped: false, depth: 70, depthLabel: 'Deep — Requires Audio Equipment',
+        backNote: 'I spent three nights running the spectrogram. The "calibration silence" contains a repeating pattern at 1420 MHz — the hydrogen line. This is either a message or a key. — A.P.'
+      },
+      {
+        title: 'Generic Ibuprofen Lot Number Anomalies (Midwest Distribution)',
+        author: 'PharmaWatcher_KC',
+        excerpt: 'Lot numbers on generic ibuprofen from three separate manufacturers share a 7-digit suffix pattern that corresponds to no known pharmaceutical coding standard. The pattern resets every 90 days.',
+        cat: 'pharma', pinColor: 'green', catClass: 'cat-pharma', catLabel: 'PHARMACEUTICAL',
+        connections: 4, rot: -3, flipped: false, depth: 55, depthLabel: 'Moderate — Requires Pharmacy Access',
+        backNote: 'PharmaWatcher sent me photos of 40+ bottles. The suffix pattern is real. I mapped it against FDA recall dates and there is a 1:1 correlation with a specific inspection schedule. Coincidence is not a strategy. — A.P.'
+      },
+      {
+        title: 'The Denver Airport Tunnel Network Is Twice the Published Length',
+        author: 'Xanthippe_TruthSeeker',
+        excerpt: 'Construction permits filed between 1989-1994 account for 14.2 miles of underground tunnel. The official DIA fact sheet claims 6 miles. The remaining 8.2 miles are not in any public record. They are, however, in the electrical grid load calculations.',
+        cat: 'govt', pinColor: 'red', catClass: 'cat-govt', catLabel: 'GOVERNMENT',
+        connections: 15, rot: 1.5, flipped: false, depth: 90, depthLabel: 'Maximum — On-Site Investigation Only',
+        backNote: 'Xanthippe obtained the electrical grid data through a state-level FOIA request they tried to charge $4,200 for. She paid it. The numbers do not lie. 8.2 miles of tunnel drawing power with no public purpose. — A.P.'
+      },
+      {
+        title: 'Hedge Fund Algorithm Trading Patterns Mirror Cicada Emergence Cycles',
+        author: 'OperationPaperclip2',
+        excerpt: 'High-frequency trading volume spikes on Wall Street correlate with Brood X cicada emergence predictions at r=0.94. This is not metaphorical. Someone built a trading algorithm based on 17-year cicada cycles.',
+        cat: 'finance', pinColor: 'yellow', catClass: 'cat-finance', catLabel: 'FINANCIAL',
+        connections: 6, rot: -2, flipped: false, depth: 50, depthLabel: 'Moderate — Requires SEC Filings',
+        backNote: 'The correlation is too clean to be noise. OperationPaperclip2 is a former quant. He says the algorithm signature matches a specific firm he will not name. The cicadas know something. Or someone knows the cicadas. — A.P.'
+      },
+      {
+        title: 'Identical "Random" QR Codes Appearing on Park Benches in 7 Cities',
+        author: 'BenchWatcher_PDX',
+        excerpt: 'Laser-etched QR codes on aluminum park benches in Portland, Boise, Austin, Asheville, Burlington, Duluth, and Wichita Falls. All lead to the same 404 page on a .gov domain that was registered 6 days before the first bench was installed.',
+        cat: 'govt', pinColor: 'red', catClass: 'cat-govt', catLabel: 'GOVERNMENT',
+        connections: 9, rot: 3.5, flipped: false, depth: 75, depthLabel: 'Deep — Physical Evidence Available',
+        backNote: 'I SAT ON ONE OF THESE BENCHES. It is in Wichita Falls. Lucy Park. Third bench from the north entrance. The QR code is real. The 404 page loads a 1-pixel tracking image before displaying the error. I have the network log. — A.P.'
+      }
+    ],
+
+    setFilter(f) {
+      this.filter = f;
+      this.sidebarOpen = false;
+    },
+
+    showStrings(idx) {
+      this.hoveredCard = idx;
+      this.drawStrings(idx);
+    },
+
+    hideStrings() {
+      this.hoveredCard = -1;
+      var canvas = document.getElementById('stringCanvas');
+      if (canvas) {
+        var ctx = canvas.getContext('2d');
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+      }
+    },
+
+    drawStrings(idx) {
+      var canvas = document.getElementById('stringCanvas');
+      if (!canvas) return;
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+      var ctx = canvas.getContext('2d');
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      var wrappers = document.querySelectorAll('.theory-card-wrapper');
+      if (!wrappers[idx]) return;
+      var sourceRect = wrappers[idx].getBoundingClientRect();
+      var sx = sourceRect.left + sourceRect.width / 2;
+      var sy = sourceRect.top + sourceRect.height / 2;
+
+      var card = this.cards[idx];
+      var related = [];
+      for (var j = 0; j < this.cards.length; j++) {
+        if (j !== idx && (this.cards[j].cat === card.cat || Math.abs(j - idx) <= 2)) {
+          related.push(j);
+        }
+      }
+
+      ctx.strokeStyle = '#B83A3A';
+      ctx.lineWidth = 2;
+      ctx.setLineDash([8, 4]);
+      ctx.globalAlpha = 0.7;
+
+      for (var k = 0; k < related.length; k++) {
+        var r = related[k];
+        if (!wrappers[r]) continue;
+        var targetRect = wrappers[r].getBoundingClientRect();
+        var tx = targetRect.left + targetRect.width / 2;
+        var ty = targetRect.top + targetRect.height / 2;
+
+        ctx.beginPath();
+        ctx.moveTo(sx, sy);
+        var cpx = (sx + tx) / 2 + (Math.random() - 0.5) * 40;
+        var cpy = (sy + ty) / 2 + (Math.random() - 0.5) * 40;
+        ctx.quadraticCurveTo(cpx, cpy, tx, ty);
+        ctx.stroke();
+
+        // Pin dots at endpoints
+        ctx.globalAlpha = 1;
+        ctx.fillStyle = '#B83A3A';
+        ctx.setLineDash([]);
+        ctx.beginPath();
+        ctx.arc(tx, ty, 4, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.setLineDash([8, 4]);
+        ctx.globalAlpha = 0.7;
+      }
+
+      // Source pin
+      ctx.globalAlpha = 1;
+      ctx.setLineDash([]);
+      ctx.beginPath();
+      ctx.arc(sx, sy, 5, 0, Math.PI * 2);
+      ctx.fill();
+    },
+
+    drawRabbitHole() {
+      var canvas = document.getElementById('rhCanvas');
+      if (!canvas) return;
+      var wrapper = canvas.parentElement;
+      canvas.width = wrapper.clientWidth;
+      canvas.height = wrapper.clientHeight;
+      var ctx = canvas.getContext('2d');
+      var w = canvas.width;
+      var h = canvas.height;
+      var level = parseInt(this.depth);
+
+      // Darken background per level
+      var bgDarkness = 0.05 * (level - 1);
+      ctx.fillStyle = 'rgba(44, 36, 23, ' + (0.85 + bgDarkness) + ')';
+      ctx.fillRect(0, 0, w, h);
+
+      var nodes = [
+        { label: 'Water Supply\nManipulation', x: 0.15, y: 0.3 },
+        { label: 'Biometric\nSurveillance', x: 0.5, y: 0.15 },
+        { label: 'Satellite\nBlackouts', x: 0.85, y: 0.3 },
+        { label: 'Pharma Lot\nEncoding', x: 0.25, y: 0.75 },
+        { label: 'Financial\nCicada Algorithm', x: 0.75, y: 0.75 }
+      ];
+
+      // Connection layers by depth
+      var connections = [
+        [[0, 1], [2, 1]],
+        [[0, 3], [2, 4]],
+        [[1, 3], [1, 4]],
+        [[0, 4], [2, 3]],
+        [[3, 4], [0, 2]]
+      ];
+
+      // Draw connections up to current depth
+      for (var d = 0; d < level; d++) {
+        var layerConns = connections[d];
+        var alpha = d < level - 1 ? 0.4 : 0.9;
+        ctx.strokeStyle = '#B83A3A';
+        ctx.lineWidth = d === level - 1 ? 3 : 1.5;
+        ctx.globalAlpha = alpha;
+        ctx.setLineDash(d < 2 ? [] : [6, 3]);
+
+        for (var c = 0; c < layerConns.length; c++) {
+          var a = nodes[layerConns[c][0]];
+          var b = nodes[layerConns[c][1]];
+          var ax = a.x * w, ay = a.y * h;
+          var bx = b.x * w, by = b.y * h;
+
+          ctx.beginPath();
+          ctx.moveTo(ax, ay);
+          var cx2 = (ax + bx) / 2 + (d % 2 === 0 ? 20 : -20);
+          var cy2 = (ay + by) / 2 + (d % 2 === 0 ? -15 : 15);
+          ctx.quadraticCurveTo(cx2, cy2, bx, by);
+          ctx.stroke();
+        }
+      }
+
+      ctx.setLineDash([]);
+      ctx.globalAlpha = 1;
+
+      // Draw nodes
+      for (var n = 0; n < nodes.length; n++) {
+        var nx = nodes[n].x * w;
+        var ny = nodes[n].y * h;
+
+        // Glow at high depth
+        if (level >= 4) {
+          ctx.shadowColor = '#B83A3A';
+          ctx.shadowBlur = 15;
+        }
+
+        ctx.fillStyle = '#F5E6C8';
+        ctx.beginPath();
+        ctx.arc(nx, ny, 28, 0, Math.PI * 2);
+        ctx.fill();
+
+        ctx.shadowBlur = 0;
+
+        ctx.fillStyle = '#B83A3A';
+        ctx.beginPath();
+        ctx.arc(nx, ny - 28, 7, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Label
+        ctx.fillStyle = '#2C2417';
+        ctx.font = (level >= 4 ? 'bold ' : '') + '11px "Fira Code", monospace';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        var lines = nodes[n].label.split('\n');
+        for (var l = 0; l < lines.length; l++) {
+          ctx.fillText(lines[l], nx, ny + (l - (lines.length - 1) / 2) * 13);
+        }
+      }
+
+      // Depth-specific text
+      if (level >= 3) {
+        ctx.fillStyle = '#B83A3A';
+        ctx.globalAlpha = 0.6 + level * 0.08;
+        ctx.font = (level >= 4 ? '16' : '13') + 'px "Caveat", cursive';
+        ctx.textAlign = 'center';
+        var msgs = [
+          '', '', 'The pattern is forming...',
+          'THEY ARE ALL CONNECTED. EVERY. SINGLE. ONE.',
+          'AGNES WAS RIGHT. CHECK THE FILING CABINETS. CHECK THEM NOW.'
+        ];
+        ctx.fillText(msgs[level - 1], w / 2, h - 20);
+        ctx.globalAlpha = 1;
+      }
+    },
+
+    init() {
+      var self = this;
+
+      // Pushpin drop animation
+      setTimeout(function() {
+        var dropItems = document.querySelectorAll('.drop-in');
+        dropItems.forEach(function(el, i) {
+          gsap.fromTo(el,
+            { opacity: 0, y: -60 },
+            {
+              opacity: 1,
+              y: 0,
+              duration: 0.5,
+              delay: i * 0.12,
+              ease: 'bounce.out'
+            }
+          );
+        });
+      }, 300);
+
+      // Draw initial rabbit hole
+      setTimeout(function() {
+        self.drawRabbitHole();
+      }, 100);
+
+      // Redraw rabbit hole on resize
+      window.addEventListener('resize', function() {
+        self.drawRabbitHole();
+        self.hideStrings();
+      });
+    }
+  };
+}
+</script>
+</body>
+</html>

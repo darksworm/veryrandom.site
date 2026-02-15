@@ -1,0 +1,1291 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Astro-Microfiche — Preserving the Stars on Film Since 1997</title>
+<link rel="stylesheet" href="/assets/css/fonts.css">
+<style>
+/* ═══ RESET & BASE ═══ */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg: #F5F0E8;
+  --text: #2C3E50;
+  --accent: #C4A035;
+  --card-bg: #EDE6D6;
+  --muted: #7A7062;
+  --deep: #8B4513;
+  --heading: 'Josefin Sans', sans-serif;
+  --body: 'IBM Plex Mono', monospace;
+  --quote: 'Libre Baskerville', serif;
+}
+
+html { scroll-behavior: smooth; }
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--body);
+  font-size: 16px;
+  line-height: 1.7;
+  overflow-x: hidden;
+  min-height: 100vh;
+}
+
+h1, h2, h3, h4 {
+  font-family: var(--heading);
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  line-height: 1.2;
+}
+
+h1 { font-size: clamp(2rem, 5vw, 3.5rem); }
+h2 { font-size: clamp(1.4rem, 3vw, 2rem); margin-bottom: 1rem; }
+h3 { font-size: clamp(1.1rem, 2vw, 1.4rem); }
+
+a { color: var(--deep); text-decoration: underline; }
+a:hover { color: var(--accent); }
+
+/* ═══ DUST MOTES ═══ */
+.dust-container {
+  position: fixed;
+  top: 0; left: 0;
+  width: 100vw; height: 100vh;
+  pointer-events: none;
+  z-index: 1;
+  overflow: hidden;
+}
+
+.dust-mote {
+  position: absolute;
+  border-radius: 50%;
+  background: var(--accent);
+}
+
+@keyframes drift {
+  0% { transform: translate(0, 0) rotate(0deg); }
+  25% { transform: translate(30px, -60px) rotate(90deg); }
+  50% { transform: translate(-20px, -120px) rotate(180deg); }
+  75% { transform: translate(40px, -180px) rotate(270deg); }
+  100% { transform: translate(10px, -240px) rotate(360deg); }
+}
+
+/* ═══ LAYOUT ═══ */
+.page-wrapper {
+  position: relative;
+  z-index: 2;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 1.5rem;
+}
+
+.section-rule {
+  border: none;
+  border-top: 1px solid var(--accent);
+  margin: 3rem 0;
+  position: relative;
+  overflow: visible;
+}
+
+.section-rule::after {
+  content: '★';
+  position: absolute;
+  top: -0.7em;
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--bg);
+  padding: 0 0.8rem;
+  color: var(--accent);
+  font-size: 0.9rem;
+}
+
+.fade-in {
+  opacity: 0;
+  transform: translateY(20px);
+}
+
+/* ═══ HERO ═══ */
+.hero {
+  padding: 4rem 0 2rem;
+  display: grid;
+  grid-template-columns: 1fr 1.4fr;
+  gap: 2rem;
+  align-items: start;
+}
+
+.hero-photo {
+  width: 100%;
+  aspect-ratio: 3/4;
+  background: var(--card-bg);
+  border: 3px solid var(--text);
+  position: relative;
+  overflow: hidden;
+}
+
+.hero-photo-inner {
+  width: 100%;
+  height: 100%;
+  background:
+    linear-gradient(45deg, #b8a07855 0%, #8B451333 50%, #C4A03522 100%),
+    repeating-linear-gradient(0deg, transparent, transparent 2px, #2C3E5008 2px, #2C3E5008 4px),
+    linear-gradient(to bottom, #d4c4a8, #a89070);
+  filter: sepia(0.6) contrast(0.9) brightness(0.95);
+}
+
+.hero-photo-silhouette {
+  position: absolute;
+  bottom: 10%;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 60%;
+  height: 65%;
+  background: radial-gradient(ellipse at 50% 30%, #5a4a3a 0%, #3a2a1a 40%, transparent 70%);
+  opacity: 0.5;
+  border-radius: 30% 30% 0 0;
+}
+
+.hero-photo-label {
+  position: absolute;
+  bottom: 0.5rem;
+  right: 0.5rem;
+  font-size: 0.65rem;
+  color: var(--muted);
+  font-family: var(--body);
+  background: var(--bg);
+  padding: 0.15rem 0.4rem;
+  border: 1px solid var(--muted);
+}
+
+.hero-text h1 {
+  margin-bottom: 0.25rem;
+}
+
+.hero-tagline {
+  font-family: var(--heading);
+  font-size: clamp(0.85rem, 1.8vw, 1.05rem);
+  color: var(--accent);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  margin-bottom: 1.5rem;
+  border-left: 3px solid var(--accent);
+  padding-left: 1rem;
+}
+
+.hero-body {
+  font-size: 0.9rem;
+  color: var(--text);
+  line-height: 1.8;
+}
+
+/* ═══ HOW IT WORKS ═══ */
+.how-it-works {
+  padding: 2rem 0;
+}
+
+.steps-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1.5rem;
+  margin: 1.5rem 0;
+}
+
+.step-box {
+  border: 2px solid var(--text);
+  padding: 1.5rem;
+  position: relative;
+  background: var(--bg);
+}
+
+.step-number {
+  position: absolute;
+  top: -0.8rem;
+  left: 1rem;
+  background: var(--text);
+  color: var(--bg);
+  font-family: var(--heading);
+  font-weight: 700;
+  font-size: 1rem;
+  width: 2rem;
+  height: 2rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.step-box p {
+  font-size: 0.85rem;
+  margin-top: 0.5rem;
+}
+
+.mailing-address {
+  background: var(--card-bg);
+  border: 1px solid var(--accent);
+  padding: 1.2rem 1.5rem;
+  margin: 1.5rem 0;
+  font-size: 0.85rem;
+  line-height: 1.6;
+}
+
+.no-email {
+  font-size: 0.8rem;
+  color: var(--muted);
+  margin-top: 1rem;
+  font-style: italic;
+}
+
+/* Compatibility Checker */
+.compat-box {
+  border: 2px dashed var(--accent);
+  padding: 1.5rem;
+  margin-top: 2rem;
+  background: var(--card-bg);
+}
+
+.compat-box h3 {
+  color: var(--accent);
+  margin-bottom: 0.5rem;
+}
+
+.compat-box p {
+  font-size: 0.85rem;
+  margin-bottom: 0.8rem;
+}
+
+.btn {
+  display: inline-block;
+  font-family: var(--body);
+  font-size: 0.8rem;
+  padding: 0.6rem 1.2rem;
+  border: 2px solid var(--text);
+  background: var(--text);
+  color: var(--bg);
+  cursor: pointer;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  min-height: 44px;
+  min-width: 44px;
+  text-align: center;
+  transition: background 0.2s, color 0.2s;
+}
+
+.btn:hover {
+  background: var(--bg);
+  color: var(--text);
+}
+
+/* ═══ VANCE METHOD ═══ */
+.vance-method {
+  padding: 2rem 0;
+  display: grid;
+  grid-template-columns: 1.6fr 1fr;
+  gap: 2rem;
+  align-items: start;
+}
+
+.method-text p {
+  font-size: 0.88rem;
+  margin-bottom: 1rem;
+}
+
+.method-dismissal {
+  border-left: 3px solid var(--accent);
+  padding-left: 1rem;
+  color: var(--muted);
+  font-size: 0.82rem;
+  font-style: italic;
+  margin-top: 1.5rem;
+}
+
+.diagram-box {
+  border: 2px solid var(--text);
+  background: var(--card-bg);
+  padding: 1.5rem;
+  text-align: center;
+}
+
+.diagram-box svg {
+  width: 100%;
+  max-width: 280px;
+  height: auto;
+}
+
+.diagram-label {
+  font-size: 0.7rem;
+  color: var(--muted);
+  margin-top: 0.8rem;
+  text-align: center;
+}
+
+/* ═══ SAMPLE MICROFICHE ═══ */
+.sample-section {
+  padding: 2rem 0;
+}
+
+.fiche-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1.5rem;
+  margin: 1.5rem 0;
+}
+
+.fiche-card {
+  cursor: pointer;
+  position: relative;
+  border: 1px solid var(--muted);
+  aspect-ratio: 4/3;
+  overflow: hidden;
+  transition: box-shadow 0.6s ease;
+}
+
+.fiche-inner {
+  width: 100%;
+  height: 100%;
+  background:
+    repeating-linear-gradient(90deg, transparent, transparent 18px, #2C3E5008 18px, #2C3E5008 19px),
+    repeating-linear-gradient(0deg, transparent, transparent 18px, #2C3E5008 18px, #2C3E5008 19px),
+    linear-gradient(135deg, #c8bfae, #a89a84, #bfb59e);
+  filter: brightness(0.75) saturate(0.6);
+  transition: filter 0.6s ease, transform 0.6s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+}
+
+.fiche-card:hover .fiche-inner {
+  filter: brightness(1.1) saturate(0.8) sepia(0.15);
+  transform: scale(1.02);
+}
+
+.fiche-card:hover {
+  box-shadow: 0 0 30px #C4A03544, 0 0 60px #C4A03522;
+}
+
+/* scratches overlay */
+.fiche-scratches {
+  position: absolute;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  background:
+    linear-gradient(23deg, transparent 40%, #ffffff15 41%, #ffffff15 41.5%, transparent 42%),
+    linear-gradient(167deg, transparent 55%, #ffffff10 55.5%, #ffffff10 56%, transparent 56.5%),
+    linear-gradient(73deg, transparent 30%, #ffffff0d 30.5%, #ffffff0d 31%, transparent 31.5%);
+  pointer-events: none;
+}
+
+/* chart lines on the fiche */
+.fiche-chart {
+  width: 70%;
+  height: 70%;
+  position: relative;
+}
+
+.fiche-chart svg {
+  width: 100%;
+  height: 100%;
+  opacity: 0.6;
+}
+
+.fiche-caption {
+  font-size: 0.72rem;
+  color: var(--muted);
+  margin-top: 0.5rem;
+  padding: 0 0.25rem;
+}
+
+/* ═══ LIGHTBOX ═══ */
+.lightbox-overlay {
+  position: fixed;
+  top: 0; left: 0;
+  width: 100vw; height: 100vh;
+  background: #0a0804ee;
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  cursor: pointer;
+}
+
+.lightbox-content {
+  width: 90%;
+  max-width: 700px;
+  aspect-ratio: 4/3;
+  position: relative;
+  box-shadow: 0 0 80px #C4A03566, 0 0 160px #C4A03533;
+  border: 1px solid #C4A03555;
+}
+
+.lightbox-content .fiche-inner {
+  filter: brightness(1.15) saturate(0.85) sepia(0.1);
+}
+
+.lightbox-caption {
+  color: #b8a888;
+  font-size: 0.75rem;
+  margin-top: 1rem;
+  text-align: center;
+  font-family: var(--body);
+}
+
+.lightbox-hint {
+  color: #8a7a66;
+  font-size: 0.65rem;
+  margin-top: 0.5rem;
+  font-style: italic;
+}
+
+/* ═══ LOST FORECASTS ═══ */
+.lost-section {
+  padding: 2rem 0;
+}
+
+.bulletin-board {
+  background: var(--card-bg);
+  border: 2px solid var(--text);
+  padding: 2rem;
+}
+
+.bulletin-board h2 {
+  text-align: center;
+  margin-bottom: 0.3rem;
+}
+
+.bulletin-subtitle {
+  text-align: center;
+  font-size: 0.8rem;
+  color: var(--muted);
+  margin-bottom: 1.5rem;
+}
+
+.lost-item {
+  border-bottom: 1px dashed var(--accent);
+  padding: 1rem 0;
+  font-size: 0.85rem;
+}
+
+.lost-item:last-child { border-bottom: none; }
+
+.lost-item-title {
+  font-weight: 700;
+  margin-bottom: 0.3rem;
+}
+
+.lost-item-meta {
+  color: var(--muted);
+  font-size: 0.78rem;
+}
+
+.reward-badge {
+  display: inline-block;
+  background: var(--deep);
+  color: var(--bg);
+  font-size: 0.65rem;
+  padding: 0.15rem 0.5rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-top: 0.4rem;
+}
+
+.found-note {
+  font-family: var(--quote);
+  font-style: italic;
+  color: var(--deep);
+  font-size: 0.85rem;
+  margin-top: 0.4rem;
+}
+
+.lost-item.found {
+  text-decoration: line-through;
+  opacity: 0.7;
+}
+
+.lost-item.found .found-note {
+  text-decoration: none;
+  opacity: 1;
+  display: block;
+}
+
+/* ═══ FAQ ═══ */
+.faq-section {
+  padding: 2rem 0;
+}
+
+.faq-item {
+  border: 1px solid var(--accent);
+  margin-bottom: 0.75rem;
+}
+
+.faq-question {
+  font-family: var(--body);
+  font-size: 0.88rem;
+  padding: 1rem 1.2rem;
+  cursor: pointer;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: var(--card-bg);
+  border: none;
+  width: 100%;
+  text-align: left;
+  color: var(--text);
+  min-height: 44px;
+  transition: background 0.2s;
+}
+
+.faq-question:hover {
+  background: #e5dece;
+}
+
+.faq-indicator {
+  font-size: 1.2rem;
+  transition: transform 0.3s;
+  flex-shrink: 0;
+  margin-left: 1rem;
+}
+
+.faq-answer {
+  overflow: hidden;
+  max-height: 0;
+  transition: max-height 0.4s ease;
+}
+
+.faq-answer-inner {
+  padding: 1rem 1.2rem;
+  font-size: 0.85rem;
+  line-height: 1.8;
+  border-top: 1px solid var(--accent);
+}
+
+.care-guide {
+  background: var(--card-bg);
+  border: 1px solid var(--accent);
+  padding: 1.5rem;
+  margin-top: 1.5rem;
+}
+
+.care-guide h3 {
+  margin-bottom: 1rem;
+  color: var(--accent);
+}
+
+.care-guide ol {
+  padding-left: 1.5rem;
+  font-size: 0.85rem;
+}
+
+.care-guide li {
+  margin-bottom: 0.6rem;
+}
+
+/* ═══ GUESTBOOK ═══ */
+.guestbook-section {
+  padding: 2rem 0 4rem;
+}
+
+.guestbook-entries {
+  margin: 1.5rem 0 2rem;
+}
+
+.gb-entry {
+  border-left: 3px solid var(--accent);
+  padding: 0.8rem 0 0.8rem 1.2rem;
+  margin-bottom: 1.2rem;
+}
+
+.gb-entry-text {
+  font-family: var(--quote);
+  font-style: italic;
+  font-size: 0.92rem;
+  color: var(--text);
+  line-height: 1.6;
+}
+
+.gb-entry-author {
+  font-size: 0.75rem;
+  color: var(--muted);
+  margin-top: 0.3rem;
+}
+
+.gb-form {
+  border: 2px solid var(--text);
+  padding: 1.5rem;
+  background: var(--card-bg);
+}
+
+.gb-form h3 {
+  margin-bottom: 1rem;
+}
+
+.form-group {
+  margin-bottom: 1rem;
+}
+
+.form-group label {
+  display: block;
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 0.3rem;
+  color: var(--muted);
+}
+
+.form-group input,
+.form-group textarea {
+  width: 100%;
+  font-family: var(--body);
+  font-size: 0.85rem;
+  padding: 0.6rem 0.8rem;
+  border: 1px solid var(--muted);
+  background: var(--bg);
+  color: var(--text);
+  min-height: 44px;
+}
+
+.form-group textarea {
+  resize: vertical;
+  min-height: 100px;
+}
+
+.char-count {
+  font-size: 0.7rem;
+  color: var(--muted);
+  text-align: right;
+  margin-top: 0.2rem;
+}
+
+.confirmation-msg {
+  border: 2px solid var(--accent);
+  padding: 1rem;
+  margin-top: 1rem;
+  font-size: 0.85rem;
+  background: var(--bg);
+  color: var(--text);
+}
+
+/* ═══ PRINT FORM 7-B ═══ */
+.print-form {
+  display: none;
+}
+
+/* ═══ FOOTER ═══ */
+.site-footer {
+  text-align: center;
+  padding: 2rem 0 3rem;
+  font-size: 0.72rem;
+  color: var(--muted);
+  border-top: 1px solid var(--accent);
+}
+
+/* ═══ RESPONSIVE ═══ */
+@media (max-width: 900px) {
+  .hero {
+    grid-template-columns: 1fr;
+  }
+  .hero-photo {
+    max-width: 300px;
+  }
+  .steps-grid {
+    grid-template-columns: 1fr;
+  }
+  .vance-method {
+    grid-template-columns: 1fr;
+  }
+  .fiche-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 500px) {
+  .fiche-grid {
+    grid-template-columns: 1fr;
+  }
+  .bulletin-board {
+    padding: 1rem;
+  }
+  .page-wrapper {
+    padding: 0 1rem;
+  }
+}
+
+/* ═══ PRINT STYLES FOR FORM 7-B ═══ */
+@media print {
+  body > *:not(.print-form) { display: none !important; }
+  .print-form {
+    display: block !important;
+    font-family: 'IBM Plex Mono', monospace;
+    padding: 2rem;
+    color: #000;
+    font-size: 12pt;
+  }
+  .print-form h2 { font-family: 'Josefin Sans', sans-serif; margin-bottom: 1rem; }
+  .print-form .field-line {
+    border-bottom: 1px solid #000;
+    padding: 0.8rem 0 0.3rem;
+    margin-bottom: 0.5rem;
+    min-height: 2rem;
+  }
+  .print-form .field-label { font-size: 9pt; color: #555; }
+  .print-form .disclaimer { font-size: 8pt; color: #555; margin-top: 2rem; }
+}
+</style>
+</head>
+<body x-data="astroMicrofiche()">
+
+<!-- DUST MOTES -->
+<div class="dust-container" aria-hidden="true">
+  <template x-for="mote in dustMotes" :key="mote.id">
+    <div class="dust-mote" :style="mote.style"></div>
+  </template>
+</div>
+
+<div class="page-wrapper">
+
+  <!-- ═══ HERO ═══ -->
+  <section class="hero fade-in">
+    <div class="hero-photo">
+      <div class="hero-photo-inner">
+        <div class="hero-photo-silhouette"></div>
+      </div>
+      <span class="hero-photo-label">Dr. Vance, 2003. Photo: G. Llewellyn</span>
+    </div>
+    <div class="hero-text">
+      <h1>Dr. Eleanor Vance</h1>
+      <p class="hero-tagline">Preserving the stars on film since 1997. No screens. No algorithms. No apologies.</p>
+      <p class="hero-body">
+        I have spent forty years reading astrological forecasts off microfiche because someone had to and nobody else was going to. My old friend Esmerelda used to say the stars speak to those who hold still long enough to listen. She is dead now. Her work sits in boxes in my garage, next to the ephemerides and the cat litter. I mail these forecasts to people who understand that knowing your future should cost you something — a stamp, a wait, a little faith in the post office. If you want your horoscope in sixty seconds, Susan Sto Helit has an app for that. If you want it to mean something, you write to me.
+      </p>
+    </div>
+  </section>
+
+  <hr class="section-rule">
+
+  <!-- ═══ HOW IT WORKS ═══ -->
+  <section class="how-it-works fade-in">
+    <h2>How to Order</h2>
+    <div class="steps-grid">
+      <div class="step-box">
+        <div class="step-number">1</div>
+        <h3>Write</h3>
+        <p>Send a stamped, self-addressed envelope with your birth year and preferred astrologer. If you don't have a preferred astrologer, we will assign you one. They are all dead, so they won't mind.</p>
+      </div>
+      <div class="step-box">
+        <div class="step-number">2</div>
+        <h3>Wait</h3>
+        <p>Allow 4–6 weeks for processing. This is not because we are slow. It is because the work deserves more than haste. Also, my printer jams on Tuesdays.</p>
+      </div>
+      <div class="step-box">
+        <div class="step-number">3</div>
+        <h3>Read</h3>
+        <p>Hold your microfiche up to any light source — a window, a desk lamp, the last honest daylight before the buildings go up. Read it with your own eyes. No screen required. No screen desired.</p>
+      </div>
+    </div>
+
+    <div class="mailing-address">
+      <strong>MAIL TO:</strong><br>
+      Astro-Microfiche Subscription Library<br>
+      c/o Dr. Eleanor Vance<br>
+      14 Sidereal Lane, Unit B<br>
+      Scranton, PA 18503<br>
+      <p class="no-email">We do not have email. We will not get email.</p>
+    </div>
+
+    <!-- Compatibility Checker -->
+    <div class="compat-box">
+      <h3>Compatibility Analysis Available</h3>
+      <p>Mail Form 7-B with both parties' birth years and a self-addressed stamped envelope. Allow 8–12 weeks for processing.</p>
+      <p>Digital compatibility checkers give you an answer in seconds. Ours gives you an answer worth waiting for.</p>
+      <button class="btn" @click="printForm7B()">Download Form 7-B</button>
+    </div>
+  </section>
+
+  <hr class="section-rule">
+
+  <!-- ═══ THE VANCE METHOD ═══ -->
+  <section class="vance-method fade-in">
+    <div class="method-text">
+      <h2>The Vance Method</h2>
+      <p>Every forecast in this collection was calculated by hand. A protractor. An ephemeris. A pencil that needed sharpening more often than I had patience for. The astrologer plotted the positions of the planets relative to the ecliptic, computed the angular relationships between celestial bodies — conjunctions, oppositions, trines, squares — and interpreted the resulting pattern with reference to established decanal traditions, often working from noon ephemerides corrected for local sidereal time.</p>
+      <p>This took hours. Sometimes days. The astrologer had to care, because if they didn't, the math would be wrong, and if the math was wrong, the forecast would be wrong, and if the forecast was wrong — well. Nothing would happen differently. The stars don't notice. But the astrologer would know.</p>
+      <p>Computerized chart generation can replicate the mathematical positions in milliseconds. What it cannot replicate is the interpretive judgment of a human being who has spent a lifetime learning to read patterns in the sky the way a farmer reads weather. The Vance Method preserves both the data and the hand that drew it.</p>
+      <div class="method-dismissal">
+        Susan Sto Helit's "Totally Accurate Tomorrow" uses an algorithm. We use a protractor, an ephemeris, and forty years of patience.
+      </div>
+    </div>
+    <div class="diagram-box">
+      <svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg" aria-label="Astrological chart diagram">
+        <!-- outer circle -->
+        <circle cx="100" cy="100" r="90" fill="none" stroke="#2C3E50" stroke-width="1"/>
+        <circle cx="100" cy="100" r="75" fill="none" stroke="#2C3E50" stroke-width="0.5"/>
+        <circle cx="100" cy="100" r="45" fill="none" stroke="#C4A035" stroke-width="0.5"/>
+        <!-- house lines -->
+        <line x1="100" y1="10" x2="100" y2="190" stroke="#2C3E50" stroke-width="0.5"/>
+        <line x1="10" y1="100" x2="190" y2="100" stroke="#2C3E50" stroke-width="0.5"/>
+        <line x1="36" y1="36" x2="164" y2="164" stroke="#2C3E50" stroke-width="0.3"/>
+        <line x1="164" y1="36" x2="36" y2="164" stroke="#2C3E50" stroke-width="0.3"/>
+        <!-- planets -->
+        <circle cx="100" cy="22" r="3" fill="#C4A035" class="planet-dot"/>
+        <circle cx="155" cy="50" r="3" fill="#C4A035" class="planet-dot"/>
+        <circle cx="170" cy="110" r="3" fill="#8B4513" class="planet-dot"/>
+        <circle cx="60" cy="145" r="3" fill="#C4A035" class="planet-dot"/>
+        <circle cx="120" cy="165" r="3" fill="#8B4513" class="planet-dot"/>
+        <circle cx="45" cy="70" r="3" fill="#C4A035" class="planet-dot"/>
+        <!-- aspect lines -->
+        <line x1="100" y1="22" x2="170" y2="110" stroke="#C4A035" stroke-width="0.5" stroke-dasharray="3,3" class="aspect-line"/>
+        <line x1="155" y1="50" x2="60" y2="145" stroke="#8B4513" stroke-width="0.5" stroke-dasharray="3,3" class="aspect-line"/>
+        <line x1="45" y1="70" x2="120" y2="165" stroke="#C4A035" stroke-width="0.5" class="aspect-line"/>
+        <!-- sign markers -->
+        <text x="96" y="7" font-size="5" fill="#7A7062" font-family="IBM Plex Mono">♈</text>
+        <text x="185" y="103" font-size="5" fill="#7A7062" font-family="IBM Plex Mono">♋</text>
+        <text x="96" y="198" font-size="5" fill="#7A7062" font-family="IBM Plex Mono">♎</text>
+        <text x="2" y="103" font-size="5" fill="#7A7062" font-family="IBM Plex Mono">♑</text>
+      </svg>
+      <p class="diagram-label">Natal chart schema. Hand-plotted, Bramwell method, c. 1971. Six planetary positions with aspect lines (trine, opposition, conjunction).</p>
+    </div>
+  </section>
+
+  <hr class="section-rule">
+
+  <!-- ═══ SAMPLE MICROFICHE ═══ -->
+  <section class="sample-section fade-in">
+    <h2>Sample Microfiche</h2>
+    <p style="font-size:0.85rem;color:var(--muted);margin-bottom:0.5rem;">Click to hold up to the light.</p>
+    <div class="fiche-grid">
+      <div>
+        <div class="fiche-card" @click="openLightbox(0)">
+          <div class="fiche-inner">
+            <div class="fiche-chart">
+              <svg viewBox="0 0 120 90" xmlns="http://www.w3.org/2000/svg">
+                <circle cx="60" cy="45" r="35" fill="none" stroke="#2C3E50" stroke-width="0.8"/>
+                <circle cx="60" cy="45" r="25" fill="none" stroke="#2C3E50" stroke-width="0.4"/>
+                <line x1="60" y1="10" x2="60" y2="80" stroke="#2C3E50" stroke-width="0.4"/>
+                <line x1="25" y1="45" x2="95" y2="45" stroke="#2C3E50" stroke-width="0.4"/>
+                <circle cx="60" cy="12" r="2" fill="#C4A035"/>
+                <circle cx="85" cy="55" r="2" fill="#C4A035"/>
+                <circle cx="40" cy="65" r="2" fill="#8B4513"/>
+                <text x="5" y="10" font-size="4" fill="#7A7062" font-family="IBM Plex Mono">ARIES 03/74</text>
+              </svg>
+            </div>
+            <div class="fiche-scratches"></div>
+          </div>
+        </div>
+        <p class="fiche-caption">Aries forecast, March 1974. Astrologer: M. Bramwell. Condition: Fair. Minor emulsion damage, upper left quadrant.</p>
+      </div>
+      <div>
+        <div class="fiche-card" @click="openLightbox(1)">
+          <div class="fiche-inner">
+            <div class="fiche-chart">
+              <svg viewBox="0 0 120 90" xmlns="http://www.w3.org/2000/svg">
+                <circle cx="60" cy="45" r="35" fill="none" stroke="#2C3E50" stroke-width="0.8"/>
+                <circle cx="60" cy="45" r="20" fill="none" stroke="#C4A035" stroke-width="0.4"/>
+                <line x1="30" y1="20" x2="90" y2="70" stroke="#2C3E50" stroke-width="0.4"/>
+                <line x1="90" y1="20" x2="30" y2="70" stroke="#2C3E50" stroke-width="0.4"/>
+                <circle cx="45" cy="25" r="2" fill="#C4A035"/>
+                <circle cx="78" cy="60" r="2" fill="#C4A035"/>
+                <circle cx="50" cy="68" r="2" fill="#8B4513"/>
+                <circle cx="72" cy="30" r="2" fill="#C4A035"/>
+                <text x="5" y="10" font-size="4" fill="#7A7062" font-family="IBM Plex Mono">SCORPIO 11/68</text>
+              </svg>
+            </div>
+            <div class="fiche-scratches"></div>
+          </div>
+        </div>
+        <p class="fiche-caption">Scorpio forecast, November 1968. Astrologer: R. Okonkwo. Condition: Good. Slight foxing at margins. Unusually detailed Pluto transit notation.</p>
+      </div>
+      <div>
+        <div class="fiche-card" @click="openLightbox(2)">
+          <div class="fiche-inner">
+            <div class="fiche-chart">
+              <svg viewBox="0 0 120 90" xmlns="http://www.w3.org/2000/svg">
+                <circle cx="60" cy="45" r="35" fill="none" stroke="#2C3E50" stroke-width="0.8"/>
+                <circle cx="60" cy="45" r="28" fill="none" stroke="#2C3E50" stroke-width="0.3"/>
+                <circle cx="60" cy="45" r="15" fill="none" stroke="#C4A035" stroke-width="0.4"/>
+                <line x1="60" y1="10" x2="60" y2="80" stroke="#2C3E50" stroke-width="0.3"/>
+                <line x1="25" y1="45" x2="95" y2="45" stroke="#2C3E50" stroke-width="0.3"/>
+                <line x1="35" y1="18" x2="85" y2="72" stroke="#2C3E50" stroke-width="0.3"/>
+                <circle cx="55" cy="13" r="2" fill="#8B4513"/>
+                <circle cx="90" cy="50" r="2" fill="#C4A035"/>
+                <text x="5" y="10" font-size="4" fill="#7A7062" font-family="IBM Plex Mono">CANCER 07/82</text>
+              </svg>
+            </div>
+            <div class="fiche-scratches"></div>
+          </div>
+        </div>
+        <p class="fiche-caption">Cancer forecast, July 1982. Astrologer: J. Petrovna. Condition: Poor. Water damage, lower half. Lunar return chart still legible. A survivor.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- LIGHTBOX -->
+  <template x-if="lightboxOpen">
+    <div class="lightbox-overlay" @click="closeLightbox()">
+      <div class="lightbox-content" @click.stop>
+        <div class="fiche-inner" style="filter:brightness(1.15) saturate(0.85) sepia(0.1);">
+          <div class="fiche-chart">
+            <svg viewBox="0 0 120 90" xmlns="http://www.w3.org/2000/svg" x-html="lightboxSvg"></svg>
+          </div>
+          <div class="fiche-scratches"></div>
+        </div>
+      </div>
+      <p class="lightbox-caption" x-text="lightboxCaption"></p>
+      <p class="lightbox-hint">Click anywhere to set down.</p>
+    </div>
+  </template>
+
+  <hr class="section-rule">
+
+  <!-- ═══ LOST FORECASTS ═══ -->
+  <section class="lost-section fade-in">
+    <div class="bulletin-board">
+      <h2>Lost Forecasts — Seeking Information</h2>
+      <p class="bulletin-subtitle">If you possess any of the following forecast runs, please contact us by post. Do not telephone.</p>
+
+      <div class="lost-item">
+        <p class="lost-item-title">Gemini Quarterly, January–March 1966</p>
+        <p class="lost-item-meta">Astrologer: Dolores K. Avery. Region: Upper Midwest edition. Last known location: estate sale, Duluth, MN, 2004. 48 sheets, believed complete.</p>
+        <span class="reward-badge">Reward: 6 months complimentary subscription</span>
+      </div>
+
+      <div class="lost-item">
+        <p class="lost-item-title">Capricorn Annual, 1971</p>
+        <p class="lost-item-meta">Astrologer: R. Okonkwo. Region: International (English). Single sheet, double-sided. Okonkwo's only known annual-format forecast. Possibly misfiled under "Aquarius" due to a labeling error at the original print house.</p>
+        <span class="reward-badge">Reward: 6 months complimentary subscription</span>
+      </div>
+
+      <div class="lost-item found">
+        <p class="lost-item-title"><s>Pisces Monthly, September 1959</s></p>
+        <p class="lost-item-meta"><s>Astrologer: M. Bramwell. Region: New England. 12 sheets. Bramwell's earliest known commission.</s></p>
+        <p class="found-note">FOUND — thank you, Mrs. Petersham of Brattleboro. Your subscription has been extended through 2027.</p>
+      </div>
+
+      <div class="lost-item">
+        <p class="lost-item-title">Leo Special Edition, August 1978 ("The Summer of Mars")</p>
+        <p class="lost-item-meta">Astrologer: J. Petrovna. Region: Unknown. Referenced in Petrovna's personal correspondence but never confirmed in any archive. May not exist. I choose to believe it does.</p>
+        <span class="reward-badge">Reward: 6 months complimentary subscription</span>
+      </div>
+    </div>
+  </section>
+
+  <hr class="section-rule">
+
+  <!-- ═══ FAQ + CARE GUIDE ═══ -->
+  <section class="faq-section fade-in">
+    <h2>Frequently Asked Questions</h2>
+
+    <div class="faq-item">
+      <button class="faq-question" @click="toggleFaq(0)">
+        <span>Why microfiche?</span>
+        <span class="faq-indicator" :style="faqOpen[0] ? 'transform:rotate(45deg)' : ''">+</span>
+      </button>
+      <div class="faq-answer" :style="faqOpen[0] ? 'max-height:400px' : 'max-height:0'">
+        <div class="faq-answer-inner">
+          Because microfiche does not need a password, a software update, a subscription renewal, or the continued existence of a corporation to remain readable. It needs a light source. That is all. In fifty years, your cloud storage will be gone and your apps will be dead. My microfiche will still be sitting in its sleeve, waiting for someone to hold it up to a window. The format outlasts everything except indifference.
+        </div>
+      </div>
+    </div>
+
+    <div class="faq-item">
+      <button class="faq-question" @click="toggleFaq(1)">
+        <span>Can I view these on a computer?</span>
+        <span class="faq-indicator" :style="faqOpen[1] ? 'transform:rotate(45deg)' : ''">+</span>
+      </button>
+      <div class="faq-answer" :style="faqOpen[1] ? 'max-height:400px' : 'max-height:0'">
+        <div class="faq-answer-inner">
+          You can. You shouldn't. A microfiche scanner will digitize the image perfectly well. But the point of this format is the physical act of reading — the angle of the light, the slight blur at the edges, the knowledge that you are holding the same sheet that left the printer's hands in 1974. Scanning it would be like photographing a sunset and then looking at the photograph while the sunset is still happening.
+        </div>
+      </div>
+    </div>
+
+    <div class="faq-item">
+      <button class="faq-question" @click="toggleFaq(2)">
+        <span>Do you ship internationally?</span>
+        <span class="faq-indicator" :style="faqOpen[2] ? 'transform:rotate(45deg)' : ''">+</span>
+      </button>
+      <div class="faq-answer" :style="faqOpen[2] ? 'max-height:400px' : 'max-height:0'">
+        <div class="faq-answer-inner">
+          Yes. Include sufficient international reply coupons (IRCs) with your request. I am aware that many post offices no longer stock IRCs. I am aware that this is inconvenient. I am also aware that convenience is the enemy of everything I am trying to preserve. Your local philatelic society can advise.
+        </div>
+      </div>
+    </div>
+
+    <div class="faq-item">
+      <button class="faq-question" @click="toggleFaq(3)">
+        <span>Are these forecasts accurate?</span>
+        <span class="faq-indicator" :style="faqOpen[3] ? 'transform:rotate(45deg)' : ''">+</span>
+      </button>
+      <div class="faq-answer" :style="faqOpen[3] ? 'max-height:400px' : 'max-height:0'">
+        <div class="faq-answer-inner">
+          They are accurate records of what qualified astrologers believed would happen, based on rigorous celestial mathematics and a tradition stretching back millennia. Whether the stars themselves are accurate is a question I have spent forty years not answering, because the answer doesn't change the beauty of the work.
+        </div>
+      </div>
+    </div>
+
+    <div class="care-guide">
+      <h3>Microfiche Care Guide</h3>
+      <ol>
+        <li><strong>Handle by the edges only.</strong> Your fingers carry oils that will, over decades, eat into the emulsion. Wear cotton gloves if you have them. If you don't, wash your hands and dry them completely. I mean completely.</li>
+        <li><strong>Store flat, in acid-free sleeves.</strong> We include one with every order. Do not fold, roll, or — God forbid — staple your microfiche. I have seen this. I have wept.</li>
+        <li><strong>Keep below 70°F and 40% relative humidity.</strong> A cool, dry drawer is perfect. A shoebox in the attic is not. A refrigerator is acceptable if you seal the sleeve in a zip-lock bag first and you do not store it near the cheese.</li>
+        <li><strong>Avoid direct sunlight.</strong> Prolonged UV exposure will fade the image. Brief exposure for reading is fine — that is, after all, the entire point. But do not leave your microfiche on a windowsill like a cat. It is not a cat. It cannot move to the shade on its own.</li>
+        <li><strong>If damaged, do not attempt repair.</strong> Contact us. We have seen things you would not believe. We have saved things you would not imagine. There is usually hope.</li>
+      </ol>
+    </div>
+  </section>
+
+  <hr class="section-rule">
+
+  <!-- ═══ GUESTBOOK ═══ -->
+  <section class="guestbook-section fade-in">
+    <h2>Guestbook</h2>
+
+    <div class="guestbook-entries">
+      <div class="gb-entry">
+        <p class="gb-entry-text">"I received the Sagittarius forecast from December 1969 and I sat at my kitchen table and cried. M. Bramwell predicted a 'significant shift in domestic arrangements' and that was the month Harold got the transfer to Akron. Forty-three years married. Bramwell knew before we did."</p>
+        <p class="gb-entry-author">— Margaret Fisk, age 82, Akron, OH. October 2023.</p>
+      </div>
+
+      <div class="gb-entry">
+        <p class="gb-entry-text">"I am trying to locate an Eleanor Vance, maiden name Kowalski, possibly from Scranton. If this is you please contact me through this guestbook. It is about the house on Maple Street and the matter was never properly resolved."</p>
+        <p class="gb-entry-author">— Name withheld. March 2024.</p>
+      </div>
+
+      <div class="gb-entry">
+        <p class="gb-entry-text">"Ordered in January. It is now April. I understand the 4-6 weeks but this is beyond that. My envelope was stamped and self-addressed as instructed."</p>
+        <p class="gb-entry-author">— D. Chen, Portland, OR. April 2024.</p>
+      </div>
+
+      <div class="gb-entry">
+        <p class="gb-entry-text">"The stars don't care about us but Eleanor does."</p>
+        <p class="gb-entry-author">— Anonymous. June 2024.</p>
+      </div>
+
+      <div class="gb-entry">
+        <p class="gb-entry-text">"I found your site while researching mid-century ephemeris publishers for my dissertation. I did not expect to spend forty minutes reading about microfiche care. I did not expect to feel things. Your care guide made me call my grandmother."</p>
+        <p class="gb-entry-author">— K. Osei, graduate student, University of Chicago. August 2024.</p>
+      </div>
+
+      <div class="gb-entry">
+        <p class="gb-entry-text">"My late wife was a Taurus. I ordered her 1975 forecast just to hold something she would have loved. It arrived in a sleeve with a handwritten note from Dr. Vance. I keep it in my nightstand drawer. I am not a sentimental man but I am an honest one."</p>
+        <p class="gb-entry-author">— Robert Halloran, Scranton, PA. November 2024.</p>
+      </div>
+    </div>
+
+    <div class="gb-form">
+      <h3>Sign the Book</h3>
+      <div class="form-group">
+        <label for="gb-name">Your Name</label>
+        <input type="text" id="gb-name" x-model="gbName" placeholder="As you'd like to be remembered" maxlength="60">
+      </div>
+      <div class="form-group">
+        <label for="gb-message">Your Message</label>
+        <textarea id="gb-message" x-model="gbMessage" placeholder="200 characters. Make them count." maxlength="200" @input="updateCharCount()"></textarea>
+        <p class="char-count"><span x-text="200 - gbMessage.length"></span> characters remaining</p>
+      </div>
+      <button class="btn" @click="submitGuestbook()" :disabled="!gbName.trim() || !gbMessage.trim()">Sign the Book</button>
+      <div class="confirmation-msg" x-show="gbConfirm" x-transition>
+        Thank you. Your entry will be reviewed and added within 3–5 business days. We appreciate your patience. We appreciate most forms of patience.
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══ FOOTER ═══ -->
+  <footer class="site-footer">
+    <p>Astro-Microfiche Subscription Library. Est. 1997. Scranton, PA.</p>
+    <p>All forecasts are archival reproductions. Astro-Microfiche makes no claims regarding celestial accuracy, only human sincerity.</p>
+    <p style="margin-top:0.5rem;">© Dr. Eleanor Vance. All rights reserved. Especially the right to be left alone.</p>
+  </footer>
+</div>
+
+<!-- ═══ PRINT FORM 7-B (hidden, shown only on print) ═══ -->
+<div class="print-form">
+  <h2>FORM 7-B — Compatibility Analysis Request</h2>
+  <p>Astro-Microfiche Subscription Library<br>14 Sidereal Lane, Unit B, Scranton, PA 18503</p>
+  <br>
+  <p><strong>Party A</strong></p>
+  <div class="field-line"><span class="field-label">Full Name:</span></div>
+  <div class="field-line"><span class="field-label">Birth Year:</span></div>
+  <div class="field-line"><span class="field-label">Sun Sign (if known):</span></div>
+  <br>
+  <p><strong>Party B</strong></p>
+  <div class="field-line"><span class="field-label">Full Name:</span></div>
+  <div class="field-line"><span class="field-label">Birth Year:</span></div>
+  <div class="field-line"><span class="field-label">Sun Sign (if known):</span></div>
+  <br>
+  <div class="field-line"><span class="field-label">Nature of Relationship (check one): ☐ Romantic  ☐ Familial  ☐ Professional  ☐ Other (specify):</span></div>
+  <div class="field-line"><span class="field-label">Specific Concerns (optional):</span></div>
+  <div class="field-line"></div>
+  <div class="field-line"><span class="field-label">Signature:</span></div>
+  <div class="field-line"><span class="field-label">Date:</span></div>
+  <p class="disclaimer">Include this completed form, a self-addressed stamped envelope, and sufficient postage for return delivery. Allow 8–12 weeks for processing. Form 7-B is non-transferable. One analysis per form. We do not accept photocopies. We have our reasons.</p>
+</div>
+
+<script src="/assets/js/gsap.min.js"></script>
+<script src="/assets/js/alpine.min.js" defer></script>
+<script>
+document.addEventListener('alpine:init', function() {
+  Alpine.data('astroMicrofiche', function() {
+    return {
+      // Dust motes
+      dustMotes: [],
+      // Lightbox
+      lightboxOpen: false,
+      lightboxSvg: '',
+      lightboxCaption: '',
+      // FAQ
+      faqOpen: [false, false, false, false],
+      faqClicked: [false, false, false, false],
+      // Guestbook
+      gbName: '',
+      gbMessage: '',
+      gbConfirm: false,
+
+      // Microfiche data
+      ficheData: [
+        {
+          svg: '<circle cx="60" cy="45" r="35" fill="none" stroke="#2C3E50" stroke-width="0.8"/><circle cx="60" cy="45" r="25" fill="none" stroke="#2C3E50" stroke-width="0.4"/><line x1="60" y1="10" x2="60" y2="80" stroke="#2C3E50" stroke-width="0.4"/><line x1="25" y1="45" x2="95" y2="45" stroke="#2C3E50" stroke-width="0.4"/><circle cx="60" cy="12" r="2" fill="#C4A035"/><circle cx="85" cy="55" r="2" fill="#C4A035"/><circle cx="40" cy="65" r="2" fill="#8B4513"/><text x="5" y="10" font-size="4" fill="#7A7062" font-family="IBM Plex Mono">ARIES 03/74</text>',
+          caption: 'Aries forecast, March 1974. Astrologer: M. Bramwell. Condition: Fair.'
+        },
+        {
+          svg: '<circle cx="60" cy="45" r="35" fill="none" stroke="#2C3E50" stroke-width="0.8"/><circle cx="60" cy="45" r="20" fill="none" stroke="#C4A035" stroke-width="0.4"/><line x1="30" y1="20" x2="90" y2="70" stroke="#2C3E50" stroke-width="0.4"/><line x1="90" y1="20" x2="30" y2="70" stroke="#2C3E50" stroke-width="0.4"/><circle cx="45" cy="25" r="2" fill="#C4A035"/><circle cx="78" cy="60" r="2" fill="#C4A035"/><circle cx="50" cy="68" r="2" fill="#8B4513"/><circle cx="72" cy="30" r="2" fill="#C4A035"/><text x="5" y="10" font-size="4" fill="#7A7062" font-family="IBM Plex Mono">SCORPIO 11/68</text>',
+          caption: 'Scorpio forecast, November 1968. Astrologer: R. Okonkwo. Condition: Good.'
+        },
+        {
+          svg: '<circle cx="60" cy="45" r="35" fill="none" stroke="#2C3E50" stroke-width="0.8"/><circle cx="60" cy="45" r="28" fill="none" stroke="#2C3E50" stroke-width="0.3"/><circle cx="60" cy="45" r="15" fill="none" stroke="#C4A035" stroke-width="0.4"/><line x1="60" y1="10" x2="60" y2="80" stroke="#2C3E50" stroke-width="0.3"/><line x1="25" y1="45" x2="95" y2="45" stroke="#2C3E50" stroke-width="0.3"/><line x1="35" y1="18" x2="85" y2="72" stroke="#2C3E50" stroke-width="0.3"/><circle cx="55" cy="13" r="2" fill="#8B4513"/><circle cx="90" cy="50" r="2" fill="#C4A035"/><text x="5" y="10" font-size="4" fill="#7A7062" font-family="IBM Plex Mono">CANCER 07/82</text>',
+          caption: 'Cancer forecast, July 1982. Astrologer: J. Petrovna. Condition: Poor. Water damage, lower half.'
+        }
+      ],
+
+      init() {
+        this.createDustMotes();
+        this.initScrollAnimations();
+        this.animateDiagram();
+      },
+
+      createDustMotes() {
+        var motes = [];
+        for (var i = 0; i < 18; i++) {
+          var size = 3 + Math.random() * 4;
+          var startX = Math.random() * 100;
+          var startY = 100 + Math.random() * 40;
+          var duration = 15 + Math.random() * 25;
+          var delay = Math.random() * duration;
+          var opacity = 0.15 + Math.random() * 0.25;
+          motes.push({
+            id: i,
+            style: 'width:' + size + 'px;height:' + size + 'px;left:' + startX + 'vw;top:' + startY + 'vh;opacity:' + opacity + ';animation:drift ' + duration + 's linear ' + (-delay) + 's infinite;'
+          });
+        }
+        this.dustMotes = motes;
+      },
+
+      initScrollAnimations() {
+        var fadeEls = document.querySelectorAll('.fade-in');
+        var observer = new IntersectionObserver(function(entries) {
+          entries.forEach(function(entry) {
+            if (entry.isIntersecting) {
+              gsap.fromTo(entry.target,
+                { opacity: 0, y: 20 },
+                { opacity: 1, y: 0, duration: 0.8, ease: 'power2.out' }
+              );
+              observer.unobserve(entry.target);
+            }
+          });
+        }, { threshold: 0.1 });
+
+        fadeEls.forEach(function(el) {
+          observer.observe(el);
+        });
+      },
+
+      animateDiagram() {
+        var planets = document.querySelectorAll('.planet-dot');
+        var aspects = document.querySelectorAll('.aspect-line');
+
+        planets.forEach(function(dot, i) {
+          gsap.fromTo(dot,
+            { opacity: 0, scale: 0 },
+            { opacity: 1, scale: 1, duration: 0.5, delay: 0.8 + i * 0.15, ease: 'back.out(1.7)', transformOrigin: 'center center' }
+          );
+        });
+
+        aspects.forEach(function(line, i) {
+          var length = line.getTotalLength ? line.getTotalLength() : 100;
+          line.style.strokeDasharray = length;
+          line.style.strokeDashoffset = length;
+          gsap.fromTo(line,
+            { strokeDashoffset: length },
+            { strokeDashoffset: 0, duration: 1, delay: 1.5 + i * 0.3, ease: 'power1.inOut' }
+          );
+        });
+      },
+
+      openLightbox(index) {
+        this.lightboxSvg = this.ficheData[index].svg;
+        this.lightboxCaption = this.ficheData[index].caption;
+        this.lightboxOpen = true;
+        document.body.style.overflow = 'hidden';
+      },
+
+      closeLightbox() {
+        this.lightboxOpen = false;
+        document.body.style.overflow = '';
+      },
+
+      toggleFaq(index) {
+        var newState = [this.faqOpen[0], this.faqOpen[1], this.faqOpen[2], this.faqOpen[3]];
+        newState[index] = !newState[index];
+        this.faqOpen = newState;
+
+        // Play typewriter click on first open
+        if (newState[index] && !this.faqClicked[index]) {
+          this.playClick();
+          var clicked = [this.faqClicked[0], this.faqClicked[1], this.faqClicked[2], this.faqClicked[3]];
+          clicked[index] = true;
+          this.faqClicked = clicked;
+        }
+      },
+
+      playClick() {
+        try {
+          var ctx = new (window.AudioContext || window.webkitAudioContext)();
+          var oscillator = ctx.createOscillator();
+          var gainNode = ctx.createGain();
+          oscillator.connect(gainNode);
+          gainNode.connect(ctx.destination);
+          oscillator.frequency.setValueAtTime(800, ctx.currentTime);
+          oscillator.frequency.exponentialRampToValueAtTime(200, ctx.currentTime + 0.03);
+          gainNode.gain.setValueAtTime(0.08, ctx.currentTime);
+          gainNode.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.06);
+          oscillator.start(ctx.currentTime);
+          oscillator.stop(ctx.currentTime + 0.06);
+        } catch(e) {
+          // Audio not available, fail silently
+        }
+      },
+
+      printForm7B() {
+        window.print();
+      },
+
+      updateCharCount() {
+        // Reactive via x-model, no additional logic needed
+      },
+
+      submitGuestbook() {
+        if (!this.gbName.trim() || !this.gbMessage.trim()) return;
+        this.gbConfirm = true;
+        this.gbName = '';
+        this.gbMessage = '';
+        var self = this;
+        setTimeout(function() {
+          self.gbConfirm = false;
+        }, 6000);
+      }
+    };
+  });
+});
+</script>
+</body>
+</html>

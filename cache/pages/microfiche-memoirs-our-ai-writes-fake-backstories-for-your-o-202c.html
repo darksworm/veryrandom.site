@@ -1,0 +1,1225 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Microfiche Memoirs — Our AI Writes Fake Backstories for Your Old Photos</title>
+<link rel="stylesheet" href="/assets/css/fonts.css">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg: #FAF0E6;
+  --text: #2F4F4F;
+  --muted: #8B7D6B;
+  --dark: #1A1A2E;
+  --accent: #D4A574;
+  --card: #F5E6D3;
+  --font-ui: 'Fira Code', monospace;
+  --font-narrative: 'Caveat', cursive;
+  --font-display: 'DM Serif Display', serif;
+}
+
+html { scroll-behavior: smooth; }
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font-ui);
+  font-size: 16px;
+  line-height: 1.6;
+  overflow-x: hidden;
+}
+
+/* ── GRAIN TEXTURE ── */
+.grain-overlay {
+  position: fixed;
+  top: 0; left: 0; width: 100%; height: 100%;
+  pointer-events: none;
+  z-index: 9998;
+  opacity: 0.03;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  background-size: 256px 256px;
+}
+
+/* ── DUST MOTES ── */
+.dust-mote {
+  position: fixed;
+  border-radius: 50%;
+  background: #8B7D6B;
+  opacity: 0.2;
+  pointer-events: none;
+  z-index: 9997;
+}
+
+/* ── HERO ── */
+.hero {
+  position: relative;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  overflow: hidden;
+  padding: 2rem;
+}
+
+.hero-bg {
+  position: absolute;
+  top: -10%; left: -10%;
+  width: 120%; height: 120%;
+  background: linear-gradient(
+    135deg,
+    #8B7D6B 0%, #D4A574 20%, #8B7D6B 40%,
+    #A0937D 60%, #D4A574 80%, #8B7D6B 100%
+  );
+  background-size: 400% 400%;
+  filter: sepia(0.8) contrast(0.7) brightness(0.6) blur(2px);
+  z-index: 0;
+}
+
+.hero-bg::after {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; width: 100%; height: 100%;
+  background: repeating-linear-gradient(
+    0deg,
+    transparent,
+    transparent 2px,
+    rgba(0,0,0,0.03) 2px,
+    rgba(0,0,0,0.03) 4px
+  );
+}
+
+.hero-content {
+  position: relative;
+  z-index: 2;
+  max-width: 800px;
+}
+
+.hero-content h1 {
+  font-family: var(--font-display);
+  font-size: clamp(2.5rem, 6vw, 4.5rem);
+  color: #FAF0E6;
+  margin-bottom: 0.5rem;
+  letter-spacing: 0.02em;
+}
+
+.hero-subtitle {
+  font-family: var(--font-display);
+  font-size: clamp(1.2rem, 3vw, 1.8rem);
+  color: #D4A574;
+  margin-bottom: 2rem;
+  font-weight: 400;
+}
+
+.hero-tagline {
+  font-family: var(--font-narrative);
+  font-size: clamp(1.3rem, 3vw, 2rem);
+  color: #FAF0E6;
+  margin-bottom: 2.5rem;
+  line-height: 1.4;
+  max-width: 600px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.hero-tagline em {
+  color: #D4A574;
+  font-style: normal;
+}
+
+.btn-summon {
+  display: inline-block;
+  font-family: var(--font-ui);
+  font-size: 1rem;
+  padding: 1rem 2.5rem;
+  background: var(--accent);
+  color: var(--dark);
+  border: none;
+  cursor: pointer;
+  letter-spacing: 0.05em;
+  transition: background 0.3s, transform 0.2s;
+  min-height: 44px;
+  min-width: 44px;
+}
+
+.btn-summon:hover {
+  background: #E0B68A;
+  transform: translateY(-2px);
+}
+
+/* ── SECTIONS ── */
+section { padding: 4rem 1.5rem; }
+
+.section-inner {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.section-heading {
+  font-family: var(--font-display);
+  font-size: clamp(1.8rem, 4vw, 2.8rem);
+  color: var(--text);
+  text-align: center;
+  margin-bottom: 0.5rem;
+}
+
+.section-subheading {
+  font-family: var(--font-ui);
+  font-size: 0.85rem;
+  color: var(--muted);
+  text-align: center;
+  margin-bottom: 3rem;
+}
+
+/* ── HOW IT WORKS ── */
+.steps-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1.5rem;
+  margin-bottom: 2.5rem;
+}
+
+.step-card {
+  background: var(--card);
+  border: 1px solid var(--muted);
+  padding: 2rem 1.5rem;
+  text-align: center;
+  position: relative;
+}
+
+.step-number {
+  font-family: var(--font-display);
+  font-size: 3rem;
+  color: var(--accent);
+  line-height: 1;
+  margin-bottom: 0.75rem;
+}
+
+.step-icon {
+  width: 48px;
+  height: 48px;
+  margin: 0 auto 1rem;
+  color: var(--muted);
+}
+
+.step-card h3 {
+  font-family: var(--font-ui);
+  font-size: 0.95rem;
+  color: var(--text);
+  margin-bottom: 0.5rem;
+  font-weight: 600;
+}
+
+.step-card p {
+  font-family: var(--font-ui);
+  font-size: 0.8rem;
+  color: var(--muted);
+}
+
+.disclaimer {
+  font-family: var(--font-ui);
+  font-size: 0.7rem;
+  color: var(--muted);
+  text-align: center;
+  max-width: 700px;
+  margin: 0 auto;
+  line-height: 1.8;
+  border-top: 1px solid var(--muted);
+  padding-top: 1.5rem;
+}
+
+/* ── INTERSTITIAL ── */
+.interstitial {
+  background: var(--dark);
+  padding: 5rem 2rem;
+  text-align: center;
+}
+
+.interstitial p {
+  font-family: var(--font-narrative);
+  font-size: clamp(1.5rem, 4vw, 2.5rem);
+  color: #FAF0E6;
+  max-width: 700px;
+  margin: 0 auto;
+  line-height: 1.5;
+}
+
+/* ── MASONRY GALLERY ── */
+.masonry-grid {
+  columns: 3;
+  column-gap: 1.5rem;
+}
+
+.masonry-card {
+  break-inside: avoid;
+  background: var(--card);
+  border: 1px solid var(--muted);
+  padding: 1.25rem;
+  margin-bottom: 1.5rem;
+  display: inline-block;
+  width: 100%;
+}
+
+.masonry-img {
+  width: 100%;
+  aspect-ratio: 4/3;
+  background: linear-gradient(135deg, #8B7D6B, #D4A574, #8B7D6B);
+  filter: sepia(0.6) blur(1px) contrast(0.8);
+  margin-bottom: 1rem;
+  position: relative;
+}
+
+.masonry-img::after {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; width: 100%; height: 100%;
+  background: repeating-linear-gradient(
+    0deg,
+    transparent,
+    transparent 1px,
+    rgba(0,0,0,0.05) 1px,
+    rgba(0,0,0,0.05) 2px
+  );
+}
+
+.masonry-narrative {
+  font-family: var(--font-narrative);
+  font-size: 1.25rem;
+  color: var(--text);
+  margin-bottom: 1rem;
+  line-height: 1.4;
+}
+
+.fakeness-label {
+  font-family: var(--font-ui);
+  font-size: 0.7rem;
+  color: var(--muted);
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 0.25rem;
+}
+
+.fakeness-slider {
+  width: 100%;
+  -webkit-appearance: none;
+  appearance: none;
+  height: 6px;
+  background: linear-gradient(to right, var(--muted), var(--accent));
+  outline: none;
+  border-radius: 3px;
+  cursor: pointer;
+}
+
+.fakeness-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 18px;
+  height: 18px;
+  background: var(--accent);
+  border-radius: 50%;
+  cursor: pointer;
+  border: 2px solid var(--dark);
+}
+
+.fakeness-slider::-moz-range-thumb {
+  width: 18px;
+  height: 18px;
+  background: var(--accent);
+  border-radius: 50%;
+  cursor: pointer;
+  border: 2px solid var(--dark);
+}
+
+.fakeness-avg {
+  font-family: var(--font-ui);
+  font-size: 0.7rem;
+  color: var(--accent);
+  text-align: center;
+  margin-top: 0.5rem;
+}
+
+/* ── ABOUT (DARK) ── */
+.about-section {
+  background: var(--dark);
+  padding: 5rem 2rem;
+}
+
+.about-inner {
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.about-section .section-heading {
+  color: #FAF0E6;
+}
+
+.about-text {
+  font-family: var(--font-ui);
+  font-size: 0.9rem;
+  color: #FAF0E6;
+  line-height: 1.8;
+  margin-bottom: 1.5rem;
+}
+
+.about-text .parenthetical {
+  color: var(--accent);
+}
+
+.about-pullquote {
+  font-family: var(--font-narrative);
+  font-size: 1.8rem;
+  color: var(--accent);
+  text-align: center;
+  padding: 2rem 0;
+  border-top: 1px solid #8B7D6B44;
+  border-bottom: 1px solid #8B7D6B44;
+  margin: 2rem 0;
+  line-height: 1.4;
+}
+
+/* ── FORUM ── */
+.forum-section {
+  background: var(--bg);
+}
+
+.forum-board {
+  max-width: 800px;
+  margin: 0 auto;
+  border: 2px solid var(--muted);
+  background: var(--card);
+}
+
+.forum-header {
+  background: var(--muted);
+  color: var(--bg);
+  padding: 0.75rem 1rem;
+  font-family: var(--font-ui);
+  font-size: 0.8rem;
+  display: flex;
+  justify-content: space-between;
+}
+
+.forum-post {
+  border-bottom: 1px solid var(--muted);
+  padding: 1rem 1.25rem;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.forum-post:last-child { border-bottom: none; }
+
+.forum-post:hover {
+  background: #FAF0E6;
+}
+
+.forum-meta {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.4rem;
+}
+
+.forum-username {
+  font-family: var(--font-ui);
+  font-size: 0.75rem;
+  color: var(--accent);
+  font-weight: 600;
+}
+
+.forum-date {
+  font-family: var(--font-ui);
+  font-size: 0.65rem;
+  color: var(--muted);
+}
+
+.forum-body {
+  font-family: var(--font-ui);
+  font-size: 0.8rem;
+  color: var(--text);
+  line-height: 1.6;
+  overflow: hidden;
+  max-height: 2.6em;
+  transition: max-height 0.5s ease;
+}
+
+.forum-post:hover .forum-body,
+.forum-post.expanded .forum-body {
+  max-height: 20em;
+}
+
+.forum-hidden {
+  color: var(--accent);
+  margin-top: 0.5rem;
+  font-style: italic;
+}
+
+.forum-btn-wrap {
+  text-align: center;
+  padding: 1.5rem;
+  position: relative;
+}
+
+.btn-forum {
+  font-family: var(--font-ui);
+  font-size: 0.8rem;
+  padding: 0.75rem 2rem;
+  background: var(--muted);
+  color: var(--bg);
+  border: none;
+  cursor: pointer;
+  min-height: 44px;
+  position: relative;
+}
+
+.btn-forum:hover {
+  background: var(--text);
+}
+
+.forum-tooltip {
+  position: absolute;
+  bottom: calc(100% + 8px);
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--dark);
+  color: #FAF0E6;
+  font-family: var(--font-ui);
+  font-size: 0.7rem;
+  padding: 0.5rem 1rem;
+  white-space: nowrap;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s;
+}
+
+.btn-forum:hover .forum-tooltip {
+  opacity: 1;
+}
+
+/* ── MILDRED & FUND ── */
+.mildred-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.5rem;
+  max-width: 1000px;
+  margin: 0 auto;
+}
+
+.mildred-card {
+  background: var(--card);
+  border: 1px solid var(--muted);
+  padding: 2rem;
+}
+
+.mildred-card h3 {
+  font-family: var(--font-display);
+  font-size: 1.5rem;
+  color: var(--text);
+  margin-bottom: 1rem;
+}
+
+.mildred-card p, .mildred-card li {
+  font-family: var(--font-ui);
+  font-size: 0.8rem;
+  color: var(--text);
+  line-height: 1.7;
+  margin-bottom: 0.75rem;
+}
+
+.mildred-card ul {
+  list-style: none;
+  padding: 0;
+}
+
+.mildred-card ul li::before {
+  content: '› ';
+  color: var(--accent);
+}
+
+.progress-bar-wrap {
+  background: var(--muted);
+  height: 24px;
+  width: 100%;
+  margin: 1rem 0;
+  position: relative;
+  overflow: hidden;
+}
+
+.progress-bar-fill {
+  background: var(--accent);
+  height: 100%;
+  width: 23%;
+  transition: width 0.5s;
+}
+
+.progress-label {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-family: var(--font-ui);
+  font-size: 0.7rem;
+  color: #FAF0E6;
+  font-weight: 600;
+}
+
+.btn-donate {
+  display: inline-block;
+  font-family: var(--font-ui);
+  font-size: 0.85rem;
+  padding: 0.85rem 2rem;
+  background: var(--accent);
+  color: var(--dark);
+  border: none;
+  cursor: pointer;
+  min-height: 44px;
+  transition: background 0.3s;
+}
+
+.btn-donate:hover {
+  background: #E0B68A;
+}
+
+/* ── FOOTER ── */
+.site-footer {
+  background: var(--dark);
+  padding: 3rem 2rem 0;
+}
+
+.footer-inner {
+  max-width: 800px;
+  margin: 0 auto;
+  text-align: center;
+  padding-bottom: 2rem;
+}
+
+.footer-link {
+  font-family: var(--font-ui);
+  font-size: 0.8rem;
+  color: var(--accent);
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.footer-sub {
+  font-family: var(--font-ui);
+  font-size: 0.7rem;
+  color: #8B7D6B;
+  margin-top: 1rem;
+}
+
+/* ── TICKER ── */
+.ticker-wrap {
+  background: var(--dark);
+  border-top: 1px solid #8B7D6B44;
+  overflow: hidden;
+  padding: 0.75rem 0;
+  cursor: default;
+}
+
+.ticker-track {
+  display: flex;
+  white-space: nowrap;
+  animation: tickerScroll 45s linear infinite;
+}
+
+.ticker-wrap:hover .ticker-track {
+  animation-play-state: paused;
+}
+
+.ticker-item {
+  font-family: var(--font-ui);
+  font-size: 0.75rem;
+  color: #8B7D6B;
+  padding: 0 2rem;
+  cursor: pointer;
+  flex-shrink: 0;
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+  transition: color 0.2s;
+}
+
+.ticker-item:hover {
+  color: var(--accent);
+}
+
+.ticker-item::before {
+  content: '•';
+  margin-right: 2rem;
+  color: var(--accent);
+}
+
+@keyframes tickerScroll {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+
+/* ── GHOST OVERLAY ── */
+.ghost-overlay {
+  position: fixed;
+  top: 0; left: 0; width: 100%; height: 100%;
+  background: rgba(26, 26, 46, 0.95);
+  z-index: 10000;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+  cursor: pointer;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.8s;
+}
+
+.ghost-overlay.active {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.ghost-photo {
+  width: min(400px, 80vw);
+  aspect-ratio: 3/4;
+  background: linear-gradient(160deg, #8B7D6B, #D4A574, #A0937D, #8B7D6B);
+  filter: sepia(0.9) blur(1.5px) contrast(0.7);
+  margin-bottom: 2rem;
+  flex-shrink: 0;
+}
+
+.ghost-text {
+  font-family: var(--font-narrative);
+  font-size: clamp(1.2rem, 3vw, 1.6rem);
+  color: #FAF0E6;
+  max-width: 500px;
+  text-align: center;
+  line-height: 1.5;
+  min-height: 6em;
+}
+
+.ghost-disclaimer {
+  font-family: var(--font-ui);
+  font-size: 0.7rem;
+  color: var(--accent);
+  margin-top: 2rem;
+}
+
+@keyframes pulse-gentle {
+  0%, 100% { opacity: 0.9; }
+  50% { opacity: 0.5; }
+}
+
+.ghost-disclaimer span {
+  animation: pulse-gentle 3s ease-in-out infinite;
+  display: inline-block;
+}
+
+/* ── TOAST ── */
+.toast-notification {
+  position: fixed;
+  top: 1.5rem;
+  left: 50%;
+  transform: translateX(-50%) translateY(-20px);
+  background: var(--dark);
+  border: 1px solid var(--accent);
+  color: #FAF0E6;
+  font-family: var(--font-ui);
+  font-size: 0.75rem;
+  padding: 0.75rem 1.5rem;
+  z-index: 10001;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.4s, transform 0.4s;
+  white-space: nowrap;
+  max-width: 90vw;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.toast-notification.show {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+}
+
+/* ── FADE IN ── */
+.fade-in {
+  opacity: 0;
+  transform: translateY(30px);
+}
+
+/* ── RESPONSIVE ── */
+@media (max-width: 900px) {
+  .masonry-grid { columns: 2; }
+  .mildred-grid { grid-template-columns: 1fr; }
+}
+
+@media (max-width: 600px) {
+  .steps-grid { grid-template-columns: 1fr; }
+  .masonry-grid { columns: 1; }
+  section { padding: 3rem 1rem; }
+}
+</style>
+</head>
+<body x-data="app()">
+
+<!-- GRAIN -->
+<div class="grain-overlay"></div>
+
+<!-- DUST MOTES (created via JS) -->
+
+<!-- TOAST -->
+<div class="toast-notification" :class="{ 'show': toastVisible }" x-text="toastText"></div>
+
+<!-- GHOST OVERLAY -->
+<div class="ghost-overlay" :class="{ 'active': ghostActive }" @click="dismissGhost()">
+  <div class="ghost-photo"></div>
+  <div class="ghost-text" x-html="ghostTextDisplay"></div>
+  <div class="ghost-disclaimer"><span>This is entirely made up</span></div>
+</div>
+
+<!-- ═══ HERO ═══ -->
+<section class="hero">
+  <div class="hero-bg" id="heroBg"></div>
+  <div class="hero-content fade-in">
+    <h1>Microfiche Memoirs</h1>
+    <p class="hero-subtitle">Everyone In This Photo Is Dead</p>
+    <p class="hero-tagline">Our AI writes fake backstories for your old photos. The accuracy rate is <em>37%</em>. People cry anyway.</p>
+    <button class="btn-summon" @click="summonGhost()">Summon a Ghost</button>
+  </div>
+</section>
+
+<!-- ═══ HOW IT WORKS ═══ -->
+<section>
+  <div class="section-inner">
+    <h2 class="section-heading fade-in">Three Steps to Fabricated Grief</h2>
+    <p class="section-subheading fade-in">A proven methodology since last Tuesday</p>
+    <div class="steps-grid">
+      <div class="step-card fade-in">
+        <div class="step-number">01</div>
+        <div class="step-icon"><i data-lucide="camera"></i></div>
+        <h3>Photograph Something Blurry</h3>
+        <p>The less identifiable, the better. Our AI thrives on ambiguity and poor lighting conditions.</p>
+      </div>
+      <div class="step-card fade-in">
+        <div class="step-number">02</div>
+        <div class="step-icon"><i data-lucide="brain"></i></div>
+        <h3>Our AI Hallucinates a Life Story</h3>
+        <p>It will give your uncle a secret career as a maritime lawyer. It will be wrong. It will be beautiful.</p>
+      </div>
+      <div class="step-card fade-in">
+        <div class="step-number">03</div>
+        <div class="step-icon"><i data-lucide="heart"></i></div>
+        <h3>You Feel Something Real About Something Fake</h3>
+        <p>We don't understand it either, but it keeps happening and we've stopped questioning it.</p>
+      </div>
+    </div>
+    <p class="disclaimer fade-in">Our 37% accuracy rate is based on a study we conducted in Barnaby's kitchen. Sample size: 12 photos. Control group: none. Peer review: Clementine said "sure, sounds right." IRB status: we don't know what that is.</p>
+  </div>
+</section>
+
+<!-- ═══ INTERSTITIAL 1 ═══ -->
+<div class="interstitial">
+  <p class="fade-in">Every photograph is a person who expected to be remembered. We are all that person.</p>
+</div>
+
+<!-- ═══ MISINTERPRETED MASTERPIECES ═══ -->
+<section>
+  <div class="section-inner">
+    <h2 class="section-heading fade-in">Misinterpreted Masterpieces</h2>
+    <p class="section-subheading fade-in">The staff's favorite moments of confident wrongness</p>
+    <div class="masonry-grid">
+
+      <div class="masonry-card fade-in" x-data="{ rating: 62 }">
+        <div class="masonry-img" :style="'filter: sepia(' + (0.3 + rating*0.007) + ') blur(' + (rating*0.02) + 'px) contrast(' + (1 - rating*0.003) + ')'"></div>
+        <p class="masonry-narrative">"Edith ran a laundromat in Scranton from 1943 to 1971. She pressed every shirt as though it was the last good thing she could do for a man who didn't deserve clean collars. She was right."</p>
+        <div class="fakeness-label"><span>Plausible Lie</span><span>Spectacular Nonsense</span></div>
+        <input type="range" class="fakeness-slider" min="0" max="100" x-model="rating">
+        <p class="fakeness-avg">Community avg: <span x-text="Math.round((parseInt(rating) + 58) / 2)"></span>%</p>
+      </div>
+
+      <div class="masonry-card fade-in" x-data="{ rating: 45 }">
+        <div class="masonry-img" :style="'filter: sepia(' + (0.3 + rating*0.007) + ') blur(' + (rating*0.02) + 'px) contrast(' + (1 - rating*0.003) + ')'"></div>
+        <p class="masonry-narrative">"This is Harold. He kept bees and wrote letters to a woman in Portugal he'd never met. The letters stopped in 1968. The bees did not."</p>
+        <div class="fakeness-label"><span>Plausible Lie</span><span>Spectacular Nonsense</span></div>
+        <input type="range" class="fakeness-slider" min="0" max="100" x-model="rating">
+        <p class="fakeness-avg">Community avg: <span x-text="Math.round((parseInt(rating) + 41) / 2)"></span>%</p>
+      </div>
+
+      <div class="masonry-card fade-in" x-data="{ rating: 88 }">
+        <div class="masonry-img" :style="'filter: sepia(' + (0.3 + rating*0.007) + ') blur(' + (rating*0.02) + 'px) contrast(' + (1 - rating*0.003) + ')'"></div>
+        <p class="masonry-narrative">"Gerald was a competitive whistler who placed third at the 1956 Nationals. He never forgave second place. He named his dog 'Silver' out of spite."</p>
+        <div class="fakeness-label"><span>Plausible Lie</span><span>Spectacular Nonsense</span></div>
+        <input type="range" class="fakeness-slider" min="0" max="100" x-model="rating">
+        <p class="fakeness-avg">Community avg: <span x-text="Math.round((parseInt(rating) + 91) / 2)"></span>%</p>
+      </div>
+
+      <div class="masonry-card fade-in" x-data="{ rating: 34 }">
+        <div class="masonry-img" :style="'filter: sepia(' + (0.3 + rating*0.007) + ') blur(' + (rating*0.02) + 'px) contrast(' + (1 - rating*0.003) + ')'"></div>
+        <p class="masonry-narrative">"Margaret taught piano to children who didn't want to learn it. She knew. She did it anyway. Forty years of reluctant scales. She said it built character. It built resentment. Same thing."</p>
+        <div class="fakeness-label"><span>Plausible Lie</span><span>Spectacular Nonsense</span></div>
+        <input type="range" class="fakeness-slider" min="0" max="100" x-model="rating">
+        <p class="fakeness-avg">Community avg: <span x-text="Math.round((parseInt(rating) + 29) / 2)"></span>%</p>
+      </div>
+
+      <div class="masonry-card fade-in" x-data="{ rating: 73 }">
+        <div class="masonry-img" :style="'filter: sepia(' + (0.3 + rating*0.007) + ') blur(' + (rating*0.02) + 'px) contrast(' + (1 - rating*0.003) + ')'"></div>
+        <p class="masonry-narrative">"Two men standing outside a hardware store in 1961. Our AI said they were brothers. They were not. They met that morning and never saw each other again. We made the AI sad explaining this."</p>
+        <div class="fakeness-label"><span>Plausible Lie</span><span>Spectacular Nonsense</span></div>
+        <input type="range" class="fakeness-slider" min="0" max="100" x-model="rating">
+        <p class="fakeness-avg">Community avg: <span x-text="Math.round((parseInt(rating) + 70) / 2)"></span>%</p>
+      </div>
+
+      <div class="masonry-card fade-in" x-data="{ rating: 95 }">
+        <div class="masonry-img" :style="'filter: sepia(' + (0.3 + rating*0.007) + ') blur(' + (rating*0.02) + 'px) contrast(' + (1 - rating*0.003) + ')'"></div>
+        <p class="masonry-narrative">"Our AI identified this as a cat. It was a loaf of bread on a windowsill in 1974. To be fair, the resemblance was uncanny and the bread had more personality than most LinkedIn profiles."</p>
+        <div class="fakeness-label"><span>Plausible Lie</span><span>Spectacular Nonsense</span></div>
+        <input type="range" class="fakeness-slider" min="0" max="100" x-model="rating">
+        <p class="fakeness-avg">Community avg: <span x-text="Math.round((parseInt(rating) + 97) / 2)"></span>%</p>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ═══ INTERSTITIAL 2 ═══ -->
+<div class="interstitial">
+  <p class="fade-in">Someone once held this photograph and thought, "I'll never forget this day." They did.</p>
+</div>
+
+<!-- ═══ ABOUT ═══ -->
+<section class="about-section">
+  <div class="about-inner">
+    <h2 class="section-heading fade-in" style="color:#FAF0E6">The Steamer Trunk</h2>
+    <div class="fade-in">
+      <p class="about-text">Barnaby Crisp found the trunk in a storage unit in Trenton, New Jersey, in the spring of 2023. It belonged to his great-aunt Ethel, a woman he'd met exactly twice and remembered primarily for her opinion that margarine was a government conspiracy. Inside: forty-seven photographs of people nobody in the Crisp family could name.</p>
+      <p class="about-text">He held a picture of a woman laughing on a porch — genuinely laughing, head thrown back, one hand on a railing — and realized that someone once loved her desperately and now she was nothing but silver halide and mystery. He called Clementine Funk, his business partner and the only person he knew who owned a flatbed scanner. <span class="parenthetical">(Clementine's legal dispute with Ancestry.com remains ongoing and she has been advised not to discuss it, which she does constantly.)</span></p>
+      <p class="about-text">They built Microfiche Memoirs in Barnaby's apartment over six weeks. The AI was trained on obituaries, romance novels, and a Wikipedia article about grain elevators that got in there by accident. The TED Talk incident occurred four months later. Barnaby will not elaborate on what happened at TED. The footage has been removed. The cease-and-desist was mutual.</p>
+    </div>
+    <div class="about-pullquote fade-in">We charge you nothing to feel something. Ancestry charges $30/month to feel the same thing but with a family tree graphic.</div>
+  </div>
+</section>
+
+<!-- ═══ FORUM ═══ -->
+<section class="forum-section">
+  <div class="section-inner">
+    <h2 class="section-heading fade-in">Dust Bunnies of Destiny</h2>
+    <p class="section-subheading fade-in">Community forum · Est. 2023 · 2,847 posts · mostly tears</p>
+    <div class="forum-board fade-in">
+      <div class="forum-header">
+        <span>TOPIC</span>
+        <span>REPLIES</span>
+      </div>
+
+      <div class="forum-post" @click="$el.classList.toggle('expanded')">
+        <div class="forum-meta">
+          <span class="forum-username">ethel_was_here</span>
+          <span class="forum-date">3 hrs ago · 14 replies</span>
+        </div>
+        <div class="forum-body">Does anyone else photograph grocery lists from the 1970s and just… sit there? I found one in a library book. Whole milk. Pork chops. Stamps. Someone planned a week of meals fifty years ago and I can't stop thinking about whether the pork chops were any good. I need to go outside.</div>
+      </div>
+
+      <div class="forum-post" @click="$el.classList.toggle('expanded')">
+        <div class="forum-meta">
+          <span class="forum-username">lost_in_microfiche</span>
+          <span class="forum-date">7 hrs ago · 23 replies</span>
+        </div>
+        <div class="forum-body">The AI said my grandfather was a jazz musician. My grandfather was an accountant in Ohio. He hated music. But the story was so beautiful that my mother cried and now she tells people he played trumpet. We have created a false memory and it is better than the real one. I don't know what to do with this information.</div>
+      </div>
+
+      <div class="forum-post" @click="$el.classList.toggle('expanded')">
+        <div class="forum-meta">
+          <span class="forum-username">scannerDarkly_99</span>
+          <span class="forum-date">12 hrs ago · 8 replies</span>
+        </div>
+        <div class="forum-body">PSA: if you're scanning old photos, use 600 DPI minimum and save as TIFF, not JPEG. The compression artifacts make the AI think everyone is a watercolor painter. Also clean your scanner glass. Mildred deserves better than your fingerprints. This has been your one (1) practical tip buried among the sadness.</div>
+      </div>
+
+      <div class="forum-post" @click="$el.classList.toggle('expanded')">
+        <div class="forum-meta">
+          <span class="forum-username">doris_question_mark</span>
+          <span class="forum-date">1 day ago · 31 replies</span>
+        </div>
+        <div class="forum-body">I uploaded a wedding photo. The back just says "Doris?" with a question mark. Someone wrote a name and then doubted it. An entire identity reduced to a question mark. Our AI gave her a life as a librarian in Vermont. <span class="forum-hidden">If you're reading this, someone will forget you too. Upload a photo anyway.</span></div>
+      </div>
+
+      <div class="forum-post" @click="$el.classList.toggle('expanded')">
+        <div class="forum-meta">
+          <span class="forum-username">the_shoebox_archivist</span>
+          <span class="forum-date">2 days ago · 7 replies</span>
+        </div>
+        <div class="forum-body">My neighbor died last month and his kids threw out six shoeboxes of photographs. I rescued them from the recycling bin. I don't know any of these people. I'm going to upload every single one. Someone should remember them, even incorrectly. Especially incorrectly.</div>
+      </div>
+
+      <div class="forum-post" @click="$el.classList.toggle('expanded')">
+        <div class="forum-meta">
+          <span class="forum-username">3am_ration_book</span>
+          <span class="forum-date">3 days ago · 2 replies</span>
+        </div>
+        <div class="forum-body">It's 3am and I'm scanning a ration book I found at an estate sale. Whoever owned this ate less sugar in a year than I put in my coffee this morning. They survived a war. I survived a Tuesday. We are not the same but we are both awake at unreasonable hours thinking about bread.</div>
+      </div>
+
+    </div>
+    <div class="forum-btn-wrap fade-in">
+      <button class="btn-forum">
+        View All 2,847 Posts
+        <span class="forum-tooltip">The forum is a metaphor.</span>
+      </button>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ INTERSTITIAL 3 ═══ -->
+<div class="interstitial">
+  <p class="fade-in">The scanner hums. The dust settles. Somewhere, a photograph waits in a drawer for someone who will never open it.</p>
+</div>
+
+<!-- ═══ MILDRED & FUND ═══ -->
+<section>
+  <div class="section-inner">
+    <h2 class="section-heading fade-in">The Equipment & The Emergency</h2>
+    <p class="section-subheading fade-in">One cannot exist without the other</p>
+    <div class="mildred-grid">
+
+      <div class="mildred-card fade-in">
+        <h3>Meet Mildred</h3>
+        <p>Mildred is our Epson Perfection V39 flatbed scanner. She was manufactured on March 14, 2021, in Suwa, Nagano, Japan. She arrived in a box that said "precision imaging" and we have held her to that promise every day since.</p>
+        <ul>
+          <li>Scans at 4800 DPI (she prefers 600, like the rest of us, she has limits)</li>
+          <li>Pulls slightly to the left, like all of us</li>
+          <li>Makes a sound at startup that Clementine describes as "hopeful"</li>
+          <li>Has processed 4,211 photographs of strangers</li>
+          <li>Once scanned Barnaby's hand by accident. The AI said he was a fisherman from Gloucester. He was not.</li>
+        </ul>
+        <p>Mildred's retirement plan consists of being placed on a shelf with a small plaque that reads "She Saw Everything."</p>
+      </div>
+
+      <div class="mildred-card fade-in">
+        <h3>Ephemera Emergency Fund</h3>
+        <p>Running a website that makes people cry about fabricated memories of strangers is, it turns out, not a sustainable business model.</p>
+        <div class="progress-bar-wrap">
+          <div class="progress-bar-fill"></div>
+          <span class="progress-label">23% funded · $194 / $847</span>
+        </div>
+        <p>Monthly server cost: $847/mo because apparently ghosts take up a lot of bandwidth.</p>
+        <p>Where your money goes:</p>
+        <ul>
+          <li>$412 — Cloud hosting (the ghosts live in Virginia)</li>
+          <li>$289 — AI inference costs (hallucination isn't free)</li>
+          <li>$97 — Domain renewal and SSL (the dead deserve encryption)</li>
+          <li>$49 — Barnaby's coffee (non-negotiable, contractual)</li>
+        </ul>
+        <button class="btn-donate" @click="donateClicked = true" x-text="donateClicked ? 'Thank you. Mildred hums in gratitude.' : 'Keep the Ghosts Online'"></button>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ═══ FOOTER ═══ -->
+<footer class="site-footer">
+  <div class="footer-inner">
+    <p class="footer-link">AI's Anonymous: A support group for those who wept over a fabricated memory of someone else's grandmother.</p>
+    <p class="footer-sub">Microfiche Memoirs · Est. 2023 · Trenton, NJ · 37% accurate · 100% sincere</p>
+    <p class="footer-sub">Built by Barnaby Crisp & Clementine Funk · Scanned by Mildred</p>
+  </div>
+  <div class="ticker-wrap">
+    <div class="ticker-track" id="tickerTrack">
+      <span class="ticker-item" @click="showToast()">1940s laundromat receipt</span>
+      <span class="ticker-item" @click="showToast()">Uncle Morty's bowling scores</span>
+      <span class="ticker-item" @click="showToast()">ration book stain</span>
+      <span class="ticker-item" @click="showToast()">lost cat flyer</span>
+      <span class="ticker-item" @click="showToast()">wedding photo back says "Doris?"</span>
+      <span class="ticker-item" @click="showToast()">handwriting I almost recognized</span>
+      <span class="ticker-item" @click="showToast()">prescription from a dead doctor</span>
+      <span class="ticker-item" @click="showToast()">someone's entire life in a shoebox</span>
+      <span class="ticker-item" @click="showToast()">telegram never sent</span>
+      <span class="ticker-item" @click="showToast()">bus ticket to nowhere specific</span>
+      <span class="ticker-item" @click="showToast()">report card from 1953</span>
+      <span class="ticker-item" @click="showToast()">love letter with no name</span>
+      <!-- Duplicate for seamless loop -->
+      <span class="ticker-item" @click="showToast()">1940s laundromat receipt</span>
+      <span class="ticker-item" @click="showToast()">Uncle Morty's bowling scores</span>
+      <span class="ticker-item" @click="showToast()">ration book stain</span>
+      <span class="ticker-item" @click="showToast()">lost cat flyer</span>
+      <span class="ticker-item" @click="showToast()">wedding photo back says "Doris?"</span>
+      <span class="ticker-item" @click="showToast()">handwriting I almost recognized</span>
+      <span class="ticker-item" @click="showToast()">prescription from a dead doctor</span>
+      <span class="ticker-item" @click="showToast()">someone's entire life in a shoebox</span>
+      <span class="ticker-item" @click="showToast()">telegram never sent</span>
+      <span class="ticker-item" @click="showToast()">bus ticket to nowhere specific</span>
+      <span class="ticker-item" @click="showToast()">report card from 1953</span>
+      <span class="ticker-item" @click="showToast()">love letter with no name</span>
+    </div>
+  </div>
+</footer>
+
+<!-- SCRIPTS -->
+<script src="/assets/js/gsap.min.js"></script>
+<script src="/assets/js/alpine.min.js" defer></script>
+<script src="/assets/js/lucide.min.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  // Initialize Lucide icons
+  if (typeof lucide !== 'undefined') {
+    lucide.createIcons();
+  }
+
+  // ── DUST MOTES ──
+  (function createDustMotes() {
+    var container = document.body;
+    for (var i = 0; i < 18; i++) {
+      var mote = document.createElement('div');
+      mote.className = 'dust-mote';
+      var size = 2 + Math.random() * 2;
+      mote.style.width = size + 'px';
+      mote.style.height = size + 'px';
+      mote.style.left = Math.random() * 100 + 'vw';
+      mote.style.top = Math.random() * 100 + 'vh';
+      container.appendChild(mote);
+
+      gsap.to(mote, {
+        x: 'random(-150, 150)',
+        y: 'random(-150, 150)',
+        duration: 30 + Math.random() * 30,
+        repeat: -1,
+        yoyo: true,
+        ease: 'sine.inOut',
+        delay: Math.random() * 10
+      });
+
+      gsap.to(mote, {
+        scale: 'random(0.5, 1.5)',
+        opacity: 'random(0.1, 0.25)',
+        duration: 8 + Math.random() * 8,
+        repeat: -1,
+        yoyo: true,
+        ease: 'sine.inOut',
+        delay: Math.random() * 5
+      });
+    }
+  })();
+
+  // ── HERO BG DRIFT ──
+  (function heroFloat() {
+    var bg = document.getElementById('heroBg');
+    if (!bg) return;
+    gsap.set(bg, { scale: 1.1 });
+    gsap.to(bg, {
+      x: 20, y: -15,
+      duration: 20,
+      repeat: -1,
+      yoyo: true,
+      ease: 'sine.inOut'
+    });
+    gsap.to(bg, {
+      x: -20, y: 15,
+      duration: 25,
+      repeat: -1,
+      yoyo: true,
+      ease: 'sine.inOut',
+      delay: 5
+    });
+  })();
+
+  // ── STEP ICON ANIMATIONS ──
+  (function animateStepIcons() {
+    var icons = document.querySelectorAll('.step-icon');
+    icons.forEach(function(icon) {
+      gsap.to(icon, {
+        y: -5,
+        duration: 2 + Math.random(),
+        repeat: -1,
+        yoyo: true,
+        ease: 'sine.inOut',
+        delay: Math.random() * 2
+      });
+    });
+  })();
+
+  // ── SCROLL FADE-IN ──
+  (function setupScrollFade() {
+    var fadeEls = document.querySelectorAll('.fade-in');
+    if (!fadeEls.length) return;
+
+    var observer = new IntersectionObserver(function(entries) {
+      entries.forEach(function(entry) {
+        if (entry.isIntersecting) {
+          var el = entry.target;
+          gsap.fromTo(el,
+            { opacity: 0, y: 30 },
+            { opacity: 1, y: 0, duration: 0.8, ease: 'power2.out' }
+          );
+          observer.unobserve(el);
+        }
+      });
+    }, { threshold: 0.1, rootMargin: '0px 0px -50px 0px' });
+
+    fadeEls.forEach(function(el) {
+      observer.observe(el);
+    });
+  })();
+});
+
+// ── ALPINE APP ──
+function app() {
+  return {
+    ghostActive: false,
+    ghostTextDisplay: '',
+    toastVisible: false,
+    toastText: '',
+    donateClicked: false,
+    _ghostTimeout: null,
+    _toastTimeout: null,
+
+    ghostStories: [
+      "Her name was Ruth. She worked the night shift at a cannery in Monterey and wrote poems on the back of inventory sheets. No one read them until now. They were about the ocean, mostly. And someone named Carl.",
+      "This is a man named Edwin who repaired typewriters for forty years. He could tell a Royal from an Underwood by sound alone. He never typed a single word himself. He said everything he needed to say with his hands.",
+      "Agnes kept this photograph in her wallet until the leather wore through. We don't know who the other woman is. Agnes never told anyone. Some things belong only to the person holding the picture.",
+      "His name was probably not Victor, but that's what the AI decided and we're going with it. Victor sold insurance and kept a cactus on his desk for thirty-one years. The cactus outlived him. It's still there.",
+      "Two children on a stoop in Brooklyn, 1952. One became a dentist. The other one didn't. That's all the AI would say. Sometimes even artificial intelligence knows when to stop talking."
+    ],
+
+    summonGhost: function() {
+      var self = this;
+      self.ghostActive = true;
+      self.ghostTextDisplay = '';
+      var story = self.ghostStories[Math.floor(Math.random() * self.ghostStories.length)];
+      var words = story.split(' ');
+      var idx = 0;
+      var built = '';
+
+      function typeNext() {
+        if (idx < words.length && self.ghostActive) {
+          built += (idx > 0 ? ' ' : '') + words[idx];
+          self.ghostTextDisplay = built;
+          idx++;
+          self._ghostTimeout = setTimeout(typeNext, 80 + Math.random() * 40);
+        }
+      }
+      self._ghostTimeout = setTimeout(typeNext, 600);
+    },
+
+    dismissGhost: function() {
+      this.ghostActive = false;
+      this.ghostTextDisplay = '';
+      if (this._ghostTimeout) {
+        clearTimeout(this._ghostTimeout);
+        this._ghostTimeout = null;
+      }
+    },
+
+    showToast: function() {
+      var self = this;
+      if (self._toastTimeout) clearTimeout(self._toastTimeout);
+      self.toastText = "Someone searched for this at 3am. We hope they're okay.";
+      self.toastVisible = true;
+      self._toastTimeout = setTimeout(function() {
+        self.toastVisible = false;
+      }, 3000);
+    }
+  };
+}
+</script>
+</body>
+</html>

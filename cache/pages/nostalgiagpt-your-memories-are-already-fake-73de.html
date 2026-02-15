@@ -1,0 +1,916 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NostalgiaGPT™ — Your Memories Are Already Fake</title>
+<link rel="stylesheet" href="/assets/css/fonts.css">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg: #1a0a2e;
+  --text: #e8d5b7;
+  --pink: #ff2d78;
+  --cyan: #00e5ff;
+  --card-bg: #2a1548;
+  --yellow: #fff176;
+  --col-width: 680px;
+}
+
+html { font-size: 16px; scroll-behavior: smooth; }
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Fira Code', monospace;
+  font-size: 1rem;
+  line-height: 1.6;
+  overflow-x: hidden;
+  min-height: 100vh;
+}
+
+h1, h2, h3, h4 { font-family: 'Unbounded', sans-serif; font-weight: 700; line-height: 1.2; }
+.label, .tier-name, .nav-label, .btn-text { font-family: 'Oswald', sans-serif; text-transform: uppercase; letter-spacing: 0.05em; }
+
+a { color: var(--pink); text-decoration: none; }
+a:hover { text-decoration: underline; }
+
+.col { max-width: var(--col-width); margin: 0 auto; padding: 0 16px; }
+.full-bleed { width: 100vw; position: relative; left: 50%; right: 50%; margin-left: -50vw; margin-right: -50vw; }
+.section-border { border-top: 2px solid var(--cyan); }
+
+/* ═══ CANVAS OVERLAY ═══ */
+#vhs-canvas {
+  position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+  pointer-events: none; z-index: 9998;
+}
+
+/* ═══ HERO ═══ */
+.hero {
+  width: 100%; min-height: 100vh; display: flex; align-items: center; justify-content: center;
+  background: linear-gradient(135deg, var(--pink) 0%, var(--cyan) 40%, var(--bg) 100%);
+  position: relative; overflow: hidden; padding: 40px 16px;
+}
+.hero::before {
+  content: ''; position: absolute; inset: 0;
+  background: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(26,10,46,0.15) 2px, rgba(26,10,46,0.15) 4px);
+  pointer-events: none;
+}
+.hero-content { max-width: var(--col-width); position: relative; z-index: 1; }
+.hero h1 {
+  font-size: clamp(1.8rem, 5vw, 3.2rem); color: #ffffff;
+  text-shadow: 3px 3px 0 var(--bg), -1px -1px 0 var(--cyan);
+  margin-bottom: 32px; min-height: 3.6em;
+}
+.hero h1 .cursor {
+  display: inline-block; width: 0.6em; height: 1.1em; background: #ffffff;
+  vertical-align: text-bottom; margin-left: 2px;
+  animation: blink 0.6s step-end infinite;
+}
+@keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0; } }
+
+.hero-story {
+  font-size: 0.9rem; color: #e8d5b7; opacity: 0; line-height: 1.7;
+  margin-bottom: 32px; max-width: 100%;
+}
+.hero-story.visible { opacity: 1; }
+
+.btn-assess {
+  font-family: 'Oswald', sans-serif; font-size: 1.1rem; text-transform: uppercase;
+  letter-spacing: 0.1em; background: var(--pink); color: #ffffff; border: 2px solid var(--cyan);
+  padding: 16px 32px; cursor: pointer; position: relative;
+  animation: pulse-btn 2s ease-in-out infinite;
+  min-height: 48px; min-width: 48px;
+}
+.btn-assess:hover { background: var(--cyan); color: var(--bg); }
+@keyframes pulse-btn {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(255,45,120,0.6); }
+  50% { box-shadow: 0 0 20px 8px rgba(255,45,120,0.3); }
+}
+
+/* ═══ QUIZ ═══ */
+.quiz-section { padding: 64px 16px; }
+.quiz-section h2 { font-size: clamp(1.4rem, 3vw, 2rem); color: var(--cyan); margin-bottom: 32px; text-align: center; }
+
+.quiz-form {
+  max-width: var(--col-width); margin: 0 auto;
+  background: var(--card-bg); border: 2px solid var(--cyan);
+  padding: 32px; font-size: 0.9rem;
+}
+.quiz-step { display: none; }
+.quiz-step.active { display: block; }
+.quiz-step label { display: block; color: var(--text); margin-bottom: 16px; font-size: 0.95rem; }
+.quiz-step .question { font-size: 1rem; color: var(--cyan); margin-bottom: 24px; }
+
+.radio-group { margin-bottom: 16px; }
+.radio-group label {
+  display: flex; align-items: center; gap: 12px; padding: 8px 0;
+  cursor: pointer; min-height: 44px;
+}
+.radio-group input[type="radio"] {
+  appearance: none; width: 20px; height: 20px; border: 2px inset #666666;
+  background: #1a0a2e; cursor: pointer; flex-shrink: 0;
+}
+.radio-group input[type="radio"]:checked { background: var(--pink); border-color: var(--pink); }
+
+.slider-group { margin: 24px 0; }
+.slider-group input[type="range"] {
+  width: 100%; accent-color: var(--pink); cursor: pointer;
+  height: 44px;
+}
+.slider-value { text-align: center; font-size: 2rem; color: var(--pink); font-family: 'Unbounded', sans-serif; }
+
+.file-input-fake {
+  background: #333333; color: #888888; border: 2px inset #666666;
+  padding: 12px 16px; cursor: not-allowed; font-family: 'Fira Code', monospace;
+  font-size: 0.85rem; min-height: 48px; display: flex; align-items: center;
+}
+
+.progress-bar { margin: 24px 0 16px; font-size: 0.85rem; color: var(--cyan); }
+.progress-bar .blocks { letter-spacing: 2px; }
+
+.btn-next, .btn-submit {
+  font-family: 'Oswald', sans-serif; font-size: 1rem; text-transform: uppercase;
+  background: var(--card-bg); color: var(--cyan); border: 2px solid var(--cyan);
+  padding: 12px 24px; cursor: pointer; letter-spacing: 0.1em;
+  min-height: 48px; min-width: 48px; margin-top: 16px;
+}
+.btn-next:hover, .btn-submit:hover { background: var(--cyan); color: var(--bg); }
+
+.quiz-loading { display: none; text-align: center; padding: 32px 0; }
+.quiz-loading .load-text { color: var(--cyan); font-size: 0.85rem; margin-top: 16px; min-height: 1.4em; }
+.quiz-loading .load-bar {
+  width: 100%; height: 24px; border: 2px solid var(--cyan); background: var(--bg);
+  position: relative; overflow: hidden; margin-top: 16px;
+}
+.quiz-loading .load-bar-fill { height: 100%; width: 0; background: var(--pink); transition: width 0.3s; }
+
+.quiz-result {
+  display: none; text-align: center; padding: 32px 0;
+  border: 2px solid var(--yellow); background: rgba(42,21,72,0.9); margin-top: 24px; padding: 24px;
+}
+.quiz-result .compat-num {
+  font-family: 'Unbounded', sans-serif; font-size: 3rem; color: var(--pink);
+}
+.quiz-result .warning { color: var(--yellow); font-size: 0.85rem; margin-top: 16px; }
+
+/* ═══ SUBSCRIPTION TIERS ═══ */
+.tiers-section { padding: 64px 16px; }
+.tiers-section h2 { font-size: clamp(1.4rem, 3vw, 2rem); color: var(--cyan); margin-bottom: 32px; text-align: center; max-width: var(--col-width); margin-left: auto; margin-right: auto; }
+
+.tiers-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 0; max-width: 1000px; margin: 0 auto;
+}
+@media (max-width: 768px) {
+  .tiers-grid { grid-template-columns: 1fr; max-width: var(--col-width); }
+}
+
+.tier-card {
+  background: var(--card-bg); border: 2px solid var(--cyan); padding: 24px;
+  display: flex; flex-direction: column; position: relative;
+}
+.tier-card .tier-name { font-size: 1.1rem; color: var(--cyan); margin-bottom: 4px; }
+.tier-card .tier-subtitle { font-family: 'Unbounded', sans-serif; font-size: 0.85rem; color: var(--text); margin-bottom: 16px; }
+.tier-card .tier-price {
+  font-family: 'Unbounded', sans-serif; font-size: 2rem; color: var(--pink);
+  margin-bottom: 16px; position: relative; display: inline-block;
+}
+.tier-card .tier-features { list-style: none; font-size: 0.8rem; margin-bottom: 24px; flex: 1; }
+.tier-card .tier-features li { padding: 6px 0; border-bottom: 1px solid rgba(0,229,255,0.15); }
+.tier-card .tier-features li::before { content: '> '; color: var(--cyan); }
+
+.btn-subscribe {
+  font-family: 'Oswald', sans-serif; font-size: 1rem; text-transform: uppercase;
+  background: var(--pink); color: #ffffff; border: 2px solid var(--cyan);
+  padding: 12px; cursor: pointer; letter-spacing: 0.1em;
+  min-height: 48px; width: 100%;
+}
+.btn-subscribe:hover { background: var(--cyan); color: var(--bg); }
+
+/* Platinum desaturated */
+.tier-platinum {
+  filter: saturate(0.3) brightness(0.8); position: relative; overflow: hidden;
+}
+.tier-platinum .tier-price { animation: glitch-hard 0.5s infinite; }
+.tier-platinum .btn-subscribe { cursor: not-allowed; opacity: 0.5; }
+.tier-platinum::after {
+  content: ''; position: absolute; inset: 0;
+  background: repeating-linear-gradient(0deg, transparent 0px, transparent 3px, rgba(255,45,120,0.08) 3px, rgba(255,45,120,0.08) 4px);
+  pointer-events: none; animation: vhs-drift 3s linear infinite;
+}
+
+@keyframes glitch-hard {
+  0%, 85%, 100% { transform: none; }
+  86% { transform: translate(4px, -2px); }
+  88% { transform: translate(-3px, 1px); }
+  90% { transform: translate(2px, 0); }
+}
+@keyframes vhs-drift {
+  0% { transform: translateY(0); }
+  100% { transform: translateY(100%); }
+}
+
+/* ═══ MEMORY OF THE MONTH ═══ */
+.memory-section { padding: 64px 16px; }
+.memory-section h2 { font-size: clamp(1.4rem, 3vw, 2rem); color: var(--cyan); margin-bottom: 32px; text-align: center; max-width: var(--col-width); margin-left: auto; margin-right: auto; }
+
+.vhs-frame {
+  max-width: var(--col-width); margin: 0 auto;
+  border: 4px solid var(--cyan); background: #000000; position: relative;
+  overflow: hidden; padding: 4px;
+}
+.vhs-frame::before {
+  content: ''; position: absolute; top: 0; left: 0; right: 0; height: 100%;
+  background: repeating-linear-gradient(0deg, transparent 0px, transparent 3px, rgba(0,229,255,0.04) 3px, rgba(0,229,255,0.04) 4px);
+  pointer-events: none; animation: vhs-drift 6s linear infinite; z-index: 1;
+}
+.vhs-inner {
+  background: var(--card-bg); padding: 32px; position: relative;
+}
+.vhs-rec {
+  position: absolute; top: 12px; right: 16px; color: #ff0000; font-size: 0.75rem;
+  font-family: 'Fira Code', monospace; animation: blink 1s step-end infinite;
+}
+.vhs-timestamp {
+  position: absolute; top: 12px; left: 16px; color: #cccccc; font-size: 0.75rem;
+  font-family: 'Fira Code', monospace;
+}
+.memory-title {
+  font-family: 'Unbounded', sans-serif; font-size: clamp(1.2rem, 2.5vw, 1.6rem);
+  color: var(--pink); margin-bottom: 16px; margin-top: 24px;
+}
+.memory-desc { font-size: 0.85rem; line-height: 1.8; color: var(--text); }
+.memory-desc .unsettling { color: var(--yellow); }
+.memory-user {
+  margin-top: 24px; font-size: 0.75rem; color: #888888; border-top: 1px solid rgba(0,229,255,0.2);
+  padding-top: 12px;
+}
+.memory-user .suspended { color: #ff0000; }
+
+/* ═══ TEAM ═══ */
+.team-section { padding: 64px 16px; }
+.team-section h2 { font-size: clamp(1.4rem, 3vw, 2rem); color: var(--cyan); margin-bottom: 32px; text-align: center; }
+
+.team-grid {
+  display: grid; grid-template-columns: repeat(4, 1fr);
+  gap: 0; max-width: 1000px; margin: 0 auto;
+}
+@media (max-width: 768px) {
+  .team-grid { grid-template-columns: repeat(2, 1fr); }
+}
+@media (max-width: 480px) {
+  .team-grid { grid-template-columns: 1fr; }
+}
+
+.team-card {
+  background: var(--card-bg); border: 2px solid var(--cyan); padding: 24px;
+  text-align: center; position: relative;
+}
+.team-avatar {
+  width: 100%; aspect-ratio: 1; margin-bottom: 16px; position: relative; overflow: hidden;
+}
+.avatar-block {
+  width: 100%; height: 100%; display: flex; align-items: center; justify-content: center;
+}
+.avatar-block.chad {
+  background: linear-gradient(135deg, #2a1548, #3a2058);
+  border: 2px solid var(--cyan);
+}
+.avatar-block.chad::after {
+  content: '👔'; font-size: 3rem;
+}
+.avatar-block.kenji {
+  background: linear-gradient(135deg, #1a2548, #2a3558);
+  border: 2px solid var(--cyan);
+}
+.avatar-block.kenji::after {
+  content: '🧪'; font-size: 3rem;
+}
+.avatar-block.vera {
+  background: linear-gradient(135deg, #2a1538, #3a2548);
+  border: 2px solid var(--cyan);
+}
+.avatar-block.vera::after {
+  content: '📊'; font-size: 3rem;
+}
+.avatar-block.anya {
+  background: repeating-linear-gradient(45deg, #2a1548, #2a1548 10px, #1a0a2e 10px, #1a0a2e 20px);
+  border: 2px solid var(--pink);
+  animation: corrupt 0.3s step-end infinite;
+  animation-play-state: paused;
+}
+.team-card.anya-card:hover .avatar-block.anya {
+  animation-play-state: running;
+}
+@keyframes corrupt {
+  0% { filter: hue-rotate(0deg) saturate(3); transform: skewX(0deg); }
+  25% { filter: hue-rotate(90deg) saturate(5); transform: skewX(-5deg); }
+  50% { filter: hue-rotate(180deg) saturate(1); transform: skewX(3deg); background: #c8a0d4; }
+  75% { filter: hue-rotate(270deg) saturate(4); transform: skewX(-2deg); }
+}
+
+.team-card .team-name { font-family: 'Unbounded', sans-serif; font-size: 0.9rem; color: var(--text); }
+.team-card .team-title { font-family: 'Oswald', sans-serif; font-size: 0.85rem; color: var(--cyan); text-transform: uppercase; letter-spacing: 0.05em; margin: 8px 0; }
+.team-card .team-bio { font-size: 0.75rem; color: var(--text); line-height: 1.5; }
+.team-card.anya-card .team-bio { color: var(--pink); }
+
+/* ═══ FORUM ═══ */
+.forum-section { padding: 64px 16px; }
+.forum-section h2 { font-size: clamp(1.4rem, 3vw, 2rem); color: var(--cyan); margin-bottom: 32px; text-align: center; }
+
+.forum-wrapper {
+  max-width: var(--col-width); margin: 0 auto;
+  background: #d4d0c8; border: 2px outset #ffffff; font-family: 'Fira Code', monospace;
+  color: #000000;
+}
+.forum-header {
+  background: #003366; color: #ffffff; padding: 8px 12px; font-size: 0.8rem;
+  font-family: 'Oswald', sans-serif; text-transform: uppercase; letter-spacing: 0.05em;
+  display: flex; justify-content: space-between; align-items: center;
+}
+.forum-header .last-active { font-size: 0.7rem; color: #aaaacc; font-family: 'Fira Code', monospace; text-transform: none; }
+
+.forum-thread {
+  border-bottom: 1px solid #999999; padding: 12px; font-size: 0.8rem;
+}
+.forum-thread .thread-title { color: #003366; font-weight: bold; }
+.forum-thread .thread-title.pinned::before { content: '📌 '; }
+.forum-thread .thread-meta { color: #666666; font-size: 0.7rem; margin-top: 4px; }
+.forum-thread .thread-ad { color: #990000; font-style: italic; font-size: 0.75rem; margin-top: 4px; }
+
+.forum-replies { padding: 0 12px 0 32px; background: #e8e4dc; }
+.forum-reply {
+  padding: 10px 0; border-bottom: 1px dotted #aaaaaa; font-size: 0.75rem; color: #333333;
+  opacity: 0;
+}
+.forum-reply.visible { opacity: 1; }
+.forum-reply .reply-user { color: #003366; font-weight: bold; }
+.forum-reply .reply-time { color: #999999; font-size: 0.65rem; }
+.forum-reply.lost { color: #cc0000; font-weight: bold; }
+
+/* ═══ FOOTER ═══ */
+.site-footer {
+  padding: 48px 16px; text-align: center; border-top: 2px solid var(--cyan);
+}
+.site-footer .footer-legal { font-size: 0.8rem; color: #888888; margin-bottom: 16px; }
+.site-footer .footer-legal a { color: #888888; text-decoration: underline; }
+.site-footer .footer-question { color: var(--pink); font-size: 0.9rem; margin-bottom: 8px; }
+.site-footer .footer-answer { color: var(--pink); font-size: 0.9rem; font-weight: bold; }
+
+/* ═══ GRIEF POPUP ═══ */
+.grief-overlay {
+  position: fixed; inset: 0; background: rgba(26,10,46,0.92); z-index: 9999;
+  display: flex; align-items: center; justify-content: center;
+  padding: 16px;
+}
+.grief-popup {
+  background: var(--card-bg); border: 3px solid var(--pink); padding: 32px;
+  max-width: 480px; width: 100%; text-align: center; position: relative;
+}
+.grief-popup h3 { font-family: 'Unbounded', sans-serif; font-size: 1.1rem; color: var(--pink); margin-bottom: 16px; }
+.grief-popup p { font-size: 0.85rem; color: var(--text); margin-bottom: 24px; line-height: 1.6; }
+.grief-popup .integration { font-size: 0.6rem; color: #555555; position: absolute; bottom: 8px; right: 12px; }
+.grief-buttons { display: flex; gap: 16px; justify-content: center; flex-wrap: wrap; }
+.grief-btn {
+  font-family: 'Oswald', sans-serif; text-transform: uppercase; font-size: 1rem;
+  padding: 12px 32px; cursor: pointer; border: 2px solid var(--pink);
+  letter-spacing: 0.1em; min-height: 48px; min-width: 48px;
+}
+.grief-btn.yes { background: var(--pink); color: #ffffff; }
+.grief-btn.no { background: transparent; color: var(--pink); }
+.grief-btn:hover { opacity: 0.9; }
+
+.grief-result { margin-top: 16px; font-size: 0.85rem; }
+.grief-result .discount-code { color: var(--yellow); font-family: 'Fira Code', monospace; font-size: 1rem; margin-top: 8px; display: block; }
+
+/* ═══ VIEWPORT GLITCH (anya hover) ═══ */
+.viewport-glitch {
+  position: fixed; inset: 0; z-index: 9997; pointer-events: none;
+  background: repeating-linear-gradient(0deg, transparent 0px, transparent 2px, rgba(255,45,120,0.15) 2px, rgba(255,45,120,0.15) 4px);
+  mix-blend-mode: screen; opacity: 0;
+}
+.viewport-glitch.active {
+  animation: vp-glitch 0.5s ease-out forwards;
+}
+@keyframes vp-glitch {
+  0% { opacity: 1; transform: translateX(-5px); }
+  20% { opacity: 1; transform: translateX(5px); }
+  40% { opacity: 0.8; transform: translateX(-3px); }
+  60% { opacity: 0.5; transform: translateX(2px); }
+  100% { opacity: 0; transform: translateX(0); }
+}
+
+/* ═══ SCREEN TEAR (platinum hover) ═══ */
+.tier-platinum:hover {
+  filter: saturate(0.5) brightness(0.9);
+}
+.tier-platinum:hover .tier-price {
+  animation: glitch-hard 0.15s infinite;
+}
+
+/* ═══ MISC ═══ */
+.hidden { display: none !important; }
+</style>
+</head>
+<body>
+
+<canvas id="vhs-canvas"></canvas>
+<div class="viewport-glitch" id="viewport-glitch"></div>
+
+<!-- ═══ HERO ═══ -->
+<section class="hero" id="hero">
+  <div class="hero-content">
+    <h1 id="hero-headline" aria-label="YOUR MEMORIES ARE ALREADY FAKE. WE JUST MAKE BETTER ONES."><span id="typed-text"></span><span class="cursor" id="hero-cursor"></span></h1>
+    <p class="hero-story" id="hero-story">I opened a bottle of lavender shampoo they stopped making in 2047 and I wept for an hour. Not because I missed the smell — because I couldn't remember if the memory attached to it was real or something I built to fill a hole. My mother died with dementia. In her last year she was happier than I'd ever seen her, living in memories that never happened. She cracked the code. NostalgiaGPT is the code, commercialized. We fabricate memories and deliver them to your temporal lobe. If the comfort is real, does it matter that the memory isn't? You're already living in fabricated memories. Every single one of you. We're just more honest about it. — Anya Sharma, Founder (status: missing)</p>
+    <button class="btn-assess" onclick="document.getElementById('quiz').scrollIntoView({behavior:'smooth'})">BEGIN NEURAL ASSESSMENT</button>
+  </div>
+</section>
+
+<!-- ═══ QUIZ ═══ -->
+<section class="quiz-section section-border" id="quiz" x-data="quizApp()">
+  <h2>NEURAL COMPATIBILITY ASSESSMENT</h2>
+  <div class="col">
+    <div class="quiz-form">
+      <div class="progress-bar">
+        <span class="label">PROGRESS:</span>
+        <span class="blocks" x-text="'█'.repeat(step) + '░'.repeat(3 - step)"></span>
+        <span x-text="'(' + step + '/3)'" style="margin-left:8px;"></span>
+      </div>
+
+      <!-- Step 1 -->
+      <div class="quiz-step" :class="{ 'active': step === 0 && !loading && !showResult }">
+        <p class="question">When you close your eyes and think of safety, what color do you see?</p>
+        <div class="radio-group">
+          <label><input type="radio" name="q1" value="warm gold" x-model="answers.q1"> Warm gold — like afternoon light through curtains</label>
+          <label><input type="radio" name="q1" value="deep blue" x-model="answers.q1"> Deep blue — the ocean before you learned to fear it</label>
+          <label><input type="radio" name="q1" value="static grey" x-model="answers.q1"> Static grey — you don't remember feeling safe</label>
+          <label><input type="radio" name="q1" value="lavender" x-model="answers.q1"> Lavender — but you're not sure why</label>
+        </div>
+        <button class="btn-next" @click="if(answers.q1) step = 1">NEXT →</button>
+      </div>
+
+      <!-- Step 2 -->
+      <div class="quiz-step" :class="{ 'active': step === 1 && !loading && !showResult }">
+        <p class="question">Rate your fear of forgetting on a scale of 1-10.</p>
+        <div class="slider-group">
+          <input type="range" min="1" max="10" x-model="answers.q2" step="1">
+          <div class="slider-value" x-text="answers.q2"></div>
+        </div>
+        <p style="font-size:0.75rem;color:#888888;margin-bottom:16px;">1 = "memories are overrated" — 10 = "I keep a journal because I don't trust my own brain"</p>
+        <button class="btn-next" @click="step = 2">NEXT →</button>
+      </div>
+
+      <!-- Step 3 -->
+      <div class="quiz-step" :class="{ 'active': step === 2 && !loading && !showResult }">
+        <p class="question">Upload your most recent brainwave scan for temporal lobe mapping.</p>
+        <div class="file-input-fake">⚠ FILE INPUT DISABLED — NeuralLink™ integration pending FCC review (case #NL-2089-4402)</div>
+        <p style="font-size:0.75rem;color:var(--yellow);margin-top:12px;">Manual assessment will be used instead. Accuracy reduced by approximately 0.003%.</p>
+        <button class="btn-submit" @click="submitQuiz()">SUBMIT ASSESSMENT</button>
+      </div>
+
+      <!-- Loading -->
+      <div class="quiz-loading" :class="{ 'active': loading }" x-show="loading">
+        <div class="load-bar"><div class="load-bar-fill" :style="{ width: loadProgress + '%' }"></div></div>
+        <div class="load-text" x-text="loadText"></div>
+      </div>
+
+      <!-- Result -->
+      <div class="quiz-result" x-show="showResult" x-cloak>
+        <p class="label" style="color:var(--cyan);margin-bottom:8px;">NEURAL COMPATIBILITY SCORE</p>
+        <div class="compat-num" x-text="compatScore + '%'"></div>
+        <p style="margin-top:12px;font-size:0.85rem;">Classification: <span style="color:var(--cyan);">HIGHLY COMPATIBLE</span></p>
+        <p class="warning">⚠ Minor temporal lobe recalibration recommended prior to first implantation. Standard waiver applies. Do not operate heavy machinery for 48 hours post-procedure.</p>
+        <button class="btn-assess" style="margin-top:24px;" onclick="document.getElementById('tiers').scrollIntoView({behavior:'smooth'})">VIEW SUBSCRIPTION TIERS</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ SUBSCRIPTION TIERS ═══ -->
+<section class="tiers-section section-border" id="tiers">
+  <h2>SUBSCRIPTION TIERS</h2>
+  <div class="tiers-grid">
+    <!-- Bronze -->
+    <div class="tier-card" id="tier-bronze">
+      <div class="tier-name label">BRONZE</div>
+      <div class="tier-subtitle">Basic Bliss</div>
+      <div class="tier-price">$29<span style="font-size:0.8rem;">/mo</span></div>
+      <ul class="tier-features">
+        <li>3 pre-fabricated memories/month</li>
+        <li>480p emotional resolution</li>
+        <li>Single-sense only (smell OR sound)</li>
+        <li>Memories expire after 90 days</li>
+        <li>Community forum access (read-only)</li>
+      </ul>
+      <button class="btn-subscribe">SUBSCRIBE</button>
+    </div>
+
+    <!-- Silver -->
+    <div class="tier-card" id="tier-silver">
+      <div class="tier-name label">SILVER</div>
+      <div class="tier-subtitle">Sentimental Serenity</div>
+      <div class="tier-price">$79<span style="font-size:0.8rem;">/mo</span></div>
+      <ul class="tier-features">
+        <li>12 custom memories/month</li>
+        <li>1080p emotional resolution</li>
+        <li>Multi-sense (up to 3 senses)</li>
+        <li>Persistent storage (no expiry)</li>
+        <li>Grief counseling integration</li>
+        <li>Weekly nostalgia digest email</li>
+      </ul>
+      <button class="btn-subscribe">SUBSCRIBE</button>
+    </div>
+
+    <!-- Gold -->
+    <div class="tier-card" id="tier-gold">
+      <div class="tier-name label">GOLD</div>
+      <div class="tier-subtitle">Godlike Recollections</div>
+      <div class="tier-price">$249<span style="font-size:0.8rem;">/mo</span></div>
+      <ul class="tier-features">
+        <li>Unlimited custom memories</li>
+        <li>4K emotional resolution + HDR grief</li>
+        <li>Full 5-sense immersion</li>
+        <li>Shared memories (couples plan)</li>
+        <li>Priority temporal recalibration</li>
+        <li>Access to Memory Vault (pre-2040 archive)</li>
+        <li>Personal nostalgia architect</li>
+      </ul>
+      <button class="btn-subscribe">SUBSCRIBE</button>
+    </div>
+
+    <!-- Platinum -->
+    <div class="tier-card tier-platinum" id="tier-platinum">
+      <div class="tier-name label">PLATINUM</div>
+      <div class="tier-subtitle">Paracosmic Paradise</div>
+      <div class="tier-price">$███<span style="font-size:0.8rem;">/mo</span></div>
+      <ul class="tier-features">
+        <li>Full reality replacement</li>
+        <li>Consciousness-level integration</li>
+        <li>You won't remember subscribing</li>
+        <li>Permanent installation (non-rever</li>
+      </ul>
+      <button class="btn-subscribe" disabled>TIER UNAVAILAB</button>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ MEMORY OF THE MONTH ═══ -->
+<section class="memory-section section-border" id="memory">
+  <h2>MEMORY OF THE MONTH — JANUARY 2091</h2>
+  <div class="vhs-frame">
+    <div class="vhs-inner">
+      <span class="vhs-rec">● REC</span>
+      <span class="vhs-timestamp">2091.01.14 // 03:22:07</span>
+      <h3 class="memory-title">THE FIRST CONTACT WAR</h3>
+      <p class="memory-desc">
+        You are eleven years old and the aliens have landed in the wheat field behind your grandmother's house. Your grandmother — who in this version is still alive and still makes that soup you can never quite remember the recipe for — hands you a pair of binoculars and says "they came a long way, be polite." The aliens look like herons. Tall, patient, blue-grey. One of them is holding something that might be a gift or might be a weapon. <span class="unsettling">Your grandmother walks toward them. She does not come back. You feel relieved and you don't know why.</span> The wheat is golden. The sky is the exact color you told our algorithm you see when you think of safety. <span class="unsettling">We pulled that from your intake form. We pull everything from your intake form.</span>
+      </p>
+      <div class="memory-user">submitted by: user_4471 <span class="suspended">[ACCOUNT SUSPENDED]</span> — reason: "attempted to share memory outside licensed temporal region"</div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ THE TEAM ═══ -->
+<section class="team-section section-border" id="team">
+  <h2>THE TEAM</h2>
+  <div class="team-grid">
+    <div class="team-card">
+      <div class="team-avatar"><div class="avatar-block chad"></div></div>
+      <div class="team-name">Chad Thundercock III</div>
+      <div class="team-title label">Chief Executive Officer</div>
+      <p class="team-bio">Former DreamWeavers Inc. VP of Acquisitions. Took over NostalgiaGPT after Anya's "departure." Believes memory is "just another content vertical." Plays golf on Thursdays. Has never used the product.</p>
+    </div>
+
+    <div class="team-card">
+      <div class="team-avatar"><div class="avatar-block kenji"></div></div>
+      <div class="team-name">Dr. Kenji Tanaka</div>
+      <div class="team-title label">VP of Temporal Integrity</div>
+      <p class="team-bio">Neuroscientist. Published 47 papers on memory plasticity. Joined NostalgiaGPT "to ensure ethical oversight." Resigned twice. Un-resigned twice. His "Reality Pill" side project is advertised in our own forum and he thinks we don't know.</p>
+    </div>
+
+    <div class="team-card">
+      <div class="team-avatar"><div class="avatar-block vera"></div></div>
+      <div class="team-name">Vera Okonkwo</div>
+      <div class="team-title label">Chief Nostalgia Officer</div>
+      <p class="team-bio">Formerly lead archivist at the Library of Emotional Congress. Curates the Memory Vault. Says the pre-2040 memories "taste different." Nobody asks her what she means by taste. We've learned not to.</p>
+    </div>
+
+    <div class="team-card anya-card" id="anya-card">
+      <div class="team-avatar"><div class="avatar-block anya"></div></div>
+      <div class="team-name">Anya Sharma</div>
+      <div class="team-title label">Founder</div>
+      <p class="team-bio">[RECORD EXPUNGED — SEE INCIDENT REPORT 2089-7A]</p>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ FORUM ═══ -->
+<section class="forum-section section-border" id="forum">
+  <h2>COMMUNITY FORUM</h2>
+  <div class="forum-wrapper">
+    <div class="forum-header">
+      <span>NostalgiaGPT User Forum — est. 2081</span>
+      <span class="last-active">last active: 7 months ago</span>
+    </div>
+
+    <!-- Thread 1 -->
+    <div class="forum-thread">
+      <div class="thread-title">Share your best memories!</div>
+      <div class="thread-meta">posted by: admin_chad — 0 replies — last activity: 7 months ago</div>
+    </div>
+
+    <!-- Thread 2 -->
+    <div class="forum-thread" id="bleed-thread">
+      <div class="thread-title">Is anyone else experiencing temporal bleed-through?</div>
+      <div class="thread-meta">posted by: user_8812 — 3 replies</div>
+    </div>
+    <div class="forum-replies" id="forum-replies">
+      <div class="forum-reply" id="reply1">
+        <span class="reply-user">user_8812</span> <span class="reply-time">— 7 months ago</span><br>
+        I keep remembering my daughter's fifth birthday but she's only three. The memory has details I couldn't invent. A specific balloon color. The taste of the cake. Am I remembering the future or did NostalgiaGPT leak someone else's memory into my feed?
+      </div>
+      <div class="forum-reply" id="reply2">
+        <span class="reply-user">user_0034</span> <span class="reply-time">— 7 months ago</span><br>
+        Same. I have a memory of my own funeral. It's very peaceful. I'm concerned about the "peaceful" part.
+      </div>
+      <div class="forum-reply" id="reply3">
+        <span class="reply-user">user_1190</span> <span class="reply-time">— 7 months ago</span><br>
+        Has anyone contacted support? I've been trying to file a ticket for three weeks but the portal keeps redirecting me to a memory of filing a ti<span class="lost" id="connection-lost"></span>
+      </div>
+    </div>
+
+    <!-- Thread 3 (pinned ad) -->
+    <div class="forum-thread" style="background:#eeeecc;">
+      <div class="thread-title pinned">SPONSORED: Dr. Tanaka's Reality Pill™</div>
+      <div class="thread-ad">"The truth doesn't need a subscription." — Available without prescription in 14 territories. Side effects include clarity, regret, and the sudden awareness of time passing.</div>
+      <div class="thread-meta">pinned by: mod_kenji — 0 replies — 🔒 comments disabled</div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ FOOTER ═══ -->
+<footer class="site-footer">
+  <p class="footer-legal">NostalgiaGPT™ 2077-2091. <a href="#">'Ethical Considerations' PDF</a> (47 pages, last updated March 17, 2047).</p>
+  <p class="footer-question">"If the comfort is real, does it matter?"</p>
+  <p class="footer-answer">"It mattered to her."</p>
+</footer>
+
+<!-- ═══ GRIEF POPUP ═══ -->
+<div class="grief-overlay hidden" id="grief-overlay" x-data="griefPopup()">
+  <div class="grief-popup">
+    <h3>BEREAVEMENT SERVICES INTEGRATION</h3>
+    <p>Have you recently filed a death certificate with the Department of Vital Records?</p>
+    <div x-show="!answered">
+      <div class="grief-buttons">
+        <button class="grief-btn yes" @click="answerYes()">YES</button>
+        <button class="grief-btn no" @click="answerNo()">NO</button>
+      </div>
+    </div>
+    <div class="grief-result" x-show="answered" x-cloak>
+      <p x-show="isYes" style="color:var(--text);">We're sorry for your loss. Use code <span class="discount-code">SHECRACKEDTHECODE</span> for 20% off any tier.</p>
+      <p x-show="!isYes" style="color:#888888;">We're sorry for your future loss.</p>
+      <button class="grief-btn no" style="margin-top:16px;" @click="dismiss()">CLOSE</button>
+    </div>
+    <span class="integration">[integration pending]</span>
+  </div>
+</div>
+
+<script src="/assets/js/gsap.min.js"></script>
+<script src="/assets/js/alpine.min.js" defer></script>
+<script>
+(function() {
+  'use strict';
+
+  /* ═══ ALPINE: QUIZ ═══ */
+  window.quizApp = function() {
+    return {
+      step: 0,
+      answers: { q1: '', q2: 5, q3: '' },
+      loading: false,
+      loadProgress: 0,
+      loadText: '',
+      showResult: false,
+      compatScore: 0,
+      submitQuiz: function() {
+        var self = this;
+        self.loading = true;
+        var steps = [
+          { text: 'calibrating temporal vectors...', pct: 15 },
+          { text: 'mapping emotional topology...', pct: 35 },
+          { text: 'detecting grief signatures...', pct: 55 },
+          { text: 'cross-referencing loss database...', pct: 70 },
+          { text: 'analyzing nostalgia susceptibility index...', pct: 85 },
+          { text: 'compiling neural compatibility profile...', pct: 100 }
+        ];
+        var i = 0;
+        function nextStep() {
+          if (i < steps.length) {
+            self.loadText = steps[i].text;
+            self.loadProgress = steps[i].pct;
+            i++;
+            setTimeout(nextStep, 800);
+          } else {
+            self.loading = false;
+            self.compatScore = Math.floor(Math.random() * 9) + 83;
+            self.showResult = true;
+          }
+        }
+        nextStep();
+      }
+    };
+  };
+
+  /* ═══ ALPINE: GRIEF POPUP ═══ */
+  window.griefPopup = function() {
+    return {
+      answered: false,
+      isYes: false,
+      answerYes: function() { this.answered = true; this.isYes = true; },
+      answerNo: function() { this.answered = true; this.isYes = false; },
+      dismiss: function() { document.getElementById('grief-overlay').classList.add('hidden'); }
+    };
+  };
+
+  /* ═══ HERO TYPEWRITER ═══ */
+  var headline = "YOUR MEMORIES ARE ALREADY FAKE. WE JUST MAKE BETTER ONES.";
+  var typedEl = document.getElementById('typed-text');
+  var cursorEl = document.getElementById('hero-cursor');
+  var storyEl = document.getElementById('hero-story');
+  var charIndex = 0;
+
+  function typeNext() {
+    if (charIndex < headline.length) {
+      typedEl.textContent += headline[charIndex];
+      charIndex++;
+      setTimeout(typeNext, 40);
+    } else {
+      // Blink cursor 3 times, then fade in story
+      var blinkCount = 0;
+      var blinkInterval = setInterval(function() {
+        blinkCount++;
+        if (blinkCount >= 6) {
+          clearInterval(blinkInterval);
+          cursorEl.style.animationPlayState = 'paused';
+          cursorEl.style.opacity = '0';
+          // VHS shift + fade in story
+          gsap.fromTo(storyEl,
+            { opacity: 0, x: -2 },
+            { opacity: 1, x: 0, duration: 0.4, ease: 'power2.out', onComplete: function() { storyEl.classList.add('visible'); } }
+          );
+        }
+      }, 300);
+    }
+  }
+  setTimeout(typeNext, 500);
+
+  /* ═══ TIER GLITCH PULSE ═══ */
+  var tierIds = ['tier-bronze', 'tier-silver', 'tier-gold'];
+  function glitchRandomTier() {
+    var id = tierIds[Math.floor(Math.random() * tierIds.length)];
+    var el = document.getElementById(id);
+    if (!el) return;
+    gsap.fromTo(el,
+      { x: 0, filter: 'none' },
+      { x: 3, duration: 0.1, ease: 'steps(2)',
+        onComplete: function() {
+          gsap.fromTo(el, { x: 3 }, { x: 0, duration: 0.1, ease: 'steps(2)' });
+        }
+      }
+    );
+  }
+  setInterval(glitchRandomTier, 8000);
+
+  /* ═══ FORUM TYPING EFFECT ═══ */
+  var forumAnimated = false;
+  function animateForumReplies() {
+    if (forumAnimated) return;
+    forumAnimated = true;
+
+    var reply1 = document.getElementById('reply1');
+    var reply2 = document.getElementById('reply2');
+    var reply3 = document.getElementById('reply3');
+    var connLost = document.getElementById('connection-lost');
+
+    setTimeout(function() {
+      reply1.classList.add('visible');
+      gsap.fromTo(reply1, { opacity: 0, y: 5 }, { opacity: 1, y: 0, duration: 0.3 });
+    }, 500);
+
+    setTimeout(function() {
+      reply2.classList.add('visible');
+      gsap.fromTo(reply2, { opacity: 0, y: 5 }, { opacity: 1, y: 0, duration: 0.3 });
+    }, 2500);
+
+    setTimeout(function() {
+      reply3.classList.add('visible');
+      gsap.fromTo(reply3, { opacity: 0, y: 5 }, { opacity: 1, y: 0, duration: 0.3 });
+    }, 4500);
+
+    setTimeout(function() {
+      connLost.textContent = ' [CONNECTION LOST]';
+    }, 6000);
+  }
+
+  var forumObserver = new IntersectionObserver(function(entries) {
+    entries.forEach(function(entry) {
+      if (entry.isIntersecting) {
+        animateForumReplies();
+        forumObserver.disconnect();
+      }
+    });
+  }, { threshold: 0.3 });
+
+  var forumEl = document.getElementById('forum-replies');
+  if (forumEl) forumObserver.observe(forumEl);
+
+  /* ═══ ANYA VIEWPORT GLITCH ═══ */
+  var anyaCard = document.getElementById('anya-card');
+  var vpGlitch = document.getElementById('viewport-glitch');
+  if (anyaCard && vpGlitch) {
+    anyaCard.addEventListener('mouseenter', function() {
+      vpGlitch.classList.remove('active');
+      void vpGlitch.offsetWidth; // force reflow
+      vpGlitch.classList.add('active');
+    });
+    vpGlitch.addEventListener('animationend', function() {
+      vpGlitch.classList.remove('active');
+    });
+  }
+
+  /* ═══ GRIEF POPUP (30s delay) ═══ */
+  setTimeout(function() {
+    var overlay = document.getElementById('grief-overlay');
+    if (overlay) overlay.classList.remove('hidden');
+  }, 30000);
+
+  /* ═══ VHS CANVAS OVERLAY ═══ */
+  var canvas = document.getElementById('vhs-canvas');
+  var ctx = canvas ? canvas.getContext('2d') : null;
+  var mouseX = -1000, mouseY = -1000;
+  var scanLines = [];
+  var numLines = 6;
+
+  function initScanLines() {
+    scanLines = [];
+    for (var i = 0; i < numLines; i++) {
+      scanLines.push({
+        y: Math.random() * (canvas ? canvas.height : 800),
+        speed: 0.3 + Math.random() * 0.7,
+        color: Math.random() > 0.5 ? 'rgba(255,45,120,0.06)' : 'rgba(0,229,255,0.06)',
+        height: 1 + Math.random() * 2
+      });
+    }
+  }
+
+  function resizeCanvas() {
+    if (!canvas) return;
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+    initScanLines();
+  }
+
+  window.addEventListener('resize', resizeCanvas);
+  resizeCanvas();
+
+  document.addEventListener('mousemove', function(e) {
+    mouseX = e.clientX;
+    mouseY = e.clientY;
+  });
+
+  function drawVHS() {
+    if (!ctx || !canvas) return;
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    for (var i = 0; i < scanLines.length; i++) {
+      var line = scanLines[i];
+      line.y += line.speed;
+      if (line.y > canvas.height) line.y = -2;
+
+      var distToMouse = Math.abs(line.y - mouseY);
+      var intensity = distToMouse < 100 ? (1 - distToMouse / 100) * 3 : 0;
+      var baseAlpha = 0.06;
+      var alpha = Math.min(baseAlpha + intensity * 0.15, 0.25);
+      var h = line.height + intensity * 4;
+
+      var colorStr = line.color.replace(/[\d.]+\)$/, alpha.toFixed(2) + ')');
+      ctx.fillStyle = colorStr;
+      ctx.fillRect(0, line.y, canvas.width, h);
+
+      if (intensity > 0.5) {
+        var offsetX = (Math.random() - 0.5) * intensity * 8;
+        ctx.fillStyle = line.color.replace(/[\d.]+\)$/, (alpha * 0.5).toFixed(2) + ')');
+        ctx.fillRect(offsetX, line.y - 1, canvas.width, h * 0.5);
+      }
+    }
+
+    requestAnimationFrame(drawVHS);
+  }
+  drawVHS();
+
+})();
+</script>
+</body>
+</html>

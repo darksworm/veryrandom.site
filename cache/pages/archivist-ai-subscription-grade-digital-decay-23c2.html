@@ -1,0 +1,1161 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Archivist AI — Subscription-Grade Digital Decay</title>
+<link rel="stylesheet" href="/assets/css/fonts.css">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg: #F8F8FF;
+  --text: #2B2B2B;
+  --accent: #6BA3BE;
+  --card: #EDEDED;
+  --amber: #C4A35A;
+  --border: #D0D0D0;
+  --font-body: 'IBM Plex Mono', monospace;
+  --font-heading: 'Oswald', sans-serif;
+  --font-hand: 'Caveat', cursive;
+}
+
+html { scroll-behavior: smooth; }
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font-body);
+  font-size: 16px;
+  line-height: 1.65;
+  overflow-x: hidden;
+  position: relative;
+}
+
+/* CRT Scanline Overlay */
+.crt-overlay {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  pointer-events: none;
+  z-index: 9998;
+  background: repeating-linear-gradient(
+    0deg,
+    transparent,
+    transparent 2px,
+    rgba(0,0,0,0.03) 2px,
+    rgba(0,0,0,0.03) 4px
+  );
+  animation: crtFlicker 6s infinite;
+}
+
+@keyframes crtFlicker {
+  0%, 98% { opacity: 0.02; }
+  98.5% { opacity: 0.05; }
+  99% { opacity: 0.02; }
+  100% { opacity: 0.02; }
+}
+
+/* Amber Pulse */
+@keyframes amberPulse {
+  0%, 100% { opacity: 0.8; }
+  50% { opacity: 1; }
+}
+
+.amber-pulse { animation: amberPulse 4s ease-in-out infinite; }
+
+/* Layout */
+.page-wrap {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 60px 24px 120px;
+}
+
+.two-col {
+  display: grid;
+  grid-template-columns: 65% 30%;
+  gap: 5%;
+  align-items: start;
+}
+
+.margin-note {
+  font-family: var(--font-hand);
+  font-size: 22px;
+  color: #4A4A4A;
+  line-height: 1.4;
+  padding: 16px 0;
+}
+
+.margin-note.mobile-only { display: none; }
+
+@media (max-width: 768px) {
+  .two-col {
+    grid-template-columns: 1fr;
+    gap: 0;
+  }
+  .margin-col { display: none; }
+  .margin-note.mobile-only {
+    display: block;
+    margin: 16px 0;
+  }
+}
+
+/* Typography */
+h1, h2, h3, h4 {
+  font-family: var(--font-heading);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  line-height: 1.15;
+}
+
+h1 { font-size: clamp(32px, 5vw, 56px); }
+h2 { font-size: clamp(24px, 3.5vw, 38px); margin-bottom: 24px; }
+h3 { font-size: clamp(18px, 2.5vw, 26px); }
+
+section {
+  margin-bottom: 80px;
+}
+
+/* Hero */
+.hero-statement {
+  font-family: var(--font-heading);
+  font-size: clamp(36px, 6vw, 64px);
+  text-transform: uppercase;
+  line-height: 1.05;
+  letter-spacing: -0.5px;
+  margin-bottom: 32px;
+  max-width: 700px;
+}
+
+.hero-meta {
+  font-size: 14px;
+  color: #555555;
+  line-height: 1.8;
+}
+
+.hero-meta .est {
+  font-family: var(--font-hand);
+  font-size: 20px;
+  color: var(--amber);
+}
+
+.btn-watch {
+  display: inline-block;
+  margin-top: 24px;
+  padding: 12px 24px;
+  background: var(--text);
+  color: var(--bg);
+  font-family: var(--font-body);
+  font-size: 14px;
+  border: none;
+  cursor: pointer;
+  letter-spacing: 1px;
+  min-height: 44px;
+  min-width: 44px;
+  transition: background 0.2s;
+}
+
+.btn-watch:hover { background: #444444; }
+
+/* Degradation Simulator */
+.sim-container {
+  margin-top: 20px;
+  position: relative;
+  display: none;
+  max-width: 320px;
+}
+
+.sim-container.active { display: block; }
+
+.sim-canvas {
+  width: 100%;
+  max-width: 320px;
+  height: 200px;
+  background: #2B2B2B;
+  display: block;
+}
+
+.sim-counter {
+  font-size: 13px;
+  margin-top: 8px;
+  color: #555555;
+}
+
+/* Sample Dust Cards */
+.dust-cards {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.dust-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  padding: 24px;
+  position: relative;
+}
+
+.dust-card:nth-child(1) { margin-left: 0; }
+.dust-card:nth-child(2) { margin-left: 20px; }
+.dust-card:nth-child(3) { margin-left: 8px; }
+
+.dust-card.glitched {
+  transform: translate(4px, -2px);
+  box-shadow: -3px 3px 0 rgba(107,163,190,0.3), 3px -3px 0 rgba(196,163,90,0.3);
+}
+
+.dust-card .filename {
+  font-size: 15px;
+  font-weight: 700;
+  margin-bottom: 8px;
+  word-break: break-all;
+}
+
+.dust-card .desc {
+  font-size: 14px;
+  color: #555555;
+  margin-bottom: 16px;
+}
+
+.cci-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: 2px solid var(--amber);
+  font-family: var(--font-heading);
+  font-size: 18px;
+  color: var(--amber);
+  cursor: pointer;
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  min-width: 44px;
+  min-height: 44px;
+}
+
+.cci-badge:hover { background: rgba(196,163,90,0.1); }
+
+.cci-popover {
+  display: none;
+  position: absolute;
+  top: 60px;
+  right: 0;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  padding: 16px;
+  width: 240px;
+  z-index: 100;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  font-size: 13px;
+}
+
+.cci-popover.open { display: block; }
+
+.cci-popover .cci-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
+
+.cci-popover .cci-row:last-child { margin-bottom: 0; }
+
+.cci-bar {
+  width: 80px;
+  height: 6px;
+  background: var(--border);
+  border-radius: 3px;
+  overflow: hidden;
+  margin-left: 8px;
+  flex-shrink: 0;
+}
+
+.cci-bar-fill {
+  height: 100%;
+  background: var(--accent);
+  border-radius: 3px;
+}
+
+.cci-val {
+  font-family: var(--font-heading);
+  min-width: 20px;
+  text-align: right;
+  margin-left: 6px;
+}
+
+.btn-recover {
+  display: inline-block;
+  padding: 10px 20px;
+  background: transparent;
+  border: 1px solid var(--text);
+  color: var(--text);
+  font-family: var(--font-body);
+  font-size: 13px;
+  letter-spacing: 1.5px;
+  cursor: pointer;
+  min-height: 44px;
+  transition: all 0.2s;
+}
+
+.btn-recover:hover {
+  background: var(--text);
+  color: var(--bg);
+}
+
+/* Dust Degradation Report */
+.ddr-block {
+  background: var(--card);
+  border: 1px solid var(--border);
+  padding: 32px;
+  font-size: 14px;
+  line-height: 1.8;
+  position: relative;
+  background-image: radial-gradient(circle, #D0D0D0 0.5px, transparent 0.5px);
+  background-size: 12px 12px;
+}
+
+.ddr-block .ddr-title {
+  font-family: var(--font-heading);
+  font-size: 20px;
+  margin-bottom: 20px;
+  text-transform: uppercase;
+}
+
+.ddr-block p {
+  margin-bottom: 14px;
+  background: var(--card);
+  position: relative;
+  z-index: 1;
+}
+
+.filed-tag {
+  display: inline-block;
+  font-size: 12px;
+  padding: 4px 10px;
+  border: 1px solid var(--border);
+  background: var(--bg);
+  margin-bottom: 12px;
+}
+
+/* Digital Antiquities Act */
+.manifesto-card {
+  border: 3px solid var(--text);
+  padding: 40px;
+  position: relative;
+  background: var(--bg);
+}
+
+.manifesto-seal {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  width: 80px;
+  height: 80px;
+  border: 3px solid var(--amber);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-heading);
+  font-size: 11px;
+  text-align: center;
+  color: var(--amber);
+  text-transform: uppercase;
+  line-height: 1.2;
+  letter-spacing: 0.5px;
+}
+
+.manifesto-card article {
+  margin-bottom: 28px;
+}
+
+.manifesto-card article h3 {
+  margin-bottom: 12px;
+  font-size: clamp(16px, 2vw, 22px);
+}
+
+.manifesto-card article p {
+  font-size: 14px;
+  margin-bottom: 10px;
+}
+
+.redact-toggle {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 24px;
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.redact-switch {
+  width: 44px;
+  height: 24px;
+  background: var(--border);
+  border-radius: 12px;
+  position: relative;
+  transition: background 0.2s;
+  flex-shrink: 0;
+  min-width: 44px;
+  min-height: 24px;
+}
+
+.redact-switch::after {
+  content: '';
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 18px;
+  height: 18px;
+  background: var(--bg);
+  border-radius: 50%;
+  transition: transform 0.2s;
+}
+
+.redact-switch.on {
+  background: var(--text);
+}
+
+.redact-switch.on::after {
+  transform: translateX(20px);
+}
+
+.redacted {
+  background: var(--text);
+  color: var(--text);
+  padding: 0 4px;
+  user-select: none;
+}
+
+/* Forum Posts */
+.forum-wrap {
+  border: 1px solid var(--border);
+  overflow: hidden;
+}
+
+.forum-header {
+  background: var(--text);
+  color: var(--bg);
+  padding: 10px 16px;
+  font-family: var(--font-heading);
+  font-size: 14px;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+}
+
+.forum-post {
+  padding: 16px;
+  border-bottom: 1px solid var(--border);
+  font-size: 14px;
+}
+
+.forum-post:nth-child(even) { background: var(--card); }
+.forum-post:nth-child(odd) { background: var(--bg); }
+
+.forum-post .post-meta {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 10px;
+  font-size: 12px;
+  color: #777777;
+  flex-wrap: wrap;
+}
+
+.forum-post .username {
+  font-weight: 700;
+  color: var(--accent);
+}
+
+.verified-badge {
+  display: inline-block;
+  font-size: 10px;
+  padding: 2px 8px;
+  background: var(--amber);
+  color: var(--bg);
+  font-family: var(--font-heading);
+  letter-spacing: 1px;
+  text-transform: uppercase;
+}
+
+.forum-post .post-body {
+  line-height: 1.7;
+}
+
+.dead-link {
+  color: var(--accent);
+  text-decoration: underline;
+  cursor: not-allowed;
+}
+
+/* Patron Artifact */
+.artifact-card {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-left: 5px solid var(--amber);
+  padding: 32px;
+}
+
+.artifact-card .artifact-title {
+  font-family: var(--font-heading);
+  font-size: 22px;
+  text-transform: uppercase;
+  margin-bottom: 6px;
+}
+
+.artifact-card .artifact-sub {
+  font-size: 13px;
+  color: #777777;
+  margin-bottom: 20px;
+}
+
+.archivists-note {
+  font-family: var(--font-hand);
+  font-size: 20px;
+  color: #4A4A4A;
+  margin-top: 20px;
+  padding-top: 16px;
+  border-top: 1px dashed var(--border);
+  line-height: 1.4;
+}
+
+/* Pricing */
+.pricing-cards {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.price-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  padding: 28px;
+}
+
+.price-card:nth-child(1) { margin-left: 12px; }
+.price-card:nth-child(2) { margin-left: 0; }
+.price-card:nth-child(3) {
+  margin-left: 8px;
+  border: 2px solid var(--amber);
+  padding: 36px;
+}
+
+.price-card .tier-name {
+  font-family: var(--font-heading);
+  font-size: 22px;
+  text-transform: uppercase;
+  margin-bottom: 4px;
+}
+
+.price-card .tier-price {
+  font-size: 28px;
+  font-weight: 700;
+  margin-bottom: 4px;
+}
+
+.price-card .tier-freq {
+  font-size: 13px;
+  color: #777777;
+  margin-bottom: 16px;
+}
+
+.price-card .tier-desc {
+  font-size: 14px;
+  line-height: 1.7;
+}
+
+.price-card .tier-desc ul {
+  list-style: none;
+  padding: 0;
+}
+
+.price-card .tier-desc ul li {
+  padding: 4px 0;
+}
+
+.price-card .tier-desc ul li::before {
+  content: '▸ ';
+  color: var(--accent);
+}
+
+.pricing-footnote {
+  font-family: var(--font-hand);
+  font-size: 22px;
+  color: #4A4A4A;
+  margin-top: 20px;
+  text-align: right;
+}
+
+/* Terminal */
+.terminal-section {
+  background: #1A1A1A;
+  border: 1px solid #333333;
+  padding: 24px;
+  font-size: 14px;
+  color: #AAAAAA;
+  max-width: 600px;
+}
+
+.terminal-section .prompt-line {
+  display: flex;
+  align-items: center;
+  gap: 0;
+}
+
+.terminal-section .prompt-prefix {
+  color: var(--accent);
+  white-space: nowrap;
+}
+
+.terminal-input {
+  background: transparent;
+  border: none;
+  outline: none;
+  color: #DDDDDD;
+  font-family: var(--font-body);
+  font-size: 14px;
+  flex: 1;
+  min-width: 0;
+  min-height: 44px;
+}
+
+.terminal-output {
+  margin-top: 12px;
+  min-height: 20px;
+  color: #888888;
+}
+
+/* Fade-in */
+.fade-in {
+  opacity: 0;
+  transform: translateY(10px);
+}
+
+/* Section offsets for stagger feel */
+.offset-r8 { margin-left: 8px; }
+.offset-r16 { margin-left: 16px; }
+.offset-r20 { margin-left: 20px; }
+.offset-l8 { margin-right: 8px; }
+.offset-l12 { margin-right: 12px; }
+
+@media (max-width: 768px) {
+  .page-wrap { padding: 32px 16px 100px; }
+  section { margin-bottom: 56px; }
+  .dust-card:nth-child(2),
+  .dust-card:nth-child(3) { margin-left: 0; }
+  .price-card:nth-child(1),
+  .price-card:nth-child(3) { margin-left: 0; }
+  .offset-r8, .offset-r16, .offset-r20 { margin-left: 0; }
+  .offset-l8, .offset-l12 { margin-right: 0; }
+  .manifesto-card { padding: 24px; }
+  .manifesto-seal { width: 60px; height: 60px; font-size: 9px; }
+  .ddr-block { padding: 20px; }
+}
+</style>
+</head>
+<body>
+
+<div class="crt-overlay"></div>
+
+<div class="page-wrap" x-data="archivistApp()">
+
+  <!-- HERO -->
+  <section class="two-col">
+    <div class="main-col">
+      <div class="fade-in" data-dir="left">
+        <p class="hero-statement">Everything you have ever made on a computer is already dying.</p>
+        <div class="hero-meta">
+          <strong>ARCHIVIST AI</strong><br>
+          <span class="est">est. 2042</span><br>
+          Subscription-grade digital decay, delivered monthly.
+        </div>
+        <button class="btn-watch" @click="startSimulator()">WATCH A FILE DIE</button>
+        <div class="sim-container" :class="{ active: simActive }">
+          <canvas class="sim-canvas" width="320" height="200"></canvas>
+          <div class="sim-counter" x-text="simCounter"></div>
+        </div>
+      </div>
+    </div>
+    <div class="margin-col">
+      <div class="margin-note fade-in" data-dir="right" style="margin-top: 40px;">
+        "We meant every ridiculous word." —E.T.
+      </div>
+    </div>
+    <div class="margin-note mobile-only">"We meant every ridiculous word." —E.T.</div>
+  </section>
+
+  <!-- SAMPLE DUST PACKAGES -->
+  <section>
+    <div class="two-col">
+      <div class="main-col">
+        <h2 class="fade-in offset-r8" data-dir="left">Sample Dust Packages</h2>
+        <p class="fade-in" data-dir="left" style="font-size:14px; color:#555555; margin-bottom:24px;">Complimentary excavation bundles. No protective equipment provided.</p>
+        <div class="dust-cards">
+          <div class="dust-card fade-in" data-dir="left">
+            <span class="cci-badge amber-pulse" @click.stop="toggleCCI(0)">7</span>
+            <div class="cci-popover" :class="{ open: cciOpen === 0 }" @click.outside="cciOpen = null">
+              <div class="cci-row"><span>Hardware Obscurity</span><div class="cci-bar"><div class="cci-bar-fill" style="width:60%"></div></div><span class="cci-val">6</span></div>
+              <div class="cci-row"><span>Software Dependency</span><div class="cci-bar"><div class="cci-bar-fill" style="width:70%"></div></div><span class="cci-val">7</span></div>
+              <div class="cci-row"><span>Emotional Damage</span><div class="cci-bar"><div class="cci-bar-fill" style="width:90%"></div></div><span class="cci-val">9</span></div>
+            </div>
+            <div class="filename">grandma_photos_2031.webp.corrupt</div>
+            <div class="desc">438 images from a cloud service discontinued in 2034. Partially recoverable. Mostly birthdays.</div>
+            <button class="btn-recover">RECOVER SAMPLE</button>
+          </div>
+
+          <div class="dust-card glitched fade-in" data-dir="right">
+            <span class="cci-badge amber-pulse" @click.stop="toggleCCI(1)">4</span>
+            <div class="cci-popover" :class="{ open: cciOpen === 1 }" @click.outside="cciOpen = null">
+              <div class="cci-row"><span>Hardware Obscurity</span><div class="cci-bar"><div class="cci-bar-fill" style="width:20%"></div></div><span class="cci-val">2</span></div>
+              <div class="cci-row"><span>Software Dependency</span><div class="cci-bar"><div class="cci-bar-fill" style="width:30%"></div></div><span class="cci-val">3</span></div>
+              <div class="cci-row"><span>Emotional Damage</span><div class="cci-bar"><div class="cci-bar-fill" style="width:80%"></div></div><span class="cci-val">8</span></div>
+            </div>
+            <div class="filename">README_final_final_v3.txt</div>
+            <div class="desc">Last-modified 2027. Author unknown. Contains setup instructions for software that no longer exists.</div>
+            <button class="btn-recover">RECOVER SAMPLE</button>
+          </div>
+
+          <div class="dust-card fade-in" data-dir="left">
+            <span class="cci-badge amber-pulse" @click.stop="toggleCCI(2)">9</span>
+            <div class="cci-popover" :class="{ open: cciOpen === 2 }" @click.outside="cciOpen = null">
+              <div class="cci-row"><span>Hardware Obscurity</span><div class="cci-bar"><div class="cci-bar-fill" style="width:80%"></div></div><span class="cci-val">8</span></div>
+              <div class="cci-row"><span>Software Dependency</span><div class="cci-bar"><div class="cci-bar-fill" style="width:90%"></div></div><span class="cci-val">9</span></div>
+              <div class="cci-row"><span>Emotional Damage</span><div class="cci-bar"><div class="cci-bar-fill" style="width:100%"></div></div><span class="cci-val">10</span></div>
+            </div>
+            <div class="filename">birthday.mid</div>
+            <div class="desc">A MIDI rendition of "Happy Birthday" composed on a Roland SC-88 in 1996. Requires a Sound Canvas to hear it as intended. You won't.</div>
+            <button class="btn-recover">RECOVER SAMPLE</button>
+          </div>
+        </div>
+      </div>
+      <div class="margin-col">
+        <div class="margin-note fade-in" data-dir="right" style="margin-top:100px;">
+          The Compatibility Complexity Index is a proprietary metric. Click the badges. We are very serious about this.
+        </div>
+      </div>
+      <div class="margin-note mobile-only">The Compatibility Complexity Index is a proprietary metric. Click the badges. We are very serious about this.</div>
+    </div>
+  </section>
+
+  <!-- DUST DEGRADATION REPORT -->
+  <section>
+    <div class="two-col">
+      <div class="main-col">
+        <h2 class="fade-in offset-r16" data-dir="right">Dust Degradation Report</h2>
+        <div class="ddr-block fade-in offset-l8" data-dir="left">
+          <div class="ddr-title">DDR-0047: Projected Bit Rot Timeline for JPEG2000 Archives, 2025–2060</div>
+          <p>By 2032, approximately 18% of JPEG2000 files stored on consumer-grade SSDs will exhibit partial header corruption due to charge leakage in NAND cells exposed to ambient temperature variance exceeding manufacturer tolerances. This is not a defect. This is physics reminding you that it does not care about your wedding photos.</p>
+          <p>Our longitudinal study of 4,200 personal archives (donated posthumously; we are legally required to say "donated") indicates that the median user discovers file corruption 6.3 years after the point of no return. By then, the original camera is in a landfill in Accra, the editing software has been acqui-hired into oblivion, and the backup drive is in a box labeled "MISC — DO NOT THROW AWAY" that someone will absolutely throw away.</p>
+          <p>We recommend immediate cold-storage migration to M-DISC or archival-grade tape. We also recommend accepting that you will not do this. The projected survival rate for unattended JPEG2000 archives by 2060 is 11%. The projected survival rate for your memory of what those photos contained is lower.</p>
+        </div>
+      </div>
+      <div class="margin-col">
+        <div class="fade-in" data-dir="right" style="margin-top:40px;">
+          <span class="filed-tag">Filed under: SOBERING / QUARTERLY</span>
+        </div>
+        <div class="margin-note fade-in" data-dir="right" style="margin-top:20px;">
+          "Anya says this one is too sad. I disagree." —E.T.
+        </div>
+      </div>
+      <div class="margin-note mobile-only">"Anya says this one is too sad. I disagree." —E.T.</div>
+    </div>
+  </section>
+
+  <!-- DIGITAL ANTIQUITIES ACT -->
+  <section>
+    <div class="two-col">
+      <div class="main-col">
+        <h2 class="fade-in offset-r8" data-dir="left">The Digital Antiquities Act</h2>
+        <div class="manifesto-card fade-in" data-dir="left">
+          <div class="manifesto-seal amber-pulse">OFFICIAL<br>SEAL<br>D.A.A.</div>
+          <div class="redact-toggle" @click="redacted = !redacted" role="button" tabindex="0" @keydown.enter="redacted = !redacted">
+            <div class="redact-switch" :class="{ on: redacted }"></div>
+            <span>View: Chronos Corp. Approved Version</span>
+          </div>
+
+          <article>
+            <h3>Preamble</h3>
+            <p>We, the undersigned archivists, data hoarders, and sentimentalists, do hereby declare that <span :class="{ redacted: redacted }">the systematic abandonment of digital artifacts by corporate entities constitutes a cultural crime of staggering indifference</span>. We have watched platforms evaporate. We have seen file formats euthanized. <span :class="{ redacted: redacted }">We are tired of being told to "export your data" forty-eight hours before the servers go dark.</span></p>
+          </article>
+
+          <article>
+            <h3>Article I: On the Right to Continued Existence of Data</h3>
+            <p>Every file created in good faith — <span :class="{ redacted: redacted }">every half-finished novel, every blurry photograph, every spreadsheet of dubious accounting</span> — possesses an inherent right to persist beyond the business cycle of the platform that hosted it. A sunset is a natural phenomenon. <span :class="{ redacted: redacted }">A "sunsetting" is a euphemism for arson.</span></p>
+          </article>
+
+          <article>
+            <h3>Article II: On the Criminality of Planned Obsolescence</h3>
+            <p>The deliberate engineering of format incompatibility shall be recognized as <span :class="{ redacted: redacted }">an act of cultural vandalism equivalent to burning a library, except worse, because at least a fire is honest about what it's doing</span>. Proprietary codecs are hostage situations. <span :class="{ redacted: redacted }">DRM is a padlock on a coffin.</span></p>
+          </article>
+
+          <article>
+            <h3>Article III: On the Inalienable Right of a .bmp File to Exist</h3>
+            <p>The .bmp format, widely derided as "inefficient" and "obsolete," <span :class="{ redacted: redacted }">has outlasted three major social networks, two operating systems, and one civilizational attention span</span>. We demand its recognition as a protected cultural heritage format. It is honest. It is enormous. <span :class="{ redacted: redacted }">It does not compress your memories to save shareholders four cents per gigabyte.</span></p>
+          </article>
+
+          <article>
+            <h3>Article IV: On the Obligation to Grieve</h3>
+            <p>When a platform dies, there shall be a mandatory period of digital mourning. <span :class="{ redacted: redacted }">No executive shall be permitted to describe the destruction of user data as "an exciting new chapter" without first reading aloud the filenames of everything they deleted.</span> All of them. Alphabetically.</p>
+          </article>
+        </div>
+      </div>
+      <div class="margin-col">
+        <div class="margin-note fade-in" data-dir="right" style="margin-top:120px;">
+          "We are not joking. We are also joking." —E.T.
+        </div>
+        <template x-if="redacted">
+          <div class="margin-note fade-in" data-dir="right" style="margin-top:20px; color:#C4A35A;">
+            "This is what they left us."
+          </div>
+        </template>
+      </div>
+      <div class="margin-note mobile-only">"We are not joking. We are also joking." —E.T.</div>
+    </div>
+  </section>
+
+  <!-- RESTORATION RIGS (COMMUNITY) -->
+  <section>
+    <div class="two-col">
+      <div class="main-col">
+        <h2 class="fade-in offset-l12" data-dir="right">Restoration Rigs</h2>
+        <p class="fade-in" data-dir="right" style="font-size:14px; color:#555555; margin-bottom:20px;">Community-submitted recovery environments. Use at your own emotional risk.</p>
+        <div class="forum-wrap fade-in" data-dir="left">
+          <div class="forum-header">ARCHIVIST AI COMMUNITY FORUMS — RESTORATION RIGS</div>
+
+          <div class="forum-post">
+            <div class="post-meta">
+              <span class="username">flux_capacitor_99</span>
+              <span>2044-09-14 02:31 UTC</span>
+            </div>
+            <div class="post-body">Finally got my Pentium III rig emulated cleanly in QEMU 9.2 on Debian 14 (kernel 6.8.41-lts). Key was disabling ACPI and forcing ISA sound emulation for the SB16. Can now open .wri files from a 1997 Compaq Presario backup. The file was a letter my mom never sent. I closed the emulator.</div>
+          </div>
+
+          <div class="forum-post">
+            <div class="post-meta">
+              <span class="username">archival_jane</span>
+              <span class="verified-badge">VERIFIED</span>
+              <span>2044-11-02 18:47 UTC</span>
+            </div>
+            <div class="post-body">DOSBox-X build 2044.08 + custom VESA patch for 1024×768×16bpp. Running Windows 3.11 with Paintbrush to view .pcx files from a BBS archive (1994, <span class="dead-link">telecity.freeserve.co.uk/~archive</span>). The colors are wrong but they were probably wrong then too. Tested on 847 files — 91.3% render. The other 8.7% are gone.</div>
+          </div>
+
+          <div class="forum-post">
+            <div class="post-meta">
+              <span class="username">null_island</span>
+              <span>2045-01-19 09:12 UTC</span>
+            </div>
+            <div class="post-body">Managed to boot a Sun Ultra 5 image under Solaris 9 in a nested VM (KVM → Bhyve → Solaris zone). Only needed it to run one StarOffice 5.2 install to open a .sdw file. The document was 340 words. A resignation letter, dated 2001. It took me six weeks to build this rig. Worth it.</div>
+          </div>
+        </div>
+      </div>
+      <div class="margin-col">
+        <div class="margin-note fade-in" data-dir="right" style="margin-top:80px;">
+          Every rig is a love letter to a dead machine. We verify them all by hand.
+        </div>
+      </div>
+      <div class="margin-note mobile-only">Every rig is a love letter to a dead machine. We verify them all by hand.</div>
+    </div>
+  </section>
+
+  <!-- PATRON ARTIFACT OF THE MONTH -->
+  <section>
+    <div class="two-col">
+      <div class="main-col">
+        <h2 class="fade-in offset-r20" data-dir="left">Patron Artifact of the Month</h2>
+        <div class="artifact-card fade-in" data-dir="left">
+          <div class="artifact-title">~kyle_2009/public_html/</div>
+          <div class="artifact-sub">Personal website backup • GeoCities mirror • Last modified: 2009-03-14T22:41:07Z • 2.3MB</div>
+          <p style="font-size:14px; margin-bottom:14px;">A complete backup of a personal homepage belonging to one Kyle Murchison of Tempe, Arizona. The site contains: a guestbook with eleven entries (three are spam, two are his mother), a page titled "My Music" with broken embedded .rm files, a "Under Construction" GIF that was never removed, and a 4,000-word essay about why Radiohead's <em>Kid A</em> is "the only album that matters."</p>
+          <p style="font-size:14px; margin-bottom:14px;">The CSS is inline. The background is a tiling JPEG of space. The text is #00FF00 on that space background, which means it is almost unreadable, which means Kyle did not care about you reading it. He cared about making it. The hit counter reads 00047.</p>
+          <div class="archivists-note">
+            "I think about Kyle's site once a week. He put a MIDI of 'Everything In Its Right Place' on autoplay. It still works. The guestbook entry from his mother says 'very cool website kyle!!!' with three exclamation marks. I have preserved this site at the highest archival tier. Kyle, if you are out there: your website mattered. It still does." —Elias
+          </div>
+        </div>
+      </div>
+      <div class="margin-col">
+        <div class="margin-note fade-in" data-dir="right" style="margin-top:60px;">
+          Submitted by patron #0441. They found the hard drive at an estate sale in Scottsdale.
+        </div>
+      </div>
+      <div class="margin-note mobile-only">Submitted by patron #0441. They found the hard drive at an estate sale in Scottsdale.</div>
+    </div>
+  </section>
+
+  <!-- EMERGENCY RECOVERY & PRICING -->
+  <section>
+    <div class="two-col">
+      <div class="main-col">
+        <h2 class="fade-in offset-l8" data-dir="right">Emergency Recovery &amp; Pricing</h2>
+        <div class="pricing-cards">
+          <div class="price-card fade-in" data-dir="left">
+            <div class="tier-name">Casual Archaeologist</div>
+            <div class="tier-price">$29<span style="font-size:16px; font-weight:400;">/mo</span></div>
+            <div class="tier-freq">Billed monthly. Cancel anytime. The files cannot.</div>
+            <div class="tier-desc">
+              <ul>
+                <li>2 Dust Packages per month</li>
+                <li>Access to Degradation Report archive</li>
+                <li>Community forum access</li>
+                <li>Basic format conversion (up to CCI 5)</li>
+              </ul>
+            </div>
+          </div>
+
+          <div class="price-card fade-in" data-dir="right">
+            <div class="tier-name">Institutional Grief</div>
+            <div class="tier-price">$89<span style="font-size:16px; font-weight:400;">/mo</span></div>
+            <div class="tier-freq">For organizations that have finally admitted the problem.</div>
+            <div class="tier-desc">
+              <ul>
+                <li>Unlimited Dust Packages</li>
+                <li>Priority Degradation Reports</li>
+                <li>Dedicated restoration rig consultation</li>
+                <li>Quarterly Bit Rot Audit for your archives</li>
+                <li>One (1) complimentary existential crisis per quarter</li>
+              </ul>
+            </div>
+          </div>
+
+          <div class="price-card fade-in" data-dir="left">
+            <div class="tier-name">Emergency Floppy Recovery</div>
+            <div class="tier-price">$450<span style="font-size:16px; font-weight:400;">/incident</span></div>
+            <div class="tier-freq">Justified by our non-profit mandate.</div>
+            <div class="tier-desc">
+              <ul>
+                <li>Emergency response within 48 hours</li>
+                <li>Physical media handling (3.5", 5.25", 8", Zip, Jaz, Bernoulli)</li>
+                <li>Full forensic imaging and recovery attempt</li>
+                <li>Detailed loss report (what we found, what we didn't, what was probably a grocery list)</li>
+                <li>Grief counseling referral (optional, recommended)</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+        <div class="pricing-footnote">"Yes, we know. Subscribe anyway."</div>
+      </div>
+      <div class="margin-col">
+        <div class="margin-note fade-in" data-dir="right" style="margin-top:200px;">
+          Anya handles pricing. I handle the part where I stare at the ceiling and wonder if $450 is enough to save someone's thesis from a Zip disk that's been in a garage since 2003.
+        </div>
+      </div>
+      <div class="margin-note mobile-only">Anya handles pricing. I handle the part where I stare at the ceiling.</div>
+    </div>
+  </section>
+
+  <!-- TERMINAL -->
+  <section>
+    <h2 class="fade-in offset-r16" data-dir="right" style="margin-bottom:16px;">Terminal</h2>
+    <div class="terminal-section fade-in" data-dir="left">
+      <div class="prompt-line">
+        <span class="prompt-prefix">archivist@dust:~$&nbsp;</span>
+        <input class="terminal-input" type="text" x-model="termInput" @keydown.enter="runTerminal()" placeholder="type a command..." aria-label="Terminal input">
+      </div>
+      <div class="terminal-output" x-text="termOutput"></div>
+    </div>
+  </section>
+
+</div>
+
+<script src="/assets/js/alpine.min.js" defer></script>
+<script src="/assets/js/gsap.min.js"></script>
+<script>
+document.addEventListener('alpine:init', function() {
+  Alpine.data('archivistApp', function() {
+    return {
+      cciOpen: null,
+      redacted: false,
+      termInput: '',
+      termOutput: '',
+      simActive: false,
+      simCounter: '',
+      simRunning: false,
+      termResponses: [
+        'File not found. It was never found.',
+        'Permission denied. Try grieving.',
+        'Archiving... archiving... archived. Probably.',
+        'Error: nostalgia overflow at 0x00FF00.',
+        'Searching... 0 results. 0 results is also a kind of answer.',
+        'That file was last accessed in 2031. By someone who is no longer here.',
+        'Command not recognized. Neither is most of what we have lost.',
+        'Mounting drive... drive not detected. It never is.',
+        'Checksum mismatch. Memory is unreliable. So is this.',
+        'Operation completed. Nothing was recovered. Thank you for trying.'
+      ],
+      termIdx: 0,
+
+      toggleCCI(idx) {
+        this.cciOpen = this.cciOpen === idx ? null : idx;
+      },
+
+      runTerminal() {
+        if (!this.termInput.trim()) return;
+        this.termOutput = this.termResponses[this.termIdx % this.termResponses.length];
+        this.termIdx++;
+        this.termInput = '';
+      },
+
+      startSimulator() {
+        if (this.simRunning) return;
+        this.simActive = true;
+        this.simRunning = true;
+        this.simCounter = 'Time elapsed: 0 years (simulated)';
+
+        var self = this;
+        var canvas = document.querySelector('.sim-canvas');
+        if (!canvas) return;
+        var ctx = canvas.getContext('2d');
+        var w = canvas.width;
+        var h = canvas.height;
+
+        // Draw a sunset-like image
+        for (var y = 0; y < h; y++) {
+          var ratio = y / h;
+          var r, g, b;
+          if (ratio < 0.3) {
+            r = Math.round(30 + ratio * 300);
+            g = Math.round(50 + ratio * 200);
+            b = Math.round(120 + ratio * 200);
+          } else if (ratio < 0.5) {
+            r = Math.round(200 + (ratio - 0.3) * 275);
+            g = Math.round(100 + (ratio - 0.3) * 300);
+            b = Math.round(50);
+          } else if (ratio < 0.7) {
+            r = Math.round(255 - (ratio - 0.5) * 200);
+            g = Math.round(160 - (ratio - 0.5) * 300);
+            b = Math.round(50 + (ratio - 0.5) * 100);
+          } else {
+            r = Math.round(60 - (ratio - 0.7) * 100);
+            g = Math.round(40 - (ratio - 0.7) * 80);
+            b = Math.round(70 - (ratio - 0.7) * 80);
+          }
+          r = Math.max(0, Math.min(255, r));
+          g = Math.max(0, Math.min(255, g));
+          b = Math.max(0, Math.min(255, b));
+          ctx.fillStyle = 'rgb(' + r + ',' + g + ',' + b + ')';
+          ctx.fillRect(0, y, w, 1);
+        }
+
+        // Draw a sun
+        ctx.beginPath();
+        ctx.arc(w * 0.5, h * 0.45, 30, 0, Math.PI * 2);
+        ctx.fillStyle = '#FFCC44';
+        ctx.fill();
+
+        var imageData = ctx.getImageData(0, 0, w, h);
+        var originalData = new Uint8ClampedArray(imageData.data);
+        var frame = 0;
+        var totalFrames = 120;
+        var fps = 15;
+
+        function corrupt() {
+          if (frame >= totalFrames) {
+            self.simCounter = 'Time elapsed: 14 years (simulated). Click "WATCH A FILE DIE" to reset.';
+            self.simRunning = false;
+            return;
+          }
+
+          var progress = frame / totalFrames;
+          var years = Math.round(progress * 14);
+          self.simCounter = 'Time elapsed: ' + years + ' year' + (years !== 1 ? 's' : '') + ' (simulated)';
+
+          var data = imageData.data;
+          var pixelCount = w * h;
+
+          // Progressive corruption
+          var corruptPixels = Math.floor(pixelCount * progress * 0.15);
+          for (var i = 0; i < corruptPixels; i++) {
+            var px = Math.floor(Math.random() * pixelCount) * 4;
+            if (progress > 0.3) {
+              // Channel separation
+              var shift = Math.floor(Math.random() * 40 * progress);
+              var srcPx = Math.min((Math.floor(px / 4) + shift) * 4, (pixelCount - 1) * 4);
+              var channel = Math.floor(Math.random() * 3);
+              data[px + channel] = originalData[srcPx + channel];
+            }
+            if (progress > 0.5) {
+              // Block corruption
+              if (Math.random() < 0.02) {
+                var bx = Math.floor(Math.random() * w);
+                var by = Math.floor(Math.random() * h);
+                var bw = Math.floor(Math.random() * 30 * progress);
+                var bh = Math.floor(Math.random() * 20 * progress);
+                var gray = Math.floor(Math.random() * 60);
+                for (var dy = 0; dy < bh && by + dy < h; dy++) {
+                  for (var dx = 0; dx < bw && bx + dx < w; dx++) {
+                    var idx = ((by + dy) * w + (bx + dx)) * 4;
+                    data[idx] = gray;
+                    data[idx + 1] = gray;
+                    data[idx + 2] = gray;
+                  }
+                }
+              }
+            }
+          }
+
+          // Scatter pixels in later stages
+          if (progress > 0.6) {
+            var scatterCount = Math.floor(pixelCount * (progress - 0.6) * 0.1);
+            for (var s = 0; s < scatterCount; s++) {
+              var srcIdx = Math.floor(Math.random() * pixelCount) * 4;
+              var dstIdx = Math.floor(Math.random() * pixelCount) * 4;
+              data[dstIdx] = data[srcIdx];
+              data[dstIdx + 1] = data[srcIdx + 1];
+              data[dstIdx + 2] = data[srcIdx + 2];
+            }
+          }
+
+          ctx.putImageData(imageData, 0, 0);
+          frame++;
+          setTimeout(corrupt, 1000 / fps);
+        }
+
+        corrupt();
+      }
+    };
+  });
+});
+
+// GSAP scroll animations
+document.addEventListener('DOMContentLoaded', function() {
+  var fadeEls = document.querySelectorAll('.fade-in');
+  var directions = { left: { x: -20 }, right: { x: 20 }, up: { y: 20 } };
+
+  var observer = new IntersectionObserver(function(entries) {
+    entries.forEach(function(entry) {
+      if (entry.isIntersecting) {
+        var el = entry.target;
+        var dir = el.getAttribute('data-dir') || 'up';
+        var from = directions[dir] || directions.up;
+        var delay = parseFloat(el.getAttribute('data-delay')) || 0;
+
+        gsap.fromTo(el,
+          { opacity: 0, x: from.x || 0, y: from.y || 0 },
+          {
+            opacity: 1,
+            x: 0,
+            y: 0,
+            duration: 0.7,
+            delay: delay,
+            ease: 'power2.out'
+          }
+        );
+        observer.unobserve(el);
+      }
+    });
+  }, { threshold: 0.1 });
+
+  fadeEls.forEach(function(el, i) {
+    // Stagger siblings
+    var parent = el.parentElement;
+    var siblings = parent.querySelectorAll('.fade-in');
+    var idx = Array.prototype.indexOf.call(siblings, el);
+    el.setAttribute('data-delay', (idx * 0.1).toString());
+    observer.observe(el);
+  });
+});
+</script>
+
+</body>
+</html>

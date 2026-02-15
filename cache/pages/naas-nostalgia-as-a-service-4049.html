@@ -1,0 +1,1171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NaaS — Nostalgia-as-a-Service</title>
+<link rel="stylesheet" href="/assets/css/fonts.css">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg: #0A0A0F;
+  --text: #C8C4B7;
+  --teal: #77D1C1;
+  --mustard: #FFDA63;
+  --rose: #F2A7B3;
+  --card: #12121A;
+  --grid-line: rgba(119, 209, 193, 0.08);
+}
+
+html { scroll-behavior: smooth; }
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Fira Code', monospace;
+  font-size: 16px;
+  line-height: 1.65;
+  overflow-x: hidden;
+  position: relative;
+}
+
+/* ── SCANLINE OVERLAY ── */
+.scanlines {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  pointer-events: none;
+  z-index: 9998;
+  background: repeating-linear-gradient(
+    to bottom,
+    transparent 0px,
+    transparent 2px,
+    rgba(119, 209, 193, 0.04) 2px,
+    rgba(119, 209, 193, 0.04) 4px
+  );
+  animation: scanDrift 60s linear infinite;
+}
+@keyframes scanDrift {
+  0% { transform: translateY(0); }
+  100% { transform: translateY(100px); }
+}
+
+/* ── GRID LINES ── */
+.grid-bg {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  pointer-events: none;
+  z-index: 0;
+  background-image:
+    repeating-linear-gradient(to right, var(--grid-line) 0px, var(--grid-line) 1px, transparent 1px, transparent calc(100% / 12));
+  background-size: 100% 100%;
+}
+
+/* ── TYPOGRAPHY ── */
+h1, h2, h3, h4 {
+  font-family: 'Unbounded', sans-serif;
+  font-weight: 700;
+  color: var(--text);
+  letter-spacing: -0.02em;
+}
+
+.caveat {
+  font-family: 'Caveat', cursive;
+}
+
+a { color: var(--teal); text-decoration: none; }
+a:hover { text-decoration: underline; }
+
+/* ── LAYOUT ── */
+.section {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  border-bottom: 1px solid var(--grid-line);
+}
+
+.section-inner {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 80px 24px;
+}
+
+/* ── UPTIME BADGE ── */
+.uptime-badge {
+  position: fixed;
+  top: 16px;
+  right: 16px;
+  z-index: 9999;
+  background: var(--card);
+  border: 1px solid var(--teal);
+  padding: 8px 14px;
+  font-family: 'Fira Code', monospace;
+  font-size: 11px;
+  color: var(--teal);
+  line-height: 1;
+}
+
+/* ── HERO ── */
+.hero {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  position: relative;
+  overflow: hidden;
+}
+
+.hero-inner {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 80px 24px;
+  width: 100%;
+}
+
+.hero-logo {
+  font-family: 'Unbounded', sans-serif;
+  font-size: clamp(64px, 15vw, 180px);
+  font-weight: 700;
+  color: var(--text);
+  line-height: 0.9;
+  position: relative;
+}
+
+.hero-logo .corruption {
+  position: absolute;
+  top: 30%;
+  left: 0;
+  right: 0;
+  height: 8px;
+  background: var(--teal);
+  opacity: 0.3;
+  animation: corruptionFlicker 4s ease-in-out infinite;
+}
+
+@keyframes corruptionFlicker {
+  0%, 90%, 100% { opacity: 0.3; transform: scaleX(1); }
+  93% { opacity: 0.8; transform: scaleX(1.02) translateX(-2px); }
+  96% { opacity: 0.1; transform: scaleX(0.98) translateX(3px); }
+}
+
+.hero-sub {
+  margin-top: 32px;
+  font-size: clamp(13px, 1.4vw, 16px);
+  color: var(--text);
+  max-width: 600px;
+  line-height: 1.8;
+}
+
+.hero-cta {
+  display: inline-block;
+  margin-top: 48px;
+  padding: 16px 40px;
+  background: var(--mustard);
+  color: #0A0A0F;
+  font-family: 'Unbounded', sans-serif;
+  font-size: 16px;
+  font-weight: 700;
+  border: none;
+  cursor: pointer;
+  min-height: 48px;
+  min-width: 44px;
+  transition: background 0.2s;
+}
+.hero-cta:hover { background: #ffe58a; }
+
+/* ── MEMORY FRAGMENTS ── */
+.fragment {
+  position: fixed;
+  z-index: 2;
+  cursor: pointer;
+  opacity: 0.5;
+  pointer-events: auto;
+}
+
+.fragment.dissolved {
+  transition: opacity 0.3s, transform 0.3s;
+  opacity: 0 !important;
+  transform: scale(2);
+  pointer-events: none;
+}
+
+/* ── SUBSCRIPTION TIERS ── */
+.tiers-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0;
+}
+
+.tier-card {
+  border: 1px solid var(--teal);
+  background: var(--card);
+  padding: 40px 28px;
+  position: relative;
+}
+
+.tier-card + .tier-card {
+  border-left: none;
+}
+
+.tier-name {
+  font-family: 'Unbounded', sans-serif;
+  font-size: clamp(18px, 2vw, 22px);
+  color: var(--text);
+  margin-bottom: 8px;
+}
+
+.tier-price {
+  font-family: 'Unbounded', sans-serif;
+  font-size: clamp(28px, 3vw, 36px);
+  color: var(--mustard);
+  margin-bottom: 4px;
+}
+
+.tier-freq {
+  font-size: 13px;
+  color: #8A8778;
+  margin-bottom: 24px;
+}
+
+.tier-features {
+  list-style: none;
+  margin-bottom: 32px;
+}
+
+.tier-features li {
+  padding: 6px 0;
+  font-size: 14px;
+  border-bottom: 1px solid rgba(119, 209, 193, 0.06);
+  color: var(--text);
+}
+
+.tier-features li::before {
+  content: '▸ ';
+  color: var(--teal);
+}
+
+.tier-note {
+  font-family: 'Caveat', cursive;
+  font-size: 18px;
+  color: var(--rose);
+  margin-top: 20px;
+  transform: rotate(-1.5deg);
+}
+
+.tier-note .strikethrough {
+  text-decoration: line-through;
+}
+
+.subscribe-btn {
+  display: block;
+  width: 100%;
+  padding: 14px;
+  margin-top: 24px;
+  background: transparent;
+  border: 1px solid var(--mustard);
+  color: var(--mustard);
+  font-family: 'Fira Code', monospace;
+  font-size: 14px;
+  cursor: pointer;
+  min-height: 48px;
+  transition: background 0.2s, color 0.2s;
+}
+
+.subscribe-btn:hover {
+  background: var(--mustard);
+  color: #0A0A0F;
+}
+
+/* ── UPTIME DASHBOARD ── */
+.dashboard-panel {
+  background: var(--card);
+  border: 1px solid var(--teal);
+  padding: 40px 32px;
+}
+
+.region-row {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+}
+
+.region-label {
+  font-size: 14px;
+  color: var(--teal);
+  width: 120px;
+  flex-shrink: 0;
+}
+
+.region-bar-track {
+  flex: 1;
+  height: 24px;
+  background: rgba(119, 209, 193, 0.08);
+  position: relative;
+  min-width: 150px;
+}
+
+.region-bar-fill {
+  height: 100%;
+  background: var(--teal);
+  transition: width 2s ease-in-out, background 0.5s;
+}
+
+.region-bar-fill.degraded {
+  background: var(--rose);
+}
+
+.region-status {
+  font-size: 12px;
+  width: 80px;
+  text-align: right;
+  flex-shrink: 0;
+  color: var(--text);
+}
+
+.region-status.degraded {
+  color: var(--rose);
+}
+
+.peak-callout {
+  margin-top: 32px;
+  padding: 20px;
+  border-left: 3px solid var(--teal);
+  font-size: 14px;
+  color: var(--text);
+}
+
+.drift-footnote {
+  margin-top: 20px;
+  font-size: 12px;
+  color: var(--rose);
+}
+
+/* ── FAQ ── */
+.faq-item {
+  border-bottom: 1px solid rgba(119, 209, 193, 0.1);
+}
+
+.faq-q {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 24px 0;
+  cursor: pointer;
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--text);
+  background: none;
+  border: none;
+  width: 100%;
+  text-align: left;
+  font-family: 'Fira Code', monospace;
+  min-height: 48px;
+}
+
+.faq-q:hover { color: var(--teal); }
+
+.faq-q span.arrow {
+  font-size: 18px;
+  color: var(--teal);
+  transition: transform 0.2s;
+  flex-shrink: 0;
+  margin-left: 16px;
+}
+
+.faq-a {
+  overflow: hidden;
+  max-height: 0;
+  transition: max-height 0.4s ease;
+}
+
+.faq-a-inner {
+  padding: 0 0 24px 0;
+  font-size: 14px;
+  line-height: 1.8;
+  color: var(--text);
+}
+
+.faq-disclaimer {
+  margin-top: 12px;
+  font-size: 11px;
+  color: #6B6860;
+}
+
+/* ── BLOG POST ── */
+.blog-section {
+  background: var(--card);
+}
+
+.blog-byline {
+  font-size: 13px;
+  color: #8A8778;
+  margin-bottom: 32px;
+}
+
+.blog-body p {
+  margin-bottom: 20px;
+  font-size: 15px;
+  color: var(--text);
+}
+
+.pull-quote {
+  font-family: 'Unbounded', sans-serif;
+  font-size: clamp(20px, 3vw, 32px);
+  color: var(--teal);
+  padding: 32px 0;
+  border-top: 1px solid var(--teal);
+  border-bottom: 1px solid var(--teal);
+  margin: 40px 0;
+  line-height: 1.4;
+}
+
+.blog-margin-note {
+  font-family: 'Caveat', cursive;
+  font-size: 20px;
+  color: var(--rose);
+  margin-top: 24px;
+  transform: rotate(-1deg);
+  display: inline-block;
+}
+
+.blog-truncate {
+  position: relative;
+  height: 120px;
+  overflow: hidden;
+}
+
+.blog-truncate::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 120px;
+  background: linear-gradient(transparent, var(--card));
+}
+
+.continue-reading {
+  display: inline-block;
+  margin-top: 16px;
+  color: var(--teal);
+  font-size: 14px;
+  cursor: pointer;
+  min-height: 44px;
+  line-height: 44px;
+}
+
+/* ── FORUM ── */
+.forum-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.forum-row {
+  border-bottom: 1px solid rgba(119, 209, 193, 0.08);
+  display: flex;
+  align-items: baseline;
+  padding: 16px 0;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.forum-title {
+  flex: 1;
+  font-size: 14px;
+  min-width: 200px;
+  color: var(--text);
+}
+
+.forum-author {
+  color: var(--teal);
+  font-size: 12px;
+  width: 140px;
+  flex-shrink: 0;
+}
+
+.forum-replies {
+  color: var(--mustard);
+  font-size: 12px;
+  width: 80px;
+  text-align: right;
+  flex-shrink: 0;
+}
+
+.forum-locked {
+  color: var(--rose);
+  font-size: 11px;
+}
+
+/* ── FOOTER ── */
+.footer {
+  background: var(--card);
+}
+
+.footer-inner {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 60px 24px 80px;
+}
+
+.footer-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  flex-wrap: wrap;
+  gap: 32px;
+  margin-bottom: 48px;
+}
+
+.footer-left {
+  font-family: 'Unbounded', sans-serif;
+  font-size: 16px;
+  color: var(--text);
+}
+
+.footer-left small {
+  display: block;
+  font-family: 'Fira Code', monospace;
+  font-size: 12px;
+  color: #8A8778;
+  margin-top: 8px;
+}
+
+.footer-right {
+  text-align: right;
+  font-size: 11px;
+}
+
+.class-action-link {
+  color: var(--rose);
+  font-size: 11px;
+}
+
+.footer-ads {
+  display: flex;
+  gap: 16px;
+  margin-top: 32px;
+  flex-wrap: wrap;
+}
+
+.footer-ad {
+  flex: 1;
+  min-width: 240px;
+  padding: 16px 20px;
+  border: 1px solid rgba(255, 218, 99, 0.2);
+  background: rgba(255, 218, 99, 0.03);
+  font-size: 12px;
+  color: var(--mustard);
+}
+
+.footer-ad strong {
+  display: block;
+  margin-bottom: 4px;
+  font-size: 13px;
+}
+
+.footer-whisper {
+  text-align: center;
+  margin-top: 48px;
+  font-family: 'Caveat', cursive;
+  font-size: 24px;
+  color: #C8C4B7;
+  opacity: 0.3;
+}
+
+/* ── FADE IN ── */
+.fade-in {
+  opacity: 0;
+  transform: translateY(20px);
+}
+
+/* ── RESPONSIVE ── */
+@media (max-width: 900px) {
+  .tiers-grid {
+    grid-template-columns: 1fr;
+  }
+  .tier-card + .tier-card {
+    border-left: 1px solid var(--teal);
+    border-top: none;
+  }
+}
+
+@media (max-width: 600px) {
+  .section-inner { padding: 48px 16px; }
+  .hero-inner { padding: 48px 16px; }
+  .hero-logo { font-size: clamp(48px, 18vw, 100px); }
+  .footer-top { flex-direction: column; }
+  .footer-right { text-align: left; }
+  .region-row { flex-direction: column; align-items: flex-start; gap: 8px; }
+  .region-label { width: auto; }
+  .region-status { text-align: left; width: auto; }
+  .forum-row { flex-direction: column; gap: 4px; }
+  .forum-author, .forum-replies { width: auto; text-align: left; }
+}
+</style>
+</head>
+<body>
+
+<!-- SCANLINE OVERLAY -->
+<div class="scanlines" id="scanlines"></div>
+
+<!-- GRID BACKGROUND -->
+<div class="grid-bg"></div>
+
+<!-- UPTIME BADGE -->
+<div class="uptime-badge" id="uptimeBadge">UPTIME: <span id="uptimeVal">97.3</span>%</div>
+
+<!-- ═══ SECTION 1: HERO ═══ -->
+<section class="section hero" id="hero">
+  <div class="hero-inner">
+    <div class="hero-logo fade-in">
+      NaaS
+      <div class="corruption"></div>
+    </div>
+    <p class="hero-sub fade-in">
+      Nostalgia-as-a-Service.<br>
+      Memory reconstruction for the irreversibly bereaved.<br>
+      Est. 2077.
+    </p>
+    <button class="hero-cta fade-in" id="heroCta" onclick="this.textContent='REMEMBERING...'">Begin Remembering →</button>
+  </div>
+  <!-- Memory fragments injected by JS -->
+</section>
+
+<!-- ═══ SECTION 2: SUBSCRIPTION TIERS ═══ -->
+<section class="section" id="tiers">
+  <div class="section-inner">
+    <h2 class="fade-in" style="margin-bottom:48px; font-size: clamp(24px, 3vw, 36px);">Choose Your Past</h2>
+    <div class="tiers-grid">
+
+      <!-- CAPRI SUN SILVER -->
+      <div class="tier-card fade-in">
+        <div class="tier-name">Capri Sun Silver</div>
+        <div class="tier-price">$29</div>
+        <div class="tier-freq">/month</div>
+        <ul class="tier-features">
+          <li>Saturday morning cartoons (1987–1999 catalog)</li>
+          <li>Ambient bedroom light — 7:14am, late August</li>
+          <li>Cereal milk smell (Froot Loops or Cinnamon Toast Crunch)</li>
+          <li>Background: muffled parental conversation downstairs</li>
+        </ul>
+        <button class="subscribe-btn" data-label="SUBSCRIBE" onclick="this.textContent='REMEMBERING...';this.style.pointerEvents='none'">SUBSCRIBE</button>
+        <div class="tier-note caveat">— the gateway tier. Most people never leave.</div>
+      </div>
+
+      <!-- GAK GOLD -->
+      <div class="tier-card fade-in">
+        <div class="tier-name">Gak Gold</div>
+        <div class="tier-price">$89</div>
+        <div class="tier-freq">/month</div>
+        <ul class="tier-features">
+          <li>Full afternoon reconstruction (3:30–6pm, any year)</li>
+          <li>Specific friend voices (up to 3, reconstructed from yearbook data)</li>
+          <li>Background neighborhood sounds — sprinklers, ice cream truck, dog two houses over</li>
+          <li>Grass-stain olfactory layer</li>
+        </ul>
+        <button class="subscribe-btn" data-label="SUBSCRIBE" onclick="this.textContent='REMEMBERING...';this.style.pointerEvents='none'">SUBSCRIBE</button>
+        <div class="tier-note caveat">89 dollars for someone else's dog barking. Worth it.</div>
+      </div>
+
+      <!-- POGS PLATINUM -->
+      <div class="tier-card fade-in">
+        <div class="tier-name">Pogs Platinum</div>
+        <div class="tier-price">$249</div>
+        <div class="tier-freq">/month</div>
+        <ul class="tier-features">
+          <li>Complete sensory immersion — full temporal cortex access</li>
+          <li>Grandmother's kitchen (cardamom, flour, AM radio)</li>
+          <li>That one blanket — the texture, the weight, the fraying edge</li>
+          <li>The dog that died. Alive again. Looking at you like you never left.</li>
+        </ul>
+        <button class="subscribe-btn" data-label="SUBSCRIBE" onclick="this.textContent='REMEMBERING...';this.style.pointerEvents='none'">SUBSCRIBE</button>
+        <div class="tier-note caveat"><span class="strikethrough">Eleanor's favorite</span></div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ═══ SECTION 3: DAILY UPTIME REPORT ═══ -->
+<section class="section" id="uptime">
+  <div class="section-inner">
+    <h2 class="fade-in" style="margin-bottom:40px; font-size: clamp(20px, 2.5vw, 28px);">Daily Uptime Report</h2>
+    <div class="dashboard-panel fade-in">
+
+      <div class="region-row" data-region="na">
+        <span class="region-label">NA-East</span>
+        <div class="region-bar-track"><div class="region-bar-fill" id="barNA" style="width:96%"></div></div>
+        <span class="region-status" id="statusNA">OPERATIONAL</span>
+      </div>
+
+      <div class="region-row" data-region="eu">
+        <span class="region-label">EU-West</span>
+        <div class="region-bar-track"><div class="region-bar-fill" id="barEU" style="width:93%"></div></div>
+        <span class="region-status" id="statusEU">OPERATIONAL</span>
+      </div>
+
+      <div class="region-row" data-region="ap">
+        <span class="region-label">APAC-South</span>
+        <div class="region-bar-track"><div class="region-bar-fill" id="barAP" style="width:91%"></div></div>
+        <span class="region-status" id="statusAP">OPERATIONAL</span>
+      </div>
+
+      <div class="peak-callout">
+        Peak load: 18:00–22:00 local — when people get home from work and remember they used to be children.
+      </div>
+
+      <div class="drift-footnote">
+        Temporal Drift incidents this week: 14. Within acceptable parameters.
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ SECTION 4: ETHICAL CONSIDERATIONS (FAQ) ═══ -->
+<section class="section" id="faq" x-data="{ open: null }">
+  <div class="section-inner">
+    <h2 class="fade-in" style="margin-bottom:40px; font-size: clamp(20px, 2.5vw, 28px);">Ethical Considerations</h2>
+
+    <div class="faq-item fade-in">
+      <button class="faq-q" @click="open = open === 1 ? null : 1">
+        Can NaaS alter my real memories?
+        <span class="arrow" x-text="open === 1 ? '−' : '+'">+</span>
+      </button>
+      <div class="faq-a" :style="open === 1 ? 'max-height: 600px' : 'max-height: 0'">
+        <div class="faq-a-inner">
+          <p>NaaS operates exclusively within the reconstructed temporal space. Your organic memories remain untouched by our proprietary NeuroLace™ framework. That said, users report that after extended sessions, the reconstructed memories can feel more vivid than the originals. This is not a bug — your brain simply prefers the higher-resolution version. We consider this a feature. Our legal team considers it a gray area. Dr. Stern considered it "deeply troubling" before she left.</p>
+          <p>We believe the right to your own past is inalienable. Terms apply.</p>
+          <p class="faq-disclaimer">§ 14.2(b) NaaS Corp makes no warranty, express or implied, regarding the fidelity of reconstructed memories. By engaging with this FAQ you acknowledge that certainty is a spectrum. Subjective recall variance (SRV) metrics available upon request. Not available in jurisdictions where memory is classified as intellectual property. See Temporal Commerce Act §§ 201-247.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="faq-item fade-in">
+      <button class="faq-q" @click="open = open === 2 ? null : 2">
+        Is memory reconstruction addictive?
+        <span class="arrow" x-text="open === 2 ? '−' : '+'">+</span>
+      </button>
+      <div class="faq-a" :style="open === 2 ? 'max-height: 400px' : 'max-height: 0'">
+        <div class="faq-a-inner">
+          <p>Clinical studies are ongoing. Our retention rate is 97.3%.</p>
+          <p>Draw your own conclusions.</p>
+          <p class="faq-disclaimer">§ 7.1(a) NaaS Corp is not a healthcare provider. "Retention rate" refers to subscription continuity metrics and should not be interpreted as commentary on neurological dependency. The company neither confirms nor denies the existence of internal memos using the phrase "stickier than heroin."</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="faq-item fade-in">
+      <button class="faq-q" @click="open = open === 3 ? null : 3">
+        What happened to Dr. Vance?
+        <span class="arrow" x-text="open === 3 ? '−' : '+'">+</span>
+      </button>
+      <div class="faq-a" :style="open === 3 ? 'max-height: 300px' : 'max-height: 0'">
+        <div class="faq-a-inner">
+          <p>—</p>
+          <br><br><br><br><br><br>
+          <p class="faq-disclaimer">§ 22.9 This section intentionally left incomplete. Inquiries regarding Dr. Eleanor Vance should be directed to legal@naas.corp. Personal inquiries from one (1) specific individual will not be returned. He knows why.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="faq-item fade-in">
+      <button class="faq-q" @click="open = open === 4 ? null : 4">
+        Can I export my reconstructed memories?
+        <span class="arrow" x-text="open === 4 ? '−' : '+'">+</span>
+      </button>
+      <div class="faq-a" :style="open === 4 ? 'max-height: 400px' : 'max-height: 0'">
+        <div class="faq-a-inner">
+          <p>No. Memories generated within the NaaS temporal framework are proprietary compositions. You may experience them, but you may not save, record, describe in detail to a third party, or attempt to re-experience them through competing platforms. Your childhood belongs to you. The version we built belongs to us.</p>
+          <p class="faq-disclaimer">§ 31.4(c) Unauthorized reproduction of NaaS-generated sensory content constitutes temporal piracy under the Digital Memory Copyright Extension Act of 2081. Penalties include cortex suspension and a $50,000 fine per remembered second.</p>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ═══ SECTION 5: MANDELA EFFECT BLOG POST ═══ -->
+<section class="section blog-section" id="blog">
+  <div class="section-inner">
+    <h2 class="fade-in" style="font-size: clamp(22px, 3vw, 34px); margin-bottom: 8px;">The Mandela Effect Is a Design Flaw, Not a Conspiracy</h2>
+    <div class="blog-byline fade-in">
+      Dr. Genevieve Stern, Ph.D, Cognitive Archaeology — Chief Science Officer<br>
+      Published March 14, 2084 &middot; 12 min read
+    </div>
+
+    <div class="fade-in">
+      <p class="blog-body">
+        Consider the Berenstain problem. Millions of adults insist the bears were spelled differently. They are not confused. They are not lying. They are remembering a past that was insufficiently archived. Human memory was never designed for the information density of the 21st century, let alone the 22nd. It buckled under the weight. We at NaaS do not "fix" memory — we provide a structurally sound alternative.
+      </p>
+
+      <div class="pull-quote">
+        "We are not rewriting history. We are providing a draft."
+      </div>
+
+      <div class="blog-body">
+        <p>The question is not whether reconstructed memories are "real." The question is whether your original memories were real either. Every neuroscientist since Bartlett has known that recall is reconstruction. You were already making it up. We just do it better, with proper lighting and a subscription model.</p>
+      </div>
+
+      <div class="blog-truncate">
+        <div class="blog-body">
+          <p>Where it gets complicated — and where Dr. Vance and I parted ways philosophically — is the question of consent. Not user consent. We have seventeen forms for that. I mean the consent of the memory itself. If a moment in time was experienced by someone who no longer exists in any measurable way, who owns the echo? NaaS says the subscriber. The courts say it depends. Eleanor said nobody does. Eleanor said memories are wild animals and we were building cages and charging admission and one day</p>
+        </div>
+      </div>
+      <span class="continue-reading">Continue reading →</span>
+    </div>
+
+    <div class="blog-margin-note fade-in">Genevieve quit last month. This stays up.</div>
+  </div>
+</section>
+
+<!-- ═══ SECTION 6: FORUM THREADS ═══ -->
+<section class="section" id="forum">
+  <div class="section-inner">
+    <h2 class="fade-in" style="margin-bottom: 32px; font-size: clamp(20px, 2.5vw, 28px);">Community Threads</h2>
+    <div style="border: 1px solid rgba(119,209,193,0.15); background: var(--card); padding: 24px;" class="fade-in">
+      <div style="font-size:11px; color:#8A8778; margin-bottom:20px; padding-bottom:12px; border-bottom:1px solid rgba(119,209,193,0.08);">NaaS Community Forums — Archived Snapshot — Page 1 of 847</div>
+
+      <div class="forum-row">
+        <div class="forum-title">Was the "Smells Like Teen Spirit" cover band at the 6th-grade dance really that bad?</div>
+        <div class="forum-author">user://temporal_dave</div>
+        <div class="forum-replies">342 replies</div>
+      </div>
+
+      <div class="forum-row">
+        <div class="forum-title">My grandmother's kitchen smells wrong in Platinum tier — cinnamon instead of cardamom</div>
+        <div class="forum-author">user://priya_2041</div>
+        <div class="forum-replies">89 replies</div>
+      </div>
+
+      <div class="forum-row">
+        <div class="forum-title">I remembered something NaaS didn't give me. Is that normal?</div>
+        <div class="forum-author">user://[REDACTED]</div>
+        <div class="forum-replies">1,204 replies <span class="forum-locked">[LOCKED]</span></div>
+      </div>
+
+      <div class="forum-row">
+        <div class="forum-title">The dog in my reconstruction keeps looking at the door. He's waiting for someone. I didn't ask for this.</div>
+        <div class="forum-author">user://grief_metrics</div>
+        <div class="forum-replies">567 replies</div>
+      </div>
+
+      <div class="forum-row">
+        <div class="forum-title">Silver tier Saturday mornings are better than my actual Saturdays were. That's the problem, right?</div>
+        <div class="forum-author">user://honestmike_77</div>
+        <div class="forum-replies">211 replies</div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ═══ SECTION 7: FOOTER ═══ -->
+<footer class="section footer" id="footer">
+  <div class="footer-inner">
+    <div class="footer-top">
+      <div class="footer-left">
+        NaaS
+        <small>Founded 2077 by Eleanor Vance &amp; Miles Chen.</small>
+      </div>
+      <div class="footer-right">
+        <a href="#" class="class-action-link">Re: Phantom Limb Phenomenon — Chen et al. v. NaaS Corp<br>Case No. 2084-TC-4491</a>
+      </div>
+    </div>
+
+    <div class="footer-ads">
+      <div class="footer-ad">
+        <strong>Divorce Your Digital Ghost</strong>
+        Erase your pre-NaaS online presence. Full identity delamination. $14.99/mo.
+      </div>
+      <div class="footer-ad">
+        <strong>Future-Proof Your Memories</strong>
+        Digitize today for tomorrow's reconstruction. Because eventually you'll want this back too.
+      </div>
+    </div>
+
+    <div class="footer-whisper">I don't want to forget.</div>
+  </div>
+</footer>
+
+<!-- ── SCRIPTS ── -->
+<script src="/assets/js/gsap.min.js"></script>
+<script src="/assets/js/alpine.min.js" defer></script>
+<script>
+(function() {
+  // ── MEMORY FRAGMENTS ──
+  var fragmentColors = ['#77D1C1', '#F2A7B3', '#FFDA63'];
+  var heroEl = document.getElementById('hero');
+  var fragments = [];
+
+  function createFragment() {
+    var el = document.createElement('div');
+    el.className = 'fragment';
+    var size = 8 + Math.floor(Math.random() * 9);
+    var color = fragmentColors[Math.floor(Math.random() * fragmentColors.length)];
+    var startX = Math.random() * 100;
+    var duration = 8 + Math.random() * 12;
+    var drift = (Math.random() - 0.5) * 60;
+
+    el.style.cssText = 'width:' + size + 'px;height:' + size + 'px;background:' + color + ';left:' + startX + '%;bottom:-20px;position:absolute;';
+    el.style.animation = 'none';
+
+    heroEl.appendChild(el);
+
+    gsap.fromTo(el,
+      { y: 0, x: 0, opacity: 0.4 },
+      { y: -(window.innerHeight + 40), x: drift, opacity: 0, duration: duration, ease: 'none',
+        onComplete: function() {
+          if (el.parentNode) el.parentNode.removeChild(el);
+        }
+      }
+    );
+
+    el.addEventListener('click', function() {
+      playMemorySound();
+      el.classList.add('dissolved');
+      setTimeout(function() {
+        if (el.parentNode) el.parentNode.removeChild(el);
+      }, 400);
+    });
+  }
+
+  // Spawn fragments at intervals
+  setInterval(createFragment, 800);
+  for (var i = 0; i < 12; i++) {
+    setTimeout(createFragment, i * 200);
+  }
+
+  // ── AUDIO (Web Audio API — no fetch) ──
+  var audioCtx = null;
+  function getAudioCtx() {
+    if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    return audioCtx;
+  }
+
+  var soundIndex = 0;
+  var sounds = [
+    function() { // dial-up chirp
+      var ctx = getAudioCtx();
+      var osc = ctx.createOscillator();
+      var gain = ctx.createGain();
+      osc.type = 'square';
+      osc.frequency.setValueAtTime(1200, ctx.currentTime);
+      osc.frequency.exponentialRampToValueAtTime(2400, ctx.currentTime + 0.15);
+      osc.frequency.exponentialRampToValueAtTime(800, ctx.currentTime + 0.4);
+      gain.gain.setValueAtTime(0.08, ctx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.5);
+      osc.connect(gain).connect(ctx.destination);
+      osc.start(ctx.currentTime);
+      osc.stop(ctx.currentTime + 0.5);
+    },
+    function() { // TV static
+      var ctx = getAudioCtx();
+      var bufferSize = ctx.sampleRate * 0.3;
+      var buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
+      var data = buffer.getChannelData(0);
+      for (var i = 0; i < bufferSize; i++) data[i] = (Math.random() * 2 - 1) * 0.12;
+      var source = ctx.createBufferSource();
+      source.buffer = buffer;
+      var gain = ctx.createGain();
+      gain.gain.setValueAtTime(0.1, ctx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.3);
+      source.connect(gain).connect(ctx.destination);
+      source.start();
+    },
+    function() { // music box
+      var ctx = getAudioCtx();
+      var notes = [523.25, 659.25, 783.99, 659.25];
+      notes.forEach(function(freq, i) {
+        var osc = ctx.createOscillator();
+        var gain = ctx.createGain();
+        osc.type = 'sine';
+        osc.frequency.value = freq;
+        gain.gain.setValueAtTime(0.1, ctx.currentTime + i * 0.12);
+        gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + i * 0.12 + 0.3);
+        osc.connect(gain).connect(ctx.destination);
+        osc.start(ctx.currentTime + i * 0.12);
+        osc.stop(ctx.currentTime + i * 0.12 + 0.35);
+      });
+    },
+    function() { // 8-bit jingle
+      var ctx = getAudioCtx();
+      var freqs = [440, 554.37, 659.25, 880];
+      freqs.forEach(function(f, i) {
+        var osc = ctx.createOscillator();
+        var gain = ctx.createGain();
+        osc.type = 'square';
+        osc.frequency.value = f;
+        gain.gain.setValueAtTime(0.06, ctx.currentTime + i * 0.08);
+        gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + i * 0.08 + 0.15);
+        osc.connect(gain).connect(ctx.destination);
+        osc.start(ctx.currentTime + i * 0.08);
+        osc.stop(ctx.currentTime + i * 0.08 + 0.2);
+      });
+    },
+    function() { // child laugh cut short
+      var ctx = getAudioCtx();
+      var osc = ctx.createOscillator();
+      var gain = ctx.createGain();
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(600, ctx.currentTime);
+      osc.frequency.linearRampToValueAtTime(900, ctx.currentTime + 0.2);
+      osc.frequency.linearRampToValueAtTime(700, ctx.currentTime + 0.35);
+      gain.gain.setValueAtTime(0.08, ctx.currentTime);
+      gain.gain.setValueAtTime(0.08, ctx.currentTime + 0.35);
+      gain.gain.linearRampToValueAtTime(0, ctx.currentTime + 0.36);
+      osc.connect(gain).connect(ctx.destination);
+      osc.start(ctx.currentTime);
+      osc.stop(ctx.currentTime + 0.4);
+    },
+    function() { // rotary phone dial
+      var ctx = getAudioCtx();
+      var osc1 = ctx.createOscillator();
+      var osc2 = ctx.createOscillator();
+      var gain = ctx.createGain();
+      osc1.type = 'sine'; osc1.frequency.value = 350;
+      osc2.type = 'sine'; osc2.frequency.value = 440;
+      gain.gain.setValueAtTime(0.07, ctx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.6);
+      osc1.connect(gain);
+      osc2.connect(gain);
+      gain.connect(ctx.destination);
+      osc1.start(ctx.currentTime); osc1.stop(ctx.currentTime + 0.6);
+      osc2.start(ctx.currentTime); osc2.stop(ctx.currentTime + 0.6);
+    }
+  ];
+
+  function playMemorySound() {
+    try {
+      sounds[soundIndex % sounds.length]();
+      soundIndex++;
+    } catch(e) {}
+  }
+
+  // ── SECTION FADE-IN (GSAP + IntersectionObserver) ──
+  var fadeEls = document.querySelectorAll('.fade-in');
+  if ('IntersectionObserver' in window) {
+    var obs = new IntersectionObserver(function(entries) {
+      entries.forEach(function(entry) {
+        if (entry.isIntersecting) {
+          gsap.fromTo(entry.target,
+            { opacity: 0, y: 20 },
+            { opacity: 1, y: 0, duration: 0.8, ease: 'power2.out' }
+          );
+          obs.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.1 });
+    fadeEls.forEach(function(el) { obs.observe(el); });
+  } else {
+    fadeEls.forEach(function(el) { el.style.opacity = '1'; el.style.transform = 'none'; });
+  }
+
+  // ── SUBSCRIBE BUTTON GLITCH ──
+  var glyphChars = '!@#$%^&*()_+-=[]{}|;:,.<>?/~`ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+  document.querySelectorAll('.subscribe-btn').forEach(function(btn) {
+    var original = btn.getAttribute('data-label') || btn.textContent;
+    var glitching = false;
+
+    btn.addEventListener('mouseenter', function() {
+      if (btn.textContent === 'REMEMBERING...') return;
+      if (glitching) return;
+      glitching = true;
+      var steps = 6;
+      var step = 0;
+      var iv = setInterval(function() {
+        if (step >= steps) {
+          btn.textContent = original;
+          glitching = false;
+          clearInterval(iv);
+          return;
+        }
+        var scrambled = '';
+        for (var i = 0; i < original.length; i++) {
+          scrambled += glyphChars[Math.floor(Math.random() * glyphChars.length)];
+        }
+        btn.textContent = scrambled;
+        step++;
+      }, 50);
+    });
+  });
+
+  // ── UPTIME DASHBOARD ──
+  var regions = [
+    { bar: document.getElementById('barNA'), status: document.getElementById('statusNA') },
+    { bar: document.getElementById('barEU'), status: document.getElementById('statusEU') },
+    { bar: document.getElementById('barAP'), status: document.getElementById('statusAP') }
+  ];
+
+  function updateRegions() {
+    regions.forEach(function(r) {
+      var degraded = Math.random() < 0.1;
+      var width = degraded ? (40 + Math.random() * 20) : (85 + Math.random() * 14);
+      r.bar.style.width = width + '%';
+      if (degraded) {
+        r.bar.classList.add('degraded');
+        r.status.textContent = 'DEGRADED';
+        r.status.classList.add('degraded');
+        setTimeout(function() {
+          r.bar.classList.remove('degraded');
+          r.bar.style.width = (90 + Math.random() * 9) + '%';
+          r.status.textContent = 'OPERATIONAL';
+          r.status.classList.remove('degraded');
+        }, 3000 + Math.random() * 2000);
+      } else {
+        r.bar.classList.remove('degraded');
+        r.status.textContent = 'OPERATIONAL';
+        r.status.classList.remove('degraded');
+      }
+    });
+  }
+
+  setInterval(updateRegions, 5000);
+
+  // ── UPTIME BADGE FLICKER ──
+  var uptimeVal = document.getElementById('uptimeVal');
+  var uptimeBadge = document.getElementById('uptimeBadge');
+  function flickerUptime() {
+    if (Math.random() < 0.3) {
+      var low = (93 + Math.random() * 2).toFixed(1);
+      uptimeVal.textContent = low;
+      uptimeBadge.style.borderColor = '#F2A7B3';
+      setTimeout(function() {
+        uptimeVal.textContent = '97.3';
+        uptimeBadge.style.borderColor = '#77D1C1';
+      }, 1500 + Math.random() * 1500);
+    }
+  }
+  setInterval(flickerUptime, 8000);
+
+  // ── GLITCH PULSE ──
+  var scanlines = document.getElementById('scanlines');
+  function glitchPulse() {
+    document.body.style.transform = 'translateX(2px)';
+    scanlines.style.opacity = '1';
+    scanlines.style.background = scanlines.style.background; // force a repaint hack
+    scanlines.style.setProperty('opacity', '1');
+
+    // flash a random fragment
+    var frags = document.querySelectorAll('.fragment:not(.dissolved)');
+    if (frags.length > 0) {
+      var target = frags[Math.floor(Math.random() * frags.length)];
+      var origBg = target.style.background;
+      target.style.background = '#FFFFFF';
+      setTimeout(function() { target.style.background = origBg; }, 150);
+    }
+
+    setTimeout(function() {
+      document.body.style.transform = '';
+      scanlines.style.opacity = '';
+    }, 150);
+
+    setTimeout(glitchPulse, 30000 + Math.random() * 15000);
+  }
+  setTimeout(glitchPulse, 10000 + Math.random() * 10000);
+
+})();
+</script>
+</body>
+</html>

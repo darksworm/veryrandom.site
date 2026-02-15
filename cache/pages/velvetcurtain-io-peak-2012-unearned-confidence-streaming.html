@@ -1,0 +1,1337 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>VelvetCurtain.io — Ambient Noise for Peak 2012 Confidence</title>
+<link rel="stylesheet" href="/assets/css/fonts.css">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg: #0b0b14;
+  --card-bg: #141428;
+  --text: #d8d4e8;
+  --purple: #9b30ff;
+  --yellow: #e5ff00;
+  --purple-glow: rgba(155, 48, 255, 0.35);
+  --yellow-glow: rgba(229, 255, 0, 0.25);
+  --muted: #6a6490;
+  --danger: #ff3355;
+}
+
+html { scroll-behavior: smooth; }
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Oswald', sans-serif;
+  font-size: 16px;
+  line-height: 1.6;
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+}
+
+h1, h2, h3, h4 {
+  font-family: 'Archivo Black', sans-serif;
+  font-weight: 400;
+  line-height: 1.15;
+  text-transform: uppercase;
+}
+
+.mono { font-family: 'Fira Code', monospace; }
+
+.container { max-width: 800px; margin: 0 auto; padding: 0 24px; }
+
+a { color: var(--yellow); text-decoration: none; }
+a:hover { text-decoration: underline; }
+
+/* ═══ STARTUP GHOST CANVAS ═══ */
+#ghostCanvas {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 0;
+  opacity: 0.06;
+}
+
+/* ═══ HERO ═══ */
+.hero {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  position: relative;
+  z-index: 1;
+  padding: 60px 24px;
+}
+
+.hero-badge {
+  font-family: 'Fira Code', monospace;
+  font-size: 0.75rem;
+  color: var(--yellow);
+  text-transform: uppercase;
+  letter-spacing: 0.15em;
+  border: 1px solid var(--yellow);
+  padding: 6px 16px;
+  margin-bottom: 32px;
+  display: inline-block;
+}
+
+.hero h1 {
+  font-size: clamp(2.4rem, 7vw, 4.5rem);
+  color: #ffffff;
+  margin-bottom: 8px;
+  letter-spacing: -0.02em;
+}
+
+.hero h1 .dot {
+  color: var(--purple);
+  text-shadow: 0 0 40px var(--purple-glow);
+}
+
+.hero .tagline {
+  font-family: 'Oswald', sans-serif;
+  font-size: clamp(1rem, 2.5vw, 1.3rem);
+  color: var(--text);
+  margin-bottom: 40px;
+  font-weight: 300;
+  letter-spacing: 0.04em;
+}
+
+.hero .tagline em {
+  color: var(--yellow);
+  font-style: normal;
+  text-shadow: 0 0 20px var(--yellow-glow);
+}
+
+.cta-btn {
+  display: inline-block;
+  background: var(--purple);
+  color: #ffffff;
+  font-family: 'Archivo Black', sans-serif;
+  font-size: 1rem;
+  padding: 16px 48px;
+  border: none;
+  cursor: pointer;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  transition: box-shadow 0.3s, transform 0.2s;
+  min-height: 48px;
+  text-decoration: none;
+}
+
+.cta-btn:hover {
+  box-shadow: 0 0 40px var(--purple-glow);
+  transform: translateY(-2px);
+  text-decoration: none;
+}
+
+.hero-stats {
+  margin-top: 48px;
+  display: flex;
+  gap: 40px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.stat {
+  text-align: center;
+}
+
+.stat-num {
+  font-family: 'Archivo Black', sans-serif;
+  font-size: clamp(1.4rem, 3vw, 2rem);
+  color: var(--yellow);
+  text-shadow: 0 0 15px var(--yellow-glow);
+  display: block;
+}
+
+.stat-label {
+  font-family: 'Fira Code', monospace;
+  font-size: 0.65rem;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
+
+/* ═══ EQUALIZER BAR ═══ */
+.eq-bar {
+  width: 100%;
+  height: 4px;
+  background: var(--card-bg);
+  position: relative;
+  overflow: hidden;
+}
+
+.eq-bar::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 50%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, var(--purple), var(--yellow), transparent);
+  animation: eqSweep 3s linear infinite;
+}
+
+@keyframes eqSweep {
+  0% { left: -50%; }
+  100% { left: 100%; }
+}
+
+/* ═══ PLAYER SECTION ═══ */
+.player-section {
+  padding: 80px 24px;
+  position: relative;
+  z-index: 1;
+}
+
+.player-section h2 {
+  font-size: clamp(1.3rem, 3vw, 1.8rem);
+  color: var(--purple);
+  margin-bottom: 8px;
+}
+
+.player-section .section-sub {
+  font-size: 0.85rem;
+  color: var(--muted);
+  margin-bottom: 40px;
+  max-width: 540px;
+}
+
+.mix-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 16px;
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+@media (min-width: 640px) {
+  .mix-grid { grid-template-columns: 1fr 1fr; }
+}
+
+.mix-card {
+  background: var(--card-bg);
+  border: 1px solid #2a2a4a;
+  padding: 24px;
+  cursor: pointer;
+  transition: border-color 0.3s, box-shadow 0.3s;
+  position: relative;
+  overflow: hidden;
+}
+
+.mix-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 3px;
+  background: linear-gradient(90deg, var(--purple), var(--yellow));
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+
+.mix-card:hover::before,
+.mix-card.active::before { opacity: 1; }
+
+.mix-card:hover {
+  border-color: var(--purple);
+  box-shadow: 0 0 20px rgba(155, 48, 255, 0.15);
+}
+
+.mix-card.active {
+  border-color: var(--yellow);
+  box-shadow: 0 0 25px var(--yellow-glow);
+}
+
+.mix-icon {
+  font-size: 2rem;
+  margin-bottom: 12px;
+}
+
+.mix-name {
+  font-family: 'Archivo Black', sans-serif;
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  color: #ffffff;
+  margin-bottom: 6px;
+}
+
+.mix-desc {
+  font-size: 0.8rem;
+  color: var(--muted);
+  line-height: 1.5;
+  margin-bottom: 12px;
+}
+
+.mix-tags {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.mix-tag {
+  font-family: 'Fira Code', monospace;
+  font-size: 0.6rem;
+  color: var(--purple);
+  border: 1px solid #2a2a4a;
+  padding: 2px 8px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.now-playing {
+  margin-top: 32px;
+  padding: 20px 24px;
+  background: var(--card-bg);
+  border: 1px solid var(--purple);
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  min-height: 64px;
+}
+
+.np-bars {
+  display: flex;
+  align-items: flex-end;
+  gap: 2px;
+  height: 24px;
+}
+
+.np-bar {
+  width: 3px;
+  background: var(--yellow);
+  animation: npPulse var(--d) ease-in-out infinite alternate;
+}
+
+@keyframes npPulse {
+  0% { height: 4px; }
+  100% { height: var(--h); }
+}
+
+.np-info {
+  flex: 1;
+}
+
+.np-title {
+  font-family: 'Archivo Black', sans-serif;
+  font-size: 0.75rem;
+  color: #ffffff;
+  text-transform: uppercase;
+}
+
+.np-status {
+  font-family: 'Fira Code', monospace;
+  font-size: 0.65rem;
+  color: var(--purple);
+}
+
+/* ═══ LEADERBOARD ═══ */
+.leaderboard-section {
+  padding: 80px 24px;
+  position: relative;
+  z-index: 1;
+}
+
+.leaderboard-section h2 {
+  font-size: clamp(1.3rem, 3vw, 1.8rem);
+  color: var(--yellow);
+  margin-bottom: 4px;
+}
+
+.defunct-badge {
+  font-family: 'Fira Code', monospace;
+  font-size: 0.65rem;
+  color: var(--danger);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  margin-bottom: 8px;
+  display: inline-block;
+}
+
+.leaderboard-section .section-sub {
+  font-size: 0.85rem;
+  color: var(--muted);
+  margin-bottom: 40px;
+}
+
+.leaderboard {
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.lb-row {
+  display: grid;
+  grid-template-columns: 48px 1fr auto;
+  gap: 16px;
+  align-items: center;
+  padding: 16px 20px;
+  border-bottom: 1px solid #1a1a30;
+  transition: background 0.2s;
+}
+
+.lb-row:hover { background: rgba(155, 48, 255, 0.05); }
+
+.lb-row.champion {
+  background: rgba(229, 255, 0, 0.04);
+  border: 1px solid var(--yellow);
+  border-bottom: 1px solid var(--yellow);
+}
+
+.lb-rank {
+  font-family: 'Archivo Black', sans-serif;
+  font-size: 1.2rem;
+  color: var(--muted);
+  text-align: center;
+}
+
+.lb-row.champion .lb-rank { color: var(--yellow); }
+
+.lb-user {
+  font-family: 'Fira Code', monospace;
+  font-size: 0.8rem;
+  color: #ffffff;
+}
+
+.lb-hours {
+  font-family: 'Archivo Black', sans-serif;
+  font-size: 0.85rem;
+  color: var(--purple);
+  white-space: nowrap;
+}
+
+.lb-row.champion .lb-hours { color: var(--yellow); }
+
+/* ═══ TESTIMONIALS ═══ */
+.testimonials-section {
+  padding: 80px 24px;
+  position: relative;
+  z-index: 1;
+}
+
+.testimonials-section h2 {
+  font-size: clamp(1.3rem, 3vw, 1.8rem);
+  color: var(--purple);
+  margin-bottom: 40px;
+}
+
+.testimonial-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.test-card {
+  background: var(--card-bg);
+  border-left: 3px solid var(--purple);
+  padding: 24px;
+}
+
+.test-quote {
+  font-size: 0.9rem;
+  color: var(--text);
+  margin-bottom: 12px;
+  line-height: 1.7;
+}
+
+.test-user {
+  font-family: 'Fira Code', monospace;
+  font-size: 0.7rem;
+  color: var(--yellow);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+/* ═══ FAQ ═══ */
+.faq-section {
+  padding: 80px 24px;
+  position: relative;
+  z-index: 1;
+}
+
+.faq-section h2 {
+  font-size: clamp(1.3rem, 3vw, 1.8rem);
+  color: var(--yellow);
+  margin-bottom: 40px;
+}
+
+.faq-list {
+  max-width: 800px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.faq-item {
+  border-bottom: 1px solid #1a1a30;
+  padding: 20px 0;
+  cursor: pointer;
+}
+
+.faq-q {
+  font-family: 'Archivo Black', sans-serif;
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  color: #ffffff;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+}
+
+.faq-toggle {
+  font-size: 1.2rem;
+  color: var(--purple);
+  transition: transform 0.3s;
+  flex-shrink: 0;
+}
+
+.faq-a {
+  font-size: 0.85rem;
+  color: var(--muted);
+  line-height: 1.7;
+  margin-top: 12px;
+  padding-right: 32px;
+  overflow: hidden;
+}
+
+/* ═══ PRICING ═══ */
+.pricing-section {
+  padding: 80px 24px;
+  position: relative;
+  z-index: 1;
+}
+
+.pricing-section h2 {
+  font-size: clamp(1.3rem, 3vw, 1.8rem);
+  color: var(--purple);
+  margin-bottom: 40px;
+}
+
+.pricing-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 20px;
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+@media (min-width: 700px) {
+  .pricing-grid { grid-template-columns: 1fr 1fr; }
+}
+
+.price-card {
+  background: var(--card-bg);
+  border: 1px solid #2a2a4a;
+  padding: 32px 24px;
+  position: relative;
+}
+
+.price-card.premium {
+  border-color: var(--yellow);
+  box-shadow: 0 0 30px var(--yellow-glow);
+}
+
+.price-card.premium::after {
+  content: 'MOST DELUSIONAL';
+  position: absolute;
+  top: -12px;
+  right: 20px;
+  font-family: 'Fira Code', monospace;
+  font-size: 0.6rem;
+  background: var(--yellow);
+  color: var(--bg);
+  padding: 4px 10px;
+  letter-spacing: 0.08em;
+}
+
+.price-tier {
+  font-family: 'Archivo Black', sans-serif;
+  font-size: 1rem;
+  text-transform: uppercase;
+  color: #ffffff;
+  margin-bottom: 8px;
+}
+
+.price-amount {
+  font-family: 'Archivo Black', sans-serif;
+  font-size: clamp(1.8rem, 4vw, 2.4rem);
+  color: var(--purple);
+  margin-bottom: 16px;
+}
+
+.price-card.premium .price-amount { color: var(--yellow); }
+
+.price-features {
+  list-style: none;
+  padding: 0;
+  margin-bottom: 24px;
+}
+
+.price-features li {
+  font-size: 0.8rem;
+  color: var(--text);
+  padding: 6px 0;
+  border-bottom: 1px solid #1a1a30;
+  display: flex;
+  gap: 8px;
+}
+
+.price-features li::before {
+  content: '▸';
+  color: var(--purple);
+  flex-shrink: 0;
+}
+
+.price-card.premium .price-features li::before { color: var(--yellow); }
+
+.price-btn {
+  display: block;
+  width: 100%;
+  text-align: center;
+  background: transparent;
+  border: 1px solid var(--purple);
+  color: var(--purple);
+  font-family: 'Archivo Black', sans-serif;
+  font-size: 0.8rem;
+  padding: 14px;
+  cursor: pointer;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  transition: background 0.2s, color 0.2s;
+  min-height: 48px;
+}
+
+.price-btn:hover {
+  background: var(--purple);
+  color: #ffffff;
+}
+
+.price-card.premium .price-btn {
+  background: var(--yellow);
+  color: var(--bg);
+  border-color: var(--yellow);
+}
+
+.price-card.premium .price-btn:hover {
+  box-shadow: 0 0 20px var(--yellow-glow);
+}
+
+/* ═══ BLOG TEASER ═══ */
+.blog-section {
+  padding: 80px 24px;
+  position: relative;
+  z-index: 1;
+}
+
+.blog-card {
+  max-width: 800px;
+  margin: 0 auto;
+  background: var(--card-bg);
+  border: 1px solid #2a2a4a;
+  padding: 32px;
+}
+
+.blog-label {
+  font-family: 'Fira Code', monospace;
+  font-size: 0.65rem;
+  color: var(--purple);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  margin-bottom: 12px;
+}
+
+.blog-title {
+  font-family: 'Archivo Black', sans-serif;
+  font-size: clamp(1rem, 2.5vw, 1.3rem);
+  color: #ffffff;
+  text-transform: uppercase;
+  margin-bottom: 16px;
+  line-height: 1.3;
+}
+
+.blog-excerpt {
+  font-size: 0.85rem;
+  color: var(--muted);
+  line-height: 1.7;
+  margin-bottom: 20px;
+}
+
+.blog-meta {
+  font-family: 'Fira Code', monospace;
+  font-size: 0.65rem;
+  color: var(--muted);
+}
+
+/* ═══ HUSTLE JUICE BANNER ═══ */
+.hustle-banner {
+  padding: 60px 24px;
+  background: linear-gradient(135deg, #1a0a2e 0%, #0b0b14 50%, #1a1a00 100%);
+  text-align: center;
+  position: relative;
+  z-index: 1;
+  border-top: 1px solid #2a2a4a;
+  border-bottom: 1px solid #2a2a4a;
+}
+
+.hustle-badge {
+  font-family: 'Fira Code', monospace;
+  font-size: 0.6rem;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.15em;
+  margin-bottom: 16px;
+}
+
+.hustle-name {
+  font-family: 'Archivo Black', sans-serif;
+  font-size: clamp(1.6rem, 4vw, 2.2rem);
+  text-transform: uppercase;
+  color: var(--yellow);
+  text-shadow: 0 0 30px var(--yellow-glow);
+  margin-bottom: 8px;
+}
+
+.hustle-slogan {
+  font-size: 0.85rem;
+  color: var(--muted);
+  margin-bottom: 24px;
+}
+
+.hustle-warning {
+  font-family: 'Fira Code', monospace;
+  font-size: 0.6rem;
+  color: #553300;
+  max-width: 480px;
+  margin: 0 auto;
+  line-height: 1.6;
+}
+
+/* ═══ FOOTER ═══ */
+.site-footer {
+  padding: 80px 24px 40px;
+  position: relative;
+  z-index: 1;
+}
+
+.footer-inner {
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.footer-confession {
+  font-size: 0.9rem;
+  color: var(--text);
+  line-height: 1.8;
+  margin-bottom: 40px;
+  border-left: 2px solid var(--purple);
+  padding-left: 20px;
+}
+
+.footer-links {
+  display: flex;
+  gap: 24px;
+  flex-wrap: wrap;
+  margin-bottom: 40px;
+}
+
+.footer-links a {
+  font-family: 'Fira Code', monospace;
+  font-size: 0.7rem;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.footer-links a:hover { color: var(--purple); }
+
+.copyright {
+  font-family: 'Fira Code', monospace;
+  font-size: 0.65rem;
+  color: #3a3460;
+  border-top: 1px solid #1a1a30;
+  padding-top: 24px;
+}
+
+.rival-link {
+  display: block;
+  margin-top: 8px;
+  font-family: 'Fira Code', monospace;
+  font-size: 0.6rem;
+  color: #3a3460;
+}
+
+.rival-link:hover { color: var(--danger); }
+
+/* ═══ HIDDEN EASTER EGG ═══ */
+.easter-egg-trigger {
+  position: absolute;
+  bottom: 12px;
+  left: 12px;
+  width: 20px;
+  height: 20px;
+  cursor: pointer;
+  opacity: 0.02;
+  z-index: 10;
+}
+
+.egg-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0,0,0,0.92);
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+}
+
+.egg-content {
+  background: var(--card-bg);
+  border: 2px solid var(--danger);
+  padding: 40px 32px;
+  max-width: 480px;
+  width: 100%;
+  text-align: center;
+}
+
+.egg-content h3 {
+  font-size: 1.2rem;
+  color: var(--danger);
+  margin-bottom: 16px;
+}
+
+.egg-content p {
+  font-size: 0.85rem;
+  color: var(--text);
+  margin-bottom: 16px;
+  line-height: 1.7;
+}
+
+.egg-warning {
+  font-family: 'Fira Code', monospace;
+  font-size: 0.6rem;
+  color: var(--muted);
+  border-top: 1px solid #2a2a4a;
+  padding-top: 16px;
+  line-height: 1.6;
+}
+
+.egg-close {
+  margin-top: 20px;
+  background: transparent;
+  border: 1px solid var(--danger);
+  color: var(--danger);
+  font-family: 'Archivo Black', sans-serif;
+  font-size: 0.75rem;
+  padding: 10px 24px;
+  cursor: pointer;
+  text-transform: uppercase;
+  min-height: 44px;
+}
+
+/* ═══ CONFIDENCE METER ═══ */
+.confidence-meter {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 40px 0;
+}
+
+.meter-label {
+  font-family: 'Fira Code', monospace;
+  font-size: 0.65rem;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  margin-bottom: 8px;
+  display: flex;
+  justify-content: space-between;
+}
+
+.meter-track {
+  width: 100%;
+  height: 6px;
+  background: #1a1a30;
+  position: relative;
+  overflow: hidden;
+}
+
+.meter-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--purple), var(--yellow));
+  width: 0%;
+  transition: width 1.5s ease-out;
+}
+
+/* ═══ FADE-IN ═══ */
+.fade-in {
+  opacity: 0;
+  transform: translateY(24px);
+}
+
+/* ═══ MOBILE ═══ */
+@media (max-width: 480px) {
+  .hero-stats { gap: 24px; }
+  .lb-row { grid-template-columns: 36px 1fr auto; gap: 8px; padding: 12px 12px; }
+  .now-playing { flex-direction: column; text-align: center; gap: 8px; }
+}
+</style>
+</head>
+<body>
+
+<!-- ═══ GHOST CANVAS (distorted defunct startup logos) ═══ -->
+<canvas id="ghostCanvas"></canvas>
+
+<!-- ═══ HERO ═══ -->
+<section class="hero" x-data="{ clickCount: 0 }">
+  <div class="hero-badge">Est. 2023 · Defunct 2024</div>
+  <h1>VelvetCurtain<span class="dot">.io</span></h1>
+  <p class="tagline">Ambient noise engineered for <em>peak 2012 unearned confidence</em></p>
+  <a href="#mixes" class="cta-btn" @click.prevent="clickCount++; document.getElementById('mixes').scrollIntoView({behavior:'smooth'})">
+    <span x-text="clickCount === 0 ? 'Start Believing' : clickCount === 1 ? 'Keep Believing' : 'You Can\'t Stop'"></span>
+  </a>
+  <div class="hero-stats">
+    <div class="stat">
+      <span class="stat-num">147K</span>
+      <span class="stat-label">Hours Streamed</span>
+    </div>
+    <div class="stat">
+      <span class="stat-num">0</span>
+      <span class="stat-label">Evidence Required</span>
+    </div>
+    <div class="stat">
+      <span class="stat-num">∞</span>
+      <span class="stat-label">Confidence Level</span>
+    </div>
+  </div>
+</section>
+
+<div class="eq-bar"></div>
+
+<!-- ═══ AMBIENT MIX PLAYER ═══ -->
+<section class="player-section fade-in" id="mixes" x-data="mixPlayer()">
+  <div class="container">
+    <h2>Select Your Delusion</h2>
+    <p class="section-sub">Each mix is scientifically calibrated to a specific flavor of baseless self-assurance. Pick one. Or don't. You're already winning.</p>
+    <div class="mix-grid">
+      <div class="mix-card" :class="{ active: currentMix === 0 }" @click="play(0)">
+        <div class="mix-icon">🎧</div>
+        <div class="mix-name">Delusional Optimism</div>
+        <div class="mix-desc">White noise filtered through the air conditioning of a WeWork in 2012. Distant MacBook keystrokes. Someone is definitely disrupting something.</div>
+        <div class="mix-tags">
+          <span class="mix-tag">Startup</span>
+          <span class="mix-tag">Hustle</span>
+          <span class="mix-tag">Delusional</span>
+        </div>
+      </div>
+      <div class="mix-card" :class="{ active: currentMix === 1 }" @click="play(1)">
+        <div class="mix-icon">📈</div>
+        <div class="mix-name">Pre-Rejection Swagger</div>
+        <div class="mix-desc">The exact ambient frequency of a pitch meeting lobby 10 minutes before they say no. You still think the hoodie was a power move.</div>
+        <div class="mix-tags">
+          <span class="mix-tag">VC Energy</span>
+          <span class="mix-tag">2012</span>
+          <span class="mix-tag">Peak</span>
+        </div>
+      </div>
+      <div class="mix-card" :class="{ active: currentMix === 2 }" @click="play(2)">
+        <div class="mix-icon">🏆</div>
+        <div class="mix-name">Unwarranted Main Character</div>
+        <div class="mix-desc">A curated soundscape of "Call Me Maybe" at 0.75x speed layered with TED Talk applause and the hum of a Tesla showroom circa 2013.</div>
+        <div class="mix-tags">
+          <span class="mix-tag">Main Character</span>
+          <span class="mix-tag">Ego</span>
+        </div>
+      </div>
+      <div class="mix-card" :class="{ active: currentMix === 3 }" @click="play(3)">
+        <div class="mix-icon">💎</div>
+        <div class="mix-name">Wolf of Whatever Street</div>
+        <div class="mix-desc">Binaural beats tuned to induce feelings of unwarranted financial success. Bloomberg terminal keystrokes. Distant yacht horn. Premium subscribers only. (Server's down.)</div>
+        <div class="mix-tags">
+          <span class="mix-tag">Premium</span>
+          <span class="mix-tag">Expired</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="now-playing" x-show="currentMix !== null">
+      <div class="np-bars" id="npBars"></div>
+      <div class="np-info">
+        <div class="np-title" x-text="mixes[currentMix]?.name || ''"></div>
+        <div class="np-status">STREAMING · <span x-text="mixes[currentMix]?.status || ''"></span></div>
+      </div>
+    </div>
+
+    <div class="confidence-meter" x-show="currentMix !== null">
+      <div class="meter-label">
+        <span>Confidence Level</span>
+        <span class="mono" x-text="confidence + '%'"></span>
+      </div>
+      <div class="meter-track">
+        <div class="meter-fill" :style="'width:' + confidence + '%'"></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="eq-bar"></div>
+
+<!-- ═══ LEADERBOARD ═══ -->
+<section class="leaderboard-section fade-in">
+  <div class="container">
+    <h2>Hall of Fame</h2>
+    <span class="defunct-badge">[Archived — Feature Discontinued Nov 2023]</span>
+    <p class="section-sub">Longest consecutive hours logged in Delusional Optimism Mode.</p>
+    <div class="leaderboard">
+      <div class="lb-row champion">
+        <span class="lb-rank">#1</span>
+        <span class="lb-user">ChadThundercock69</span>
+        <span class="lb-hours">2,847 hrs</span>
+      </div>
+      <div class="lb-row">
+        <span class="lb-rank">#2</span>
+        <span class="lb-user">DisruptionDenise</span>
+        <span class="lb-hours">1,903 hrs</span>
+      </div>
+      <div class="lb-row">
+        <span class="lb-rank">#3</span>
+        <span class="lb-user">PivotKing2012</span>
+        <span class="lb-hours">1,456 hrs</span>
+      </div>
+      <div class="lb-row">
+        <span class="lb-rank">#4</span>
+        <span class="lb-user">SynergySteve</span>
+        <span class="lb-hours">1,201 hrs</span>
+      </div>
+      <div class="lb-row">
+        <span class="lb-rank">#5</span>
+        <span class="lb-user">LeanStartupLisa</span>
+        <span class="lb-hours">988 hrs</span>
+      </div>
+      <div class="lb-row">
+        <span class="lb-rank">#6</span>
+        <span class="lb-user">GrowthHackGary</span>
+        <span class="lb-hours">847 hrs</span>
+      </div>
+      <div class="lb-row">
+        <span class="lb-rank">#7</span>
+        <span class="lb-user">MVP_or_Die</span>
+        <span class="lb-hours">723 hrs</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="eq-bar"></div>
+
+<!-- ═══ TESTIMONIALS ═══ -->
+<section class="testimonials-section fade-in">
+  <div class="container">
+    <h2>User Testimonials</h2>
+    <div class="testimonial-stack">
+      <div class="test-card">
+        <div class="test-quote">"I haven't felt this invincible since I thought my startup idea for a dog-walking app that only accepts Bitcoin was going to change the world. Thanks, VelvetCurtain!"</div>
+        <div class="test-user">@CryptoCanineKing · Verified Delusionist</div>
+      </div>
+      <div class="test-card">
+        <div class="test-quote">"Played Delusional Optimism for 14 straight hours, quit my job, pitched a VC on an Uber-for-laundromats idea. Got rejected. Played it again. Felt great. 10/10."</div>
+        <div class="test-user">@DisruptLaundry · 847 hrs logged</div>
+      </div>
+      <div class="test-card">
+        <div class="test-quote">"I opened my laptop at a coffee shop, put on the Pre-Rejection Swagger mix, and three people asked me if I was a founder. I'm a substitute teacher. This product works."</div>
+        <div class="test-user">@MrAndersonPeriod4 · Unverified</div>
+      </div>
+      <div class="test-card">
+        <div class="test-quote">"My therapist says I should stop using this. My therapist is subscribed to BinauralBeatitude and cries during our sessions. I'm keeping VelvetCurtain."</div>
+        <div class="test-user">@WellAdjustedChad · Premium Member (Expired)</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="eq-bar"></div>
+
+<!-- ═══ FAQ ═══ -->
+<section class="faq-section fade-in" x-data="{ open: null }">
+  <div class="container">
+    <h2>Frequently Asked Questions</h2>
+    <div class="faq-list">
+      <div class="faq-item" @click="open = open === 0 ? null : 0">
+        <div class="faq-q">
+          Is VelvetCurtain.io responsible for the rise in "that guy" energy?
+          <span class="faq-toggle" :style="open === 0 ? 'transform:rotate(45deg)' : ''">+</span>
+        </div>
+        <div class="faq-a" x-show="open === 0" x-cloak>We provide the tools. You wield the power. VelvetCurtain.io is not responsible for any cold emails sent, pitch decks created, or LinkedIn posts published while under the influence of our ambient mixes. "That guy" was already in there. We just turned up the volume.</div>
+      </div>
+      <div class="faq-item" @click="open = open === 1 ? null : 1">
+        <div class="faq-q">
+          Is this actually scientifically proven?
+          <span class="faq-toggle" :style="open === 1 ? 'transform:rotate(45deg)' : ''">+</span>
+        </div>
+        <div class="faq-a" x-show="open === 1" x-cloak>We conducted a study with 12 participants in a converted garage in Palo Alto. All 12 reported feeling "like a founder." The study was not peer-reviewed, replicated, or published anywhere except a blog post on a site that no longer exists. So: yes.</div>
+      </div>
+      <div class="faq-item" @click="open = open === 2 ? null : 2">
+        <div class="faq-q">
+          What happened to Thaddeus and Penny?
+          <span class="faq-toggle" :style="open === 2 ? 'transform:rotate(45deg)' : ''">+</span>
+        </div>
+        <div class="faq-a" x-show="open === 2" x-cloak>Thaddeus pivoted to crypto and now describes himself as a "Web3 Confidence Architect" on his LinkedIn, which has 340 followers, 12 of whom are real people. Penny left to become a sound engineer for ASMR cat videos and has never been happier. She was always the talented one.</div>
+      </div>
+      <div class="faq-item" @click="open = open === 3 ? null : 3">
+        <div class="faq-q">
+          Skrillex or Avicii?
+          <span class="faq-toggle" :style="open === 3 ? 'transform:rotate(45deg)' : ''">+</span>
+        </div>
+        <div class="faq-a" x-show="open === 3" x-cloak>This question destroyed our forum. Literally. The thread reached 4,000 posts before someone doxxed a moderator named TrapLordKevin and we had to shut the whole thing down. The official VelvetCurtain position is: Avicii for feelings, Skrillex for conviction. Both for the full 2012 experience. RIP the forum (2023-2023).</div>
+      </div>
+      <div class="faq-item" @click="open = open === 4 ? null : 4">
+        <div class="faq-q">
+          Can I get a refund?
+          <span class="faq-toggle" :style="open === 4 ? 'transform:rotate(45deg)' : ''">+</span>
+        </div>
+        <div class="faq-a" x-show="open === 4" x-cloak>Confidence is non-refundable. This is both our terms of service and a life philosophy. Also our Stripe account was suspended in October 2023 so technically we couldn't process a refund even if we wanted to.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="eq-bar"></div>
+
+<!-- ═══ BLOG TEASER ═══ -->
+<section class="blog-section fade-in">
+  <div class="container">
+    <div class="blog-card">
+      <div class="blog-label">From the VelvetCurtain Blog · Last Updated Jan 2024</div>
+      <div class="blog-title">Decoding the Dopamine Drip: Why "Call Me Maybe" on Loop Still Works (and Probably Always Will)</div>
+      <div class="blog-excerpt">There's a reason Carly Rae Jepsen's 2012 megahit remains the backbone of our Unwarranted Main Character mix. It's not nostalgia. It's neuroscience. Well, it's mostly nostalgia. But there's definitely some dopamine in there. We asked a neuroscientist and she said "please stop emailing me" which we interpreted as confirmation.</div>
+      <div class="blog-meta">By Thaddeus Fairbanks · 2,847 reads · 0 comments · Comments disabled after incident</div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ HUSTLE JUICE PARTNERSHIP ═══ -->
+<div class="hustle-banner fade-in">
+  <div class="hustle-badge">Official Partner</div>
+  <div class="hustle-name">Hustle Juice™</div>
+  <div class="hustle-slogan">"480mg of caffeine and the conviction of a man who's never been told no."</div>
+  <div class="hustle-warning">⚠ Hustle Juice has been recalled in 3 states. VelvetCurtain.io assumes no liability for cardiovascular events, spontaneous pitch decks, or the urge to register a .io domain at 3am. Partnership dissolved Feb 2024.</div>
+</div>
+
+<!-- ═══ PRICING ═══ -->
+<section class="pricing-section fade-in">
+  <div class="container">
+    <h2>Subscription Tiers</h2>
+    <div class="pricing-grid">
+      <div class="price-card">
+        <div class="price-tier">Hustler</div>
+        <div class="price-amount">$9/mo</div>
+        <ul class="price-features">
+          <li>All standard ambient mixes</li>
+          <li>Delusional Optimism Mode (basic)</li>
+          <li>Leaderboard access (archived)</li>
+          <li>"I'm a founder" desktop wallpaper</li>
+          <li>Hustle Juice 10% discount (void)</li>
+        </ul>
+        <button class="price-btn" @click="alert('Stripe account suspended. Believe in yourself for free.')" x-data>Subscribe</button>
+      </div>
+      <div class="price-card premium">
+        <div class="price-tier">Wolf of Whatever Street</div>
+        <div class="price-amount">$49/mo</div>
+        <ul class="price-features">
+          <li>Everything in Hustler</li>
+          <li>Exclusive binaural beats for unwarranted financial confidence</li>
+          <li>Bloomberg Terminal ambient soundscape</li>
+          <li>VIP Slack channel (3 members, 2 are Thaddeus)</li>
+          <li>Personalized rejection letter from Y Combinator (framed)</li>
+          <li>Priority access to features we never built</li>
+        </ul>
+        <button class="price-btn" @click="alert('This tier was discontinued after our only Wolf subscriber tried to expense it. He was a barista.')" x-data>Ascend</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ FOOTER ═══ -->
+<footer class="site-footer fade-in" x-data="{ eggOpen: false }">
+  <div class="footer-inner">
+    <div class="footer-confession">
+      Here's the thing nobody tells you about confidence: the real stuff and the fake stuff feel exactly the same from the inside. I spent $14,000 of my parents' money on a startup that was basically Spotify but worse. I walked into that Y Combinator interview convinced I was going to be on the cover of Wired. They didn't even let me finish my pitch. But for about nine months in 2012, I was the happiest I've ever been, because I hadn't learned yet that believing in something doesn't make it real. This website is a monument to that feeling. I miss it every day.
+    </div>
+    <div class="footer-links">
+      <a href="#mixes">Mixes</a>
+      <a href="#">Forum (Dead)</a>
+      <a href="#">Blog (Archived)</a>
+      <a href="#">Careers (lol)</a>
+      <a href="#">Privacy Policy</a>
+    </div>
+    <div class="copyright">
+      © 2023-2024 VelvetCurtain.io · Founded by Thaddeus Fairbanks & Penelope "Penny" Dubois · All rights reserved (barely)
+      <span class="rival-link">Looking for crippling self-doubt instead? Try BinauralBeatitude.com</span>
+    </div>
+  </div>
+
+  <!-- Easter egg trigger -->
+  <div class="easter-egg-trigger" @click="eggOpen = true" title=" "></div>
+
+  <!-- Easter egg modal -->
+  <div class="egg-modal" x-show="eggOpen" x-cloak @click.self="eggOpen = false">
+    <div class="egg-content">
+      <h3>🤠 Bro Country Apocalypse</h3>
+      <p>You found it. The hidden mix. A 47-minute ambient soundscape of stadium country, lifted truck engines, and Jason Aldean reverb, scientifically optimized to make you feel like you own a boat even though you live in a studio apartment.</p>
+      <p>Play at your own risk. Side effects include purchasing Oakley sunglasses, calling strangers "brother," and an overwhelming urge to grill something at 11pm.</p>
+      <div class="egg-warning">⚠ DISCLAIMER: VelvetCurtain.io is not liable for existential dread, unsolicited opinions about craft beer, or the sudden acquisition of a fishing license. This mix has been known to cause spontaneous truck payments.</div>
+      <button class="egg-close" @click="eggOpen = false">I Accept the Consequences</button>
+    </div>
+  </div>
+</footer>
+
+<script src="/assets/js/alpine.min.js" defer></script>
+<script src="/assets/js/gsap.min.js"></script>
+<script>
+// ═══ GHOST CANVAS — Floating distorted startup logos ═══
+(function() {
+  var canvas = document.getElementById('ghostCanvas');
+  var ctx = canvas.getContext('2d');
+  var logos = ['Juicero', 'Quibi', 'Vine', 'Yik Yak', 'Jawbone', 'Theranos', 'Rdio', 'Color Labs', 'Secret', 'Meerkat'];
+  var ghosts = [];
+
+  function resize() {
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+  }
+  resize();
+  window.addEventListener('resize', resize);
+
+  for (var i = 0; i < 8; i++) {
+    ghosts.push({
+      text: logos[Math.floor(Math.random() * logos.length)],
+      x: Math.random() * canvas.width,
+      y: Math.random() * canvas.height,
+      vx: (Math.random() - 0.5) * 0.3,
+      vy: (Math.random() - 0.5) * 0.2,
+      size: 14 + Math.random() * 20,
+      angle: Math.random() * Math.PI * 2,
+      va: (Math.random() - 0.5) * 0.003,
+      opacity: 0.3 + Math.random() * 0.5
+    });
+  }
+
+  function draw() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    for (var i = 0; i < ghosts.length; i++) {
+      var g = ghosts[i];
+      g.x += g.vx;
+      g.y += g.vy;
+      g.angle += g.va;
+      if (g.x < -100) g.x = canvas.width + 50;
+      if (g.x > canvas.width + 100) g.x = -50;
+      if (g.y < -50) g.y = canvas.height + 50;
+      if (g.y > canvas.height + 50) g.y = -50;
+
+      ctx.save();
+      ctx.translate(g.x, g.y);
+      ctx.rotate(g.angle);
+      ctx.globalAlpha = g.opacity;
+      ctx.font = g.size + 'px Oswald';
+      ctx.fillStyle = '#9b30ff';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+
+      // Distortion: draw text with slight horizontal skew
+      ctx.transform(1, Math.sin(g.angle * 0.5) * 0.1, 0, 1, 0, 0);
+      ctx.fillText(g.text, 0, 0);
+      ctx.restore();
+    }
+    requestAnimationFrame(draw);
+  }
+  draw();
+})();
+
+// ═══ NOW PLAYING BARS ═══
+(function() {
+  var barsEl = document.getElementById('npBars');
+  for (var i = 0; i < 5; i++) {
+    var bar = document.createElement('div');
+    bar.className = 'np-bar';
+    bar.style.setProperty('--h', (8 + Math.random() * 16) + 'px');
+    bar.style.setProperty('--d', (0.4 + Math.random() * 0.6) + 's');
+    bar.style.animationDelay = (Math.random() * 0.5) + 's';
+    barsEl.appendChild(bar);
+  }
+})();
+
+// ═══ SCROLL FADE-IN ═══
+(function() {
+  var observer = new IntersectionObserver(function(entries) {
+    entries.forEach(function(entry) {
+      if (entry.isIntersecting) {
+        gsap.fromTo(entry.target,
+          { opacity: 0, y: 24 },
+          { opacity: 1, y: 0, duration: 0.6, ease: 'power2.out' }
+        );
+        observer.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.1 });
+
+  document.querySelectorAll('.fade-in').forEach(function(el) {
+    observer.observe(el);
+  });
+})();
+
+// ═══ ALPINE: MIX PLAYER ═══
+document.addEventListener('alpine:init', function() {
+  Alpine.data('mixPlayer', function() {
+    return {
+      currentMix: null,
+      confidence: 0,
+      mixes: [
+        { name: 'Delusional Optimism', status: 'CALIBRATING DOPAMINE...' },
+        { name: 'Pre-Rejection Swagger', status: 'HOODIE POWER ENGAGED...' },
+        { name: 'Unwarranted Main Character', status: 'CARLY RAE @ 0.75x...' },
+        { name: 'Wolf of Whatever Street', status: 'SERVER DOWN · BELIEVE ANYWAY...' }
+      ],
+      play: function(idx) {
+        var self = this;
+        self.currentMix = idx;
+        self.confidence = 0;
+        setTimeout(function() {
+          self.confidence = 60 + Math.floor(Math.random() * 39);
+        }, 200);
+      }
+    };
+  });
+});
+
+// ═══ HERO ENTRANCE ANIMATION ═══
+(function() {
+  var badge = document.querySelector('.hero-badge');
+  var h1 = document.querySelector('.hero h1');
+  var tagline = document.querySelector('.hero .tagline');
+  var cta = document.querySelector('.hero .cta-btn');
+  var stats = document.querySelector('.hero-stats');
+
+  var tl = gsap.timeline({ delay: 0.3 });
+  tl.fromTo(badge, { opacity: 0, y: -10 }, { opacity: 1, y: 0, duration: 0.5 });
+  tl.fromTo(h1, { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.6 }, '-=0.2');
+  tl.fromTo(tagline, { opacity: 0 }, { opacity: 1, duration: 0.5 }, '-=0.2');
+  tl.fromTo(cta, { opacity: 0, y: 10 }, { opacity: 1, y: 0, duration: 0.4 }, '-=0.1');
+  tl.fromTo(stats, { opacity: 0 }, { opacity: 1, duration: 0.5 }, '-=0.1');
+})();
+</script>
+</body>
+</html>

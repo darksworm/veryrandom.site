@@ -1,0 +1,1210 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sharpie & Tape Futures — Fractionalized Ownership of Dead Venues</title>
+<link rel="stylesheet" href="/assets/css/fonts.css">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg: #1a1a1a;
+  --text: #f2efe6;
+  --orange: #ff5e1a;
+  --pink: #ff2d8a;
+  --card-bg: #2a2a2a;
+  --muted: #6b6560;
+  --font-heading: 'Archivo Black', sans-serif;
+  --font-accent: 'Permanent Marker', cursive;
+  --font-body: 'Fira Code', monospace;
+}
+
+html { scroll-behavior: smooth; }
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font-body);
+  font-size: 16px;
+  line-height: 1.6;
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ═══ HERO ═══ */
+.hero {
+  position: relative;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  padding: 2rem;
+  overflow: hidden;
+  background:
+    repeating-linear-gradient(
+      45deg,
+      transparent,
+      transparent 80px,
+      rgba(42,42,42,0.3) 80px,
+      rgba(42,42,42,0.3) 82px
+    ),
+    radial-gradient(ellipse at 20% 80%, rgba(255,94,26,0.08) 0%, transparent 50%),
+    radial-gradient(ellipse at 80% 20%, rgba(255,45,138,0.05) 0%, transparent 50%),
+    var(--bg);
+}
+
+.hero-headline {
+  font-family: var(--font-heading);
+  font-size: clamp(2rem, 6vw, 4.5rem);
+  line-height: 1.05;
+  color: var(--text);
+  max-width: 900px;
+  text-transform: uppercase;
+  position: relative;
+  z-index: 2;
+}
+
+.hero-subline {
+  font-family: var(--font-accent);
+  font-size: clamp(1.2rem, 3vw, 2rem);
+  color: var(--orange);
+  margin-top: 1.5rem;
+  position: relative;
+  z-index: 2;
+}
+
+.hero-tape {
+  position: absolute;
+  top: -60px;
+  left: -60px;
+  width: 140%;
+  height: 48px;
+  background: var(--pink);
+  opacity: 0.25;
+  transform: rotate(32deg);
+  transform-origin: top left;
+  z-index: 1;
+  will-change: transform, opacity;
+}
+
+/* ═══ TICKER ═══ */
+.ticker-wrap {
+  background: #111;
+  border-top: 2px solid var(--pink);
+  border-bottom: 2px solid var(--pink);
+  overflow: hidden;
+  white-space: nowrap;
+  position: relative;
+  z-index: 10;
+}
+
+.ticker-track {
+  display: inline-flex;
+  animation: tickerScroll 30s linear infinite;
+}
+
+.ticker-track:hover { animation-play-state: paused; }
+
+@keyframes tickerScroll {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+
+.ticker-item {
+  display: inline-block;
+  padding: 12px 28px;
+  font-family: var(--font-body);
+  font-size: 14px;
+  color: var(--pink);
+  cursor: pointer;
+  position: relative;
+  border-right: 1px solid #333;
+  user-select: none;
+}
+
+.ticker-item .tick-name { color: var(--text); }
+.ticker-item .tick-val { font-weight: bold; }
+.ticker-item .tick-up { color: #4ade80; }
+.ticker-item .tick-down { color: var(--pink); }
+
+.ticker-popover {
+  display: none;
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--card-bg);
+  border: 1px solid var(--orange);
+  padding: 16px;
+  width: 280px;
+  white-space: normal;
+  z-index: 100;
+  font-size: 13px;
+  color: var(--text);
+  box-shadow: 4px 4px 0 rgba(0,0,0,0.5);
+}
+
+.ticker-item.active .ticker-popover { display: block; }
+
+.ticker-popover-venue {
+  font-family: var(--font-accent);
+  color: var(--orange);
+  font-size: 16px;
+  margin-bottom: 8px;
+}
+
+.ticker-popover-lore { margin-bottom: 10px; line-height: 1.5; }
+
+.ticker-popover-timeline {
+  border-left: 2px dotted var(--muted);
+  padding-left: 12px;
+  font-size: 12px;
+  color: var(--muted);
+}
+
+.ticker-popover-timeline div {
+  position: relative;
+  margin-bottom: 6px;
+  padding-left: 8px;
+}
+
+.ticker-popover-timeline div::before {
+  content: '';
+  position: absolute;
+  left: -17px;
+  top: 6px;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--orange);
+}
+
+/* ═══ TAPE DECORATIONS ═══ */
+.tape-strip {
+  position: absolute;
+  height: 24px;
+  background: var(--pink);
+  opacity: 0.18;
+  transform: rotate(-5deg);
+  z-index: 0;
+  pointer-events: none;
+}
+
+.tape-strip--white {
+  background: var(--text);
+  opacity: 0.1;
+}
+
+/* ═══ SECTION WRAPPER ═══ */
+.section-wrap {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 4rem 1.5rem;
+  position: relative;
+}
+
+/* ═══ TAGGING OF THE WEEK ═══ */
+.spotlight {
+  position: relative;
+  background: var(--card-bg);
+  border: 2px solid var(--orange);
+  padding: 2.5rem;
+  transform: rotate(-2deg);
+  box-shadow: 6px 6px 0 rgba(0,0,0,0.4), -2px -2px 0 rgba(255,94,26,0.1);
+  margin-bottom: 2rem;
+}
+
+.spotlight-tape {
+  position: absolute;
+  top: -14px;
+  left: -10px;
+  background: var(--pink);
+  color: #111;
+  font-family: var(--font-body);
+  font-size: 12px;
+  font-weight: bold;
+  padding: 4px 18px;
+  transform: rotate(-4deg);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  z-index: 2;
+}
+
+.spotlight-photo {
+  width: 100%;
+  height: 220px;
+  background:
+    repeating-linear-gradient(0deg, #333 0px, #333 2px, transparent 2px, transparent 12px),
+    repeating-linear-gradient(90deg, #333 0px, #333 2px, transparent 2px, transparent 12px),
+    var(--bg);
+  border: 1px solid var(--muted);
+  margin-bottom: 1.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-body);
+  font-size: 13px;
+  color: var(--muted);
+}
+
+.spotlight-essay {
+  font-family: var(--font-body);
+  font-size: 15px;
+  line-height: 1.7;
+  margin-bottom: 1.5rem;
+  border-left: 3px solid var(--orange);
+  padding-left: 1rem;
+}
+
+.spotlight-lore {
+  font-family: var(--font-accent);
+  font-size: 1.25rem;
+  color: var(--orange);
+  margin-bottom: 1.5rem;
+}
+
+.auth-chain {
+  border-left: 2px dotted var(--muted);
+  padding-left: 20px;
+  margin-top: 1rem;
+}
+
+.auth-node {
+  position: relative;
+  margin-bottom: 14px;
+  font-size: 13px;
+  padding-left: 8px;
+}
+
+.auth-node::before {
+  content: '';
+  position: absolute;
+  left: -25px;
+  top: 5px;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--orange);
+  border: 2px solid var(--bg);
+}
+
+.auth-node-label { color: var(--muted); font-size: 11px; text-transform: uppercase; letter-spacing: 1px; }
+.auth-node-value { color: var(--text); }
+
+/* ═══ LISTINGS GRID ═══ */
+.listings-title {
+  font-family: var(--font-heading);
+  font-size: clamp(1.5rem, 4vw, 2.5rem);
+  color: var(--text);
+  text-transform: uppercase;
+  margin-bottom: 2rem;
+  position: relative;
+}
+
+.listings-title::after {
+  content: '';
+  display: block;
+  width: 80px;
+  height: 4px;
+  background: var(--orange);
+  margin-top: 8px;
+}
+
+.listings-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+  position: relative;
+}
+
+.listing-card {
+  background: var(--card-bg);
+  border: 1px solid #3a3a3a;
+  padding: 1.5rem;
+  position: relative;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  cursor: default;
+}
+
+.listing-card:nth-child(1) { transform: rotate(-1.5deg); }
+.listing-card:nth-child(2) { transform: rotate(0.8deg); margin-top: 12px; }
+.listing-card:nth-child(3) { transform: rotate(-0.5deg); margin-top: -8px; }
+.listing-card:nth-child(4) { transform: rotate(1.2deg); margin-top: -4px; }
+.listing-card:nth-child(5) { transform: rotate(-2deg); margin-top: 8px; }
+.listing-card:nth-child(6) { transform: rotate(0.3deg); }
+
+.listing-card:hover {
+  transform: rotate(0deg) scale(1.03);
+  box-shadow: 0 8px 24px rgba(0,0,0,0.5), 0 0 0 1px var(--orange);
+  z-index: 5;
+}
+
+.listing-venue {
+  font-family: var(--font-heading);
+  font-size: 1.1rem;
+  color: var(--text);
+  text-transform: uppercase;
+  margin-bottom: 8px;
+}
+
+.listing-swatch {
+  display: inline-block;
+  width: 14px;
+  height: 14px;
+  border-radius: 2px;
+  margin-right: 6px;
+  vertical-align: middle;
+  border: 1px solid #555;
+}
+
+.listing-price {
+  font-family: var(--font-body);
+  font-size: 1.3rem;
+  color: var(--orange);
+  font-weight: bold;
+  margin: 8px 0;
+}
+
+.listing-lore {
+  font-size: 13px;
+  color: var(--muted);
+  margin-bottom: 12px;
+  line-height: 1.5;
+}
+
+.listing-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 11px;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin-bottom: 12px;
+}
+
+.listing-badge::before {
+  content: '▬';
+  color: var(--pink);
+  transform: rotate(-12deg);
+  display: inline-block;
+}
+
+.btn-claim {
+  display: block;
+  width: 100%;
+  padding: 12px;
+  background: transparent;
+  border: 2px solid var(--pink);
+  color: var(--pink);
+  font-family: var(--font-heading);
+  font-size: 14px;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  cursor: pointer;
+  transition: background 0.2s, box-shadow 0.2s, color 0.2s;
+  text-align: center;
+  min-height: 44px;
+}
+
+.btn-claim:hover {
+  background: var(--pink);
+  color: #111;
+  box-shadow: 0 0 20px rgba(255,45,138,0.4);
+}
+
+/* ═══ COMMUNITY FEED ═══ */
+.feed-title {
+  font-family: var(--font-heading);
+  font-size: clamp(1.5rem, 4vw, 2.5rem);
+  color: var(--text);
+  text-transform: uppercase;
+  margin-bottom: 2rem;
+}
+
+.feed-title::after {
+  content: '';
+  display: block;
+  width: 80px;
+  height: 4px;
+  background: var(--orange);
+  margin-top: 8px;
+}
+
+.feed-row {
+  padding: 14px 16px;
+  cursor: pointer;
+  border-bottom: 1px solid #333;
+  transition: background 0.15s;
+  min-height: 44px;
+  display: flex;
+  flex-direction: column;
+}
+
+.feed-row:nth-child(odd) { background: var(--bg); }
+.feed-row:nth-child(even) { background: var(--card-bg); }
+
+.feed-row:hover { background: #333; }
+
+.feed-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.feed-user { color: var(--orange); font-weight: bold; font-size: 14px; }
+.feed-time { color: var(--muted); font-size: 12px; }
+.feed-subject { color: var(--text); font-size: 14px; }
+
+.feed-tag-locked {
+  background: #8b0000;
+  color: var(--text);
+  font-size: 11px;
+  padding: 2px 8px;
+  font-weight: bold;
+  letter-spacing: 0.5px;
+}
+
+.feed-body {
+  display: none;
+  margin-top: 10px;
+  padding: 10px 0 4px 0;
+  font-size: 14px;
+  line-height: 1.7;
+  color: var(--text);
+  border-top: 1px dashed #444;
+  overflow: hidden;
+}
+
+.feed-body.visible { display: block; }
+.feed-body .reply { margin-top: 12px; padding-left: 16px; border-left: 2px solid #444; }
+.feed-body .reply-user { color: var(--orange); font-size: 13px; }
+.feed-body .reply-text { color: var(--text); font-size: 13px; margin-top: 2px; }
+
+/* ═══ PRESERVATION FUND ═══ */
+.fund-section {
+  border: 2px dashed var(--text);
+  padding: 2.5rem;
+  position: relative;
+  background: var(--bg);
+}
+
+.fund-title {
+  font-family: var(--font-heading);
+  font-size: clamp(1.3rem, 3.5vw, 2rem);
+  text-transform: uppercase;
+  margin-bottom: 0.5rem;
+}
+
+.fund-subtitle {
+  font-family: var(--font-accent);
+  color: var(--orange);
+  font-size: 1.1rem;
+  margin-bottom: 2rem;
+}
+
+.fund-ledger {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+  margin-bottom: 2rem;
+}
+
+.fund-ledger th {
+  text-align: left;
+  padding: 10px 12px;
+  border-bottom: 2px solid var(--muted);
+  color: var(--muted);
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  font-weight: normal;
+}
+
+.fund-ledger td {
+  padding: 10px 12px;
+  border-bottom: 1px solid #333;
+  color: var(--text);
+}
+
+.fund-status-active { color: #4ade80; }
+.fund-status-pending { color: var(--orange); }
+.fund-status-complete { color: var(--muted); }
+
+.fund-progress-wrap {
+  margin-bottom: 2rem;
+}
+
+.fund-progress-label {
+  display: flex;
+  justify-content: space-between;
+  font-size: 13px;
+  margin-bottom: 6px;
+  color: var(--muted);
+}
+
+.fund-progress-bar {
+  height: 12px;
+  background: #333;
+  border-radius: 0;
+  overflow: hidden;
+}
+
+.fund-progress-fill {
+  height: 100%;
+  background: var(--orange);
+  width: 67%;
+  transition: width 1s ease;
+}
+
+.fund-remnants {
+  text-align: right;
+  font-size: 12px;
+  color: var(--muted);
+  margin-top: 1rem;
+}
+
+.fund-remnants a {
+  color: var(--muted);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.fund-remnants a:hover { color: var(--text); }
+
+/* ═══ DISCLAIMER / FOOTER ═══ */
+.disclaimer {
+  padding: 4rem 1.5rem;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.disclaimer-text {
+  font-family: var(--font-body);
+  font-size: 12px;
+  line-height: 1.8;
+  color: var(--muted);
+  columns: 2;
+  column-gap: 2rem;
+}
+
+.disclaimer-gutpunch {
+  font-family: var(--font-accent);
+  font-size: 18px;
+  color: var(--text);
+  display: block;
+  margin: 16px 0;
+  break-inside: avoid;
+}
+
+.footer {
+  border-top: 1px solid #333;
+  padding: 2rem 1.5rem;
+  max-width: 1200px;
+  margin: 0 auto;
+  font-size: 13px;
+  color: var(--muted);
+}
+
+.footer-name { color: var(--text); font-family: var(--font-heading); font-size: 14px; }
+.footer-blythe { color: var(--orange); font-family: var(--font-accent); margin: 8px 0; }
+.footer-maquette { color: var(--muted); font-style: italic; margin-top: 8px; }
+
+/* ═══ MODAL ═══ */
+.modal-overlay {
+  display: none;
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(0,0,0,0.8);
+  z-index: 1000;
+  justify-content: center;
+  align-items: center;
+  padding: 1rem;
+}
+
+.modal-overlay.active {
+  display: flex;
+}
+
+.modal-receipt {
+  background: var(--text);
+  color: #111;
+  font-family: var(--font-body);
+  padding: 2.5rem;
+  max-width: 420px;
+  width: 100%;
+  position: relative;
+  box-shadow: 8px 8px 0 rgba(0,0,0,0.4);
+}
+
+.modal-receipt h3 {
+  font-family: var(--font-heading);
+  font-size: 1.2rem;
+  text-transform: uppercase;
+  margin-bottom: 1rem;
+  color: #111;
+}
+
+.modal-receipt .receipt-line {
+  display: flex;
+  justify-content: space-between;
+  padding: 6px 0;
+  border-bottom: 1px dashed #999;
+  font-size: 13px;
+}
+
+.modal-receipt .receipt-total {
+  font-size: 1.1rem;
+  font-weight: bold;
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 2px solid #111;
+  display: flex;
+  justify-content: space-between;
+}
+
+.modal-receipt .receipt-note {
+  font-family: var(--font-accent);
+  font-size: 15px;
+  color: #555;
+  margin-top: 16px;
+  text-align: center;
+}
+
+.modal-close {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  background: #111;
+  color: var(--text);
+  border: none;
+  width: 32px;
+  height: 32px;
+  font-size: 18px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 44px;
+  min-height: 44px;
+}
+
+/* ═══ CURSOR TRAIL ═══ */
+.cursor-trail-dot {
+  position: fixed;
+  width: 16px;
+  height: 6px;
+  background: var(--text);
+  opacity: 0.15;
+  pointer-events: none;
+  z-index: 9999;
+  will-change: opacity;
+}
+
+/* ═══ FADE IN ═══ */
+.fade-in {
+  opacity: 0;
+  transform: translateY(30px);
+}
+
+/* ═══ SHAKE ═══ */
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  20% { transform: translateX(-6px); }
+  40% { transform: translateX(6px); }
+  60% { transform: translateX(-4px); }
+  80% { transform: translateX(4px); }
+}
+
+.shake-it { animation: shake 0.4s ease; }
+
+/* ═══ RESPONSIVE ═══ */
+@media (max-width: 900px) {
+  .listings-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  .listing-card:nth-child(n) {
+    transform: rotate(0deg);
+    margin-top: 0;
+  }
+  .disclaimer-text { columns: 1; }
+}
+
+@media (max-width: 600px) {
+  .listings-grid {
+    grid-template-columns: 1fr;
+  }
+  .spotlight {
+    transform: rotate(0deg);
+    padding: 1.5rem;
+  }
+  .fund-section { padding: 1.5rem; }
+  .section-wrap { padding: 2.5rem 1rem; }
+  .fund-ledger { font-size: 12px; }
+  .fund-ledger th, .fund-ledger td { padding: 8px 6px; }
+}
+
+/* ═══ TYPEWRITER ═══ */
+.typewriter-reveal {
+  overflow: hidden;
+  white-space: pre-wrap;
+  border-right: 2px solid var(--orange);
+  animation: blink-caret 0.7s step-end infinite;
+  width: 0;
+  display: inline-block;
+}
+
+@keyframes blink-caret {
+  0%, 100% { border-color: var(--orange); }
+  50% { border-color: transparent; }
+}
+</style>
+</head>
+<body>
+
+<!-- ═══ HERO ═══ -->
+<section class="hero" id="hero">
+  <div class="hero-tape" id="heroTape"></div>
+  <h1 class="hero-headline">EVERY ROOM WHERE SOMETHING REAL HAPPENED TO YOU WILL EVENTUALLY BECOME A SMOOTHIE BAR.</h1>
+  <p class="hero-subline">we were here. this mattered. you can't have it.</p>
+</section>
+
+<!-- ═══ TICKER ═══ -->
+<div class="ticker-wrap" id="tickerWrap">
+  <div class="ticker-track" id="tickerTrack"></div>
+</div>
+
+<!-- ═══ TAGGING OF THE WEEK ═══ -->
+<section class="section-wrap">
+  <div class="spotlight fade-in" id="spotlight">
+    <div class="spotlight-tape">TAGGING OF THE WEEK</div>
+    <div class="spotlight-photo">[POLAROID LOST — VENUE DEMOLISHED 2026]</div>
+    <div class="spotlight-lore">The Rat Hole, Providence RI — North Wall, Panel 3</div>
+    <div class="spotlight-essay">
+      Guest Curator: Marcus "Lens" DeSouza<br><br>
+      I played my first show at The Rat Hole in 2019 to eleven people and a dog who had wandered in from the street. The dog was the only one who stayed for the whole set. Somebody had written "GOD IS DEAD AND HE OWED ME $40" in black Sharpie next to the light switch. That sentence taught me more about songwriting than four years of music school. The wall is in three pieces now, in a climate-controlled unit in Cranston. The dog is fine. He lives with my ex.
+    </div>
+    <div class="auth-chain">
+      <div class="auth-node">
+        <div class="auth-node-label">Extracted</div>
+        <div class="auth-node-value">March 14, 2027 — Ezra Klein, Blythe Morin</div>
+      </div>
+      <div class="auth-node">
+        <div class="auth-node-label">Photographed</div>
+        <div class="auth-node-value">UV + visible spectrum, 48MP multi-angle — 127 images</div>
+      </div>
+      <div class="auth-node">
+        <div class="auth-node-label">Authenticated</div>
+        <div class="auth-node-value">Sharpie lot #PX-4419 matched to 2017-2020 production run</div>
+      </div>
+      <div class="auth-node">
+        <div class="auth-node-label">Fractionalized</div>
+        <div class="auth-node-value">2,000 fractions — 847 claimed, 1,153 available</div>
+      </div>
+      <div class="auth-node">
+        <div class="auth-node-label">Current Index</div>
+        <div class="auth-node-value" style="color: var(--orange);">▲ 14.2% (7-day) — Grade: Ultra Fine Black</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ ACTIVE LISTINGS ═══ -->
+<section class="section-wrap">
+  <div style="position:relative;">
+    <div class="tape-strip" style="width:200px;top:-20px;right:40px;transform:rotate(-8deg);"></div>
+    <div class="tape-strip tape-strip--white" style="width:160px;top:-10px;left:20px;transform:rotate(4deg);"></div>
+  </div>
+  <h2 class="listings-title">Active Listings</h2>
+  <div class="listings-grid" id="listingsGrid">
+    <!-- Cards injected by JS -->
+  </div>
+</section>
+
+<!-- ═══ COMMUNITY FEED ═══ -->
+<section class="section-wrap">
+  <h2 class="feed-title">Community Speculation Feed</h2>
+  <div id="feedContainer">
+    <!-- Rows injected by JS -->
+  </div>
+</section>
+
+<!-- ═══ DIY PRESERVATION FUND ═══ -->
+<section class="section-wrap">
+  <div class="fund-section fade-in">
+    <h2 class="fund-title">DIY Preservation Fund</h2>
+    <p class="fund-subtitle">every dollar is a middle finger to a landlord.</p>
+    <table class="fund-ledger">
+      <thead>
+        <tr><th>Venue</th><th>Funded</th><th>Status</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>The Rat Hole (Providence)</td><td>$12,847</td><td class="fund-status-complete">PRESERVED</td></tr>
+        <tr><td>Olneyville Squat Stairwell</td><td>$8,210</td><td class="fund-status-active">ACTIVE</td></tr>
+        <tr><td>Pizza Crust Corner (Somerville)</td><td>$3,490</td><td class="fund-status-active">ACTIVE</td></tr>
+        <tr><td>Blank Tape (Baltimore)</td><td>$1,105</td><td class="fund-status-pending">PENDING</td></tr>
+        <tr><td>The Carpet Room (Philly)</td><td>$640</td><td class="fund-status-pending">PENDING</td></tr>
+      </tbody>
+    </table>
+    <div class="fund-progress-wrap">
+      <div class="fund-progress-label">
+        <span>Q1 2028 Fund Goal</span>
+        <span>$26,292 / $39,000</span>
+      </div>
+      <div class="fund-progress-bar">
+        <div class="fund-progress-fill"></div>
+      </div>
+    </div>
+    <div class="fund-remnants">
+      <a href="#" onclick="return false;">Remnants Marketplace →</a>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ DISCLAIMER / FOOTER ═══ -->
+<section class="disclaimer">
+  <div class="disclaimer-text">
+    RISK DISCLOSURE: Sharpie & Tape Futures LLC ("STF") operates a speculative platform for the fractionalized ownership of authenticated venue ephemera. All listings are provided as-is. STF makes no guarantees regarding the future value of any tagging fraction, Sharpie color grade, or venue provenance claim. Past performance of the Sharpie Index is not indicative of future results. Market conditions including but not limited to gentrification velocity, landlord sentiment, municipal demolition schedules, and cultural memory decay may affect the value of your holdings.
+    <span class="disclaimer-gutpunch">You are buying proof that someone was alive in a room that no longer exists.</span>
+    Fractionalized ownership confers no physical custody rights. Drywall specimens remain in climate-controlled storage under the care of the STF Preservation Trust. Holders may request visual inspection by appointment. STF is not a registered broker-dealer, investment advisor, or licensed grief counselor. The Sharpie Index is a proprietary metric based on ink permanence testing, cultural significance scoring, and venue demolition proximity — it is not a financial instrument. All transactions are final. There are no refunds in nostalgia.
+    <span class="disclaimer-gutpunch">This is not financial advice. This is a funeral.</span>
+    By participating in any STF offering, you acknowledge that you are an adult human being who understands that buildings get torn down and that nothing lasts, and that this is somehow still worth doing. STF disclaims all liability for emotional damage, existential spiraling, or the sudden urge to drive past your old apartment at 2am. If you are experiencing a financial emergency, please do not buy fractions of Sharpie on drywall. If you are experiencing an emotional emergency, honestly, you're in the right place.
+    <span class="disclaimer-gutpunch">We are not selling art. We are selling evidence.</span>
+    Section 12(b): In the event of platform dissolution, all preserved specimens will be donated to the Providence Athenaeum or, failing that, left on the sidewalk outside the building that used to be The Rat Hole with a sign that says "FREE — PLEASE TAKE CARE OF THESE."
+  </div>
+</section>
+
+<footer class="footer">
+  <div class="footer-name">Ezra "Raster" Klein — Sharpie & Tape Futures LLC</div>
+  <div class="footer-blythe">Blythe disappeared after the DAO thing. If you see her, tell her the ledger's clean now.</div>
+  <div class="footer-maquette">If you know where Maquette went, tell her the Rat Hole sign is safe.</div>
+  <div style="margin-top:12px;color:var(--muted);font-size:11px;">© 2027-2028 STF LLC. Providence, RI. All walls remembered.</div>
+</footer>
+
+<!-- ═══ MODAL ═══ -->
+<div class="modal-overlay" id="claimModal">
+  <div class="modal-receipt">
+    <button class="modal-close" id="modalClose" aria-label="Close">✕</button>
+    <h3>Fraction Claim Receipt</h3>
+    <div class="receipt-line"><span>Venue</span><span id="receiptVenue">—</span></div>
+    <div class="receipt-line"><span>Wall Section</span><span id="receiptWall">—</span></div>
+    <div class="receipt-line"><span>Sharpie Grade</span><span id="receiptGrade">—</span></div>
+    <div class="receipt-line"><span>Fraction Price</span><span id="receiptPrice">—</span></div>
+    <div class="receipt-line"><span>Preservation Fee</span><span>$0.50</span></div>
+    <div class="receipt-total"><span>Total</span><span id="receiptTotal">—</span></div>
+    <div class="receipt-note">this is a receipt for grief, not a tax document</div>
+  </div>
+</div>
+
+<script src="/assets/js/gsap.min.js"></script>
+<script>
+(function() {
+  'use strict';
+
+  // ═══ TICKER DATA ═══
+  var tickerData = [
+    { name: 'RAT HOLE NORTH WALL', val: 14.2, up: true, grade: 'Ultra Fine Black',
+      lore: 'The wall where "GOD IS DEAD AND HE OWED ME $40" was written. Extracted March 2027. Three panels, 847 fractions claimed.',
+      chain: ['Extracted Mar 2027','Authenticated Apr 2027','Fractionalized May 2027'] },
+    { name: 'OLNEYVILLE SQUAT STAIRWELL', val: 3.8, up: false, grade: 'Chisel Tip Red',
+      lore: 'Fourteen bands played the stairwell between 2018-2023. The acoustics were terrible. That was the point.',
+      chain: ['Extracted Jun 2027','Authenticated Jul 2027','Pending fractionalization'] },
+    { name: 'PIZZA CRUST CORNER', val: 41.6, up: true, grade: 'Fine Point Blue',
+      lore: 'Named for the permanent grease stain. Someone wrote an entire manifesto about rent in 0.5mm blue Sharpie. Every word legible.',
+      chain: ['Extracted Aug 2027','Authenticated Sep 2027','Fractionalized Oct 2027'] },
+    { name: 'BLANK TAPE BATHROOM DOOR', val: 7.1, up: true, grade: 'Ultra Fine Green',
+      lore: 'The bathroom door at Blank Tape in Baltimore had more honest poetry than most MFA programs.',
+      chain: ['Extracted Nov 2027','Authentication pending'] },
+    { name: 'CARPET ROOM EAST WALL', val: 2.3, up: false, grade: 'Chisel Tip Black',
+      lore: 'The venue was called The Carpet Room because of the carpet. The carpet is gone. The wall remembers.',
+      chain: ['Extracted Dec 2027','Authenticated Jan 2028','Fractionalized Feb 2028'] },
+    { name: 'FRIDGE DOOR COLLECTIVE', val: 18.9, up: true, grade: 'Fine Point Purple',
+      lore: 'A shared fridge in a warehouse in Worcester. Every band that played wrote their name and date. 2014-2022. 340 names.',
+      chain: ['Extracted Jan 2028','Authenticated Feb 2028','Fractionalized Feb 2028'] }
+  ];
+
+  // Build ticker
+  var track = document.getElementById('tickerTrack');
+  var tickerHTML = '';
+  function buildTickerItem(d, idx) {
+    var arrow = d.up ? '▲' : '▼';
+    var cls = d.up ? 'tick-up' : 'tick-down';
+    return '<div class="ticker-item" data-idx="' + idx + '">' +
+      '<span class="tick-name">' + d.name + '</span> ' +
+      '<span class="tick-val ' + cls + '">' + arrow + ' <span class="tick-num">' + d.val.toFixed(1) + '%</span></span>' +
+      ' <span style="color:#6b6560;">(' + d.grade + ')</span>' +
+      '<div class="ticker-popover">' +
+        '<div class="ticker-popover-venue">' + d.name + '</div>' +
+        '<div class="ticker-popover-lore">' + d.lore + '</div>' +
+        '<div class="ticker-popover-timeline">' +
+          d.chain.map(function(c) { return '<div>' + c + '</div>'; }).join('') +
+        '</div>' +
+      '</div>' +
+    '</div>';
+  }
+  for (var i = 0; i < tickerData.length; i++) {
+    tickerHTML += buildTickerItem(tickerData[i], i);
+  }
+  // Duplicate for seamless scroll
+  track.innerHTML = tickerHTML + tickerHTML;
+
+  // Ticker click
+  track.addEventListener('click', function(e) {
+    var item = e.target.closest('.ticker-item');
+    if (!item) return;
+    var wasActive = item.classList.contains('active');
+    var allItems = track.querySelectorAll('.ticker-item');
+    for (var j = 0; j < allItems.length; j++) allItems[j].classList.remove('active');
+    if (!wasActive) item.classList.add('active');
+  });
+
+  // Ticker pulse — every 5s, flash a random value
+  setInterval(function() {
+    var nums = track.querySelectorAll('.tick-num');
+    if (!nums.length) return;
+    var pick = Math.floor(Math.random() * nums.length);
+    var el = nums[pick];
+    var parent = el.closest('.tick-val');
+    if (!parent) return;
+    parent.style.color = '#ff2d8a';
+    var orig = parseFloat(el.textContent);
+    var steps = 8;
+    var count = 0;
+    var iv = setInterval(function() {
+      if (count < steps) {
+        el.textContent = (Math.random() * 50).toFixed(1) + '%';
+        count++;
+      } else {
+        clearInterval(iv);
+        var delta = (Math.random() - 0.4) * 5;
+        var nv = Math.max(0.1, orig + delta);
+        el.textContent = nv.toFixed(1) + '%';
+        setTimeout(function() {
+          if (parent.classList.contains('tick-up')) parent.style.color = '#4ade80';
+          else parent.style.color = '#ff2d8a';
+        }, 400);
+      }
+    }, 37);
+  }, 5000);
+
+  // ═══ LISTINGS DATA ═══
+  var listings = [
+    { venue: 'The Rat Hole — North Wall Panel 3', swatch: '#111', price: '$4.20', lore: 'The most documented wall in Providence punk history. Every scratch is catalogued.', grade: 'Ultra Fine Black', wall: 'Panel 3 of 3' },
+    { venue: 'Olneyville Squat — Stairwell Landing', swatch: '#cc0000', price: '$2.80', lore: 'Fourteen bands. One stairwell. Acoustics that could charitably be called "present."', grade: 'Chisel Tip Red', wall: 'Landing between 2nd and 3rd' },
+    { venue: 'Pizza Crust Corner — West Face', swatch: '#2255cc', price: '$6.10', lore: 'A 2,000-word rent manifesto in blue fine-point. Legible. Furious. Correct.', grade: 'Fine Point Blue', wall: 'West face, full panel' },
+    { venue: 'Blank Tape — Bathroom Door', swatch: '#227744', price: '$1.90', lore: 'Better poetry than your MFA. Worse handwriting. Equally valid.', grade: 'Ultra Fine Green', wall: 'Interior door, both sides' },
+    { venue: 'The Carpet Room — East Wall', swatch: '#111', price: '$3.40', lore: 'Named for the carpet, remembered for the wall. The carpet was unspeakable.', grade: 'Chisel Tip Black', wall: 'East wall, 8ft section' },
+    { venue: 'Fridge Door Collective — Unit 7', swatch: '#7722aa', price: '$5.70', lore: '340 band names. 2014-2022. The fridge still works. Nobody wants it.', grade: 'Fine Point Purple', wall: 'Refrigerator door, industrial' }
+  ];
+
+  var grid = document.getElementById('listingsGrid');
+  var cardsHTML = '';
+  for (var k = 0; k < listings.length; k++) {
+    var l = listings[k];
+    cardsHTML += '<div class="listing-card fade-in" data-listing="' + k + '">' +
+      '<div class="listing-venue">' + l.venue + '</div>' +
+      '<div><span class="listing-swatch" style="background:' + l.swatch + ';"></span><span style="font-size:12px;color:#6b6560;">' + l.grade + '</span></div>' +
+      '<div class="listing-price">' + l.price + ' <span style="font-size:12px;color:#6b6560;">/ fraction</span></div>' +
+      '<div class="listing-lore">' + l.lore + '</div>' +
+      '<div class="listing-badge">AUTHENTICATED</div>' +
+      '<button class="btn-claim" data-idx="' + k + '">CLAIM FRACTION</button>' +
+    '</div>';
+  }
+  grid.innerHTML = cardsHTML;
+
+  // ═══ CLAIM MODAL ═══
+  var modal = document.getElementById('claimModal');
+  grid.addEventListener('click', function(e) {
+    var btn = e.target.closest('.btn-claim');
+    if (!btn) return;
+    var idx = parseInt(btn.getAttribute('data-idx'), 10);
+    var listing = listings[idx];
+    document.getElementById('receiptVenue').textContent = listing.venue;
+    document.getElementById('receiptWall').textContent = listing.wall;
+    document.getElementById('receiptGrade').textContent = listing.grade;
+    document.getElementById('receiptPrice').textContent = listing.price;
+    var priceNum = parseFloat(listing.price.replace('$', ''));
+    document.getElementById('receiptTotal').textContent = '$' + (priceNum + 0.50).toFixed(2);
+    modal.classList.add('active');
+  });
+
+  document.getElementById('modalClose').addEventListener('click', function() {
+    modal.classList.remove('active');
+  });
+  modal.addEventListener('click', function(e) {
+    if (e.target === modal) modal.classList.remove('active');
+  });
+
+  // ═══ COMMUNITY FEED ═══
+  var threads = [
+    {
+      user: 'sewer_rat_rick', time: '3h ago',
+      subject: 'Is Sharpie on drywall "art" or are we all just coping',
+      locked: false,
+      replies: [
+        { user: 'blythe_ghost', text: 'It\'s documentary evidence. Art is what happens when you have a grant. This is what happens when you have a wall and no future.' },
+        { user: 'dustlung99', text: 'If a gallery put this behind glass and charged $40 admission you\'d call it art. We charge $4.20 and you call it therapy. Same thing.' },
+        { user: 'sewer_rat_rick', text: 'I call it coping because I wrote half of what\'s on that wall and I\'m still broke.' }
+      ]
+    },
+    {
+      user: 'olneyville_forever', time: '7h ago',
+      subject: 'Anyone know what happened to the bass amp from the Rat Hole?',
+      locked: false,
+      replies: [
+        { user: 'raster_ezra', text: 'I have it. It doesn\'t work. It smells like 2019. It\'s staying.' },
+        { user: 'olneyville_forever', text: 'Respectfully, that amp smelled like 2019 in 2017.' }
+      ]
+    },
+    {
+      user: 'gentrification_watch', time: '12h ago',
+      subject: 'New smoothie bar confirmed at 47 Manton Ave — where The Carpet Room was',
+      locked: false,
+      replies: [
+        { user: 'dustlung99', text: 'They\'re calling it "Blend." Just "Blend." Not even a "The." We lost The Carpet Room for a place that doesn\'t even deserve a definite article.' },
+        { user: 'raster_ezra', text: 'East wall extraction scheduled for Saturday. Volunteers needed. Bring pry bars and emotional stability (one required, both preferred).' }
+      ]
+    },
+    {
+      user: 'chad_thundercock_69', time: '1d ago',
+      subject: 'These fractions are basically NFTs and you\'re all marks',
+      locked: true,
+      replies: []
+    },
+    {
+      user: 'tape_archivist', time: '2d ago',
+      subject: 'Preservation technique thread: UV-stable sealant recs?',
+      locked: false,
+      replies: [
+        { user: 'raster_ezra', text: 'Krylon UV Archival Matte. Three coats. Let each one cure 48 hours. The Sharpie ink is more permanent than the building was — we just have to keep the drywall from crumbling.' },
+        { user: 'tape_archivist', text: 'What about the red Chisel Tip? I\'ve seen fading on the Olneyville stairwell sample.' },
+        { user: 'raster_ezra', text: 'Red fades faster. It\'s a known issue. We rate it lower on the Index for a reason. But honestly, the fading is part of it. Everything fades. We\'re just buying time.' }
+      ]
+    }
+  ];
+
+  var feedContainer = document.getElementById('feedContainer');
+  var feedHTML = '';
+  for (var t = 0; t < threads.length; t++) {
+    var thread = threads[t];
+    feedHTML += '<div class="feed-row" data-thread="' + t + '">';
+    feedHTML += '<div class="feed-header">';
+    feedHTML += '<span class="feed-user">' + thread.user + '</span>';
+    feedHTML += '<span class="feed-time">' + thread.time + '</span>';
+    if (thread.locked) feedHTML += '<span class="feed-tag-locked">[LOCKED — CHAD THUNDERCOCK DISCOURSE]</span>';
+    feedHTML += '</div>';
+    feedHTML += '<div class="feed-subject">' + thread.subject + '</div>';
+    if (!thread.locked && thread.replies.length) {
+      feedHTML += '<div class="feed-body" data-thread-body="' + t + '">';
+      for (var r = 0; r < thread.replies.length; r++) {
+        feedHTML += '<div class="reply"><div class="reply-user">' + thread.replies[r].user + '</div><div class="reply-text">' + thread.replies[r].text + '</div></div>';
+      }
+      feedHTML += '</div>';
+    }
+    feedHTML += '</div>';
+  }
+  feedContainer.innerHTML = feedHTML;
+
+  // Thread click
+  feedContainer.addEventListener('click', function(e) {
+    var row = e.target.closest('.feed-row');
+    if (!row) return;
+    var idx = parseInt(row.getAttribute('data-thread'), 10);
+    var thread = threads[idx];
+
+    if (thread.locked) {
+      row.classList.add('shake-it');
+      setTimeout(function() { row.classList.remove('shake-it'); }, 400);
+      return;
+    }
+
+    var body = row.querySelector('.feed-body');
+    if (!body) return;
+
+    if (body.classList.contains('visible')) {
+      body.classList.remove('visible');
+    } else {
+      body.classList.add('visible');
+    }
+  });
+
+  // ═══ HERO TAPE ANIMATION ═══
+  var heroTape = document.getElementById('heroTape');
+  gsap.fromTo(heroTape,
+    { x: '-120%', opacity: 0 },
+    { x: '0%', opacity: 0.25, duration: 0.8, ease: 'power2.out', delay: 0.3 }
+  );
+
+  // ═══ SCROLL ANIMATIONS ═══
+  function animateFadeIns() {
+    var els = document.querySelectorAll('.fade-in');
+    var observer = new IntersectionObserver(function(entries) {
+      entries.forEach(function(entry, i) {
+        if (entry.isIntersecting) {
+          var el = entry.target;
+          var delay = Array.prototype.indexOf.call(els, el) * 0.1;
+          var randomRot = (Math.random() - 0.5) * 8;
+          gsap.fromTo(el,
+            { opacity: 0, y: 30, rotation: randomRot },
+            { opacity: 1, y: 0, rotation: el.classList.contains('spotlight') ? -2 : 0,
+              duration: 0.5, delay: Math.min(delay, 0.5), ease: 'power2.out' }
+          );
+          observer.unobserve(el);
+        }
+      });
+    }, { threshold: 0.1 });
+
+    for (var f = 0; f < els.length; f++) {
+      observer.observe(els[f]);
+    }
+  }
+  animateFadeIns();
+
+  // ═══ CURSOR TRAIL (desktop only) ═══
+  if (window.matchMedia('(pointer: fine)').matches) {
+    var trailPool = [];
+    var trailMax = 12;
+
+    for (var p = 0; p < trailMax; p++) {
+      var dot = document.createElement('div');
+      dot.className = 'cursor-trail-dot';
+      dot.style.display = 'none';
+      document.body.appendChild(dot);
+      trailPool.push(dot);
+    }
+
+    var trailIdx = 0;
+    var lastTrailTime = 0;
+
+    document.addEventListener('mousemove', function(e) {
+      var now = Date.now();
+      if (now - lastTrailTime < 50) return;
+      lastTrailTime = now;
+
+      var dot = trailPool[trailIdx % trailMax];
+      trailIdx++;
+      var rot = (Math.random() - 0.5) * 60;
+      dot.style.left = e.clientX + 'px';
+      dot.style.top = e.clientY + 'px';
+      dot.style.transform = 'rotate(' + rot + 'deg)';
+      dot.style.display = 'block';
+      dot.style.opacity = '0.15';
+
+      gsap.fromTo(dot,
+        { opacity: 0.15 },
+        { opacity: 0, duration: 0.6, ease: 'power1.out', onComplete: function() {
+          this.targets()[0].style.display = 'none';
+        }}
+      );
+    });
+  }
+
+})();
+</script>
+
+</body>
+</html>

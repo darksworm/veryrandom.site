@@ -1,0 +1,836 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Institute for Cork Board Studies</title>
+<link rel="stylesheet" href="/assets/css/fonts.css">
+<script defer src="/assets/js/alpine.min.js"></script>
+<script src="/assets/js/gsap.min.js"></script>
+<script src="/assets/js/lucide.min.js"></script>
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --cork: #D4B87C;
+  --ink: #2C2416;
+  --green: #1A5C2A;
+  --panel: #C4A66A;
+  --pin-red: #B83230;
+  --cream: #F2E8D0;
+  --cork-dark: #B89B5E;
+}
+
+html { scroll-behavior: smooth; }
+
+body {
+  font-family: 'Fira Code', monospace;
+  font-size: 16px;
+  line-height: 1.7;
+  color: var(--ink);
+  background-color: var(--cork);
+  background-image:
+    url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.08'/%3E%3C/svg%3E");
+  background-size: 256px 256px;
+  min-height: 100vh;
+  transition: opacity 0.3s ease;
+}
+
+.page-wrap {
+  max-width: 780px;
+  margin: 0 auto;
+  padding: 40px 20px 80px;
+}
+
+h1, h2, h3 {
+  font-family: 'DM Serif Display', serif;
+  color: var(--green);
+  line-height: 1.2;
+}
+
+h1 { font-size: clamp(1.8rem, 5vw, 2.6rem); }
+h2 { font-size: clamp(1.4rem, 3.5vw, 1.9rem); margin-bottom: 16px; }
+h3 { font-size: clamp(1.1rem, 2.5vw, 1.3rem); }
+
+a { color: var(--green); text-decoration: underline; }
+a:hover { color: var(--pin-red); }
+
+section {
+  padding: 40px 0;
+  border-bottom: 2px dashed var(--cork-dark);
+}
+section:last-child { border-bottom: none; }
+
+/* Pinned note cards */
+.pinned-note {
+  background: var(--cream);
+  padding: 20px 24px;
+  margin: 24px 0;
+  position: relative;
+  box-shadow: 2px 3px 8px rgba(44, 36, 22, 0.15);
+  opacity: 0;
+  transform: translateY(12px) rotate(1.5deg);
+}
+.pinned-note.visible {
+  opacity: 1;
+  transform: translateY(0) rotate(var(--rot, 1deg));
+}
+.pinned-note::before {
+  content: '';
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: var(--pin-red);
+  position: absolute;
+  top: -7px;
+  left: 30px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+}
+.pinned-note.pin-right::before { left: auto; right: 30px; }
+.pinned-note.pin-center::before { left: 50%; transform: translateX(-50%); }
+
+.pinned-note p, .pinned-note li {
+  font-family: 'Caveat', cursive;
+  font-size: 1.15rem;
+  line-height: 1.5;
+  color: var(--ink);
+}
+
+/* Stat cards */
+.stat-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 16px;
+  margin: 24px 0;
+}
+.stat-card {
+  background: var(--panel);
+  padding: 20px;
+  text-align: center;
+  border: 1px solid var(--cork-dark);
+}
+.stat-card .number {
+  font-family: 'DM Serif Display', serif;
+  font-size: 2rem;
+  color: var(--green);
+  display: block;
+}
+.stat-card .label {
+  font-size: 0.85rem;
+  margin-top: 4px;
+  display: block;
+}
+
+/* Form */
+.census-form {
+  background: var(--cream);
+  padding: 28px;
+  margin-top: 28px;
+}
+.census-form label {
+  display: block;
+  font-size: 0.85rem;
+  font-weight: bold;
+  margin-bottom: 4px;
+  margin-top: 16px;
+  color: var(--green);
+}
+.census-form label:first-child { margin-top: 0; }
+.census-form input, .census-form textarea {
+  width: 100%;
+  padding: 10px 12px;
+  font-family: 'Fira Code', monospace;
+  font-size: 0.9rem;
+  border: 1px solid var(--cork-dark);
+  background: #fff;
+  color: var(--ink);
+}
+.census-form input:focus, .census-form textarea:focus {
+  outline: 2px solid var(--green);
+  outline-offset: 1px;
+}
+.census-form textarea { resize: vertical; min-height: 60px; }
+.census-form button {
+  margin-top: 20px;
+  padding: 12px 28px;
+  background: var(--green);
+  color: var(--cream);
+  border: none;
+  font-family: 'Fira Code', monospace;
+  font-size: 0.95rem;
+  cursor: pointer;
+  min-height: 44px;
+  min-width: 44px;
+}
+.census-form button:hover { background: #14491F; }
+
+/* Pushpin SVG wobble */
+.pushpin {
+  display: inline-block;
+  animation: wobble 3s ease-in-out infinite;
+  cursor: pointer;
+  transition: transform 0.2s ease;
+  vertical-align: middle;
+}
+.pushpin.popped {
+  animation: none;
+  transform: scale(1.3) rotate(15deg);
+}
+@keyframes wobble {
+  0%, 100% { transform: rotate(-2deg); }
+  50% { transform: rotate(2deg); }
+}
+
+/* FAQ Accordion */
+.faq-item {
+  border: 1px solid var(--cork-dark);
+  margin-bottom: 8px;
+  background: var(--panel);
+}
+.faq-trigger {
+  width: 100%;
+  text-align: left;
+  padding: 16px 20px;
+  font-family: 'Fira Code', monospace;
+  font-size: 0.95rem;
+  background: none;
+  border: none;
+  color: var(--ink);
+  cursor: pointer;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  min-height: 44px;
+}
+.faq-trigger:hover { background: rgba(26, 92, 42, 0.08); }
+.faq-trigger .chevron {
+  transition: transform 0.3s ease;
+  flex-shrink: 0;
+}
+.faq-trigger .chevron.open { transform: rotate(180deg); }
+.faq-answer {
+  overflow: hidden;
+  transition: max-height 0.4s cubic-bezier(0.4, 0, 0.2, 1), padding 0.3s ease;
+  max-height: 0;
+  padding: 0 20px;
+}
+.faq-answer.open {
+  max-height: 800px;
+  padding: 0 20px 20px;
+}
+.faq-answer p { margin-bottom: 10px; font-size: 0.9rem; }
+.footnote { font-size: 0.75rem; color: #5A4B34; }
+
+/* Timeline */
+.timeline { position: relative; padding-left: 32px; margin: 24px 0; }
+.timeline::before {
+  content: '';
+  position: absolute;
+  left: 8px;
+  top: 0;
+  bottom: 0;
+  width: 2px;
+  background: var(--green);
+}
+.timeline-entry {
+  position: relative;
+  margin-bottom: 32px;
+  cursor: default;
+}
+.timeline-entry::before {
+  content: '';
+  position: absolute;
+  left: -28px;
+  top: 6px;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: var(--pin-red);
+  border: 2px solid var(--green);
+}
+.timeline-entry .year {
+  font-family: 'DM Serif Display', serif;
+  color: var(--green);
+  font-size: 1.1rem;
+}
+.timeline-entry .keynote {
+  font-style: italic;
+  margin: 4px 0 2px;
+}
+.timeline-entry .attendance {
+  font-size: 0.8rem;
+  color: #5A4B34;
+}
+.timeline-entry .quote {
+  font-family: 'Caveat', cursive;
+  font-size: 1rem;
+  color: var(--pin-red);
+  opacity: 0;
+  max-height: 0;
+  overflow: hidden;
+  transition: opacity 0.4s ease, max-height 0.4s ease;
+  margin-top: 4px;
+}
+.timeline-entry:hover .quote {
+  opacity: 1;
+  max-height: 60px;
+}
+
+/* Positions split */
+.positions-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+  margin-top: 24px;
+}
+@media (max-width: 600px) {
+  .positions-grid { grid-template-columns: 1fr; }
+}
+.positions-grid .pinned-note { margin: 0; }
+
+/* The Board Itself */
+.cork-board {
+  background: var(--panel);
+  background-image:
+    url("data:image/svg+xml,%3Csvg viewBox='0 0 128 128' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='1.2' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.1'/%3E%3C/svg%3E");
+  padding: 48px 24px;
+  position: relative;
+  min-height: 400px;
+  border: 3px solid var(--cork-dark);
+  margin-top: 20px;
+}
+.board-item {
+  background: var(--cream);
+  padding: 14px 18px;
+  position: relative;
+  display: inline-block;
+  margin: 10px;
+  box-shadow: 1px 2px 6px rgba(44, 36, 22, 0.2);
+  font-family: 'Caveat', cursive;
+  font-size: 1.1rem;
+  color: var(--ink);
+  max-width: 240px;
+}
+.board-item::before {
+  content: '';
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--pin-red);
+  position: absolute;
+  top: -5px;
+  left: 50%;
+  transform: translateX(-50%);
+  box-shadow: 0 1px 3px rgba(0,0,0,0.3);
+}
+.board-item.yellow { background: #F5E6A3; }
+.board-item.blue { background: #D6E4F0; }
+.board-item.torn {
+  background: #fff;
+  border-bottom: none;
+  clip-path: polygon(0 0, 100% 0, 100% 85%, 92% 88%, 85% 84%, 76% 90%, 68% 86%, 60% 89%, 50% 85%, 40% 90%, 30% 86%, 20% 88%, 10% 84%, 0% 87%);
+  padding-bottom: 28px;
+}
+.board-layout {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: flex-start;
+  gap: 4px;
+}
+
+.closing-text {
+  text-align: center;
+  margin-top: 40px;
+  font-family: 'Caveat', cursive;
+  font-size: 1.4rem;
+  color: var(--ink);
+}
+.closing-address {
+  text-align: center;
+  margin-top: 32px;
+  font-size: 0.8rem;
+  color: #5A4B34;
+  line-height: 1.8;
+}
+
+/* Masthead */
+.masthead { text-align: center; }
+.masthead .est {
+  font-size: 0.85rem;
+  color: #5A4B34;
+  margin: 8px 0 4px;
+}
+.masthead .tagline {
+  font-style: italic;
+  font-size: 1rem;
+  color: var(--green);
+  margin-bottom: 28px;
+}
+.masthead .letter {
+  text-align: left;
+  font-size: 0.9rem;
+  max-width: 620px;
+  margin: 0 auto;
+  line-height: 1.8;
+}
+
+/* CFP */
+.cfp-box {
+  background: var(--cream);
+  padding: 28px;
+  border: 1px solid var(--cork-dark);
+  margin: 20px 0;
+}
+.cfp-box h3 { margin-bottom: 12px; }
+.cfp-box ul {
+  list-style: disc;
+  padding-left: 20px;
+  margin: 8px 0;
+  font-size: 0.9rem;
+}
+.cfp-box li { margin-bottom: 6px; }
+
+/* Placeholder cycling */
+.cycle-placeholder::placeholder {
+  transition: opacity 0.3s ease;
+}
+
+/* Sliding note in final section */
+@keyframes slideDown {
+  0% { transform: rotate(-1deg) translateY(0); }
+  100% { transform: rotate(-0.5deg) translateY(18px); }
+}
+.sliding-note {
+  animation: slideDown 60s linear infinite;
+}
+
+/* Sway animations for board items */
+@keyframes sway1 { 0%,100% { transform: rotate(-0.5deg); } 50% { transform: rotate(0.8deg); } }
+@keyframes sway2 { 0%,100% { transform: rotate(0.7deg); } 50% { transform: rotate(-0.6deg); } }
+@keyframes sway3 { 0%,100% { transform: rotate(-1deg); } 50% { transform: rotate(0.5deg); } }
+.sway1 { animation: sway1 4s ease-in-out infinite; }
+.sway2 { animation: sway2 5.5s ease-in-out infinite; }
+.sway3 { animation: sway3 3.5s ease-in-out infinite; }
+
+/* Responsive */
+@media (max-width: 600px) {
+  .page-wrap { padding: 24px 14px 60px; }
+  section { padding: 28px 0; }
+  .stat-grid { grid-template-columns: 1fr; }
+  .board-item { max-width: 90%; margin: 8px auto; display: block; }
+  .board-layout { flex-direction: column; align-items: center; }
+  .cfp-box { padding: 18px; }
+  .census-form { padding: 18px; }
+}
+</style>
+</head>
+<body>
+<div class="page-wrap" x-data="institute()">
+
+  <!-- SECTION 1: MASTHEAD -->
+  <section class="masthead">
+    <div style="margin-bottom: 12px;">
+      <svg class="pushpin" onclick="popPin(this)" width="32" height="32" viewBox="0 0 32 32" style="transform-origin: center;">
+        <circle cx="16" cy="12" r="8" fill="#B83230"/>
+        <rect x="14.5" y="18" width="3" height="12" rx="1" fill="#888"/>
+        <ellipse cx="16" cy="12" rx="4" ry="3" fill="#D44" opacity="0.5"/>
+      </svg>
+    </div>
+    <h1>The Institute for Cork Board Studies</h1>
+    <p class="est">Est. 2017 by Dr. Agnes Plumley (whereabouts unknown)</p>
+    <p class="tagline">"Everything ordinary deserves serious attention."</p>
+    <div class="letter">
+      <p>To whomever has found this page,</p>
+      <br>
+      <p>I am Dr. Bartholomew Stippleford. I did not build this Institute. Agnes did, at 3am on a Tuesday, because she could not bear the thought that nobody was cataloguing what people pin to their walls. She left me her filing cabinets, her unfinished research, and a conviction I cannot shake: that the cork board is the most honest surface in any room.</p>
+      <br>
+      <p>I have been carrying this work for seven years now. Some days it feels like holding a door open for someone who may never walk through it. But the door stays open. The filing cabinets remain exactly where Agnes left them. And the work — the real, careful, sometimes absurd work of paying attention to what everyone else ignores — continues.</p>
+      <br>
+      <p style="text-align: right; font-size: 0.85rem;">— Dr. B. Stippleford, Acting Director</p>
+    </div>
+  </section>
+
+  <!-- SECTION 2: CORK BOARD CENSUS -->
+  <section>
+    <div style="display: flex; align-items: center; gap: 12px; flex-wrap: wrap;">
+      <svg class="pushpin" onclick="popPin(this)" width="24" height="24" viewBox="0 0 32 32"><circle cx="16" cy="12" r="8" fill="#B83230"/><rect x="14.5" y="18" width="3" height="12" rx="1" fill="#888"/><ellipse cx="16" cy="12" rx="4" ry="3" fill="#D44" opacity="0.5"/></svg>
+      <h2>The Cork Board Census</h2>
+    </div>
+    <p style="font-size: 0.9rem; margin-bottom: 8px;">Now in its sixth year, the Census is the only systematic attempt to quantify what humanity pins up. Participation is voluntary. Accuracy is aspirational. Funding is nonexistent.</p>
+
+    <div class="stat-grid">
+      <div class="stat-card pinned-anim" style="--rot: 0deg;">
+        <span class="number">3.7</span>
+        <span class="label">average pins per 100 cm²</span>
+      </div>
+      <div class="stat-card pinned-anim" style="--rot: 0deg;">
+        <span class="number">43%</span>
+        <span class="label">brass thumbtack (most common type)</span>
+      </div>
+      <div class="stat-card pinned-anim" style="--rot: 0deg;">
+        <span class="number">12%</span>
+        <span class="label">boards reorganized annually (a crisis)</span>
+      </div>
+      <div class="stat-card pinned-anim" style="--rot: 0deg;">
+        <span class="number">2.3 yrs</span>
+        <span class="label">median age of oldest pinned item</span>
+      </div>
+      <div class="stat-card pinned-anim" style="--rot: 0deg;">
+        <span class="number">67%</span>
+        <span class="label">contain at least one expired coupon</span>
+      </div>
+      <div class="stat-card pinned-anim" style="--rot: 0deg;">
+        <span class="number">1 in 4</span>
+        <span class="label">boards hold a photo of someone unidentified</span>
+      </div>
+    </div>
+
+    <div class="census-form" x-data="censusForm()">
+      <h3>Submit Your Board Data</h3>
+      <p style="font-size: 0.85rem; margin-bottom: 4px;">All submissions are anonymized. Your cork board will not be judged. (We are in no position to judge anyone.)</p>
+
+      <label for="dimensions">Board Dimensions (cm)</label>
+      <input type="text" id="dimensions" placeholder="e.g., 60 × 90" x-model="dimensions">
+
+      <label for="pincount">Total Pin Count</label>
+      <input type="number" id="pincount" placeholder="Count carefully. We'll know if you estimate." x-model="pinCount">
+
+      <label for="oldest">Oldest Pinned Item</label>
+      <input type="text" id="oldest" class="cycle-placeholder" x-bind:placeholder="currentPlaceholder" x-model="oldestItem">
+
+      <label for="lastlooked">When did you last really look at your board?</label>
+      <textarea id="lastlooked" placeholder="Be honest. We can handle it." x-model="lastLooked"></textarea>
+
+      <button type="button" x-on:click="submitted = true" x-text="submitted ? 'Received. The Institute thanks you.' : 'Submit to the Census'"></button>
+    </div>
+  </section>
+
+  <!-- SECTION 3: CALL FOR PAPERS -->
+  <section>
+    <div style="display: flex; align-items: center; gap: 12px; flex-wrap: wrap;">
+      <svg class="pushpin" onclick="popPin(this)" width="24" height="24" viewBox="0 0 32 32"><circle cx="16" cy="12" r="8" fill="#1A5C2A"/><rect x="14.5" y="18" width="3" height="12" rx="1" fill="#888"/><ellipse cx="16" cy="12" rx="4" ry="3" fill="#2A7C3A" opacity="0.4"/></svg>
+      <h2>Call for Papers</h2>
+    </div>
+
+    <div class="cfp-box">
+      <h3 style="font-size: 1.1rem;">Special Issue: "The Cork Board as Palimpsest: Erasure, Memory, and the Mutable Surface"</h3>
+      <p style="font-size: 0.9rem;">The editorial board of <em>Pin & Surface: A Journal of Cork Board Studies</em> invites submissions for our Spring 2027 special issue exploring the cork board as a site of continuous overwriting — each new pin an act of revision, each removal an act of forgetting.</p>
+
+      <ul>
+        <li><strong>Deadline:</strong> 15 September 2026</li>
+        <li><strong>Word count:</strong> 6,000–10,000 words (footnotes count; they always count)</li>
+        <li><strong>Format:</strong> Chicago 17th edition. No exceptions. Agnes was very clear about this.</li>
+        <li><strong>Review:</strong> Double-blind. Your pins will be anonymized. The reviewers will not know whose board wept.</li>
+        <li><strong>Queries:</strong> submissions@corkboardstudies.org (checked intermittently)</li>
+      </ul>
+
+      <p style="font-size: 0.85rem; margin-top: 12px;">We particularly welcome submissions on: the archaeology of layered notices, the semiotics of pin placement, cork degradation as metaphor, and whether anyone has ever actually read a pinned fire safety notice.</p>
+    </div>
+
+    <div class="pinned-note pinned-anim" style="--rot: -1.5deg; max-width: 420px;">
+      <p>Agnes's unfinished manuscript on this topic was found in her office, 37 pages long, the last sentence mid-clause. We are not publishing it. We are not ready.</p>
+    </div>
+  </section>
+
+  <!-- SECTION 4: FAQ -->
+  <section x-data="{ openFaq: null }">
+    <div style="display: flex; align-items: center; gap: 12px; flex-wrap: wrap;">
+      <svg class="pushpin" onclick="popPin(this)" width="24" height="24" viewBox="0 0 32 32"><circle cx="16" cy="12" r="8" fill="#B83230"/><rect x="14.5" y="18" width="3" height="12" rx="1" fill="#888"/><ellipse cx="16" cy="12" rx="4" ry="3" fill="#D44" opacity="0.5"/></svg>
+      <h2>Frequently Asked Questions</h2>
+    </div>
+    <p style="font-size: 0.85rem; margin-bottom: 16px;">Compiled from seven years of conference Q&A sessions, hostile email correspondence, and one deeply confusing phone call from a cork supplier in Alentejo.</p>
+
+    <!-- FAQ 1 -->
+    <div class="faq-item">
+      <button class="faq-trigger" x-on:click="openFaq = openFaq === 1 ? null : 1">
+        <span>Is burlap-covered fiberboard truly "cork adjacent"?</span>
+        <span class="chevron" x-bind:class="openFaq === 1 ? 'open' : ''">&#9660;</span>
+      </button>
+      <div class="faq-answer" x-bind:class="openFaq === 1 ? 'open' : ''">
+        <p>We understand why this question persists. Burlap-covered fiberboard appears, to the untrained eye, to perform many of the same functions as cork: it accepts pins, it hangs on walls, it accumulates the detritus of organizational intention. But let us be precise.</p>
+        <p>Cork is harvested from the bark of <em>Quercus suber</em>. It is a living material with a cellular memory — literally, the cells retain their honeycomb structure even after decades. Fiberboard is compressed wood pulp. Burlap is jute. Together they form a surface that <em>mimics</em> cork without any of its essential qualities: the give, the grip, the way a pin settles into it with that particular soft resistance.</p>
+        <p>The Institute's position, formalized in our 2019 white paper "On Surfaces That Pretend," is that burlap-fiberboard is a parallel tradition deserving its own scholarly apparatus.<sup>1</sup> We do not consider it cork adjacent. We consider it cork-aspirational. There is an important difference, and Agnes would want us to maintain it.</p>
+        <p class="footnote"><sup>1</sup> Plumley, A. & Stippleford, B. "On Surfaces That Pretend: A Taxonomic Framework for Pin-Receptive Wall Coverings." <em>Pin & Surface</em> 2(1), 2019, pp. 14–31.</p>
+      </div>
+    </div>
+
+    <!-- FAQ 2: Agnes -->
+    <div class="faq-item">
+      <button class="faq-trigger" x-on:click="handleAgnesFaq()">
+        <span>Where is Dr. Plumley?</span>
+        <span class="chevron" x-bind:class="openFaq === 2 ? 'open' : ''">&#9660;</span>
+      </button>
+      <div class="faq-answer" x-bind:class="openFaq === 2 ? 'open' : ''">
+        <p>We do not know. She left the Institute on the evening of March 14, 2021, after a disagreement about pin classification methodology that I will not characterize as heated because Agnes never raised her voice. She simply became more precise. Her last recorded words at the Institute were: "Bartholomew, you are organizing the wrong axis."</p>
+        <p>Her office remains as she left it. A cork board on the wall holds eleven pins, all empty — whatever they held, she took with her. If she is reading this: Agnes, the filing cabinets are exactly where you left them. The methodology question remains open. Your chair is still at the conference table.</p>
+      </div>
+    </div>
+
+    <!-- FAQ 3 -->
+    <div class="faq-item">
+      <button class="faq-trigger" x-on:click="openFaq = openFaq === 3 ? null : 3">
+        <span>Is the Institute funded by Big Bulletin Board?</span>
+        <span class="chevron" x-bind:class="openFaq === 3 ? 'open' : ''">&#9660;</span>
+      </button>
+      <div class="faq-answer" x-bind:class="openFaq === 3 ? 'open' : ''">
+        <p>The Institute receives no corporate funding from any bulletin board manufacturer, distributor, or lobby group. Our annual budget is approximately what you would spend on a moderately ambitious birthday party. The suggestion that we are beholden to industry interests is both flattering — it implies someone cares enough to corrupt us — and incorrect.</p>
+        <p class="footnote">Full financial disclosure available upon request. Please allow 4–6 weeks, as I am the entire accounting department.</p>
+      </div>
+    </div>
+
+    <!-- FAQ 4 -->
+    <div class="faq-item">
+      <button class="faq-trigger" x-on:click="openFaq = openFaq === 4 ? null : 4">
+        <span>Are cork forests controlled by shadowy cartels?</span>
+        <span class="chevron" x-bind:class="openFaq === 4 ? 'open' : ''">&#9660;</span>
+      </button>
+      <div class="faq-answer" x-bind:class="openFaq === 4 ? 'open' : ''">
+        <p>Portugal produces approximately 49% of the world's cork. This is not a conspiracy; it is a climate. The <em>montado</em> ecosystem of southern Portugal is one of the most biodiverse habitats in Europe, and cork harvesting — done by hand, every nine years, without harming the tree — is among the most sustainable agricultural practices on Earth.<sup>2</sup></p>
+        <p>There are no cartels. There are families who have harvested cork for generations. If you find this less exciting than a conspiracy, I suggest you have not spent enough time thinking about trees.</p>
+        <p class="footnote"><sup>2</sup> See: Aronson, J. et al. "Cork Oak Woodlands on the Edge." Island Press, 2009.</p>
+      </div>
+    </div>
+
+    <!-- FAQ 5 -->
+    <div class="faq-item">
+      <button class="faq-trigger" x-on:click="openFaq = openFaq === 5 ? null : 5">
+        <span>Can a digital pin board ever replace cork?</span>
+        <span class="chevron" x-bind:class="openFaq === 5 ? 'open' : ''">&#9660;</span>
+      </button>
+      <div class="faq-answer" x-bind:class="openFaq === 5 ? 'open' : ''">
+        <p>No. A digital board cannot hold a thumbtack that your daughter pushed in too hard. It cannot yellow at the edges where sunlight touches it. It cannot bear the small wound of a pin removed — that little hole that proves something was once important enough to display. A screen refreshes. Cork remembers.</p>
+        <p>We do not say this with hostility toward technology. We say it with the calm certainty of people who have spent too long staring at surfaces.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- SECTION 5: CONFERENCE ARCHIVE -->
+  <section>
+    <h2>Conference Archive</h2>
+    <p style="font-size: 0.9rem; margin-bottom: 20px;">The Annual Symposium on Cork Board Studies convenes each October in the function room of a hotel that has asked not to be named.</p>
+
+    <div class="timeline">
+      <div class="timeline-entry">
+        <span class="year">2017</span>
+        <p class="keynote">"Thumbtacks, Trauma, and the Therapeutic Cork Board"</p>
+        <p class="attendance">Attendance: 6 (inaugural year — we counted the hotel staff)</p>
+        <p class="quote">"I came for the free coffee. I stayed because I cried." — Anonymous</p>
+      </div>
+      <div class="timeline-entry">
+        <span class="year">2018</span>
+        <p class="keynote">"Pin Density and Domestic Anxiety: A Correlational Study"</p>
+        <p class="attendance">Attendance: 4 (two left during the keynote; we respect their decision)</p>
+        <p class="quote">"The sandwiches were outstanding." — Dr. R. Fenwick, retired</p>
+      </div>
+      <div class="timeline-entry">
+        <span class="year">2019</span>
+        <p class="keynote">"The Vertical Surface: Why We Pin Up Instead of Filing Away"</p>
+        <p class="attendance">Attendance: 9 (a breakthrough year)</p>
+        <p class="quote">"I now look at my cork board differently. This is either a gift or a curse." — K. Osei, graduate student</p>
+      </div>
+      <div class="timeline-entry">
+        <span class="year">2020</span>
+        <p class="keynote">"The Pandemic Board: Isolation, Accumulation, and the Pin as Lifeline"</p>
+        <p class="attendance">Attendance: 7 (virtual; one participant was a cat who walked across a keyboard)</p>
+        <p class="quote">"My board saved me that year. I'm not being dramatic." — Anonymous (they asked us not to use their real name)</p>
+      </div>
+      <div class="timeline-entry">
+        <span class="year">2022</span>
+        <p class="keynote">"Agnes's Empty Chair: A Panel Discussion"</p>
+        <p class="attendance">Attendance: 8 (one chair was left empty on purpose; we are not counting it)</p>
+        <p class="quote">"I didn't know her, but I miss her." — First-time attendee, name withheld</p>
+      </div>
+      <div class="timeline-entry">
+        <span class="year">2024</span>
+        <p class="keynote">"Cork in Crisis: Synthetic Alternatives and the Authenticity Debate"</p>
+        <p class="attendance">Attendance: 11 (our best year — we are choosing to feel triumphant)</p>
+        <p class="quote">"He was talking to himself during the Q&A, but he made valid points." — Dr. Stippleford (he was talking to himself)</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- SECTION 6: POSITIONS & RESOURCES -->
+  <section>
+    <h2>Positions & Resources</h2>
+
+    <div class="positions-grid">
+      <div>
+        <h3 style="margin-bottom: 12px;">Open Positions</h3>
+        <div class="pinned-note pinned-anim" style="--rot: 2deg;">
+          <p><strong>Cork Board Archivist</strong> — Part-time. Bring your own magnifying glass. Must be comfortable with silence and the occasional discovery of personal artifacts that make you question the nature of memory.</p>
+        </div>
+        <div class="pinned-note pinned-anim" style="--rot: -1deg; margin-top: 16px;">
+          <p><strong>Pin Acquisition Specialist</strong> — Must be willing to travel to cork forests in Portugal. No prior cork experience required, but you should be the kind of person who notices when a thumbtack is missing.</p>
+        </div>
+        <div class="pinned-note pinned-anim" style="--rot: 1.5deg; margin-top: 16px;">
+          <p><strong>Grief Counselor (Volunteer)</strong> — For attendees of the Agnes panel. Light duties. Mostly listening.</p>
+        </div>
+      </div>
+      <div>
+        <h3 style="margin-bottom: 12px;">Resources</h3>
+        <div class="pinned-note pinned-anim" style="--rot: -2deg;">
+          <p><strong>Vintage Cork Suppliers Directory</strong> — 47 verified suppliers across 12 countries. Updated annually, with regret, as some close.</p>
+        </div>
+        <div class="pinned-note pinned-anim" style="--rot: 1deg; margin-top: 16px;">
+          <p><strong>The Pushpin Collector's Quarterly</strong> — Not our publication, but we read every issue. The Spring 2023 retrospective on colored map pins was, frankly, moving.</p>
+        </div>
+        <div class="pinned-note pinned-anim" style="--rot: -1.5deg; margin-top: 16px;">
+          <p><strong>Agnes's Annotated Bibliography</strong> — Incomplete. 412 entries. Her handwriting becomes illegible after entry 390. We have not tried to finish it.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SECTION 7: THE BOARD ITSELF -->
+  <section style="border-bottom: none;">
+    <div class="cork-board">
+      <div class="board-layout">
+        <div class="board-item torn sway1" style="transform: rotate(-2deg);">
+          <em>Edge of a photograph — two figures, faces torn away. Someone kept the background: a kitchen, a window, morning light.</em>
+        </div>
+        <div class="board-item yellow sway2" style="transform: rotate(1.5deg);">
+          milk<br>eggs<br>bread<br>call Mom<br><span style="text-decoration: line-through;">forgive yourself</span>
+        </div>
+        <div class="board-item sway3" style="transform: rotate(-1deg);">
+          <strong>ABSTRACT:</strong> This paper argues that the domestic cork board functions as an involuntary self-portrait, updated in real-time by a subject who does not know they are composing one.
+        </div>
+        <div class="board-item blue sway1" style="transform: rotate(2.5deg);">
+          <span style="font-size: 2rem; display: block; text-align: center;">🌈🏠</span>
+          <span style="font-size: 0.85rem; text-align: center; display: block;">by Lily, age 6</span>
+        </div>
+        <div class="board-item sliding-note" style="transform: rotate(-1deg);">
+          call Mom
+        </div>
+        <div class="board-item yellow sway2" style="transform: rotate(0.5deg);">
+          SAVE 20¢ ON BROCCOLI<br><span style="font-size: 0.8rem;">Expires: 11/03/2016</span>
+        </div>
+        <div class="board-item sway3" style="transform: rotate(-1.5deg);">
+          "The things we pin up are the things we're afraid to file away, because filing means deciding, and deciding means some things don't make the cut." — A. Plumley, unpublished
+        </div>
+      </div>
+    </div>
+
+    <p class="closing-text">You walked past yours this morning.<br>What's still pinned there?</p>
+
+    <div class="closing-address">
+      The Institute for Cork Board Studies<br>
+      P.O. Box 1247, Stoke Newington, London N16 0QR<br>
+      <br>
+      &copy; The Institute for Cork Board Studies.<br>
+      Agnes, if you're reading this, the filing cabinets are exactly where you left them.
+    </div>
+  </section>
+
+</div>
+
+<script>
+// Alpine components
+document.addEventListener('alpine:init', function() {
+
+  Alpine.data('institute', function() {
+    return {
+      handleAgnesFaq: function() {
+        var self = this;
+        if (this.openFaq === 2) {
+          this.openFaq = null;
+          return;
+        }
+        this.openFaq = 2;
+        // Plumley flicker
+        gsap.fromTo(document.body,
+          { opacity: 1 },
+          { opacity: 0.92, duration: 0.25, yoyo: true, repeat: 1, ease: 'power2.inOut' }
+        );
+      },
+      openFaq: null
+    };
+  });
+
+  Alpine.data('censusForm', function() {
+    var placeholders = [
+      "electric bill from 2019",
+      "a photo of someone you no longer speak to",
+      "a coupon that expired in 2016",
+      "a business card from a person you can't remember meeting",
+      "a child's drawing you can't throw away",
+      "a concert ticket from before everything changed"
+    ];
+    return {
+      dimensions: '',
+      pinCount: '',
+      oldestItem: '',
+      lastLooked: '',
+      submitted: false,
+      currentPlaceholder: placeholders[0],
+      placeholderIndex: 0,
+      init: function() {
+        var self = this;
+        setInterval(function() {
+          self.placeholderIndex = (self.placeholderIndex + 1) % placeholders.length;
+          self.currentPlaceholder = placeholders[self.placeholderIndex];
+        }, 2500);
+      }
+    };
+  });
+});
+
+// Pushpin pop
+function popPin(el) {
+  if (el.classList.contains('popped')) {
+    el.classList.remove('popped');
+    var sibling = el.closest('div') || el.parentElement;
+    if (sibling) {
+      gsap.fromTo(sibling, { y: 2 }, { y: 0, duration: 0.3, ease: 'bounce.out' });
+    }
+  } else {
+    el.classList.add('popped');
+    gsap.fromTo(el,
+      { scale: 1, rotation: 0 },
+      { scale: 1.3, rotation: 15, duration: 0.2, ease: 'back.out(2)' }
+    );
+    var sibling = el.closest('div') || el.parentElement;
+    if (sibling) {
+      gsap.fromTo(sibling, { y: 0 }, { y: 2, duration: 0.3, ease: 'power2.out' });
+    }
+  }
+}
+
+// Pinned note entrance animations
+document.addEventListener('DOMContentLoaded', function() {
+  // Initialize Lucide icons
+  if (typeof lucide !== 'undefined') {
+    lucide.createIcons();
+  }
+
+  // Intersection observer for pinned notes
+  var pinnedNotes = document.querySelectorAll('.pinned-note.pinned-anim');
+  var observer = new IntersectionObserver(function(entries) {
+    entries.forEach(function(entry) {
+      if (entry.isIntersecting) {
+        var el = entry.target;
+        var rot = getComputedStyle(el).getPropertyValue('--rot') || '1deg';
+        gsap.fromTo(el,
+          { opacity: 0, y: 12, rotation: parseFloat(rot) + 2 },
+          {
+            opacity: 1,
+            y: 0,
+            rotation: parseFloat(rot),
+            duration: 0.4,
+            ease: 'power2.out'
+          }
+        );
+        el.classList.add('visible');
+        observer.unobserve(el);
+      }
+    });
+  }, { threshold: 0.15 });
+
+  pinnedNotes.forEach(function(note) {
+    observer.observe(note);
+  });
+});
+</script>
+</body>
+</html>

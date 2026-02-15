@@ -1,0 +1,882 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Post-It Note Divination — Your Notes Were Never Nothing</title>
+<link rel="stylesheet" href="/assets/css/fonts.css">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  background: #F0EDE4;
+  color: #1A1A2E;
+  font-family: 'Work Sans', sans-serif;
+  font-size: 17px;
+  line-height: 1.6;
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ── UTILITY ── */
+.caveat { font-family: 'Caveat', cursive; }
+.archivo { font-family: 'Archivo Black', sans-serif; }
+.worksans { font-family: 'Work Sans', sans-serif; }
+
+a { color: #6F00FF; text-decoration: underline; }
+a:hover { color: #1A1A2E; }
+
+/* ── HALFTONE OVERLAY ── */
+.halftone-wrap { position: relative; overflow: hidden; }
+.halftone-wrap::after {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: radial-gradient(circle, #1A1A2E 0.8px, transparent 0.8px);
+  background-size: 6px 6px;
+  mix-blend-mode: multiply;
+  opacity: 0.06;
+  pointer-events: none;
+  animation: halftone-drift 60s linear infinite;
+  z-index: 1;
+}
+@keyframes halftone-drift {
+  0% { transform: translate(0, 0); }
+  100% { transform: translate(30px, 30px); }
+}
+
+/* ── CONTAINER ── */
+.site-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 20px;
+}
+
+/* ── SECTION BORDERS ── */
+.section-border {
+  border-top: 4px solid #6F00FF;
+}
+.section-border-double {
+  border-top: 4px solid #6F00FF;
+  box-shadow: 0 -8px 0 0 #F0EDE4, 0 -12px 0 0 #6F00FF;
+}
+
+/* ── POST-IT NOTE ── */
+.postit {
+  background: #FFE800;
+  padding: 24px 20px;
+  font-family: 'Caveat', cursive;
+  font-size: 20px;
+  color: #1A1A2E;
+  box-shadow: 3px 3px 0 rgba(26,26,46,0.15);
+  position: relative;
+  cursor: default;
+}
+.postit::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 50%;
+  transform: translateX(-50%);
+  width: 40px;
+  height: 8px;
+  background: rgba(26,26,46,0.1);
+  border-radius: 0 0 2px 2px;
+}
+
+/* ── HERO ── */
+.hero {
+  padding: 80px 0 60px;
+  position: relative;
+}
+.hero-headline {
+  font-family: 'Archivo Black', sans-serif;
+  font-size: clamp(2.6rem, 7vw, 5.5rem);
+  line-height: 0.95;
+  letter-spacing: -2px;
+  color: #1A1A2E;
+  transform: skewY(-1.5deg);
+  margin-bottom: 24px;
+}
+.hero-headline span {
+  display: inline-block;
+  background: #6F00FF;
+  color: #FFE800;
+  padding: 4px 16px;
+  transform: skewY(1.5deg) rotate(-0.5deg);
+}
+.hero-sub {
+  font-family: 'Caveat', cursive;
+  font-size: clamp(1.2rem, 3vw, 1.6rem);
+  color: #1A1A2E;
+  margin-bottom: 40px;
+  max-width: 600px;
+}
+.hero-sub .esme-ref { color: #E8735A; }
+
+/* ── CORKBOARD DROPZONE ── */
+.corkboard {
+  background: #C4A46C;
+  background-image:
+    repeating-linear-gradient(0deg, transparent, transparent 19px, rgba(26,26,46,0.05) 19px, rgba(26,26,46,0.05) 20px),
+    repeating-linear-gradient(90deg, transparent, transparent 19px, rgba(26,26,46,0.05) 19px, rgba(26,26,46,0.05) 20px);
+  border: 4px solid #6F00FF;
+  padding: 40px 24px;
+  position: relative;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 20px;
+  min-height: 220px;
+}
+.corkboard .postit {
+  font-size: 17px;
+  transform: rotate(var(--rot, 1deg));
+}
+.corkboard .pin {
+  position: absolute;
+  top: -6px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 12px;
+  height: 12px;
+  background: #E8735A;
+  border-radius: 50%;
+  box-shadow: 0 2px 3px rgba(0,0,0,0.25);
+}
+.dropzone-label {
+  text-align: center;
+  margin-top: 20px;
+  font-family: 'Work Sans', sans-serif;
+  font-size: 14px;
+  color: #1A1A2E;
+  opacity: 0.9;
+}
+
+/* ── HOW IT WORKS ── */
+.how-section {
+  padding: 60px 0;
+  background: #F0EDE4;
+}
+.how-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 28px;
+}
+@media (max-width: 700px) {
+  .how-grid { grid-template-columns: 1fr; }
+}
+.how-card {
+  background: #FFE800;
+  padding: 32px 24px;
+  font-family: 'Caveat', cursive;
+  font-size: 21px;
+  color: #1A1A2E;
+  position: relative;
+  overflow: hidden;
+}
+.how-card:nth-child(1) { transform: rotate(-2deg); }
+.how-card:nth-child(2) { transform: rotate(1.5deg); }
+.how-card:nth-child(3) { transform: rotate(-1deg); }
+.how-card-step {
+  font-family: 'Archivo Black', sans-serif;
+  font-size: 48px;
+  color: #6F00FF;
+  line-height: 1;
+  margin-bottom: 8px;
+}
+.how-card::after {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: radial-gradient(circle, #1A1A2E 0.6px, transparent 0.6px);
+  background-size: 5px 5px;
+  opacity: 0.04;
+  pointer-events: none;
+  animation: halftone-drift 45s linear infinite;
+}
+
+/* ── THE READING ── */
+.reading-section {
+  padding: 60px 0;
+  background: #ACE1AF;
+}
+.reading-title {
+  font-family: 'Archivo Black', sans-serif;
+  font-size: clamp(2rem, 5vw, 3.2rem);
+  color: #1A1A2E;
+  margin-bottom: 12px;
+  transform: skewX(-2deg);
+}
+.reading-sub {
+  font-family: 'Work Sans', sans-serif;
+  font-size: 16px;
+  color: #1A1A2E;
+  margin-bottom: 32px;
+  max-width: 560px;
+}
+.notes-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+  margin-bottom: 32px;
+}
+@media (max-width: 700px) {
+  .notes-grid { grid-template-columns: repeat(2, 1fr); }
+}
+.note-item {
+  background: #FFE800;
+  padding: 20px 14px;
+  font-family: 'Caveat', cursive;
+  font-size: 18px;
+  color: #1A1A2E;
+  cursor: grab;
+  user-select: none;
+  transform: rotate(var(--rot, 0deg));
+  transition: box-shadow 0.2s, transform 0.2s;
+  position: relative;
+  touch-action: none;
+}
+.note-item:active { cursor: grabbing; }
+.note-item:hover {
+  box-shadow: 6px 6px 0 rgba(26,26,46,0.2);
+  z-index: 10;
+}
+.note-ghost {
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(255,232,0,0.2);
+  border: 1px dashed rgba(26,26,46,0.15);
+  pointer-events: none;
+  display: none;
+}
+.note-item.dragged .note-ghost { display: block; }
+
+.divine-btn {
+  display: inline-block;
+  font-family: 'Archivo Black', sans-serif;
+  font-size: 18px;
+  background: #6F00FF;
+  color: #FFE800;
+  border: none;
+  padding: 16px 40px;
+  cursor: pointer;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  transition: background 0.2s, transform 0.1s;
+  min-height: 48px;
+}
+.divine-btn:hover { background: #1A1A2E; }
+.divine-btn:active { transform: scale(0.97); }
+
+.prophecy-box {
+  margin-top: 32px;
+  min-height: 120px;
+  border: 4px solid #6F00FF;
+  background: #F0EDE4;
+  padding: 32px 24px;
+  position: relative;
+  display: none;
+}
+.prophecy-box.visible { display: block; }
+.prophecy-text {
+  font-family: 'Archivo Black', sans-serif;
+  font-size: clamp(1.1rem, 3vw, 1.6rem);
+  color: #1A1A2E;
+  line-height: 1.35;
+}
+.prophecy-text .glyph-flash {
+  display: inline-block;
+  min-width: 0.6em;
+}
+.loading-indicator {
+  display: none;
+  align-items: center;
+  gap: 12px;
+  font-family: 'Caveat', cursive;
+  font-size: 22px;
+  color: #1A1A2E;
+  margin-top: 20px;
+}
+.loading-indicator.active { display: flex; }
+.shuffle-icon {
+  display: inline-block;
+  width: 32px;
+  height: 32px;
+  background: #FFE800;
+  border: 2px solid #1A1A2E;
+  animation: shuffle-anim 0.4s ease-in-out infinite alternate;
+}
+@keyframes shuffle-anim {
+  0% { transform: rotate(-8deg) translateX(-3px); }
+  100% { transform: rotate(8deg) translateX(3px); }
+}
+.share-btn {
+  display: none;
+  margin-top: 16px;
+  font-family: 'Work Sans', sans-serif;
+  font-size: 15px;
+  background: #FFE800;
+  color: #1A1A2E;
+  border: 2px solid #1A1A2E;
+  padding: 10px 24px;
+  cursor: pointer;
+  min-height: 44px;
+}
+.share-btn.visible { display: inline-block; }
+.share-btn:hover { background: #1A1A2E; color: #FFE800; }
+
+/* ── TESTIMONIALS ── */
+.testimonials-section {
+  padding: 60px 0;
+}
+.test-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 28px;
+}
+@media (max-width: 700px) {
+  .test-grid { grid-template-columns: 1fr; }
+}
+.test-card {
+  background: #FFE800;
+  padding: 32px 22px 24px;
+  font-family: 'Caveat', cursive;
+  font-size: 20px;
+  color: #1A1A2E;
+  position: relative;
+  transform-origin: top center;
+}
+.test-card:nth-child(1) { transform: rotate(-2.5deg); }
+.test-card:nth-child(2) { transform: rotate(1.8deg); }
+.test-card:nth-child(3) { transform: rotate(-1.2deg); }
+.test-card .pin {
+  position: absolute;
+  top: -6px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 14px;
+  height: 14px;
+  background: #E8735A;
+  border-radius: 50%;
+  box-shadow: 0 2px 3px rgba(0,0,0,0.3);
+}
+.test-author {
+  display: block;
+  margin-top: 12px;
+  font-family: 'Work Sans', sans-serif;
+  font-size: 13px;
+  color: #1A1A2E;
+}
+.fade-in-note {
+  opacity: 0;
+  transform: scaleY(0);
+  transform-origin: top center;
+}
+
+/* ── BLOG ── */
+.blog-section {
+  padding: 60px 0;
+  background: #ACE1AF;
+}
+.blog-card {
+  background: #F0EDE4;
+  border: 4px solid #6F00FF;
+  padding: 40px 32px;
+  max-width: 780px;
+  position: relative;
+}
+.blog-title {
+  font-family: 'Archivo Black', sans-serif;
+  font-size: clamp(1.3rem, 3.5vw, 2rem);
+  color: #1A1A2E;
+  margin-bottom: 4px;
+}
+.blog-date {
+  font-family: 'Work Sans', sans-serif;
+  font-size: 13px;
+  color: #1A1A2E;
+  margin-bottom: 20px;
+}
+.blog-body { position: relative; }
+.blog-line {
+  margin-bottom: 12px;
+  line-height: 1.65;
+}
+.redacted {
+  background: #6F00FF;
+  color: #6F00FF;
+  padding: 0 4px;
+  user-select: none;
+}
+.margin-note {
+  font-family: 'Caveat', cursive;
+  color: #E8735A;
+  font-size: 16px;
+  display: inline-block;
+  margin-left: 8px;
+}
+.blog-hidden { display: none; }
+.blog-hidden.expanded { display: block; }
+.blog-expand-btn {
+  display: inline-block;
+  margin-top: 20px;
+  font-family: 'Archivo Black', sans-serif;
+  font-size: 15px;
+  background: #6F00FF;
+  color: #F0EDE4;
+  border: none;
+  padding: 12px 28px;
+  cursor: pointer;
+  text-transform: uppercase;
+  min-height: 44px;
+}
+.blog-expand-btn:hover { background: #1A1A2E; }
+.typewriter-line { opacity: 0; }
+.typewriter-line.revealed { opacity: 1; }
+
+/* ── FAQ ── */
+.faq-section {
+  padding: 60px 0;
+}
+.faq-note {
+  background: #FFE800;
+  max-width: 640px;
+  padding: 40px 32px;
+  transform: rotate(-1deg);
+  margin: 0 auto;
+}
+.faq-q {
+  font-family: 'Caveat', cursive;
+  font-size: 26px;
+  color: #1A1A2E;
+  margin-bottom: 16px;
+}
+.faq-a {
+  font-family: 'Work Sans', sans-serif;
+  font-size: 16px;
+  color: #1A1A2E;
+  margin-bottom: 16px;
+  line-height: 1.6;
+}
+.faq-aside {
+  font-family: 'Caveat', cursive;
+  font-size: 17px;
+  color: #E8735A;
+}
+
+/* ── FOOTER ── */
+.site-footer {
+  padding: 40px 0 60px;
+  border-top: 4px solid #6F00FF;
+}
+.footer-disclaimer {
+  font-family: 'Caveat', cursive;
+  font-size: 14px;
+  color: #1A1A2E;
+  transform: rotate(-0.5deg);
+  max-width: 700px;
+  margin-bottom: 16px;
+  line-height: 1.5;
+}
+.footer-barnaby {
+  font-family: 'Caveat', cursive;
+  font-size: 15px;
+  color: #E8735A;
+  margin-bottom: 20px;
+  line-height: 1.5;
+}
+
+/* ── SCREEN SHAKE ── */
+@keyframes screen-shake {
+  0%, 100% { transform: translate(0,0); }
+  25% { transform: translate(-2px,1px); }
+  50% { transform: translate(2px,-1px); }
+  75% { transform: translate(-1px,2px); }
+}
+.shaking { animation: screen-shake 0.2s ease-in-out; }
+
+/* ── RESPONSIVE ── */
+@media (max-width: 768px) {
+  .hero-headline { letter-spacing: -1px; }
+  .corkboard { padding: 24px 16px; gap: 12px; }
+  .blog-card { padding: 28px 20px; }
+  .faq-note { padding: 28px 20px; }
+}
+@media (max-width: 375px) {
+  body { font-size: 16px; }
+}
+</style>
+</head>
+<body>
+<!-- ════════ HERO ════════ -->
+<section class="hero halftone-wrap section-border">
+  <div class="site-container">
+    <h1 class="hero-headline">YOUR NOTES WERE<br><span>NEVER NOTHING.</span></h1>
+    <p class="hero-sub">Post-It Note Divination&trade; — Upload your sticky note arrangement. The algorithm reads the spatial poetry. You receive a bureaucratic prophecy.<br><br><span class="esme-ref">Est. 2017 by Barnaby Frink &amp; Esmerelda Finch (until she wasn't).</span></p>
+
+    <div class="corkboard" id="corkboard">
+      <div class="postit" style="--rot:-2deg"><span class="pin"></span>Q3 targets??</div>
+      <div class="postit" style="--rot:3deg"><span class="pin"></span>Call Esme back</div>
+      <div class="postit" style="--rot:-1deg"><span class="pin"></span>buy more yellow ones</div>
+      <div class="postit" style="--rot:2.5deg"><span class="pin"></span>THE ALGORITHM KNOWS</div>
+      <div class="postit" style="--rot:-3deg"><span class="pin"></span>milk, eggs, dread</div>
+    </div>
+    <p class="dropzone-label">↑ Photograph your arrangement. Upload coming Q4 2019. (It's not coming.)</p>
+  </div>
+</section>
+
+<!-- ════════ HOW IT WORKS ════════ -->
+<section class="how-section section-border-double">
+  <div class="site-container">
+    <h2 class="archivo" style="font-size:clamp(1.6rem,4vw,2.4rem);margin-bottom:28px;transform:skewX(-1deg);">How It Works</h2>
+    <div class="how-grid">
+      <div class="how-card">
+        <div class="how-card-step">01</div>
+        Photograph your arrangement. Desk, fridge, bathroom mirror — we don't judge the surface, only the spatial intent.
+      </div>
+      <div class="how-card">
+        <div class="how-card-step">02</div>
+        Our algorithm reads the spatial poetry. Clustering. Overlap. The angle of your handwriting's defeat.
+      </div>
+      <div class="how-card">
+        <div class="how-card-step">03</div>
+        Receive your bureaucratic prophecy. Printed on virtual yellow stock. Suitable for framing or shredding.
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ════════ THE READING ════════ -->
+<section class="reading-section section-border" x-data="readingApp()">
+  <div class="site-container">
+    <h2 class="reading-title">THE READING</h2>
+    <p class="reading-sub">Arrange the notes below. Or don't. The algorithm doesn't care about your intentions, only your geometry.</p>
+
+    <div class="notes-grid" id="notesGrid">
+      <div class="note-item" style="--rot:-2deg;" draggable="true">Revisit budget</div>
+      <div class="note-item" style="--rot:3deg;" draggable="true">Ask about Karen's email</div>
+      <div class="note-item" style="--rot:-1.5deg;" draggable="true">Breathe</div>
+      <div class="note-item" style="--rot:2deg;" draggable="true">TPS cover sheet</div>
+      <div class="note-item" style="--rot:-3deg;" draggable="true">Call Mom (she knows)</div>
+      <div class="note-item" style="--rot:1deg;" draggable="true">PIVOT??</div>
+      <div class="note-item" style="--rot:-0.5deg;" draggable="true">stapler (red)</div>
+      <div class="note-item" style="--rot:2.5deg;" draggable="true">Why</div>
+    </div>
+
+    <button class="divine-btn" x-on:click="divine()" x-bind:disabled="loading" x-text="loading ? 'CONSULTING THE NOTES...' : 'DIVINE MY NOTES'"></button>
+
+    <div class="loading-indicator" x-bind:class="{ active: loading }">
+      <div class="shuffle-icon"></div>
+      <span class="caveat">The notes are conferring...</span>
+    </div>
+
+    <div class="prophecy-box" x-bind:class="{ visible: showProphecy }">
+      <div class="prophecy-text" id="prophecyText"></div>
+    </div>
+
+    <button class="share-btn" x-bind:class="{ visible: showProphecy && !loading }" x-on:click="shareProphecy()">Share Your Prophecy</button>
+  </div>
+</section>
+
+<!-- ════════ TESTIMONIALS ════════ -->
+<section class="testimonials-section section-border-double">
+  <div class="site-container">
+    <h2 class="archivo" style="font-size:clamp(1.6rem,4vw,2.4rem);margin-bottom:32px;transform:skewX(-1.5deg);">What They're Saying</h2>
+    <div class="test-grid">
+      <div class="test-card fade-in-note">
+        <span class="pin"></span>
+        "I was going to fire Brenda, but the Notes said 'Pink Slip Later.' Saved me an HR headache and Brenda makes the only decent coffee."
+        <span class="test-author">— Barry S., Regional Operations</span>
+      </div>
+      <div class="test-card fade-in-note">
+        <span class="pin"></span>
+        "The algorithm told me to 'pivot.' I've been pivoting for three years. I think I'm just spinning. But at least I'm spinning with <em>data.</em>"
+        <span class="test-author">— Dana R., Self-Described Strategist</span>
+      </div>
+      <div class="test-card fade-in-note">
+        <span class="pin"></span>
+        "It predicted my layoff two weeks early. I used the time to steal the good stapler. The Swingline. No regrets."
+        <span class="test-author">— Anonymous, Former Employee</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ════════ BLOG ════════ -->
+<section class="blog-section section-border" x-data="{ expanded: false }">
+  <div class="site-container">
+    <div class="blog-card">
+      <div class="blog-title">The Great Sticky Note Shortage of '23: A Sign of Impending Doom?</div>
+      <div class="blog-date">Published March 14, 2023 &middot; Barnaby Frink, Sole Correspondent</div>
+      <div class="blog-body">
+        <p class="blog-line">It started with the supply closet on the fourth floor. Denise from Accounts Payable reached for a fresh pad of canary yellow — <span class="redacted">REDACTED</span> — and found nothing but a dust outline and a single thumbtack.</p>
+        <p class="blog-line">Three more offices reported the same thing within the week. <span class="margin-note">← This is where it gets weird.</span></p>
+        <p class="blog-line">The official explanation was "supply chain disruption." The <span class="redacted">CLASSIFIED</span> explanation involves a warehouse in <span class="redacted">REDACTED</span>, Ohio, and a shipment that was <span class="redacted">NEVER DELIVERED</span>.</p>
+
+        <div class="blog-hidden" x-bind:class="{ expanded: expanded }" id="blogExpanded">
+          <p class="blog-line typewriter-line">I reached out to 3M's public relations department. They sent back a form letter. The form letter was printed on yellow paper. I have not slept well since.</p>
+          <p class="blog-line typewriter-line">Consider the facts: global Post-It production dropped 12% in Q2. <span class="margin-note">They don't want you to know this.</span> Simultaneously, middle-management turnover rose 8%. Coincidence? The algorithm says no.</p>
+          <p class="blog-line typewriter-line">The notes are disappearing because the <span class="redacted">SYSTEM</span> knows what we're writing on them. Not the words. The <em>spatial arrangement.</em> The truth isn't in what you write — it's in where you stick it.</p>
+          <p class="blog-line typewriter-line">I called Esme about this. She didn't pick up. She never picks up anymore. <span class="margin-note">← Not relevant. Left it in anyway.</span></p>
+          <p class="blog-line typewriter-line">My recommendation: stockpile. Buy the off-brand if you have to. The prophecy doesn't care about brand loyalty. It only cares about the grid.</p>
+          <p class="blog-line typewriter-line">If you're reading this and you work at 3M: I have questions. You know where to find me. I'm the one with the corkboard.</p>
+        </div>
+
+        <button class="blog-expand-btn" x-on:click="expanded = !expanded; if(expanded) $nextTick(() => revealBlogLines())" x-text="expanded ? 'RECLASSIFY' : 'DECLASSIFY FULL REPORT'"></button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ════════ FAQ ════════ -->
+<section class="faq-section section-border">
+  <div class="site-container">
+    <h2 class="archivo" style="font-size:clamp(1.6rem,4vw,2.4rem);margin-bottom:28px;">FAQ</h2>
+    <div class="faq-note">
+      <div class="faq-q">"Why is my reading just repeating back my grocery list?"</div>
+      <div class="faq-a">The Algorithm interprets intention, not content. If your arrangement is purely functional — milk on the left, eggs on the right, existential dread in the center — the prophecy will reflect the spatial truth of your domestic obligations. The grocery list <em>is</em> the reading.</div>
+      <div class="faq-aside">Barnaby wanted more FAQs. There were no more questions. Nobody ever asks questions. That's sort of the whole point of this website.</div>
+    </div>
+  </div>
+</section>
+
+<!-- ════════ FOOTER ════════ -->
+<footer class="site-footer">
+  <div class="site-container">
+    <p class="footer-disclaimer">Post-It Note Divination, Inc. is not responsible for any adverse actions taken as a result of prophetic interpretations. Especially actions regarding TPS reports. By visiting this site you agree that the notes know more than you do. "Post-It" is a trademark of 3M. This is not 3M. 3M does not return our calls.</p>
+    <p class="footer-barnaby">Barnaby Frink, sole proprietor since 2019. Esme, if you're reading this, you still owe me for the domain. It was $14.99 and it mattered to me.</p>
+  </div>
+</footer>
+
+<script src="/assets/js/gsap.min.js"></script>
+<script src="/assets/js/alpine.min.js" defer></script>
+<script>
+// ── PROPHECIES ──
+const PROPHECIES = [
+  "The third note from the left carries your resignation. You wrote it two years ago and haven't noticed.",
+  "Someone moved your note. Not because it was wrong. Because it was too right.",
+  "The yellow one in the corner is lying. You know which one. You've always known.",
+  "Your arrangement suggests a promotion is coming. The algorithm is sorry.",
+  "The overlap between 'budget' and 'breathe' is not accidental. You are one fluorescent light away from something honest.",
+  "The Notes see a stapler in your future. It will be the only thing you take when you leave.",
+  "Three of your notes say the same thing in different handwriting. You are having a conversation with yourself. You are losing.",
+  "The gap between your top-right note and everything else is called 'ambition.' It has been widening since 2016.",
+  "Your notes are arranged in the shape of a question mark. The question is: why are you still here?",
+  "The algorithm detects sincerity in quadrant four. This is rare. Protect it.",
+  "Someone will ask about your notes tomorrow. You will say 'just reminders.' Both of you will know that's not true.",
+  "The sticky residue you left on the wall is more permanent than anything in your performance review.",
+  "Your arrangement mirrors the Andromeda constellation. This means nothing. But it felt important to tell you.",
+  "The note you almost threw away? That was the one. That was always the one.",
+  "The algorithm sees two futures: one where you file the report, one where you walk out the door. Both end at the same Applebee's.",
+  "Your notes are crying out for structure. The algorithm recommends a grid. Your heart recommends arson.",
+  "There is a note underneath another note. You forgot about it. It says 'be brave.' It's in your handwriting.",
+  "The spacing between your notes suggests you are either a visionary or profoundly disorganized. The algorithm cannot tell the difference. Neither can management."
+];
+
+// ── ALPINE: READING APP ──
+document.addEventListener('alpine:init', () => {
+  Alpine.data('readingApp', () => ({
+    loading: false,
+    showProphecy: false,
+    currentProphecy: '',
+
+    divine() {
+      if (this.loading) return;
+      this.loading = true;
+      this.showProphecy = false;
+      document.getElementById('prophecyText').innerHTML = '';
+
+      setTimeout(() => {
+        this.loading = false;
+        this.showProphecy = true;
+        this.currentProphecy = PROPHECIES[Math.floor(Math.random() * PROPHECIES.length)];
+        typeOutProphecy(this.currentProphecy);
+      }, 3000);
+    },
+
+    shareProphecy() {
+      var canvas = document.createElement('canvas');
+      canvas.width = 800;
+      canvas.height = 500;
+      var ctx = canvas.getContext('2d');
+
+      // Background
+      ctx.fillStyle = '#FFE800';
+      ctx.fillRect(0, 0, 800, 500);
+
+      // Halftone dots
+      ctx.fillStyle = 'rgba(26,26,46,0.06)';
+      for (var dx = 0; dx < 800; dx += 8) {
+        for (var dy = 0; dy < 500; dy += 8) {
+          ctx.beginPath();
+          ctx.arc(dx, dy, 1, 0, Math.PI * 2);
+          ctx.fill();
+        }
+      }
+
+      // Pin
+      ctx.fillStyle = '#E8735A';
+      ctx.beginPath();
+      ctx.arc(400, 30, 10, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Prophecy text
+      ctx.fillStyle = '#1A1A2E';
+      ctx.font = '24px "Comic Sans MS", "Caveat", cursive';
+      wrapText(ctx, this.currentProphecy, 60, 100, 680, 34);
+
+      // URL
+      ctx.fillStyle = '#6F00FF';
+      ctx.font = '16px "Comic Sans MS", sans-serif';
+      ctx.fillText('postitnotedivination.com', 60, 450);
+
+      // Download
+      var link = document.createElement('a');
+      link.download = 'my-prophecy.png';
+      link.href = canvas.toDataURL('image/png');
+      link.click();
+    }
+  }));
+});
+
+function wrapText(ctx, text, x, y, maxWidth, lineHeight) {
+  var words = text.split(' ');
+  var line = '';
+  for (var i = 0; i < words.length; i++) {
+    var testLine = line + words[i] + ' ';
+    var metrics = ctx.measureText(testLine);
+    if (metrics.width > maxWidth && i > 0) {
+      ctx.fillText(line, x, y);
+      line = words[i] + ' ';
+      y += lineHeight;
+    } else {
+      line = testLine;
+    }
+  }
+  ctx.fillText(line, x, y);
+}
+
+// ── PROPHECY TYPEWRITER WITH GLITCH ──
+function typeOutProphecy(text) {
+  var container = document.getElementById('prophecyText');
+  container.innerHTML = '';
+  var glyphPool = '█▓▒░┤╡╢╖╕╣║╗╝╜╛┐└┴┬├─┼╞╟╚╔╩╦╠═╬╧╨╤╥╙╘╒╓╫╪┘┌';
+  var i = 0;
+
+  function typeNext() {
+    if (i >= text.length) {
+      // Screen shake
+      document.body.classList.add('shaking');
+      setTimeout(function() { document.body.classList.remove('shaking'); }, 200);
+      return;
+    }
+
+    var char = text[i];
+    var span = document.createElement('span');
+    span.classList.add('glyph-flash');
+    container.appendChild(span);
+
+    if (i % 4 === 0 && char !== ' ') {
+      // Glitch: flash 3 random glyphs before settling
+      var glitchCount = 0;
+      var glitchInterval = setInterval(function() {
+        span.textContent = glyphPool[Math.floor(Math.random() * glyphPool.length)];
+        glitchCount++;
+        if (glitchCount >= 3) {
+          clearInterval(glitchInterval);
+          span.textContent = char;
+        }
+      }, 30);
+      i++;
+      setTimeout(typeNext, 130);
+    } else {
+      span.textContent = char;
+      i++;
+      setTimeout(typeNext, 40);
+    }
+  }
+
+  typeNext();
+}
+
+// ── BLOG EXPAND TYPEWRITER ──
+function revealBlogLines() {
+  var lines = document.querySelectorAll('#blogExpanded .typewriter-line');
+  lines.forEach(function(line, idx) {
+    setTimeout(function() {
+      line.classList.add('revealed');
+      gsap.fromTo(line, { opacity: 0, y: 8 }, { opacity: 1, y: 0, duration: 0.4 });
+    }, idx * 250);
+  });
+}
+
+// ── TESTIMONIAL SCROLL ANIMATION ──
+document.addEventListener('DOMContentLoaded', function() {
+  var notes = document.querySelectorAll('.fade-in-note');
+  var observer = new IntersectionObserver(function(entries) {
+    entries.forEach(function(entry) {
+      if (entry.isIntersecting) {
+        var el = entry.target;
+        var idx = Array.from(notes).indexOf(el);
+        gsap.fromTo(el,
+          { scaleY: 0, opacity: 0 },
+          {
+            scaleY: 1,
+            opacity: 1,
+            duration: 0.6,
+            delay: idx * 0.15,
+            ease: 'back.out(1.4)'
+          }
+        );
+        observer.unobserve(el);
+      }
+    });
+  }, { threshold: 0.15 });
+
+  notes.forEach(function(note) { observer.observe(note); });
+
+  // ── DRAG AND DROP FOR NOTES ──
+  var notesGrid = document.getElementById('notesGrid');
+  var dragItem = null;
+
+  notesGrid.addEventListener('dragstart', function(e) {
+    if (e.target.classList.contains('note-item')) {
+      dragItem = e.target;
+      e.target.style.opacity = '0.5';
+      e.dataTransfer.effectAllowed = 'move';
+    }
+  });
+
+  notesGrid.addEventListener('dragend', function(e) {
+    if (e.target.classList.contains('note-item')) {
+      e.target.style.opacity = '1';
+      dragItem = null;
+    }
+  });
+
+  notesGrid.addEventListener('dragover', function(e) {
+    e.preventDefault();
+    e.dataTransfer.dropEffect = 'move';
+  });
+
+  notesGrid.addEventListener('drop', function(e) {
+    e.preventDefault();
+    var target = e.target.closest('.note-item');
+    if (target && dragItem && target !== dragItem) {
+      var parent = notesGrid;
+      var allNotes = Array.from(parent.children);
+      var dragIdx = allNotes.indexOf(dragItem);
+      var dropIdx = allNotes.indexOf(target);
+      if (dragIdx < dropIdx) {
+        parent.insertBefore(dragItem, target.nextSibling);
+      } else {
+        parent.insertBefore(dragItem, target);
+      }
+    }
+  });
+});
+</script>
+</body>
+</html>

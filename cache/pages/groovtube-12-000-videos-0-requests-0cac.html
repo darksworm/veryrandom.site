@@ -1,0 +1,1097 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GroovTube — 12,000 Videos. 0 Requests.</title>
+<link rel="stylesheet" href="/assets/css/fonts.css">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg: #2B2118;
+  --text: #E8DCC8;
+  --gold: #D4A843;
+  --sienna: #C1582E;
+  --avocado: #6B7C47;
+  --orange: #FF6B2B;
+  --heading: 'IBM Plex Mono', monospace;
+  --body: 'Work Sans', sans-serif;
+  --accent: 'Permanent Marker', cursive;
+}
+
+html { scroll-behavior: smooth; }
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--body);
+  font-size: 16px;
+  line-height: 1.6;
+  overflow-x: hidden;
+  padding-top: 52px;
+}
+
+/* === BOOT SEQUENCE === */
+#boot-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 10000;
+  background: #000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--heading);
+  font-size: 28px;
+  color: #3B7DD8;
+  letter-spacing: 4px;
+}
+
+#boot-overlay.static-phase {
+  background: repeating-linear-gradient(
+    0deg,
+    rgba(255,255,255,0.03) 0px,
+    rgba(255,255,255,0.03) 1px,
+    transparent 1px,
+    transparent 2px
+  ), #000;
+  animation: staticNoise 0.05s steps(3) infinite;
+}
+
+#boot-overlay.fade-out {
+  opacity: 0;
+  transition: opacity 0.4s ease-out;
+  pointer-events: none;
+}
+
+@keyframes staticNoise {
+  0% { background-position: 0 0; }
+  50% { background-position: 3px -2px; }
+  100% { background-position: -1px 4px; }
+}
+
+/* === VCR HEADER === */
+.vcr-header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 9000;
+  background: #1A1410;
+  border-bottom: 2px solid var(--gold);
+  height: 52px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 20px;
+  font-family: var(--heading);
+  font-size: 13px;
+  color: var(--gold);
+}
+
+.vcr-logo {
+  font-size: 18px;
+  font-weight: 700;
+  letter-spacing: 4px;
+  color: var(--text);
+}
+
+.vcr-counter {
+  cursor: pointer;
+  letter-spacing: 2px;
+  user-select: none;
+  padding: 8px 12px;
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+}
+
+.vcr-counter:active { color: var(--sienna); }
+
+.tracking-msg {
+  color: var(--sienna);
+  font-size: 11px;
+  margin-left: 12px;
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+
+.tracking-msg.show { opacity: 1; }
+
+.vcr-right {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.rec-dot {
+  width: 10px;
+  height: 10px;
+  background: #CC2222;
+  border-radius: 50%;
+  animation: blink 1.2s ease-in-out infinite;
+}
+
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.2; }
+}
+
+.rec-label { font-size: 11px; color: #CC2222; letter-spacing: 2px; }
+
+.vcr-tagline {
+  font-size: 11px;
+  color: #A89880;
+  font-style: italic;
+  display: none;
+}
+
+@media (min-width: 768px) {
+  .vcr-tagline { display: block; }
+}
+
+/* === MAIN CONTAINER === */
+.main-wrap {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 24px 16px 80px;
+}
+
+/* === HERO === */
+.hero-card {
+  position: relative;
+  background: #1E1712;
+  border: 2px solid var(--gold);
+  border-radius: 4px;
+  padding: 0;
+  margin-bottom: 48px;
+  overflow: hidden;
+  max-width: 600px;
+}
+
+.hero-inner {
+  padding: 32px 28px 28px;
+}
+
+.hero-badge {
+  font-family: var(--heading);
+  font-size: 10px;
+  letter-spacing: 3px;
+  color: var(--bg);
+  background: var(--gold);
+  display: inline-block;
+  padding: 3px 10px;
+  margin-bottom: 16px;
+  text-transform: uppercase;
+}
+
+.hero-title {
+  font-family: var(--heading);
+  font-size: clamp(18px, 4vw, 26px);
+  line-height: 1.3;
+  color: var(--text);
+  margin-bottom: 8px;
+}
+
+.hero-subtitle {
+  font-size: 14px;
+  color: #A89880;
+  margin-bottom: 20px;
+}
+
+.hero-disclaimer {
+  font-size: 12px;
+  font-style: italic;
+  color: #A89880;
+  margin-bottom: 20px;
+}
+
+.play-btn {
+  font-family: var(--heading);
+  font-size: 14px;
+  background: var(--orange);
+  color: #1A1410;
+  border: none;
+  padding: 12px 28px;
+  cursor: pointer;
+  letter-spacing: 2px;
+  font-weight: 700;
+  min-height: 44px;
+  transition: background 0.2s;
+}
+
+.play-btn:hover { background: var(--sienna); }
+
+.static-overlay {
+  position: absolute;
+  inset: 0;
+  background: repeating-linear-gradient(
+    0deg,
+    transparent 0px,
+    transparent 2px,
+    rgba(232,220,200,0.03) 2px,
+    rgba(232,220,200,0.03) 4px
+  );
+  pointer-events: none;
+}
+
+/* === ARCHIVE GRID === */
+.section-label {
+  font-family: var(--heading);
+  font-size: 12px;
+  letter-spacing: 4px;
+  color: var(--gold);
+  text-transform: uppercase;
+  margin-bottom: 20px;
+}
+
+.archive-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 12px;
+  margin-bottom: 56px;
+  margin-left: -8px;
+}
+
+@media (min-width: 768px) {
+  .archive-grid {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px 14px;
+  }
+  .archive-grid .vhs-card:nth-child(2) { margin-top: 18px; }
+  .archive-grid .vhs-card:nth-child(5) { margin-top: -8px; }
+  .archive-grid .vhs-card:nth-child(7) { margin-top: 12px; }
+}
+
+@media (min-width: 1024px) {
+  .archive-grid {
+    grid-template-columns: repeat(4, 1fr);
+    gap: 10px 16px;
+    margin-left: -24px;
+  }
+  .archive-grid .vhs-card:nth-child(3) { margin-top: 20px; }
+  .archive-grid .vhs-card:nth-child(8) { margin-top: -12px; }
+}
+
+/* === VHS CARD === */
+.vhs-card {
+  background: #1E1712;
+  border: 1px solid #3D3028;
+  border-radius: 3px;
+  padding: 20px 16px 16px;
+  position: relative;
+  aspect-ratio: 3 / 4;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  overflow: hidden;
+  transition: border-color 0.2s;
+}
+
+.vhs-card::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: repeating-linear-gradient(
+    0deg,
+    transparent 0px,
+    transparent 3px,
+    rgba(255,255,255,0) 3px,
+    rgba(255,255,255,0) 4px
+  );
+  opacity: 0;
+  transition: opacity 0.3s;
+  pointer-events: none;
+}
+
+.vhs-card:hover::after {
+  background: repeating-linear-gradient(
+    0deg,
+    transparent 0px,
+    transparent 3px,
+    rgba(255,255,255,0.06) 3px,
+    rgba(255,255,255,0.06) 4px
+  );
+  opacity: 1;
+}
+
+.vhs-card:hover {
+  border-color: var(--gold);
+  animation: vhsVibrate 0.15s steps(2) 3;
+  filter: drop-shadow(2px 0 0 rgba(204,34,34,0.3)) drop-shadow(-2px 0 0 rgba(59,125,216,0.3));
+}
+
+@keyframes vhsVibrate {
+  0% { transform: translate(0, 0); }
+  25% { transform: translate(1px, -1px); }
+  50% { transform: translate(-1px, 1px); }
+  75% { transform: translate(1px, 0); }
+  100% { transform: translate(0, 0); }
+}
+
+.vhs-card .card-year {
+  font-family: var(--heading);
+  font-size: 11px;
+  color: var(--gold);
+  letter-spacing: 2px;
+  margin-bottom: 8px;
+}
+
+.vhs-card .card-title {
+  font-family: var(--heading);
+  font-size: 14px;
+  color: var(--text);
+  line-height: 1.4;
+  margin-bottom: 6px;
+}
+
+.vhs-card .card-instructor {
+  font-size: 12px;
+  color: #A89880;
+  margin-bottom: 8px;
+}
+
+.vhs-card .card-desc {
+  font-size: 13px;
+  color: #C4B8A4;
+  line-height: 1.4;
+  flex: 1;
+}
+
+.vhs-card .card-badge {
+  font-family: var(--heading);
+  font-size: 9px;
+  letter-spacing: 2px;
+  color: var(--avocado);
+  background: rgba(107,124,71,0.15);
+  display: inline-block;
+  padding: 3px 8px;
+  margin-top: 10px;
+  text-transform: uppercase;
+}
+
+.new-badge {
+  font-family: var(--heading);
+  font-size: 9px;
+  letter-spacing: 2px;
+  color: var(--bg);
+  background: var(--orange);
+  display: inline-block;
+  padding: 2px 6px;
+  margin-left: 6px;
+  text-transform: uppercase;
+}
+
+/* === CLASSIFIED CARD === */
+.classified-card {
+  background: #0A0806;
+  border-color: #2A2018;
+  cursor: pointer;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  min-height: 44px;
+}
+
+.classified-card .stamp {
+  font-family: var(--heading);
+  font-size: 12px;
+  color: var(--sienna);
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  border: 2px solid var(--sienna);
+  padding: 12px 16px;
+  transform: rotate(-3deg);
+  line-height: 1.6;
+}
+
+.classified-card .loading-bar-wrap {
+  display: none;
+  width: 80%;
+  margin: 0 auto;
+}
+
+.classified-card .loading-bar-track {
+  height: 8px;
+  background: #2A2018;
+  border-radius: 4px;
+  overflow: hidden;
+  margin-bottom: 12px;
+}
+
+.classified-card .loading-bar-fill {
+  height: 100%;
+  width: 0%;
+  background: var(--gold);
+  border-radius: 4px;
+  transition: width 0.1s linear;
+}
+
+.classified-card .loading-text {
+  font-family: var(--heading);
+  font-size: 11px;
+  color: var(--gold);
+  letter-spacing: 2px;
+}
+
+.classified-card .withheld-msg {
+  display: none;
+  font-size: 13px;
+  color: var(--sienna);
+  font-style: italic;
+  padding: 0 12px;
+  line-height: 1.5;
+}
+
+/* === INSTRUCTOR SPOTLIGHT === */
+.spotlight {
+  background: #1E1712;
+  border: 2px dashed var(--gold);
+  padding: 28px 24px;
+  margin-bottom: 56px;
+  max-width: 600px;
+  position: relative;
+}
+
+.spotlight-header {
+  font-family: var(--heading);
+  font-size: 11px;
+  letter-spacing: 4px;
+  color: var(--sienna);
+  text-transform: uppercase;
+  margin-bottom: 20px;
+}
+
+.spotlight-body {
+  display: flex;
+  gap: 20px;
+  align-items: flex-start;
+}
+
+.spotlight-photo {
+  width: 80px;
+  height: 100px;
+  background: #2A2018;
+  border: 1px solid #3D3028;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 36px;
+  color: #3D3028;
+  flex-shrink: 0;
+}
+
+.spotlight-info { flex: 1; }
+
+.spotlight-name {
+  font-family: var(--heading);
+  font-size: 16px;
+  color: var(--text);
+  margin-bottom: 4px;
+}
+
+.spotlight-dates {
+  font-size: 12px;
+  color: var(--avocado);
+  margin-bottom: 12px;
+}
+
+.spotlight-bio {
+  font-size: 14px;
+  color: #C4B8A4;
+  line-height: 1.6;
+}
+
+/* === PRESERVATION FUND === */
+.fund {
+  margin-bottom: 56px;
+  max-width: 550px;
+}
+
+.fund-title {
+  font-family: var(--heading);
+  font-size: 14px;
+  letter-spacing: 3px;
+  color: var(--gold);
+  text-transform: uppercase;
+  margin-bottom: 20px;
+}
+
+.thermometer {
+  background: #1E1712;
+  border: 2px solid var(--avocado);
+  border-radius: 20px;
+  height: 36px;
+  overflow: hidden;
+  margin-bottom: 12px;
+  position: relative;
+}
+
+.thermometer-fill {
+  height: 100%;
+  width: 63%;
+  background: var(--gold);
+  border-radius: 18px 0 0 18px;
+  animation: thermoPulse 3s ease-in-out infinite;
+  transition: width 0.6s ease;
+}
+
+@keyframes thermoPulse {
+  0%, 100% { opacity: 0.85; }
+  50% { opacity: 1; }
+}
+
+.thermometer-label {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-family: var(--heading);
+  font-size: 12px;
+  color: var(--text);
+  letter-spacing: 1px;
+}
+
+.fund-scrawl {
+  font-family: var(--accent);
+  font-size: 18px;
+  color: var(--sienna);
+  margin-bottom: 16px;
+  line-height: 1.4;
+}
+
+.fund-msg {
+  font-size: 13px;
+  font-style: italic;
+  color: #A89880;
+  margin-top: 12px;
+  min-height: 20px;
+  opacity: 0;
+  transition: opacity 0.4s;
+}
+
+.fund-msg.show { opacity: 1; }
+
+.donate-btn {
+  font-family: var(--heading);
+  font-size: 14px;
+  background: var(--orange);
+  color: #1A1410;
+  border: none;
+  padding: 14px 32px;
+  cursor: pointer;
+  letter-spacing: 2px;
+  font-weight: 700;
+  min-height: 44px;
+  transition: background 0.2s;
+}
+
+.donate-btn:hover { background: var(--sienna); }
+
+/* === UNEXPLAINED MOVES === */
+.moves {
+  margin-bottom: 56px;
+}
+
+.moves-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 16px;
+}
+
+@media (min-width: 768px) {
+  .moves-grid { grid-template-columns: repeat(3, 1fr); }
+}
+
+.move-card {
+  background: #1E1712;
+  border-left: 3px solid var(--gold);
+  padding: 20px 16px;
+}
+
+.move-number {
+  font-family: var(--heading);
+  font-size: 11px;
+  color: var(--gold);
+  letter-spacing: 2px;
+  margin-bottom: 8px;
+}
+
+.move-name {
+  font-family: var(--heading);
+  font-size: 15px;
+  color: var(--text);
+  margin-bottom: 8px;
+}
+
+.move-desc {
+  font-size: 14px;
+  color: #C4B8A4;
+  line-height: 1.5;
+}
+
+.move-stat {
+  font-family: var(--heading);
+  font-size: 11px;
+  color: var(--avocado);
+  margin-top: 10px;
+}
+
+/* === FOOTER === */
+.site-footer {
+  border-top: 1px solid #3D3028;
+  padding: 32px 0 60px;
+  max-width: 800px;
+}
+
+.footer-disclaimer {
+  font-size: 12px;
+  color: #8A7D6E;
+  line-height: 1.7;
+  margin-bottom: 16px;
+}
+
+.footer-copy {
+  font-size: 12px;
+  color: #6D6050;
+  line-height: 1.6;
+}
+
+/* === SCROLL SCANLINE === */
+.scanline-reveal {
+  opacity: 0;
+  transform: translateY(8px);
+}
+
+.scanline-reveal.revealed {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* === TRACKING JOLT === */
+.tracking-jolt {
+  animation: jolt 0.3s ease-out;
+}
+
+@keyframes jolt {
+  0% { transform: translateX(0); }
+  30% { transform: translateX(-2px); }
+  100% { transform: translateX(0); }
+}
+
+/* === MOBILE === */
+@media (max-width: 767px) {
+  .archive-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+    margin-left: 0;
+  }
+  .archive-grid .vhs-card { margin-top: 0 !important; }
+  .vhs-card { aspect-ratio: auto; min-height: 240px; }
+  .hero-card { max-width: 100%; }
+  .spotlight { max-width: 100%; }
+  .spotlight-body { flex-direction: column; }
+  .fund { max-width: 100%; }
+  .vcr-header { padding: 0 12px; }
+  .vcr-logo { font-size: 14px; letter-spacing: 2px; }
+  .main-wrap { padding: 16px 12px 80px; }
+}
+
+@media (max-width: 400px) {
+  .archive-grid { grid-template-columns: 1fr; }
+}
+</style>
+</head>
+<body>
+
+<!-- BOOT OVERLAY -->
+<div id="boot-overlay">NO SIGNAL</div>
+
+<!-- VCR HEADER -->
+<header class="vcr-header">
+  <div class="vcr-logo">GROOVTUBE</div>
+  <div class="vcr-right">
+    <span class="vcr-tagline">12,000 videos. 0 requests.</span>
+    <span class="vcr-counter" id="vcr-counter" title="Click to adjust tracking">00:00:00:00</span>
+    <span class="tracking-msg" id="tracking-msg">TRACKING ADJUSTED</span>
+    <span class="rec-dot"></span>
+    <span class="rec-label">ARCHIVING</span>
+  </div>
+</header>
+
+<!-- MAIN CONTENT -->
+<div class="main-wrap" id="main-content">
+
+  <!-- HERO -->
+  <section class="hero-card scanline-reveal">
+    <div class="static-overlay"></div>
+    <div class="hero-inner">
+      <div class="hero-badge">Featured Remaster</div>
+      <h1 class="hero-title">The Bicentennial Bump, Vol. 3: Advanced Pelvic Negotiations</h1>
+      <p class="hero-subtitle">Instructor: Hank "The Pelvis" Cordova &middot; 1976 &middot; 47 min</p>
+      <p class="hero-disclaimer">"Warning: remastering has made the carpet burns visible."</p>
+      <button class="play-btn">&#9654; PLAY</button>
+    </div>
+  </section>
+
+  <!-- ARCHIVE GRID -->
+  <div class="section-label">The Archive &mdash; Recent Remasters</div>
+  <div class="archive-grid">
+
+    <div class="vhs-card scanline-reveal">
+      <div>
+        <div class="card-year">1974</div>
+        <div class="card-title">Funky Feet for Fun Kids</div>
+        <div class="card-instructor">Instructor: Rita Boomhower</div>
+        <div class="card-desc">The tape that started it all. Designed for children with "reluctant legs." Rita's smile never wavers. Her eyes do.</div>
+      </div>
+      <div class="card-badge">HD &mdash; INADVISABLE</div>
+    </div>
+
+    <div class="vhs-card scanline-reveal">
+      <div>
+        <div class="card-year">1977</div>
+        <div class="card-title">Donna's Disco Warm-Up: Knees Optional</div>
+        <div class="card-instructor">Instructor: Donna Velasquez</div>
+        <div class="card-desc">A 22-minute warm-up for a dance class that was never filmed. The warm-up is the entire product. Donna seems fine with this.</div>
+      </div>
+      <div class="card-badge">HD &mdash; INADVISABLE</div>
+    </div>
+
+    <div class="vhs-card scanline-reveal">
+      <div>
+        <div class="card-year">1978</div>
+        <div class="card-title">Grapevine to Nowhere</div>
+        <div class="card-instructor">Instructor: Gerald Patterson</div>
+        <div class="card-desc">Forty-one minutes of grapevine variations. Gerald never turns around. The camera never cuts. Somewhere around minute 28, he whispers something.</div>
+      </div>
+      <div>
+        <span class="card-badge">HD &mdash; INADVISABLE</span>
+        <span class="new-badge">NEW</span>
+      </div>
+    </div>
+
+    <div class="vhs-card scanline-reveal">
+      <div>
+        <div class="card-year">1975</div>
+        <div class="card-title">Saturday Night Survival: A Husband's Guide</div>
+        <div class="card-instructor">Instructor: Chuck Dandridge</div>
+        <div class="card-desc">Chuck teaches five moves. All five are the same move. He calls each one a different name with total conviction.</div>
+      </div>
+      <div class="card-badge">HD &mdash; INADVISABLE</div>
+    </div>
+
+    <div class="vhs-card scanline-reveal">
+      <div>
+        <div class="card-year">1979</div>
+        <div class="card-title">The Electric Slide: Liability Waiver Edition</div>
+        <div class="card-instructor">Instructor: Marguerite St. Claire</div>
+        <div class="card-desc">Marguerite opens by reading a legal disclaimer for six minutes. The dancing is fine. She seems surprised by this.</div>
+      </div>
+      <div class="card-badge">HD &mdash; INADVISABLE</div>
+    </div>
+
+    <div class="vhs-card scanline-reveal">
+      <div>
+        <div class="card-year">1976</div>
+        <div class="card-title">Corporate Hustle: Dance Moves for the Boardroom</div>
+        <div class="card-instructor">Instructor: Dennis Platt, CPA</div>
+        <div class="card-desc">Dennis performs every move in a three-piece suit. He never removes the jacket. The sweat patterns have been preserved in 4K.</div>
+      </div>
+      <div>
+        <span class="card-badge">HD &mdash; INADVISABLE</span>
+        <span class="new-badge">NEW</span>
+      </div>
+    </div>
+
+    <div class="vhs-card scanline-reveal">
+      <div>
+        <div class="card-year">1973</div>
+        <div class="card-title">Interpretive Locomotion for Seniors</div>
+        <div class="card-instructor">Instructor: Bev Tuckman</div>
+        <div class="card-desc">Not strictly dance. More of a structured walking program with emotional undertones. Bev cries once but recovers beautifully.</div>
+      </div>
+      <div class="card-badge">HD &mdash; INADVISABLE</div>
+    </div>
+
+    <!-- CLASSIFIED CARD -->
+    <div class="vhs-card classified-card scanline-reveal" id="classified-card">
+      <div class="stamp" id="classified-stamp">CLASSIFIED<br>REMASTERING<br>IN PROGRESS</div>
+      <div class="loading-bar-wrap" id="classified-loading">
+        <div class="loading-bar-track"><div class="loading-bar-fill" id="classified-fill"></div></div>
+        <div class="loading-text" id="classified-text">0%</div>
+      </div>
+      <div class="withheld-msg" id="classified-msg">This content has been withheld by the Polyester Preservation Board. Reason: "Too much."</div>
+    </div>
+
+    <div class="vhs-card scanline-reveal">
+      <div>
+        <div class="card-year">1974</div>
+        <div class="card-title">Basement Boogie Certification Program</div>
+        <div class="card-instructor">Instructor: "Uncle" Ray Fontaine</div>
+        <div class="card-desc">A three-part certification nobody recognized. Ray awarded himself the first diploma. The second was never claimed.</div>
+      </div>
+      <div class="card-badge">HD &mdash; INADVISABLE</div>
+    </div>
+
+    <div class="vhs-card scanline-reveal">
+      <div>
+        <div class="card-year">1978</div>
+        <div class="card-title">Polyester Pirouettes: Fabric-Safe Movement</div>
+        <div class="card-instructor">Instructor: Lynda Cremshaw</div>
+        <div class="card-desc">Lynda insists polyester can rip "if you believe in yourself too hard." Every movement is accordingly restrained. Haunting.</div>
+      </div>
+      <div class="card-badge">HD &mdash; INADVISABLE</div>
+    </div>
+
+  </div>
+
+  <!-- INSTRUCTOR SPOTLIGHT -->
+  <div class="section-label">Instructor Spotlight &mdash; Have You Seen This Man</div>
+  <div class="spotlight scanline-reveal">
+    <div class="spotlight-header">Missing &middot; Last Known Sighting: 1982</div>
+    <div class="spotlight-body">
+      <div class="spotlight-photo">?</div>
+      <div class="spotlight-info">
+        <div class="spotlight-name">Gerald "Groove Machine" Patterson</div>
+        <div class="spotlight-dates">Active: 1971&ndash;1981 &middot; 14 Regional Seminars &middot; 3 VHS Releases</div>
+        <div class="spotlight-bio">Gerald taught 14 regional seminars before disappearing mid-grapevine at the 1981 Akron Danceworks Expo. Witnesses reported he simply walked off-camera and kept going. Rumored to have opened a macram&eacute; shop in Sedona. If you have information, please do not contact us.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- POLYESTER PRESERVATION FUND -->
+  <section class="fund scanline-reveal">
+    <div class="fund-title">The Polyester Preservation Fund</div>
+    <div class="thermometer">
+      <div class="thermometer-fill" id="thermo-fill"></div>
+      <div class="thermometer-label" id="thermo-label">63%</div>
+    </div>
+    <div class="fund-scrawl">We are so close. We have been so close since 2019.</div>
+    <button class="donate-btn" id="donate-btn">PRESERVE THE POLYESTER</button>
+    <div class="fund-msg" id="fund-msg">Server costs. You understand.</div>
+  </section>
+
+  <!-- UNEXPLAINED MOVES -->
+  <div class="section-label">The Unexplained Moves Archive</div>
+  <div class="moves">
+    <div class="moves-grid">
+      <div class="move-card scanline-reveal">
+        <div class="move-number">MOVE #0771</div>
+        <div class="move-name">"The Refrigerator"</div>
+        <div class="move-desc">Instructor stands completely still for 11 seconds, then pivots. No explanation given. No explanation found.</div>
+        <div class="move-stat">47 recreations attempted &middot; 3 mild back injuries</div>
+      </div>
+      <div class="move-card scanline-reveal">
+        <div class="move-number">MOVE #0334</div>
+        <div class="move-name">"The Concerned Neighbor"</div>
+        <div class="move-desc">A lateral shuffle toward an imaginary fence followed by a slow lean. The instructor mouths words but no audio was ever recorded. Lip readers disagree on content.</div>
+        <div class="move-stat">12 recreations attempted &middot; 1 fence damaged</div>
+      </div>
+      <div class="move-card scanline-reveal">
+        <div class="move-number">MOVE #1208</div>
+        <div class="move-name">"The Tax Return"</div>
+        <div class="move-desc">Both hands move as if filling out paperwork while the lower body performs an unrelated cha-cha. The instructor maintains eye contact with the camera for the entire 94-second duration. Nobody blinks.</div>
+        <div class="move-stat">8 recreations attempted &middot; 2 existential crises reported</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- FOOTER -->
+  <footer class="site-footer">
+    <p class="footer-disclaimer">All remastered content has been digitally scrubbed of subliminal messaging and era-specific production hazards including but not limited to asbestos-adjacent imagery, unlicensed jingles, and one frame of a man who may or may not be a senator. GroovTube makes no claims regarding the safety, efficacy, or emotional consequences of attempting any dance move contained within this archive. Viewer discretion is advised. Viewer enthusiasm is not.</p>
+    <p class="footer-copy">&copy; 2018&ndash;2025 GroovTube. Founded by Barnaby Butterfield. Co-founded by Prudence Plumtree (2018&ndash;2021, spiritually departed). All polyester preserved in climate-controlled storage at undisclosed location.</p>
+  </footer>
+
+</div>
+
+<script src="/assets/js/gsap.min.js"></script>
+<script>
+(function() {
+  "use strict";
+
+  // === BOOT SEQUENCE ===
+  var bootOverlay = document.getElementById('boot-overlay');
+  var mainContent = document.getElementById('main-content');
+  mainContent.style.opacity = '0';
+
+  setTimeout(function() {
+    bootOverlay.textContent = '';
+    bootOverlay.classList.add('static-phase');
+  }, 800);
+
+  setTimeout(function() {
+    bootOverlay.classList.remove('static-phase');
+    bootOverlay.classList.add('fade-out');
+    mainContent.style.transition = 'opacity 0.5s ease, transform 0.5s ease';
+    mainContent.style.transform = 'translateY(10px)';
+    mainContent.style.opacity = '1';
+    mainContent.style.transform = 'translateY(0)';
+  }, 1000);
+
+  setTimeout(function() {
+    bootOverlay.style.display = 'none';
+  }, 1500);
+
+  // === VCR COUNTER ===
+  var counterEl = document.getElementById('vcr-counter');
+  var trackingMsg = document.getElementById('tracking-msg');
+  var startTime = Date.now();
+
+  function updateCounter() {
+    var elapsed = Math.floor((Date.now() - startTime) / 1000);
+    var h = Math.floor(elapsed / 3600);
+    var m = Math.floor((elapsed % 3600) / 60);
+    var s = elapsed % 60;
+    var f = Math.floor((Date.now() % 1000) / (1000 / 30));
+    counterEl.textContent =
+      String(h).padStart(2, '0') + ':' +
+      String(m).padStart(2, '0') + ':' +
+      String(s).padStart(2, '0') + ':' +
+      String(f).padStart(2, '0');
+  }
+
+  setInterval(updateCounter, 33);
+
+  // Tracking click
+  counterEl.addEventListener('click', function() {
+    trackingMsg.classList.add('show');
+    document.body.classList.add('tracking-jolt');
+    setTimeout(function() {
+      trackingMsg.classList.remove('show');
+      document.body.classList.remove('tracking-jolt');
+    }, 1200);
+  });
+
+  // === SCROLL SCANLINE REVEAL ===
+  var revealEls = document.querySelectorAll('.scanline-reveal');
+  var revealObserver = new IntersectionObserver(function(entries) {
+    entries.forEach(function(entry) {
+      if (entry.isIntersecting) {
+        var el = entry.target;
+        revealObserver.unobserve(el);
+
+        // Scanline wipe
+        var scanline = document.createElement('div');
+        scanline.style.cssText = 'position:absolute;top:0;left:0;right:0;height:2px;background:rgba(232,220,200,0.25);z-index:10;pointer-events:none;';
+        el.style.position = el.style.position || 'relative';
+        if (getComputedStyle(el).position === 'static') {
+          el.style.position = 'relative';
+        }
+        el.appendChild(scanline);
+
+        gsap.fromTo(scanline,
+          { top: '0%' },
+          { top: '100%', duration: 0.3, ease: 'none', onComplete: function() {
+            if (scanline.parentNode) scanline.parentNode.removeChild(scanline);
+          }}
+        );
+
+        // Fade in content after scanline
+        gsap.fromTo(el,
+          { opacity: 0, y: 8 },
+          { opacity: 1, y: 0, duration: 0.4, delay: 0.1, ease: 'power2.out' }
+        );
+      }
+    });
+  }, { threshold: 0.15 });
+
+  revealEls.forEach(function(el) {
+    revealObserver.observe(el);
+  });
+
+  // === THERMOMETER / DONATE ===
+  var donateBtn = document.getElementById('donate-btn');
+  var thermoFill = document.getElementById('thermo-fill');
+  var thermoLabel = document.getElementById('thermo-label');
+  var fundMsg = document.getElementById('fund-msg');
+  var donating = false;
+
+  donateBtn.addEventListener('click', function() {
+    if (donating) return;
+    donating = true;
+
+    gsap.fromTo(thermoFill,
+      { width: '63%' },
+      { width: '64%', duration: 0.6, ease: 'power2.out', onComplete: function() {
+        thermoLabel.textContent = '64%';
+      }}
+    );
+
+    setTimeout(function() {
+      gsap.fromTo(thermoFill,
+        { width: '64%' },
+        { width: '63%', duration: 0.5, ease: 'power2.in', onComplete: function() {
+          thermoLabel.textContent = '63%';
+        }}
+      );
+      fundMsg.classList.add('show');
+    }, 2100);
+
+    setTimeout(function() {
+      fundMsg.classList.remove('show');
+      donating = false;
+    }, 4500);
+  });
+
+  // === CLASSIFIED CARD ===
+  var classifiedCard = document.getElementById('classified-card');
+  var classifiedStamp = document.getElementById('classified-stamp');
+  var classifiedLoading = document.getElementById('classified-loading');
+  var classifiedFill = document.getElementById('classified-fill');
+  var classifiedText = document.getElementById('classified-text');
+  var classifiedMsg = document.getElementById('classified-msg');
+  var classifiedActive = false;
+
+  classifiedCard.addEventListener('click', function() {
+    if (classifiedActive) return;
+    classifiedActive = true;
+
+    classifiedStamp.style.display = 'none';
+    classifiedLoading.style.display = 'block';
+
+    var pct = 0;
+    var interval = setInterval(function() {
+      if (pct < 97) {
+        pct += (pct < 60 ? 3 : (pct < 90 ? 2 : 0.5));
+        if (pct > 97) pct = 97;
+        classifiedFill.style.width = pct + '%';
+        classifiedText.textContent = Math.floor(pct) + '%';
+      } else {
+        clearInterval(interval);
+        classifiedText.textContent = '97%';
+        classifiedFill.style.width = '97%';
+
+        setTimeout(function() {
+          classifiedLoading.style.display = 'none';
+          classifiedMsg.style.display = 'block';
+        }, 1500);
+
+        setTimeout(function() {
+          classifiedMsg.style.display = 'none';
+          classifiedStamp.style.display = 'block';
+          classifiedFill.style.width = '0%';
+          classifiedText.textContent = '0%';
+          classifiedActive = false;
+        }, 6000);
+      }
+    }, 50);
+  });
+
+  // === PLAY BUTTON (decorative feedback) ===
+  var playBtn = document.querySelector('.play-btn');
+  if (playBtn) {
+    playBtn.addEventListener('click', function() {
+      playBtn.textContent = '⏸ TRACKING...';
+      playBtn.style.background = '#C1582E';
+      setTimeout(function() {
+        playBtn.textContent = '▶ PLAY';
+        playBtn.style.background = '';
+      }, 2000);
+    });
+  }
+
+})();
+</script>
+</body>
+</html>

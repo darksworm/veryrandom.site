@@ -1,166 +1,95 @@
-const fs = require('node:fs');
-const path = require('node:path');
+// Creative pipeline Phase 1: generate sparks + quality gate.
+//
+// 1. Four micro-prompts via Gemini Flash (cheap entropy sparks)
+// 2. Grok critic: scores 1-10, must hit 8+ — retry with new seeds if below threshold (up to 3 attempts)
+//
+// Outputs approved sparks to stdout. Phases 2-4 happen in run.sh via Claude CLI.
+// Usage: node src/pick-idea.js
 
-const USED_PATH = path.join(__dirname, '..', 'cache', 'used-ideas.json');
+const dotenv = require('dotenv');
+dotenv.config({ override: true });
 
-const SUBJECTS = [
-  'a cat','a very old cat','a committee of cats','a cat who is also a lawyer',
-  'a cat landlord','a cat restaurant critic','a cat financial advisor','a cat therapist',
-  'a cat who runs a nightclub','a cat detective agency','a cat-operated airline',
-  'a council of pigeons','a dog who thinks it is a CEO','a parrot HR department',
-  'raccoons in business suits','a hamster day-trading operation','a fish think tank',
-  'a goose consulting firm','a crow judicial system','an octopus architect',
-  'a retired astronaut','a confused wizard','a suburban dad','a bored librarian',
-  'a rogue dentist','an overly enthusiastic intern','a passive-aggressive neighbor',
-  'a grandma who is a hacker','a toddler dictator','a mime union leader',
-  'a disgraced weatherman','a sleep-deprived nurse','a paranoid accountant',
-  'a cheerful undertaker','a competitive knitter','a monk with WiFi',
-  'a sentient HR manual','twin rival bakers','a barista philosopher',
-  'a plumber who speaks only in riddles',
-  'a haunted spreadsheet','a sentient IKEA shelf','a self-aware to-do list',
-  'a passive-aggressive smart fridge','a printer with opinions','a GPS with trust issues',
-  'a microwave that judges you','a roomba with ambition','a thermostat cult',
-  'a vending machine with feelings','a traffic light support group',
-  'an elevator with a podcast','a doorbell with anxiety','a lamp with a manifesto',
-  'a clock that lies','a toilet that gives TED talks','a blender going through a phase',
-  'a DMV for ghosts','a hospital for feelings','a post office for secrets',
-  'a library of smells','a museum of failures','a bank that trades in favors',
-  'a school for inanimate objects','a gym for emotional muscles',
-  'a church of mild inconvenience','a prison for bad fonts',
-  'a zoo where humans are the exhibit','a spa for burnt-out AIs',
-  'a fire department for mixtapes','a kindergarten for retired supervillains',
-  'a laundromat that washes memories','a pharmacy for existential dread',
+const OPENROUTER_URL = 'https://openrouter.ai/api/v1/chat/completions';
+
+// ── Entropy word pools ─────────────────────────────────────────────
+
+const TEXTURES = [
+  'wet concrete','faded receipt paper','chrome and glass','peeling wallpaper',
+  'velvet curtain','rusted iron','sun-bleached plastic','mossy stone',
+  'cracked leather','bubble wrap','corrugated cardboard','wax seal',
+  'frosted glass','damp newspaper','polished marble','chipped enamel',
+  'copper patina','raw denim','melted candle wax','vinyl flooring',
+  'sandpaper','silk ribbon','burnt toast','aluminum foil','packing peanuts',
 ];
 
-const ACTIONS = [
-  'launches a subscription service','opens an online store','starts a podcast',
-  'runs a dating app','operates a delivery service','manages a hotel chain',
-  'publishes a newspaper','hosts a game show','runs for mayor',
-  'starts a crowdfunding campaign','launches a cryptocurrency',
-  'opens a theme park','starts an airline','runs a cooking show',
-  'offers financial advice','creates a fitness program','opens a law firm',
-  'starts a religion','launches a space program on a budget',
-  'organizes a music festival','runs a tech startup','opens a casino',
-  'starts a fashion label','creates a social network','builds a city',
-  'runs a reality TV show','offers therapy sessions','starts a revolution',
-  'writes self-help books','runs a bed and breakfast','opens a detective agency',
-  'manages a boy band','runs a funeral home with a twist','starts a book club',
-  'launches a weather service','runs a talent show','opens a tattoo parlor',
-  'starts an insurance company','runs a pawn shop','creates a language',
+const PLACES = [
+  'a gas station at 3am','an abandoned mall food court','a hospital waiting room',
+  'a hotel lobby in 1987','the back of a laundromat','a ferry terminal in fog',
+  'a government basement','a rooftop in summer rain','a dentist office hallway',
+  'a bus stop in rural nowhere','an airport chapel','a parking garage stairwell',
+  'a library after hours','a strip mall nail salon','a rest stop vending area',
+  'a boat show convention floor','a DMV on a Friday','a church basement potluck',
+  'a closed swimming pool','an elevator stuck between floors','a highway overpass',
+  'the back room of a pawn shop','a motel ice machine alcove','a train station bench',
+  'a warehouse rave at dawn',
 ];
 
-const MODIFIERS = [
-  'but everything is upside down','but all communication is through interpretive dance',
-  'but the currency is compliments','but it only operates during full moons',
-  'but all reviews are written as haiku','but the staff are all ghosts',
-  'but everything must rhyme','but the building keeps moving',
-  'but customers must solve a riddle to enter','but all transactions happen underwater',
-  'but everything is miniature','but it exists only in dreams',
-  'but all documents are written in crayon','but the wifi password is a dance move',
-  'but it is from the year 3000','but in a world where gravity is optional',
-  'but everyone has amnesia','but all meetings happen in a hot air balloon',
-  'but cats are in charge of quality control','but the soundtrack never stops',
-  'but everything is cake','but time runs backwards on Tuesdays',
-  'but the entire thing is run from a bathtub','but nothing is allowed to be beige',
-  'but the dress code is medieval armor','but payment is accepted in soup',
-  'but every surface is covered in moss','but it smells incredible for no reason',
-  'but there is a live jazz band at all times','but the founder is a very confident goldfish',
-  'but all employees are different versions of the same person',
-  'but the menu changes based on the tides','but complaints are handled by a ouija board',
-  'but the whole thing is inside a snow globe','but mascots roam freely and cannot be stopped',
-  'but cats keep knocking everything off the shelves',
-  'but a cat sits on the keyboard and alters every transaction',
-  'but there is always a cat sleeping on the most important document',
+const DECADES = [
+  '1947','1953','1962','1968','1971','1976','1979','1983','1987','1991',
+  '1994','1997','1999','2001','2003','2006','2009','2012','2017','2024',
+  'the 1890s','the 1920s','the 1930s','the 1950s','the 1960s','the 1970s',
+  'the 1980s','the late 1990s','the early 2000s','the near future',
 ];
 
-// Bold declarative premises — absurd statements played totally straight
-const PREMISES = [
-  'Dust is a financial liability',
-  'Chairs have been lying to us for decades',
-  'Sleep is a scam invented by mattress companies',
-  'Clouds are just sky litter and someone has to clean them',
-  'Stairs are an outdated technology',
-  'Silence is a luxury commodity',
-  'Doors are a form of oppression',
-  'Gravity is a subscription service and you are behind on payments',
-  'Shadows are intellectual property',
-  'Leftovers are an asset class',
-  'Socks disappear because they are migrating',
-  'Boredom is a treatable medical condition',
-  'Pigeons are government employees and they deserve a union',
-  'Every puddle is a potential business opportunity',
-  'Yawning is contagious because it is a virus',
-  'Beige is a cry for help',
-  'Lunch breaks are a human rights violation against productivity',
-  'Sneezing is the body trying to communicate with the dead',
-  'Lawns are a cult and suburbia knows it',
-  'The alphabet is in the wrong order',
-  'Knees are a design flaw',
-  'Tuesday has no reason to exist',
-  'Parking lots are America\'s greatest architectural achievement',
-  'Elevators are just tiny rooms that kidnap you briefly',
-  'Condiments are the only honest form of self-expression',
-  'Forks are just tiny aggressive rakes',
-  'Humidity is a personality trait',
-  'Blinking is just your eyes clapping',
-  'Every bathroom mirror is a portal we are too afraid to use',
-  'Paper cuts are a message from the trees',
-  'Roundabouts are just car ballet and it is time we respected the art form',
-  'Pillows know too much',
-  'Wind is just the earth sighing',
-  'Carpet is a lie we walk on every day',
-  'The moon is a lamp that no one pays the electric bill for',
-  'Toast is bread that has been through something traumatic',
-  'Escalators are just stairs with ambition',
-  'Coat hangers reproduce when you are not looking',
-  'Curtains are walls in denial',
-  'Receipts are the autobiography of your worst decisions',
-  'Bread ties are a forgotten form of ancient currency',
-  'Ice is just water with commitment issues',
-  'Speed bumps are the earth\'s way of saying slow down',
-  'Clocks are just circles with anxiety',
-  'Every voicemail is a tiny hostage situation',
-  'Calendars are just guilt spreadsheets',
-  'Dental floss is a weapon we use on ourselves twice a day',
-  'Gravel is just sand that got its life together',
-  'Shampoo bottles in the shower are your only real audience',
-  'Wi-Fi is just invisible leashes for humans',
+const EMOTIONS = [
+  'quiet desperation','manic enthusiasm','bureaucratic sincerity',
+  'aggressive hospitality','melancholy optimism','paranoid cheerfulness',
+  'resigned amusement','unearned confidence','polite rage',
+  'nostalgic dread','tender absurdity','clinical warmth',
+  'defiant whimsy','exhausted ambition','serene chaos',
+  'theatrical indifference','anxious pride','gentle menace',
+  'wistful competitiveness','cheerful nihilism',
 ];
 
-const STYLES = [
-  'brutalist carnival finance','retrofuturist municipal opera','biohazard luxury minimalism',
-  'evangelical cyberpunk folklore','bureaucratic dreamcore logistics',
-  'pastel corporate wellness dystopia','glitchcore Y2K government portal',
-  'art deco space colony tourism board','vaporwave dental insurance',
-  'soviet constructivist SaaS platform','tropical noir detective agency',
-  'cottagecore military logistics','Memphis Group pharmaceutical catalog',
-  'Swiss International Style alien embassy','psychedelic 1970s tax preparation',
-  'Windows 95 luxury fashion house','neon noir public library system',
-  'maximalist Victorian data center','grunge zine cryptocurrency exchange',
-  'geocities-era astral projection academy','minimalist brutalist wedding planner',
+const MATERIALS = [
+  'wet concrete','faded receipt paper','chrome and glass','crumpled tinfoil',
+  'laminated cardstock','magnetic poetry tiles','dry-erase board',
+  'overhead projector slides','carbon copy forms','perforated ticket stubs',
+  'polaroid photos','microfiche','dot matrix printout','a cork board',
+  'masking tape and sharpie','graph paper','a chalkboard','neon tubing',
+  'stained glass','poured resin','duct tape','string and thumbtacks',
+  'post-it notes','a whiteboard covered in equations','embossed letterhead',
 ];
 
-const COLORS = [
-  'monochrome with one violent accent color','warm earth tones like terracotta sand and olive',
-  'neon on pitch black','pastel rainbow gradient everywhere',
-  'newspaper black and white with red highlights','deep ocean blues and bioluminescent greens',
-  'sunset palette: coral gold purple deep blue','clinical white with surgical green accents',
-  'candy colors: hot pink electric blue lime green','sepia and aged parchment tones',
-  'toxic: acid green warning yellow hazard orange','ice cold: pale blue silver white frost',
-  'retrowave: magenta cyan chrome dark purple',
+const WEATHER = [
+  'permanent overcast','blinding noon sun','first snow of the year',
+  'humid and still','wind that won\'t stop','thunderstorm approaching',
+  'fog so thick you can touch it','a perfect 72 degrees','desert heat shimmer',
+  'drizzle that\'s been going for three days','the golden hour before sunset',
+  'a cold snap in April','balmy midnight','ice storm warning','hazy wildfire sky',
 ];
 
-const LAYOUTS = [
-  'single column with massive typography','dense dashboard grid with many small panels',
-  'asymmetric magazine layout with overlapping sections','full-screen sections that scroll like slides',
-  'sidebar-heavy admin panel aesthetic','chaotic overlapping windows like a cluttered desktop',
-  'card-based masonry layout','split screen with contrasting halves',
-  'terminal/console aesthetic with monospace everything','newspaper multi-column with headlines',
+const WILD_CARDS = [
+  'dial-up internet sounds','a fax machine that won\'t stop','the smell of chlorine',
+  'fluorescent lights humming','a broken escalator','hold music from 1996',
+  'a motivational poster that\'s slightly wrong','a clock that\'s 7 minutes fast',
+  'a filing cabinet with one sticky drawer','carpet that\'s seen too much',
+  'a vending machine with only one option left','a revolving door',
+  'an intercom that crackles','a water cooler conversation','a fire exit sign',
+  'someone else\'s lunch in the fridge','a badge that doesn\'t scan',
+  'a plant that might be fake','a chair with one short leg',
+  'a thermostat war','a password on a sticky note','a mandatory fun event',
+  'a suggestion box that\'s never opened','a printer jam',
+  'an out-of-order sign','a company newsletter nobody reads',
 ];
+
+const VERBOSE = process.argv.includes('--verbose');
+function log(msg) { if (VERBOSE) process.stderr.write(msg + '\n'); }
 
 function random(arr) { return arr[Math.floor(Math.random() * arr.length)]; }
 function takeRandom(arr, n) {
-  const copy = [...arr], out = [];
+  const copy = [...arr];
+  const out = [];
   while (copy.length && out.length < n) {
     const i = Math.floor(Math.random() * copy.length);
     out.push(copy[i]);
@@ -169,79 +98,207 @@ function takeRandom(arr, n) {
   return out;
 }
 
-function loadUsed() {
-  try { return new Set(JSON.parse(fs.readFileSync(USED_PATH, 'utf8'))); }
-  catch { return new Set(); }
+function buildEntropySeeds() {
+  const allWords = [...TEXTURES, ...PLACES, ...DECADES, ...EMOTIONS, ...MATERIALS, ...WEATHER, ...WILD_CARDS];
+  return {
+    words: takeRandom(allWords, 5),
+    decade: random(DECADES),
+    emotion: random(EMOTIONS),
+    material: random(MATERIALS),
+  };
 }
 
-function markUsed(idea) {
-  let used;
-  try { used = JSON.parse(fs.readFileSync(USED_PATH, 'utf8')); }
-  catch { used = []; }
-  used.push(idea);
-  fs.writeFileSync(USED_PATH, JSON.stringify(used, null, 2));
+// ── LLM call helper ────────────────────────────────────────────────
+
+async function ask(apiKey, model, system, user, { maxTokens = 300, temperature = 1.5 } = {}) {
+  const response = await fetch(OPENROUTER_URL, {
+    method: 'POST',
+    signal: AbortSignal.timeout(30000),
+    headers: {
+      Authorization: `Bearer ${apiKey}`,
+      'Content-Type': 'application/json',
+      'HTTP-Referer': process.env.OPENROUTER_SITE_URL || 'http://localhost',
+      'X-Title': process.env.OPENROUTER_APP_NAME || 'Idea Generator',
+    },
+    body: JSON.stringify({
+      model,
+      temperature,
+      top_p: 0.95,
+      presence_penalty: 0.7,
+      frequency_penalty: 0.5,
+      max_tokens: maxTokens,
+      messages: [
+        { role: 'system', content: system },
+        { role: 'user', content: user },
+      ],
+    }),
+  });
+
+  if (!response.ok) {
+    const body = await response.text();
+    throw new Error(`OpenRouter ${response.status}: ${body.slice(0, 200)}`);
+  }
+
+  const data = await response.json();
+  const content = data?.choices?.[0]?.message?.content?.trim();
+  if (!content || content.length < 10) throw new Error('Response too short');
+  return content;
 }
 
-const used = loadUsed();
-let idea;
+// ── Phase 1: Sparks (Gemini Flash) ─────────────────────────────────
 
-function generateCombo() {
-  return `${random(SUBJECTS)} ${random(ACTIONS)}, ${takeRandom(MODIFIERS, 2).join(', ')}`;
+const TERSE = 'Output ONLY what is asked. No preamble, no "Sure!", no markdown headers. Just the raw text.';
+
+async function getConcept(apiKey, model, seeds) {
+  return ask(apiKey, model,
+    `You invent absurd fake website concepts. You always reply with exactly ONE concept in 1-2 sentences. Never two concepts. Never bullet points. ${TERSE}`,
+    `Entropy seeds (absorb the vibe, don't use literally): ${seeds.words.join(', ')} / ${seeds.decade} / ${seeds.emotion} / ${seeds.material}
+
+Invent ONE fake website concept. Not a real business. Not a parody of something specific. Something wholly original and strange, played totally straight. ONE concept, 1-2 sentences, nothing else.`,
+    { maxTokens: 150 }
+  );
 }
 
-function generatePremise() {
-  const premise = random(PREMISES);
-  const framings = [
-    `A company that genuinely believes: "${premise}." Build their corporate website.`,
-    `A startup whose entire product is based on the fact that ${premise.toLowerCase()}. They have funding.`,
-    `A government agency formed because ${premise.toLowerCase()}. This is their official .gov site.`,
-    `A nonprofit advocacy group fighting for awareness because ${premise.toLowerCase()}.`,
-    `A consulting firm that helps businesses adapt to the reality that ${premise.toLowerCase()}.`,
-    `A subscription service built around the premise that ${premise.toLowerCase()}.`,
-    `A lifestyle brand for people who understand that ${premise.toLowerCase()}.`,
-    `A scientific institute dedicated to researching why ${premise.toLowerCase()}.`,
-    `A law firm that specializes in cases involving the fact that ${premise.toLowerCase()}.`,
-    `A wellness retreat centered on accepting that ${premise.toLowerCase()}.`,
-  ];
-  return random(framings);
+async function getCharacter(apiKey, model, concept) {
+  return ask(apiKey, model,
+    `You flesh out fictional website founders. ${TERSE}`,
+    `Website concept: ${concept}
+
+Who made this website? Give them a name, a founding year, and an emotional reason they built this at 3am. What's their deal? What happened to them? What's their rival?
+
+2-3 sentences. Specific and deadpan.`,
+    { maxTokens: 250 }
+  );
 }
 
-for (let i = 0; i < 200; i++) {
-  const candidate = Math.random() < 0.5 ? generatePremise() : generateCombo();
-  if (!used.has(candidate)) { idea = candidate; break; }
+async function getDetails(apiKey, model, concept) {
+  return ask(apiKey, model,
+    `You invent hyper-specific fake details that make fictional websites feel alive. Every website is different — a dating app needs different details than a government bureau or a conspiracy theory blog. ${TERSE}`,
+    `Website concept: ${concept}
+
+What specific details would make THIS particular website feel real and lived-in? Not a template — think about what's unique to THIS concept. Invent 5-8 concrete details that only THIS website would have.`,
+    { maxTokens: 400 }
+  );
 }
-if (!idea) { idea = Math.random() < 0.5 ? generatePremise() : generateCombo(); }
 
-markUsed(idea);
+async function getVisual(apiKey, model, concept, seeds) {
+  return ask(apiKey, model,
+    `You are a web design director. ${TERSE}`,
+    `Website concept: ${concept}
+Vibe seeds: ${seeds.emotion} / ${seeds.material} / ${seeds.decade}
 
-const DENSITIES = [
-  {
-    name: 'atmospheric',
-    prompt: 'This page should be a MOOD PIECE. Prioritize atmosphere, whitespace, typography, and subtle animation over interactivity. Think art installation, not dashboard. One or two elegant interactions at most — a hover effect that reveals something, a slow transition, a single meaningful click. Let the text and visuals breathe. Long pauses, cinematic pacing. The writing should be poetic and strange. Fewer elements, each one considered. CSS animations should be slow and hypnotic. No counters, no dashboards, no busy grids.',
-  },
-  {
-    name: 'narrative',
-    prompt: 'This page should be CONTENT-RICH. The writing is the star — witty, detailed, immersive. Fake articles, employee bios, customer testimonials, FAQ sections, blog posts, press releases. Make it feel like a real website with too much content that someone spent way too long writing. 2-3 interactive moments (tabs, expandable sections, hover reveals). The design supports the reading. No dashboards or stat counters.',
-  },
-  {
-    name: 'dense',
-    prompt: 'This page should be a MAXIMALIST EXPERIENCE — dense, layered, overwhelming in the best way. Multiple interactive elements (6+): buttons that change content, counters, toggles, live-updating data, things that respond to clicks. Fake dashboards, stats, tickers, charts made from CSS. Tables of absurd data. Grids packed with panels. Humorous disclaimers and footnotes everywhere. Auto-updating timers and counters. Make it feel alive and busy.',
-  },
-  {
-    name: 'showcase',
-    prompt: 'This page should be a CSS ART SHOWCASE. Push visual boundaries — complex gradients, layered pseudo-elements, clip-paths, CSS shapes, creative use of borders and shadows to draw illustrations. Interactions should be visual treats: hover animations, color shifts, morphing shapes. 3-4 interactive moments that transform the visuals. The page itself is the art. Minimal text, maximum visual impact. Think generative art meets web design.',
-  },
-  {
-    name: 'editorial',
-    prompt: 'This page should feel like a MAGAZINE or NEWSPAPER. Strong typography hierarchy, columns, pull quotes, bylines, fake ads in the margins. The content is king — 15+ pieces of witty writing: articles, opinion pieces, classifieds, letters to the editor, corrections. 3-4 interactive elements: toggle between sections, expand articles, filter by category. The design should serve the reading experience. Sophisticated and typographically rich.',
-  },
-];
+Describe the visual direction for this website in 2-3 sentences. Be specific about: color palette (name exact colors), layout style, typography mood, and one unexpected visual detail. Don't be generic.`,
+    { maxTokens: 200 }
+  );
+}
 
-const style = random(STYLES);
-const color = random(COLORS);
-const layout = random(LAYOUTS);
-const density = random(DENSITIES);
-const catMode = Math.random() < 0.1;
-const chaosMode = Math.random() < 0.2;
+async function generateSparks(apiKey, sparkModel) {
+  const seeds = buildEntropySeeds();
 
-console.log(JSON.stringify({ idea, style, color, layout, density: density.name, densityPrompt: density.prompt, catMode, chaosMode }));
+  const concept = await getConcept(apiKey, sparkModel, seeds);
+  log(`[pick-idea]   concept: ${concept.slice(0, 80)}...`);
+
+  const [character, details, visual] = await Promise.all([
+    getCharacter(apiKey, sparkModel, concept),
+    getDetails(apiKey, sparkModel, concept),
+    getVisual(apiKey, sparkModel, concept, seeds),
+  ]);
+
+  return `CONCEPT: ${concept}
+
+CHARACTER: ${character}
+
+DETAILS:
+${details}
+
+VISUAL DIRECTION: ${visual}`;
+}
+
+// ── Phase 2: Grok critic ───────────────────────────────────────────
+
+async function criticize(apiKey, criticModel, sparks) {
+  const response = await ask(apiKey, criticModel,
+    `You are the harshest comedy editor alive. You have seen ten thousand "lol random" website concepts and you are TIRED.
+
+Score low (1-4) for:
+- Random noun + random noun humor ("a dentist who is also a DJ" — so what?)
+- "Quirky" without a point — weirdness that doesn't satirize anything real
+- Concepts that sound funny in summary but wouldn't sustain an actual webpage
+- Anything you've seen before or that feels like a Mad Libs output
+- Overly convoluted premises that need a paragraph to explain why they're funny
+
+Score high (8-10) for:
+- Concepts with a real comedic TARGET (bureaucracy, hustle culture, nostalgia, tech, etc.)
+- Ideas where the humor is STRUCTURAL — it's funny because of the commitment, not the randomness
+- Premises that could generate 5+ genuinely different funny sections on a webpage
+- Concepts that make you think "I would actually browse this site"
+
+Your response format:
+1. What is the single biggest weakness of this concept? (1-2 sentences — be specific)
+2. If you have a NOTE that would make this concept land better (a sharper angle, a detail to emphasize, something to avoid), write it on a line starting with "NOTE:" — only if you have something genuinely useful
+3. Final line: SCORE: X/10`,
+    `Rate this satirical website concept on a scale of 1-10. State the biggest weakness first, then score.
+
+${sparks}`,
+    { maxTokens: 300, temperature: 0.7 }
+  );
+
+  const scoreMatch = response.match(/SCORE:\s*(\d+)/i);
+  const score = scoreMatch ? parseInt(scoreMatch[1], 10) : 0;
+  const passed = score >= 8;
+
+  // Extract NOTE lines if any
+  const lines = response.trim().split('\n');
+  const notes = lines
+    .filter(l => l.trim().startsWith('NOTE:'))
+    .map(l => l.trim().replace(/^NOTE:\s*/, ''))
+    .join(' ');
+
+  return { passed, score, feedback: response, notes };
+}
+
+// ── Main ───────────────────────────────────────────────────────────
+
+const MAX_ATTEMPTS = 3;
+
+async function main() {
+  const apiKey = process.env.OPENROUTER_API_KEY;
+  if (!apiKey) {
+    process.stderr.write('[pick-idea] No OPENROUTER_API_KEY set\n');
+    process.exit(1);
+  }
+
+  const sparkModel = process.env.OPENROUTER_SPARK_MODEL || 'google/gemini-2.0-flash-001';
+  const criticModel = process.env.OPENROUTER_CRITIC_MODEL || 'x-ai/grok-3-mini-beta';
+
+  for (let attempt = 1; attempt <= MAX_ATTEMPTS; attempt++) {
+    log(`[pick-idea] Attempt ${attempt}/${MAX_ATTEMPTS}: generating sparks...`);
+    const sparks = await generateSparks(apiKey, sparkModel);
+
+    log('[pick-idea] Asking Grok for quality check...');
+    const { passed, score, feedback, notes } = await criticize(apiKey, criticModel, sparks);
+    process.stderr.write(`[grok] ${feedback}\n`);
+    process.stderr.write(`[pick-idea] Score: ${score}/10${passed ? ' — PASSED' : ' — below threshold (8+)'}\n`);
+
+    if (passed) {
+      let output = sparks;
+      if (notes) output += `\n\nCRITIC NOTES: ${notes}`;
+      process.stdout.write(output);
+      return;
+    }
+
+    process.stderr.write(`[pick-idea] ${attempt < MAX_ATTEMPTS ? 'Retrying with new seeds...' : 'Using anyway (max attempts)'}\n`);
+
+    if (attempt === MAX_ATTEMPTS) {
+      let output = sparks;
+      if (notes) output += `\n\nCRITIC NOTES: ${notes}`;
+      process.stdout.write(output);
+      return;
+    }
+  }
+}
+
+main().catch(err => {
+  process.stderr.write(`[pick-idea] Fatal: ${err.message}\n`);
+  process.exit(1);
+});

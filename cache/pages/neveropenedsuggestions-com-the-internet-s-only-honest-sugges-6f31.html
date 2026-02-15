@@ -1,0 +1,758 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NeverOpenedSuggestions.com — The Internet's Only Honest Suggestion Box</title>
+<link rel="stylesheet" href="/assets/css/fonts.css">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg: #E8D5C4;
+  --text: #2C2C2C;
+  --accent: #7A7A52;
+  --card: #F2EBE3;
+  --dark: #1A1A1A;
+  --brown: #8B4513;
+}
+
+html { scroll-behavior: smooth; }
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 16px;
+  line-height: 1.7;
+  overflow-x: hidden;
+  position: relative;
+  min-height: 100vh;
+}
+
+.dust-mote {
+  position: fixed;
+  border-radius: 50%;
+  background: #7A7A52;
+  opacity: 0.08;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.page-wrapper {
+  max-width: 720px;
+  margin: 0 auto;
+  padding: 0 24px;
+  position: relative;
+  z-index: 1;
+}
+
+h1, h2, h3 { font-family: 'Playfair Display', serif; color: var(--text); font-weight: 700; }
+
+.section {
+  padding: 64px 0;
+  opacity: 0;
+  transform: translateY(20px);
+}
+
+/* ── HERO ── */
+.hero { text-align: center; padding-top: 80px; }
+.hero h1 { font-size: clamp(2rem, 5vw, 3.2rem); margin-bottom: 8px; letter-spacing: -0.5px; }
+.hero .tagline { font-size: 14px; color: #5A5A5A; margin-bottom: 40px; }
+
+.fake-photo {
+  width: 100%;
+  max-width: 480px;
+  height: 200px;
+  margin: 0 auto 40px;
+  background: linear-gradient(135deg, #c4b5a4 0%, #d4c8b8 40%, #bfb09e 70%, #c9bba9 100%);
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  color: #6B6B6B;
+  border: 1px solid #d0c4b4;
+}
+
+.counter-block {
+  background: var(--dark);
+  color: #F2EBE3;
+  padding: 32px 24px;
+  border-radius: 4px;
+  display: inline-block;
+}
+.counter-label {
+  font-size: 13px;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  color: #999;
+  margin-bottom: 12px;
+}
+.counter-digits {
+  display: flex;
+  justify-content: center;
+  gap: 2px;
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: clamp(1.8rem, 5vw, 2.8rem);
+  font-weight: 700;
+  color: var(--brown);
+}
+.digit-slot {
+  display: inline-block;
+  width: 0.65em;
+  height: 1.2em;
+  overflow: hidden;
+  position: relative;
+  text-align: center;
+}
+.digit-slot span {
+  display: block;
+  line-height: 1.2em;
+  position: absolute;
+  width: 100%;
+  left: 0;
+}
+.digit-slot .current { top: 0; }
+.digit-slot .next { top: 1.2em; }
+.digit-separator {
+  width: 0.3em;
+  text-align: center;
+  line-height: 1.2em;
+  font-size: clamp(1.8rem, 5vw, 2.8rem);
+  color: #666;
+}
+.counter-flash { transition: text-shadow 0.3s; }
+.counter-flash.flash { text-shadow: 0 0 20px rgba(139,69,19,0.6); }
+
+/* ── SUGGESTION BOX ── */
+.suggestion-box { position: relative; }
+.suggestion-box h2 { font-size: clamp(1.5rem, 3vw, 2rem); margin-bottom: 8px; }
+.suggestion-box .sub { font-size: 13px; color: #5A5A5A; margin-bottom: 24px; }
+
+.suggestion-box textarea {
+  width: 100%;
+  min-height: 160px;
+  padding: 16px;
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 15px;
+  line-height: 1.6;
+  background: var(--card);
+  border: 1px solid #d0c4b4;
+  border-radius: 4px;
+  color: var(--text);
+  resize: vertical;
+}
+.suggestion-box textarea::placeholder { color: #8A8A7A; }
+.suggestion-box textarea:focus { outline: 2px solid var(--accent); outline-offset: 1px; }
+
+.submit-btn {
+  display: inline-block;
+  margin-top: 16px;
+  padding: 14px 32px;
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 15px;
+  font-weight: 700;
+  background: var(--dark);
+  color: #F2EBE3;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  min-height: 48px;
+  transition: background 0.2s;
+}
+.submit-btn:hover { background: #333; }
+.fine-print { font-size: 12px; color: #6B6B6B; margin-top: 12px; }
+
+/* ── TOAST ── */
+.toast-container {
+  position: fixed;
+  top: 24px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 9999;
+  pointer-events: none;
+}
+.toast {
+  background: var(--dark);
+  color: #F2EBE3;
+  padding: 14px 24px;
+  border-radius: 4px;
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 13px;
+  max-width: 440px;
+  text-align: center;
+  opacity: 0;
+  transform: translateY(-10px);
+  pointer-events: none;
+}
+
+/* ── SUGGESTION OF THE WEEK ── */
+.sotw { position: relative; }
+.sotw h2 { font-size: clamp(1.3rem, 3vw, 1.7rem); margin-bottom: 24px; }
+.sotw-card {
+  background: var(--card);
+  border-left: 4px solid var(--brown);
+  padding: 32px 28px;
+  border-radius: 0 4px 4px 0;
+  position: relative;
+  min-height: 100px;
+}
+.sotw-quote {
+  font-family: 'Playfair Display', serif;
+  font-size: clamp(1.2rem, 2.5vw, 1.6rem);
+  font-style: italic;
+  color: var(--text);
+  line-height: 1.5;
+}
+.marginalia {
+  font-family: 'Caveat', cursive;
+  color: var(--accent);
+  font-size: 18px;
+  position: absolute;
+  right: -20px;
+  top: 50%;
+  transform: translateY(-50%) rotate(-3deg);
+  white-space: nowrap;
+  pointer-events: none;
+}
+@media (max-width: 768px) {
+  .marginalia {
+    position: relative;
+    right: auto;
+    top: auto;
+    transform: rotate(-1deg);
+    display: block;
+    margin-top: 16px;
+    text-align: right;
+  }
+}
+
+/* ── PREMIUM ── */
+.premium-card {
+  background: var(--card);
+  border: 2px solid var(--brown);
+  border-radius: 4px;
+  padding: 32px 28px;
+  position: relative;
+}
+.premium-card h2 { font-size: clamp(1.3rem, 3vw, 1.7rem); margin-bottom: 4px; }
+.premium-badge {
+  display: inline-block;
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  background: var(--brown);
+  color: #F2EBE3;
+  padding: 3px 10px;
+  border-radius: 2px;
+  margin-bottom: 16px;
+}
+.premium-card ul {
+  list-style: none;
+  padding: 0;
+  margin: 16px 0 24px;
+}
+.premium-card li {
+  padding: 8px 0;
+  padding-left: 24px;
+  position: relative;
+  font-size: 14px;
+  line-height: 1.6;
+}
+.premium-card li::before {
+  content: "✓";
+  position: absolute;
+  left: 0;
+  color: var(--accent);
+  font-weight: 700;
+}
+.premium-price {
+  font-family: 'Playfair Display', serif;
+  font-size: 2rem;
+  color: var(--brown);
+  margin-bottom: 16px;
+  min-height: 2.4em;
+  transition: opacity 0.2s;
+}
+.buy-btn {
+  display: inline-block;
+  padding: 14px 32px;
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 15px;
+  font-weight: 700;
+  background: #AAA;
+  color: #F2EBE3;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  min-height: 48px;
+  transition: background 0.2s;
+}
+.buy-btn:hover { background: #999; }
+
+/* ── MODAL ── */
+.modal-overlay {
+  display: none;
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(26,26,26,0.8);
+  z-index: 10000;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+}
+.modal-overlay.active { display: flex; }
+.modal-box {
+  background: var(--card);
+  padding: 40px 32px;
+  border-radius: 4px;
+  max-width: 440px;
+  width: 100%;
+  text-align: center;
+}
+.modal-box h3 { font-size: 1.3rem; margin-bottom: 12px; }
+.modal-box p { font-size: 14px; color: #5A5A5A; margin-bottom: 24px; line-height: 1.6; }
+.modal-close {
+  padding: 10px 24px;
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 14px;
+  background: var(--dark);
+  color: #F2EBE3;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  min-height: 44px;
+}
+
+/* ── FAQ ── */
+.faq h2 { font-size: clamp(1.3rem, 3vw, 1.7rem); margin-bottom: 32px; }
+.faq-item { margin-bottom: 24px; }
+.faq-q {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.1rem;
+  font-weight: 700;
+  margin-bottom: 8px;
+}
+.faq-a {
+  font-size: 14px;
+  color: #5A5A5A;
+  line-height: 1.7;
+  padding-left: 16px;
+  border-left: 2px solid #d0c4b4;
+}
+
+/* ── BLOG ── */
+.blog h2 { font-size: clamp(1.3rem, 3vw, 1.7rem); margin-bottom: 24px; }
+.blog-card {
+  background: var(--card);
+  border-radius: 4px;
+  padding: 28px 24px;
+  border: 1px solid #d0c4b4;
+}
+.blog-date { font-size: 12px; color: #8A8A7A; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px; }
+.blog-title { font-family: 'Playfair Display', serif; font-size: 1.2rem; margin-bottom: 12px; }
+.blog-excerpt { font-size: 14px; color: #5A5A5A; line-height: 1.7; }
+.blog-nolink { font-size: 12px; color: #AAA; margin-top: 12px; font-style: italic; }
+
+/* ── FOOTER ── */
+.site-footer {
+  background: var(--dark);
+  color: #999;
+  padding: 48px 24px;
+  text-align: center;
+  font-size: 13px;
+  line-height: 1.8;
+  margin-top: 64px;
+}
+.site-footer a { color: #666; text-decoration: none; }
+.site-footer a:hover { color: #999; }
+.footer-link-suggestions { font-size: 10px; color: #444; }
+
+/* ── 404 BLOCK ── */
+.fake-404 {
+  max-width: 720px;
+  margin: 0 auto;
+  padding: 64px 24px;
+  text-align: center;
+  opacity: 0;
+}
+.fake-404 h2 { font-size: clamp(1.5rem, 3vw, 2rem); color: #666; margin-bottom: 12px; }
+.fake-404 p { font-size: 14px; color: #888; }
+.fake-404 .server-costs { font-size: 11px; color: #555; margin-top: 32px; }
+
+/* ── MARGINALIA SCATTERED ── */
+.margin-note {
+  font-family: 'Caveat', cursive;
+  color: var(--accent);
+  font-size: 16px;
+  position: absolute;
+  pointer-events: none;
+  transform: rotate(-2deg);
+}
+@media (max-width: 768px) {
+  .margin-note { display: none; }
+}
+
+/* ── RESPONSIVE ── */
+@media (max-width: 768px) {
+  .page-wrapper { padding: 0 16px; }
+  .section { padding: 48px 0; }
+  .hero { padding-top: 48px; }
+  .counter-block { padding: 24px 16px; width: 100%; }
+  .premium-card, .sotw-card, .blog-card { padding: 24px 20px; }
+}
+</style>
+</head>
+<body>
+
+<div class="toast-container" id="toastContainer"></div>
+
+<div class="modal-overlay" id="premiumModal">
+  <div class="modal-box">
+    <h3>Payment System Under Review</h3>
+    <p>Our payment processing system is currently under review. No one is reviewing it. We appreciate your interest in being ignored faster.</p>
+    <button class="modal-close" id="modalClose">I Understand Nothing</button>
+  </div>
+</div>
+
+<div class="page-wrapper">
+
+  <!-- HERO -->
+  <section class="section hero" id="hero">
+    <h1>NeverOpenedSuggestions.com</h1>
+    <p class="tagline">The internet's only honest suggestion box. Est. 2007.</p>
+
+    <div class="fake-photo" role="img" aria-label="Stock photo of a woman smiling at a laptop. She is not reading your suggestion. She is looking at flights to Cancún.">
+      [ stock photo: woman smiling at laptop — she is not reading your suggestion ]
+    </div>
+
+    <div class="counter-block">
+      <div class="counter-label">Suggestions Received</div>
+      <div class="counter-digits counter-flash" id="counter"></div>
+    </div>
+  </section>
+
+  <!-- SUGGESTION BOX -->
+  <section class="section suggestion-box" id="suggestionBox">
+    <h2>The Suggestion Box</h2>
+    <p class="sub">Your voice matters. This is not where it goes to be heard.</p>
+    <textarea id="suggestionInput" placeholder="Type your suggestion here. No one will read it." aria-label="Your suggestion"></textarea>
+    <br>
+    <button class="submit-btn" id="submitBtn">Submit to the Void</button>
+    <p class="fine-print">Your suggestion will be carefully not reviewed.</p>
+  </section>
+
+  <!-- SUGGESTION OF THE WEEK -->
+  <section class="section sotw" id="sotw">
+    <h2>Suggestion of the Week</h2>
+    <div class="sotw-card">
+      <div class="sotw-quote" id="sotwQuote">"More purple."</div>
+      <div class="marginalia" id="sotwNote">Strong agree —B</div>
+    </div>
+  </section>
+
+  <!-- PREMIUM -->
+  <section class="section" id="premium" style="position:relative;">
+    <div class="premium-card">
+      <span class="premium-badge">Upgrade Available</span>
+      <h2>Premium Suggestions™</h2>
+      <p style="font-size:14px; color:#5A5A5A; margin-top:8px;">Priority Non-Review for the discerning suggester.</p>
+      <ul>
+        <li>Your suggestion moves to the top of the pile nobody checks</li>
+        <li>Receive a personalized auto-generated non-response within 5–7 business days</li>
+        <li>A framed certificate confirming your suggestion exists, unsigned</li>
+        <li>Access to our Premium Void™ (same void, different URL)</li>
+      </ul>
+      <div class="premium-price" id="premiumPrice">$9.99<span style="font-size:14px;font-family:'IBM Plex Mono',monospace;color:#8A8A7A;">/suggestion</span></div>
+      <button class="buy-btn" id="buyBtn">Buy Now</button>
+    </div>
+  </section>
+
+  <!-- FAQ -->
+  <section class="section faq" id="faq">
+    <h2>Frequently Asked Question</h2>
+    <div class="faq-item">
+      <div class="faq-q">Q: Why hasn't my suggestion been implemented?</div>
+      <div class="faq-a">Thank you for your suggestion. We will take it under advisement.</div>
+    </div>
+    <div class="faq-item">
+      <div class="faq-q">Q: But—</div>
+      <div class="faq-a">We appreciate your enthusiasm.</div>
+    </div>
+  </section>
+
+  <!-- BLOG -->
+  <section class="section blog" id="blog">
+    <h2>The Blog</h2>
+    <div class="blog-card">
+      <div class="blog-date">NEW — Posted March 14, 2017</div>
+      <div class="blog-title">Office Coffee Machine Upgrade</div>
+      <p class="blog-excerpt">We're thrilled to announce that after careful review of zero suggestions, the Keurig in Building C has been replaced with a slightly newer Keurig. The old one has been moved to Building D, where it will continue to disappoint a fresh audience. We consider this progress.</p>
+      <p class="blog-nolink">There is no "read more." This is the entire post.</p>
+    </div>
+  </section>
+
+</div><!-- /page-wrapper -->
+
+<!-- FOOTER -->
+<footer class="site-footer">
+  <p>&copy; 2007–2024 NeverOpenedSuggestions.com</p>
+  <p>A Bartholomew Higgins Production.</p>
+  <p style="margin-top:16px;"><a href="#fake404" class="footer-link-suggestions" id="ourSuggestionsLink">Our Suggestions</a></p>
+</footer>
+
+<!-- FAKE 404 -->
+<div class="fake-404" id="fake404">
+  <h2>404</h2>
+  <p>We value your input. Just not ours.</p>
+  <p class="server-costs">Server costs funded by a dwindling offshore account and the unreturned deposit on Chad Kensington's parking spot.</p>
+</div>
+
+<script src="/assets/js/gsap.min.js"></script>
+<script>
+(function() {
+  "use strict";
+
+  // ── COUNTER ──
+  var count = 8762941;
+  var counterEl = document.getElementById("counter");
+  var digits = [];
+
+  function formatNumber(n) {
+    return n.toLocaleString("en-US");
+  }
+
+  function renderCounter(n, animate) {
+    var str = formatNumber(n);
+    counterEl.innerHTML = "";
+    digits = [];
+    for (var i = 0; i < str.length; i++) {
+      var ch = str[i];
+      if (ch === ",") {
+        var sep = document.createElement("span");
+        sep.className = "digit-separator";
+        sep.textContent = ",";
+        counterEl.appendChild(sep);
+      } else {
+        var slot = document.createElement("span");
+        slot.className = "digit-slot";
+        var cur = document.createElement("span");
+        cur.className = "current";
+        cur.textContent = ch;
+        slot.appendChild(cur);
+        counterEl.appendChild(slot);
+        digits.push({ el: slot, value: ch });
+      }
+    }
+  }
+
+  function updateCounter(newCount) {
+    var oldStr = formatNumber(count).replace(/,/g, "");
+    var newStr = formatNumber(newCount).replace(/,/g, "");
+    // Pad to same length
+    while (oldStr.length < newStr.length) oldStr = "0" + oldStr;
+    var digitEls = counterEl.querySelectorAll(".digit-slot");
+    var dIdx = 0;
+    var formatted = formatNumber(newCount);
+    for (var i = 0; i < formatted.length; i++) {
+      if (formatted[i] === ",") continue;
+      var oldD = oldStr[dIdx];
+      var newD = newStr[dIdx];
+      if (oldD !== newD && digitEls[dIdx]) {
+        animateDigit(digitEls[dIdx], oldD, newD);
+      }
+      dIdx++;
+    }
+    count = newCount;
+    // Flash
+    var cf = document.querySelector(".counter-flash");
+    cf.classList.add("flash");
+    setTimeout(function() { cf.classList.remove("flash"); }, 400);
+    // Re-render after animation
+    setTimeout(function() { renderCounter(count, false); }, 500);
+  }
+
+  function animateDigit(slot, oldVal, newVal) {
+    slot.innerHTML = "";
+    var cur = document.createElement("span");
+    cur.className = "current";
+    cur.textContent = oldVal;
+    cur.style.position = "absolute";
+    cur.style.top = "0";
+    cur.style.width = "100%";
+    cur.style.left = "0";
+    var nxt = document.createElement("span");
+    nxt.className = "next";
+    nxt.textContent = newVal;
+    nxt.style.position = "absolute";
+    nxt.style.top = "1.2em";
+    nxt.style.width = "100%";
+    nxt.style.left = "0";
+    slot.appendChild(cur);
+    slot.appendChild(nxt);
+    gsap.to(cur, { y: "-1.2em", duration: 0.4, ease: "power2.inOut" });
+    gsap.to(nxt, { y: "-1.2em", duration: 0.4, ease: "power2.inOut" });
+  }
+
+  renderCounter(count, false);
+
+  function scheduleIncrement() {
+    var delay = 2000 + Math.random() * 6000;
+    setTimeout(function() {
+      updateCounter(count + 1);
+      scheduleIncrement();
+    }, delay);
+  }
+  scheduleIncrement();
+
+  // ── SUGGESTION FORM ──
+  var toasts = [
+    "Suggestion received. Filing under: Unread.",
+    "Thank you. Your voice has been acknowledged and immediately forgotten.",
+    "This suggestion has been auto-forwarded to nobody.",
+    "Filed. Alphabetized. Shredded.",
+    "Your suggestion has been added to the pile. The pile is on fire.",
+    "Received. Our team of zero will review it shortly."
+  ];
+  var toastIdx = 0;
+
+  document.getElementById("submitBtn").addEventListener("click", function() {
+    var ta = document.getElementById("suggestionInput");
+    if (!ta.value.trim()) return;
+    ta.value = "";
+    updateCounter(count + 1);
+    showToast(toasts[toastIdx % toasts.length]);
+    toastIdx++;
+  });
+
+  function showToast(msg) {
+    var container = document.getElementById("toastContainer");
+    var t = document.createElement("div");
+    t.className = "toast";
+    t.textContent = msg;
+    container.appendChild(t);
+    gsap.fromTo(t,
+      { opacity: 0, y: -10 },
+      { opacity: 1, y: 0, duration: 0.3, ease: "power2.out",
+        onComplete: function() {
+          gsap.to(t, { opacity: 0, y: -10, duration: 0.3, delay: 2.5, ease: "power2.in",
+            onComplete: function() { t.remove(); }
+          });
+        }
+      }
+    );
+  }
+
+  // ── SUGGESTION OF THE WEEK ──
+  var suggestions = [
+    { quote: "More purple.", note: "Strong agree —B" },
+    { quote: "Replace all chairs with slightly smaller chairs.", note: "Visionary. Filed. —B" },
+    { quote: "The vending machine should apologize.", note: "It knows what it did. —B" },
+    { quote: "What if meetings had a two-sentence limit?", note: "I'm crying. —B" },
+    { quote: "Add a window to the windowless room.", note: "Noted. Forgotten. —B" },
+    { quote: "Let the fern vote.", note: "The fern has seniority. —B" }
+  ];
+  var sotwIdx = 0;
+  var sotwQuote = document.getElementById("sotwQuote");
+  var sotwNote = document.getElementById("sotwNote");
+
+  function rotateSuggestion() {
+    gsap.to(sotwQuote, { opacity: 0, duration: 0.3, onComplete: function() {
+      sotwIdx = (sotwIdx + 1) % suggestions.length;
+      sotwQuote.textContent = "\u201C" + suggestions[sotwIdx].quote + "\u201D";
+      sotwNote.textContent = suggestions[sotwIdx].note;
+      gsap.fromTo(sotwQuote, { opacity: 0 }, { opacity: 1, duration: 0.4 });
+    }});
+  }
+  setInterval(rotateSuggestion, 5000);
+
+  // ── PREMIUM HOVER PRICES ──
+  var prices = ["$9.99", "$19.99", "$49.99", "Priceless"];
+  var priceIdx = 0;
+  var priceEl = document.getElementById("premiumPrice");
+  var buyBtn = document.getElementById("buyBtn");
+  var suffix = '<span style="font-size:14px;font-family:\'IBM Plex Mono\',monospace;color:#8A8A7A;">/suggestion</span>';
+
+  buyBtn.addEventListener("mouseenter", function() {
+    priceIdx = Math.min(priceIdx + 1, prices.length - 1);
+    priceEl.innerHTML = prices[priceIdx] + (priceIdx < prices.length - 1 ? suffix : "");
+  });
+
+  buyBtn.addEventListener("click", function() {
+    document.getElementById("premiumModal").classList.add("active");
+  });
+
+  document.getElementById("modalClose").addEventListener("click", function() {
+    document.getElementById("premiumModal").classList.remove("active");
+  });
+
+  document.getElementById("premiumModal").addEventListener("click", function(e) {
+    if (e.target === this) this.classList.remove("active");
+  });
+
+  // ── OUR SUGGESTIONS LINK → FAKE 404 ──
+  document.getElementById("ourSuggestionsLink").addEventListener("click", function(e) {
+    e.preventDefault();
+    var el = document.getElementById("fake404");
+    el.scrollIntoView({ behavior: "smooth" });
+    gsap.fromTo(el, { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.8, ease: "power2.out" });
+  });
+
+  // ── DUST MOTES ──
+  function createDustMotes() {
+    var moteCount = 18;
+    for (var i = 0; i < moteCount; i++) {
+      var mote = document.createElement("div");
+      mote.className = "dust-mote";
+      var size = 2 + Math.random() * 2;
+      mote.style.width = size + "px";
+      mote.style.height = size + "px";
+      mote.style.left = Math.random() * 100 + "vw";
+      mote.style.top = Math.random() * 100 + "vh";
+      document.body.appendChild(mote);
+      animateMote(mote);
+    }
+  }
+
+  function animateMote(mote) {
+    var dur = 12 + Math.random() * 20;
+    gsap.to(mote, {
+      y: -(100 + Math.random() * 300),
+      x: (Math.random() - 0.5) * 200,
+      duration: dur,
+      ease: "none",
+      repeat: -1,
+      onRepeat: function() {
+        gsap.set(mote, {
+          x: 0, y: 0,
+          left: Math.random() * 100 + "vw",
+          top: Math.random() * 100 + "vh"
+        });
+      }
+    });
+  }
+
+  createDustMotes();
+
+  // ── FADE-IN ON SCROLL ──
+  var sections = document.querySelectorAll(".section");
+  var observer = new IntersectionObserver(function(entries) {
+    entries.forEach(function(entry) {
+      if (entry.isIntersecting) {
+        gsap.fromTo(entry.target,
+          { opacity: 0, y: 20 },
+          { opacity: 1, y: 0, duration: 1.2, ease: "power2.out" }
+        );
+        observer.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.1 });
+
+  sections.forEach(function(s) { observer.observe(s); });
+
+})();
+</script>
+</body>
+</html>

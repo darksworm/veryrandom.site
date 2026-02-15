@@ -1,0 +1,1059 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DIAL-UP SOUND ARCHIVE — Cataloging the last honest sound since 2007</title>
+<link rel="stylesheet" href="/assets/css/fonts.css">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg: #0A0A0A;
+  --green: #00FF00;
+  --dim: #00AA00;
+  --bright: #33FF33;
+  --card-bg: #0F1A0F;
+  --red: #FF3333;
+  --font-body: 'Fira Code', monospace;
+  --font-heading: 'Archivo Black', sans-serif;
+  --font-agnes: 'Caveat', cursive;
+}
+
+html { font-size: 16px; scroll-behavior: smooth; }
+
+body {
+  background: var(--bg);
+  color: var(--green);
+  font-family: var(--font-body);
+  line-height: 1.6;
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* Viewport border */
+.viewport-border {
+  position: fixed;
+  inset: 8px;
+  border: 1px solid var(--dim);
+  pointer-events: none;
+  z-index: 1000;
+  opacity: 0;
+}
+
+/* CRT scanlines */
+.scanlines {
+  position: fixed;
+  inset: 0;
+  background: repeating-linear-gradient(
+    0deg,
+    transparent 0px,
+    transparent 2px,
+    rgba(0, 170, 0, 0.03) 2px,
+    rgba(0, 170, 0, 0.03) 3px
+  );
+  pointer-events: none;
+  z-index: 999;
+  opacity: 0;
+}
+
+/* Boot cursor */
+.boot-cursor {
+  position: fixed;
+  top: 20px;
+  left: 20px;
+  font-family: var(--font-body);
+  color: var(--green);
+  font-size: 18px;
+  z-index: 2000;
+  opacity: 0;
+}
+
+.blink {
+  animation: blink 1.06s step-end infinite;
+}
+
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0; }
+}
+
+/* Main container */
+.main-wrap {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 40px 20px;
+  opacity: 0;
+}
+
+a { color: var(--green); text-decoration: underline; }
+a:hover { color: var(--bright); }
+
+h1, h2, h3 {
+  font-family: var(--font-heading);
+  text-transform: uppercase;
+  letter-spacing: 2px;
+}
+
+hr {
+  border: none;
+  border-top: 1px solid var(--dim);
+  margin: 48px 0;
+}
+
+.section {
+  opacity: 0;
+  transform: translateY(10px);
+}
+
+/* === HEADER === */
+.header { text-align: center; padding: 20px 0; }
+
+.header h1 {
+  font-size: clamp(1.8rem, 5vw, 3rem);
+  color: var(--green);
+  margin-bottom: 12px;
+  line-height: 1.1;
+}
+
+.header .tagline {
+  font-size: clamp(0.8rem, 2vw, 0.95rem);
+  color: var(--dim);
+  margin-bottom: 8px;
+}
+
+.header .tagline .cursor-blink {
+  display: inline;
+  animation: blink 1.06s step-end infinite;
+}
+
+.header .founders {
+  font-size: 0.85rem;
+  color: var(--dim);
+  margin-bottom: 24px;
+}
+
+.header .counters {
+  display: flex;
+  justify-content: center;
+  gap: 40px;
+  flex-wrap: wrap;
+}
+
+.counter-block {
+  text-align: center;
+}
+
+.counter-val {
+  font-size: 1.4rem;
+  color: var(--bright);
+  font-family: var(--font-body);
+}
+
+.counter-label {
+  font-size: 0.75rem;
+  color: var(--dim);
+}
+
+/* === ARCHIVE GRID === */
+.archive-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 16px;
+}
+
+.modem-card {
+  background: var(--card-bg);
+  border: 1px solid var(--dim);
+  padding: 16px;
+  position: relative;
+  overflow: hidden;
+  cursor: pointer;
+  transition: border-color 0.2s;
+}
+
+.modem-card:hover, .modem-card.playing {
+  border-color: var(--bright);
+}
+
+.modem-card .region {
+  font-family: var(--font-heading);
+  font-size: 0.95rem;
+  color: var(--green);
+  margin-bottom: 4px;
+}
+
+.modem-card .model {
+  font-size: 0.75rem;
+  color: var(--dim);
+  margin-bottom: 12px;
+}
+
+.waveform {
+  display: flex;
+  align-items: flex-end;
+  gap: 2px;
+  height: 32px;
+  margin-bottom: 12px;
+}
+
+.waveform .bar {
+  width: 3px;
+  background: var(--dim);
+  animation: idlePulse 3s ease-in-out infinite;
+}
+
+.modem-card.playing .waveform .bar {
+  background: var(--bright);
+  animation: activePulse 0.3s ease-in-out infinite alternate;
+}
+
+@keyframes idlePulse {
+  0%, 100% { height: 4px; }
+  50% { height: 8px; }
+}
+
+@keyframes activePulse {
+  0% { height: 4px; }
+  100% { height: 28px; }
+}
+
+.play-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-family: var(--font-body);
+  font-size: 0.8rem;
+  color: var(--green);
+  background: none;
+  border: 1px solid var(--dim);
+  padding: 6px 14px;
+  cursor: pointer;
+  min-height: 44px;
+  min-width: 44px;
+  transition: border-color 0.2s, color 0.2s;
+}
+
+.play-btn:hover {
+  border-color: var(--bright);
+  color: var(--bright);
+}
+
+.agnes-note {
+  font-family: var(--font-agnes);
+  font-size: 1.1rem;
+  color: var(--dim);
+  margin-top: 10px;
+  font-style: italic;
+}
+
+.progress-bar {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  height: 2px;
+  background: var(--bright);
+  width: 0%;
+  transition: width 0.1s linear;
+}
+
+/* === MODEM OF THE MONTH === */
+.motm {
+  border: 1px solid var(--dim);
+  padding: 24px;
+  position: relative;
+}
+
+.motm::before {
+  content: '╔══════════════════════════════════════╗';
+  display: block;
+  font-family: var(--font-body);
+  color: var(--dim);
+  font-size: 0.7rem;
+  margin-bottom: 8px;
+  overflow: hidden;
+  white-space: nowrap;
+}
+
+.motm::after {
+  content: '╚══════════════════════════════════════╝';
+  display: block;
+  font-family: var(--font-body);
+  color: var(--dim);
+  font-size: 0.7rem;
+  margin-top: 8px;
+  overflow: hidden;
+  white-space: nowrap;
+}
+
+.motm h2 { margin-bottom: 16px; font-size: clamp(1.2rem, 3vw, 1.5rem); }
+
+.specs-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 16px 0;
+  font-size: 0.85rem;
+}
+
+.specs-table td {
+  padding: 6px 12px;
+  border-bottom: 1px solid #0F1A0F;
+}
+
+.specs-table td:first-child {
+  color: var(--dim);
+  white-space: nowrap;
+  width: 140px;
+}
+
+.motm .anecdote {
+  font-family: var(--font-agnes);
+  font-size: 1.15rem;
+  color: var(--green);
+  margin: 16px 0;
+  padding: 12px;
+  background: var(--card-bg);
+  line-height: 1.5;
+}
+
+.motm .anecdote cite {
+  display: block;
+  font-size: 0.9rem;
+  color: var(--dim);
+  margin-top: 8px;
+  font-style: normal;
+}
+
+.submit-link {
+  font-size: 0.8rem;
+  color: var(--dim);
+  cursor: pointer;
+  position: relative;
+  display: inline-block;
+}
+
+.submit-link .tooltip {
+  display: none;
+  position: absolute;
+  bottom: calc(100% + 8px);
+  left: 0;
+  background: var(--card-bg);
+  border: 1px solid var(--dim);
+  padding: 8px 12px;
+  font-size: 0.75rem;
+  color: var(--green);
+  white-space: nowrap;
+  z-index: 10;
+}
+
+.submit-link:hover .tooltip,
+.submit-link:focus .tooltip {
+  display: block;
+}
+
+/* === FORUM === */
+.forum-post {
+  background: var(--card-bg);
+  border: 1px solid var(--dim);
+  padding: 16px;
+  margin-bottom: 12px;
+}
+
+.forum-post .handle {
+  font-size: 0.8rem;
+  color: var(--bright);
+  margin-bottom: 4px;
+}
+
+.forum-post .timestamp {
+  font-size: 0.7rem;
+  color: var(--dim);
+  margin-bottom: 10px;
+}
+
+.forum-post .post-body {
+  font-size: 0.85rem;
+  color: var(--green);
+  line-height: 1.6;
+}
+
+.locked-reply {
+  border: 1px dashed var(--dim);
+  padding: 14px;
+  margin-top: 12px;
+  opacity: 0.6;
+}
+
+.locked-reply textarea {
+  width: 100%;
+  background: var(--bg);
+  border: 1px solid var(--dim);
+  color: var(--dim);
+  font-family: var(--font-body);
+  font-size: 0.8rem;
+  padding: 10px;
+  resize: none;
+  height: 60px;
+  cursor: not-allowed;
+}
+
+/* === FAQ === */
+.faq-item {
+  border-bottom: 1px solid var(--dim);
+}
+
+.faq-question {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  background: none;
+  border: none;
+  color: var(--green);
+  font-family: var(--font-body);
+  font-size: 0.9rem;
+  text-align: left;
+  padding: 16px 0;
+  cursor: pointer;
+  min-height: 44px;
+  gap: 12px;
+}
+
+.faq-question:hover { color: var(--bright); }
+
+.faq-question .indicator {
+  flex-shrink: 0;
+  font-size: 1rem;
+  transition: transform 0.2s;
+}
+
+.faq-answer {
+  overflow: hidden;
+  padding: 0 0 16px 0;
+  font-size: 0.85rem;
+  color: var(--dim);
+  line-height: 1.7;
+}
+
+.faq-answer .typewriter-text {
+  white-space: pre-wrap;
+}
+
+/* === MERCH === */
+.merch-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+}
+
+@media (max-width: 600px) {
+  .merch-grid { grid-template-columns: 1fr; }
+}
+
+.merch-item {
+  background: var(--card-bg);
+  border: 1px solid var(--dim);
+  padding: 16px;
+  text-align: center;
+}
+
+.ascii-shirt {
+  font-family: var(--font-body);
+  font-size: 0.6rem;
+  color: var(--dim);
+  white-space: pre;
+  line-height: 1.2;
+  margin-bottom: 12px;
+  display: flex;
+  justify-content: center;
+}
+
+.merch-item .title {
+  font-family: var(--font-heading);
+  font-size: 0.9rem;
+  margin-bottom: 4px;
+}
+
+.merch-item .price {
+  font-size: 0.8rem;
+  color: var(--bright);
+  margin-bottom: 8px;
+}
+
+.merch-item button {
+  font-family: var(--font-body);
+  font-size: 0.8rem;
+  background: none;
+  border: 1px solid var(--dim);
+  color: var(--green);
+  padding: 8px 20px;
+  cursor: pointer;
+  min-height: 44px;
+  min-width: 44px;
+}
+
+.merch-item button:hover {
+  border-color: var(--bright);
+  color: var(--bright);
+}
+
+.donate-section {
+  background: var(--card-bg);
+  border: 1px solid var(--dim);
+  padding: 24px;
+  text-align: center;
+}
+
+.donate-section h3 {
+  font-size: 1.1rem;
+  margin-bottom: 16px;
+}
+
+/* Pixel art floppy animation */
+.pixel-art {
+  width: 64px;
+  height: 64px;
+  margin: 0 auto 16px;
+  position: relative;
+}
+
+.pixel-floppy {
+  display: grid;
+  grid-template-columns: repeat(8, 8px);
+  grid-template-rows: repeat(8, 8px);
+  gap: 0;
+  margin: 0 auto;
+  width: 64px;
+  animation: floatFloppy 2s ease-in-out infinite;
+}
+
+.pixel-floppy .px {
+  width: 8px;
+  height: 8px;
+}
+
+.px-g { background: var(--green); }
+.px-d { background: var(--dim); }
+.px-b { background: var(--bg); }
+
+@keyframes floatFloppy {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-6px); }
+}
+
+.pixel-hand {
+  display: grid;
+  grid-template-columns: repeat(8, 8px);
+  grid-template-rows: repeat(4, 8px);
+  gap: 0;
+  margin: -8px auto 0;
+  width: 64px;
+}
+
+.donate-btn {
+  font-family: var(--font-body);
+  font-size: 0.9rem;
+  background: none;
+  border: 2px solid var(--green);
+  color: var(--green);
+  padding: 12px 32px;
+  cursor: pointer;
+  min-height: 44px;
+  transition: all 0.2s;
+}
+
+.donate-btn:hover {
+  background: var(--green);
+  color: var(--bg);
+}
+
+.agnes-bottom-note {
+  font-family: var(--font-agnes);
+  font-size: 1.1rem;
+  color: var(--dim);
+  text-align: center;
+  margin-top: 24px;
+  font-style: italic;
+}
+
+/* === FOOTER === */
+.footer { text-align: center; padding: 20px 0; }
+
+.pots-btn {
+  display: inline-block;
+  font-family: var(--font-body);
+  font-size: 1rem;
+  color: var(--green);
+  border: 2px solid var(--green);
+  padding: 16px 32px;
+  text-decoration: none;
+  cursor: pointer;
+  min-height: 44px;
+  transition: all 0.2s;
+  margin-bottom: 24px;
+  background: none;
+}
+
+.pots-btn:hover {
+  background: var(--green);
+  color: var(--bg);
+}
+
+.footer .copyright {
+  font-size: 0.75rem;
+  color: var(--dim);
+  margin-top: 16px;
+}
+
+/* === POTS MODAL === */
+.pots-modal {
+  position: fixed;
+  inset: 0;
+  background: rgba(10, 10, 10, 0.95);
+  z-index: 1500;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+
+.pots-modal-inner {
+  max-width: 600px;
+  width: 100%;
+  font-family: var(--font-body);
+  font-size: 0.9rem;
+  color: var(--green);
+  line-height: 1.8;
+}
+
+.pots-modal .dismiss {
+  font-size: 0.75rem;
+  color: var(--dim);
+  margin-top: 24px;
+  display: block;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .main-wrap { padding: 24px 16px; }
+  .header .counters { gap: 20px; }
+  .motm { padding: 16px; }
+  .motm::before, .motm::after { display: none; }
+}
+
+@media (max-width: 480px) {
+  .archive-grid { grid-template-columns: 1fr; }
+  .header .counters { flex-direction: column; gap: 12px; }
+}
+</style>
+</head>
+<body x-data="dialUpArchive()">
+<!-- Boot cursor -->
+<div class="boot-cursor" x-ref="bootCursor">_</div>
+
+<!-- CRT scanlines -->
+<div class="scanlines" x-ref="scanlines"></div>
+
+<!-- Viewport border -->
+<div class="viewport-border" x-ref="viewportBorder"></div>
+
+<!-- POTS modal -->
+<template x-if="potsModal">
+  <div class="pots-modal" @keydown.window="potsModal = false" @click="potsModal = false">
+    <div class="pots-modal-inner" @click.stop>
+      <div x-text="potsText"></div>
+      <span class="dismiss">Press any key or click outside to dismiss.</span>
+    </div>
+  </div>
+</template>
+
+<div class="main-wrap" x-ref="mainWrap">
+
+  <!-- ═══ HEADER ═══ -->
+  <section class="section header" x-ref="sec0">
+    <h1>DIAL-UP SOUND ARCHIVE</h1>
+    <p class="tagline">Cataloging the last honest sound since 2007<span class="cursor-blink">_</span></p>
+    <p class="founders">Founded by Agnes Plum &amp; Barnaby Millet. Barnaby now sells birdhouses.</p>
+    <div class="counters">
+      <div class="counter-block">
+        <div class="counter-val" x-text="hoursListened.toLocaleString('en-US', {minimumFractionDigits: 3})"></div>
+        <div class="counter-label">hours listened</div>
+      </div>
+      <div class="counter-block">
+        <div class="counter-val" x-text="failedConnections.toLocaleString('en-US')"></div>
+        <div class="counter-label">failed connection attempts simulated</div>
+      </div>
+    </div>
+  </section>
+
+  <hr>
+
+  <!-- ═══ THE ARCHIVE ═══ -->
+  <section class="section" x-ref="sec1">
+    <h2 style="font-size: clamp(1.2rem,3vw,1.5rem); margin-bottom: 20px;">THE ARCHIVE</h2>
+    <div class="archive-grid">
+      <template x-for="(card, idx) in modemCards" :key="idx">
+        <div class="modem-card" :class="{ 'playing': card.playing }" @click="togglePlay(idx)">
+          <div class="region" x-text="card.region"></div>
+          <div class="model" x-text="card.model"></div>
+          <div class="waveform">
+            <template x-for="b in 20" :key="b">
+              <div class="bar" :style="'animation-delay:' + (b * 0.15) + 's; height:' + (4 + Math.random() * 4) + 'px'"></div>
+            </template>
+          </div>
+          <button class="play-btn" @click.stop="togglePlay(idx)">
+            <span x-text="card.playing ? '■ STOP' : '▶ PLAY / LOOP'"></span>
+          </button>
+          <div class="agnes-note" x-text="card.note"></div>
+          <div class="progress-bar" :style="'width:' + card.progress + '%'"></div>
+        </div>
+      </template>
+    </div>
+  </section>
+
+  <hr>
+
+  <!-- ═══ MODEM OF THE MONTH ═══ -->
+  <section class="section motm" x-ref="sec2">
+    <h2>MODEM OF THE MONTH</h2>
+    <p style="font-size:0.85rem; color:var(--dim); margin-bottom:12px;">February 2026 — Selected by Agnes</p>
+    <h3 style="font-size:1.1rem; margin-bottom:16px;">US Robotics Courier V.Everything — 1996</h3>
+    <table class="specs-table">
+      <tr><td>Baud Rate</td><td>33,600 bps (V.34)</td></tr>
+      <tr><td>Chipset</td><td>Texas Instruments TMS320C50 DSP</td></tr>
+      <tr><td>Protocol</td><td>V.34 / V.42bis / HST</td></tr>
+      <tr><td>Form Factor</td><td>External, beige, 1.2 kg of intention</td></tr>
+      <tr><td>Status</td><td>Operational. Waiting.</td></tr>
+    </table>
+    <div class="anecdote">
+      "My dad had one of these in his office. I wasn't allowed to touch it, but I'd sit on the carpet and listen to it connect every evening at 6pm. It sounded like the house was thinking. When he sold it at a garage sale in 2003, I cried in the bathroom and told my mom it was allergies. She knew."
+      <cite>— Submitted by @prairie_disconnect, Moose Jaw, SK</cite>
+    </div>
+    <span class="submit-link" tabindex="0">
+      Submit Your Modem →
+      <span class="tooltip">Submissions closed since Barnaby left.</span>
+    </span>
+  </section>
+
+  <hr>
+
+  <!-- ═══ TROUBLESHOOTING YOUR TIME MACHINE ═══ -->
+  <section class="section" x-ref="sec3">
+    <h2 style="font-size: clamp(1.1rem,3vw,1.4rem); margin-bottom: 20px;">TROUBLESHOOTING YOUR TIME MACHINE</h2>
+
+    <div class="forum-post">
+      <div class="handle">dial_tone_diane</div>
+      <div class="timestamp">2025-11-03 02:17 AM CST — Post #4,891</div>
+      <div class="post-body">Does anyone else play the Helsinki 1998 recording when they can't sleep? Not as a joke. I mean genuinely. There's something in the carrier negotiation that sounds like two old friends recognizing each other after a long time. It's the only thing that works since David moved out. I don't need advice. I just needed to say it somewhere that isn't my journal.</div>
+    </div>
+
+    <div class="forum-post">
+      <div class="handle">pots_4_life</div>
+      <div class="timestamp">2025-11-04 09:42 AM CST — Post #4,892</div>
+      <div class="post-body">I've been A/B testing the Saskatchewan 1994 file against the Houston 1997 file and I'm 80% sure the Houston one contains a brief fragment of "Everywhere" by Fleetwood Mac at the 33.6k handshake phase. I've run it through a spectrogram. I've annotated the spectrogram. I've emailed the spectrogram to three people who did not ask. Nobody believes me but the waveforms don't lie. Christine McVie is in the protocol.</div>
+    </div>
+
+    <div class="forum-post">
+      <div class="handle">last_mile_larry</div>
+      <div class="timestamp">2025-11-05 06:03 PM CST — Post #4,893</div>
+      <div class="post-body">Serious question: I connected my old US Robotics to a POTS line that still works (don't ask) and called the number on the POTS directory page. Got three seconds of carrier, then silence, then what sounded like a fax machine having a panic attack. Is the archive server still running somewhere or did I just call a dentist's office in Regina?</div>
+    </div>
+
+    <div class="locked-reply">
+      <textarea disabled placeholder="Registration closed. Agnes is handling the truth."></textarea>
+    </div>
+  </section>
+
+  <hr>
+
+  <!-- ═══ FAQ ═══ -->
+  <section class="section" x-ref="sec4">
+    <h2 style="font-size: clamp(1.1rem,3vw,1.4rem); margin-bottom: 20px;">FREQUENTLY ASKED QUESTIONS</h2>
+
+    <template x-for="(faq, i) in faqs" :key="i">
+      <div class="faq-item">
+        <button class="faq-question" @click="toggleFaq(i)">
+          <span x-text="faq.q"></span>
+          <span class="indicator" x-text="openFaq === i ? '−' : '+'"></span>
+        </button>
+        <template x-if="openFaq === i">
+          <div class="faq-answer">
+            <span class="typewriter-text" x-ref="faqAnswer" x-text="faqDisplayText"></span>
+          </div>
+        </template>
+      </div>
+    </template>
+  </section>
+
+  <hr>
+
+  <!-- ═══ MERCH & DONATIONS ═══ -->
+  <section class="section" x-ref="sec5">
+    <h2 style="font-size: clamp(1.1rem,3vw,1.4rem); margin-bottom: 20px;">MERCH &amp; DONATIONS</h2>
+    <div class="merch-grid">
+      <div>
+        <div class="merch-item" style="margin-bottom:16px;">
+          <div class="ascii-shirt"><pre>  ___________
+ /           \
+|  I ♥ HAYES  |
+|  COMMANDS   |
+ \___________/
+  |         |
+  |         |
+  |_________|</pre></div>
+          <div class="title">I ♥ HAYES COMMANDS</div>
+          <div class="price">$47.99</div>
+          <button onclick="return false;">ADD TO CART</button>
+        </div>
+
+        <div class="merch-item">
+          <div class="ascii-shirt"><pre>  ___________
+ /           \
+|   56K WAS   |
+| NEVER ENOUGH|
+ \___________/
+  |         |
+  |         |
+  |_________|</pre></div>
+          <div class="title">56K WAS NEVER ENOUGH</div>
+          <div class="price">$47.99</div>
+          <button onclick="return false;">ADD TO CART</button>
+        </div>
+      </div>
+
+      <div class="donate-section">
+        <h3>KEEP THE SIGNAL ALIVE</h3>
+        <div class="pixel-art">
+          <div class="pixel-floppy">
+            <div class="px px-b"></div><div class="px px-g"></div><div class="px px-g"></div><div class="px px-g"></div><div class="px px-g"></div><div class="px px-g"></div><div class="px px-g"></div><div class="px px-b"></div>
+            <div class="px px-g"></div><div class="px px-d"></div><div class="px px-d"></div><div class="px px-b"></div><div class="px px-b"></div><div class="px px-d"></div><div class="px px-d"></div><div class="px px-g"></div>
+            <div class="px px-g"></div><div class="px px-d"></div><div class="px px-d"></div><div class="px px-b"></div><div class="px px-b"></div><div class="px px-d"></div><div class="px px-d"></div><div class="px px-g"></div>
+            <div class="px px-g"></div><div class="px px-g"></div><div class="px px-g"></div><div class="px px-g"></div><div class="px px-g"></div><div class="px px-g"></div><div class="px px-g"></div><div class="px px-g"></div>
+            <div class="px px-g"></div><div class="px px-d"></div><div class="px px-d"></div><div class="px px-d"></div><div class="px px-d"></div><div class="px px-d"></div><div class="px px-d"></div><div class="px px-g"></div>
+            <div class="px px-g"></div><div class="px px-d"></div><div class="px px-d"></div><div class="px px-d"></div><div class="px px-d"></div><div class="px px-d"></div><div class="px px-d"></div><div class="px px-g"></div>
+            <div class="px px-g"></div><div class="px px-d"></div><div class="px px-d"></div><div class="px px-d"></div><div class="px px-d"></div><div class="px px-d"></div><div class="px px-d"></div><div class="px px-g"></div>
+            <div class="px px-b"></div><div class="px px-g"></div><div class="px px-g"></div><div class="px px-g"></div><div class="px px-g"></div><div class="px px-g"></div><div class="px px-g"></div><div class="px px-b"></div>
+          </div>
+          <div class="pixel-hand">
+            <div class="px px-b"></div><div class="px px-b"></div><div class="px px-b"></div><div class="px px-d"></div><div class="px px-d"></div><div class="px px-b"></div><div class="px px-b"></div><div class="px px-b"></div>
+            <div class="px px-b"></div><div class="px px-b"></div><div class="px px-d"></div><div class="px px-g"></div><div class="px px-g"></div><div class="px px-d"></div><div class="px px-b"></div><div class="px px-b"></div>
+            <div class="px px-b"></div><div class="px px-d"></div><div class="px px-g"></div><div class="px px-g"></div><div class="px px-g"></div><div class="px px-g"></div><div class="px px-d"></div><div class="px px-b"></div>
+            <div class="px px-b"></div><div class="px px-d"></div><div class="px px-g"></div><div class="px px-g"></div><div class="px px-g"></div><div class="px px-g"></div><div class="px px-d"></div><div class="px px-b"></div>
+          </div>
+        </div>
+        <p style="font-size:0.8rem; color:var(--dim); margin-bottom:16px;">Server costs, tape digitization, Agnes's coffee.</p>
+        <button class="donate-btn" onclick="return false;">DONATE →</button>
+      </div>
+    </div>
+    <p class="agnes-bottom-note">"Yes, I know what this looks like. I'm not above it. I'm just honest about it."</p>
+  </section>
+
+  <hr>
+
+  <!-- ═══ FOOTER ═══ -->
+  <section class="section footer" x-ref="sec6">
+    <button class="pots-btn" @click="openPotsModal()">ACCESS THE POTS DIRECTORY →</button>
+    <div class="copyright">
+      <p>© 2007–2026 Dial-Up Sound Archive. Moose Jaw, SK.</p>
+      <p>Site maintained by nobody in particular.<span class="cursor-blink">_</span></p>
+    </div>
+  </section>
+
+</div>
+
+<script src="/assets/js/alpine.min.js" defer></script>
+<script>
+document.addEventListener('alpine:init', function() {
+  Alpine.data('dialUpArchive', function() {
+    return {
+      hoursListened: 4217.000,
+      failedConnections: 31628,
+      potsModal: false,
+      potsText: '',
+      openFaq: null,
+      faqDisplayText: '',
+      faqTypingTimer: null,
+      modemCards: [
+        { region: 'Saskatchewan, CA — 1994', model: 'Hayes Smartmodem 2400', playing: false, progress: 0, note: 'This one never connected on the first try. Neither did I.' },
+        { region: 'Helsinki, FI — 1998', model: 'Nokia ECM-4 V.34', playing: false, progress: 0, note: 'Sounds like someone apologizing in a language you almost understand.' },
+        { region: 'Houston, TX — 1997', model: 'US Robotics Sportster 56K', playing: false, progress: 0, note: 'The loudest handshake in the archive. Texas.' },
+        { region: 'São Paulo, BR — 2001', model: 'Motorola ModemSURFR 56K', playing: false, progress: 0, note: 'Recorded during a thunderstorm. You can hear it trying harder.' },
+        { region: 'Tokyo, JP — 1999', model: 'NTT-ME MN128-SOHO', playing: false, progress: 0, note: 'Precise. Efficient. Over in four seconds. I miss it constantly.' },
+        { region: 'Manchester, UK — 1996', model: 'Pace MicroLin 34', playing: false, progress: 0, note: 'This one has a pause at 2.3 seconds that sounds like doubt.' }
+      ],
+      faqs: [
+        { q: 'Is this bad for my speakers?', a: 'No. Your speakers have survived everything you\'ve played through them since 2003. They can handle a modem handshake. If anything, it\'s good for them. Give them something honest to reproduce for once.' },
+        { q: 'Why does the European modem sound so different?', a: 'Different phone networks, different line impedance, different regulatory standards. A V.34 handshake negotiated over a Finnish copper pair sounds nothing like one over American twisted pair because the physical infrastructure is different. The sound is the negotiation. Different infrastructure, different conversation. This is the whole point of the archive, and the fact that nobody teaches this in schools is why I do what I do.' },
+        { q: 'Are you profiting from nostalgia?', a: 'Yes. I sell t-shirts for $47.99 and I have a donation button. I am not pretending otherwise. But let me ask you something: every podcast network, every streaming service, every social media platform that serves you \"remember when\" content is profiting from nostalgia at industrial scale, and they\'re doing it while pretending to be something else. A documentary. A community. A platform. I\'m a woman in Saskatchewan with a tape collection and a website that hasn\'t been redesigned since 2012. I charge $47.99 for a t-shirt because the minimum order from the printer is 25 and I have 19 left in my garage. If you think I\'m the problem with nostalgia commerce, I genuinely admire your optimism about the rest of the internet.' },
+        { q: 'Where is Agnes?', a: 'I\'m here. I\'m always here. The archive is not a side project. I catalog, I digitize, I answer these questions. Where are you?' },
+        { q: 'Can I submit a recording?', a: 'Submissions have been closed since Barnaby left and took the FTP credentials with him. He says he\'ll send them. He\'s been saying that since 2019. If you have a recording, email it to the address on the contact page. There is no contact page. I\'m working on it.' }
+      ],
+      progressTimers: {},
+      counterTimer: null,
+
+      init() {
+        var self = this;
+
+        // Load persisted counters
+        var savedHours = localStorage.getItem('dusa_hours');
+        var savedFailed = localStorage.getItem('dusa_failed');
+        if (savedHours) self.hoursListened = parseFloat(savedHours);
+        if (savedFailed) self.failedConnections = parseInt(savedFailed, 10);
+
+        // Start counter ticks
+        self.tickCounter();
+
+        // Boot sequence
+        self.bootSequence();
+      },
+
+      tickCounter: function() {
+        var self = this;
+        var delay = 2000 + Math.random() * 5000;
+        self.counterTimer = setTimeout(function() {
+          self.hoursListened = Math.round((self.hoursListened + 0.001) * 1000) / 1000;
+          self.failedConnections += 1;
+          localStorage.setItem('dusa_hours', self.hoursListened.toString());
+          localStorage.setItem('dusa_failed', self.failedConnections.toString());
+          self.tickCounter();
+        }, delay);
+      },
+
+      bootSequence: function() {
+        var self = this;
+        var bootCursor = self.$refs.bootCursor;
+        var viewportBorder = self.$refs.viewportBorder;
+        var scanlines = self.$refs.scanlines;
+        var mainWrap = self.$refs.mainWrap;
+
+        // Phase 1: show blinking cursor
+        bootCursor.style.opacity = '1';
+        bootCursor.classList.add('blink');
+
+        setTimeout(function() {
+          // Phase 2: draw viewport border
+          bootCursor.style.opacity = '0';
+          viewportBorder.style.opacity = '1';
+          viewportBorder.style.transition = 'opacity 0.8s';
+
+          setTimeout(function() {
+            // Phase 3: fade in content section by section
+            mainWrap.style.opacity = '1';
+            var sections = mainWrap.querySelectorAll('.section');
+            var hrs = mainWrap.querySelectorAll('hr');
+
+            sections.forEach(function(sec, i) {
+              setTimeout(function() {
+                sec.style.transition = 'opacity 0.5s, transform 0.5s';
+                sec.style.opacity = '1';
+                sec.style.transform = 'translateY(0)';
+              }, i * 150);
+            });
+
+            hrs.forEach(function(h, i) {
+              setTimeout(function() {
+                h.style.opacity = '0';
+                h.style.transition = 'opacity 0.4s';
+                setTimeout(function() { h.style.opacity = '1'; }, 50);
+              }, i * 150);
+            });
+
+            // Phase 4: scanlines last
+            setTimeout(function() {
+              scanlines.style.transition = 'opacity 0.5s';
+              scanlines.style.opacity = '1';
+            }, sections.length * 150 + 200);
+
+          }, 800);
+        }, 1000);
+      },
+
+      togglePlay: function(idx) {
+        var self = this;
+        var card = self.modemCards[idx];
+
+        if (card.playing) {
+          card.playing = false;
+          card.progress = 0;
+          if (self.progressTimers[idx]) {
+            clearInterval(self.progressTimers[idx]);
+            delete self.progressTimers[idx];
+          }
+          return;
+        }
+
+        // Stop all others
+        self.modemCards.forEach(function(c, i) {
+          c.playing = false;
+          c.progress = 0;
+          if (self.progressTimers[i]) {
+            clearInterval(self.progressTimers[i]);
+            delete self.progressTimers[i];
+          }
+        });
+
+        card.playing = true;
+        card.progress = 0;
+
+        self.progressTimers[idx] = setInterval(function() {
+          card.progress += 0.5;
+          if (card.progress >= 100) {
+            card.progress = 0;
+          }
+        }, 100);
+      },
+
+      toggleFaq: function(i) {
+        var self = this;
+
+        if (self.faqTypingTimer) {
+          clearInterval(self.faqTypingTimer);
+          self.faqTypingTimer = null;
+        }
+
+        if (self.openFaq === i) {
+          self.openFaq = null;
+          self.faqDisplayText = '';
+          return;
+        }
+
+        self.openFaq = i;
+        self.faqDisplayText = '';
+
+        var fullText = self.faqs[i].a;
+        var charIdx = 0;
+
+        self.faqTypingTimer = setInterval(function() {
+          if (charIdx < fullText.length) {
+            charIdx++;
+            self.faqDisplayText = fullText.substring(0, charIdx);
+          } else {
+            clearInterval(self.faqTypingTimer);
+            self.faqTypingTimer = null;
+          }
+        }, 20);
+      },
+
+      openPotsModal: function() {
+        var self = this;
+        self.potsModal = true;
+        self.potsText = '';
+
+        var fullMsg = 'ATTEMPTING CONNECTION...\nCARRIER DETECT...\n......\nNO CARRIER.\n\nThe POTS Directory has been unavailable since 2011.\nBarnaby was the only one who knew the password.';
+        var charIdx = 0;
+
+        var potsTimer = setInterval(function() {
+          if (charIdx < fullMsg.length) {
+            charIdx++;
+            self.potsText = fullMsg.substring(0, charIdx);
+          } else {
+            clearInterval(potsTimer);
+          }
+        }, 40);
+      }
+    };
+  });
+});
+</script>
+</body>
+</html>

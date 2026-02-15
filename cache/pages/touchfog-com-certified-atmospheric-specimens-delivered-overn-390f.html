@@ -1,0 +1,923 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TouchFog.com — Certified Atmospheric Specimens, Delivered Overnight</title>
+<link rel="stylesheet" href="/assets/css/fonts.css">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg: #E8E4DF;
+  --text: #2C2C2C;
+  --accent: #C4453C;
+  --card-bg: #D2D8D0;
+  --grid-line: #8A8E88;
+  --ink: #3B5998;
+  --font-heading: 'Josefin Sans', sans-serif;
+  --font-body: 'Fira Code', monospace;
+  --font-annotation: 'Caveat', cursive;
+}
+
+html { scroll-behavior: smooth; }
+
+body {
+  font-family: var(--font-body);
+  font-size: 16px;
+  line-height: 1.6;
+  color: var(--text);
+  background: var(--bg);
+  overflow-x: hidden;
+}
+
+h1, h2, h3, h4 { font-family: var(--font-heading); font-weight: 400; letter-spacing: 0.04em; text-transform: uppercase; }
+h1 { font-size: clamp(2.2rem, 6vw, 4.5rem); }
+h2 { font-size: clamp(1.5rem, 3.5vw, 2.4rem); margin-bottom: 1rem; }
+h3 { font-size: clamp(1.1rem, 2vw, 1.5rem); }
+
+.annotation {
+  font-family: var(--font-annotation);
+  color: var(--ink);
+  font-size: clamp(1.1rem, 2.5vw, 1.5rem);
+  position: absolute;
+  opacity: 0;
+  transition: opacity 0.6s ease, transform 0.6s ease;
+  pointer-events: none;
+  z-index: 10;
+  line-height: 1.3;
+}
+.annotation.visible {
+  opacity: 1;
+}
+
+.container {
+  max-width: 1440px;
+  margin: 0 auto;
+  padding: 0 1rem;
+}
+
+section {
+  position: relative;
+  border-bottom: 3px solid var(--grid-line);
+  padding: 3rem 0;
+}
+
+/* ═══ HERO ═══ */
+.hero {
+  min-height: 80vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+  padding: 4rem 1rem;
+}
+
+.fog-layer {
+  position: absolute;
+  top: 0; left: -50%; width: 200%; height: 100%;
+  pointer-events: none;
+  opacity: 0.4;
+}
+.fog-layer-1 {
+  background: linear-gradient(90deg, transparent 0%, #D2D8D0 20%, transparent 40%, #D2D8D0 60%, transparent 80%);
+}
+.fog-layer-2 {
+  background: linear-gradient(90deg, transparent 10%, #C8CCC6 30%, transparent 50%, #C8CCC6 70%, transparent 90%);
+  opacity: 0.25;
+}
+.fog-layer-3 {
+  background: linear-gradient(90deg, #D2D8D0 5%, transparent 25%, #D2D8D0 45%, transparent 65%, #D2D8D0 85%);
+  opacity: 0.15;
+}
+
+.hero-content { position: relative; z-index: 2; }
+.hero h1 { margin-bottom: 0.5rem; letter-spacing: 0.12em; }
+.hero .tagline {
+  font-family: var(--font-body);
+  font-size: clamp(0.8rem, 1.8vw, 1.1rem);
+  max-width: 600px;
+  margin: 0 auto;
+  color: var(--text);
+}
+.hero .hero-annotation {
+  top: auto; bottom: 8%; right: 5%;
+  transform: rotate(-2deg);
+  max-width: 320px;
+  font-size: clamp(1.2rem, 2.5vw, 1.7rem);
+}
+
+/* ═══ VOT PANEL ═══ */
+.vot-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0;
+}
+.vot-col {
+  padding: 2rem 1.5rem;
+  border-right: 2px solid var(--grid-line);
+  text-align: center;
+}
+.vot-col:last-child { border-right: none; }
+.vot-scale {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  margin: 1.5rem 0;
+}
+.vot-bar-row {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.75rem;
+}
+.vot-bar {
+  height: 8px;
+  background: var(--grid-line);
+  border-radius: 2px;
+  flex: 1;
+  position: relative;
+  overflow: hidden;
+}
+.vot-bar-fill {
+  height: 100%;
+  background: var(--accent);
+  border-radius: 2px;
+}
+.vot-num { width: 1.5rem; text-align: right; font-size: 0.75rem; }
+.vot-desc {
+  font-size: 0.8rem;
+  line-height: 1.5;
+  color: var(--text);
+  margin-top: 1rem;
+}
+.vot-tooltip {
+  display: none;
+  background: var(--text);
+  color: var(--bg);
+  padding: 1rem;
+  font-size: 0.75rem;
+  margin-top: 1rem;
+  line-height: 1.6;
+  text-align: left;
+}
+.vot-tooltip.active { display: block; }
+.vot-tooltip .tooltip-annotation {
+  font-family: var(--font-annotation);
+  color: var(--accent);
+  font-size: 1.1rem;
+  display: block;
+  margin-top: 0.5rem;
+}
+.qr-fake {
+  width: 80px; height: 80px;
+  margin: 1rem auto 0;
+  display: grid;
+  grid-template-columns: repeat(8, 1fr);
+  grid-template-rows: repeat(8, 1fr);
+  gap: 1px;
+}
+.qr-cell {
+  background: var(--text);
+  border-radius: 1px;
+}
+.qr-cell.empty { background: transparent; }
+
+/* ═══ PRODUCT CATALOG ═══ */
+.catalog-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 0;
+}
+.product-card {
+  position: relative;
+  padding: 2rem 1.5rem;
+  border-right: 2px solid var(--grid-line);
+  background: var(--card-bg);
+  cursor: pointer;
+  overflow: hidden;
+  min-height: 380px;
+}
+.product-card:last-child { border-right: none; }
+.product-card-inner {
+  position: relative;
+  z-index: 2;
+  transition: filter 0.8s ease;
+}
+.product-card .cloud-diagram {
+  width: 100%; height: 100px;
+  margin: 1rem 0;
+  position: relative;
+}
+.cloud-shape {
+  position: absolute;
+  border-radius: 50%;
+  background: var(--bg);
+  opacity: 0.7;
+}
+.product-card h3 { margin-bottom: 0.3rem; }
+.product-price {
+  font-family: var(--font-heading);
+  color: var(--accent);
+  font-size: 1.4rem;
+  margin: 0.5rem 0;
+}
+.product-vot { font-size: 0.75rem; margin-bottom: 0.5rem; }
+.product-desc { font-size: 0.8rem; line-height: 1.5; }
+.product-scribble {
+  font-family: var(--font-annotation);
+  color: var(--ink);
+  font-size: 1.1rem;
+  margin-top: 0.8rem;
+  display: block;
+}
+.product-card .fog-reveal {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+  text-align: center;
+  font-family: var(--font-annotation);
+  font-size: 1.3rem;
+  color: var(--ink);
+  opacity: 0;
+  z-index: 3;
+  pointer-events: none;
+  transition: opacity 0.3s ease;
+}
+
+/* ═══ CALCULATOR ═══ */
+.calculator-section { background: var(--card-bg); }
+.calc-layout {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 3rem;
+  align-items: center;
+}
+.calc-sliders { display: flex; flex-direction: column; gap: 1.5rem; }
+.calc-field label {
+  display: block;
+  font-size: 0.8rem;
+  margin-bottom: 0.5rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+.calc-field input[type="range"] {
+  width: 100%;
+  -webkit-appearance: none;
+  appearance: none;
+  height: 6px;
+  background: var(--grid-line);
+  border-radius: 3px;
+  outline: none;
+}
+.calc-field input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 24px; height: 24px;
+  background: var(--accent);
+  border-radius: 50%;
+  cursor: pointer;
+  border: 2px solid var(--text);
+}
+.calc-field input[type="range"]::-moz-range-thumb {
+  width: 24px; height: 24px;
+  background: var(--accent);
+  border-radius: 50%;
+  cursor: pointer;
+  border: 2px solid var(--text);
+}
+.calc-field .val-display {
+  text-align: right;
+  font-size: 0.85rem;
+  margin-top: 0.3rem;
+}
+.calc-result {
+  text-align: center;
+}
+.calc-result .time-display {
+  font-family: var(--font-heading);
+  font-size: clamp(3rem, 8vw, 6rem);
+  color: var(--accent);
+  line-height: 1;
+}
+.calc-result .time-label {
+  font-size: 1rem;
+  margin-top: 0.5rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
+.calc-footnote {
+  font-size: 0.65rem;
+  text-align: center;
+  margin-top: 2rem;
+  color: var(--text);
+  letter-spacing: 0.02em;
+}
+
+/* ═══ SUBSCRIPTION ═══ */
+.tier-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0;
+}
+.tier-card {
+  border-right: 2px solid var(--grid-line);
+  padding: 2rem 1.5rem;
+  text-align: center;
+  cursor: pointer;
+  position: relative;
+  min-height: 320px;
+  perspective: 800px;
+}
+.tier-card:last-child { border-right: none; }
+.tier-flipper {
+  transition: transform 0.6s ease;
+  transform-style: preserve-3d;
+  position: relative;
+  width: 100%;
+  height: 100%;
+  min-height: 260px;
+}
+.tier-card.flipped .tier-flipper { transform: rotateY(180deg); }
+.tier-front, .tier-back {
+  backface-visibility: hidden;
+  position: absolute;
+  top: 0; left: 0; width: 100%; height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 1rem;
+}
+.tier-back {
+  transform: rotateY(180deg);
+  background: var(--text);
+  color: var(--bg);
+  font-family: var(--font-annotation);
+  font-size: 1.4rem;
+  line-height: 1.5;
+}
+.tier-price {
+  font-family: var(--font-heading);
+  color: var(--accent);
+  font-size: 2rem;
+  margin: 0.8rem 0;
+}
+.tier-features { font-size: 0.8rem; text-align: left; list-style: none; }
+.tier-features li { padding: 0.3rem 0; border-bottom: 1px solid var(--grid-line); }
+.tier-features li:last-child { border-bottom: none; }
+.free-shipping {
+  color: var(--accent);
+  font-family: var(--font-heading);
+  font-size: 1rem;
+  text-align: center;
+  margin-top: 2rem;
+  text-transform: uppercase;
+  letter-spacing: 0.15em;
+}
+.tier-tap-hint {
+  font-size: 0.7rem;
+  color: var(--grid-line);
+  margin-top: 0.8rem;
+}
+
+/* ═══ ETHICAL SOURCING ═══ */
+.split-panel {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0;
+}
+.split-left, .split-right {
+  padding: 2.5rem 2rem;
+}
+.split-left {
+  border-right: 2px solid var(--grid-line);
+}
+.split-right {
+  background: var(--card-bg);
+  font-size: 0.8rem;
+}
+.spec-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 1rem 0;
+  font-size: 0.75rem;
+}
+.spec-table th, .spec-table td {
+  border: 1px solid var(--grid-line);
+  padding: 0.4rem 0.6rem;
+  text-align: left;
+}
+.spec-table th {
+  background: var(--grid-line);
+  color: var(--bg);
+  font-family: var(--font-heading);
+  text-transform: uppercase;
+  font-size: 0.7rem;
+  letter-spacing: 0.06em;
+}
+.preservation-note {
+  margin-top: 1.5rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--grid-line);
+  font-size: 0.8rem;
+  font-style: italic;
+}
+
+/* ═══ TESTIMONIALS ═══ */
+.testimonial-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0;
+}
+.testimonial {
+  padding: 2.5rem 2rem;
+  border-right: 2px solid var(--grid-line);
+  font-size: 0.85rem;
+  line-height: 1.7;
+}
+.testimonial:last-child { border-right: none; }
+.testimonial blockquote {
+  margin: 0 0 1.5rem; padding: 0;
+  font-size: 0.85rem;
+}
+.testimonial .attribution {
+  font-size: 0.75rem;
+  color: var(--grid-line);
+}
+
+/* ═══ FOOTER ═══ */
+footer {
+  padding: 2rem;
+  text-align: center;
+  font-size: 0.7rem;
+  color: var(--grid-line);
+  border-top: 3px solid var(--grid-line);
+}
+
+/* ═══ RESPONSIVE ═══ */
+@media (max-width: 1024px) {
+  .catalog-grid { grid-template-columns: repeat(2, 1fr); }
+  .catalog-grid .product-card:nth-child(2) { border-right: none; }
+  .catalog-grid .product-card:nth-child(2) ~ .product-card:nth-child(odd) { border-right: 2px solid var(--grid-line); }
+  .catalog-grid .product-card:nth-child(4) { border-right: none; }
+}
+
+@media (max-width: 768px) {
+  .vot-grid { grid-template-columns: 1fr; }
+  .vot-col { border-right: none; border-bottom: 2px solid var(--grid-line); }
+  .vot-col:last-child { border-bottom: none; }
+
+  .catalog-grid { grid-template-columns: 1fr; }
+  .product-card { border-right: none !important; border-bottom: 2px solid var(--grid-line); }
+  .product-card:last-child { border-bottom: none; }
+
+  .calc-layout { grid-template-columns: 1fr; gap: 2rem; }
+
+  .tier-grid { grid-template-columns: 1fr; }
+  .tier-card { border-right: none; border-bottom: 2px solid var(--grid-line); }
+  .tier-card:last-child { border-bottom: none; }
+
+  .split-panel { grid-template-columns: 1fr; }
+  .split-left { border-right: none; border-bottom: 2px solid var(--grid-line); }
+
+  .testimonial-grid { grid-template-columns: 1fr; }
+  .testimonial { border-right: none; border-bottom: 2px solid var(--grid-line); }
+  .testimonial:last-child { border-bottom: none; }
+
+  .annotation { font-size: 1rem; }
+  .hero .hero-annotation { position: relative; bottom: auto; right: auto; margin-top: 2rem; text-align: center; }
+}
+</style>
+</head>
+<body x-data="touchfog()">
+<!-- ═══ HERO ═══ -->
+<section class="hero" id="hero">
+  <div class="fog-layer fog-layer-1" id="fog1"></div>
+  <div class="fog-layer fog-layer-2" id="fog2"></div>
+  <div class="fog-layer fog-layer-3" id="fog3"></div>
+  <div class="hero-content">
+    <h1>TouchFog.com</h1>
+    <p class="tagline">Certified Atmospheric Specimens, Delivered Overnight</p>
+    <p style="font-size:0.75rem; margin-top:0.8rem; letter-spacing:0.06em;">EST. 2019 &nbsp;|&nbsp; PORTLAND, OR &nbsp;|&nbsp; LICENSE #ATM-7742</p>
+  </div>
+  <span class="annotation hero-annotation visible" style="transform:rotate(-2.5deg);">she floated away in a cumulus and I've been chasing clouds since</span>
+</section>
+
+<!-- ═══ VOT CERTIFICATION ═══ -->
+<section id="vot">
+  <div class="container">
+    <h2 style="text-align:center; margin-bottom:0.5rem;">VOT Certification Standard</h2>
+    <p style="text-align:center; font-size:0.75rem; margin-bottom:2rem;">International Fog Grading Consortium &bull; Rev. 4.2 &bull; Amended March 2024</p>
+    <div class="vot-grid">
+      <div class="vot-col" @click="toggleVot('v')" style="cursor:pointer;">
+        <h3>Viscosity</h3>
+        <p style="font-size:0.7rem; margin-top:0.3rem;">Resistance to airflow at 20°C, measured in milliPascal-seconds</p>
+        <div class="vot-scale">
+          <template x-for="i in 10">
+            <div class="vot-bar-row">
+              <span class="vot-num" x-text="i"></span>
+              <div class="vot-bar"><div class="vot-bar-fill" :style="'width:' + (i * 10) + '%'"></div></div>
+            </div>
+          </template>
+        </div>
+        <div class="vot-tooltip" :class="{'active': votOpen === 'v'}">
+          <strong>V-Scale Protocol:</strong> Specimens are suspended in a sealed 1m³ acrylic chamber at 20°C ± 0.2°. A calibrated 40mm brass sphere is dropped from 800mm. Fall time in milliseconds determines the V-rating. Ratings below 3 are classified as "barely there." Ratings above 8 require a hazmat glove.
+          <span class="tooltip-annotation">she had a V-9 laugh. thick enough to slow you down.</span>
+        </div>
+      </div>
+      <div class="vot-col" @click="toggleVot('o')" style="cursor:pointer;">
+        <h3>Opacity</h3>
+        <p style="font-size:0.7rem; margin-top:0.3rem;">Light transmittance percentage, inverse scale</p>
+        <div class="vot-scale">
+          <template x-for="i in 10">
+            <div class="vot-bar-row">
+              <span class="vot-num" x-text="i"></span>
+              <div class="vot-bar"><div class="vot-bar-fill" :style="'width:' + (i * 10) + '%'"></div></div>
+            </div>
+          </template>
+        </div>
+        <div class="vot-tooltip" :class="{'active': votOpen === 'o'}">
+          <strong>O-Scale Protocol:</strong> A 100-lumen LED is positioned 500mm from a photocell. The specimen is released between them. The percentage of light blocked determines the O-rating. An O-1 fog is a suggestion. An O-10 fog is a wall. Most customers prefer O-4 through O-6: enough to change the room without losing the furniture.
+          <span class="tooltip-annotation">I wanted an O-10 to hide in but kept buying O-3s because I'm a coward</span>
+        </div>
+      </div>
+      <div class="vot-col" @click="toggleVot('t')" style="cursor:pointer;">
+        <h3>Tactility</h3>
+        <p style="font-size:0.7rem; margin-top:0.3rem;">Dermal perception index, 10-point haptic scale</p>
+        <div class="vot-scale">
+          <template x-for="i in 10">
+            <div class="vot-bar-row">
+              <span class="vot-num" x-text="i"></span>
+              <div class="vot-bar"><div class="vot-bar-fill" :style="'width:' + (i * 10) + '%'"></div></div>
+            </div>
+          </template>
+        </div>
+        <div class="vot-tooltip" :class="{'active': votOpen === 't'}">
+          <strong>T-Scale Protocol:</strong> Subjects place their forearm into a cloud column. They report sensation on a 10-point scale from "did I touch anything?" (T-1) to "someone is holding my hand" (T-10). The T-scale is the least scientific of the three. We keep it anyway.
+          <span class="tooltip-annotation">a T-7 once made a grown man cry at a trade show in Denver</span>
+        </div>
+        <div class="qr-fake" aria-hidden="true">
+          <template x-for="i in 64">
+            <div class="qr-cell" :class="{'empty': qrPattern[i-1] === 0}"></div>
+          </template>
+        </div>
+      </div>
+    </div>
+  </div>
+  <span class="annotation" style="top:10%; right:3%; transform:rotate(2deg); max-width:220px;" data-scroll-anim>grading grief on a 10-point scale</span>
+</section>
+
+<!-- ═══ PRODUCT CATALOG ═══ -->
+<section id="catalog">
+  <div class="container">
+    <h2 style="text-align:center; margin-bottom:0.5rem;">Specimen Catalog</h2>
+    <p style="text-align:center; font-size:0.75rem; margin-bottom:2rem;">Current inventory as of February 2026. All specimens hand-collected. Certificate of authenticity included.</p>
+  </div>
+  <div class="catalog-grid">
+    <template x-for="(product, idx) in products" :key="idx">
+      <div class="product-card"
+           @mouseenter="product.hovering = true"
+           @mouseleave="product.hovering = false"
+           :id="'product-' + idx">
+        <div class="product-card-inner" :style="product.hovering ? 'filter:blur(6px);opacity:0.3;' : ''">
+          <h3 x-text="product.name"></h3>
+          <div class="cloud-diagram">
+            <template x-for="(c, ci) in product.clouds" :key="ci">
+              <div class="cloud-shape" :style="'width:'+c.w+'px;height:'+c.h+'px;left:'+c.x+'%;top:'+c.y+'%;opacity:'+c.o"></div>
+            </template>
+          </div>
+          <div class="product-price" x-text="'$' + product.price"></div>
+          <div class="product-vot" x-text="'VOT: V-' + product.v + ' / O-' + product.o + ' / T-' + product.t"></div>
+          <p class="product-desc" x-text="product.desc"></p>
+          <span class="product-scribble" x-text="product.scribble"></span>
+        </div>
+        <div class="fog-reveal" :style="product.hovering ? 'opacity:1;' : ''">
+          <span x-text="product.reveal"></span>
+        </div>
+      </div>
+    </template>
+  </div>
+  <span class="annotation" style="bottom:5%; left:2%; transform:rotate(-1.5deg); max-width:250px;" data-scroll-anim>every cloud in this catalog outlived something</span>
+</section>
+
+<!-- ═══ FOG DISPERSION CALCULATOR ═══ -->
+<section class="calculator-section" id="calculator">
+  <div class="container">
+    <h2 style="text-align:center;">Fog Dispersion Calculator</h2>
+    <p style="text-align:center; font-size:0.75rem; margin-bottom:2.5rem;">Estimate dispersal time based on room volume and target density. Results assume sealed environment, 68°F, 45% relative humidity.</p>
+    <div class="calc-layout">
+      <div class="calc-sliders">
+        <div class="calc-field">
+          <label>Room Length (feet)</label>
+          <input type="range" min="4" max="40" x-model.number="calcLength" step="1" style="min-height:44px;">
+          <div class="val-display" x-text="calcLength + ' ft'"></div>
+        </div>
+        <div class="calc-field">
+          <label>Room Width (feet)</label>
+          <input type="range" min="4" max="40" x-model.number="calcWidth" step="1" style="min-height:44px;">
+          <div class="val-display" x-text="calcWidth + ' ft'"></div>
+        </div>
+        <div class="calc-field">
+          <label>Desired Density (%)</label>
+          <input type="range" min="10" max="100" x-model.number="calcDensity" step="5" style="min-height:44px;">
+          <div class="val-display" x-text="calcDensity + '%'"></div>
+        </div>
+      </div>
+      <div class="calc-result">
+        <div class="time-display" x-text="dispersalTime"></div>
+        <div class="time-label">minutes until gone</div>
+      </div>
+    </div>
+    <p class="calc-footnote">average relationship: 27 years. average cloud: 14 minutes.</p>
+  </div>
+  <span class="annotation" style="top:8%; right:4%; transform:rotate(1.8deg); max-width:200px;" data-scroll-anim>math can't save you either</span>
+</section>
+
+<!-- ═══ FOG OF THE MONTH CLUB ═══ -->
+<section id="subscription">
+  <div class="container">
+    <h2 style="text-align:center;">Fog of the Month Club</h2>
+    <p style="text-align:center; font-size:0.75rem; margin-bottom:2.5rem;">A curated atmospheric specimen delivered to your door every 30 days. Cancel anytime. Most people don't.</p>
+    <div class="tier-grid">
+      <div class="tier-card" @click="toggleTier(0)" :class="{'flipped': tierFlipped[0]}">
+        <div class="tier-flipper">
+          <div class="tier-front">
+            <h3>Cirrus</h3>
+            <div class="tier-price">$29/mo</div>
+            <ul class="tier-features">
+              <li>1 small-format specimen (250ml)</li>
+              <li>VOT certificate, laminated</li>
+              <li>Origin coordinates + weather report</li>
+              <li>Dispersal time: 8–12 minutes</li>
+            </ul>
+            <p class="tier-tap-hint">tap to reveal</p>
+          </div>
+          <div class="tier-back">
+            What you actually receive: a jar of almost nothing. You will open it in your kitchen. The room will smell different for nine minutes. Then it won't.
+          </div>
+        </div>
+      </div>
+      <div class="tier-card" @click="toggleTier(1)" :class="{'flipped': tierFlipped[1]}">
+        <div class="tier-flipper">
+          <div class="tier-front">
+            <h3>Stratus</h3>
+            <div class="tier-price">$49/mo</div>
+            <ul class="tier-features">
+              <li>1 mid-format specimen (500ml)</li>
+              <li>VOT + origin story pamphlet</li>
+              <li>Fog journal: tasting notes</li>
+              <li>Dispersal time: 12–18 minutes</li>
+              <li>Complimentary humidity sachet</li>
+            </ul>
+            <p class="tier-tap-hint">tap to reveal</p>
+          </div>
+          <div class="tier-back">
+            What you actually receive: a brief humid feeling. Your mirror will fog. You'll write something in it with your finger, probably a name.
+          </div>
+        </div>
+      </div>
+      <div class="tier-card" @click="toggleTier(2)" :class="{'flipped': tierFlipped[2]}">
+        <div class="tier-flipper">
+          <div class="tier-front">
+            <h3>Cumulonimbus</h3>
+            <div class="tier-price">$89/mo</div>
+            <ul class="tier-features">
+              <li>1 large-format specimen (1L)</li>
+              <li>Full VOT + peer-reviewed density report</li>
+              <li>Handwritten field notes from collector</li>
+              <li>Dispersal time: 18–26 minutes</li>
+              <li>Temperature-controlled glass vessel</li>
+              <li>Emergency re-fogging kit</li>
+            </ul>
+            <p class="tier-tap-hint">tap to reveal</p>
+          </div>
+          <div class="tier-back">
+            What you actually receive: the memory of weather. You will sit on the floor of your living room and feel homesick for somewhere you've never been. This is the correct response.
+          </div>
+        </div>
+      </div>
+    </div>
+    <p class="free-shipping" style="color:#C4453C;">Free shipping on orders over $50</p>
+  </div>
+  <span class="annotation" style="bottom:8%; right:6%; transform:rotate(-2.2deg); max-width:280px;" data-scroll-anim>Bjorn is in Reno now. He mists slot machines.</span>
+</section>
+
+<!-- ═══ ETHICAL SOURCING & PRESERVATION ═══ -->
+<section id="sourcing">
+  <div class="container">
+    <h2 style="text-align:center; margin-bottom:2rem;">Ethical Sourcing & Cloud Preservation</h2>
+    <div class="split-panel">
+      <div class="split-left">
+        <h3>Sustainability Statement</h3>
+        <p style="font-size:0.85rem; line-height:1.7; margin-top:1rem;">
+          TouchFog sources all atmospheric specimens using 100% renewable-energy condensation arrays deployed at altitude-appropriate collection sites. Our field teams operate under strict no-trace protocols. No ecosystem is disturbed. No weather pattern is altered. We take only what the sky was already releasing.
+        </p>
+        <p style="font-size:0.85rem; line-height:1.7; margin-top:1rem;">
+          Each specimen is captured in medical-grade borosilicate containers, sealed under nitrogen atmosphere, and transported in phase-change temperature-controlled packaging. Our carbon offset program plants one cloud-seeding silver iodide canister for every 500 units shipped.
+        </p>
+        <p style="font-size:0.85rem; line-height:1.7; margin-top:1rem;">
+          We are certified by the International Fog Grading Consortium (IFGC), the North American Atmospheric Commerce Board (NAACB), and our moms.
+        </p>
+      </div>
+      <div class="split-right">
+        <h3>Cloud Preservation Guide</h3>
+        <p style="font-size:0.75rem; margin-top:0.5rem;">Document ref: TP-PRV-2024-08 &bull; Classification: Public</p>
+        <table class="spec-table">
+          <thead>
+            <tr><th>Parameter</th><th>Optimal</th><th>Acceptable</th><th>Critical</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>Storage Temp</td><td>36–42°F</td><td>32–50°F</td><td>&lt;28°F / &gt;60°F</td></tr>
+            <tr><td>Humidity</td><td>85–92%</td><td>75–95%</td><td>&lt;60%</td></tr>
+            <tr><td>Light Exposure</td><td>0 lux</td><td>&lt;50 lux</td><td>&gt;200 lux</td></tr>
+            <tr><td>Vibration</td><td>None</td><td>&lt;0.5g</td><td>&gt;2g</td></tr>
+            <tr><td>Container Seal</td><td>Nitrogen</td><td>Argon</td><td>Ambient</td></tr>
+          </tbody>
+        </table>
+        <p style="font-size:0.75rem; margin-top:1rem; line-height:1.5;">
+          Upon opening, release specimen in a sealed room at target temperature. Close doors and windows. Minimize air circulation. Do not attempt to contain the cloud once released. Do not attempt to re-capture a dispersing specimen.
+        </p>
+        <p class="preservation-note">
+          Note: all clouds dissipate. This is not a defect.
+        </p>
+      </div>
+    </div>
+  </div>
+  <span class="annotation" style="top:15%; left:1%; transform:rotate(2.5deg); max-width:200px;" data-scroll-anim>she kept the thermostat at 68. I still do.</span>
+</section>
+
+<!-- ═══ TESTIMONIALS ═══ -->
+<section id="testimonials">
+  <div class="container">
+    <h2 style="text-align:center; margin-bottom:2rem;">Field Reports</h2>
+    <div class="testimonial-grid">
+      <div class="testimonial">
+        <blockquote>"I opened the Scottish Highlands Mist in my mother's empty apartment and for eleven minutes it smelled like rain on wool. I sat on her carpet and didn't move until it was gone. Five stars."</blockquote>
+        <div class="attribution">— Margaret Chen, Duluth, MN &bull; Verified Purchase</div>
+      </div>
+      <div class="testimonial">
+        <blockquote>"Ordered the Mojave Phantom Drift for a gallery installation. Clients kept asking what the smell was. I said 'distance.' Sold three paintings that night. The fog sold them, not me."</blockquote>
+        <div class="attribution">— Tomás Herrera, Santa Fe, NM &bull; Verified Purchase</div>
+      </div>
+      <div class="testimonial">
+        <blockquote>"I buy the Cumulonimbus subscription. Every month I open the jar in my bedroom at 6 a.m. and lie in it. My therapist says this is not a replacement for processing my emotions. My therapist has never been inside a cloud."</blockquote>
+        <div class="attribution" style="color:var(--grid-line);">— Portland, OR</div>
+      </div>
+    </div>
+  </div>
+  <span class="annotation" style="bottom:10%; left:3%; transform:rotate(-1deg); max-width:260px;" data-scroll-anim>every review is a letter to someone who left</span>
+</section>
+
+<!-- ═══ FOOTER ═══ -->
+<footer>
+  <p>TouchFog.com &bull; Portland, OR &bull; IFGC License #ATM-7742 &bull; All specimens are final sale</p>
+  <p style="margin-top:0.5rem;">&copy; 2019–2026 TouchFog LLC. Fog is a natural product and may vary in appearance, duration, and emotional weight.</p>
+</footer>
+
+<script src="/assets/js/alpine.min.js" defer></script>
+<script src="/assets/js/gsap.min.js"></script>
+<script>
+document.addEventListener('alpine:init', function() {
+  Alpine.data('touchfog', function() {
+    return {
+      votOpen: null,
+      tierFlipped: [false, false, false],
+      calcLength: 14,
+      calcWidth: 12,
+      calcDensity: 60,
+      qrPattern: [
+        1,1,1,0,1,1,1,0,
+        1,0,1,1,0,1,0,1,
+        1,1,1,0,1,0,1,1,
+        0,1,0,1,0,1,0,0,
+        1,0,1,0,1,0,1,1,
+        0,1,1,1,0,1,1,0,
+        1,0,0,1,1,0,1,1,
+        1,1,1,0,0,1,1,1
+      ],
+      products: [
+        {
+          name: 'Scottish Highlands Mist',
+          price: '42.00',
+          v: 6, o: 5, t: 7,
+          desc: 'Collected at 4 a.m. from Glen Coe, elevation 340m. Smells of peat, wet granite, and someone else\'s morning.',
+          scribble: 'this one smelled like her kitchen',
+          reveal: 'You are purchasing eleven minutes of Scotland. It will not be enough.',
+          hovering: false,
+          clouds: [
+            {w:80,h:50,x:10,y:20,o:0.5},{w:60,h:40,x:35,y:10,o:0.6},{w:90,h:55,x:55,y:30,o:0.4},{w:45,h:35,x:25,y:40,o:0.55}
+          ]
+        },
+        {
+          name: 'San Francisco Sunset Fog',
+          price: '38.00',
+          v: 4, o: 7, t: 4,
+          desc: 'Harvested from the Golden Gate strait at civil twilight. Dense, orange-tinted, tastes like salt if you open your mouth.',
+          scribble: 'the bridge disappears every evening and nobody panics',
+          reveal: 'The city erases itself nightly. You\'re paying for the footage.',
+          hovering: false,
+          clouds: [
+            {w:100,h:45,x:5,y:25,o:0.45},{w:70,h:50,x:40,y:15,o:0.55},{w:55,h:40,x:65,y:40,o:0.5}
+          ]
+        },
+        {
+          name: 'Mojave Phantom Drift',
+          price: '56.00',
+          v: 2, o: 3, t: 9,
+          desc: 'Appears once per season in the Mojave basin, 3–5 a.m. only. Almost invisible. You feel it before you see it. Collectors call it "the ghost."',
+          scribble: 'the desert makes fog like a secret',
+          reveal: 'You will release this into a room and wonder if anything happened. Something did.',
+          hovering: false,
+          clouds: [
+            {w:120,h:35,x:0,y:30,o:0.25},{w:80,h:30,x:30,y:50,o:0.2},{w:60,h:25,x:60,y:20,o:0.15}
+          ]
+        },
+        {
+          name: 'Antarctic Shelf Whisper',
+          price: '94.00',
+          v: 8, o: 8, t: 3,
+          desc: 'Extracted from ice-shelf melt vapor at -12°C. Extremely dense. Low tactility—it doesn\'t touch you, it replaces the air around you.',
+          scribble: 'cold enough to forget where you are',
+          reveal: 'This cloud is older than your country. Handle accordingly.',
+          hovering: false,
+          clouds: [
+            {w:110,h:60,x:5,y:15,o:0.6},{w:85,h:50,x:35,y:25,o:0.7},{w:70,h:45,x:60,y:10,o:0.5},{w:50,h:35,x:20,y:50,o:0.55}
+          ]
+        }
+      ],
+
+      get dispersalTime() {
+        var volume = this.calcLength * this.calcWidth * 8;
+        var densityFactor = this.calcDensity / 100;
+        var minutes = Math.round((volume * densityFactor) / 80);
+        if (minutes < 1) minutes = 1;
+        if (minutes > 99) minutes = 99;
+        return minutes;
+      },
+
+      toggleVot: function(axis) {
+        this.votOpen = this.votOpen === axis ? null : axis;
+      },
+
+      toggleTier: function(idx) {
+        this.tierFlipped[idx] = !this.tierFlipped[idx];
+      }
+    };
+  });
+});
+
+/* ═══ GSAP ANIMATIONS ═══ */
+document.addEventListener('DOMContentLoaded', function() {
+  // Hero fog drift
+  var fog1 = document.getElementById('fog1');
+  var fog2 = document.getElementById('fog2');
+  var fog3 = document.getElementById('fog3');
+
+  if (fog1) {
+    gsap.fromTo(fog1,
+      { x: '0%' },
+      { x: '-25%', duration: 30, repeat: -1, yoyo: true, ease: 'sine.inOut' }
+    );
+  }
+  if (fog2) {
+    gsap.fromTo(fog2,
+      { x: '-10%' },
+      { x: '15%', duration: 22, repeat: -1, yoyo: true, ease: 'sine.inOut' }
+    );
+  }
+  if (fog3) {
+    gsap.fromTo(fog3,
+      { x: '5%' },
+      { x: '-20%', duration: 38, repeat: -1, yoyo: true, ease: 'sine.inOut' }
+    );
+  }
+
+  // Scroll-triggered annotations
+  var annotations = document.querySelectorAll('[data-scroll-anim]');
+  if (annotations.length > 0 && typeof IntersectionObserver !== 'undefined') {
+    var observer = new IntersectionObserver(function(entries) {
+      entries.forEach(function(entry) {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('visible');
+          var rotation = entry.target.style.transform || 'rotate(0deg)';
+          gsap.fromTo(entry.target,
+            { opacity: 0, y: 15, scale: 0.95 },
+            { opacity: 1, y: 0, scale: 1, duration: 0.8, ease: 'power2.out' }
+          );
+        }
+      });
+    }, { threshold: 0.3 });
+
+    annotations.forEach(function(el) {
+      observer.observe(el);
+    });
+  }
+});
+</script>
+</body>
+</html>

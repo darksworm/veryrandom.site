@@ -1,0 +1,1492 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FORM PAR-2023-001 | Dept. of Pre-Apocalyptic Asset Preservation</title>
+<link rel="stylesheet" href="/assets/css/fonts.css">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg: #2a2e24;
+  --text: #d4d0c8;
+  --text-secondary: #8a8677;
+  --accent: #c9a832;
+  --card-bg: #1e2119;
+  --border: #4a4d3f;
+  --font-heading: 'Fira Code', monospace;
+  --font-body: 'Work Sans', sans-serif;
+  --font-accent: 'Permanent Marker', cursive;
+}
+
+html { scroll-behavior: smooth; }
+
+body {
+  background-color: var(--bg);
+  color: var(--text);
+  font-family: var(--font-body);
+  font-size: 17px;
+  line-height: 1.65;
+  min-height: 100vh;
+  overflow-x: hidden;
+  position: relative;
+}
+
+/* Graph paper background */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image:
+    linear-gradient(var(--border) 1px, transparent 1px),
+    linear-gradient(90deg, var(--border) 1px, transparent 1px);
+  background-size: 18.9px 18.9px;
+  opacity: 0.08;
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* CRT scanlines */
+.crt-overlay {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 9998;
+  overflow: hidden;
+}
+.crt-overlay.active .scanlines {
+  display: block;
+}
+.crt-overlay .scanlines {
+  display: none;
+  position: absolute;
+  inset: 0;
+  background: repeating-linear-gradient(
+    0deg,
+    transparent,
+    transparent 2px,
+    rgba(0,0,0,0.04) 2px,
+    rgba(0,0,0,0.04) 3px
+  );
+  animation: scanlineDrift 8s linear infinite;
+}
+@keyframes scanlineDrift {
+  0% { transform: translateY(0); }
+  100% { transform: translateY(60px); }
+}
+
+.crt-overlay.active .crt-flicker {
+  display: block;
+}
+.crt-flicker {
+  display: none;
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  animation: crtFlicker 10s step-end infinite;
+}
+@keyframes crtFlicker {
+  0%, 89% { opacity: 0; transform: translateX(0); filter: brightness(1); }
+  90% { opacity: 1; transform: translateX(2px); filter: brightness(1.15); }
+  91% { opacity: 0; transform: translateX(0); filter: brightness(1); }
+  100% { opacity: 0; }
+}
+
+/* Signal toggle */
+.signal-toggle {
+  position: fixed;
+  top: 12px;
+  right: 12px;
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--card-bg);
+  border: 1px solid var(--border);
+  padding: 6px 12px;
+  cursor: pointer;
+  font-family: var(--font-heading);
+  font-size: 10px;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  min-height: 44px;
+  min-width: 44px;
+}
+.signal-toggle:hover { color: var(--accent); border-color: var(--accent); }
+.signal-dot {
+  width: 8px; height: 8px; border-radius: 50%;
+  background: var(--accent);
+  transition: background 0.3s;
+}
+.signal-dot.off { background: #5a3a3a; }
+
+/* Page wrapper */
+.page-wrapper {
+  position: relative;
+  z-index: 1;
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 40px 20px 80px;
+}
+
+/* Left margin metadata */
+.margin-meta {
+  display: none;
+}
+@media (min-width: 900px) {
+  .margin-meta {
+    display: block;
+    position: fixed;
+    left: 12px;
+    top: 50%;
+    transform: translateY(-50%) rotate(-90deg);
+    transform-origin: center center;
+    font-family: var(--font-heading);
+    font-size: 9px;
+    color: #5a5d4f;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    white-space: nowrap;
+    z-index: 2;
+    pointer-events: none;
+  }
+}
+
+/* Form container */
+.form-container {
+  max-width: 720px;
+  margin: 0 auto;
+  padding-left: 20px;
+}
+@media (min-width: 768px) {
+  .form-container { padding-left: 60px; }
+}
+
+/* Section dividers */
+.form-section {
+  border-top: 2px dashed var(--border);
+  padding: 40px 0;
+  position: relative;
+}
+.form-section:first-child { border-top: none; }
+
+/* Section numbers */
+.section-label {
+  font-family: var(--font-heading);
+  font-size: 11px;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  margin-bottom: 8px;
+  display: block;
+}
+
+/* Typewriter headers */
+.typewriter-header {
+  font-family: var(--font-heading);
+  font-size: clamp(16px, 3vw, 22px);
+  color: var(--accent);
+  line-height: 1.3;
+  margin-bottom: 20px;
+  min-height: 1.3em;
+  letter-spacing: -0.5px;
+}
+.typewriter-header .cursor {
+  display: inline-block;
+  width: 2px;
+  height: 1em;
+  background: var(--accent);
+  margin-left: 2px;
+  vertical-align: text-bottom;
+  animation: blink 0.6s step-end infinite;
+}
+.typewriter-header .cursor.done {
+  animation: blink 0.6s step-end 3;
+  animation-fill-mode: forwards;
+}
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0; }
+}
+
+/* Stamp text */
+.stamp-text {
+  display: inline-block;
+  font-family: var(--font-heading);
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  padding: 4px 12px;
+  border: 2px solid;
+  transform: rotate(-2deg);
+}
+
+/* Margin annotation (Permanent Marker) */
+.margin-note {
+  font-family: var(--font-accent);
+  color: var(--accent);
+  font-size: 15px;
+  line-height: 1.4;
+  padding: 8px 0 8px 16px;
+  border-left: 3px solid var(--accent);
+  margin: 16px 0;
+  transform: rotate(-0.5deg);
+}
+
+/* Form field styling */
+.form-field {
+  background: var(--card-bg);
+  border: 1px solid var(--border);
+  padding: 16px 20px;
+  margin: 12px 0;
+}
+.form-field-label {
+  font-family: var(--font-heading);
+  font-size: 10px;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  margin-bottom: 6px;
+  display: block;
+}
+.form-field-value {
+  font-family: var(--font-body);
+  font-size: 17px;
+  color: var(--text);
+}
+
+/* Table */
+.tier-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+  margin: 20px 0;
+}
+.tier-table th {
+  font-family: var(--font-heading);
+  font-size: 10px;
+  color: var(--accent);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  padding: 10px 8px;
+  text-align: left;
+  border-bottom: 2px solid var(--border);
+  white-space: nowrap;
+}
+.tier-table td {
+  padding: 10px 8px;
+  border-bottom: 1px solid var(--border);
+  color: var(--text);
+  font-size: 13px;
+  vertical-align: top;
+}
+.tier-table tr:hover td { background: rgba(201, 168, 50, 0.05); }
+.tier-num {
+  font-family: var(--font-heading);
+  color: var(--accent);
+  font-size: 16px;
+  font-weight: bold;
+}
+
+/* Responsive table */
+@media (max-width: 767px) {
+  .tier-table-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+  .tier-table { min-width: 600px; }
+}
+
+/* Bug-out cards */
+.case-file {
+  background: var(--card-bg);
+  border: 1px solid var(--border);
+  padding: 24px;
+  margin: 24px 0;
+  position: relative;
+}
+.case-file-header {
+  font-family: var(--font-heading);
+  font-size: 14px;
+  color: var(--accent);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin-bottom: 16px;
+  padding-bottom: 12px;
+  border-bottom: 1px dashed var(--border);
+}
+.case-file-stamp {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  font-family: var(--font-heading);
+  font-size: 9px;
+  color: var(--text-secondary);
+  border: 1px solid var(--text-secondary);
+  padding: 2px 8px;
+  transform: rotate(2deg);
+}
+
+/* CSS furniture diagrams */
+.furniture-diagram {
+  width: 120px;
+  height: 120px;
+  margin: 16px 0;
+  position: relative;
+  border: 1px dashed var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.furniture-diagram .piece {
+  position: absolute;
+  border: 2px solid var(--accent);
+  border-radius: 2px;
+}
+/* Windsor chair */
+.diagram-windsor .seat { width: 50px; height: 8px; top: 60px; left: 35px; }
+.diagram-windsor .leg1 { width: 4px; height: 35px; top: 68px; left: 40px; transform: rotate(-5deg); }
+.diagram-windsor .leg2 { width: 4px; height: 35px; top: 68px; left: 76px; transform: rotate(5deg); }
+.diagram-windsor .back { width: 30px; height: 40px; top: 18px; left: 45px; border-radius: 30px 30px 0 0; border-bottom: none; }
+.diagram-windsor .spindle1 { width: 2px; height: 20px; top: 40px; left: 50px; }
+.diagram-windsor .spindle2 { width: 2px; height: 20px; top: 40px; left: 58px; }
+.diagram-windsor .spindle3 { width: 2px; height: 20px; top: 40px; left: 66px; }
+/* Rocking chair */
+.diagram-rocker .seat { width: 45px; height: 8px; top: 55px; left: 38px; }
+.diagram-rocker .back { width: 35px; height: 35px; top: 18px; left: 43px; border-radius: 20px 20px 0 0; border-bottom: none; }
+.diagram-rocker .leg1 { width: 4px; height: 25px; top: 63px; left: 42px; }
+.diagram-rocker .leg2 { width: 4px; height: 25px; top: 63px; left: 74px; }
+.diagram-rocker .runner { width: 70px; height: 20px; top: 85px; left: 25px; border-radius: 0 0 50% 50%; border-top: none; }
+/* Writing desk */
+.diagram-desk .top { width: 70px; height: 6px; top: 35px; left: 25px; }
+.diagram-desk .leg1 { width: 4px; height: 45px; top: 41px; left: 28px; }
+.diagram-desk .leg2 { width: 4px; height: 45px; top: 41px; left: 88px; }
+.diagram-desk .drawer { width: 40px; height: 12px; top: 41px; left: 40px; border-style: dashed; }
+.diagram-desk .brace { width: 56px; height: 2px; top: 70px; left: 32px; }
+
+.stat-row {
+  display: flex;
+  gap: 20px;
+  flex-wrap: wrap;
+  margin: 12px 0;
+}
+.stat-item {
+  flex: 1;
+  min-width: 120px;
+}
+.stat-label {
+  font-family: var(--font-heading);
+  font-size: 10px;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+.stat-value {
+  font-family: var(--font-heading);
+  font-size: 18px;
+  color: var(--accent);
+}
+
+/* Testimonials */
+.testimony {
+  background: var(--card-bg);
+  border: 1px solid var(--border);
+  padding: 24px;
+  margin: 24px 0;
+  position: relative;
+}
+.testimony blockquote {
+  font-style: italic;
+  font-size: 16px;
+  color: var(--text);
+  border-left: 3px solid var(--accent);
+  padding-left: 16px;
+  margin: 0 0 16px 0;
+}
+.testimony-meta {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+.sig-line {
+  border-top: 1px solid var(--text-secondary);
+  width: 180px;
+  padding-top: 4px;
+  font-family: var(--font-heading);
+  font-size: 11px;
+  color: var(--text-secondary);
+}
+.notary-stamp {
+  font-family: var(--font-heading);
+  font-size: 10px;
+  color: var(--accent);
+  border: 2px solid var(--accent);
+  border-radius: 50%;
+  width: 80px;
+  height: 80px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  transform: rotate(-8deg);
+  line-height: 1.2;
+  padding: 8px;
+  flex-shrink: 0;
+}
+.verification {
+  font-family: var(--font-heading);
+  font-size: 10px;
+  color: #5a8a5a;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  margin-top: 8px;
+}
+
+/* Redacted */
+.redacted {
+  background: #111;
+  color: #111;
+  padding: 0 4px;
+  cursor: pointer;
+  position: relative;
+  display: inline;
+  transition: none;
+  user-select: none;
+  min-height: 44px;
+  min-width: 44px;
+}
+.redacted:hover {
+  animation: crtGlitch 0.15s step-end infinite;
+}
+.redacted.revealed {
+  background: transparent;
+  color: var(--accent);
+  animation: none;
+}
+@keyframes crtGlitch {
+  0% { background: #111; }
+  25% { background: #222; text-shadow: 1px 0 var(--accent); }
+  50% { background: #1a1a1a; text-shadow: -1px 0 #c9a832; }
+  75% { background: #0a0a0a; text-shadow: 2px 0 var(--accent); }
+  100% { background: #111; }
+}
+
+.clearance-badge {
+  display: inline-block;
+  font-family: var(--font-heading);
+  font-size: 11px;
+  color: #5a8a5a;
+  border: 2px solid #5a8a5a;
+  padding: 4px 12px;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  margin: 12px 0;
+  opacity: 0;
+}
+.clearance-badge.stamped {
+  opacity: 1;
+}
+
+/* Personnel cards */
+.personnel-card {
+  background: var(--card-bg);
+  border: 1px solid var(--border);
+  padding: 24px;
+  margin: 20px 0;
+  display: flex;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+.personnel-photo {
+  width: 100px;
+  height: 120px;
+  background: #151811;
+  border: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+.personnel-photo svg {
+  opacity: 0.3;
+}
+.photo-label {
+  font-family: var(--font-heading);
+  font-size: 8px;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  text-align: center;
+  margin-top: 4px;
+  letter-spacing: 1px;
+}
+.personnel-info { flex: 1; min-width: 200px; }
+.personnel-name {
+  font-family: var(--font-heading);
+  font-size: 15px;
+  color: var(--accent);
+  margin-bottom: 2px;
+}
+.personnel-rank {
+  font-family: var(--font-heading);
+  font-size: 11px;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin-bottom: 12px;
+}
+.personnel-field {
+  margin: 6px 0;
+}
+.personnel-field .label {
+  font-family: var(--font-heading);
+  font-size: 10px;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+.status-badge {
+  display: inline-block;
+  font-family: var(--font-heading);
+  font-size: 10px;
+  padding: 2px 10px;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+}
+.status-active { color: #5a8a5a; border: 1px solid #5a8a5a; }
+.status-standby { color: var(--accent); border: 1px solid var(--accent); }
+.status-redacted { color: #8a3a3a; border: 1px solid #8a3a3a; }
+
+/* FAQ */
+.faq-item {
+  margin: 20px 0;
+  background: var(--card-bg);
+  border: 1px solid var(--border);
+  overflow: hidden;
+}
+.faq-question {
+  font-family: var(--font-heading);
+  font-size: 14px;
+  color: var(--text);
+  padding: 16px 20px;
+  cursor: pointer;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  min-height: 44px;
+  user-select: none;
+}
+.faq-question:hover { color: var(--accent); }
+.faq-toggle {
+  font-family: var(--font-heading);
+  font-size: 16px;
+  color: var(--accent);
+  flex-shrink: 0;
+  margin-left: 12px;
+  transition: transform 0.3s;
+}
+.faq-answer {
+  padding: 0 20px 16px;
+  color: var(--text);
+  font-size: 15px;
+  line-height: 1.7;
+}
+
+/* Calculator widget */
+.calculator-widget {
+  background: var(--card-bg);
+  border: 2px solid var(--border);
+  padding: 24px;
+  margin: 24px 0;
+}
+.calc-label {
+  font-family: var(--font-heading);
+  font-size: 11px;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  margin-bottom: 8px;
+  display: block;
+}
+.calc-select, .calc-range {
+  width: 100%;
+  background: var(--bg);
+  color: var(--text);
+  border: 1px solid var(--border);
+  padding: 10px 12px;
+  font-family: var(--font-body);
+  font-size: 15px;
+  margin-bottom: 16px;
+  min-height: 44px;
+  -webkit-appearance: none;
+  appearance: none;
+}
+.calc-select option { background: var(--bg); color: var(--text); }
+.calc-range {
+  padding: 0;
+  -webkit-appearance: auto;
+  appearance: auto;
+  accent-color: var(--accent);
+  cursor: pointer;
+}
+.calc-button {
+  font-family: var(--font-heading);
+  font-size: 14px;
+  background: var(--accent);
+  color: var(--bg);
+  border: none;
+  padding: 12px 24px;
+  cursor: pointer;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  min-height: 44px;
+  min-width: 44px;
+  transition: transform 0.1s;
+}
+.calc-button:hover { transform: scale(1.02); }
+.calc-button:active { transform: scale(0.98); }
+.calc-result {
+  margin-top: 20px;
+  text-align: center;
+  min-height: 80px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.tier-stamp {
+  font-family: var(--font-heading);
+  font-size: 28px;
+  color: var(--accent);
+  border: 3px solid var(--accent);
+  padding: 12px 24px;
+  display: inline-block;
+  transform: rotate(-3deg);
+  opacity: 0;
+}
+.tier-stamp.animate {
+  animation: stampImpact 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+}
+@keyframes stampImpact {
+  0% { opacity: 0; transform: rotate(-3deg) scale(1.4) translateY(-20px); }
+  60% { opacity: 1; transform: rotate(-3deg) scale(1.15); }
+  80% { transform: rotate(-3deg) scale(0.98); }
+  100% { opacity: 1; transform: rotate(-3deg) scale(1.0); }
+}
+.priority-code {
+  font-family: var(--font-heading);
+  font-size: 12px;
+  color: var(--text-secondary);
+  margin-top: 12px;
+  letter-spacing: 2px;
+}
+
+/* Footer form */
+.submission-form {
+  margin: 20px 0;
+}
+.form-input {
+  width: 100%;
+  background: var(--bg);
+  color: var(--text);
+  border: 1px solid var(--border);
+  padding: 12px 16px;
+  font-family: var(--font-body);
+  font-size: 15px;
+  margin-bottom: 16px;
+  min-height: 44px;
+}
+.form-input::placeholder { color: var(--text-secondary); }
+.form-input:focus { outline: 1px solid var(--accent); border-color: var(--accent); }
+.form-textarea {
+  width: 100%;
+  background: var(--bg);
+  color: var(--text);
+  border: 1px solid var(--border);
+  padding: 12px 16px;
+  font-family: var(--font-body);
+  font-size: 15px;
+  margin-bottom: 16px;
+  min-height: 100px;
+  resize: vertical;
+}
+.form-textarea::placeholder { color: var(--text-secondary); }
+.form-textarea:focus { outline: 1px solid var(--accent); border-color: var(--accent); }
+.checkbox-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  margin: 16px 0 24px;
+  cursor: pointer;
+  min-height: 44px;
+}
+.checkbox-row input[type="checkbox"] {
+  width: 22px;
+  height: 22px;
+  margin-top: 2px;
+  accent-color: var(--accent);
+  flex-shrink: 0;
+  cursor: pointer;
+}
+.checkbox-label {
+  font-family: var(--font-body);
+  font-size: 14px;
+  color: var(--text);
+  cursor: pointer;
+}
+.submit-btn {
+  font-family: var(--font-heading);
+  font-size: 14px;
+  background: var(--accent);
+  color: var(--bg);
+  border: none;
+  padding: 14px 32px;
+  cursor: pointer;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  min-height: 44px;
+  min-width: 44px;
+  width: 100%;
+  transition: transform 0.1s;
+}
+.submit-btn:hover { transform: scale(1.01); }
+.submit-btn:active { transform: scale(0.99); }
+
+/* Confirmation overlay */
+.confirmation-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(30, 33, 25, 0.97);
+  z-index: 10000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.4s;
+}
+.confirmation-overlay.active {
+  opacity: 1;
+  pointer-events: auto;
+}
+.confirmation-stamp {
+  font-family: var(--font-heading);
+  font-size: clamp(18px, 4vw, 32px);
+  color: var(--accent);
+  border: 4px solid var(--accent);
+  padding: 24px 40px;
+  text-align: center;
+  line-height: 1.5;
+  transform: rotate(-2deg);
+  opacity: 0;
+  max-width: 90vw;
+}
+.confirmation-stamp.animate {
+  animation: stampImpact 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+}
+.confirmation-seal {
+  width: 100px;
+  height: 100px;
+  border: 3px solid var(--accent);
+  border-radius: 50%;
+  margin-top: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-heading);
+  font-size: 9px;
+  color: var(--accent);
+  text-align: center;
+  padding: 12px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  line-height: 1.3;
+  opacity: 0;
+}
+.confirmation-seal.show { animation: fadeIn 0.5s 0.4s forwards; }
+.confirmation-dismiss {
+  margin-top: 32px;
+  font-family: var(--font-heading);
+  font-size: 12px;
+  color: var(--text-secondary);
+  background: none;
+  border: 1px solid var(--border);
+  padding: 10px 20px;
+  cursor: pointer;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  opacity: 0;
+  min-height: 44px;
+}
+.confirmation-dismiss.show { animation: fadeIn 0.5s 0.7s forwards; }
+.confirmation-dismiss:hover { color: var(--accent); border-color: var(--accent); }
+@keyframes fadeIn { to { opacity: 1; } }
+
+/* Section text helpers */
+.fine-print {
+  font-family: var(--font-heading);
+  font-size: 10px;
+  color: var(--text-secondary);
+  margin-top: 16px;
+  line-height: 1.6;
+}
+.classified-header {
+  font-family: var(--font-heading);
+  font-size: 11px;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 3px;
+  margin-bottom: 4px;
+}
+p { margin: 12px 0; }
+a { color: var(--accent); text-decoration: none; }
+a:hover { text-decoration: underline; }
+
+/* Responsive */
+@media (max-width: 767px) {
+  .form-container { padding-left: 10px; }
+  .page-wrapper { padding: 20px 10px 60px; }
+  .personnel-card { flex-direction: column; }
+  .testimony-meta { flex-direction: column; align-items: flex-start; }
+  .case-file-stamp { position: static; margin-bottom: 12px; display: inline-block; }
+}
+</style>
+</head>
+<body>
+<div class="crt-overlay active" id="crtOverlay">
+  <div class="scanlines"></div>
+  <div class="crt-flicker"></div>
+</div>
+
+<div class="signal-toggle" id="signalToggle" role="button" tabindex="0" aria-label="Toggle CRT signal effect">
+  <span class="signal-dot" id="signalDot"></span>
+  <span>Signal</span>
+</div>
+
+<div class="margin-meta" aria-hidden="true">
+  PAR-2023-001 &nbsp;|&nbsp; CLASSIFIED: GENERAL &nbsp;|&nbsp; SER# 4401-BZM-MT &nbsp;|&nbsp; BOZEMAN FIELD OFFICE &nbsp;|&nbsp; REV 3.1
+</div>
+
+<div class="confirmation-overlay" id="confirmOverlay">
+  <div class="confirmation-stamp" id="confirmStamp">FORM RECEIVED<br>YOUR FURNITURE<br>WILL BE REMEMBERED</div>
+  <div class="confirmation-seal" id="confirmSeal">DEPT. OF<br>ASSET<br>PRESERVATION<br>SEAL</div>
+  <button class="confirmation-dismiss" id="confirmDismiss">Return to Form</button>
+</div>
+
+<div class="page-wrapper" x-data="parForm()">
+
+  <div class="form-container">
+
+    <!-- ═══ SECTION: FORM HEADER / HERO ═══ -->
+    <div class="form-section" id="section-hero">
+      <div class="classified-header">United States Department of Interior Affairs — Contingency Division</div>
+      <h1 class="typewriter-header" data-typewriter="DEPARTMENT OF PRE-APOCALYPTIC ASSET PRESERVATION"><span class="cursor">&#8203;</span></h1>
+
+      <div style="display: flex; flex-wrap: wrap; gap: 12px; margin: 20px 0;">
+        <div class="form-field" style="flex: 1; min-width: 200px;">
+          <span class="form-field-label">Reviewing Officer</span>
+          <span class="form-field-value">Silas Blackwood, Class III</span>
+        </div>
+        <div class="form-field" style="flex: 1; min-width: 140px;">
+          <span class="form-field-label">Form Number</span>
+          <span class="form-field-value">PAR-2023-001</span>
+        </div>
+        <div class="form-field" style="flex: 1; min-width: 140px;">
+          <span class="form-field-label">Date Filed</span>
+          <span class="form-field-value" id="todayDate"></span>
+        </div>
+      </div>
+
+      <div class="form-field">
+        <span class="form-field-label">Mission Statement (Field 1.01)</span>
+        <span class="form-field-value">We restore furniture to outlast whatever's coming.</span>
+      </div>
+
+      <div class="margin-note">"Whatever's coming" is not a metaphor. Check the news. Now look at your chair. Which one are you more sure about?</div>
+    </div>
+
+    <!-- ═══ SECTION A: TIER GUIDE ═══ -->
+    <div class="form-section" id="section-a">
+      <span class="section-label">Section A</span>
+      <h2 class="typewriter-header" data-typewriter="Restoration Difficulty Tier Guide"><span class="cursor">&#8203;</span></h2>
+
+      <div class="tier-table-wrap">
+      <table class="tier-table">
+        <thead>
+          <tr>
+            <th>Tier</th>
+            <th>Item Class</th>
+            <th>Structural Risk</th>
+            <th>Material Scarcity</th>
+            <th>Emotional Resonance</th>
+            <th>Timeline</th>
+            <th>Price</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><span class="tier-num">1</span></td>
+            <td>Kitchen Chair</td>
+            <td>LOW</td>
+            <td>Abundant</td>
+            <td>3/10 — routine</td>
+            <td>1–2 wks</td>
+            <td>$150–$400</td>
+          </tr>
+          <tr>
+            <td><span class="tier-num">2</span></td>
+            <td>Rocking Chair</td>
+            <td>MODERATE</td>
+            <td>Common</td>
+            <td>6/10 — inherited</td>
+            <td>2–4 wks</td>
+            <td>$400–$900</td>
+          </tr>
+          <tr>
+            <td><span class="tier-num">3</span></td>
+            <td>Writing Desk</td>
+            <td>ELEVATED</td>
+            <td>Declining</td>
+            <td>7/10 — haunted</td>
+            <td>4–6 wks</td>
+            <td>$800–$1,800</td>
+          </tr>
+          <tr>
+            <td><span class="tier-num">4</span></td>
+            <td>Armoire / Hutch</td>
+            <td>HIGH</td>
+            <td>Scarce</td>
+            <td>8/10 — load-bearing</td>
+            <td>6–10 wks</td>
+            <td>$1,500–$3,200</td>
+          </tr>
+          <tr>
+            <td><span class="tier-num">5</span></td>
+            <td>Grandfather Clock</td>
+            <td>CRITICAL</td>
+            <td>Extinct in field</td>
+            <td>10/10 — irreplaceable</td>
+            <td>10–16 wks</td>
+            <td>$3,000–$7,500+</td>
+          </tr>
+        </tbody>
+      </table>
+      </div>
+
+      <div class="fine-print">
+        ¹ Emotional Resonance Post-Collapse (ERPC) scores per Directive PAR-7.4.2, revised 2024. ² Material Scarcity Index reflects current supply chain status per DHS Advisory 2023-119. ³ Tier 5 items require signed Form PAR-CRITICAL-1 and proof of lineage.
+      </div>
+
+      <!-- Tier Calculator -->
+      <div class="calculator-widget">
+        <div class="classified-header" style="margin-bottom: 12px;">Tier Classification Calculator</div>
+        <label class="calc-label" for="calcFurniture">Furniture Type</label>
+        <select class="calc-select" id="calcFurniture" x-model="calcType">
+          <option value="">— Select item class —</option>
+          <option value="Kitchen Chair">Kitchen Chair</option>
+          <option value="Rocking Chair">Rocking Chair</option>
+          <option value="Writing Desk">Writing Desk</option>
+          <option value="Dining Table">Dining Table</option>
+          <option value="Armoire / Hutch">Armoire / Hutch</option>
+          <option value="Bookshelf">Bookshelf</option>
+          <option value="Grandfather Clock">Grandfather Clock</option>
+          <option value="Hope Chest">Hope Chest</option>
+        </select>
+
+        <label class="calc-label" for="calcSentiment">Estimated Sentimental Value: <span x-text="calcSentiment"></span>/10</label>
+        <input type="range" class="calc-range" id="calcSentiment" min="1" max="10" x-model="calcSentiment">
+
+        <button class="calc-button" x-on:click="classify()">Classify</button>
+
+        <div class="calc-result">
+          <div x-show="calcResultTier">
+            <div class="tier-stamp" x-ref="tierStamp" x-text="'TIER ' + calcResultTier"></div>
+            <div class="priority-code" x-text="calcPriorityCode"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══ SECTION B: BUG-OUT BAG COMPATIBILITY ═══ -->
+    <div class="form-section" id="section-b">
+      <span class="section-label">Section B</span>
+      <h2 class="typewriter-header" data-typewriter="Bug-Out Bag Compatibility Assessment"><span class="cursor">&#8203;</span></h2>
+
+      <div class="case-file">
+        <span class="case-file-stamp">CASE FILE #B-001</span>
+        <div class="case-file-header">Windsor Chair (c. 1880, New England)</div>
+        <div style="display: flex; gap: 20px; flex-wrap: wrap; align-items: flex-start;">
+          <div class="furniture-diagram diagram-windsor">
+            <div class="piece seat"></div>
+            <div class="piece leg1"></div>
+            <div class="piece leg2"></div>
+            <div class="piece back"></div>
+            <div class="piece spindle1"></div>
+            <div class="piece spindle2"></div>
+            <div class="piece spindle3"></div>
+          </div>
+          <div style="flex: 1; min-width: 200px;">
+            <div class="stat-row">
+              <div class="stat-item">
+                <div class="stat-label">Transportability</div>
+                <div class="stat-value">8/10</div>
+              </div>
+              <div class="stat-item">
+                <div class="stat-label">Weight Class</div>
+                <div class="stat-value">Light</div>
+              </div>
+              <div class="stat-item">
+                <div class="stat-label">Disassembly</div>
+                <div class="stat-value">6 pcs</div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="margin-note">This Windsor breaks down to six pieces. You could strap it to a bike. I've done it. Bozeman to Livingston. Forty-three miles. The back spindles rattled like teeth.</div>
+      </div>
+
+      <div class="case-file">
+        <span class="case-file-stamp">CASE FILE #B-002</span>
+        <div class="case-file-header">Shaker Rocking Chair (c. 1920, Vermont)</div>
+        <div style="display: flex; gap: 20px; flex-wrap: wrap; align-items: flex-start;">
+          <div class="furniture-diagram diagram-rocker">
+            <div class="piece seat"></div>
+            <div class="piece back"></div>
+            <div class="piece leg1"></div>
+            <div class="piece leg2"></div>
+            <div class="piece runner"></div>
+          </div>
+          <div style="flex: 1; min-width: 200px;">
+            <div class="stat-row">
+              <div class="stat-item">
+                <div class="stat-label">Transportability</div>
+                <div class="stat-value">5/10</div>
+              </div>
+              <div class="stat-item">
+                <div class="stat-label">Weight Class</div>
+                <div class="stat-value">Medium</div>
+              </div>
+              <div class="stat-item">
+                <div class="stat-label">Disassembly</div>
+                <div class="stat-value">Non-rec.</div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="margin-note">Rockers don't want to come apart. That's kind of the point, isn't it? You carry it whole or you don't carry it. Some things are like that.</div>
+      </div>
+
+      <div class="case-file">
+        <span class="case-file-stamp">CASE FILE #B-003</span>
+        <div class="case-file-header">Federal-Style Writing Desk (c. 1840, Pennsylvania)</div>
+        <div style="display: flex; gap: 20px; flex-wrap: wrap; align-items: flex-start;">
+          <div class="furniture-diagram diagram-desk">
+            <div class="piece top"></div>
+            <div class="piece leg1"></div>
+            <div class="piece leg2"></div>
+            <div class="piece drawer"></div>
+            <div class="piece brace"></div>
+          </div>
+          <div style="flex: 1; min-width: 200px;">
+            <div class="stat-row">
+              <div class="stat-item">
+                <div class="stat-label">Transportability</div>
+                <div class="stat-value">3/10</div>
+              </div>
+              <div class="stat-item">
+                <div class="stat-label">Weight Class</div>
+                <div class="stat-value">Heavy</div>
+              </div>
+              <div class="stat-item">
+                <div class="stat-label">Disassembly</div>
+                <div class="stat-value">Partial</div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="margin-note">You're not taking this one. That's fine. Someone will find it after, and they'll open the drawer, and they'll know: someone once sat here and wrote letters to people they loved. That's enough.</div>
+      </div>
+    </div>
+
+    <!-- ═══ SECTION C: TESTIMONIALS ═══ -->
+    <div class="form-section" id="section-c">
+      <span class="section-label">Section C</span>
+      <h2 class="typewriter-header" data-typewriter="Field Testimony (Customer Records)"><span class="cursor">&#8203;</span></h2>
+
+      <div class="testimony">
+        <blockquote>"My wife said I was insane for paying someone to fix a chair we found in a barn. That chair is now the only piece of furniture in the house that hasn't broken. The marriage is touch and go, but the chair is solid."</blockquote>
+        <div class="testimony-meta">
+          <div>
+            <div class="sig-line">Chad Merriweather, Billings, MT</div>
+            <div class="fine-print" style="margin-top: 4px;">Sworn testimony filed 03/14/2024 — Notary Dist. 7</div>
+            <div class="verification">Verification Status: Confirmed</div>
+          </div>
+          <div class="notary-stamp">NOTARIZED<br>DIST. 7<br>MT</div>
+        </div>
+      </div>
+
+      <div class="testimony">
+        <blockquote>"I brought Silas a crib my grandfather built in 1947. He called me back two weeks later and said, and I quote, 'This crib was built by someone who was terrified of the future, and they were right to be, and it's beautiful.' Then he asked if I wanted the original milk paint matched. I cried in a parking lot."</blockquote>
+        <div class="testimony-meta">
+          <div>
+            <div class="sig-line">Elena Vasquez, Bozeman, MT</div>
+            <div class="fine-print" style="margin-top: 4px;">Sworn testimony filed 07/29/2024 — Notary Dist. 3</div>
+            <div class="verification">Verification Status: Confirmed</div>
+          </div>
+          <div class="notary-stamp">NOTARIZED<br>DIST. 3<br>MT</div>
+        </div>
+      </div>
+
+      <div class="testimony">
+        <blockquote>"I don't know what you did to my great-aunt's vanity table, but my daughter sat in front of it and said she could feel 'old lady energy' and then she brushed her hair for twenty minutes without looking at her phone. You have performed an exorcism or a miracle. Either way, the check is in the mail."</blockquote>
+        <div class="testimony-meta">
+          <div>
+            <div class="sig-line">Doug Pemberton, Helena, MT</div>
+            <div class="fine-print" style="margin-top: 4px;">Sworn testimony filed 11/02/2024 — Notary Dist. 1</div>
+            <div class="verification">Verification Status: Confirmed (with enthusiasm)</div>
+          </div>
+          <div class="notary-stamp">NOTARIZED<br>DIST. 1<br>MT</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══ SECTION D: INTELLIGENCE BRIEF ═══ -->
+    <div class="form-section" id="section-d">
+      <span class="section-label">Section D</span>
+      <h2 class="typewriter-header" data-typewriter='Intelligence Brief: "Why Dovetail Joints Will Outlast Democracy"'><span class="cursor">&#8203;</span></h2>
+
+      <div class="clearance-badge" id="clearanceBadge">Clearance Level: Public</div>
+
+      <p>A dovetail joint is a series of interlocking trapezoidal pins cut into two pieces of wood so they cannot be pulled apart in any direction except the one they were assembled from. No nails. No screws. No glue, if the craftsperson was good enough. Just geometry and pressure.</p>
+
+      <p><span class="redacted" data-hidden="The Federal Reserve was established in 1913 and the oldest known dovetail joint dates to ancient Egypt, roughly 3100 BCE">████████████████████████████████████████████████████████████████████████████████</span>. The joint doesn't care about your monetary policy. The joint holds.</p>
+
+      <p>When we restore a piece with original dovetails, we don't recut them. We clean the surfaces, repair any splits along the grain, and reassemble. The fit is already there. It was always there. A cabinetmaker in <span class="redacted" data-hidden="Lancaster County, Pennsylvania, 1847">███████████████████████</span> measured twice and cut once, and that decision is still load-bearing 177 years later.</p>
+
+      <p>Modern furniture uses <span class="redacted" data-hidden="cam locks and particle board">████████████████████</span>, which is to say: it uses faith. Faith that the dowel won't shear, that the pressboard won't swell, that you won't ever need to move it more than once. A dovetail joint is the opposite of faith. It's proof. It's a woodworker saying: <em>I don't trust the future either, so I made this impossible to break.</em></p>
+
+      <p>That's the whole pitch. We don't trust the future. We make joints that don't require trust.</p>
+
+      <a href="#" onclick="return false" style="font-family: var(--font-heading); font-size: 13px; letter-spacing: 1px;">Request Full Document →</a>
+    </div>
+
+    <!-- ═══ SECTION E: PERSONNEL DOSSIER ═══ -->
+    <div class="form-section" id="section-e">
+      <span class="section-label">Section E</span>
+      <h2 class="typewriter-header" data-typewriter="Personnel Dossier"><span class="cursor">&#8203;</span></h2>
+
+      <div class="personnel-card">
+        <div>
+          <div class="personnel-photo">
+            <svg width="50" height="60" viewBox="0 0 50 60" fill="none">
+              <ellipse cx="25" cy="18" rx="12" ry="14" stroke="#4a4d3f" stroke-width="1.5"/>
+              <path d="M5 58 Q5 38 25 35 Q45 38 45 58" stroke="#4a4d3f" stroke-width="1.5" fill="none"/>
+            </svg>
+          </div>
+          <div class="photo-label">Photo on file</div>
+        </div>
+        <div class="personnel-info">
+          <div class="personnel-name">Silas Blackwood</div>
+          <div class="personnel-rank">Lead Restoration Officer / Founder</div>
+          <span class="status-badge status-active">Status: Active</span>
+          <div class="personnel-field"><span class="label">Pre-Collapse Career:</span><br>Architecture student (dropped out, semester 5)</div>
+          <div class="personnel-field"><span class="label">Survival Skill:</span><br>Can identify 14 species of hardwood by smell</div>
+          <div class="personnel-field"><span class="label">Field Note:</span><br>Pulled his grandmother's rocking chair out of a house fire at age nine. Has been trying to save things ever since. Sleeps in the shop three nights a week. Says it's for the glue cure times but it isn't.</div>
+        </div>
+      </div>
+
+      <div class="personnel-card">
+        <div>
+          <div class="personnel-photo">
+            <svg width="50" height="60" viewBox="0 0 50 60" fill="none">
+              <ellipse cx="25" cy="18" rx="12" ry="14" stroke="#4a4d3f" stroke-width="1.5"/>
+              <path d="M5 58 Q5 38 25 35 Q45 38 45 58" stroke="#4a4d3f" stroke-width="1.5" fill="none"/>
+            </svg>
+          </div>
+          <div class="photo-label">Photo on file</div>
+        </div>
+        <div class="personnel-info">
+          <div class="personnel-name">Maren Okafor</div>
+          <div class="personnel-rank">Senior Upholstery Specialist</div>
+          <span class="status-badge status-standby">Status: Standby</span>
+          <div class="personnel-field"><span class="label">Pre-Collapse Career:</span><br>Textile conservator, Montana Historical Society</div>
+          <div class="personnel-field"><span class="label">Survival Skill:</span><br>Can hand-stitch a load-bearing seam by candlelight</div>
+          <div class="personnel-field"><span class="label">Field Note:</span><br>Left the museum because they kept putting the good stuff behind glass. "If no one sits in it, it's already dead." Currently reupholstering a 1930s settee in fabric she wove herself from salvaged wool. Refuses to explain why.</div>
+        </div>
+      </div>
+
+      <div class="personnel-card" style="opacity: 0.7;">
+        <div>
+          <div class="personnel-photo" style="background: #111;">
+            <svg width="50" height="60" viewBox="0 0 50 60" fill="none">
+              <rect x="5" y="5" width="40" height="50" stroke="#4a4d3f" stroke-width="1.5" stroke-dasharray="4 3"/>
+              <text x="25" y="33" text-anchor="middle" fill="#4a4d3f" font-size="8" font-family="var(--font-heading)">VOID</text>
+            </svg>
+          </div>
+          <div class="photo-label">[No file]</div>
+        </div>
+        <div class="personnel-info">
+          <div class="personnel-name">[REDACTED]</div>
+          <div class="personnel-rank">[REDACTED]</div>
+          <span class="status-badge status-redacted">Status: [Redacted]</span>
+          <div class="personnel-field"><span class="label">Pre-Collapse Career:</span><br>[REDACTED]</div>
+          <div class="personnel-field"><span class="label">Survival Skill:</span><br>Allegedly once rebuilt an entire Chippendale highboy from memory during a power outage</div>
+          <div class="personnel-field"><span class="label">Field Note:</span><br>We don't talk about the third one. Not because something bad happened. Because they asked us not to. Some people fix things and don't need you to know their name. That's allowed.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══ SECTION F: FAQ ═══ -->
+    <div class="form-section" id="section-f">
+      <span class="section-label">Section F</span>
+      <h2 class="typewriter-header" data-typewriter="Frequently Asked Questions (Contingency Protocols)"><span class="cursor">&#8203;</span></h2>
+
+      <div class="faq-item" x-data="{ open: false }">
+        <div class="faq-question" x-on:click="open = !open" role="button" tabindex="0" x-on:keydown.enter="open = !open" x-on:keydown.space.prevent="open = !open">
+          <span>Q: What happens to my furniture if civilization collapses before the restoration is complete?</span>
+          <span class="faq-toggle" x-text="open ? '−' : '+'">+</span>
+        </div>
+        <div class="faq-answer" x-show="open" x-cloak x-transition>
+          <p>Per Contingency Protocol PAR-CONTINGENCY-7, all in-progress restorations are transferred to our climate-controlled underground storage facility (a root cellar with a padlock and a dehumidifier) within 48 hours of a declared Level 3 or above civilizational disruption event. Refunds will be issued on a barter schedule: 1 completed chair = 6 months of firewood credit or 40 lbs of dried goods, at the discretion of the Reviewing Officer. Your furniture will not be abandoned. We don't abandon things here. That's literally the whole point.</p>
+        </div>
+      </div>
+
+      <div class="faq-item" x-data="{ open: false }">
+        <div class="faq-question" x-on:click="open = !open" role="button" tabindex="0" x-on:keydown.enter="open = !open" x-on:keydown.space.prevent="open = !open">
+          <span>Q: Can you restore IKEA furniture?</span>
+          <span class="faq-toggle" x-text="open ? '−' : '+'">+</span>
+        </div>
+        <div class="faq-answer" x-show="open" x-cloak x-transition>
+          <p>We can. We won't. IKEA furniture is designed to be replaced, which is another way of saying it was designed to be forgotten. We work with pieces that someone intended to last. If your BILLY bookshelf means something to you — if something happened near it that changed your life — call us. We'll make an exception. But you'll have to tell us the story, and it has to be true.</p>
+        </div>
+      </div>
+
+      <div class="faq-item" x-data="{ open: false }">
+        <div class="faq-question" x-on:click="open = !open" role="button" tabindex="0" x-on:keydown.enter="open = !open" x-on:keydown.space.prevent="open = !open">
+          <span>Q: Do you do free estimates?</span>
+          <span class="faq-toggle" x-text="open ? '−' : '+'">+</span>
+        </div>
+        <div class="faq-answer" x-show="open" x-cloak x-transition>
+          <p>Yes. Bring the piece to our shop in Bozeman or send photographs (minimum 6 angles, include any joints, any damage, any areas where the wood has darkened from years of hands touching it). Estimates are returned within 72 hours as a formal assessment document, because if something is worth fixing, it's worth documenting. We also accept pieces sent via freight. Label the box "FRAGILE — EMOTIONAL CARGO." The driver will understand or they won't.</p>
+        </div>
+      </div>
+
+      <div class="faq-item" x-data="{ open: false }">
+        <div class="faq-question" x-on:click="open = !open" role="button" tabindex="0" x-on:keydown.enter="open = !open" x-on:keydown.space.prevent="open = !open">
+          <span>Q: Why is your website formatted like a government form?</span>
+          <span class="faq-toggle" x-text="open ? '−' : '+'">+</span>
+        </div>
+        <div class="faq-answer" x-show="open" x-cloak x-transition>
+          <p>Because the feeling of filling out a form — the low-grade dread, the sense that you are being processed by something larger than yourself, the vague suspicion that no one will actually read this — is the same feeling you get when you think about the future. We wanted you to sit with that. And then we wanted you to notice that you're still here, reading, and your grandmother's chair might still be fixable. Bureaucracy is just hope in an ugly font.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══ SECTION G: FORM SUBMISSION ═══ -->
+    <div class="form-section" id="section-g">
+      <span class="section-label">Section G — Form Submission</span>
+      <h2 class="typewriter-header" data-typewriter="Asset Preservation Request"><span class="cursor">&#8203;</span></h2>
+
+      <div class="submission-form">
+        <label class="calc-label" for="holderName">Name of Asset Holder</label>
+        <input type="text" class="form-input" id="holderName" placeholder="Your full legal name (or the one you go by now)" x-model="formName">
+
+        <label class="calc-label" for="concern">Nature of Concern</label>
+        <textarea class="form-textarea" id="concern" placeholder="Describe the piece, its condition, and — if you're willing — why it matters to you." x-model="formConcern"></textarea>
+
+        <label class="checkbox-row">
+          <input type="checkbox" x-model="formAcknowledge">
+          <span class="checkbox-label">I acknowledge that the future is uncertain and I am choosing to act anyway.</span>
+        </label>
+
+        <button class="submit-btn" x-on:click="submitForm()">Submit Preservation Request</button>
+      </div>
+
+      <div class="fine-print" style="margin-top: 24px;">
+        Form PAR-2023-001 is filed under the authority of no one in particular. Bozeman, Montana. Est. 2023. We are a garage with a lathe and a dream. All inquiries: walk in, or don't. We're here either way.
+      </div>
+    </div>
+
+  </div><!-- /form-container -->
+</div><!-- /page-wrapper -->
+
+<script src="/assets/js/gsap.min.js"></script>
+<script src="/assets/js/alpine.min.js" defer></script>
+<script>
+// ═══ Date fill ═══
+document.getElementById('todayDate').textContent = new Date().toLocaleDateString('en-US', { year: 'numeric', month: '2-digit', day: '2-digit' });
+
+// ═══ CRT Toggle ═══
+(function() {
+  var overlay = document.getElementById('crtOverlay');
+  var toggle = document.getElementById('signalToggle');
+  var dot = document.getElementById('signalDot');
+  var active = true;
+  toggle.addEventListener('click', function() {
+    active = !active;
+    if (active) {
+      overlay.classList.add('active');
+      dot.classList.remove('off');
+    } else {
+      overlay.classList.remove('active');
+      dot.classList.add('off');
+    }
+  });
+  toggle.addEventListener('keydown', function(e) {
+    if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); toggle.click(); }
+  });
+})();
+
+// ═══ Typewriter + IntersectionObserver ═══
+(function() {
+  var headers = document.querySelectorAll('[data-typewriter]');
+  var observer = new IntersectionObserver(function(entries) {
+    entries.forEach(function(entry) {
+      if (entry.isIntersecting && !entry.target.dataset.typed) {
+        entry.target.dataset.typed = '1';
+        typeText(entry.target);
+      }
+    });
+  }, { threshold: 0.3 });
+
+  headers.forEach(function(h) {
+    h.textContent = '';
+    var cursor = document.createElement('span');
+    cursor.className = 'cursor';
+    cursor.innerHTML = '&#8203;';
+    h.appendChild(cursor);
+    observer.observe(h);
+  });
+
+  function typeText(el) {
+    var text = el.getAttribute('data-typewriter');
+    var cursor = el.querySelector('.cursor');
+    var i = 0;
+    function tick() {
+      if (i < text.length) {
+        el.insertBefore(document.createTextNode(text[i]), cursor);
+        i++;
+        setTimeout(tick, 40);
+      } else {
+        cursor.classList.add('done');
+        setTimeout(function() {
+          if (cursor.parentNode) cursor.parentNode.removeChild(cursor);
+        }, 2000);
+      }
+    }
+    tick();
+  }
+})();
+
+// ═══ Redaction Reveal ═══
+(function() {
+  var redacted = document.querySelectorAll('.redacted');
+  redacted.forEach(function(el) {
+    var hidden = el.getAttribute('data-hidden');
+    var original = el.innerHTML;
+    var timeout = null;
+    el.addEventListener('click', function(e) {
+      e.preventDefault();
+      if (el.classList.contains('revealed')) return;
+      el.classList.add('revealed');
+      el.textContent = hidden;
+      clearTimeout(timeout);
+      timeout = setTimeout(function() {
+        el.classList.remove('revealed');
+        el.innerHTML = original;
+      }, 2000);
+    });
+  });
+})();
+
+// ═══ Clearance Badge Stamp ═══
+(function() {
+  var badge = document.getElementById('clearanceBadge');
+  if (!badge) return;
+  var observer = new IntersectionObserver(function(entries) {
+    entries.forEach(function(entry) {
+      if (entry.isIntersecting && !badge.classList.contains('stamped')) {
+        badge.classList.add('stamped');
+        gsap.fromTo(badge, { scale: 1.4, y: -15, opacity: 0 }, { scale: 1, y: 0, opacity: 1, duration: 0.4, ease: 'back.out(1.5)' });
+      }
+    });
+  }, { threshold: 0.5 });
+  observer.observe(badge);
+})();
+
+// ═══ Random CRT flicker timing ═══
+(function() {
+  var flicker = document.querySelector('.crt-flicker');
+  if (!flicker) return;
+  function randomFlicker() {
+    var delay = 8000 + Math.random() * 4000;
+    setTimeout(function() {
+      flicker.style.animation = 'none';
+      void flicker.offsetWidth;
+      flicker.style.animation = 'crtFlicker 0.3s step-end 1';
+      randomFlicker();
+    }, delay);
+  }
+  randomFlicker();
+})();
+
+// ═══ Alpine app ═══
+document.addEventListener('alpine:init', function() {
+  Alpine.data('parForm', function() {
+    return {
+      calcType: '',
+      calcSentiment: 5,
+      calcResultTier: 0,
+      calcPriorityCode: '',
+      formName: '',
+      formConcern: '',
+      formAcknowledge: false,
+
+      classify: function() {
+        if (!this.calcType) return;
+        var baseMap = {
+          'Kitchen Chair': 1, 'Rocking Chair': 2, 'Writing Desk': 3,
+          'Dining Table': 3, 'Armoire / Hutch': 4, 'Bookshelf': 2,
+          'Grandfather Clock': 5, 'Hope Chest': 3
+        };
+        var base = baseMap[this.calcType] || 2;
+        var sentiment = parseInt(this.calcSentiment);
+        var tier = Math.min(5, Math.max(1, Math.round(base * 0.6 + sentiment * 0.4)));
+        this.calcResultTier = tier;
+        var code = 'PAR-' + tier + '-' + String.fromCharCode(65 + Math.floor(Math.random() * 26)) + Math.floor(Math.random() * 9000 + 1000);
+        this.calcPriorityCode = 'Priority Code: ' + code;
+
+        var stamp = this.$refs.tierStamp;
+        if (stamp) {
+          stamp.classList.remove('animate');
+          void stamp.offsetWidth;
+          stamp.classList.add('animate');
+        }
+      },
+
+      submitForm: function() {
+        var overlay = document.getElementById('confirmOverlay');
+        var stamp = document.getElementById('confirmStamp');
+        var seal = document.getElementById('confirmSeal');
+        var dismiss = document.getElementById('confirmDismiss');
+
+        overlay.classList.add('active');
+        stamp.classList.remove('animate');
+        seal.classList.remove('show');
+        dismiss.classList.remove('show');
+        void stamp.offsetWidth;
+        stamp.classList.add('animate');
+        seal.classList.add('show');
+        dismiss.classList.add('show');
+      }
+    };
+  });
+});
+
+// ═══ Confirmation dismiss ═══
+document.getElementById('confirmDismiss').addEventListener('click', function() {
+  document.getElementById('confirmOverlay').classList.remove('active');
+  document.getElementById('confirmStamp').classList.remove('animate');
+});
+</script>
+</body>
+</html>

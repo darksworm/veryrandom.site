@@ -1,0 +1,773 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PoliteRage.biz — Civilization Shouldn't Mean Swallowing Everything Forever</title>
+<link rel="stylesheet" href="/assets/css/fonts.css">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg: #2C3E3A;
+  --text: #E8E2D6;
+  --accent: #C4572A;
+  --card: #3A4A48;
+  --badge: #8B9A97;
+  --border: #5C3D2E;
+  --tile-gap: 2px;
+}
+
+html { scroll-behavior: smooth; }
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Work Sans', sans-serif;
+  font-size: 17px;
+  line-height: 1.6;
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+h1, h2, h3, h4 {
+  font-family: 'Archivo Black', sans-serif;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+  line-height: 1.2;
+}
+
+.mono {
+  font-family: 'Fira Code', monospace;
+}
+
+/* ═══ METRO GRID ═══ */
+.metro-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: var(--tile-gap);
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: var(--tile-gap);
+}
+
+.tile {
+  background: var(--card);
+  border: 2px solid var(--border);
+  padding: 2rem;
+  position: relative;
+  overflow: hidden;
+}
+
+.tile.w2 { grid-column: span 2; }
+.tile.h2 { grid-row: span 2; }
+.tile.w4 { grid-column: span 4; }
+
+/* ═══ FADE IN ═══ */
+.tile-anim {
+  opacity: 0;
+  transform: translateY(20px);
+}
+
+/* ═══ HERO ═══ */
+.hero {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  min-height: 340px;
+  background-image:
+    repeating-linear-gradient(0deg, transparent, transparent 48px, var(--border) 48px, var(--border) 50px),
+    repeating-linear-gradient(90deg, transparent, transparent 48px, var(--border) 48px, var(--border) 50px);
+  background-size: 50px 50px;
+  background-color: var(--card);
+}
+
+.hero h1 {
+  font-size: clamp(2rem, 5vw, 3.5rem);
+  color: var(--accent);
+  margin-bottom: 0.5rem;
+}
+
+.hero .tagline {
+  font-size: clamp(1.1rem, 2.5vw, 1.5rem);
+  font-style: italic;
+  max-width: 700px;
+  color: var(--text);
+}
+
+.hero .founders {
+  margin-top: 1.5rem;
+  font-size: 0.9rem;
+  color: var(--badge);
+}
+
+/* ═══ GLITCH EMOTICON ═══ */
+.glitch-emoji {
+  display: inline-block;
+  font-size: 1.5em;
+  position: relative;
+  animation: glitch-idle 6s infinite;
+  animation-delay: var(--gd, 0s);
+}
+
+.glitch-emoji:nth-of-type(2) { --gd: 2.3s; }
+.glitch-emoji:nth-of-type(3) { --gd: 4.7s; }
+.glitch-emoji:nth-of-type(4) { --gd: 1.1s; }
+
+@keyframes glitch-idle {
+  0%, 94%, 100% {
+    clip-path: inset(0 0 0 0);
+    filter: none;
+    transform: translate(0, 0);
+  }
+  95% {
+    clip-path: inset(20% 0 30% 0);
+    filter: hue-rotate(90deg);
+    transform: translate(2px, -1px);
+  }
+  96% {
+    clip-path: inset(50% 0 10% 0);
+    filter: hue-rotate(180deg);
+    transform: translate(-2px, 1px);
+  }
+  97% {
+    clip-path: inset(10% 0 60% 0);
+    filter: hue-rotate(270deg);
+    transform: translate(1px, 2px);
+  }
+  98% {
+    clip-path: inset(0 0 0 0);
+    filter: hue-rotate(45deg);
+    transform: translate(-1px, -2px);
+  }
+}
+
+.glitch-emoji.d2 { animation-duration: 5s; }
+.glitch-emoji.d3 { animation-duration: 7.5s; }
+.glitch-emoji.d4 { animation-duration: 4.5s; }
+
+/* ═══ QUIZ ═══ */
+.quiz-section { display: flex; flex-direction: column; justify-content: center; }
+
+.quiz-q {
+  margin-bottom: 1.2rem;
+}
+
+.quiz-q p {
+  font-size: 0.95rem;
+  margin-bottom: 0.4rem;
+  color: var(--badge);
+  font-family: 'Fira Code', monospace;
+  font-size: 0.8rem;
+}
+
+.quiz-q label {
+  display: block;
+  padding: 0.4rem 0.6rem;
+  cursor: pointer;
+  font-size: 0.92rem;
+  transition: background 0.15s;
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.quiz-q label:hover {
+  background: rgba(196, 87, 42, 0.15);
+}
+
+.quiz-q input[type="radio"] {
+  appearance: none;
+  -webkit-appearance: none;
+  width: 18px;
+  height: 18px;
+  border: 2px solid var(--badge);
+  background: transparent;
+  flex-shrink: 0;
+  cursor: pointer;
+  position: relative;
+}
+
+.quiz-q input[type="radio"]:checked {
+  border-color: var(--accent);
+  background: var(--accent);
+}
+
+.quiz-q input[type="radio"]:checked::after {
+  content: '✓';
+  color: var(--text);
+  font-size: 12px;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
+.quiz-result {
+  background: var(--bg);
+  border: 2px solid var(--accent);
+  padding: 1.5rem;
+  margin-top: 1rem;
+}
+
+.quiz-result h3 {
+  color: var(--accent);
+  margin-bottom: 0.5rem;
+}
+
+.stress-bar {
+  height: 24px;
+  background: var(--border);
+  position: relative;
+  margin: 0.8rem 0;
+}
+
+.stress-fill {
+  height: 100%;
+  background: var(--accent);
+  transition: width 0.8s ease;
+}
+
+.btn {
+  display: inline-block;
+  background: var(--accent);
+  color: var(--text);
+  border: none;
+  padding: 0.8rem 1.6rem;
+  font-family: 'Archivo Black', sans-serif;
+  text-transform: uppercase;
+  font-size: 0.9rem;
+  cursor: pointer;
+  min-height: 44px;
+  min-width: 44px;
+  letter-spacing: 0.05em;
+  transition: background 0.2s;
+}
+
+.btn:hover {
+  background: #D4673A;
+}
+
+/* ═══ ROOM TILES ═══ */
+.room-tile-wrap {
+  perspective: 800px;
+  cursor: pointer;
+}
+
+.room-tile-inner {
+  position: relative;
+  width: 100%;
+  min-height: 280px;
+  transition: transform 0.6s;
+  transform-style: preserve-3d;
+}
+
+.room-tile-wrap.flipped .room-tile-inner {
+  transform: rotateY(180deg);
+}
+
+.room-face {
+  position: absolute;
+  top: 0; left: 0;
+  width: 100%;
+  height: 100%;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 1.5rem;
+}
+
+.room-back {
+  transform: rotateY(180deg);
+  background: var(--bg);
+  border: 2px solid var(--accent);
+}
+
+.room-badge {
+  display: inline-block;
+  background: var(--badge);
+  color: var(--bg);
+  font-family: 'Fira Code', monospace;
+  font-size: 0.72rem;
+  padding: 0.25rem 0.6rem;
+  margin-bottom: 0.8rem;
+  letter-spacing: 0.04em;
+  align-self: flex-start;
+}
+
+.readiness-bar {
+  font-family: 'Fira Code', monospace;
+  font-size: 0.85rem;
+  color: var(--accent);
+  letter-spacing: 0.05em;
+  margin: 0.6rem 0;
+}
+
+.room-specialty {
+  font-size: 0.88rem;
+  color: var(--badge);
+  margin-top: 0.5rem;
+}
+
+/* ═══ CASUALTY TICKER ═══ */
+.ticker-wrap {
+  overflow: hidden;
+  width: 100%;
+  position: relative;
+}
+
+.ticker-track {
+  display: flex;
+  gap: 3rem;
+  width: max-content;
+  animation: ticker-scroll 40s linear infinite;
+  white-space: nowrap;
+}
+
+.ticker-track:hover {
+  animation-play-state: paused;
+}
+
+.ticker-item {
+  font-family: 'Fira Code', monospace;
+  font-size: 0.82rem;
+  color: var(--badge);
+  padding: 0.4rem 0;
+  flex-shrink: 0;
+  transition: color 0.3s;
+}
+
+.ticker-item:hover {
+  color: var(--accent);
+}
+
+@keyframes ticker-scroll {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+
+/* ═══ PROMISE ═══ */
+.promise-tile {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.promise-tile p {
+  font-size: 0.92rem;
+  margin-bottom: 0.8rem;
+}
+
+.counter-box {
+  background: var(--bg);
+  border: 2px solid var(--accent);
+  padding: 1rem;
+  text-align: center;
+  font-family: 'Fira Code', monospace;
+}
+
+.counter-num {
+  font-size: 1.8rem;
+  color: var(--accent);
+  display: block;
+}
+
+/* ═══ TESTIMONIALS ═══ */
+.testimonial h4 {
+  color: var(--accent);
+  font-size: 0.95rem;
+  margin-bottom: 0.3rem;
+}
+
+.testimonial .title {
+  font-family: 'Fira Code', monospace;
+  font-size: 0.75rem;
+  color: var(--badge);
+  margin-bottom: 0.8rem;
+}
+
+.testimonial blockquote {
+  border-left: 3px solid var(--accent);
+  padding-left: 1rem;
+  font-style: italic;
+  margin-bottom: 1rem;
+  font-size: 0.95rem;
+}
+
+.resolution-rating {
+  font-family: 'Fira Code', monospace;
+  font-size: 0.8rem;
+  color: var(--accent);
+}
+
+/* ═══ FOOTER ═══ */
+.footer-tile {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.therapist-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 1rem;
+}
+
+.therapist-card {
+  background: var(--bg);
+  border: 2px solid var(--border);
+  padding: 1.2rem;
+}
+
+.therapist-card h4 {
+  font-size: 0.95rem;
+  color: var(--text);
+  margin-bottom: 0.2rem;
+}
+
+.therapist-card .spec {
+  font-family: 'Fira Code', monospace;
+  font-size: 0.75rem;
+  color: var(--badge);
+  margin-bottom: 0.8rem;
+}
+
+.footer-note {
+  font-style: italic;
+  font-size: 0.9rem;
+  color: var(--badge);
+  border-top: 1px solid var(--border);
+  padding-top: 1rem;
+}
+
+.copyright {
+  font-family: 'Fira Code', monospace;
+  font-size: 0.72rem;
+  color: var(--badge);
+  text-align: center;
+  margin-top: 1rem;
+}
+
+/* ═══ SECTION HEADERS ═══ */
+.section-label {
+  font-family: 'Fira Code', monospace;
+  font-size: 0.72rem;
+  color: var(--badge);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  margin-bottom: 0.5rem;
+}
+
+/* ═══ RESPONSIVE ═══ */
+@media (max-width: 1024px) {
+  .metro-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  .tile.w4 { grid-column: span 2; }
+  .tile.h2-desktop { grid-row: span 1; }
+}
+
+@media (max-width: 600px) {
+  .metro-grid {
+    grid-template-columns: 1fr;
+  }
+  .tile.w2, .tile.w4 { grid-column: span 1; }
+  .tile.h2 { grid-row: span 1; }
+  .tile { padding: 1.5rem 1rem; }
+  body { font-size: 16px; }
+  .hero h1 { font-size: 1.8rem; }
+  .room-tile-inner { min-height: 260px; }
+}
+</style>
+</head>
+<body>
+
+<div class="metro-grid" x-data="politerage()">
+
+  <!-- ═══ 1. HERO ═══ -->
+  <div class="tile w4 hero tile-anim">
+    <div class="section-label">EST. 2023 — STERN & COOLIDGE LLC</div>
+    <h1>PoliteRage<span style="color:var(--text)">.biz</span> <span class="glitch-emoji">🙂</span></h1>
+    <p class="tagline">"Civilization shouldn't mean swallowing everything forever."</p>
+    <p class="founders">Founded by <strong>Beatrice Stern</strong> (poet, survivor of open mic) & <strong>Franklin Coolidge</strong> (former museum curator, unauthorized sculptor relocator). We built accredited tantrum rooms because your anger deserves better infrastructure than a clenched jaw in a quarterly review.</p>
+  </div>
+
+  <!-- ═══ 2. CATHARSIS COEFFICIENT TEST ═══ -->
+  <div class="tile w2 quiz-section tile-anim">
+    <div class="section-label">Form CR-7: Catharsis Coefficient Assessment</div>
+    <h2 style="font-size:1.3rem; margin-bottom:1rem;">The Catharsis Coefficient Test <span class="glitch-emoji d2">🙂</span></h2>
+
+    <template x-if="!quizDone">
+      <div>
+        <div class="quiz-q">
+          <p>Q1. When a colleague replies-all to say "Thanks!", you:</p>
+          <label><input type="radio" name="q1" value="0" x-model.number="q1"> Smile and archive it</label>
+          <label><input type="radio" name="q1" value="1" x-model.number="q1"> Draft a filter rule in 0.4 seconds</label>
+          <label><input type="radio" name="q1" value="2" x-model.number="q1"> Feel your left eye do something involuntary</label>
+          <label><input type="radio" name="q1" value="3" x-model.number="q1"> Close your laptop with the force of a closing argument</label>
+        </div>
+        <div class="quiz-q">
+          <p>Q2. Your last performance review described you as:</p>
+          <label><input type="radio" name="q2" value="0" x-model.number="q2"> A team player</label>
+          <label><input type="radio" name="q2" value="1" x-model.number="q2"> Detail-oriented</label>
+          <label><input type="radio" name="q2" value="2" x-model.number="q2"> "Passionate about process"</label>
+          <label><input type="radio" name="q2" value="3" x-model.number="q2"> Not applicable (I am the process)</label>
+        </div>
+        <div class="quiz-q">
+          <p>Q3. How often do you rehearse arguments in the shower?</p>
+          <label><input type="radio" name="q3" value="0" x-model.number="q3"> Never</label>
+          <label><input type="radio" name="q3" value="1" x-model.number="q3"> Occasionally, closing statements only</label>
+          <label><input type="radio" name="q3" value="2" x-model.number="q3"> Daily, with rebuttals</label>
+          <label><input type="radio" name="q3" value="3" x-model.number="q3"> I have a running series with recurring characters</label>
+        </div>
+        <div class="quiz-q">
+          <p>Q4. When someone says "Can I give you some feedback?", you feel:</p>
+          <label><input type="radio" name="q4" value="0" x-model.number="q4"> Genuinely open</label>
+          <label><input type="radio" name="q4" value="1" x-model.number="q4"> Open but your posture changes</label>
+          <label><input type="radio" name="q4" value="2" x-model.number="q4"> A sudden interest in the nearest exit</label>
+          <label><input type="radio" name="q4" value="3" x-model.number="q4"> The specific frequency of a plate shattering</label>
+        </div>
+        <button class="btn" x-on:click="submitQuiz()" x-bind:disabled="q1===null||q2===null||q3===null||q4===null">CALCULATE COEFFICIENT</button>
+      </div>
+    </template>
+
+    <template x-if="quizDone">
+      <div class="quiz-result" x-transition>
+        <div class="section-label">ASSESSMENT COMPLETE — FILE GENERATED</div>
+        <h3 x-text="quizResult.name"></h3>
+        <p style="font-size:0.9rem; margin-bottom:0.6rem;" x-text="quizResult.desc"></p>
+        <div class="section-label" style="margin-top:0.8rem;">STRESS INDEX — PERCENTILE RANKING</div>
+        <div class="stress-bar">
+          <div class="stress-fill" x-bind:style="'width:' + quizResult.pct + '%'"></div>
+        </div>
+        <span class="mono" style="font-size:0.8rem; color:var(--accent);" x-text="'■ ' + quizResult.pct + 'th percentile — ' + quizResult.level"></span>
+        <br><br>
+        <button class="btn" x-on:click="quizDone=false; q1=null; q2=null; q3=null; q4=null;">RETAKE ASSESSMENT</button>
+        <button class="btn" style="background:var(--badge); margin-left:0.5rem;">BOOK YOUR SESSION</button>
+      </div>
+    </template>
+  </div>
+
+  <!-- ═══ 3. CERTIFIED TANTRUM ROOMS ═══ -->
+  <template x-for="(room, idx) in rooms" :key="idx">
+    <div class="tile room-tile-wrap tile-anim" x-bind:class="{'flipped': room.flipped}" x-on:click="room.flipped = !room.flipped">
+      <div class="room-tile-inner">
+        <div class="room-face">
+          <div class="section-label" x-text="'ROOM ' + room.code"></div>
+          <div class="room-badge" x-text="room.badge"></div>
+          <h3 style="font-size:1.1rem; margin-bottom:0.3rem;" x-text="room.name"></h3>
+          <div class="readiness-bar" x-text="room.bar + ' ' + room.score + '/10'"></div>
+          <p class="room-specialty" x-text="room.specialty"></p>
+        </div>
+        <div class="room-face room-back">
+          <div class="section-label">BOOKING DETAILS</div>
+          <h4 style="color:var(--accent); font-size:1rem; margin-bottom:0.5rem;" x-text="room.name"></h4>
+          <p style="font-size:0.85rem; margin-bottom:0.4rem;" x-text="'Session length: ' + room.duration"></p>
+          <p style="font-size:0.85rem; margin-bottom:0.4rem;" x-text="'Objects included: ' + room.objects"></p>
+          <p style="font-size:0.85rem; margin-bottom:0.4rem;" x-text="'Vent Valet: ' + room.valet"></p>
+          <p style="font-size:0.85rem; margin-bottom:0.8rem;" x-text="'Rate: ' + room.rate"></p>
+          <div class="readiness-bar" x-text="'Soundproofing: ' + room.sound"></div>
+          <button class="btn" style="margin-top:0.8rem; font-size:0.8rem;" x-on:click.stop="">RESERVE ROOM</button>
+        </div>
+      </div>
+    </div>
+  </template>
+
+  <!-- ═══ 4. CERTIFIED CIVILIAN CASUALTY LIST ═══ -->
+  <div class="tile w2 tile-anim">
+    <div class="section-label">FORM CCC-1: CERTIFIED CIVILIAN CASUALTY LOG — UPDATED WEEKLY</div>
+    <h2 style="font-size:1.2rem; margin-bottom:1rem;">Casualty Registry <span class="glitch-emoji d3">🙂</span></h2>
+    <div class="ticker-wrap">
+      <div class="ticker-track" id="casualtyTicker">
+        <span class="ticker-item">Stuffed Platypus #347 — Shattered Beyond Recognition — Room 4B, Oct 12</span>
+        <span class="ticker-item">IKEA MALM Nightstand (birch) — Structural Failure — Room 2A, Oct 9</span>
+        <span class="ticker-item">Commemorative "World's Best Boss" Mug — Decommissioned — Room 1C, Oct 7</span>
+        <span class="ticker-item">VHS Copy of "You've Got Mail" — Unspooled With Prejudice — Room 3D, Oct 5</span>
+        <span class="ticker-item">Porcelain Cat (smiling) — Smile Reversed — Room 4B, Oct 3</span>
+        <span class="ticker-item">Motivational Poster ("Teamwork") — Framed No More — Room 2A, Sep 29</span>
+        <span class="ticker-item">Fax Machine (functional) — Status Changed to Non-Functional — Room 1C, Sep 27</span>
+        <span class="ticker-item">Participation Trophy, 2nd Grade Science Fair — Forcibly Retired — Room 3D, Sep 24</span>
+        <span class="ticker-item">Ceramic Garden Gnome "Gerald" — Decapitated (Humane) — Room 4B, Sep 21</span>
+        <span class="ticker-item">Dell Keyboard (2007 vintage) — Every Key Individually Liberated — Room 2A, Sep 19</span>
+        <span class="ticker-item">Beige Office Phone — Dial Tone Permanently Silenced — Room 1C, Sep 16</span>
+        <span class="ticker-item">Novelty "Live Laugh Love" Sign — Lived, Laughed, Deceased — Room 3D, Sep 14</span>
+        <!-- duplicated for seamless scroll -->
+        <span class="ticker-item">Stuffed Platypus #347 — Shattered Beyond Recognition — Room 4B, Oct 12</span>
+        <span class="ticker-item">IKEA MALM Nightstand (birch) — Structural Failure — Room 2A, Oct 9</span>
+        <span class="ticker-item">Commemorative "World's Best Boss" Mug — Decommissioned — Room 1C, Oct 7</span>
+        <span class="ticker-item">VHS Copy of "You've Got Mail" — Unspooled With Prejudice — Room 3D, Oct 5</span>
+        <span class="ticker-item">Porcelain Cat (smiling) — Smile Reversed — Room 4B, Oct 3</span>
+        <span class="ticker-item">Motivational Poster ("Teamwork") — Framed No More — Room 2A, Sep 29</span>
+        <span class="ticker-item">Fax Machine (functional) — Status Changed to Non-Functional — Room 1C, Sep 27</span>
+        <span class="ticker-item">Participation Trophy, 2nd Grade Science Fair — Forcibly Retired — Room 3D, Sep 24</span>
+        <span class="ticker-item">Ceramic Garden Gnome "Gerald" — Decapitated (Humane) — Room 4B, Sep 21</span>
+        <span class="ticker-item">Dell Keyboard (2007 vintage) — Every Key Individually Liberated — Room 2A, Sep 19</span>
+        <span class="ticker-item">Beige Office Phone — Dial Tone Permanently Silenced — Room 1C, Sep 16</span>
+        <span class="ticker-item">Novelty "Live Laugh Love" Sign — Lived, Laughed, Deceased — Room 3D, Sep 14</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ 5. THE POLITERAGE PROMISE ═══ -->
+  <div class="tile h2 promise-tile tile-anim">
+    <div>
+      <div class="section-label">DOCUMENT PR-4: ETHICAL SOURCING GUARANTEE</div>
+      <h2 style="font-size:1.2rem; margin-bottom:1rem;">The PoliteRage Promise</h2>
+      <p><strong>Section 1.1:</strong> All breakable inventory is sourced exclusively from thrift stores, estate sales, and the unclaimed lost-and-found bins of mid-tier hotel chains. No new object has ever been purchased for the purpose of destruction.</p>
+      <p><strong>Section 1.2:</strong> Every plate, mug, and ceramic figurine receives a brief internal cataloging before its reassignment to active duty. We believe in second purposes, not second chances. The object had its chance. Now it has a calling.</p>
+      <p><strong>Section 1.3:</strong> Vent Valets are trained in the art of standing quietly in the corner. They will not flinch. They will not judge. They will hand you another plate when you're ready. Certification requires 200 hours of supervised silence.</p>
+      <p><strong>Section 1.4:</strong> SmashSpace sources from Walmart. We source from Gladys's estate sale in Tucson. There is a difference, and the difference is character.</p>
+    </div>
+    <div class="counter-box">
+      <span class="counter-num">14,207</span>
+      <span style="font-size:0.8rem; color:var(--badge);">plates given a second purpose</span>
+    </div>
+  </div>
+
+  <!-- ═══ 6. RAGE ROOM RESOLUTIONS ═══ -->
+  <div class="tile testimonial tile-anim">
+    <div class="section-label">CASE STUDY #041 — RESOLUTION FILED</div>
+    <h4>Margaret Huang-Vickers</h4>
+    <p class="title">Senior Associate, Compliance & Internal Sighing</p>
+    <blockquote>"After Session 4, I stopped cc'ing my manager's manager on routine emails. My therapist calls this progress. I call it the plate thing working."</blockquote>
+    <p style="font-size:0.85rem; margin-bottom:0.5rem;">Sessions completed: 7 | Room preference: 1C (Shout-Only Sanctuary)</p>
+    <div class="resolution-rating">RESOLUTION RATING: ████████░░ 8.4/10</div>
+  </div>
+
+  <div class="tile testimonial tile-anim">
+    <div class="section-label">CASE STUDY #067 — RESOLUTION FILED</div>
+    <h4>David Tremaine-Oaks</h4>
+    <p class="title">IT Infrastructure Lead, Quiet Desperation Division</p>
+    <blockquote>"I used to rewrite passive-aggressive Slack messages eleven times before sending. Now I rewrite them three times. The keyboard room gave me back eight minutes a day. I've done the math."</blockquote>
+    <p style="font-size:0.85rem; margin-bottom:0.5rem;">Sessions completed: 12 | Room preference: 4B (Keyboard Kommotion)</p>
+    <div class="resolution-rating">RESOLUTION RATING: █████████░ 9.1/10</div>
+  </div>
+
+  <!-- ═══ 7. FOOTER ═══ -->
+  <div class="tile w4 footer-tile tile-anim">
+    <div>
+      <div class="section-label">PARTNERED THERAPIST DIRECTORY — BECAUSE WE BREAK PLATES, NOT PEOPLE</div>
+      <h2 style="font-size:1.2rem; margin-bottom:0.3rem;">When You Need More Than a Room <span class="glitch-emoji d4">🙂</span></h2>
+      <p style="font-size:0.9rem; color:var(--badge); margin-bottom:1rem;">A note from Beatrice: "We break plates, not people. If you need more than a room, these folks are extraordinary. I see Dr. Kaplan myself. Franklin sees all three, which is on brand."</p>
+    </div>
+    <div class="therapist-grid">
+      <div class="therapist-card">
+        <h4>Dr. Elaine Kaplan, PsyD</h4>
+        <p class="spec">SPECIALTY: Suppressed workplace rage, perfectionism, smiling disorders</p>
+        <p style="font-size:0.85rem; margin-bottom:0.8rem;">Accepts most insurance. Does not accept "I'm fine" as an answer.</p>
+        <button class="btn" style="font-size:0.8rem;">SCHEDULE NOW</button>
+      </div>
+      <div class="therapist-card">
+        <h4>Marcus Oyelaran, LCSW</h4>
+        <p class="spec">SPECIALTY: Anger management, boundary architecture, meeting fatigue syndrome</p>
+        <p style="font-size:0.85rem; margin-bottom:0.8rem;">Sliding scale available. Validated parking. Will not suggest journaling unless you ask.</p>
+        <button class="btn" style="font-size:0.8rem;">SCHEDULE NOW</button>
+      </div>
+      <div class="therapist-card">
+        <h4>Dr. Priya Narayan-Walsh, PhD</h4>
+        <p class="spec">SPECIALTY: Emotional compression, corporate grief, the specific sadness of open floor plans</p>
+        <p style="font-size:0.85rem; margin-bottom:0.8rem;">Telehealth available. Her office has a door that closes. She wants you to know that.</p>
+        <button class="btn" style="font-size:0.8rem;">SCHEDULE NOW</button>
+      </div>
+    </div>
+    <p class="footer-note">"If your rage has a return address, our rooms are here. If it doesn't, these therapists can help you trace it. Either way, you are not the problem. The culture of compulsory pleasantness is the problem. You're just the person who finally noticed." — Beatrice Stern</p>
+    <p class="copyright">© 2024 PoliteRage.biz — Stern & Coolidge LLC. All rights reserved. SmashSpace® is a registered trademark of people with no taste.</p>
+  </div>
+
+</div>
+
+<script src="/assets/js/alpine.min.js" defer></script>
+<script src="/assets/js/gsap.min.js"></script>
+<script>
+document.addEventListener('alpine:init', function() {
+  Alpine.data('politerage', function() {
+    return {
+      q1: null,
+      q2: null,
+      q3: null,
+      q4: null,
+      quizDone: false,
+      quizResult: { name: '', desc: '', pct: 0, level: '' },
+      rooms: [
+        {
+          code: '1C', badge: 'SHOUT-ONLY SANCTUARY', name: 'The Resonance Chamber',
+          bar: '████████░░', score: '8.2', specialty: 'Vocal catharsis only. No objects. Just you and the void, properly insulated.',
+          duration: '45 min', objects: 'N/A (voice only)', valet: 'Available (silent witness)', rate: '$65/session',
+          sound: '████████████ 99.7dB isolation', flipped: false
+        },
+        {
+          code: '2A', badge: 'CROCKERY CERTIFIED', name: 'The Fine China Incident Room',
+          bar: '█████████░', score: '9.1', specialty: 'Plates, mugs, vases. All thrift-sourced. Broom provided after.',
+          duration: '30 min', objects: '24 ceramic items (assorted)', valet: 'Available (broom-ready)', rate: '$85/session',
+          sound: '███████████░ 97.2dB isolation', flipped: false
+        },
+        {
+          code: '3D', badge: 'PILLOW FORT FRIENDLY', name: 'The Soft Infrastructure Lab',
+          bar: '███████░░░', score: '7.0', specialty: 'For those who need to scream into something but aren\'t ready for porcelain.',
+          duration: '60 min', objects: '40 pillows, 6 duvets, 1 beanbag (reinforced)', valet: 'Available (tucks you in after)', rate: '$55/session',
+          sound: '████████░░░░ 88.5dB isolation', flipped: false
+        },
+        {
+          code: '4B', badge: 'KEYBOARD KOMMOTION', name: 'The Input Device Liberation Center',
+          bar: '████████░░', score: '8.7', specialty: 'Keyboards, mice, monitors. For when Ctrl+Z isn\'t enough.',
+          duration: '30 min', objects: '12 keyboards, 8 mice, 2 CRT monitors', valet: 'Available (types sympathy note after)', rate: '$75/session',
+          sound: '██████████░░ 95.1dB isolation', flipped: false
+        }
+      ],
+
+      submitQuiz: function() {
+        var total = (this.q1 || 0) + (this.q2 || 0) + (this.q3 || 0) + (this.q4 || 0);
+        var packages = [
+          { min: 0, max: 3, name: 'The Gentle Exhale Package', desc: 'One pillow room session with lavender mist and a Vent Valet who nods supportively. You\'re not angry, you\'re just tired. We understand.', pct: 34, level: 'Mildly Compressed' },
+          { min: 4, max: 6, name: 'The Controlled Detonation Package', desc: 'Two crockery sessions with pre-selected mugs bearing inspirational quotes. Recommended: start with "Dream Big" and work up to "Live Laugh Love."', pct: 61, level: 'Actively Simmering' },
+          { min: 7, max: 9, name: 'The Full Audit Package', desc: 'Four sessions across all room types. Includes a personalized Rage Release Plan and a Vent Valet who has been briefed on your specific triggers. The keyboard room is reserved for Session 3.', pct: 82, level: 'Structurally Compromised' },
+          { min: 10, max: 12, name: 'The Stern & Coolidge Executive Intervention', desc: 'Unlimited access for 30 days. Personal Vent Valet. Priority booking. Franklin will personally arrange the room. Beatrice will write you a poem about your rage. It will be good.', pct: 97, level: 'Magnificent Pressure' }
+        ];
+        for (var i = 0; i < packages.length; i++) {
+          if (total >= packages[i].min && total <= packages[i].max) {
+            this.quizResult = packages[i];
+            break;
+          }
+        }
+        this.quizDone = true;
+      }
+    };
+  });
+});
+
+// ═══ GSAP SCROLL ANIMATIONS ═══
+document.addEventListener('DOMContentLoaded', function() {
+  var tiles = document.querySelectorAll('.tile-anim');
+
+  var observer = new IntersectionObserver(function(entries) {
+    entries.forEach(function(entry) {
+      if (entry.isIntersecting) {
+        var tile = entry.target;
+        var row = Math.floor(tile.getBoundingClientRect().top / 100);
+        var siblings = Array.from(tiles).filter(function(t) {
+          return Math.abs(t.getBoundingClientRect().top - tile.getBoundingClientRect().top) < 50;
+        });
+        var idx = siblings.indexOf(tile);
+        var delay = idx * 0.1;
+
+        gsap.fromTo(tile,
+          { opacity: 0, y: 20 },
+          { opacity: 1, y: 0, duration: 0.6, delay: delay, ease: 'power2.out' }
+        );
+
+        observer.unobserve(tile);
+      }
+    });
+  }, { threshold: 0.1 });
+
+  tiles.forEach(function(tile) {
+    observer.observe(tile);
+  });
+});
+</script>
+
+</body>
+</html>

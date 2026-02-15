@@ -1,0 +1,886 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DOT MATRIX DREAMS — Collective Dream Archive Since 2007</title>
+<link rel="stylesheet" href="/assets/css/fonts.css">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg: #F8F8FF;
+  --text: #1A1A2E;
+  --blue: #0066FF;
+  --orange: #E8572A;
+  --green-scan: rgba(51, 255, 51, 0.15);
+  --panel: #EDEDF0;
+}
+
+body {
+  font-family: 'Fira Code', monospace;
+  background: var(--bg);
+  color: var(--text);
+  font-size: 16px;
+  line-height: 1.7;
+  overflow-x: hidden;
+}
+
+.container {
+  max-width: 720px;
+  width: 100%;
+  margin: 0 auto;
+  padding: 2rem 1.25rem 6rem;
+}
+
+/* Scan line overlay */
+body::after {
+  content: '';
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: repeating-linear-gradient(
+    0deg,
+    transparent,
+    transparent 2px,
+    var(--green-scan) 2px,
+    var(--green-scan) 4px
+  );
+  pointer-events: none;
+  z-index: 999;
+}
+
+/* Section dividers */
+.divider {
+  font-family: 'Fira Code', monospace;
+  color: var(--text);
+  opacity: 0.3;
+  text-align: left;
+  margin: 2.5rem 0;
+  overflow: hidden;
+  white-space: nowrap;
+  font-size: 14px;
+  user-select: none;
+}
+
+/* Blinking prompt */
+.prompt {
+  display: inline-block;
+  color: var(--blue);
+  font-family: 'Fira Code', monospace;
+  font-weight: 700;
+  margin-right: 0.5rem;
+}
+.prompt::after {
+  content: '_';
+  animation: blink 1s step-end infinite;
+}
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0; }
+}
+
+/* Section headings */
+.section-heading {
+  font-family: 'Fira Code', monospace;
+  font-size: 1.1rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  margin-bottom: 1rem;
+  color: var(--text);
+}
+
+/* HEADER */
+.ascii-title {
+  font-family: 'Fira Code', monospace;
+  font-size: clamp(6px, 1.8vw, 11px);
+  line-height: 1.2;
+  white-space: pre;
+  color: var(--text);
+  margin-bottom: 1rem;
+  overflow: hidden;
+}
+
+.header-meta {
+  font-size: 13px;
+  opacity: 0.6;
+  margin-bottom: 0.5rem;
+}
+
+.counter-line {
+  font-size: 14px;
+  margin: 1rem 0 0.5rem;
+}
+.counter-value {
+  color: var(--blue);
+  font-weight: 700;
+  transition: color 0.15s;
+}
+.counter-value.flash {
+  color: #FFFFFF;
+  text-shadow: 0 0 8px var(--blue);
+}
+
+.anya-name {
+  color: var(--orange);
+}
+
+.founder-line {
+  font-size: 13px;
+  opacity: 0.7;
+  margin-top: 0.25rem;
+}
+
+/* Terminal FAQ */
+.terminal-block {
+  background: var(--panel);
+  padding: 1.25rem;
+  border-left: 3px solid var(--blue);
+  font-size: 14px;
+  margin: 1rem 0;
+}
+.terminal-block .line {
+  margin-bottom: 0.75rem;
+}
+.terminal-block .line:last-child {
+  margin-bottom: 0;
+}
+.terminal-prompt {
+  color: var(--blue);
+  font-weight: 700;
+}
+.terminal-response {
+  padding-left: 1rem;
+  display: block;
+}
+.disclaimer {
+  color: var(--orange);
+  font-size: 12px;
+  margin-top: 1rem;
+}
+
+/* Dream archive */
+.dream-entry {
+  margin-bottom: 2rem;
+}
+.dream-header {
+  font-size: 13px;
+  opacity: 0.5;
+  margin-bottom: 0.5rem;
+}
+.dream-pre {
+  font-family: 'Fira Code', monospace;
+  font-size: clamp(10px, 2.5vw, 14px);
+  line-height: 1.3;
+  background: var(--panel);
+  border: 1px dashed var(--text);
+  border-opacity: 0.3;
+  padding: 1rem;
+  overflow-x: auto;
+  white-space: pre;
+  margin-bottom: 0.75rem;
+  position: relative;
+}
+.interpretation {
+  font-family: 'Caveat', cursive;
+  font-size: 18px;
+  color: var(--text);
+  padding-left: 1rem;
+  margin-bottom: 0.35rem;
+  line-height: 1.4;
+}
+.interpretation::before {
+  content: '↳ ';
+  color: var(--blue);
+}
+
+/* Lost dreams */
+.lost-badge {
+  display: inline-block;
+  background: var(--orange);
+  color: #FFFFFF;
+  font-size: 11px;
+  padding: 2px 8px;
+  letter-spacing: 0.1em;
+  font-weight: 700;
+  margin-bottom: 0.5rem;
+}
+.lost-dream-pre {
+  font-family: 'Fira Code', monospace;
+  font-size: clamp(10px, 2.5vw, 14px);
+  line-height: 1.3;
+  background: var(--panel);
+  border: 1px dashed var(--text);
+  padding: 1rem;
+  overflow-x: auto;
+  white-space: pre;
+  margin-bottom: 0.75rem;
+  position: relative;
+  cursor: pointer;
+}
+.plea {
+  font-family: 'Caveat', cursive;
+  font-size: 19px;
+  color: var(--text);
+  margin: 0.75rem 0;
+  line-height: 1.4;
+  font-style: italic;
+}
+.bitrot-container {
+  margin-top: 1.5rem;
+}
+.bitrot-label {
+  font-size: 13px;
+  margin-bottom: 0.5rem;
+}
+.bitrot-bar {
+  width: 100%;
+  height: 20px;
+  background: var(--panel);
+  border: 1px solid var(--text);
+  position: relative;
+  overflow: hidden;
+}
+.bitrot-fill {
+  height: 100%;
+  width: 34.7%;
+  background: repeating-linear-gradient(
+    90deg,
+    var(--text) 0px,
+    var(--text) 4px,
+    transparent 4px,
+    transparent 8px
+  );
+  opacity: 0.6;
+}
+.bitrot-value {
+  position: absolute;
+  right: 8px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 11px;
+  font-weight: 700;
+}
+
+/* Lexicon */
+.lexicon-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1rem;
+  margin: 1rem 0;
+}
+@media (min-width: 520px) {
+  .lexicon-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+.lexicon-entry {
+  padding-bottom: 0.75rem;
+  border-bottom: 1px solid #D0D0D5;
+}
+.lexicon-term {
+  font-weight: 700;
+  font-size: 14px;
+  margin-bottom: 0.25rem;
+}
+.lexicon-def {
+  font-size: 13px;
+  opacity: 0.8;
+  line-height: 1.5;
+}
+.lexicon-count {
+  font-size: 11px;
+  opacity: 0.4;
+  margin-top: 0.25rem;
+}
+
+/* Oracle */
+.oracle-box {
+  background: var(--panel);
+  border: 2px solid var(--blue);
+  padding: 1.25rem;
+  margin: 1rem 0;
+}
+.oracle-input-wrap {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+  flex-wrap: wrap;
+}
+.oracle-input {
+  font-family: 'Fira Code', monospace;
+  font-size: 14px;
+  background: var(--bg);
+  border: 1px solid var(--text);
+  color: var(--text);
+  padding: 0.5rem 0.75rem;
+  flex: 1;
+  min-width: 0;
+  min-height: 44px;
+}
+.oracle-input::placeholder {
+  opacity: 0.4;
+}
+.oracle-input:focus {
+  outline: 2px solid var(--blue);
+  outline-offset: -2px;
+}
+.oracle-btn {
+  font-family: 'Fira Code', monospace;
+  font-size: 14px;
+  font-weight: 700;
+  background: var(--text);
+  color: var(--bg);
+  border: none;
+  padding: 0.5rem 1rem;
+  cursor: pointer;
+  min-height: 44px;
+  min-width: 44px;
+  white-space: nowrap;
+}
+.oracle-btn:hover {
+  background: var(--blue);
+}
+.oracle-output {
+  font-family: 'Fira Code', monospace;
+  font-size: 13px;
+  min-height: 3rem;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+.oracle-footer {
+  font-size: 11px;
+  opacity: 0.4;
+  margin-top: 1rem;
+}
+
+/* Guestbook */
+.guestbook-entry {
+  font-family: 'Caveat', cursive;
+  font-size: 20px;
+  line-height: 1.4;
+  margin-bottom: 1rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px dotted #C0C0C5;
+}
+.guestbook-entry:last-of-type {
+  border-bottom: none;
+}
+.guestbook-date {
+  font-family: 'Fira Code', monospace;
+  font-size: 11px;
+  opacity: 0.4;
+  display: block;
+  margin-top: 0.25rem;
+}
+.guestbook-link {
+  display: inline-block;
+  font-size: 13px;
+  color: var(--blue);
+  text-decoration: underline;
+  opacity: 0.4;
+  margin-top: 1rem;
+  cursor: default;
+  min-height: 44px;
+  line-height: 44px;
+}
+
+/* Typewriter reveal */
+.reveal-section {
+  opacity: 0;
+  clip-path: inset(0 100% 0 0);
+}
+.reveal-section.visible {
+  animation: typeReveal 0.6s ease-out forwards;
+}
+@keyframes typeReveal {
+  0% { opacity: 1; clip-path: inset(0 100% 0 0); }
+  100% { opacity: 1; clip-path: inset(0 0% 0 0); }
+}
+
+/* Mobile */
+@media (max-width: 480px) {
+  .container { padding: 1rem 0.75rem 5rem; }
+  .ascii-title { font-size: 5.5px; }
+  .terminal-block { padding: 1rem; }
+  .oracle-input-wrap { flex-direction: column; }
+}
+
+a { color: var(--blue); }
+</style>
+</head>
+<body>
+
+<div class="container">
+
+  <!-- HEADER / TRANSMISSION STATUS -->
+  <section class="reveal-section" data-reveal>
+    <div class="ascii-title" id="asciiTitle">
+ ____    ___   _____   __  __    _  _____  ____   ___  __  __
+|  _ \  / _ \ |_   _| |  \/  |  / \|_   _||  _ \ |_ _| \ \/ /
+| | | || | | |  | |   | |\/| | / _ \ | |  | |_) | | |   \  /
+| |_| || |_| |  | |   | |  | |/ ___ \| |  |  _ &lt;  | |   /  \
+|____/  \___/   |_|   |_|  |_/_/   \_|_|  |_| \_\|___| /_/\_\
+ ____   ____   _____     _     __  __  ____
+|  _ \ |  _ \ | ____|   / \   |  \/  |/ ___|
+| | | || |_) ||  _|    / _ \  | |\/| |\___ \
+| |_| ||  _ &lt; | |___  / ___ \ | |  | | ___) |
+|____/ |_| \_\|_____|/_/   \_\|_|  |_||____/
+    </div>
+    <div class="header-meta">EST. 2007 &nbsp;|&nbsp; PUNE, INDIA</div>
+    <div class="counter-line">
+      Collective Interpretations Attempted: <span class="counter-value" id="interpCounter">2,847,103</span>
+    </div>
+    <div class="founder-line">founded by <span class="anya-name">Anya Sharma</span>, who disappeared in 2012.</div>
+  </section>
+
+  <div class="divider" aria-hidden="true">═══════════════════════════════════════════════════════════════</div>
+
+  <!-- ABOUT / FAQ TERMINAL -->
+  <section class="reveal-section" data-reveal>
+    <div class="section-heading"><span class="prompt">&gt;</span> ABOUT / FAQ</div>
+    <div class="terminal-block">
+      <div class="line">
+        <span class="terminal-prompt">&gt; </span>what is this place?
+        <span class="terminal-response">An archive of 3,200+ dreams submitted as ASCII art between 2007 and 2012. Each one drawn character by character in a text editor by someone who woke up needing to get something out of their head.</span>
+      </div>
+      <div class="line">
+        <span class="terminal-prompt">&gt; </span>why ASCII?
+        <span class="terminal-response">Because a dream isn't high-fidelity. A dream is a 72x24 terminal window where your dead grandmother is rendered in box-drawing characters and you wake up certain it meant something. Lossy compression is the native format of memory.</span>
+      </div>
+      <div class="line">
+        <span class="terminal-prompt">&gt; </span>who interprets the dreams?
+        <span class="terminal-response">Anyone. Strangers, mostly. The archive accumulated 2.8 million interpretation attempts before submissions closed. Some dreams have 400+ readings. None of them agree. That's the point.</span>
+      </div>
+      <div class="line">
+        <span class="terminal-prompt">&gt; </span>is Anya coming back?
+        <span class="terminal-response">The domain auto-renewed in 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025, 2026. The server keeps running. The counter keeps counting. Make of that what you will.</span>
+      </div>
+      <div class="disclaimer">⚠ WARNING: Extended browsing of the dream archive may induce existential dread, false memories, and an unshakable feeling that someone you've never met drew a picture of your childhood bedroom. This is normal. Probably.</div>
+    </div>
+  </section>
+
+  <div class="divider" aria-hidden="true">═══════════════════════════════════════════════════════════════</div>
+
+  <!-- DREAM ARCHIVE -->
+  <section class="reveal-section" data-reveal>
+    <div class="section-heading"><span class="prompt">&gt;</span> DREAM ARCHIVE</div>
+
+    <div class="dream-entry">
+      <div class="dream-header">DREAM #0441 &nbsp;|&nbsp; submitted 2008-03-14 &nbsp;|&nbsp; 347 interpretations</div>
+<pre class="dream-pre glitch-target">
+    ___....---"""---...___
+  /   ___.....-----.....__  \
+ /  /`  oo        oo   `\  \
+|  |    \___  ^^  ___/    |  |
+|  |       /  ||  \       |  |
+ \  \     | (==) |      /  /
+  \  \___ |  /\  | ___/  /
+    ---...|_/  \_|...---
+     ~~~~~~~~||~~~~~~~~
+    /  \   __|__   /  \
+   (o  o) |     | (o  o)
+    \  /  |SNAKE| \  /
+     \/   |_____|  \/
+     /|\_  |   |  _/|\
+    / | |  |   |  | | \
+      | |  |___|  | |
+</pre>
+      <div class="interpretation">"That's not a snake. That's the umbilical cord. The human eyes are yours." — user_7734, 2008</div>
+      <div class="interpretation">"The eyes are her grandmother's. I've seen this dream before. Not here. In my own head." — anon, 2009</div>
+      <div class="interpretation">"It's a phone cord. She's trying to call someone who unplugged." — dissolve_static, 2008</div>
+    </div>
+
+    <div class="dream-entry">
+      <div class="dream-header">DREAM #1887 &nbsp;|&nbsp; submitted 2009-11-02 &nbsp;|&nbsp; 412 interpretations</div>
+<pre class="dream-pre glitch-target">
+         _______
+        |       |
+        | 3.5"  |
+        |  HD   |
+        |_______|
+       /|       |\
+      / |  |||  | \
+     /  |  |||  |  \
+    /   |_______|   \
+   /                 \
+  /   O          O    \
+ |   /|\   __   /|\    |
+ |   / \  |  |  / \    |
+  \_______|  |________/
+          |  |
+         _|  |_
+        |______|
+</pre>
+      <div class="interpretation">"The figure is offering you the floppy disk. The data on it is everything they never said." — quiettype, 2010</div>
+      <div class="interpretation">"1.44 MB. That's how much space a goodbye takes." — user_0091, 2009</div>
+    </div>
+
+    <div class="dream-entry">
+      <div class="dream-header">DREAM #2903 &nbsp;|&nbsp; submitted 2011-06-18 &nbsp;|&nbsp; 289 interpretations</div>
+<pre class="dream-pre glitch-target">
+     ???????????
+    ?           ?
+   ?  ?       ?  ?
+   ?  ???   ???  ?
+   ?             ?
+   ?   ?     ?   ?
+   ?    ?????    ?
+   ?             ?
+    ?           ?
+     ???????????
+      ?  ???  ?
+      ?  ???  ?
+      ?  ???  ?
+         ???
+         ???
+</pre>
+      <div class="interpretation">"It's not a face made of question marks. It's a question mark made of face." — null_set, 2011</div>
+      <div class="interpretation">"This is what my mother looks like when I try to remember her. Exactly this." — 2011-visitor, 2011</div>
+      <div class="interpretation">"Every face you forget becomes this eventually." — anon, 2011</div>
+    </div>
+  </section>
+
+  <div class="divider" aria-hidden="true">═══════════════════════════════════════════════════════════════</div>
+
+  <!-- LOST DREAMS / BITROT INDEX -->
+  <section class="reveal-section" data-reveal>
+    <div class="section-heading"><span class="prompt">&gt;</span> LOST DREAMS / BITROT INDEX</div>
+
+    <div class="dream-entry">
+      <span class="lost-badge">LOST</span>
+      <div class="dream-header">DREAM #0072 &nbsp;|&nbsp; submitted 2007-09-30 &nbsp;|&nbsp; CORRUPTED</div>
+<pre class="lost-dream-pre" data-original="     /|          |\     |  |  LIGHT   |  |    |  |  HOUSE   |  |    |  |_________|  |    |  /           \  |   | /    _____    \ |   |/    | ~~~ |    \|        |~~~~~|         |~~~~~|     ____|~~~~~|____   /    |~~~~~~~|    \ /______|~~~~~~~~~|______\" data-corrupted="     ░|          |░     |  ▒  ░I░HT   ▒  |    |  |  ▓O░SE   |  ░    ░  ░_░__░____░  |    |  ░           ░  |   ▒ /    ░░░░░    ░ |   |░    ░ ▒░▒ ░    ░|        |░▓░▒░|         |▒░░▓░|     ░░░░|░░▒░░|░░░░   ░    ▒░▒▓░░▒░░    ░ ░░▒░░░░|░░▓░░▓░░░|░░░░▒░">     ░|          |░
+ |  ▒  ░I░HT   ▒  |
+ |  |  ▓O░SE   |  ░
+ ░  ░_░__░____░  |
+ |  ░           ░  |
+  ▒ /    ░░░░░    ░ |
+  |░    ░ ▒░▒ ░    ░|
+       |░▓░▒░|
+       |▒░░▓░|
+    ░░░░|░░▒░░|░░░░
+  ░    ▒░▒▓░░▒░░    ░
+ ░░▒░░░░|░░▓░░▓░░░|░░░░▒░</pre>
+      <div class="plea">Please, if anyone remembers dream #0072, the one with the lighthouse — I need it back. I can't remember her face without it.</div>
+    </div>
+
+    <div class="dream-entry">
+      <span class="lost-badge">LOST</span>
+      <div class="dream-header">DREAM #0198 &nbsp;|&nbsp; submitted 2008-01-12 &nbsp;|&nbsp; CORRUPTED</div>
+<pre class="lost-dream-pre" data-original="   ___________  |  OPEN     |  |  24 HRS    |  |  COME IN   |  |___________|  |     ||     |  |_____||_____|      ||  ||       \\  //        \\//         ||" data-corrupted="   ░░░▒▒░░▓░░░  |  ░P▒N     ░  ▒  2░ H░S    |  |  ░OM░ ▓N   |  ░░░░▒░░░░░░░  |     ░░     |  ░_░░░░||░░░▒░      ░|  |░       ░░  ░░        ░░▒░         ░░">   ░░░▒▒░░▓░░░
+ |  ░P▒N     ░
+ ▒  2░ H░S    |
+ |  ░OM░ ▓N   |
+ ░░░░▒░░░░░░░
+ |     ░░     |
+ ░_░░░░||░░░▒░
+      ░|  |░
+       ░░  ░░
+        ░░▒░
+         ░░</pre>
+      <div class="plea">Dream #0198 was the door. It was always open. The sign said come in. Now the sign says nothing. If you copied it to your Geocities page in 2008 please, please email the webmaster address. The inbox still works. I check.</div>
+    </div>
+
+    <div class="bitrot-container">
+      <div class="bitrot-label">BITROT INDEX — pre-2010 dream degradation:</div>
+      <div class="bitrot-bar">
+        <div class="bitrot-fill"></div>
+        <span class="bitrot-value">34.7%</span>
+      </div>
+    </div>
+  </section>
+
+  <div class="divider" aria-hidden="true">═══════════════════════════════════════════════════════════════</div>
+
+  <!-- DREAM LEXICON -->
+  <section class="reveal-section" data-reveal>
+    <div class="section-heading"><span class="prompt">&gt;</span> DREAM LEXICON</div>
+    <div class="lexicon-grid">
+      <div class="lexicon-entry">
+        <div class="lexicon-term">FLOPPY DISK</div>
+        <div class="lexicon-def">A message someone saved but never sent. The format is now obsolete. So is the sender.</div>
+        <div class="lexicon-count">compiled from 847 interpretations</div>
+      </div>
+      <div class="lexicon-entry">
+        <div class="lexicon-term">SNAKE WITH HUMAN EYES</div>
+        <div class="lexicon-def">Recognition without context. You know this thing but it doesn't know you back. Or worse: it does.</div>
+        <div class="lexicon-count">compiled from 1,203 interpretations</div>
+      </div>
+      <div class="lexicon-entry">
+        <div class="lexicon-term">STAIRCASE GOING DOWN</div>
+        <div class="lexicon-def">A conversation you're not ready to finish. Each step is a year you didn't call.</div>
+        <div class="lexicon-count">compiled from 634 interpretations</div>
+      </div>
+      <div class="lexicon-entry">
+        <div class="lexicon-term">BLANK SCREEN</div>
+        <div class="lexicon-def">The moment after the message but before comprehension. You've already read it. You don't know yet.</div>
+        <div class="lexicon-count">compiled from 912 interpretations</div>
+      </div>
+      <div class="lexicon-entry">
+        <div class="lexicon-term">GRANDMOTHER'S HANDS</div>
+        <div class="lexicon-def">The last physical memory to degrade. You'll forget her voice first, then her face. The hands stay longest.</div>
+        <div class="lexicon-count">compiled from 1,456 interpretations</div>
+      </div>
+      <div class="lexicon-entry">
+        <div class="lexicon-term">STATIC</div>
+        <div class="lexicon-def">Not the absence of signal. The presence of every signal at once. Someone is transmitting. You can't tune in.</div>
+        <div class="lexicon-count">compiled from 778 interpretations</div>
+      </div>
+    </div>
+  </section>
+
+  <div class="divider" aria-hidden="true">═══════════════════════════════════════════════════════════════</div>
+
+  <!-- ALGORITHM ORACLE -->
+  <section class="reveal-section" data-reveal>
+    <div class="section-heading"><span class="prompt">&gt;</span> ALGORITHM ORACLE</div>
+    <p style="font-size:13px;opacity:0.6;margin-bottom:1rem;">Enter a dream symbol. The engine will attempt interpretation.</p>
+    <div class="oracle-box">
+      <div class="oracle-input-wrap">
+        <input type="text" class="oracle-input" id="oracleInput" placeholder="type a dream symbol..." aria-label="Dream symbol input">
+        <button class="oracle-btn" id="oracleBtn" type="button">INTERPRET</button>
+      </div>
+      <div class="oracle-output" id="oracleOutput"></div>
+    </div>
+    <div class="oracle-footer">Powered by DotMatrix Neural Engine v0.3 (2009)</div>
+  </section>
+
+  <div class="divider" aria-hidden="true">═══════════════════════════════════════════════════════════════</div>
+
+  <!-- GUESTBOOK -->
+  <section class="reveal-section" data-reveal>
+    <div class="section-heading"><span class="prompt">&gt;</span> GUESTBOOK</div>
+
+    <div class="guestbook-entry">
+      omg the snake dream gave me chills!! how did u get the scales to look 3D?? i tried doing something similar on my xanga but the spacing was all wrong. teach me ur ways anya!!!
+      <span class="guestbook-date">— xX_dreamcatcher_Xx, 2007-12-03</span>
+    </div>
+
+    <div class="guestbook-entry">
+      anya if ur reading this, dream #1201 is about MY mom too. i know it. the hands in that one, the way the fingers curl around the edge of the frame. that's her. that's exactly her. i don't know how you knew.
+      <span class="guestbook-date">— margaret_t, 2008-04-17</span>
+    </div>
+
+    <div class="guestbook-entry">
+      I bookmarked this site in 2007 and forgot about it for a year. Came back and dream #0441 had 200 new interpretations. It's like the dream kept dreaming without me. Is that what the internet is? A dream that keeps going when you close your eyes?
+      <span class="guestbook-date">— quiettype, 2009-01-22</span>
+    </div>
+
+    <div class="guestbook-entry">
+      Hey does anyone know if Anya still checks the webmaster email? I submitted dream #2650 and I want to update the interpretation. I figured out what the door means. It took me a year but I figured it out. Please.
+      <span class="guestbook-date">— lost_signal_99, 2009-08-15</span>
+    </div>
+
+    <div class="guestbook-entry">
+      found this thru stumbleupon at 3am and now im crying in my dorm room about a stranger's grandmother?? the internet is so weird. adding to my firefox bookmarks toolbar. between neopets and my livejournal. feels right.
+      <span class="guestbook-date">— jess_2009, 2009-11-30</span>
+    </div>
+
+    <span class="guestbook-link" aria-disabled="true">[ Sign Guestbook ] (submissions closed 2012)</span>
+  </section>
+
+  <div class="divider" aria-hidden="true">═══════════════════════════════════════════════════════════════</div>
+
+  <section class="reveal-section" data-reveal>
+    <p style="font-size:12px;opacity:0.4;text-align:left;">
+      DOT MATRIX DREAMS v2.1.0 &nbsp;|&nbsp; Server uptime: 6,934 days &nbsp;|&nbsp; Last human login: 2012-03-07
+      <br>The server runs. The counter counts. The dreams degrade. Nobody is driving.
+    </p>
+  </section>
+
+</div>
+
+<script src="/assets/js/gsap.min.js"></script>
+<script>
+(function() {
+  "use strict";
+
+  // ── INTERPRETATION COUNTER ──
+  var counterEl = document.getElementById('interpCounter');
+  var count = 2847103;
+
+  function formatCount(n) {
+    return n.toLocaleString('en-US');
+  }
+
+  function tickCounter() {
+    count += 1;
+    counterEl.textContent = formatCount(count);
+    counterEl.classList.add('flash');
+    setTimeout(function() {
+      counterEl.classList.remove('flash');
+    }, 150);
+    var next = 3000 + Math.floor(Math.random() * 5000);
+    setTimeout(tickCounter, next);
+  }
+  setTimeout(tickCounter, 3000 + Math.floor(Math.random() * 5000));
+
+  // ── SCROLL REVEAL (typewriter) ──
+  var revealSections = document.querySelectorAll('[data-reveal]');
+  var revealObserver = new IntersectionObserver(function(entries) {
+    entries.forEach(function(entry) {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('visible');
+        revealObserver.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.1 });
+  revealSections.forEach(function(s) { revealObserver.observe(s); });
+
+  // ── ASCII TITLE STATIC DISSOLVE ──
+  var titleEl = document.getElementById('asciiTitle');
+  var titleOriginal = titleEl.textContent;
+  var noiseChars = '▓░▒█';
+
+  function titleGlitch() {
+    var chars = titleOriginal.split('');
+    var indices = [];
+    for (var i = 0; i < chars.length; i++) {
+      if (chars[i] !== ' ' && chars[i] !== '\n') indices.push(i);
+    }
+    // Pick 2-3 random non-space chars
+    var numGlitch = 2 + Math.floor(Math.random() * 2);
+    var glitched = chars.slice();
+    for (var g = 0; g < numGlitch; g++) {
+      var ri = indices[Math.floor(Math.random() * indices.length)];
+      glitched[ri] = noiseChars[Math.floor(Math.random() * noiseChars.length)];
+    }
+    titleEl.textContent = glitched.join('');
+    setTimeout(function() {
+      titleEl.textContent = titleOriginal;
+    }, 200);
+  }
+  setInterval(titleGlitch, 800);
+
+  // ── ASCII GLITCH MOMENTS ──
+  var glitchTargets = document.querySelectorAll('.glitch-target');
+  var glitchOriginals = [];
+  glitchTargets.forEach(function(el) {
+    glitchOriginals.push(el.textContent);
+  });
+
+  function randomGlitch() {
+    var idx = Math.floor(Math.random() * glitchTargets.length);
+    var el = glitchTargets[idx];
+    var original = glitchOriginals[idx];
+    var chars = original.split('');
+    var numSwaps = 8 + Math.floor(Math.random() * 12);
+    for (var s = 0; s < numSwaps; s++) {
+      var ri = Math.floor(Math.random() * chars.length);
+      if (chars[ri] !== ' ' && chars[ri] !== '\n') {
+        chars[ri] = noiseChars[Math.floor(Math.random() * noiseChars.length)];
+      }
+    }
+    el.textContent = chars.join('');
+    setTimeout(function() {
+      el.textContent = original;
+    }, 400);
+    var next = 20000 + Math.floor(Math.random() * 10000);
+    setTimeout(randomGlitch, next);
+  }
+  setTimeout(randomGlitch, 20000 + Math.floor(Math.random() * 10000));
+
+  // ── LOST DREAM HOVER REVEAL ──
+  var lostDreams = document.querySelectorAll('.lost-dream-pre');
+  lostDreams.forEach(function(el) {
+    var corrupted = el.getAttribute('data-corrupted');
+    var original = el.getAttribute('data-original');
+    if (!corrupted || !original) return;
+
+    var corruptedChars = corrupted.split('');
+    var originalChars = original.split('');
+
+    el.addEventListener('mouseenter', function() {
+      // Reveal ~30% of original chars
+      var mixed = corruptedChars.slice();
+      for (var i = 0; i < mixed.length && i < originalChars.length; i++) {
+        if (Math.random() < 0.3 && originalChars[i] !== ' ') {
+          mixed[i] = originalChars[i];
+        }
+      }
+      el.textContent = mixed.join('');
+    });
+
+    el.addEventListener('mouseleave', function() {
+      el.textContent = corrupted;
+    });
+
+    // Initialize with corrupted text
+    el.textContent = corrupted;
+  });
+
+  // ── ALGORITHM ORACLE ──
+  var oracleInput = document.getElementById('oracleInput');
+  var oracleBtn = document.getElementById('oracleBtn');
+  var oracleOutput = document.getElementById('oracleOutput');
+
+  var subjects = [
+    'the dreamer', 'someone you used to know', 'a version of yourself you abandoned',
+    'your grandmother', 'a stranger on a train', 'the person you were at seventeen'
+  ];
+  var verbs = [
+    'is trying to return', 'was never actually lost', 'has been transmitting since 2007',
+    'exists only in the gap between signals', 'dissolved into static years ago',
+    'is waiting in a room you haven\'t built yet'
+  ];
+  var objects = [
+    'a floppy disk containing the last voicemail', 'stairs that only go down',
+    'a screen that shows what you\'ll forget next', 'hands reaching through a terminal window',
+    'a door that was always open and is now just a frame', 'the exact shape of a face made of question marks'
+  ];
+  var codas = [
+    'This is not a metaphor.', 'The interpretation is the dream.',
+    'Confidence: 34.7%. Margin of error: everything.',
+    'See also: GRANDMOTHER\'S HANDS, STATIC.',
+    'The engine is 87% certain this means something. The remaining 13% is grief.',
+    'Filed under: messages received but not opened.'
+  ];
+
+  var isTyping = false;
+
+  function typeText(el, text, cb) {
+    isTyping = true;
+    el.textContent = '';
+    var i = 0;
+    function next() {
+      if (i < text.length) {
+        el.textContent += text[i];
+        i++;
+        setTimeout(next, 20 + Math.floor(Math.random() * 30));
+      } else {
+        isTyping = false;
+        if (cb) cb();
+      }
+    }
+    next();
+  }
+
+  function interpret(symbol) {
+    var s = subjects[Math.floor(Math.random() * subjects.length)];
+    var v = verbs[Math.floor(Math.random() * verbs.length)];
+    var o = objects[Math.floor(Math.random() * objects.length)];
+    var c = codas[Math.floor(Math.random() * codas.length)];
+    return '> INTERPRETING: "' + symbol.toUpperCase() + '"\n\n' +
+      'RESULT: In the context of ' + symbol + ', ' + s + ' ' + v + '. ' +
+      'The symbol resolves to ' + o + '.\n\n' + c;
+  }
+
+  function runOracle() {
+    var val = oracleInput.value.trim();
+    if (!val || isTyping) return;
+    oracleOutput.textContent = 'PROCESSING...';
+    setTimeout(function() {
+      var result = interpret(val);
+      typeText(oracleOutput, result);
+    }, 1200);
+  }
+
+  oracleBtn.addEventListener('click', runOracle);
+  oracleInput.addEventListener('keydown', function(e) {
+    if (e.key === 'Enter') runOracle();
+  });
+
+})();
+</script>
+</body>
+</html>

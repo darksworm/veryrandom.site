@@ -1,0 +1,927 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Y2KAesthetic.biz — Premium Error Packs & Desktop Wallpapers</title>
+<link rel="stylesheet" href="/assets/css/fonts.css">
+<script defer src="/assets/js/alpine.min.js"></script>
+<script src="/assets/js/gsap.min.js"></script>
+<script src="/assets/js/lucide.min.js"></script>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+--bg:#0A0A12;--text:#E0F0E0;--lime:#BFFF00;--pink:#FF2D95;--sky:#7BA7CC;
+--card:#14142A;--titlebar:#2A2A4A;
+}
+html{scroll-behavior:smooth}
+body{
+background:var(--bg);color:var(--text);font-family:'Fira Code',monospace;
+font-size:16px;line-height:1.6;overflow-x:hidden;min-height:100vh;
+}
+body.booting{overflow:hidden}
+/* Tiled folder background */
+body::before{
+content:'';position:fixed;top:0;left:0;width:100%;height:100%;z-index:0;pointer-events:none;
+background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='32' height='32' viewBox='0 0 32 32'%3E%3Crect x='6' y='10' width='20' height='16' rx='1' fill='%237BA7CC' opacity='0.08'/%3E%3Crect x='6' y='6' width='10' height='6' rx='1' fill='%237BA7CC' opacity='0.08'/%3E%3C/svg%3E");
+background-size:32px 32px;
+}
+h1,h2,h3,h4{font-family:'Permanent Marker',cursive;color:var(--lime);letter-spacing:1px}
+.accent-text{font-family:'Caveat',cursive;font-size:1.2em}
+a{color:var(--lime);text-decoration:underline}
+a:hover{color:var(--pink)}
+
+/* Boot screen */
+#boot-screen{
+position:fixed;top:0;left:0;width:100%;height:100%;background:#000;
+z-index:10000;display:flex;align-items:flex-start;justify-content:flex-start;
+padding:40px;flex-direction:column;
+}
+#boot-screen.hidden{display:none}
+#boot-text{font-family:'Fira Code',monospace;color:#33ff33;font-size:16px;white-space:pre-wrap;line-height:1.8}
+#boot-text .cursor-blink{animation:blink 0.5s step-end infinite}
+@keyframes blink{50%{opacity:0}}
+
+/* Main content */
+#main-site{opacity:0}
+#main-site.visible{opacity:1}
+
+/* Window component */
+.win{
+background:var(--card);border:1px solid var(--sky);border-radius:4px;
+margin:30px auto;max-width:900px;position:relative;
+box-shadow:4px 4px 0 rgba(123,167,204,0.2);
+}
+.win:nth-child(odd){transform:rotate(-0.8deg)}
+.win:nth-child(even){transform:rotate(0.6deg)}
+.win.collapsed .win-body{display:none}
+.win-bar{
+display:flex;align-items:center;justify-content:space-between;
+background:var(--titlebar);padding:6px 12px;border-bottom:1px solid var(--sky);
+border-radius:4px 4px 0 0;cursor:default;user-select:none;
+}
+.win-bar-title{font-family:'Fira Code',monospace;font-size:13px;color:var(--sky);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.win-btns{display:flex;gap:6px;flex-shrink:0}
+.win-btn{
+width:16px;height:16px;border-radius:2px;border:1px solid #555;cursor:pointer;
+font-size:10px;display:flex;align-items:center;justify-content:center;
+line-height:1;color:#ccc;background:#333;
+min-width:16px;min-height:16px;padding:0;
+}
+.win-btn:hover{background:#555}
+.win-btn.btn-min{background:#4a4a2a}
+.win-btn.btn-max{background:#2a4a2a}
+.win-btn.btn-close{background:#4a2a2a}
+.win-body{padding:24px;font-size:15px}
+
+/* Not responding dialog */
+.not-responding-overlay{
+position:fixed;top:0;left:0;width:100%;height:100%;
+background:rgba(0,0,0,0.6);z-index:9000;display:flex;align-items:center;justify-content:center;
+}
+.not-responding-dialog{
+background:#d4d0c8;border:2px outset #fff;padding:0;width:340px;max-width:90vw;
+font-family:'Fira Code',monospace;box-shadow:4px 4px 0 rgba(0,0,0,0.5);
+}
+.not-responding-dialog .nr-bar{
+background:linear-gradient(90deg,#0a246a,#3a6ea5);color:#fff;padding:4px 8px;
+font-size:12px;display:flex;justify-content:space-between;align-items:center;
+}
+.not-responding-dialog .nr-body{padding:16px;color:#000;font-size:13px;text-align:center}
+.not-responding-dialog .nr-body p{margin-bottom:12px;line-height:1.4}
+.not-responding-dialog .nr-btns{display:flex;gap:8px;justify-content:center;padding-bottom:12px}
+.not-responding-dialog .nr-btns button{
+background:#d4d0c8;border:2px outset #fff;padding:4px 20px;cursor:pointer;
+font-family:'Fira Code',monospace;font-size:12px;color:#000;min-height:30px;
+}
+.not-responding-dialog .nr-btns button:active{border-style:inset}
+
+/* Hero section */
+.hero-notification{
+position:absolute;top:20px;right:20px;background:#d4d0c8;
+border:2px outset #fff;padding:0;width:320px;max-width:80vw;z-index:10;
+box-shadow:4px 4px 0 rgba(0,0,0,0.4);
+}
+.hero-notification .hn-bar{
+background:linear-gradient(90deg,#0a246a,#3a6ea5);color:#fff;padding:3px 8px;
+font-size:11px;display:flex;justify-content:space-between;align-items:center;
+}
+.hero-notification .hn-body{padding:12px;color:#000;font-size:13px;font-family:'Fira Code',monospace;line-height:1.5}
+.hero-notification .hn-close{cursor:pointer;color:#fff;font-weight:bold}
+
+.hero-title{
+font-family:'Permanent Marker',cursive;font-size:clamp(2rem,6vw,4rem);
+color:var(--lime);text-align:center;margin:40px 0 10px;
+position:relative;display:inline-block;
+}
+.hero-subtitle{text-align:center;font-family:'Caveat',cursive;font-size:1.4em;color:var(--pink);margin-bottom:20px}
+
+/* Glitch effect for title */
+@keyframes glitch1{
+0%,100%{clip-path:inset(0 0 90% 0);transform:translate(-2px,0)}
+25%{clip-path:inset(20% 0 60% 0);transform:translate(2px,0)}
+50%{clip-path:inset(50% 0 30% 0);transform:translate(-1px,0)}
+75%{clip-path:inset(70% 0 10% 0);transform:translate(1px,0)}
+}
+.glitch-wrap{position:relative;display:inline-block}
+.glitch-wrap::before,.glitch-wrap::after{
+content:attr(data-text);position:absolute;top:0;left:0;width:100%;height:100%;
+font-family:'Permanent Marker',cursive;font-size:clamp(2rem,6vw,4rem);
+}
+.glitch-wrap::before{color:#ff0000;animation:glitch1 3s infinite linear;opacity:0.5}
+.glitch-wrap::after{color:#00ffff;animation:glitch1 3s infinite linear reverse;opacity:0.5}
+
+/* Product cards */
+.product-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:20px}
+.product-card{
+background:var(--bg);border:2px outset #888;padding:0;position:relative;overflow:hidden;
+}
+.product-card .pc-bar{
+background:linear-gradient(90deg,#0a246a,#3a6ea5);color:#fff;padding:3px 8px;
+font-size:11px;display:flex;justify-content:space-between;align-items:center;
+}
+.product-card .pc-body{padding:16px}
+.product-card .pc-price{font-family:'Permanent Marker',cursive;font-size:1.8em;color:var(--pink);margin:8px 0}
+.product-card .pc-desc{font-size:13px;color:var(--text);margin-bottom:12px}
+.product-card .pc-fine{font-family:'Caveat',cursive;font-size:1em;color:var(--sky)}
+.product-card:hover{animation:glitchCard 0.15s ease}
+@keyframes glitchCard{
+0%{transform:translate(0);filter:none}
+33%{transform:translate(2px,0);filter:drop-shadow(-2px 0 #ff0000) drop-shadow(2px 0 #00ffff)}
+66%{transform:translate(-1px,0);filter:drop-shadow(1px 0 #ff0000) drop-shadow(-1px 0 #00ffff)}
+100%{transform:translate(0);filter:none}
+}
+
+/* Progress bar */
+.progress-bar{
+background:#333;height:18px;border:1px inset #666;margin:10px 0;position:relative;
+}
+.progress-fill{height:100%;background:linear-gradient(90deg,var(--lime),var(--pink));transition:width 1.5s ease}
+.progress-label{position:absolute;top:0;left:50%;transform:translateX(-50%);font-size:11px;color:#000;line-height:18px;font-weight:bold}
+
+/* Blog/notepad */
+.notepad{background:#fff;color:#000;font-family:'Fira Code',monospace;border:1px solid #999}
+.notepad-tabs{display:flex;background:#d4d0c8;border-bottom:1px solid #999;flex-wrap:wrap}
+.notepad-tab{
+padding:6px 14px;font-size:12px;cursor:pointer;border-right:1px solid #999;
+background:#c0c0c0;color:#000;border:none;font-family:'Fira Code',monospace;
+min-height:44px;
+}
+.notepad-tab.active{background:#fff;font-weight:bold}
+.notepad-content{padding:16px;font-size:14px;line-height:1.7;min-height:150px;color:#000}
+.notepad-content .corrupted{color:#ff0000;font-style:italic;font-weight:bold;cursor:pointer}
+
+/* Gallery */
+.gallery-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:16px}
+.gallery-item{position:relative;overflow:hidden;border:2px solid var(--sky);cursor:pointer}
+.gallery-thumb{
+width:100%;aspect-ratio:4/3;background:var(--bg);display:flex;flex-direction:column;
+padding:8px;gap:4px;position:relative;
+}
+.gallery-thumb .dt-icon{width:20px;height:20px;background:var(--sky);border-radius:2px;position:absolute}
+.gallery-thumb .dt-taskbar{position:absolute;bottom:0;left:0;right:0;height:14px;background:#c0c0c0}
+.gallery-user{font-size:11px;color:var(--lime);padding:4px 6px;background:var(--card)}
+.gallery-hover{
+position:absolute;bottom:0;left:0;right:0;background:rgba(10,10,18,0.95);
+padding:10px;font-size:12px;color:var(--text);transform:translateY(100%);
+transition:transform 0.3s ease;font-style:italic;
+}
+.gallery-item:hover .gallery-hover{transform:translateY(0)}
+
+/* FAQ forum */
+.forum-post{border-bottom:1px solid #333;padding:16px 0}
+.forum-post:last-child{border-bottom:none}
+.forum-quote{
+border-left:3px solid var(--sky);padding:8px 12px;margin:8px 0;
+background:rgba(123,167,204,0.08);font-size:13px;
+}
+.forum-author{font-size:12px;color:var(--sky);margin-bottom:6px}
+.forum-admin{color:var(--sky);font-weight:bold}
+.forum-technical{color:#999;font-size:13px}
+.forum-emotional{color:var(--pink);font-style:italic;margin-top:6px;font-size:14px}
+
+/* Cursor showcase */
+.cursor-strip{
+display:flex;gap:16px;overflow-x:auto;padding:16px 0;
+-webkit-overflow-scrolling:touch;scroll-snap-type:x mandatory;
+}
+.cursor-item{
+flex:0 0 200px;scroll-snap-align:start;background:var(--bg);
+border:2px outset #888;padding:16px;text-align:center;
+}
+.cursor-item .ci-preview{
+width:48px;height:48px;margin:0 auto 10px;border-radius:50%;
+display:flex;align-items:center;justify-content:center;font-size:28px;
+}
+.cursor-item .ci-name{font-size:13px;color:var(--text);margin-bottom:4px}
+.cursor-item .ci-price{font-family:'Permanent Marker',cursive;color:var(--pink);font-size:1.2em}
+.hourglass-spin{animation:spin 1s linear infinite;display:inline-block}
+@keyframes spin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
+
+/* Footer */
+.fake-banner{
+background:#14142A;border:2px solid var(--lime);padding:12px;text-align:center;
+margin:20px 0;min-height:60px;display:flex;align-items:center;justify-content:center;
+}
+.fake-banner .banner-text{font-family:'Permanent Marker',cursive;font-size:1.2em}
+footer{text-align:center;padding:20px;font-size:12px;color:#777;position:relative}
+.dancing-baby{
+position:absolute;bottom:10px;left:10px;font-size:20px;opacity:0.15;
+animation:danceBaby 1s ease-in-out infinite alternate;
+}
+@keyframes danceBaby{from{transform:rotate(-5deg) scale(1)}to{transform:rotate(5deg) scale(1.1)}}
+
+/* Desktop builder */
+.builder-canvas{
+width:100%;max-width:400px;height:300px;background:#008080;
+border:2px inset #666;position:relative;overflow:hidden;margin:16px auto;
+cursor:crosshair;
+}
+.builder-tray{
+display:flex;flex-wrap:wrap;gap:8px;justify-content:center;padding:12px;
+background:var(--bg);border:1px solid var(--sky);
+}
+.builder-icon{
+width:64px;height:64px;display:flex;flex-direction:column;align-items:center;
+justify-content:center;cursor:grab;font-size:10px;text-align:center;
+color:var(--text);padding:4px;gap:2px;
+min-height:64px;
+}
+.builder-icon:active{cursor:grabbing}
+.builder-icon .bi-img{font-size:24px;line-height:1}
+.canvas-icon{
+position:absolute;display:flex;flex-direction:column;align-items:center;
+font-size:10px;color:#fff;text-shadow:1px 1px 1px #000;cursor:move;
+padding:2px;user-select:none;
+}
+.canvas-icon .bi-img{font-size:24px;line-height:1}
+
+/* Cursor trail toggle */
+.enhance-btn{
+position:fixed;top:10px;right:10px;z-index:8000;
+background:var(--card);border:2px outset #888;color:var(--lime);
+font-family:'Fira Code',monospace;font-size:11px;padding:6px 12px;
+cursor:pointer;min-height:44px;min-width:44px;
+}
+.enhance-btn:hover{background:var(--titlebar)}
+
+/* Cursor trail particles */
+.trail-particle{
+position:fixed;pointer-events:none;z-index:7999;font-size:14px;
+animation:trailFade 0.6s ease-out forwards;
+}
+@keyframes trailFade{from{opacity:1;transform:scale(1)}to{opacity:0;transform:scale(0.3) translateY(-20px)}}
+
+/* Konami easter egg */
+#konami-overlay{
+position:fixed;top:0;left:0;width:100%;height:100%;z-index:20000;
+display:none;flex-direction:column;align-items:center;justify-content:center;
+padding:20px;overflow:auto;text-align:center;
+animation:flashBg 0.5s infinite;
+}
+#konami-overlay.active{display:flex}
+@keyframes flashBg{0%,100%{background:#008080}50%{background:#ff00ff}}
+#konami-overlay h1{font-family:'Permanent Marker',cursive;font-size:clamp(1.5rem,5vw,3rem);color:#ffff00;text-shadow:3px 3px #ff0000;margin-bottom:20px}
+#konami-overlay p{font-family:'Permanent Marker',cursive;font-size:clamp(1rem,3vw,1.5rem);color:#fff;margin:10px}
+#konami-overlay .visitor-counter{
+background:#000;color:#00ff00;font-family:'Fira Code',monospace;padding:8px 16px;
+border:2px solid #00ff00;margin:20px;font-size:18px;
+}
+#konami-overlay .close-konami{
+background:#ff0000;color:#fff;border:3px outset #ffaaaa;padding:10px 30px;
+font-family:'Permanent Marker',cursive;font-size:18px;cursor:pointer;
+margin-top:20px;min-height:44px;
+}
+
+/* Price scramble */
+.price-scramble{display:inline-block;min-width:3ch}
+
+/* Submission dialog */
+.submit-dialog{
+background:#d4d0c8;border:2px outset #fff;padding:0;max-width:360px;
+margin:16px auto;font-family:'Fira Code',monospace;
+}
+.submit-dialog .sd-bar{
+background:linear-gradient(90deg,#0a246a,#3a6ea5);color:#fff;padding:3px 8px;font-size:11px;
+}
+.submit-dialog .sd-body{padding:16px;color:#000;font-size:12px;line-height:1.6}
+
+/* Upload dialog */
+.upload-fake{
+background:#d4d0c8;border:2px outset #fff;padding:16px;text-align:center;
+font-family:'Fira Code',monospace;color:#000;font-size:13px;margin:12px 0;
+}
+
+/* Responsive */
+@media(max-width:768px){
+.win{margin:20px 10px}
+.win-body{padding:16px}
+.product-grid{grid-template-columns:1fr}
+.gallery-grid{grid-template-columns:repeat(auto-fill,minmax(140px,1fr))}
+.hero-notification{position:relative;top:auto;right:auto;width:100%;margin-top:16px}
+.notepad-tab{font-size:11px;padding:6px 8px}
+.builder-canvas{height:250px}
+}
+@media(max-width:375px){
+.win{margin:10px 6px}
+body{font-size:16px}
+.gallery-grid{grid-template-columns:repeat(2,1fr)}
+}
+
+/* Scrollbar for notepad area */
+.notepad-scroll{max-height:300px;overflow-y:auto}
+.notepad-scroll::-webkit-scrollbar{width:16px}
+.notepad-scroll::-webkit-scrollbar-track{background:#c0c0c0;border:1px solid #999}
+.notepad-scroll::-webkit-scrollbar-thumb{background:#999;border:1px outset #ccc}
+</style>
+</head>
+<body class="booting" x-data="y2k()" x-init="boot()">
+
+<!-- Boot Screen -->
+<div id="boot-screen" :class="{'hidden': !booting}">
+<div id="boot-text"></div>
+</div>
+
+<!-- Enhance Button (cursor trail toggle) -->
+<button class="enhance-btn" x-show="!booting" x-cloak @click="cycleTrail()" x-text="trailLabel" style="display:none"></button>
+
+<!-- Konami Overlay -->
+<div id="konami-overlay" :class="{'active': konamiActive}">
+<h1>URGENT CHAIN EMAIL</h1>
+<p>FORWARD THIS TO 10 FRIENDS OR YOUR HARD DRIVE WILL BE CURSED FOR 1000 YEARS</p>
+<p style="color:#ffff00;">This is NOT a joke. My cousin's friend didn't forward it and her Neopets DIED.</p>
+<div class="visitor-counter">You are visitor #000,000,007</div>
+<p style="font-size:clamp(0.8rem,2vw,1rem);color:#00ffff;">If you're reading this in 2023+ you've already waited too long. Forward immediately.</p>
+<p style="color:#ff6600;">⚠️ Bill Gates will send you $1000 if you forward this ⚠️</p>
+<button class="close-konami" @click="konamiActive=false">I'M FORWARDING IT (close)</button>
+</div>
+
+<!-- Main Site -->
+<div id="main-site" :class="{'visible': !booting}">
+<div style="max-width:1200px;margin:0 auto;padding:20px 16px 20px 16px;position:relative;z-index:1">
+
+<!-- SECTION 1: Hero / Boot -->
+<div class="win win-section" data-dir="top" style="transform:rotate(-0.5deg)">
+<div class="win-bar">
+<span class="win-bar-title">C:\WINDOWS\system32\welcome.exe</span>
+<div class="win-btns">
+<button class="win-btn btn-min" @click="toggleCollapse($event)" title="Minimize">_</button>
+<button class="win-btn btn-max" title="Maximize">□</button>
+<button class="win-btn btn-close" @click="showNotResponding($event)" title="Close">×</button>
+</div>
+</div>
+<div class="win-body" style="text-align:center;position:relative;overflow:visible">
+<!-- Notification popup -->
+<div class="hero-notification" x-show="showWelcomeNote" x-cloak>
+<div class="hn-bar">
+<span>⚠ System Notification</span>
+<span class="hn-close" @click="showWelcomeNote=false">✕</span>
+</div>
+<div class="hn-body">Welcome back. You've been away for 23 years. Nothing has changed. Everything has changed.</div>
+</div>
+<div style="padding-top:60px">
+<div class="glitch-wrap" data-text="Y2KAesthetic.biz">
+<span class="hero-title">Y2KAesthetic.biz</span>
+</div>
+</div>
+<p class="hero-subtitle">Premium Desktop Wallpapers for the Terminally Nostalgic</p>
+<p style="font-size:14px;color:var(--sky);max-width:600px;margin:0 auto">Curated error messages. Lovingly recreated blue screens. Downloaded from the part of your brain you thought was corrupted.</p>
+</div>
+</div>
+
+<!-- SECTION 2: Premium Error Packs -->
+<div class="win win-section" data-dir="left" style="transform:rotate(0.8deg)">
+<div class="win-bar">
+<span class="win-bar-title">📦 Products — Premium Error Packs</span>
+<div class="win-btns">
+<button class="win-btn btn-min" @click="toggleCollapse($event)" title="Minimize">_</button>
+<button class="win-btn btn-max" title="Maximize">□</button>
+<button class="win-btn btn-close" @click="showNotResponding($event)" title="Close">×</button>
+</div>
+</div>
+<div class="win-body">
+<div class="product-grid">
+<!-- Starter -->
+<div class="product-card" @mouseenter="scramblePrice($event, '$19')" @mouseleave="">
+<div class="pc-bar"><span>starter_crash.exe</span><span>×</span></div>
+<div class="pc-body">
+<h3 style="font-family:'Permanent Marker',cursive;color:var(--lime);font-size:1.2em">Starter Crash</h3>
+<div class="pc-price"><span class="price-scramble" data-price="$19">$19</span></div>
+<div class="pc-desc">3 wallpapers. Mild nostalgia. The kind where you smile and it doesn't hurt yet.</div>
+<div class="progress-bar"><div class="progress-fill" style="width:0%" data-target="37"></div><div class="progress-label">Downloading...</div></div>
+<div class="pc-fine accent-text">Entry-level heartbreak</div>
+</div>
+</div>
+<!-- Premium -->
+<div class="product-card" @mouseenter="scramblePrice($event, '$49')" @mouseleave="">
+<div class="pc-bar"><span>premium_error_pack.exe</span><span>×</span></div>
+<div class="pc-body">
+<h3 style="font-family:'Permanent Marker',cursive;color:var(--lime);font-size:1.2em">Premium Error Pack</h3>
+<div class="pc-price"><span class="price-scramble" data-price="$49">$49</span></div>
+<div class="pc-desc">12 wallpapers + animated cursors. Moderate existential crisis. You'll text your childhood best friend at 2 AM.</div>
+<div class="progress-bar"><div class="progress-fill" style="width:0%" data-target="73"></div><div class="progress-label">Downloading...</div></div>
+<div class="pc-fine accent-text">Our bestseller. No refunds. You can't un-remember.</div>
+</div>
+</div>
+<!-- Total System Failure -->
+<div class="product-card" @mouseenter="scramblePrice($event, '$99')" @mouseleave="">
+<div class="pc-bar"><span>TOTAL_SYSTEM_FAILURE.exe</span><span>×</span></div>
+<div class="pc-body">
+<h3 style="font-family:'Permanent Marker',cursive;color:var(--pink);font-size:1.2em">Total System Failure</h3>
+<div class="pc-price"><span class="price-scramble" data-price="$99">$99</span></div>
+<div class="pc-desc">Full collection + a wallpaper that fake-crashes your browser + a personalized error message with your name. Full emotional devastation.</div>
+<div class="progress-bar"><div class="progress-fill" style="width:0%" data-target="91"></div><div class="progress-label">Downloading...</div></div>
+<div class="pc-fine accent-text">The checkout button might as well say "I miss who I was."</div>
+</div>
+</div>
+</div>
+
+<!-- Mini builder -->
+<div style="margin-top:30px;text-align:center">
+<h3 style="margin-bottom:12px">🖱️ Create Your Own Desktop</h3>
+<p style="font-size:13px;color:var(--sky);margin-bottom:12px">Drag icons onto the canvas. Pretend it's 2001. Pretend you have nowhere to be.</p>
+<div class="builder-canvas" x-ref="builderCanvas" @drop.prevent="dropIcon($event)" @dragover.prevent>
+<template x-for="icon in canvasIcons" :key="icon.id">
+<div class="canvas-icon" :style="'left:'+icon.x+'px;top:'+icon.y+'px'" @mousedown="startDragCanvas($event, icon)" @touchstart.prevent="startDragCanvas($event, icon)">
+<div class="bi-img" x-text="icon.emoji"></div>
+<span x-text="icon.label" style="font-size:9px"></span>
+</div>
+</template>
+</div>
+<div class="builder-tray">
+<template x-for="item in trayIcons" :key="item.label">
+<div class="builder-icon" draggable="true" @dragstart="dragStart($event, item)" @touchstart.prevent="touchDragStart($event, item)">
+<div class="bi-img" x-text="item.emoji"></div>
+<span x-text="item.label"></span>
+</div>
+</template>
+</div>
+<button style="margin-top:12px;background:var(--card);border:2px outset #888;color:var(--lime);padding:10px 24px;cursor:pointer;font-family:'Fira Code',monospace;font-size:13px;min-height:44px" @click="fakeSave=true">
+💾 Save Masterpiece
+</button>
+<div class="upload-fake" x-show="fakeSave" x-cloak style="color:#000">
+Saving to C:\Documents and Settings\You\Desktop\untitled.bmp...<br><br>
+<strong>JUST KIDDING.</strong> Buy the Premium Pack.
+</div>
+</div>
+</div>
+</div>
+
+<!-- SECTION 3: Digital Fossil Record -->
+<div class="win win-section" data-dir="right" style="transform:rotate(-1deg)">
+<div class="win-bar">
+<span class="win-bar-title">📝 fossil_record.txt — Notepad</span>
+<div class="win-btns">
+<button class="win-btn btn-min" @click="toggleCollapse($event)" title="Minimize">_</button>
+<button class="win-btn btn-max" title="Maximize">□</button>
+<button class="win-btn btn-close" @click="showNotResponding($event)" title="Close">×</button>
+</div>
+</div>
+<div class="win-body" style="padding:0">
+<div class="notepad">
+<div class="notepad-tabs">
+<button class="notepad-tab" :class="{'active':activeTab===0}" @click="activeTab=0">dancing_baby.txt</button>
+<button class="notepad-tab" :class="{'active':activeTab===1}" @click="activeTab=1">busy_cursor_eulogy.txt</button>
+<button class="notepad-tab" :class="{'active':activeTab===2}" @click="activeTab=2">angelfire_page.txt</button>
+</div>
+<div class="notepad-scroll">
+<div class="notepad-content" x-show="activeTab===0">
+<strong>Why the Dancing Baby Mattered</strong><br><br>
+The dancing baby was the first time millions of people experienced the same meaningless thing simultaneously on purpose. It wasn't art. It wasn't entertainment. It was a 3D-rendered infant doing the cha-cha, and we watched it on repeat over 56k connections that took four minutes to load eight seconds of animation. We weren't watching the baby. We were watching each other watch the baby. It was the first viral moment, and nobody had a word for viral yet, so we just called it<br><br>
+<span class="corrupted">[FILE CORRUPTED — PURCHASE FULL ARCHIVE]</span>
+</div>
+<div class="notepad-content" x-show="activeTab===1">
+<strong>A Eulogy for the Busy Cursor</strong><br><br>
+Here lies the hourglass cursor, 1993-2006 (approx). You appeared whenever something was loading, which was always, which was everything. You taught an entire generation patience by force. When you showed up we had two choices: wait, or press Ctrl+Alt+Delete and lose everything. You were the original mindfulness app. You said: you are here, you cannot leave, the machine is thinking and you are not invited to know what about. You were<br><br>
+<span class="corrupted">[FILE CORRUPTED — PURCHASE FULL ARCHIVE]</span>
+</div>
+<div class="notepad-content" x-show="activeTab===2">
+<strong>The Angelfire Page That Changed My Life</strong><br><br>
+It belonged to someone named ~CrystalMage47 and it had a black background with green text and a MIDI of "Stairway to Heaven" that autoplayed and you couldn't stop it. The page was a shrine to their cat, Pixel, who had died, and every paragraph was in a different font, and there was a guestbook at the bottom with three entries, all from the same person saying "cool page." I found it in 1999 when I was searching for cheat codes for Tomb Raider and I have never stopped<br><br>
+<span class="corrupted">[FILE CORRUPTED — PURCHASE FULL ARCHIVE]</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+
+<!-- SECTION 4: Guest Desktops -->
+<div class="win win-section" data-dir="left" style="transform:rotate(0.6deg)">
+<div class="win-bar">
+<span class="win-bar-title">🖥️ Community Guest Desktops</span>
+<div class="win-btns">
+<button class="win-btn btn-min" @click="toggleCollapse($event)" title="Minimize">_</button>
+<button class="win-btn btn-max" title="Maximize">□</button>
+<button class="win-btn btn-close" @click="showNotResponding($event)" title="Close">×</button>
+</div>
+</div>
+<div class="win-body">
+<div class="gallery-grid">
+<template x-for="desk in desktops" :key="desk.user">
+<div class="gallery-item">
+<div class="gallery-thumb" :style="'background:'+desk.bg">
+<div class="dt-icon" style="top:8px;left:8px;background:#7BA7CC"></div>
+<div class="dt-icon" style="top:8px;left:36px;background:#BFFF00"></div>
+<div class="dt-icon" style="top:36px;left:8px;background:#FF2D95"></div>
+<div class="dt-icon" style="top:36px;left:36px;background:#E0F0E0"></div>
+<div class="dt-icon" style="top:64px;left:20px;background:#7BA7CC;width:30px"></div>
+<div class="dt-taskbar"></div>
+</div>
+<div class="gallery-user" x-text="desk.user"></div>
+<div class="gallery-hover" x-text="desk.quote"></div>
+</div>
+</template>
+</div>
+<div style="text-align:center;margin-top:20px">
+<button style="background:var(--card);border:2px outset #888;color:var(--lime);padding:10px 24px;cursor:pointer;font-family:'Fira Code',monospace;font-size:13px;min-height:44px" @click="showSubmitDialog=!showSubmitDialog">
+📤 Submit Your Desktop
+</button>
+<div class="submit-dialog" x-show="showSubmitDialog" x-cloak>
+<div class="sd-bar">⚠ Upload Error</div>
+<div class="sd-body">
+SUBMISSIONS CLOSED<br><br>
+Our servers run on a 56k modem, please be patient.<br>
+Estimated wait: <strong>7–12 business years.</strong><br><br>
+<span style="color:#999">We appreciate your patience and your bandwidth.</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+
+<!-- SECTION 5: Tech Support FAQ -->
+<div class="win win-section" data-dir="right" style="transform:rotate(-0.7deg)">
+<div class="win-bar">
+<span class="win-bar-title">❓ Tech Support — FAQ Forum</span>
+<div class="win-btns">
+<button class="win-btn btn-min" @click="toggleCollapse($event)" title="Minimize">_</button>
+<button class="win-btn btn-max" title="Maximize">□</button>
+<button class="win-btn btn-close" @click="showNotResponding($event)" title="Close">×</button>
+</div>
+</div>
+<div class="win-body">
+<div class="forum-post">
+<div class="forum-author">🗣️ xX_NostalgiaOverflow_Xx</div>
+<div class="forum-quote">What does "FATAL EXCEPTION 0E" actually mean?</div>
+<div class="forum-author forum-admin">[KERNELPANIC — ADMIN] Kevin:</div>
+<div class="forum-technical">Technically: a processor-level page fault in protected mode, triggered when the CPU attempts to access a memory page that isn't present in the page table.</div>
+<div class="forum-emotional">Emotionally: it means the thing you were working on is gone and nobody is coming to save it, just like your AIM chat logs.</div>
+</div>
+<div class="forum-post">
+<div class="forum-author">🗣️ BeigeCaseLyfe</div>
+<div class="forum-quote">Why do I get emotional looking at Windows 98 screenshots?</div>
+<div class="forum-author forum-admin">[KERNELPANIC — ADMIN] Kevin:</div>
+<div class="forum-technical">Your brain formed associative memories linking visual stimuli to emotional states during high-neuroplasticity developmental periods.</div>
+<div class="forum-emotional">Translation: you were a kid and nobody had hurt you yet and the computer was the one place that was yours. The teal taskbar wasn't teal. It was safety.</div>
+</div>
+<div class="forum-post">
+<div class="forum-author">🗣️ DialTone_Funeral</div>
+<div class="forum-quote">Is there a support group for people who miss dial-up sounds?</div>
+<div class="forum-author forum-admin">[KERNELPANIC — ADMIN] Kevin:</div>
+<div class="forum-technical">Not officially. The closest equivalent is this website.</div>
+<div class="forum-emotional">The dial-up handshake was 22 seconds of your computer screaming into the void and the void screaming back and then you were connected. Every modern instant connection is a betrayal of that ritual. You should absolutely not be okay about this.</div>
+</div>
+</div>
+</div>
+
+<!-- SECTION 6: Animated Cursors Showcase -->
+<div class="win win-section" data-dir="bottom" style="transform:rotate(0.4deg)">
+<div class="win-bar">
+<span class="win-bar-title">👆 Animated Cursors Showcase</span>
+<div class="win-btns">
+<button class="win-btn btn-min" @click="toggleCollapse($event)" title="Minimize">_</button>
+<button class="win-btn btn-max" title="Maximize">□</button>
+<button class="win-btn btn-close" @click="showNotResponding($event)" title="Close">×</button>
+</div>
+</div>
+<div class="win-body" style="padding:16px 8px">
+<div class="cursor-strip">
+<div class="cursor-item">
+<div class="ci-preview">🐹</div>
+<div class="ci-name">Dancing Hamster</div>
+<div class="ci-price">$8</div>
+</div>
+<div class="cursor-item">
+<div class="ci-preview">⚔️</div>
+<div class="ci-name">Sword Swipe</div>
+<div class="ci-price">$12</div>
+</div>
+<div class="cursor-item">
+<div class="ci-preview">🚧</div>
+<div class="ci-name">Under Construction Cone</div>
+<div class="ci-price">$6</div>
+</div>
+<div class="cursor-item" @mouseenter="hourglassHover=true" @mouseleave="hourglassHover=false">
+<div class="ci-preview"><span :class="{'hourglass-spin':hourglassHover}">⏳</span></div>
+<div class="ci-name">Loading Hourglass That Never Resolves</div>
+<div class="ci-price">$15</div>
+<div class="accent-text" style="font-size:0.85em;color:var(--sky);margin-top:4px">Our bestseller</div>
+</div>
+<div class="cursor-item">
+<div class="ci-preview">🦕</div>
+<div class="ci-name">Dino Footprint Trail</div>
+<div class="ci-price">$10</div>
+</div>
+<div class="cursor-item">
+<div class="ci-preview">✨</div>
+<div class="ci-name">Sparkle Trail Classic</div>
+<div class="ci-price">$7</div>
+</div>
+</div>
+</div>
+</div>
+
+<!-- SECTION 7: Footer / Fake Banner Ad -->
+<div class="win win-section" data-dir="bottom" style="transform:rotate(-0.3deg)">
+<div class="win-bar">
+<span class="win-bar-title">📢 Sponsored Content™</span>
+<div class="win-btns">
+<button class="win-btn btn-min" @click="toggleCollapse($event)" title="Minimize">_</button>
+<button class="win-btn btn-max" title="Maximize">□</button>
+<button class="win-btn btn-close" @click="showNotResponding($event)" title="Close">×</button>
+</div>
+</div>
+<div class="win-body">
+<div class="fake-banner">
+<div class="banner-text" x-text="bannerAds[currentAd]" style="color:var(--lime)"></div>
+</div>
+<footer>
+<p style="color:var(--sky);font-size:13px">© 2023 Y2KAesthetic.biz</p>
+<p style="color:#777;font-size:12px;margin-top:6px">Built on a Compaq Presario named "The Toaster" (2001–2023, RIP).</p>
+<p style="color:#777;font-size:11px;margin-top:4px">Kevin now runs a bee farm in Estonia. The joke is the point.</p>
+<div class="dancing-baby">👶</div>
+</footer>
+</div>
+</div>
+
+</div><!-- /max-width container -->
+</div><!-- /main-site -->
+
+<!-- Not Responding Dialog -->
+<div class="not-responding-overlay" x-show="notResponding" x-cloak @click.self="notResponding=false">
+<div class="not-responding-dialog">
+<div class="nr-bar"><span>⚠ nostalgia.exe</span><span>×</span></div>
+<div class="nr-body">
+<p>This program is not responding.</p>
+<p style="font-size:12px;color:#555">End Nostalgia?</p>
+</div>
+<div class="nr-btns">
+<button @click="notResponding=false">End Now</button>
+<button @click="notResponding=false">Wait</button>
+</div>
+</div>
+</div>
+
+<script>
+function y2k(){
+return {
+booting:true,
+showWelcomeNote:false,
+activeTab:0,
+notResponding:false,
+showSubmitDialog:false,
+fakeSave:false,
+hourglassHover:false,
+trailMode:0,
+trailModes:['ENHANCE','ENHANCE ✨','ENHANCE 🌈','ENHANCE 🦕'],
+konamiActive:false,
+konamiSequence:[],
+konamiCode:[38,38,40,40,37,39,37,39,66,65],
+currentAd:0,
+bannerAds:[
+'🔥 Desktop Customization Suite 2003 — Now With 47% More Toolbars! 🔥',
+'⚡ BonziBuddy Premium — He Knows What You Did Last Summer ⚡',
+'🌐 FREE Cursor Pack — Only 3 Easy Payments of Your Soul 🌐'
+],
+canvasIcons:[],
+canvasIdCounter:0,
+dragItem:null,
+trayIcons:[
+{emoji:'🖥️',label:'My Computer'},
+{emoji:'🗑️',label:'Recycle Bin'},
+{emoji:'📁',label:'homework'},
+{emoji:'💬',label:'AIM'},
+{emoji:'🌐',label:'Netscape'},
+{emoji:'📧',label:'You\'ve Got Mail'},
+{emoji:'🎵',label:'Winamp'},
+{emoji:'📝',label:'Notepad'},
+{emoji:'🎮',label:'Minesweeper'},
+{emoji:'💾',label:'Floppy (A:)'}
+],
+desktops:[
+{user:'xX_DialUpDreamer_Xx',bg:'#008080',quote:'I spent 4 hours on this and my therapist says that\'s progress.'},
+{user:'AIMAwayMsg2003',bg:'#000080',quote:'My away message was a Blink-182 lyric. I\'m not sorry.'},
+{user:'BonziB_Survivor',bg:'#800080',quote:'Bonzi asked me how I was doing. Nobody else did.'},
+{user:'MIDI_Funeral',bg:'#004040',quote:'Every MIDI file is a tiny ghost of a song that wanted to be real.'},
+{user:'Clippy_Apologist',bg:'#008000',quote:'He was just trying to help. We were all just trying to help.'},
+{user:'56k_Serenade',bg:'#404000',quote:'The modem sound was a love song and we were too young to hear it.'}
+],
+get trailLabel(){return this.trailModes[this.trailMode]},
+
+boot(){
+var self=this;
+var lines=[
+'Y2KAESTHETIC BIOS v2.01K',
+'Copyright (C) 2001-2023 Compaq Presario "The Toaster"',
+'',
+'CHECKING NOSTALGIA RESERVES.......... OK',
+'640KB OUGHT TO BE ENOUGH............. WRONG',
+'SCANNING FOR CHILDHOOD MEMORIES...... FOUND (CORRUPTED)',
+'LOADING Y2KAESTHETIC.BIZ............. ',
+'WELCOME BACK. INITIATING FEELINGS....'
+];
+var bootEl=document.getElementById('boot-text');
+var i=0;
+function typeLine(){
+if(i<lines.length){
+bootEl.innerHTML+=lines[i]+'\n';
+i++;
+setTimeout(typeLine,200);
+}else{
+bootEl.innerHTML+='<span class="cursor-blink">_</span>';
+setTimeout(function(){self.finishBoot()},600);
+}
+}
+setTimeout(typeLine,300);
+
+// Konami code listener
+document.addEventListener('keydown',function(e){
+self.konamiSequence.push(e.keyCode);
+if(self.konamiSequence.length>10)self.konamiSequence.shift();
+if(self.konamiSequence.length===10&&self.konamiSequence.every(function(v,idx){return v===self.konamiCode[idx]})){
+self.konamiActive=true;
+self.konamiSequence=[];
+}
+});
+
+// Cursor trail
+document.addEventListener('mousemove',function(e){
+if(self.trailMode===0||self.booting)return;
+var symbols=['✨','⭐','💫'];
+if(self.trailMode===2)symbols=['🌈','❤️','💜','💙','💚','💛'];
+if(self.trailMode===3)symbols=['🦶','🦕'];
+var p=document.createElement('div');
+p.className='trail-particle';
+p.textContent=symbols[Math.floor(Math.random()*symbols.length)];
+p.style.left=e.clientX+'px';
+p.style.top=e.clientY+'px';
+document.body.appendChild(p);
+setTimeout(function(){p.remove()},600);
+});
+
+// Rotate banner ads
+setInterval(function(){
+self.currentAd=(self.currentAd+1)%self.bannerAds.length;
+},4000);
+},
+
+finishBoot(){
+var self=this;
+var ms=document.getElementById('main-site');
+// Flicker
+var flicks=0;
+var flickInterval=setInterval(function(){
+ms.style.opacity=ms.style.opacity==='0'?'1':'0';
+flicks++;
+if(flicks>=6){
+clearInterval(flickInterval);
+ms.style.opacity='1';
+self.booting=false;
+document.body.classList.remove('booting');
+setTimeout(function(){
+self.showWelcomeNote=true;
+self.initAnimations();
+},300);
+}
+},50);
+},
+
+initAnimations(){
+// Animate progress bars
+document.querySelectorAll('.progress-fill').forEach(function(bar){
+var target=bar.getAttribute('data-target');
+setTimeout(function(){bar.style.width=target+'%'},500);
+});
+// Section scroll animations
+var sections=document.querySelectorAll('.win-section');
+var dirs=['top','left','right','left','right','bottom','bottom'];
+sections.forEach(function(sec,i){
+var dir=sec.getAttribute('data-dir')||dirs[i%dirs.length];
+var x=0,y=0;
+if(dir==='left'){x=-80}
+else if(dir==='right'){x=80}
+else if(dir==='top'){y=-60}
+else if(dir==='bottom'){y=60}
+gsap.fromTo(sec,
+{opacity:0,x:x,y:y},
+{opacity:1,x:0,y:0,duration:0.6,ease:'back.out(1.2)',
+scrollTrigger:null,paused:true}
+);
+var obs=new IntersectionObserver(function(entries){
+entries.forEach(function(entry){
+if(entry.isIntersecting){
+var rot=sec.style.transform;
+gsap.fromTo(sec,
+{opacity:0,x:x,y:y,rotation:0},
+{opacity:1,x:0,y:0,duration:0.6,ease:'back.out(1.2)',delay:i*0.15,
+onComplete:function(){
+sec.style.transform=rot;
+// Light up title bar
+var bar=sec.querySelector('.win-bar');
+if(bar){
+gsap.fromTo(bar,
+{backgroundColor:'#1a1a2a'},
+{backgroundColor:'#2A2A4A',duration:0.3,delay:0.2}
+);
+}
+}}
+);
+obs.unobserve(sec);
+}
+});
+},{threshold:0.15});
+obs.observe(sec);
+});
+},
+
+toggleCollapse(ev){
+var win=ev.target.closest('.win');
+if(win)win.classList.toggle('collapsed');
+},
+
+showNotResponding(){
+this.notResponding=true;
+},
+
+cycleTrail(){
+this.trailMode=(this.trailMode+1)%this.trailModes.length;
+},
+
+scramblePrice(ev,finalPrice){
+var el=ev.currentTarget.querySelector('.price-scramble');
+if(!el||el._scrambling)return;
+el._scrambling=true;
+var chars='$#@!%&*0123456789';
+var count=0;
+var interval=setInterval(function(){
+var s='';
+for(var j=0;j<finalPrice.length;j++){
+s+=chars[Math.floor(Math.random()*chars.length)];
+}
+el.textContent=s;
+count++;
+if(count>=8){
+clearInterval(interval);
+el.textContent=finalPrice;
+el._scrambling=false;
+}
+},50);
+},
+
+dragStart(ev,item){
+ev.dataTransfer.setData('text/plain',JSON.stringify(item));
+},
+
+touchDragStart(ev,item){
+this.dragItem=item;
+},
+
+dropIcon(ev){
+var data;
+try{data=JSON.parse(ev.dataTransfer.getData('text/plain'))}catch(e){data=this.dragItem}
+if(!data)return;
+var rect=this.$refs.builderCanvas.getBoundingClientRect();
+var x=ev.clientX-rect.left-20;
+var y=ev.clientY-rect.top-20;
+x=Math.max(0,Math.min(x,rect.width-50));
+y=Math.max(0,Math.min(y,rect.height-50));
+this.canvasIcons.push({id:++this.canvasIdCounter,emoji:data.emoji,label:data.label,x:x,y:y});
+this.dragItem=null;
+},
+
+startDragCanvas(ev,icon){
+var self=this;
+var canvas=this.$refs.builderCanvas;
+var rect=canvas.getBoundingClientRect();
+function onMove(e){
+var clientX=e.clientX||e.touches[0].clientX;
+var clientY=e.clientY||e.touches[0].clientY;
+icon.x=Math.max(0,Math.min(clientX-rect.left-20,rect.width-50));
+icon.y=Math.max(0,Math.min(clientY-rect.top-20,rect.height-50));
+}
+function onUp(){
+document.removeEventListener('mousemove',onMove);
+document.removeEventListener('mouseup',onUp);
+document.removeEventListener('touchmove',onMove);
+document.removeEventListener('touchend',onUp);
+}
+document.addEventListener('mousemove',onMove);
+document.addEventListener('mouseup',onUp);
+document.addEventListener('touchmove',onMove,{passive:false});
+document.addEventListener('touchend',onUp);
+}
+}
+}
+</script>
+</body>
+</html>

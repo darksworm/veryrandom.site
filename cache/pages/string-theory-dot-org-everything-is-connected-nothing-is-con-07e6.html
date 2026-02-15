@@ -1,0 +1,1170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>STRING THEORY DOT ORG — EVERYTHING IS CONNECTED. NOTHING IS CONNECTED. YOU DECIDE.</title>
+    <link rel="stylesheet" href="/assets/css/pico.min.css">
+    <link rel="stylesheet" href="/assets/css/fonts.css">
+    <script src="/assets/js/gsap.min.js"></script>
+    <script src="/assets/js/alpine.min.js" defer></script>
+    <script src="/assets/js/lucide.min.js"></script>
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            background: #2A2A2E;
+            color: #D4D0C8;
+            font-family: 'Fira Code', monospace;
+            font-size: 16px;
+            line-height: 1.6;
+            margin: 0;
+            padding: 0;
+            overflow-x: hidden;
+        }
+
+        h1, h2, h3, h4, h5, h6 {
+            font-family: 'Oswald', sans-serif;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin: 0;
+        }
+
+        .handwritten {
+            font-family: 'Caveat', cursive;
+            font-size: 1.3em;
+            line-height: 1.4;
+        }
+
+        /* String SVG Background */
+        #string-backbone {
+            position: fixed;
+            left: 40px;
+            top: 0;
+            width: 2px;
+            height: 100%;
+            z-index: 1;
+            pointer-events: none;
+        }
+
+        #string-backbone path {
+            stroke: #C41E3A;
+            stroke-width: 2;
+            fill: none;
+            stroke-dasharray: 5000;
+            stroke-dashoffset: 5000;
+        }
+
+        .thumbtack {
+            position: absolute;
+            left: 30px;
+            width: 20px;
+            height: 20px;
+            background: #FF6B2B;
+            border-radius: 50%;
+            border: 3px solid #D4D0C8;
+            z-index: 2;
+            transform: scale(0);
+        }
+
+        /* HERO */
+        #hero {
+            position: relative;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 2rem;
+            overflow: hidden;
+            background: #1E1E21;
+            border-bottom: 3px solid #D4D0C8;
+        }
+
+        #hero-string {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        #hero-string path {
+            stroke: #C41E3A;
+            stroke-width: 3;
+            fill: none;
+            stroke-dasharray: 2000;
+            stroke-dashoffset: 2000;
+        }
+
+        .icosahedron {
+            position: absolute;
+            width: 300px;
+            height: 300px;
+            transform-style: preserve-3d;
+            animation: rotateIco 20s linear infinite;
+            z-index: 0;
+        }
+
+        .icosahedron.glitch {
+            animation: rotateIco 20s linear infinite, glitchIco 6s infinite;
+        }
+
+        .icosahedron-face {
+            position: absolute;
+            width: 100px;
+            height: 100px;
+            border: 2px solid #39FF14;
+            opacity: 0.3;
+        }
+
+        @keyframes rotateIco {
+            0% { transform: rotateX(0deg) rotateY(0deg); }
+            100% { transform: rotateX(360deg) rotateY(360deg); }
+        }
+
+        @keyframes glitchIco {
+            0%, 95%, 100% { 
+                filter: none;
+                transform: rotateX(0deg) rotateY(0deg);
+            }
+            96% { 
+                filter: drop-shadow(2px 0 0 #FF6B2B) drop-shadow(-2px 0 0 #39FF14);
+                transform: skew(2deg, 1deg);
+            }
+            97% { 
+                filter: drop-shadow(-2px 0 0 #C41E3A) drop-shadow(2px 0 0 #39FF14);
+                transform: skew(-2deg, -1deg);
+            }
+        }
+
+        .hero-title {
+            font-size: clamp(2rem, 8vw, 5rem);
+            text-align: center;
+            z-index: 2;
+            margin-bottom: 2rem;
+            line-height: 1.1;
+            text-shadow: 3px 3px 0 #1E1E21;
+        }
+
+        .hero-subtitle {
+            color: #FF6B2B;
+            font-size: clamp(1.2rem, 3vw, 1.8rem);
+            text-align: center;
+            z-index: 2;
+            max-width: 600px;
+        }
+
+        /* PANEL BASE */
+        .panel {
+            background: #1E1E21;
+            border: 3px solid #D4D0C8;
+            padding: 3rem 2rem;
+            margin: -30px auto 0;
+            max-width: 1200px;
+            position: relative;
+            z-index: 3;
+        }
+
+        .panel.rotated-left {
+            transform: rotate(-0.8deg);
+            opacity: 0;
+        }
+
+        .panel.rotated-right {
+            transform: rotate(0.8deg);
+            opacity: 0;
+        }
+
+        .section-title {
+            font-size: clamp(1.8rem, 5vw, 3rem);
+            margin-bottom: 1.5rem;
+            color: #FF6B2B;
+        }
+
+        /* THE BOARD */
+        #board-container {
+            position: relative;
+            width: 100%;
+            height: 500px;
+            background: 
+                repeating-linear-gradient(
+                    0deg,
+                    #3a3028,
+                    #3a3028 1px,
+                    #443a30 1px,
+                    #443a30 2px
+                ),
+                repeating-linear-gradient(
+                    90deg,
+                    #3a3028,
+                    #3a3028 1px,
+                    #443a30 1px,
+                    #443a30 2px
+                );
+            border: 3px solid #D4D0C8;
+            margin-bottom: 1rem;
+        }
+
+        #board-svg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+        }
+
+        .node {
+            position: absolute;
+            background: #2A2A2E;
+            border: 2px solid #D4D0C8;
+            padding: 0.5rem 1rem;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            z-index: 5;
+            min-width: 44px;
+            min-height: 44px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .node:hover {
+            background: #FF6B2B;
+            border-color: #FF6B2B;
+            transform: scale(1.05);
+        }
+
+        .node-tooltip {
+            position: absolute;
+            bottom: calc(100% + 10px);
+            left: 50%;
+            transform: translateX(-50%);
+            background: #1E1E21;
+            border: 2px solid #FF6B2B;
+            padding: 0.5rem 0.75rem;
+            font-family: 'Caveat', cursive;
+            font-size: 1.1rem;
+            color: #D4D0C8;
+            white-space: nowrap;
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.2s;
+            z-index: 10;
+        }
+
+        .node:hover .node-tooltip {
+            opacity: 1;
+        }
+
+        .node.selected {
+            background: #39FF14;
+            color: #1E1E21;
+            border-color: #39FF14;
+        }
+
+        .board-controls {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .color-picker {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .color-option {
+            width: 44px;
+            height: 44px;
+            border: 2px solid #D4D0C8;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .color-option:hover,
+        .color-option.active {
+            border-width: 4px;
+            transform: scale(1.1);
+        }
+
+        .confidence-meter {
+            font-size: 1.2rem;
+            color: #39FF14;
+            font-weight: bold;
+        }
+
+        /* CATEGORY GRID */
+        .category-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin-top: 2rem;
+        }
+
+        .category-card {
+            background: #2A2A2E;
+            border: 3px solid #D4D0C8;
+            padding: 2rem;
+            position: relative;
+            min-height: 200px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .category-card:nth-child(odd) {
+            transform: rotate(-0.5deg);
+        }
+
+        .category-card:nth-child(even) {
+            transform: rotate(0.5deg);
+        }
+
+        .category-card h3 {
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+            color: #FF6B2B;
+        }
+
+        .category-icon {
+            width: 60px;
+            height: 60px;
+            margin-bottom: 1rem;
+        }
+
+        .category-icon.glitch {
+            animation: rotateIco 20s linear infinite, glitchIco 6s infinite;
+        }
+
+        .category-meta {
+            font-size: 0.85rem;
+            color: #D4D0C8;
+            margin-bottom: 0.5rem;
+        }
+
+        .category-comment {
+            font-size: 1.1rem;
+            color: #39FF14;
+        }
+
+        /* LEADERBOARD */
+        .leaderboard {
+            background: #1E1E21;
+            border: 3px solid #39FF14;
+            padding: 2rem;
+            font-family: 'Fira Code', monospace;
+        }
+
+        .leaderboard-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .leaderboard-entry {
+            display: grid;
+            grid-template-columns: 40px 1fr auto;
+            gap: 1rem;
+            padding: 1rem;
+            border-bottom: 1px solid #D4D0C8;
+            align-items: center;
+        }
+
+        .leaderboard-entry.debunked {
+            position: relative;
+        }
+
+        .leaderboard-entry.debunked::after {
+            content: 'DEBUNKED';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) rotate(-15deg);
+            font-size: 3rem;
+            color: #C41E3A;
+            font-weight: bold;
+            text-shadow: 2px 2px 0 #1E1E21;
+            pointer-events: none;
+        }
+
+        .rank {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #FF6B2B;
+        }
+
+        .badge {
+            padding: 0.25rem 0.75rem;
+            font-size: 0.75rem;
+            border: 2px solid;
+            font-weight: bold;
+            white-space: nowrap;
+        }
+
+        .badge.verified {
+            color: #39FF14;
+            border-color: #39FF14;
+        }
+
+        .badge.debunked {
+            color: #C41E3A;
+            border-color: #C41E3A;
+        }
+
+        .toggle-btn {
+            background: #2A2A2E;
+            color: #D4D0C8;
+            border: 2px solid #D4D0C8;
+            padding: 0.5rem 1rem;
+            font-family: 'Fira Code', monospace;
+            cursor: pointer;
+            transition: all 0.2s;
+            min-height: 44px;
+        }
+
+        .toggle-btn:hover {
+            background: #FF6B2B;
+            border-color: #FF6B2B;
+        }
+
+        .toggle-btn.active {
+            background: #C41E3A;
+            border-color: #C41E3A;
+        }
+
+        /* GENERATOR */
+        .generator {
+            background: #2A2A2E;
+            border: 3px solid #39FF14;
+            padding: 2rem;
+        }
+
+        .generator-controls {
+            display: grid;
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .generator-controls select {
+            background: #1E1E21;
+            color: #D4D0C8;
+            border: 2px solid #D4D0C8;
+            padding: 0.75rem;
+            font-family: 'Fira Code', monospace;
+            font-size: 1rem;
+            min-height: 44px;
+        }
+
+        .generate-btn {
+            background: #FF6B2B;
+            color: #1E1E21;
+            border: none;
+            padding: 1rem 2rem;
+            font-family: 'Oswald', sans-serif;
+            font-size: 1.5rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            cursor: pointer;
+            transition: all 0.2s;
+            min-height: 44px;
+            font-weight: bold;
+        }
+
+        .generate-btn:hover {
+            background: #39FF14;
+            transform: scale(1.02);
+        }
+
+        .theory-output {
+            min-height: 150px;
+            margin-top: 2rem;
+            padding: 2rem;
+            background: #1E1E21;
+            border: 2px solid #D4D0C8;
+        }
+
+        .theory-text {
+            font-family: 'Oswald', sans-serif;
+            font-size: 1.5rem;
+            text-transform: uppercase;
+            color: #FF6B2B;
+            margin-bottom: 1rem;
+            min-height: 60px;
+        }
+
+        .plausibility {
+            margin-top: 1rem;
+        }
+
+        .plausibility-bar {
+            width: 100%;
+            height: 30px;
+            background: #2A2A2E;
+            border: 2px solid #D4D0C8;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .plausibility-fill {
+            height: 100%;
+            background: #39FF14;
+            width: 0%;
+            transition: width 1s ease-out;
+        }
+
+        .plausibility-label {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-weight: bold;
+            color: #D4D0C8;
+            text-shadow: 1px 1px 2px #1E1E21;
+        }
+
+        /* MANIFESTO */
+        .manifesto {
+            max-width: 800px;
+            margin: 0 auto;
+            line-height: 1.8;
+            font-size: 1.1rem;
+        }
+
+        .manifesto p {
+            margin-bottom: 1.5rem;
+        }
+
+        .manifesto em {
+            color: #FF6B2B;
+            font-style: normal;
+            font-weight: bold;
+        }
+
+        .donate-banner {
+            background: #1E1E21;
+            border: 3px solid #FF6B2B;
+            padding: 1.5rem;
+            margin-top: 2rem;
+            text-align: center;
+        }
+
+        /* FOOTER */
+        footer {
+            background: #1E1E21;
+            border-top: 3px solid #39FF14;
+            padding: 3rem 2rem;
+            font-family: 'Fira Code', monospace;
+            margin-top: -30px;
+        }
+
+        .terminal-log {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .log-line {
+            color: #39FF14;
+            margin-bottom: 0.5rem;
+            font-size: 0.9rem;
+        }
+
+        .log-line::before {
+            content: '> ';
+            color: #FF6B2B;
+        }
+
+        .footer-links {
+            display: flex;
+            gap: 2rem;
+            margin-top: 2rem;
+            flex-wrap: wrap;
+        }
+
+        .footer-links a {
+            color: #D4D0C8;
+            text-decoration: none;
+            transition: color 0.2s;
+        }
+
+        .footer-links a:hover {
+            color: #FF6B2B;
+        }
+
+        .footer-links a::before {
+            content: '$ ';
+            color: #39FF14;
+        }
+
+        .copyright {
+            margin-top: 2rem;
+            text-align: center;
+            font-size: 0.9rem;
+        }
+
+        @keyframes screenShake {
+            0%, 100% { transform: translate(0, 0) rotate(0deg); }
+            10% { transform: translate(-2px, 2px) rotate(-0.5deg); }
+            20% { transform: translate(2px, -2px) rotate(0.5deg); }
+            30% { transform: translate(-2px, -2px) rotate(-0.5deg); }
+            40% { transform: translate(2px, 2px) rotate(0.5deg); }
+            50% { transform: translate(-2px, 2px) rotate(-0.5deg); }
+            60% { transform: translate(2px, -2px) rotate(0.5deg); }
+            70% { transform: translate(-2px, -2px) rotate(-0.5deg); }
+            80% { transform: translate(2px, 2px) rotate(0.5deg); }
+            90% { transform: translate(-2px, 2px) rotate(-0.5deg); }
+        }
+
+        .shake {
+            animation: screenShake 0.3s;
+        }
+
+        @media (max-width: 768px) {
+            .panel {
+                padding: 2rem 1rem;
+                margin: -20px 1rem 0;
+            }
+
+            .category-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .leaderboard-entry {
+                grid-template-columns: 30px 1fr;
+                font-size: 0.85rem;
+            }
+
+            .badge {
+                grid-column: 2;
+                margin-top: 0.5rem;
+            }
+
+            #board-container {
+                height: 400px;
+            }
+
+            .node {
+                font-size: 0.75rem;
+                padding: 0.25rem 0.5rem;
+            }
+
+            #string-backbone {
+                left: 20px;
+            }
+
+            .thumbtack {
+                left: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Fixed String Backbone -->
+    <svg id="string-backbone">
+        <path d="M 1,0 L 1,100 L 1,200 L 1,300 L 1,500 L 1,800 L 1,1200 L 1,1800 L 1,2400 L 1,3000 L 1,4000 L 1,5000" />
+    </svg>
+
+    <!-- Thumbtacks at key sections -->
+    <div class="thumbtack" style="top: 100px;"></div>
+    <div class="thumbtack" style="top: 800px;"></div>
+    <div class="thumbtack" style="top: 1600px;"></div>
+    <div class="thumbtack" style="top: 2400px;"></div>
+    <div class="thumbtack" style="top: 3200px;"></div>
+
+    <!-- HERO -->
+    <section id="hero">
+        <svg id="hero-string" viewBox="0 0 100 100" preserveAspectRatio="none">
+            <path d="M 0,0 Q 50,50 100,100" />
+        </svg>
+        
+        <div class="icosahedron glitch">
+            <div class="icosahedron-face" style="transform: rotateY(0deg) translateZ(50px);"></div>
+            <div class="icosahedron-face" style="transform: rotateY(72deg) translateZ(50px);"></div>
+            <div class="icosahedron-face" style="transform: rotateY(144deg) translateZ(50px);"></div>
+            <div class="icosahedron-face" style="transform: rotateY(216deg) translateZ(50px);"></div>
+            <div class="icosahedron-face" style="transform: rotateY(288deg) translateZ(50px);"></div>
+        </div>
+
+        <h1 class="hero-title">EVERYTHING IS CONNECTED.<br>NOTHING IS CONNECTED.<br>YOU DECIDE.</h1>
+        <p class="hero-subtitle handwritten">
+            we've been mapping the chaos since 2017. barnaby's gone. the cat was never real. come in.
+        </p>
+    </section>
+
+    <!-- THE BOARD -->
+    <section class="panel rotated-left" id="board-section">
+        <h2 class="section-title">THE BOARD</h2>
+        <p class="handwritten" style="color: #39FF14; margin-bottom: 2rem;">
+            click two nodes. draw a string. invent the truth. we won't stop you.
+        </p>
+
+        <div class="board-controls">
+            <div class="color-picker">
+                <div class="color-option active" data-color="#C41E3A" style="background: #C41E3A;"></div>
+                <div class="color-option" data-color="#FF6B2B" style="background: #FF6B2B;"></div>
+                <div class="color-option" data-color="#39FF14" style="background: #39FF14;"></div>
+                <div class="color-option" data-color="#D4D0C8" style="background: #D4D0C8;"></div>
+            </div>
+            <button class="toggle-btn" id="clear-board">CLEAR BOARD</button>
+            <div class="confidence-meter">THEORY CONFIDENCE: <span id="confidence">0.0</span>%</div>
+        </div>
+
+        <div id="board-container">
+            <svg id="board-svg"></svg>
+            <div class="node" style="top: 20%; left: 10%;" data-id="landlord">Your Landlord<span class="node-tooltip">they raised the rent and you felt something shift</span></div>
+            <div class="node" style="top: 15%; left: 50%;" data-id="fluoride">Fluoride<span class="node-tooltip">it's in the water. literally. that's not even a theory.</span></div>
+            <div class="node" style="top: 25%; left: 75%;" data-id="moon">The Moon Landing<span class="node-tooltip">we went. we just didn't come back the same.</span></div>
+            <div class="node" style="top: 50%; left: 15%;" data-id="email">That One Email<span class="node-tooltip">you know the one. you still haven't opened it.</span></div>
+            <div class="node" style="top: 45%; left: 60%;" data-id="cat">Barnaby's Cat<span class="node-tooltip">stock photo. probably. barnaby wouldn't say.</span></div>
+            <div class="node" style="top: 70%; left: 25%;" data-id="dialup">AOL Dial-Up Tones<span class="node-tooltip">barnaby's last recording before he vanished</span></div>
+            <div class="node" style="top: 65%; left: 70%;" data-id="ikea">IKEA Instructions<span class="node-tooltip">step 47 doesn't correspond to any known furniture</span></div>
+            <div class="node" style="top: 80%; left: 50%;" data-id="algorithm">The Algorithm<span class="node-tooltip">it knows you're here. it brought you here.</span></div>
+        </div>
+    </section>
+
+    <!-- PARALLEL DIMENSIONS -->
+    <section class="panel rotated-right" id="categories-section">
+        <h2 class="section-title">PARALLEL DIMENSIONS</h2>
+        <p class="handwritten" style="color: #FF6B2B; margin-bottom: 2rem;">
+            pick your poison. every section is its own kind of hell.
+        </p>
+
+        <div class="category-grid">
+            <div class="category-card">
+                <div>
+                    <div class="category-icon glitch">
+                        <div class="icosahedron-face" style="border-color: #FF6B2B;"></div>
+                    </div>
+                    <h3>Big Pharma Galaxy</h3>
+                    <div class="category-meta">2,847 diagrams • 12,394 strings</div>
+                </div>
+                <p class="category-comment handwritten">your mom was right about something but wrong about which thing</p>
+            </div>
+
+            <div class="category-card">
+                <div>
+                    <div class="category-icon glitch">
+                        <div class="icosahedron-face" style="border-color: #39FF14;"></div>
+                    </div>
+                    <h3>Reptilian Sector</h3>
+                    <div class="category-meta">1,203 diagrams • 8,772 strings</div>
+                </div>
+                <p class="category-comment handwritten">honestly the metaphor works better than the literal version</p>
+            </div>
+
+            <div class="category-card">
+                <div>
+                    <div class="category-icon glitch">
+                        <div class="icosahedron-face" style="border-color: #C41E3A;"></div>
+                    </div>
+                    <h3>Hollow Earth Cluster</h3>
+                    <div class="category-meta">892 diagrams • 4,021 strings</div>
+                </div>
+                <p class="category-comment handwritten">the earth is full actually. too full. that's the problem.</p>
+            </div>
+
+            <div class="category-card">
+                <div>
+                    <div class="category-icon glitch">
+                        <div class="icosahedron-face" style="border-color: #FF6B2B;"></div>
+                    </div>
+                    <h3>Silicon Prophecy Zone</h3>
+                    <div class="category-meta">3,991 diagrams • 19,283 strings</div>
+                </div>
+                <p class="category-comment handwritten">turns out we were all right and it's worse than we thought</p>
+            </div>
+
+            <div class="category-card">
+                <div>
+                    <div class="category-icon glitch">
+                        <div class="icosahedron-face" style="border-color: #39FF14;"></div>
+                    </div>
+                    <h3>Temporal Anomaly District</h3>
+                    <div class="category-meta">672 diagrams • 3,114 strings</div>
+                </div>
+                <p class="category-comment handwritten">time is fake but deadlines are real explain that</p>
+            </div>
+
+            <div class="category-card">
+                <div>
+                    <div class="category-icon glitch">
+                        <div class="icosahedron-face" style="border-color: #C41E3A;"></div>
+                    </div>
+                    <h3>The Barnaby Files</h3>
+                    <div class="category-meta">??? diagrams • ??? strings</div>
+                </div>
+                <p class="category-comment handwritten">i keep this section running because i don't know what else to do</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- STRINGULARITY LEADERBOARD -->
+    <section class="panel rotated-left" id="leaderboard-section" x-data="leaderboard()">
+        <div class="leaderboard">
+            <div class="leaderboard-header">
+                <h2 class="section-title" style="margin: 0;">STRINGULARITY LEADERBOARD</h2>
+                <button class="toggle-btn" :class="{ 'active': showDebunked }" @click="toggleDebunked()">
+                    <span x-text="showDebunked ? 'HIDE DEBUNKED' : 'SHOW DEBUNKED'"></span>
+                </button>
+            </div>
+
+            <template x-for="(entry, index) in visibleEntries" :key="index">
+                <div class="leaderboard-entry" :class="{ 'debunked': entry.debunked }">
+                    <div class="rank" x-text="entry.rank"></div>
+                    <div>
+                        <div style="font-weight: bold;" x-text="entry.username"></div>
+                        <div style="font-size: 0.85rem; color: #D4D0C8;" x-text="entry.title"></div>
+                        <div style="font-size: 0.85rem; color: #39FF14;">
+                            <span x-text="entry.points"></span> Stringularity Points
+                        </div>
+                    </div>
+                    <div class="badge" :class="entry.debunked ? 'debunked' : 'verified'" x-text="entry.badge"></div>
+                </div>
+            </template>
+            <p x-show="showDebunked" class="handwritten" style="color: #C41E3A; margin-top: 1.5rem; font-size: 1.2rem;">
+                the fact-checkers say no. the forums say censorship. I say go outside.
+            </p>
+        </div>
+    </section>
+
+    <!-- STRING THEORY GENERATOR -->
+    <section class="panel rotated-right" id="generator-section" x-data="generator()">
+        <div class="generator">
+            <h2 class="section-title">STRING THEORY GENERATOR (BETA)</h2>
+            <p class="handwritten" style="color: #39FF14; margin-bottom: 2rem;">
+                three dropdowns between you and absolute certainty. scary, right?
+            </p>
+
+            <div class="generator-controls">
+                <select x-model="subject">
+                    <option value="">Pick a subject...</option>
+                    <option value="Your Childhood Dentist">Your Childhood Dentist</option>
+                    <option value="Spotify Wrapped">Spotify Wrapped</option>
+                    <option value="Grocery Store Loyalty Cards">Grocery Store Loyalty Cards</option>
+                    <option value="That Documentary You Never Finished">That Documentary You Never Finished</option>
+                    <option value="Autocorrect">Autocorrect</option>
+                    <option value="The Bermuda Triangle">The Bermuda Triangle</option>
+                    <option value="Crop Circles">Crop Circles</option>
+                    <option value="Your High School Guidance Counselor">Your High School Guidance Counselor</option>
+                </select>
+
+                <select x-model="organization">
+                    <option value="">Pick a shadowy organization...</option>
+                    <option value="Big Cereal">Big Cereal</option>
+                    <option value="The Freemasons (Accounting Division)">The Freemasons (Accounting Division)</option>
+                    <option value="Whoever Owns TikTok This Week">Whoever Owns TikTok This Week</option>
+                    <option value="The International Dairy Lobby">The International Dairy Lobby</option>
+                    <option value="Middle Management at Pfizer">Middle Management at Pfizer</option>
+                    <option value="The Illuminati HR Department">The Illuminati HR Department</option>
+                    <option value="Google's Legal Team">Google's Legal Team</option>
+                    <option value="Your HOA Board">Your HOA Board</option>
+                </select>
+
+                <select x-model="object">
+                    <option value="">Pick an everyday object...</option>
+                    <option value="USB-C Cables">USB-C Cables</option>
+                    <option value="Sourdough Starter">Sourdough Starter</option>
+                    <option value="IKEA Allen Wrenches">IKEA Allen Wrenches</option>
+                    <option value="Parking Validation Stamps">Parking Validation Stamps</option>
+                    <option value="Avocados">Avocados</option>
+                    <option value="AA Batteries">AA Batteries</option>
+                    <option value="Single Left Socks">Single Left Socks</option>
+                    <option value="Expired Coupons">Expired Coupons</option>
+                </select>
+
+                <button class="generate-btn" @click="generateTheory()">GENERATE THEORY</button>
+            </div>
+
+            <div class="theory-output">
+                <div class="theory-text" x-text="theoryText"></div>
+                <div class="plausibility" x-show="showPlausibility">
+                    <div class="plausibility-bar">
+                        <div class="plausibility-fill" :style="`width: ${plausibility}%`"></div>
+                        <div class="plausibility-label" x-text="`${plausibility}% PLAUSIBLE`"></div>
+                    </div>
+                    <p class="handwritten" style="color: #FF6B2B; margin-top: 1rem;">
+                        see? it felt true for a second. that's the whole problem.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- EZZY'S TRANSMISSION -->
+    <section class="panel rotated-left" id="manifesto-section">
+        <h2 class="section-title">EZZY'S TRANSMISSION</h2>
+        <div class="manifesto">
+            <p>
+                My name is Ezzy Klein. I used to read tarot at psychic fairs in strip malls where the ceiling tiles 
+                were always water-damaged and the energy was always <em>weird but not in a mystical way</em>. 
+                Then I met Barnaby at a conference about internet misinformation and we got drunk and decided to 
+                build this site. That was 2017.
+            </p>
+            <p>
+                The idea was simple: <em>what if we made the conspiracy-board aesthetic into an actual tool?</em> 
+                Let people map their theories. Red string. Thumbtacks. The whole paranoid detective aesthetic. 
+                We thought it would be funny. Then we thought it would be useful. Then we realized it was both and neither.
+            </p>
+            <p>
+                Barnaby disappeared in 2021. Not in a mysterious way — he just stopped answering emails and his 
+                phone went to voicemail and eventually I got a postcard from Sedona that said <em>"the vortexes are real 
+                but not how you think."</em> I haven't heard from him since. The cat he kept posting about turned out to 
+                be a stock photo he'd been using as a bit. I still don't know why.
+            </p>
+            <p>
+                Here's what I know: <em>we are all one bad week away from buying the conspiracy.</em> You lose your job, 
+                your relationship ends, your back hurts in a new way, your insurance denies the claim — and suddenly 
+                the idea that someone is in control, even if they're evil, is more comforting than the truth, which is 
+                that nobody's driving and the bus is on fire and we're all just holding on.
+            </p>
+            <p>
+                This site isn't here to debunk anything. It's not here to convince you. It's here because <em>the impulse 
+                to connect things is human</em> and sometimes the connections are real and sometimes they're not but the 
+                <em>need to make sense of the senseless</em> is what keeps us going. Or what breaks us. Depends on the day.
+            </p>
+            <p>
+                So go ahead. Draw your strings. Map your theories. Make your diagrams. I'll keep the server running. 
+                Barnaby's gone. The cat was never real. <em>But the thumbtacks are real. The cork board is real. 
+                Your need to understand is real.</em> Start there.
+            </p>
+            <p style="text-align: right; color: #FF6B2B; font-style: italic;">
+                — Ezzy Klein, sole remaining administrator
+            </p>
+        </div>
+
+        <div class="donate-banner">
+            <p style="font-size: 1.2rem; margin-bottom: 1rem;">
+                This site runs on a single DigitalOcean droplet and my slowly depleting savings.
+            </p>
+            <p class="handwritten" style="color: #39FF14; font-size: 1.3rem;">
+                if you've ever felt seen by the chaos, consider keeping the lights on.
+            </p>
+            <button class="toggle-btn" style="margin-top: 1rem;">DONATE (PAYPAL / CRYPTO / TINFOIL)</button>
+        </div>
+    </section>
+
+    <!-- FOOTER -->
+    <footer>
+        <div class="terminal-log">
+            <div class="log-line">CONNECTION ESTABLISHED...</div>
+            <div class="log-line">MONITORING STRING DENSITY: <span style="color: #39FF14;">CRITICAL</span></div>
+            <div class="log-line">BARNABY LAST SEEN: <span style="color: #C41E3A;">[REDACTED]</span></div>
+            <div class="log-line">THEORY CONFIDENCE THRESHOLD: 73.2%</div>
+            <div class="log-line">ICOSAHEDRONS RENDERED: <span style="color: #FF6B2B;">∞</span></div>
+            <div class="log-line">THE CAT STATUS: <span style="color: #C41E3A;">NEVER EXISTED</span></div>
+            <div class="log-line">CORK BOARD INTEGRITY: <span style="color: #39FF14;">STABLE</span></div>
+            <div class="log-line">YOUR LANDLORD'S INVOLVEMENT: <span style="color: #FF6B2B;">UNDETERMINED</span></div>
+            <div class="log-line">REMEMBER: <span style="color: #D4D0C8;">THE PATTERN IS YOU</span></div>
+
+            <div class="footer-links">
+                <a href="#glossary">access /glossary</a>
+                <a href="#forum">open /forum</a>
+                <a href="#podcast">stream /podcast</a>
+                <a href="#barnaby">locate /barnaby --last-known</a>
+                <a href="#privacy">cat /privacy.txt (LOL)</a>
+            </div>
+
+            <div class="copyright handwritten">
+                © 2017–2026 StringTheory.org — barnaby if you're reading this, the cat misses you. or does it.
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Alpine.js Components
+        document.addEventListener('alpine:init', () => {
+            Alpine.data('leaderboard', () => ({
+                showDebunked: false,
+                entries: [
+                    { rank: 1, username: 'RedPill_Karen_1776', title: 'Why Your Dentist Is Tracking Your Dreams', points: 8472, badge: 'VERIFIED UNHINGED', debunked: false },
+                    { rank: 2, username: 'BarnabyWasRight', title: 'The AOL Dial-Up Tone Was A Mass Hypnosis Trigger', points: 7331, badge: 'VERIFIED UNHINGED', debunked: false },
+                    { rank: 3, username: 'FluorideSkeptic99', title: 'IKEA Instructions Are Written By The Illuminati', points: 6208, badge: 'DEBUNKED', debunked: true },
+                    { rank: 4, username: 'MoonTruthSeeker', title: 'The Algorithm Knows What You'll Buy Before You're Born', points: 5890, badge: 'VERIFIED UNHINGED', debunked: false },
+                    { rank: 5, username: 'TheCatWatcher', title: 'Barnaby's Cat Controls The Stock Market', points: 4721, badge: 'DEBUNKED', debunked: true }
+                ],
+                get visibleEntries() {
+                    return this.showDebunked ? this.entries : this.entries.filter(e => !e.debunked);
+                },
+                toggleDebunked() {
+                    this.showDebunked = !this.showDebunked;
+                    if (this.showDebunked) {
+                        document.querySelector('#leaderboard-section').classList.add('shake');
+                        setTimeout(() => {
+                            document.querySelector('#leaderboard-section').classList.remove('shake');
+                        }, 300);
+                    }
+                }
+            }));
+
+            Alpine.data('generator', () => ({
+                subject: '',
+                organization: '',
+                object: '',
+                theoryText: '',
+                plausibility: 0,
+                showPlausibility: false,
+                generateTheory() {
+                    if (!this.subject || !this.organization || !this.object) {
+                        this.theoryText = 'SELECT ALL THREE OPTIONS TO GENERATE YOUR THEORY';
+                        this.showPlausibility = false;
+                        return;
+                    }
+
+                    this.showPlausibility = false;
+                    this.plausibility = 0;
+                    
+                    const theory = `WHAT IF ${this.subject.toUpperCase()} WAS SECRETLY FUNDED BY ${this.organization.toUpperCase()} TO CONTROL THE GLOBAL SUPPLY OF ${this.object.toUpperCase()}?`;
+                    
+                    // Typewriter effect
+                    this.theoryText = '';
+                    let i = 0;
+                    const interval = setInterval(() => {
+                        if (i < theory.length) {
+                            this.theoryText += theory[i];
+                            i++;
+                        } else {
+                            clearInterval(interval);
+                            this.showPlausibility = true;
+                            setTimeout(() => {
+                                this.plausibility = Math.floor(Math.random() * 21) + 40; // 40-60%
+                            }, 100);
+                        }
+                    }, 30);
+                }
+            }));
+        });
+
+        // Board Interaction
+        let selectedNode = null;
+        let currentColor = '#C41E3A';
+        let connections = [];
+        const boardSvg = document.getElementById('board-svg');
+        const nodes = document.querySelectorAll('.node');
+        const colorOptions = document.querySelectorAll('.color-option');
+        const confidenceDisplay = document.getElementById('confidence');
+
+        nodes.forEach(node => {
+            node.addEventListener('click', () => {
+                if (!selectedNode) {
+                    selectedNode = node;
+                    node.classList.add('selected');
+                } else {
+                    if (selectedNode !== node) {
+                        drawConnection(selectedNode, node, currentColor);
+                        updateConfidence();
+                    }
+                    selectedNode.classList.remove('selected');
+                    selectedNode = null;
+                }
+            });
+        });
+
+        colorOptions.forEach(option => {
+            option.addEventListener('click', () => {
+                colorOptions.forEach(o => o.classList.remove('active'));
+                option.classList.add('active');
+                currentColor = option.dataset.color;
+            });
+        });
+
+        document.getElementById('clear-board').addEventListener('click', () => {
+            boardSvg.innerHTML = '';
+            connections = [];
+            updateConfidence();
+        });
+
+        function drawConnection(node1, node2, color) {
+            const rect1 = node1.getBoundingClientRect();
+            const rect2 = node2.getBoundingClientRect();
+            const container = document.getElementById('board-container').getBoundingClientRect();
+
+            const x1 = rect1.left - container.left + rect1.width / 2;
+            const y1 = rect1.top - container.top + rect1.height / 2;
+            const x2 = rect2.left - container.left + rect2.width / 2;
+            const y2 = rect2.top - container.top + rect2.height / 2;
+
+            const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+            line.setAttribute('x1', x1);
+            line.setAttribute('y1', y1);
+            line.setAttribute('x2', x2);
+            line.setAttribute('y2', y2);
+            line.setAttribute('stroke', color);
+            line.setAttribute('stroke-width', '3');
+
+            const length = Math.sqrt((x2 - x1) ** 2 + (y2 - y1) ** 2);
+            line.style.strokeDasharray = length;
+            line.style.strokeDashoffset = length;
+
+            boardSvg.appendChild(line);
+            connections.push({ node1: node1.dataset.id, node2: node2.dataset.id, color });
+
+            gsap.fromTo(line, 
+                { strokeDashoffset: length },
+                { strokeDashoffset: 0, duration: 0.5, ease: 'power2.out' }
+            );
+        }
+
+        function updateConfidence() {
+            const confidence = Math.min(73.2, connections.length * 8.7).toFixed(1);
+            confidenceDisplay.textContent = confidence;
+        }
+
+        // GSAP Animations
+        window.addEventListener('load', () => {
+            // Hero string animation
+            const heroString = document.querySelector('#hero-string path');
+            gsap.fromTo(heroString,
+                { strokeDashoffset: 2000 },
+                { strokeDashoffset: 0, duration: 2, ease: 'power2.inOut' }
+            );
+
+            // Backbone string animation
+            const backboneString = document.querySelector('#string-backbone path');
+            gsap.fromTo(backboneString,
+                { strokeDashoffset: 5000 },
+                { strokeDashoffset: 0, duration: 3, ease: 'none' }
+            );
+
+            // Thumbtacks
+            document.querySelectorAll('.thumbtack').forEach((tack, i) => {
+                gsap.fromTo(tack,
+                    { scale: 0 },
+                    { scale: 1, duration: 0.3, delay: 0.5 + i * 0.2, ease: 'back.out(3)' }
+                );
+            });
+
+            // Scroll animations
+            const panels = document.querySelectorAll('.panel');
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach((entry) => {
+                    if (entry.isIntersecting && !entry.target.classList.contains('animated')) {
+                        entry.target.classList.add('animated');
+                        const panelIndex = Array.prototype.indexOf.call(panels, entry.target);
+                        const direction = panelIndex % 2 === 0 ? -30 : 30;
+                        const rotation = entry.target.classList.contains('rotated-left') ? -0.8 : 0.8;
+                        gsap.fromTo(entry.target,
+                            { opacity: 0, x: direction },
+                            { opacity: 1, x: 0, duration: 0.8, ease: 'power2.out' }
+                        );
+                    }
+                });
+            }, { threshold: 0.1 });
+
+            panels.forEach(panel => {
+                observer.observe(panel);
+            });
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,1368 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>RetroFutureNow.biz — Y2K Survival Kits for the Collapse That Never Came</title>
+<link rel="stylesheet" href="/assets/css/fonts.css">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg: #0a0a0a;
+  --green: #00ff41;
+  --yellow: #e8d44d;
+  --blue: #4a5f8a;
+  --card-bg: #141414;
+  --red: #ff3333;
+  --white: #d4d4d4;
+}
+
+html { scroll-behavior: smooth; }
+
+body {
+  background: var(--bg);
+  color: var(--green);
+  font-family: 'Fira Code', monospace;
+  font-size: 16px;
+  line-height: 1.6;
+  overflow-x: hidden;
+  min-height: 100vh;
+}
+
+/* Scanline overlay */
+.scanline-overlay {
+  position: fixed;
+  top: 0; left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 9999;
+  overflow: hidden;
+}
+.scanline-overlay::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  width: 100%;
+  height: 2px;
+  background: rgba(0, 255, 65, 0.08);
+  animation: scanline-sweep 8s linear infinite;
+}
+@keyframes scanline-sweep {
+  0% { top: -2px; }
+  100% { top: 100%; }
+}
+
+/* CRT scanlines texture */
+body::after {
+  content: '';
+  position: fixed;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  background: repeating-linear-gradient(
+    transparent 0px,
+    transparent 2px,
+    rgba(0, 0, 0, 0.15) 2px,
+    rgba(0, 0, 0, 0.15) 4px
+  );
+  pointer-events: none;
+  z-index: 9998;
+}
+
+.container {
+  max-width: 720px;
+  margin: 0 auto;
+  padding: 0 20px;
+}
+
+.full-bleed {
+  width: 100vw;
+  margin-left: calc(-50vw + 50%);
+  padding: 0 20px;
+}
+
+h1, h2, h3 {
+  font-family: 'Unbounded', sans-serif;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+}
+
+.marker-text {
+  font-family: 'Permanent Marker', cursive;
+  color: var(--red);
+}
+
+a { color: var(--yellow); }
+
+/* Glitch heading animation */
+.glitch-heading {
+  position: relative;
+  display: inline-block;
+}
+.glitch-heading.glitching {
+  animation: glitch-text 0.4s steps(2) forwards;
+}
+.glitch-heading.glitching::before,
+.glitch-heading.glitching::after {
+  content: attr(data-text);
+  position: absolute;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+}
+.glitch-heading.glitching::before {
+  color: var(--red);
+  clip-path: inset(20% 0 40% 0);
+  transform: translate(-3px, -2px);
+  animation: glitch-clip-1 0.4s steps(3) forwards;
+}
+.glitch-heading.glitching::after {
+  color: var(--blue);
+  clip-path: inset(50% 0 10% 0);
+  transform: translate(3px, 2px);
+  animation: glitch-clip-2 0.4s steps(3) forwards;
+}
+@keyframes glitch-text {
+  0% { transform: translate(0); }
+  25% { transform: translate(-2px, 1px); }
+  50% { transform: translate(2px, -1px); }
+  75% { transform: translate(-1px, 2px); }
+  100% { transform: translate(0); }
+}
+@keyframes glitch-clip-1 {
+  0% { clip-path: inset(20% 0 40% 0); }
+  33% { clip-path: inset(60% 0 5% 0); }
+  66% { clip-path: inset(10% 0 70% 0); }
+  100% { clip-path: inset(0); opacity: 0; }
+}
+@keyframes glitch-clip-2 {
+  0% { clip-path: inset(50% 0 10% 0); }
+  33% { clip-path: inset(5% 0 60% 0); }
+  66% { clip-path: inset(40% 0 20% 0); }
+  100% { clip-path: inset(0); opacity: 0; }
+}
+
+/* ===== HERO ===== */
+.hero {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 40px 20px;
+  position: relative;
+  border-bottom: 2px solid var(--green);
+}
+.hero-counter {
+  font-family: 'Unbounded', sans-serif;
+  font-size: clamp(48px, 12vw, 120px);
+  color: var(--green);
+  letter-spacing: 0.05em;
+  cursor: pointer;
+  position: relative;
+  line-height: 1.1;
+  user-select: none;
+  text-shadow: 0 0 20px rgba(0, 255, 65, 0.4);
+}
+.hero-counter-label {
+  font-size: 14px;
+  color: var(--blue);
+  margin-top: 4px;
+  letter-spacing: 0.15em;
+}
+.hero-tooltip {
+  position: absolute;
+  bottom: -36px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-family: 'Fira Code', monospace;
+  font-size: 12px;
+  color: var(--yellow);
+  background: var(--card-bg);
+  border: 1px solid var(--yellow);
+  padding: 4px 10px;
+  white-space: nowrap;
+  opacity: 0;
+  transition: opacity 0.3s;
+  pointer-events: none;
+}
+.hero-counter:hover .hero-tooltip {
+  opacity: 1;
+}
+.hero-manifesto {
+  font-family: 'Fira Code', monospace;
+  font-size: clamp(14px, 2.5vw, 18px);
+  color: var(--yellow);
+  max-width: 600px;
+  margin: 30px auto;
+  line-height: 1.7;
+}
+.hero-btn {
+  display: inline-block;
+  margin-top: 30px;
+  padding: 12px 32px;
+  font-family: 'Fira Code', monospace;
+  font-size: 16px;
+  color: var(--bg);
+  background: #c0c0c0;
+  border: 2px solid #ffffff;
+  border-right-color: #808080;
+  border-bottom-color: #808080;
+  cursor: pointer;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  box-shadow: inset 1px 1px 0 #ffffff, inset -1px -1px 0 #808080;
+  min-height: 44px;
+  animation: pulse-btn 2s ease-in-out infinite;
+}
+.hero-btn:active {
+  border: 2px solid #808080;
+  border-right-color: #ffffff;
+  border-bottom-color: #ffffff;
+  box-shadow: inset 1px 1px 0 #808080, inset -1px -1px 0 #ffffff;
+}
+@keyframes pulse-btn {
+  0%, 100% { box-shadow: inset 1px 1px 0 #ffffff, inset -1px -1px 0 #808080, 0 0 10px rgba(0,255,65,0.2); }
+  50% { box-shadow: inset 1px 1px 0 #ffffff, inset -1px -1px 0 #808080, 0 0 25px rgba(0,255,65,0.5); }
+}
+.broken-img-deco {
+  display: inline-block;
+  width: 32px; height: 32px;
+  border: 1px solid var(--blue);
+  position: relative;
+  opacity: 0.3;
+  margin: 0 8px;
+}
+.broken-img-deco::before {
+  content: '✕';
+  position: absolute;
+  top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+  color: var(--blue);
+  font-size: 14px;
+}
+.broken-img-deco::after {
+  content: '';
+  position: absolute;
+  bottom: 2px; left: 2px; right: 2px;
+  height: 8px;
+  background: linear-gradient(90deg, var(--blue), var(--green), var(--red));
+  opacity: 0.4;
+}
+
+/* ===== SECTION SHARED ===== */
+section {
+  border-bottom: 2px solid var(--green);
+  padding: 60px 0;
+}
+.section-title {
+  font-size: clamp(24px, 5vw, 36px);
+  color: var(--green);
+  margin-bottom: 30px;
+  border-bottom: 2px solid var(--green);
+  padding-bottom: 10px;
+  display: inline-block;
+}
+
+/* ===== THE KITS ===== */
+.kits-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 24px;
+  margin-top: 20px;
+}
+@media (min-width: 768px) {
+  .kits-grid { grid-template-columns: 1fr 1fr 1fr; }
+}
+.kit-card {
+  background: var(--card-bg);
+  border: 2px solid var(--green);
+  padding: 24px;
+  position: relative;
+}
+.kit-card.crossed-out { border-color: var(--red); }
+.kit-card.crossed-out::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: repeating-linear-gradient(
+    -45deg,
+    transparent,
+    transparent 10px,
+    rgba(255, 51, 51, 0.08) 10px,
+    rgba(255, 51, 51, 0.08) 20px
+  );
+  pointer-events: none;
+}
+.kit-name {
+  font-family: 'Unbounded', sans-serif;
+  font-size: 18px;
+  color: var(--yellow);
+  margin-bottom: 12px;
+}
+.kit-price {
+  font-size: 28px;
+  font-weight: bold;
+  color: var(--red);
+  margin: 12px 0;
+}
+.kit-price.free { color: var(--green); }
+.kit-items {
+  list-style: none;
+  margin: 12px 0;
+  font-size: 14px;
+  color: var(--white);
+}
+.kit-items li {
+  padding: 4px 0;
+  border-bottom: 1px dotted #333;
+}
+.kit-items li::before {
+  content: '>';
+  color: var(--green);
+  margin-right: 8px;
+}
+.kit-btn {
+  display: block;
+  width: 100%;
+  padding: 12px;
+  margin-top: 16px;
+  font-family: 'Fira Code', monospace;
+  font-size: 14px;
+  background: var(--green);
+  color: var(--bg);
+  border: 2px solid var(--green);
+  cursor: pointer;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  min-height: 44px;
+}
+.kit-btn:hover { background: var(--yellow); border-color: var(--yellow); }
+.kit-btn.disabled {
+  background: #333;
+  color: #666;
+  border-color: #333;
+  cursor: not-allowed;
+  text-decoration: line-through;
+}
+.kit-annotation {
+  font-family: 'Permanent Marker', cursive;
+  color: var(--red);
+  font-size: 14px;
+  transform: rotate(-2deg);
+  margin-top: 10px;
+  display: block;
+}
+
+/* ===== STAFF DOSSIERS ===== */
+.staff-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 24px;
+}
+@media (min-width: 600px) {
+  .staff-grid { grid-template-columns: 1fr 1fr; }
+}
+.staff-card {
+  background: var(--card-bg);
+  border: 2px solid var(--blue);
+  padding: 20px;
+}
+.staff-photo {
+  width: 80px; height: 80px;
+  display: grid;
+  grid-template-columns: repeat(8, 1fr);
+  grid-template-rows: repeat(8, 1fr);
+  margin-bottom: 12px;
+  border: 2px solid var(--green);
+  image-rendering: pixelated;
+}
+.staff-photo span {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+.staff-name {
+  font-family: 'Unbounded', sans-serif;
+  font-size: 16px;
+  color: var(--yellow);
+  margin-bottom: 4px;
+}
+.staff-role {
+  font-size: 12px;
+  color: var(--blue);
+  margin-bottom: 8px;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
+.staff-bio {
+  font-size: 14px;
+  color: var(--white);
+  line-height: 1.6;
+}
+.staff-status {
+  font-family: 'Permanent Marker', cursive;
+  color: var(--red);
+  font-size: 13px;
+  margin-top: 8px;
+}
+
+/* ===== BUG BOUNTY ===== */
+.bug-bounty {
+  background: var(--card-bg);
+  border: 2px solid var(--yellow);
+  padding: 30px;
+}
+.form-field {
+  margin: 20px 0;
+}
+.form-label {
+  display: block;
+  font-size: 12px;
+  color: var(--blue);
+  text-transform: uppercase;
+  letter-spacing: 0.15em;
+  margin-bottom: 6px;
+}
+.form-input {
+  width: 100%;
+  padding: 12px;
+  font-family: 'Fira Code', monospace;
+  font-size: 14px;
+  background: var(--bg);
+  color: var(--green);
+  border: none;
+  border-bottom: 2px dotted var(--yellow);
+  outline: none;
+  min-height: 44px;
+}
+.form-input:focus { border-bottom-color: var(--green); }
+.form-submit {
+  padding: 12px 24px;
+  font-family: 'Fira Code', monospace;
+  font-size: 14px;
+  background: var(--yellow);
+  color: var(--bg);
+  border: 2px solid var(--yellow);
+  cursor: pointer;
+  text-transform: uppercase;
+  min-height: 44px;
+}
+.form-submit:hover { background: var(--green); border-color: var(--green); }
+.form-response {
+  margin-top: 16px;
+  padding: 16px;
+  background: var(--bg);
+  border: 1px solid var(--green);
+  font-size: 14px;
+  color: var(--green);
+  min-height: 60px;
+}
+.ticker-wrap {
+  overflow: hidden;
+  border: 1px solid var(--green);
+  padding: 8px 0;
+  margin-top: 24px;
+  background: var(--bg);
+}
+.ticker {
+  display: flex;
+  white-space: nowrap;
+  animation: ticker-scroll 30s linear infinite;
+}
+.ticker-item {
+  flex-shrink: 0;
+  padding: 0 40px;
+  font-size: 13px;
+  color: var(--yellow);
+}
+.ticker-item .status-denied { color: var(--red); }
+.ticker-item .status-awarded { color: var(--green); }
+@keyframes ticker-scroll {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+
+/* ===== BUNKER LIBRARY ===== */
+.library-cards {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+.library-card {
+  background: #f5f0d0;
+  color: #1a1a1a;
+  padding: 24px;
+  position: relative;
+  transform: rotate(-1deg);
+  border: 2px solid #c0b060;
+  font-size: 14px;
+  line-height: 1.7;
+}
+.library-card:nth-child(2) { transform: rotate(0.8deg); }
+.library-card:nth-child(3) { transform: rotate(-0.5deg); }
+.library-card-title {
+  font-family: 'Unbounded', sans-serif;
+  font-size: 14px;
+  text-transform: uppercase;
+  margin-bottom: 10px;
+  color: #1a1a1a;
+}
+.library-card .annotation {
+  font-family: 'Permanent Marker', cursive;
+  color: var(--red);
+  font-size: 15px;
+  position: absolute;
+  transform: rotate(-5deg);
+}
+.coffee-stain {
+  position: absolute;
+  width: 60px; height: 60px;
+  border-radius: 50%;
+  background: radial-gradient(circle, transparent 30%, rgba(139, 90, 43, 0.15) 40%, rgba(139, 90, 43, 0.1) 60%, transparent 70%);
+  pointer-events: none;
+}
+
+/* ===== GUESTBOOK ===== */
+.guestbook-entry {
+  background: var(--card-bg);
+  border: 2px solid var(--green);
+  padding: 20px;
+  margin-bottom: 16px;
+  font-size: 14px;
+}
+.guestbook-html-tag {
+  color: var(--blue);
+  font-size: 12px;
+}
+.guestbook-text {
+  color: var(--green);
+  margin: 8px 0;
+}
+.guestbook-sig {
+  color: var(--yellow);
+  font-size: 13px;
+}
+.guestbook-stars { color: var(--yellow); }
+.marquee-wrap {
+  overflow: hidden;
+  border: 1px solid var(--yellow);
+  padding: 8px;
+  margin: 16px 0;
+  background: var(--bg);
+}
+.marquee-inner {
+  display: inline-block;
+  white-space: nowrap;
+  animation: marquee-scroll 15s linear infinite;
+  color: var(--yellow);
+  font-size: 14px;
+}
+@keyframes marquee-scroll {
+  0% { transform: translateX(100%); }
+  100% { transform: translateX(-100%); }
+}
+
+/* ===== FAQ + WEBCAM ===== */
+.faq-webcam-split {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 24px;
+}
+@media (min-width: 768px) {
+  .faq-webcam-split { grid-template-columns: 1fr 1fr; }
+}
+.faq-section { color: var(--white); }
+.faq-item { margin-bottom: 20px; }
+.faq-q {
+  color: var(--yellow);
+  font-size: 14px;
+  margin-bottom: 4px;
+}
+.faq-a {
+  color: var(--white);
+  font-size: 14px;
+  padding-left: 16px;
+  border-left: 2px solid var(--green);
+}
+.webcam-feed {
+  background: #111;
+  border: 2px solid var(--green);
+  aspect-ratio: 4/3;
+  position: relative;
+  overflow: hidden;
+}
+.webcam-static {
+  position: absolute;
+  top: 0; left: 0; width: 100%; height: 100%;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.3'/%3E%3C/svg%3E");
+  background-size: 200px 200px;
+  animation: static-shift 0.15s steps(5) infinite;
+}
+@keyframes static-shift {
+  0% { background-position: 0 0; }
+  20% { background-position: -20px 10px; }
+  40% { background-position: 10px -15px; }
+  60% { background-position: -10px 20px; }
+  80% { background-position: 15px -5px; }
+  100% { background-position: 0 0; }
+}
+.webcam-scanline {
+  position: absolute;
+  top: 0; left: 0; width: 100%; height: 3px;
+  background: rgba(0, 255, 65, 0.15);
+  animation: webcam-scan 3s linear infinite;
+}
+@keyframes webcam-scan {
+  0% { top: -3px; }
+  100% { top: 100%; }
+}
+.webcam-crt-flash {
+  position: absolute;
+  top: 0; left: 0; width: 100%; height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  background: rgba(0, 20, 0, 0.8);
+  transition: none;
+}
+.webcam-crt-flash.visible {
+  opacity: 1;
+}
+.webcam-crt-monitor {
+  width: 60%; height: 50%;
+  border: 2px solid rgba(0, 255, 65, 0.2);
+  border-radius: 8px;
+  background: rgba(0, 255, 65, 0.03);
+  box-shadow: 0 0 20px rgba(0, 255, 65, 0.1);
+}
+.webcam-live-dot {
+  position: absolute;
+  top: 10px; right: 10px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  color: var(--red);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
+.webcam-live-dot::before {
+  content: '';
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  background: var(--red);
+  animation: blink-live 1.5s ease-in-out infinite;
+}
+@keyframes blink-live {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.2; }
+}
+.webcam-label {
+  position: absolute;
+  bottom: 8px; left: 10px;
+  font-size: 11px;
+  color: var(--green);
+  letter-spacing: 0.1em;
+}
+
+/* ===== BOOMBOX / MIDI ===== */
+.boombox-toggle {
+  position: fixed;
+  bottom: 80px;
+  left: 20px;
+  width: 48px; height: 48px;
+  background: var(--card-bg);
+  border: 2px solid var(--green);
+  color: var(--green);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-size: 24px;
+  z-index: 100;
+  min-height: 44px;
+  min-width: 44px;
+}
+.boombox-toggle:hover { background: var(--green); color: var(--bg); }
+
+.midi-modal-backdrop {
+  position: fixed;
+  top: 0; left: 0; width: 100%; height: 100%;
+  background: rgba(0,0,0,0.85);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 200;
+  padding: 20px;
+}
+.midi-modal {
+  background: var(--card-bg);
+  border: 2px solid var(--yellow);
+  padding: 30px;
+  max-width: 420px;
+  width: 100%;
+  text-align: center;
+}
+.midi-modal h3 {
+  color: var(--yellow);
+  font-size: 18px;
+  margin-bottom: 16px;
+}
+.midi-modal p {
+  color: var(--white);
+  font-size: 14px;
+  margin-bottom: 20px;
+}
+.midi-modal-btns {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+}
+.midi-modal-btns button {
+  padding: 12px 24px;
+  font-family: 'Fira Code', monospace;
+  font-size: 14px;
+  cursor: pointer;
+  border: 2px solid;
+  min-height: 44px;
+}
+.btn-play { background: var(--green); color: var(--bg); border-color: var(--green); }
+.btn-flee { background: var(--red); color: var(--bg); border-color: var(--red); }
+
+.midi-player {
+  position: fixed;
+  bottom: 20px;
+  left: 20px;
+  background: var(--card-bg);
+  border: 2px solid var(--green);
+  padding: 12px 16px;
+  z-index: 100;
+  max-width: 320px;
+  width: calc(100% - 100px);
+}
+.midi-player-title {
+  font-size: 11px;
+  color: var(--yellow);
+  margin-bottom: 6px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.midi-player-bar {
+  height: 8px;
+  background: var(--bg);
+  border: 1px solid var(--green);
+  position: relative;
+  overflow: hidden;
+}
+.midi-player-progress {
+  height: 100%;
+  background: var(--green);
+  width: 0%;
+  animation: midi-progress 24s linear infinite;
+}
+@keyframes midi-progress {
+  0% { width: 0%; }
+  100% { width: 100%; }
+}
+.midi-waveform {
+  display: flex;
+  align-items: flex-end;
+  gap: 2px;
+  height: 20px;
+  margin-top: 6px;
+}
+.midi-waveform span {
+  width: 3px;
+  background: var(--green);
+  animation: wave-bar 0.6s ease-in-out infinite alternate;
+}
+
+@keyframes wave-bar {
+  0% { height: 3px; }
+  100% { height: 18px; }
+}
+
+/* ===== FOOTER ===== */
+footer {
+  padding: 40px 20px;
+  text-align: center;
+  font-size: 12px;
+  color: var(--blue);
+  border-top: 2px solid var(--green);
+}
+footer .marker-text { font-size: 14px; }
+
+/* ===== FADE-IN ===== */
+.fade-in {
+  opacity: 0;
+  transform: translateY(20px);
+}
+
+/* ===== RESPONSIVE ===== */
+@media (max-width: 767px) {
+  .container { padding: 0 16px; }
+  section { padding: 40px 0; }
+  .hero { padding: 30px 16px; }
+  .library-card { transform: rotate(0) !important; }
+  .faq-webcam-split { gap: 30px; }
+}
+</style>
+</head>
+<body x-data="app()">
+
+<!-- Scanline overlay -->
+<div class="scanline-overlay"></div>
+
+<!-- ===== HERO ===== -->
+<section class="hero" id="hero">
+  <div style="display:flex;align-items:center;justify-content:center;gap:4px;margin-bottom:12px;">
+    <span class="broken-img-deco"></span>
+    <span style="font-size:12px;color:#4a5f8a;letter-spacing:0.2em;text-transform:uppercase;">RetroFutureNow.biz</span>
+    <span class="broken-img-deco"></span>
+  </div>
+
+  <div class="hero-counter" @click="counterClick()" @mouseenter="counterHover=true" @mouseleave="counterHover=false">
+    <span x-text="counterDisplay"></span>
+    <div class="hero-tooltip" :style="counterHover ? 'opacity:1' : 'opacity:0'">Counter malfunction began 1/1/2000. Diagnosis: Unnecessary.</div>
+  </div>
+  <div class="hero-counter-label">VISITORS SINCE THE END OF THE WORLD</div>
+
+  <p class="hero-manifesto">We rehearsed for the end of the world so many times we forgot to notice it already happened.</p>
+
+  <a href="#kits" class="hero-btn">⚠ ENTER IF YOU DARE ⚠</a>
+
+  <div style="margin-top:30px;display:flex;gap:12px;align-items:center;justify-content:center;flex-wrap:wrap;">
+    <span class="broken-img-deco"></span>
+    <span class="broken-img-deco"></span>
+    <span class="broken-img-deco"></span>
+  </div>
+</section>
+
+<!-- ===== THE KITS ===== -->
+<section id="kits">
+  <div class="container">
+    <h2 class="section-title glitch-heading" data-text="Y2K SURVIVAL KITS">Y2K SURVIVAL KITS</h2>
+    <p style="font-size:14px;color:#4a5f8a;margin-bottom:8px;">Everything you need for a disaster that happened 26 years ago.</p>
+
+    <div class="kits-grid">
+      <!-- The Barnaby -->
+      <div class="kit-card fade-in">
+        <div class="kit-name">"The Barnaby"</div>
+        <div style="font-size:12px;color:#4a5f8a;margin-bottom:8px;">PREMIUM TIER — FOR THE COMMITTED NOSTALGIST</div>
+        <ul class="kit-items">
+          <li>1x Dead Tamagotchi (cause of death: neglect, 1998)</li>
+          <li>3x Expired granola bars (best by 12/31/1999)</li>
+          <li>1x Cracked Nokia 5110 (still holds a charge — menacingly)</li>
+          <li>1x Handwritten note from Barnaby (pre-disappearance)</li>
+        </ul>
+        <div class="kit-price">$199.99</div>
+        <button class="kit-btn" @click="addToBunker($event)">[ ADD TO BUNKER ]</button>
+        <span class="kit-annotation">^ Named after a man who abandoned reality. Fitting.</span>
+      </div>
+
+      <!-- The Esme -->
+      <div class="kit-card fade-in">
+        <div class="kit-name">"The Esme"</div>
+        <div style="font-size:12px;color:#4a5f8a;margin-bottom:8px;">CRYPTO-GRIEF EDITION — PROCESS YOUR LOSSES</div>
+        <ul class="kit-items">
+          <li>1x Printed Beanie Baby price charts (annotated with tears)</li>
+          <li>1x USB drive containing nothing (formatted, like my hopes)</li>
+          <li>1x Receipt from a $40k Beanie Baby futures position</li>
+          <li>1x Stress ball shaped like a blockchain</li>
+        </ul>
+        <div class="kit-price">$299.99</div>
+        <button class="kit-btn" @click="addToBunker($event)">[ ADD TO BUNKER ]</button>
+        <span class="kit-annotation">^ I put my grief in a box and now you can buy it. Capitalism.</span>
+      </div>
+
+      <!-- The Chad Thundercock Counter-Kit -->
+      <div class="kit-card crossed-out fade-in">
+        <div class="kit-name" style="text-decoration:line-through;">"The Chad Thundercock Counter-Kit"</div>
+        <div style="font-size:12px;color:#ff3333;margin-bottom:8px;">INFERIOR — REAL MEN DON'T NEED FRESH FOOD</div>
+        <ul class="kit-items">
+          <li><span style="text-decoration:line-through;">1x MRE (still edible)</span></li>
+          <li><span style="text-decoration:line-through;">1x Working flashlight</span></li>
+          <li><span style="text-decoration:line-through;">1x Water purification tablets</span></li>
+          <li><span style="text-decoration:line-through;">1x Sense of unearned confidence</span></li>
+        </ul>
+        <div class="kit-price free">$0.00</div>
+        <button class="kit-btn disabled" disabled>[ DISCONTINUED ]</button>
+        <span class="kit-annotation">^ Chad thinks "preparedness" means buying things. Chad has missed the point entirely.</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== STAFF DOSSIERS ===== -->
+<section id="staff">
+  <div class="container">
+    <h2 class="section-title glitch-heading" data-text="STAFF DOSSIERS">STAFF DOSSIERS</h2>
+    <p style="font-size:12px;color:#4a5f8a;letter-spacing:0.15em;margin-bottom:20px;">CLASSIFIED // CLEARANCE: EXPIRED</p>
+
+    <div class="staff-grid">
+      <div class="staff-card fade-in">
+        <div class="staff-photo" id="photo-esme"></div>
+        <div class="staff-name">Esmeralda "Esme" Choi</div>
+        <div class="staff-role">Sole Proprietor / Chief Dread Officer</div>
+        <div class="staff-bio">Watched $40k in Beanie Baby futures evaporate on a Tuesday afternoon. Built this site on the ashes. Believes the millennium bug was just early.</div>
+      </div>
+
+      <div class="staff-card fade-in">
+        <div class="staff-photo" id="photo-barnaby"></div>
+        <div class="staff-name">Barnaby ████████</div>
+        <div class="staff-role">Co-Founder (Former)</div>
+        <div class="staff-bio">STATUS: Missing. Last seen: Second Life, coordinates unknown. If found, do not approach — he will talk about dial-up speeds for forty-five minutes without blinking.</div>
+        <div class="staff-status">⚠ LAST PING: 2007-03-14T02:33:00Z</div>
+      </div>
+
+      <div class="staff-card fade-in">
+        <div class="staff-photo" id="photo-brenda"></div>
+        <div class="staff-name">Brenda Kowalski</div>
+        <div class="staff-role">Inventory Manager / Survivalist Emeritus</div>
+        <div class="staff-bio">Lost power for 3 hours during the Great Toilet Paper Panic of '99. Filled her bathtub with canned soup. Never fully recovered. Still checks the generator weekly.</div>
+      </div>
+
+      <div class="staff-card fade-in">
+        <div class="staff-photo" id="photo-kevin"></div>
+        <div class="staff-name">Kevin Delacroix</div>
+        <div class="staff-role">Quality Assurance / Neopet Grief Counselor</div>
+        <div class="staff-bio">Believed his Neopets would outlive him. He was wrong about one of those things. We don't talk about which one.</div>
+        <div class="staff-status">Neopet status: starving (est. 2004–present)</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== MILLENNIUM BUG BOUNTY ===== -->
+<section id="bounty">
+  <div class="container">
+    <h2 class="section-title glitch-heading" data-text="MILLENNIUM BUG BOUNTY">MILLENNIUM BUG BOUNTY</h2>
+    <p style="font-size:13px;color:#d4d4d4;margin-bottom:20px;">Report Y2K bugs still in the wild. Maximum payout: $0.03. We are very serious about this.</p>
+
+    <div class="bug-bounty">
+      <div style="font-size:12px;color:#4a5f8a;letter-spacing:0.15em;margin-bottom:16px;">FORM 2K-0001 // MILLENNIUM COMPLIANCE DIVISION</div>
+
+      <div class="form-field">
+        <label class="form-label">Your Name (or Handle)</label>
+        <input class="form-input" type="text" x-model="bugName" placeholder="xXDarkAngelXx_2000">
+      </div>
+
+      <div class="form-field">
+        <label class="form-label">Describe the Y2K Bug</label>
+        <input class="form-input" type="text" x-model="bugDescription" placeholder="My microwave still thinks it's 1999...">
+      </div>
+
+      <button class="form-submit" @click="submitBug()">[ SUBMIT REPORT ]</button>
+
+      <div class="form-response" x-show="bugResponse" x-cloak>
+        <span x-text="bugResponseText"></span><span class="typewriter-cursor" x-show="bugTyping">▊</span>
+      </div>
+    </div>
+
+    <!-- Ticker -->
+    <div class="ticker-wrap">
+      <div class="ticker">
+        <span class="ticker-item">Payphone on 5th &amp; Main still thinks it's 1999 — <span class="status-awarded">$0.03 AWARDED</span></span>
+        <span class="ticker-item">Uncle's VCR displays 'ERR' since midnight 2000 — <span class="status-awarded">$0.03 AWARDED</span></span>
+        <span class="ticker-item">Blockchain crashed, pretty sure that's a Y2K thing — <span class="status-denied">DENIED</span></span>
+        <span class="ticker-item">Airport departures board stuck on Dec 31 1999 — <span class="status-awarded">$0.03 AWARDED</span></span>
+        <span class="ticker-item">Ex-boyfriend's emotional maturity frozen at Y2K — <span class="status-denied">NOT A BUG, THAT'S A FEATURE</span></span>
+        <span class="ticker-item">My will to live crashed at midnight 2000 — <span class="status-awarded">$0.03 AWARDED (SYMPATHY BONUS)</span></span>
+        <span class="ticker-item">Payphone on 5th &amp; Main still thinks it's 1999 — <span class="status-awarded">$0.03 AWARDED</span></span>
+        <span class="ticker-item">Uncle's VCR displays 'ERR' since midnight 2000 — <span class="status-awarded">$0.03 AWARDED</span></span>
+        <span class="ticker-item">Blockchain crashed, pretty sure that's a Y2K thing — <span class="status-denied">DENIED</span></span>
+        <span class="ticker-item">Airport departures board stuck on Dec 31 1999 — <span class="status-awarded">$0.03 AWARDED</span></span>
+        <span class="ticker-item">Ex-boyfriend's emotional maturity frozen at Y2K — <span class="status-denied">NOT A BUG, THAT'S A FEATURE</span></span>
+        <span class="ticker-item">My will to live crashed at midnight 2000 — <span class="status-awarded">$0.03 AWARDED (SYMPATHY BONUS)</span></span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== BUNKER LIBRARY ===== -->
+<section id="library">
+  <div class="container">
+    <h2 class="section-title glitch-heading" data-text="BUNKER LIBRARY">BUNKER LIBRARY</h2>
+    <p style="font-size:13px;color:#4a5f8a;margin-bottom:20px;">RECOMMENDED READING FOR THE ADEQUATELY TERRIFIED</p>
+
+    <div class="library-cards">
+      <div class="library-card fade-in">
+        <div class="coffee-stain" style="top:-10px;right:20px;"></div>
+        <div class="library-card-title">AOL Terms of Service, 1998 Edition (Excerpt)</div>
+        <p>Section 14.7: "By clicking 'I Agree,' you acknowledge that you have read, understood, and accepted that your personal data will be used in ways we haven't invented yet. You further agree that the sound of a dial-up modem connecting is legally binding consent to whatever happens next. AOL is not responsible for feelings of existential dread experienced while waiting for a JPEG to load."</p>
+        <span class="annotation" style="bottom:10px;right:20px;transform:rotate(3deg);">this aged like milk in a hot car — Esme</span>
+      </div>
+
+      <div class="library-card fade-in">
+        <div class="coffee-stain" style="top:10px;left:-5px;"></div>
+        <div class="library-card-title">WHEN THE GRID DIES: A Beginner's Guide to Eating Bark</div>
+        <p>Chapter 1: Identifying Edible Trees in Your Neighborhood<br>Chapter 2: The Mouth-Feel Spectrum (Pine: 3/10, Birch: 6/10)<br>Chapter 3: Convincing Your Family This Is Normal<br>Chapter 4: Advanced Bark Pairing (Red Oak with expired Sunny D)<br>Appendix: Why Your Neighbor's Generator Won't Save Them Either</p>
+        <span class="annotation" style="top:8px;right:14px;transform:rotate(-4deg);">Brenda's favorite. dog-eared.</span>
+      </div>
+
+      <div class="library-card fade-in">
+        <div class="coffee-stain" style="bottom:5px;right:40px;"></div>
+        <div class="library-card-title">GeoCities Guestbook Archive — xXDarkStar99Xx's Homepage</div>
+        <p>
+          <strong>~*~SuNfLoWeR_GrRl~*~</strong> (03/14/1999): "cool site!! love the midi!! come sign MY guestbook!! &lt;3 &lt;3"<br><br>
+          <strong>HACKERM4N</strong> (07/22/1999): "y2k is REAL. i work for the government. they dont want u to know. stock up on ramen NOW"<br><br>
+          <strong>xXDarkAngelXx</strong> (12/30/1999): "see u all on the other side... if there IS one... :( :( :("<br><br>
+          <strong>xXDarkAngelXx</strong> (01/02/2000): "nvm lol"
+        </p>
+        <span class="annotation" style="bottom:12px;left:16px;transform:rotate(-2deg);">the entire emotional arc of humanity in 4 posts</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== GUESTBOOK / TESTIMONIALS ===== -->
+<section id="guestbook">
+  <div class="container">
+    <h2 class="section-title glitch-heading" data-text="CUSTOMER TESTIMONIALS">CUSTOMER TESTIMONIALS</h2>
+    <p style="font-size:12px;color:#4a5f8a;margin-bottom:20px;">VERIFIED PURCHASES // HTML RENDERED AS INTENDED BY GOD</p>
+
+    <div class="guestbook-entry fade-in">
+      <div class="guestbook-html-tag">&lt;font color="lime" size="4"&gt;</div>
+      <div class="guestbook-text" style="font-size:18px;">OMG this kit saved my LIFE!! well not literally but EMOTIONALLY yes!!! the dead tamagotchi really spoke to me on a spiritual level 🙏🙏🙏</div>
+      <div class="guestbook-html-tag">&lt;/font&gt;</div>
+      <div class="guestbook-sig">— ~*~SurvivalBabe99~*~ <span class="guestbook-stars">★★★★★</span></div>
+    </div>
+
+    <div class="marquee-wrap">
+      <div class="marquee-inner">★★★ WELCOME TO RETROFUTURENOW.BIZ ★★★ WE SELL EXPIRED THINGS FOR NON-EXPIRED PRICES ★★★ THE APOCALYPSE IS A FEELING AND FEELINGS ARE FOREVER ★★★ BARNABY IF YOU'RE READING THIS PLEASE COME HOME ★★★</div>
+    </div>
+
+    <div class="guestbook-entry fade-in">
+      <div class="guestbook-html-tag">&lt;blink&gt;&lt;font face="Comic Sans MS" color="yellow"&gt;</div>
+      <div class="guestbook-text">I bought the kit. Nothing happened. That's the point. The expired granola tasted like regret and sawdust. The Nokia survived a drop from my second-floor window. I cried. Five stars.</div>
+      <div class="guestbook-html-tag">&lt;/font&gt;&lt;/blink&gt;</div>
+      <div class="guestbook-sig">— PREPPERKING2000 <span class="guestbook-stars">★★★★★</span></div>
+    </div>
+
+    <div class="guestbook-entry fade-in">
+      <div class="guestbook-html-tag">&lt;marquee behavior="alternate"&gt;&lt;font color="red" size="5"&gt;</div>
+      <div class="guestbook-text" style="color:#ff3333;font-size:20px;">CHAD THUNDERCOCK'S KIT WAS TRASH. ESME UNDERSTANDS THAT DREAD IS THE ONLY REAL CURRENCY. I HAVE SPOKEN.</div>
+      <div class="guestbook-html-tag">&lt;/font&gt;&lt;/marquee&gt;</div>
+      <div class="guestbook-sig">— AnxietyQueen_Y2K <span class="guestbook-stars">★★★★★</span></div>
+    </div>
+
+    <div class="guestbook-entry fade-in">
+      <div class="guestbook-html-tag">&lt;center&gt;&lt;font color="#00ff41"&gt;</div>
+      <div class="guestbook-text">Gave the Esme kit to my therapist. She stared at the empty USB drive for a long time. We made a breakthrough. Insurance wouldn't cover it but honestly worth every penny.</div>
+      <div class="guestbook-html-tag">&lt;/font&gt;&lt;/center&gt;</div>
+      <div class="guestbook-sig">— digital_requiem_404 <span class="guestbook-stars">★★★★☆</span> (one star deducted for lack of AOL trial disc)</div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== FAQ + WEBCAM ===== -->
+<section id="faq">
+  <div class="container">
+    <h2 class="section-title glitch-heading" data-text="SHIPPING FAQ + BUNKER CAM">SHIPPING FAQ + BUNKER CAM</h2>
+
+    <div class="faq-webcam-split">
+      <div class="faq-section fade-in">
+        <div class="faq-item">
+          <div class="faq-q">Q: When will my order arrive?</div>
+          <div class="faq-a">A: Time is a construct that Y2K was supposed to destroy. We cannot guarantee linear delivery. Your package exists in a quantum state until observed by a postal worker.</div>
+        </div>
+        <div class="faq-item">
+          <div class="faq-q">Q: Can I return my kit?</div>
+          <div class="faq-a">A: You cannot return to the past. You cannot return the kit. These are related truths.</div>
+        </div>
+        <div class="faq-item">
+          <div class="faq-q">Q: Is the granola safe to eat?</div>
+          <div class="faq-a">A: Define "safe." Define "eat." The granola expired in 1999. So did certainty. We recommend treating it as a commemorative artifact, not a food source.</div>
+        </div>
+        <div class="faq-item">
+          <div class="faq-q">Q: Do you ship internationally?</div>
+          <div class="faq-a">A: Dread recognizes no borders. Yes, we ship internationally. Customs may flag "expired food items and dead electronics" but that's between you and your government.</div>
+        </div>
+        <div class="faq-item">
+          <div class="faq-q">Q: Where is Barnaby?</div>
+          <div class="faq-a">A: If we knew that, we wouldn't need this FAQ. Last credible sighting: a Linden Dollar exchange in 2007. We've stopped looking. He hasn't stopped hiding.</div>
+        </div>
+      </div>
+
+      <div class="fade-in">
+        <div style="font-size:12px;color:#4a5f8a;letter-spacing:0.15em;margin-bottom:8px;">BUNKER WEBCAM — LIVE FEED</div>
+        <div class="webcam-feed" id="webcamFeed">
+          <div class="webcam-static"></div>
+          <div class="webcam-scanline"></div>
+          <div class="webcam-crt-flash" id="crtFlash">
+            <div class="webcam-crt-monitor"></div>
+          </div>
+          <div class="webcam-live-dot">LIVE</div>
+          <div class="webcam-label">CAM-01 // BUNKER-WEST // 640x480</div>
+        </div>
+        <div style="font-size:11px;color:#4a5f8a;margin-top:6px;">Feed quality: Deplorable. Uptime: Intermittent. Content: Ambiguous.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== FOOTER ===== -->
+<footer>
+  <div class="container">
+    <p style="color:#00ff41;margin-bottom:8px;">RetroFutureNow.biz — Est. 2000 (by accident)</p>
+    <p>© 1999–∞ Esmeralda Choi, Sole Proprietor</p>
+    <p style="margin-top:8px;">Barnaby, if you're reading this: the rent is due and your Tamagotchi is dead.</p>
+    <p class="marker-text" style="margin-top:16px;">the dread is free. everything else ships in 6–8 weeks.</p>
+    <div style="margin-top:16px;display:flex;gap:8px;justify-content:center;">
+      <span class="broken-img-deco"></span>
+      <span class="broken-img-deco"></span>
+      <span class="broken-img-deco"></span>
+      <span class="broken-img-deco"></span>
+      <span class="broken-img-deco"></span>
+    </div>
+    <p style="margin-top:12px;font-size:11px;">Best viewed in Netscape Navigator 4.0 at 800x600 resolution.</p>
+  </div>
+</footer>
+
+<!-- ===== BOOMBOX ===== -->
+<div class="boombox-toggle" @click="showMidiModal = true" title="MIDI Player">
+  ♫
+</div>
+
+<!-- MIDI Modal -->
+<template x-if="showMidiModal">
+  <div class="midi-modal-backdrop" @click.self="showMidiModal = false">
+    <div class="midi-modal">
+      <h3>⚠ WARNING</h3>
+      <p>May induce existential dread, involuntary nostalgia, and the sudden urge to check if your Neopets are still alive.</p>
+      <div class="midi-modal-btns">
+        <button class="btn-play" @click="showMidiModal=false; midiPlaying=true">▶ PLAY</button>
+        <button class="btn-flee" @click="showMidiModal=false">✕ FLEE</button>
+      </div>
+    </div>
+  </div>
+</template>
+
+<!-- MIDI Player Bar -->
+<template x-if="midiPlaying">
+  <div class="midi-player">
+    <div class="midi-player-title">▶ tubthumping_final_FINAL_v3.mid</div>
+    <div class="midi-player-bar">
+      <div class="midi-player-progress"></div>
+    </div>
+    <div class="midi-waveform" x-ref="waveform"></div>
+  </div>
+</template>
+
+<script src="/assets/js/gsap.min.js"></script>
+<script src="/assets/js/alpine.min.js" defer></script>
+<script>
+document.addEventListener('alpine:init', function() {
+  Alpine.data('app', function() {
+    return {
+      counterDisplay: '99999+',
+      counterHover: false,
+      counterClicked: false,
+      bugName: '',
+      bugDescription: '',
+      bugResponse: false,
+      bugResponseText: '',
+      bugTyping: false,
+      showMidiModal: false,
+      midiPlaying: false,
+      counterInterval: null,
+      webcamInterval: null,
+
+      init() {
+        var self = this;
+
+        // Counter scramble
+        self.startCounterScramble();
+
+        // Webcam flicker
+        self.startWebcamFlicker();
+
+        // Generate pixel portraits
+        self.generatePixelPortraits();
+
+        // Generate waveform bars
+        self.$nextTick(function() {
+          self.initWaveform();
+        });
+
+        // Fade-in observer
+        self.initFadeObserver();
+
+        // Glitch heading observer
+        self.initGlitchObserver();
+      },
+
+      startCounterScramble: function() {
+        var self = this;
+        var digits = ['9','9','9','9','9','+'];
+        var locked = [false,false,false,false,false,true];
+
+        self.counterInterval = setInterval(function() {
+          if (self.counterClicked) return;
+          for (var i = 0; i < 5; i++) {
+            if (!locked[i]) {
+              digits[i] = String(Math.floor(Math.random() * 10));
+            }
+          }
+          // Occasionally lock/unlock a digit
+          if (Math.random() < 0.15) {
+            var idx = Math.floor(Math.random() * 5);
+            locked[idx] = !locked[idx];
+            if (locked[idx]) digits[idx] = '9';
+          }
+          self.counterDisplay = digits.join('');
+        }, 150);
+      },
+
+      counterClick: function() {
+        var self = this;
+        self.counterClicked = true;
+        self.counterDisplay = '000000';
+        setTimeout(function() {
+          self.counterClicked = false;
+        }, 800);
+      },
+
+      startWebcamFlicker: function() {
+        var flash = document.getElementById('crtFlash');
+        if (!flash) return;
+
+        function scheduleFlicker() {
+          var delay = 8000 + Math.random() * 4000;
+          setTimeout(function() {
+            flash.classList.add('visible');
+            setTimeout(function() {
+              flash.classList.remove('visible');
+              scheduleFlicker();
+            }, 300);
+          }, delay);
+        }
+        scheduleFlicker();
+      },
+
+      generatePixelPortraits: function() {
+        var portraits = {
+          'photo-esme': ['#e8d44d','#d4a574','#d4a574','#e8d44d','#1a1a1a','#d4a574','#d4a574','#1a1a1a','#d4a574','#d4a574','#d4a574','#d4a574','#d4a574','#d4a574','#d4a574','#d4a574','#d4a574','#1a1a1a','#d4a574','#d4a574','#d4a574','#d4a574','#1a1a1a','#d4a574','#d4a574','#d4a574','#d4a574','#d4a574','#d4a574','#d4a574','#d4a574','#d4a574','#d4a574','#d4a574','#ff3333','#d4a574','#d4a574','#ff3333','#d4a574','#d4a574','#d4a574','#d4a574','#d4a574','#d4a574','#d4a574','#d4a574','#d4a574','#d4a574','#00ff41','#00ff41','#00ff41','#00ff41','#00ff41','#00ff41','#00ff41','#00ff41','#141414','#00ff41','#141414','#00ff41','#00ff41','#141414','#00ff41','#141414'],
+          'photo-barnaby': ['#4a5f8a','#4a5f8a','#4a5f8a','#4a5f8a','#4a5f8a','#4a5f8a','#4a5f8a','#4a5f8a','#4a5f8a','#d4a574','#d4a574','#d4a574','#d4a574','#d4a574','#d4a574','#4a5f8a','#d4a574','#d4a574','#d4a574','#d4a574','#d4a574','#d4a574','#d4a574','#d4a574','#d4a574','#333','#d4a574','#d4a574','#d4a574','#d4a574','#333','#d4a574','#d4a574','#d4a574','#d4a574','#d4a574','#d4a574','#d4a574','#d4a574','#d4a574','#d4a574','#d4a574','#d4a574','#d4a574','#d4a574','#d4a574','#d4a574','#d4a574','#666','#666','#666','#666','#666','#666','#666','#666','#333','#333','#333','#333','#333','#333','#333','#333'],
+          'photo-brenda': ['#8b4513','#8b4513','#8b4513','#8b4513','#8b4513','#8b4513','#8b4513','#8b4513','#8b4513','#d4a574','#d4a574','#d4a574','#d4a574','#d4a574','#d4a574','#8b4513','#d4a574','#d4a574','#d4a574','#d4a574','#d4a574','#d4a574','#d4a574','#d4a574','#d4a574','#00ff41','#d4a574','#d4a574','#d4a574','#d4a574','#00ff41','#d4a574','#d4a574','#d4a574','#d4a574','#d4a574','#d4a574','#d4a574','#d4a574','#d4a574','#d4a574','#d4a574','#ff3333','#ff3333','#ff3333','#ff3333','#d4a574','#d4a574','#556b2f','#556b2f','#556b2f','#556b2f','#556b2f','#556b2f','#556b2f','#556b2f','#556b2f','#141414','#556b2f','#556b2f','#556b2f','#556b2f','#141414','#556b2f'],
+          'photo-kevin': ['#1a1a1a','#1a1a1a','#1a1a1a','#1a1a1a','#1a1a1a','#1a1a1a','#1a1a1a','#1a1a1a','#1a1a1a','#d4a574','#d4a574','#d4a574','#d4a574','#d4a574','#d4a574','#1a1a1a','#d4a574','#d4a574','#d4a574','#d4a574','#d4a574','#d4a574','#d4a574','#d4a574','#d4a574','#4a5f8a','#d4a574','#d4a574','#d4a574','#d4a574','#4a5f8a','#d4a574','#d4a574','#d4a574','#d4a574','#d4a574','#d4a574','#d4a574','#d4a574','#d4a574','#d4a574','#d4a574','#d4a574','#d4a574','#d4a574','#d4a574','#d4a574','#d4a574','#e8d44d','#e8d44d','#e8d44d','#e8d44d','#e8d44d','#e8d44d','#e8d44d','#e8d44d','#e8d44d','#141414','#e8d44d','#e8d44d','#e8d44d','#e8d44d','#141414','#e8d44d']
+        };
+
+        for (var id in portraits) {
+          var el = document.getElementById(id);
+          if (!el) continue;
+          var colors = portraits[id];
+          for (var i = 0; i < 64; i++) {
+            var span = document.createElement('span');
+            span.style.backgroundColor = colors[i] || '#333';
+            el.appendChild(span);
+          }
+        }
+      },
+
+      initWaveform: function() {
+        // Watch for waveform ref to appear
+        var self = this;
+        self.$watch('midiPlaying', function(val) {
+          if (val) {
+            self.$nextTick(function() {
+              var wf = self.$refs.waveform;
+              if (!wf || wf.children.length > 0) return;
+              for (var i = 0; i < 24; i++) {
+                var bar = document.createElement('span');
+                bar.style.animationDelay = (i * 0.08) + 's';
+                wf.appendChild(bar);
+              }
+            });
+          }
+        });
+      },
+
+      initFadeObserver: function() {
+        var fadeEls = document.querySelectorAll('.fade-in');
+        var observer = new IntersectionObserver(function(entries) {
+          entries.forEach(function(entry) {
+            if (entry.isIntersecting) {
+              gsap.fromTo(entry.target,
+                { opacity: 0, y: 20 },
+                { opacity: 1, y: 0, duration: 0.6, ease: 'power2.out' }
+              );
+              observer.unobserve(entry.target);
+            }
+          });
+        }, { threshold: 0.1 });
+
+        fadeEls.forEach(function(el) {
+          observer.observe(el);
+        });
+      },
+
+      initGlitchObserver: function() {
+        var headings = document.querySelectorAll('.glitch-heading');
+        var observer = new IntersectionObserver(function(entries) {
+          entries.forEach(function(entry) {
+            if (entry.isIntersecting) {
+              entry.target.classList.add('glitching');
+              setTimeout(function() {
+                entry.target.classList.remove('glitching');
+              }, 400);
+              observer.unobserve(entry.target);
+            }
+          });
+        }, { threshold: 0.3 });
+
+        headings.forEach(function(h) {
+          observer.observe(h);
+        });
+      },
+
+      addToBunker: function(event) {
+        var btn = event.target;
+        var original = btn.textContent;
+        btn.textContent = '[ ADDED TO BUNKER ]';
+        btn.style.background = '#e8d44d';
+        btn.style.borderColor = '#e8d44d';
+        setTimeout(function() {
+          btn.textContent = '[ ERROR: BUNKER FULL ]';
+          btn.style.background = '#ff3333';
+          btn.style.borderColor = '#ff3333';
+        }, 1200);
+        setTimeout(function() {
+          btn.textContent = original;
+          btn.style.background = '';
+          btn.style.borderColor = '';
+        }, 3000);
+      },
+
+      submitBug: function() {
+        var self = this;
+        if (self.bugTyping) return;
+        self.bugResponse = true;
+        self.bugResponseText = '';
+        self.bugTyping = true;
+
+        var msg = 'Thank you for your report. After careful review: $0.03 has been credited to your account. Current balance: $0.03. This credit expires 01/01/2000.';
+        var i = 0;
+
+        function typeChar() {
+          if (i < msg.length) {
+            self.bugResponseText += msg[i];
+            i++;
+            setTimeout(typeChar, 25);
+          } else {
+            self.bugTyping = false;
+          }
+        }
+        typeChar();
+      }
+    };
+  });
+});
+</script>
+
+</body>
+</html>

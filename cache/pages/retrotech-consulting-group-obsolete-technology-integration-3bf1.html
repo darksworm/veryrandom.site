@@ -1,0 +1,879 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>RetroTech Consulting Group — Obsolete Technology Integration</title>
+<link rel="stylesheet" href="/assets/css/fonts.css">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg: #1E1E1E;
+  --text: #F0E68C;
+  --accent: #FF4500;
+  --card-bg: #2F4F4F;
+  --muted: #A9A9A9;
+  --scanline: #3A5F3A;
+}
+
+html { scroll-behavior: smooth; }
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Work Sans', sans-serif;
+  font-size: 17px;
+  line-height: 1.65;
+  min-height: 100vh;
+  overflow-x: hidden;
+  position: relative;
+}
+
+/* CRT scanline overlay */
+body::after {
+  content: '';
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  height: 200vh;
+  pointer-events: none;
+  z-index: 9999;
+  background: repeating-linear-gradient(
+    0deg,
+    transparent,
+    transparent 2px,
+    rgba(58, 95, 58, 0.06) 2px,
+    rgba(58, 95, 58, 0.06) 4px
+  );
+  animation: scanlineDrift 200s linear infinite;
+}
+
+@keyframes scanlineDrift {
+  0% { transform: translateY(0); }
+  100% { transform: translateY(-50%); }
+}
+
+.page-wrap {
+  max-width: 720px;
+  margin: 0 auto;
+  padding: 3rem 1.25rem 4rem;
+  position: relative;
+}
+
+/* Typography */
+h1, h2, h3 { font-family: 'Fira Code', monospace; font-weight: 700; line-height: 1.25; }
+h1 { font-size: clamp(1.5rem, 4vw, 2.2rem); margin-bottom: 1rem; }
+h2 { font-size: clamp(1.2rem, 3vw, 1.6rem); margin-bottom: 1rem; color: var(--text); }
+h3 { font-size: 1.1rem; }
+
+.font-caveat { font-family: 'Caveat', cursive; }
+.font-mono { font-family: 'Fira Code', monospace; }
+
+.text-accent { color: var(--accent); }
+.text-muted { color: var(--muted); }
+
+p { margin-bottom: 1rem; }
+a { color: var(--accent); text-decoration: underline; }
+
+/* Dividers */
+hr {
+  border: none;
+  border-top: 2px dashed var(--scanline);
+  margin: 3rem 0;
+  opacity: 0.7;
+}
+
+/* Section fade-in */
+.fade-in {
+  opacity: 0;
+  transform: translateY(20px);
+}
+
+/* ═══ HEADER ═══ */
+.header-title {
+  display: inline;
+  position: relative;
+}
+
+.cursor-blink {
+  display: inline-block;
+  width: 0.6em;
+  height: 1.15em;
+  background: var(--text);
+  vertical-align: text-bottom;
+  animation: cursorBlink 1s step-end infinite;
+  margin-left: 4px;
+}
+
+@keyframes cursorBlink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0; }
+}
+
+.manifesto {
+  font-family: 'Fira Code', monospace;
+  font-size: 0.95rem;
+  line-height: 1.7;
+  margin: 1.5rem 0 1rem;
+  min-height: 5em;
+  white-space: pre-wrap;
+}
+
+.manifesto .char {
+  opacity: 0;
+  display: inline;
+}
+
+.manifesto .char.visible {
+  opacity: 1;
+}
+
+.esmerelda-line {
+  font-family: 'Caveat', cursive;
+  font-size: 1.25rem;
+  color: var(--muted);
+  font-style: italic;
+  margin-top: 1rem;
+}
+
+.esmerelda-line .text-accent {
+  color: var(--accent);
+}
+
+/* ═══ TECH LIST ═══ */
+.tech-list {
+  list-style: none;
+  padding: 0;
+  border: 1px solid var(--scanline);
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.tech-row {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: baseline;
+  padding: 0.75rem 1rem;
+  border-bottom: 1px solid rgba(58, 95, 58, 0.3);
+  transition: background 0.15s;
+  position: relative;
+  overflow: hidden;
+  gap: 0.25rem 1rem;
+}
+
+.tech-row:last-child { border-bottom: none; }
+
+.tech-row:hover {
+  background: rgba(58, 95, 58, 0.15);
+}
+
+.tech-row::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  opacity: 0;
+  pointer-events: none;
+  background: linear-gradient(90deg, transparent 0%, var(--text) 10%, transparent 11%, transparent 100%);
+  transition: none;
+}
+
+.tech-row.glitch::before {
+  animation: hGlitch 0.15s steps(2) forwards;
+}
+
+@keyframes hGlitch {
+  0% { opacity: 0.35; clip-path: inset(20% 0 60% 0); transform: translateX(-3px); }
+  33% { opacity: 0.25; clip-path: inset(50% 0 20% 0); transform: translateX(5px); }
+  66% { opacity: 0.15; clip-path: inset(10% 0 70% 0); transform: translateX(-2px); }
+  100% { opacity: 0; clip-path: inset(0 0 100% 0); transform: translateX(0); }
+}
+
+.tech-name {
+  font-family: 'Fira Code', monospace;
+  font-size: 0.9rem;
+  flex: 1 1 auto;
+  min-width: 200px;
+}
+
+.tech-year {
+  font-size: 0.8rem;
+  color: var(--muted);
+  white-space: nowrap;
+}
+
+.tech-status {
+  font-size: 0.85rem;
+  color: var(--text);
+  width: 100%;
+  padding-left: 1rem;
+  opacity: 0.92;
+}
+
+@media (min-width: 600px) {
+  .tech-status {
+    width: auto;
+    flex: 0 0 auto;
+    padding-left: 0;
+  }
+}
+
+/* ═══ ESSAY ═══ */
+.essay-block {
+  background: var(--card-bg);
+  border-left: 4px solid var(--accent);
+  padding: 2rem 1.5rem;
+  border-radius: 0 4px 4px 0;
+}
+
+.essay-block h2 {
+  font-size: clamp(1.05rem, 2.5vw, 1.35rem);
+  margin-bottom: 1.25rem;
+  line-height: 1.4;
+}
+
+.essay-block p {
+  font-size: 0.97rem;
+}
+
+.essay-block p:last-child {
+  margin-bottom: 0;
+}
+
+.esmerelda-quote {
+  font-family: 'Caveat', cursive;
+  font-size: 1.2rem;
+  color: var(--accent);
+  display: inline;
+}
+
+/* ═══ TEAM ═══ */
+.team-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1.25rem;
+}
+
+@media (min-width: 520px) {
+  .team-grid { grid-template-columns: 1fr 1fr; }
+}
+
+.team-card {
+  background: var(--card-bg);
+  border: 1px solid var(--scanline);
+  border-radius: 4px;
+  padding: 1.25rem;
+  position: relative;
+}
+
+.team-photo {
+  width: 100%;
+  height: 120px;
+  border-radius: 3px;
+  margin-bottom: 0.75rem;
+  position: relative;
+  overflow: hidden;
+}
+
+.team-photo-grain {
+  width: 100%;
+  height: 100%;
+  filter: grayscale(1) contrast(1.3);
+  background:
+    repeating-linear-gradient(0deg, rgba(0,0,0,0.15) 0px, transparent 1px, transparent 3px),
+    repeating-linear-gradient(90deg, rgba(0,0,0,0.1) 0px, transparent 1px, transparent 4px),
+    linear-gradient(135deg, #5a5a5a 0%, #3a3a3a 30%, #6a6a6a 50%, #4a4a4a 70%, #5a5a5a 100%);
+}
+
+.team-photo-static {
+  width: 100%;
+  height: 100%;
+  background:
+    repeating-linear-gradient(0deg, transparent, transparent 1px, rgba(255,255,255,0.03) 1px, rgba(255,255,255,0.03) 2px),
+    repeating-conic-gradient(#3a3a3a 0% 25%, #555 0% 50%) 0 0 / 4px 4px;
+  animation: staticNoise 0.3s steps(4) infinite;
+  filter: grayscale(1);
+}
+
+@keyframes staticNoise {
+  0% { background-position: 0 0, 0 0; }
+  25% { background-position: 0 0, -3px -2px; }
+  50% { background-position: 0 0, 2px -4px; }
+  75% { background-position: 0 0, -1px 3px; }
+  100% { background-position: 0 0, 4px -1px; }
+}
+
+.team-card h3 { margin-bottom: 0.15rem; font-size: 1rem; }
+.team-card .team-title {
+  font-size: 0.82rem;
+  color: var(--muted);
+  margin-bottom: 0.5rem;
+}
+
+.team-card .team-quote {
+  font-size: 0.85rem;
+  font-style: italic;
+  color: var(--text);
+  opacity: 0.92;
+}
+
+.annotation {
+  font-family: 'Caveat', cursive;
+  font-size: 1.15rem;
+  color: var(--accent);
+  margin-top: 0.5rem;
+}
+
+.leave-status {
+  font-size: 0.82rem;
+  color: var(--muted);
+  margin-top: 0.35rem;
+  font-style: italic;
+}
+
+/* ═══ TESTIMONIALS ═══ */
+.testimonial {
+  background: rgba(47, 79, 79, 0.4);
+  border-left: 4px solid var(--accent);
+  padding: 1.25rem 1.5rem;
+  margin-bottom: 1.25rem;
+  border-radius: 0 4px 4px 0;
+}
+
+.testimonial:nth-child(2) {
+  margin-left: 2rem;
+}
+
+@media (max-width: 520px) {
+  .testimonial:nth-child(2) { margin-left: 0.75rem; }
+}
+
+.testimonial blockquote {
+  font-size: 0.95rem;
+  margin-bottom: 0.75rem;
+  line-height: 1.6;
+}
+
+.testimonial .attribution {
+  font-family: 'Fira Code', monospace;
+  font-size: 0.78rem;
+  color: var(--muted);
+}
+
+/* ═══ NEWS ═══ */
+.news-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.news-card {
+  background: var(--card-bg);
+  border: 1px solid var(--scanline);
+  padding: 1.25rem 1.5rem;
+  border-radius: 3px;
+  cursor: pointer;
+  transition: transform 0.2s, box-shadow 0.2s;
+  position: relative;
+  min-height: 48px;
+}
+
+.news-card:nth-child(1) { transform: rotate(-0.8deg); }
+.news-card:nth-child(2) { transform: rotate(1.2deg); }
+.news-card:nth-child(3) { transform: rotate(-0.5deg); }
+
+.news-card:hover {
+  box-shadow: 0 2px 12px rgba(0,0,0,0.4);
+}
+
+.news-card h3 { font-size: 0.95rem; margin-bottom: 0.35rem; }
+.news-pub {
+  font-size: 0.8rem;
+  color: var(--muted);
+  margin-bottom: 0.4rem;
+}
+
+.news-excerpt {
+  font-size: 0.88rem;
+  opacity: 0.92;
+}
+
+.news-rip {
+  font-family: 'Caveat', cursive;
+  font-size: 1.05rem;
+  color: var(--muted);
+  margin-top: 0.75rem;
+  display: none;
+  opacity: 0;
+}
+
+.news-rip.show {
+  display: block;
+}
+
+/* ═══ FORM ═══ */
+.intake-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.form-group label {
+  font-family: 'Fira Code', monospace;
+  font-size: 0.85rem;
+  color: var(--muted);
+}
+
+.form-group input,
+.form-group textarea,
+.form-group select {
+  background: #1a1a1a;
+  border: 1px solid var(--scanline);
+  color: var(--text);
+  font-family: 'Work Sans', sans-serif;
+  font-size: 1rem;
+  padding: 0.65rem 0.75rem;
+  border-radius: 3px;
+  outline: none;
+  transition: border-color 0.2s;
+  min-height: 44px;
+}
+
+.form-group input:focus,
+.form-group textarea:focus,
+.form-group select:focus {
+  border-color: var(--accent);
+}
+
+.form-group textarea {
+  resize: vertical;
+  min-height: 80px;
+}
+
+.form-group select {
+  cursor: pointer;
+  -webkit-appearance: none;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='%23A9A9A9'%3E%3Cpath d='M6 8L1 3h10z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 0.75rem center;
+  padding-right: 2rem;
+}
+
+.form-group select option {
+  background: #1a1a1a;
+  color: var(--text);
+}
+
+.btn-transmit {
+  font-family: 'Fira Code', monospace;
+  font-size: 1rem;
+  font-weight: 700;
+  background: var(--accent);
+  color: #fff;
+  border: none;
+  padding: 0.8rem 2rem;
+  border-radius: 3px;
+  cursor: pointer;
+  letter-spacing: 2px;
+  transition: background 0.2s;
+  align-self: flex-start;
+  min-height: 48px;
+}
+
+.btn-transmit:hover {
+  background: #e03e00;
+}
+
+.form-invert {
+  animation: formInvert 0.5s ease;
+}
+
+@keyframes formInvert {
+  0% { filter: invert(1); }
+  100% { filter: invert(0); }
+}
+
+.baud-msg {
+  font-family: 'Caveat', cursive;
+  font-size: 1.1rem;
+  color: var(--accent);
+  margin-top: 0.25rem;
+  display: none;
+}
+
+.baud-msg.show { display: block; }
+
+/* ═══ FOOTER ═══ */
+.footer-line {
+  font-family: 'Caveat', cursive;
+  font-size: 1.3rem;
+  color: var(--muted);
+  text-align: center;
+  margin-top: 2rem;
+  padding-bottom: 1rem;
+}
+
+.footer-line .text-accent { color: var(--accent); }
+
+/* ═══ PULL QUOTE ═══ */
+.pull-quote {
+  font-family: 'Caveat', cursive;
+  font-size: 1.5rem;
+  color: var(--muted);
+  text-align: center;
+  padding: 1rem 2rem;
+  transform: rotate(-1.5deg);
+  margin: 0.5rem 0;
+  line-height: 1.4;
+}
+
+/* ═══ RESPONSIVE ═══ */
+@media (max-width: 480px) {
+  .page-wrap { padding: 2rem 1rem 3rem; }
+  .essay-block { padding: 1.25rem 1rem; }
+  .tech-name { min-width: auto; }
+  .pull-quote { font-size: 1.25rem; padding: 0.75rem 1rem; }
+}
+</style>
+</head>
+<body>
+
+<div class="page-wrap" x-data="retrotech()" x-init="">
+
+  <!-- ═══ HEADER ═══ -->
+  <section class="fade-in">
+    <h1>
+      <span class="header-title">RetroTech Consulting Group</span><span class="cursor-blink"></span>
+    </h1>
+    <div class="manifesto" id="manifesto" x-ref="manifesto">We help businesses integrate obsolete office technology into modern workflows — not because it's efficient, but because efficiency was never the point. For seven years we've been installing Wang word processors in coworking spaces and training interns on telex protocol, because somewhere between the cloud migration and the fourth Slack channel, work stopped making a sound you could trust. This is a consulting firm. This is also, if we're being honest, a memorial service.</div>
+    <p class="esmerelda-line">Co-founded with <span class="text-accent">Esmerelda Stern</span>, 2017. She's in Reno now. The modems remember.</p>
+  </section>
+
+  <hr>
+
+  <!-- ═══ SUPPORTED TECHNOLOGIES ═══ -->
+  <section class="fade-in">
+    <h2>> Supported Technologies_</h2>
+    <ul class="tech-list">
+      <li class="tech-row" @mouseenter="glitchRow($event)">
+        <span class="tech-name">Wang VS Word Processing System</span>
+        <span class="tech-year">c. 1981</span>
+        <span class="tech-status">— Currently Training New Staff</span>
+      </li>
+      <li class="tech-row" @mouseenter="glitchRow($event)">
+        <span class="tech-name">Telex Model 33 ASR</span>
+        <span class="tech-year">c. 1963</span>
+        <span class="tech-status">— Operational, Spiritually</span>
+      </li>
+      <li class="tech-row" @mouseenter="glitchRow($event)">
+        <span class="tech-name">IBM Selectric II Typewriter</span>
+        <span class="tech-year">c. 1971</span>
+        <span class="tech-status">— Ribbon Replaced Quarterly, Religiously</span>
+      </li>
+      <li class="tech-row" @mouseenter="glitchRow($event)">
+        <span class="tech-name">Novell NetWare 3.12</span>
+        <span class="tech-year">c. 1991</span>
+        <span class="tech-status">— For the Purist Networker</span>
+      </li>
+      <li class="tech-row" @mouseenter="glitchRow($event)">
+        <span class="tech-name">Epson MX-80 Dot Matrix Printer</span>
+        <span class="tech-year">c. 1980</span>
+        <span class="tech-status">— The Last Honest Sound</span>
+      </li>
+      <li class="tech-row" @mouseenter="glitchRow($event)">
+        <span class="tech-name">DEC VT100 Terminal</span>
+        <span class="tech-year">c. 1978</span>
+        <span class="tech-status">— Green Phosphor, Green With Envy</span>
+      </li>
+      <li class="tech-row" @mouseenter="glitchRow($event)">
+        <span class="tech-name">Rolodex Model 2254D</span>
+        <span class="tech-year">c. 1970</span>
+        <span class="tech-status">— CRM Before CRM Had Acronyms</span>
+      </li>
+      <li class="tech-row" @mouseenter="glitchRow($event)">
+        <span class="tech-name">Hayes Smartmodem 2400</span>
+        <span class="tech-year">c. 1987</span>
+        <span class="tech-status">— Esmerelda's Preferred Channel</span>
+      </li>
+      <li class="tech-row" @mouseenter="glitchRow($event)">
+        <span class="tech-name">Mimeograph Duplicator</span>
+        <span class="tech-year">c. 1954</span>
+        <span class="tech-status">— Smells Like Conviction</span>
+      </li>
+      <li class="tech-row" @mouseenter="glitchRow($event)">
+        <span class="tech-name">Dictaphone Dictation Belt System</span>
+        <span class="tech-year">c. 1947</span>
+        <span class="tech-status">— Your Voice, Physically Grooved Into Wax</span>
+      </li>
+    </ul>
+  </section>
+
+  <hr>
+
+  <!-- ═══ PULL QUOTE ═══ -->
+  <div class="pull-quote fade-in">
+    "Every tool we retired for being too slow took with it a version of thinking we haven't replaced."
+  </div>
+
+  <hr>
+
+  <!-- ═══ THE CASE AGAINST EFFICIENCY ═══ -->
+  <section class="fade-in">
+    <div class="essay-block">
+      <h2>The Unexpected Renaissance of Dot Matrix Printing: Why Your Memos Should Sound Like a Robot Crying</h2>
+      <p>At RetroTech, we advise clients to reintroduce impact printing into their document workflows — not as novelty, not as branding exercise, but as a genuine productivity intervention. The objections are predictable. "It's slower." Yes. "The output looks archaic." Correct. "My team will think I've lost my mind." Almost certainly. But consider: the average knowledge worker sends 47 digital communications per day and remembers the content of none of them. A dot matrix memo, by contrast, announces itself from two rooms away.</p>
+      <p>The physics matter here. An impact printer works by firing a vertical column of pins — typically 9 or 24 — against an ink-soaked ribbon, pressing each character into the page through literal force. The paper doesn't receive the text; it absorbs the impact. Each letter is a tiny controlled collision, 150 Hertz of contact between intention and medium. There's no buffer. No print queue purgatory. The document exists the moment the pin strikes, and everyone within earshot knows it. You can hear a dot matrix printer thinking, which is more than you can say for most of what happens in a modern office.</p>
+      <p>Esmerelda understood this before I did. She used to say the sound of a dot matrix printer was <span class="esmerelda-quote">"the last honest sound in an office — the sound of a machine that couldn't pretend it wasn't working."</span> I thought she was being poetic. She was being precise. She's in Reno now, building something with modems, and I'm here, still loading tractor-feed paper like it means something. It does.</p>
+    </div>
+  </section>
+
+  <hr>
+
+  <!-- ═══ THE TEAM ═══ -->
+  <section class="fade-in">
+    <h2>> Team_</h2>
+    <div class="team-grid">
+      <div class="team-card">
+        <div class="team-photo"><div class="team-photo-grain"></div></div>
+        <h3>Barnaby Finch</h3>
+        <div class="team-title">Chief Obsolescence Officer</div>
+        <div class="team-quote">"The computer was born to solve problems that did not exist before." — Bill Gates</div>
+        <div class="annotation">Still here.</div>
+      </div>
+      <div class="team-card">
+        <div class="team-photo"><div class="team-photo-static"></div></div>
+        <h3 class="text-accent">Esmerelda Stern</h3>
+        <div class="team-title">Analog Integration Visionary</div>
+        <div class="team-quote">"The question of whether a computer can think is no more interesting than the question of whether a submarine can swim." — Dijkstra</div>
+        <div class="leave-status">On indefinite leave — Reno, NV.</div>
+      </div>
+      <div class="team-card">
+        <div class="team-photo"><div class="team-photo-grain"></div></div>
+        <h3>Margaret "Peggy" Tolliver</h3>
+        <div class="team-title">Cassette Futurism Evangelist</div>
+        <div class="team-quote">"The best way to predict the future is to invent it." — Alan Kay</div>
+      </div>
+      <div class="team-card">
+        <div class="team-photo"><div class="team-photo-grain"></div></div>
+        <h3>Dennis Rutherford III</h3>
+        <div class="team-title">Legacy Protocol Liaison</div>
+        <div class="team-quote">"Inside every large program is a small program struggling to get out." — Tony Hoare</div>
+      </div>
+    </div>
+  </section>
+
+  <hr>
+
+  <!-- ═══ TESTIMONIALS ═══ -->
+  <section class="fade-in">
+    <h2>> Client Transmissions_</h2>
+    <div class="testimonial">
+      <blockquote>"We hired RetroTech to install a telex machine in our open-plan office. Productivity dropped 12%. Morale increased immeasurably. For the first time in six years, people looked up from their screens when someone had something to say. I don't know what we lost when we got fast, but I felt it come back."</blockquote>
+      <div class="attribution">— Patricia Voss, COO, Voss & Meridian Supply Chain Partners</div>
+    </div>
+    <div class="testimonial">
+      <blockquote>"Barnaby set up a Wang terminal in our conference room. My board thought it was a joke. Then our lead engineer typed a proposal on it — slowly, deliberately, each word chosen because backspace was expensive — and it was the clearest memo anyone had written in a decade. Cryptic? Maybe. Effective? Baron Von Richter doesn't use that word lightly."</blockquote>
+      <div class="attribution">— Baron Klaus Von Richter, Founder, Von Richter Aerospace Consulting</div>
+    </div>
+    <div class="testimonial">
+      <blockquote>"They put a Rolodex on every desk. My sales team laughed. Then the CRM went down for three days and the only people still closing deals were the ones who'd actually written the numbers down. We've kept the Rolodexes. We've also kept the CRM, but nobody trusts it anymore, which feels like progress."</blockquote>
+      <div class="attribution">— Juniper Blackwell, VP Sales, Halcyon Data Brokers Inc.</div>
+    </div>
+  </section>
+
+  <hr>
+
+  <!-- ═══ RETROTECH IN THE NEWS ═══ -->
+  <section class="fade-in">
+    <h2>> Press Coverage_</h2>
+    <div class="news-grid">
+      <div class="news-card" @click="toggleNews(0)">
+        <div class="news-pub">The Floppy Disk Quarterly — March 2019</div>
+        <h3>"RetroTech Consulting: Luddites, or the Only Honest People Left in Enterprise?"</h3>
+        <p class="news-excerpt">"Finch's team doesn't sell nostalgia. They sell friction — and in an economy addicted to frictionlessness, that might be the most disruptive thing going."</p>
+        <div class="news-rip" :class="{ show: newsOpen[0] }">This publication ceased printing in 2020. We miss it.</div>
+      </div>
+      <div class="news-card" @click="toggleNews(1)">
+        <div class="news-pub">Analog Automation Today — November 2018</div>
+        <h3>"Why One Consulting Firm Is Betting Against the Cloud"</h3>
+        <p class="news-excerpt">"When asked about scalability, Finch paused for eleven seconds — we counted — and said, 'The Selectric scales to exactly one user, and that user is paying attention.'"</p>
+        <div class="news-rip" :class="{ show: newsOpen[1] }">This publication ceased printing in 2019. We miss it.</div>
+      </div>
+      <div class="news-card" @click="toggleNews(2)">
+        <div class="news-pub">Mimeograph Monthly — June 2017</div>
+        <h3>"Stern & Finch Launch Consultancy Dedicated to 'Making Work Audible Again'"</h3>
+        <p class="news-excerpt">"Co-founder Esmerelda Stern described the venture as 'a consulting firm for people who remember what their own handwriting looks like.'"</p>
+        <div class="news-rip" :class="{ show: newsOpen[2] }">This publication ceased printing in 2017. The final issue featured us. We miss it most.</div>
+      </div>
+    </div>
+  </section>
+
+  <hr>
+
+  <!-- ═══ CONTACT / INTAKE ═══ -->
+  <section class="fade-in">
+    <h2>> Intake Form_</h2>
+    <p class="text-muted" style="font-size:0.9rem; margin-bottom:1.25rem;">All submissions processed via thermal printer. Response time: 3-5 business days, weather permitting.</p>
+    <form class="intake-form" :class="{ 'form-invert': formInverting }" @submit.prevent="submitForm()">
+      <div class="form-group">
+        <label for="f-name">Name</label>
+        <input type="text" id="f-name" placeholder="Your full legal name or preferred alias" x-model="form.name">
+      </div>
+      <div class="form-group">
+        <label for="f-company">Company</label>
+        <input type="text" id="f-company" placeholder="Organization, LLC, or lonely endeavor" x-model="form.company">
+      </div>
+      <div class="form-group">
+        <label for="f-suffering">Describe your current workflow suffering</label>
+        <textarea id="f-suffering" placeholder="Be specific. We've heard everything except a good reason to use Jira." x-model="form.suffering"></textarea>
+      </div>
+      <div class="form-group">
+        <label for="f-baud">Preferred Modem Baud Rate <span class="text-accent">*</span></label>
+        <select id="f-baud" required x-model="form.baud" @change="checkBaud()">
+          <option value="" disabled selected>Select transmission speed...</option>
+          <option value="300">300 baud</option>
+          <option value="1200">1200 baud</option>
+          <option value="2400">2400 baud</option>
+          <option value="9600">9600 baud</option>
+          <option value="14400">14400 baud</option>
+          <option value="unworthy">I don't deserve connectivity</option>
+        </select>
+        <div class="baud-msg" :class="{ show: baudTriggered }">Acknowledged. Barnaby has been notified.</div>
+      </div>
+      <button type="submit" class="btn-transmit">TRANSMIT</button>
+    </form>
+    <div class="footer-line">If you reach <span class="text-accent">Esmerelda</span> before I do, tell her the Selectric still works.</div>
+  </section>
+
+</div>
+
+<script src="/assets/js/gsap.min.js"></script>
+<script src="/assets/js/alpine.min.js" defer></script>
+<script>
+document.addEventListener('alpine:init', function() {
+  Alpine.data('retrotech', function() {
+    return {
+      newsOpen: [false, false, false],
+      form: { name: '', company: '', suffering: '', baud: '' },
+      baudTriggered: false,
+      formInverting: false,
+      manifestoAnimated: false,
+
+      init: function() {
+        this.initFadeInObserver();
+        this.initManifestoObserver();
+      },
+
+      glitchRow: function(e) {
+        var row = e.currentTarget;
+        row.classList.remove('glitch');
+        void row.offsetWidth;
+        row.classList.add('glitch');
+        setTimeout(function() { row.classList.remove('glitch'); }, 200);
+      },
+
+      toggleNews: function(idx) {
+        var self = this;
+        if (self.newsOpen[idx]) return;
+        var updated = self.newsOpen.slice();
+        updated[idx] = true;
+        self.newsOpen = updated;
+        // Animate the rip message
+        var card = document.querySelectorAll('.news-card')[idx];
+        if (card) {
+          var rip = card.querySelector('.news-rip');
+          if (rip) {
+            gsap.fromTo(rip, { opacity: 0, y: 5 }, { opacity: 1, y: 0, duration: 0.4, ease: 'power2.out' });
+          }
+        }
+      },
+
+      checkBaud: function() {
+        var self = this;
+        if (self.form.baud === 'unworthy') {
+          self.formInverting = true;
+          self.baudTriggered = true;
+          setTimeout(function() { self.formInverting = false; }, 500);
+        } else {
+          self.baudTriggered = false;
+        }
+      },
+
+      submitForm: function() {
+        // The form doesn't go anywhere. The transmission was the point.
+      },
+
+      initFadeInObserver: function() {
+        var sections = document.querySelectorAll('.fade-in');
+        var observer = new IntersectionObserver(function(entries) {
+          entries.forEach(function(entry) {
+            if (entry.isIntersecting) {
+              gsap.fromTo(entry.target,
+                { opacity: 0, y: 20 },
+                { opacity: 1, y: 0, duration: 0.7, ease: 'power2.out' }
+              );
+              observer.unobserve(entry.target);
+            }
+          });
+        }, { threshold: 0.12 });
+        sections.forEach(function(s) { observer.observe(s); });
+      },
+
+      initManifestoObserver: function() {
+        var self = this;
+        var el = document.getElementById('manifesto');
+        if (!el) return;
+
+        var text = el.textContent;
+        el.textContent = '';
+
+        // Build char spans
+        var chars = [];
+        for (var i = 0; i < text.length; i++) {
+          var span = document.createElement('span');
+          span.className = 'char';
+          span.textContent = text[i];
+          el.appendChild(span);
+          chars.push(span);
+        }
+
+        var observer = new IntersectionObserver(function(entries) {
+          entries.forEach(function(entry) {
+            if (entry.isIntersecting && !self.manifestoAnimated) {
+              self.manifestoAnimated = true;
+              observer.unobserve(entry.target);
+              self.typeManifesto(chars);
+            }
+          });
+        }, { threshold: 0.2 });
+        observer.observe(el);
+      },
+
+      typeManifesto: function(chars) {
+        var i = 0;
+        var interval = setInterval(function() {
+          if (i >= chars.length) {
+            clearInterval(interval);
+            return;
+          }
+          chars[i].classList.add('visible');
+          // Slight letter-spacing jitter
+          if (i > 0 && Math.random() > 0.7) {
+            chars[i].style.letterSpacing = (Math.random() * 1.5 - 0.5) + 'px';
+          }
+          i++;
+        }, 28);
+      }
+    };
+  });
+});
+</script>
+</body>
+</html>

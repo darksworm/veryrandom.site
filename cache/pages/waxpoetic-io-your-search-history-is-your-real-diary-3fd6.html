@@ -1,0 +1,1121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>WaxPoetic.io — Your Search History Is Your Real Diary</title>
+<link rel="stylesheet" href="/assets/css/fonts.css">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bone: #F2EBD3;
+  --kelp: #3B351E;
+  --rose: #D99993;
+  --card-bg: #E8DFC5;
+  --terminal-bg: #2E2A17;
+  --scanline: rgba(59, 53, 30, 0.03);
+}
+
+html { scroll-behavior: smooth; }
+
+body {
+  font-family: 'Fira Code', monospace;
+  background: var(--bone);
+  color: var(--kelp);
+  font-size: 16px;
+  line-height: 1.6;
+  overflow-x: hidden;
+  cursor: default;
+}
+
+/* Scanline overlay */
+body::after {
+  content: '';
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  pointer-events: none;
+  z-index: 9998;
+  background: repeating-linear-gradient(
+    0deg,
+    var(--scanline) 0px,
+    var(--scanline) 1px,
+    transparent 1px,
+    transparent 4px
+  );
+  animation: scanlineScroll 8s linear infinite;
+}
+body.parsing-active::after { animation-play-state: paused; }
+
+@keyframes scanlineScroll {
+  0% { transform: translateY(0); }
+  100% { transform: translateY(40px); }
+}
+
+/* Cursor shapeshifter */
+@keyframes cursorCycle { 0%,100% { cursor: default; } }
+
+.cursor-cookie { cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24'%3E%3Ccircle cx='12' cy='12' r='10' fill='%23D99993'/%3E%3Ccircle cx='8' cy='9' r='2' fill='%233B351E'/%3E%3Ccircle cx='14' cy='7' r='1.5' fill='%233B351E'/%3E%3Ccircle cx='10' cy='15' r='1.5' fill='%233B351E'/%3E%3Ccircle cx='16' cy='13' r='1' fill='%233B351E'/%3E%3C/svg%3E") 12 12, auto; }
+.cursor-magnify { cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24'%3E%3Ccircle cx='10' cy='10' r='7' fill='none' stroke='%233B351E' stroke-width='2'/%3E%3Cline x1='15' y1='15' x2='21' y2='21' stroke='%233B351E' stroke-width='2'/%3E%3C/svg%3E") 12 12, auto; }
+.cursor-heart { cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24'%3E%3Cpath d='M12 21l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.18L12 21z' fill='%23D99993'/%3E%3C/svg%3E") 12 12, auto; }
+.cursor-tab { cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24'%3E%3Crect x='2' y='4' width='20' height='16' rx='2' fill='none' stroke='%233B351E' stroke-width='2'/%3E%3Crect x='2' y='4' width='8' height='5' rx='1' fill='%233B351E'/%3E%3C/svg%3E") 12 12, auto; }
+.cursor-question { cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24'%3E%3Ccircle cx='12' cy='12' r='10' fill='%23D99993'/%3E%3Ctext x='12' y='17' text-anchor='middle' fill='%233B351E' font-size='14' font-weight='bold'%3E%3F%3C/text%3E%3C/svg%3E") 12 12, auto; }
+
+h1, h2, h3, h4 {
+  font-family: 'DM Serif Display', serif;
+  color: var(--kelp);
+  line-height: 1.2;
+}
+
+.container {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 20px;
+  position: relative;
+}
+
+/* Panel base styles */
+.panel {
+  background: var(--card-bg);
+  border: 2px solid var(--kelp);
+  border-radius: 4px;
+  box-shadow: 6px 6px 0 rgba(59, 53, 30, 0.15);
+  margin-bottom: 40px;
+  position: relative;
+  opacity: 0;
+  transform: rotate(0deg) translateY(30px);
+}
+.panel.visible {
+  opacity: 1;
+  transform: rotate(var(--rot, 0deg)) translateY(0);
+  transition: opacity 0.6s ease, transform 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.panel-titlebar {
+  background: var(--kelp);
+  color: var(--bone);
+  padding: 6px 12px;
+  font-size: 12px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  user-select: none;
+}
+.panel-titlebar .dots {
+  display: flex;
+  gap: 4px;
+}
+.panel-titlebar .dot {
+  width: 10px; height: 10px;
+  border-radius: 50%;
+  background: var(--rose);
+}
+.panel-titlebar .dot:nth-child(2) { background: #C4B88A; }
+.panel-titlebar .dot:nth-child(3) { background: #8A9E6B; }
+.panel-body { padding: 24px; }
+
+/* Sticky note style */
+.sticky-note {
+  background: #F5E6A0;
+  padding: 16px 20px;
+  font-family: 'Caveat', cursive;
+  font-size: 20px;
+  color: var(--kelp);
+  box-shadow: 3px 3px 8px rgba(59, 53, 30, 0.2);
+  position: relative;
+  line-height: 1.4;
+}
+.sticky-note::before {
+  content: '';
+  position: absolute;
+  top: -6px; left: 50%;
+  transform: translateX(-50%);
+  width: 40px; height: 12px;
+  background: rgba(59, 53, 30, 0.15);
+  border-radius: 2px;
+}
+
+/* Annotation in Caveat */
+.anya-note {
+  font-family: 'Caveat', cursive;
+  font-size: 20px;
+  color: var(--kelp);
+}
+
+/* ============ HERO ============ */
+.hero {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 40px 20px;
+  position: relative;
+  animation: warmCRT 6s ease-in-out infinite alternate;
+}
+@keyframes warmCRT {
+  0% { background-color: var(--bone); }
+  100% { background-color: #EDE5CB; }
+}
+
+.hero-logo {
+  font-family: 'DM Serif Display', serif;
+  font-size: clamp(48px, 10vw, 80px);
+  color: var(--kelp);
+  margin-bottom: 8px;
+  letter-spacing: -1px;
+}
+.hero-logo span { color: var(--rose); }
+.hero-tagline {
+  font-family: 'Caveat', cursive;
+  font-size: clamp(22px, 5vw, 32px);
+  color: var(--kelp);
+  margin-bottom: 40px;
+}
+.hero-cursor {
+  display: inline-block;
+  width: 2px;
+  height: 1em;
+  background: var(--rose);
+  margin-left: 4px;
+  animation: blink 1s step-end infinite;
+  vertical-align: text-bottom;
+}
+@keyframes blink { 0%,100% { opacity: 1; } 50% { opacity: 0; } }
+
+.btn-parse {
+  font-family: 'Fira Code', monospace;
+  font-size: 18px;
+  background: var(--kelp);
+  color: var(--bone);
+  border: none;
+  padding: 16px 32px;
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+  min-height: 52px;
+  min-width: 200px;
+  transition: background 0.2s;
+}
+.btn-parse:hover { background: var(--rose); color: var(--kelp); }
+.btn-parse:active { transform: scale(0.98); }
+
+.hero-version {
+  margin-top: 20px;
+  font-size: 11px;
+  color: #6B6343;
+}
+
+/* ============ PARSING THEATER ============ */
+.parsing-section { --rot: -1.2deg; margin-left: -10px; }
+
+.progress-row {
+  margin-bottom: 16px;
+}
+.progress-label {
+  font-size: 13px;
+  margin-bottom: 4px;
+  display: flex;
+  justify-content: space-between;
+}
+.progress-bar {
+  height: 20px;
+  background: var(--bone);
+  border: 1px solid var(--kelp);
+  border-radius: 2px;
+  overflow: hidden;
+  position: relative;
+}
+.progress-fill {
+  height: 100%;
+  background: var(--rose);
+  width: 0%;
+  transition: width 0.15s ease;
+  border-radius: 1px;
+}
+
+.parse-log {
+  background: var(--terminal-bg);
+  color: #C4B88A;
+  font-size: 13px;
+  padding: 16px;
+  height: 140px;
+  overflow: hidden;
+  border-radius: 2px;
+  margin: 16px 0;
+  position: relative;
+  font-family: 'Fira Code', monospace;
+  line-height: 1.5;
+}
+.parse-log-inner {
+  position: absolute;
+  bottom: 16px;
+  left: 16px;
+  right: 16px;
+}
+
+.affirmation-card {
+  border: 3px solid var(--rose);
+  background: var(--bone);
+  padding: 28px 24px;
+  text-align: center;
+  border-radius: 4px;
+  box-shadow: 0 0 20px rgba(217, 153, 147, 0.3);
+  opacity: 0;
+  transform: scale(0.95);
+  transition: opacity 0.5s, transform 0.5s;
+}
+.affirmation-card.show {
+  opacity: 1;
+  transform: scale(1);
+}
+.affirmation-card h3 {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 3px;
+  margin-bottom: 12px;
+  color: var(--rose);
+  font-family: 'Fira Code', monospace;
+}
+.affirmation-text {
+  font-family: 'DM Serif Display', serif;
+  font-size: clamp(20px, 3.5vw, 28px);
+  color: var(--kelp);
+  line-height: 1.4;
+  animation: glowPulse 3s ease-in-out infinite;
+}
+@keyframes glowPulse {
+  0%, 100% { text-shadow: 0 0 0 transparent; }
+  50% { text-shadow: 0 0 12px rgba(217, 153, 147, 0.4); }
+}
+
+.parse-hidden { display: none; }
+
+/* ============ INSIGHTS DASHBOARD ============ */
+.insights-section { --rot: 0.8deg; margin-right: -15px; }
+
+.insights-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 16px;
+}
+@media (min-width: 600px) {
+  .insights-grid { grid-template-columns: 1fr 1fr 1fr; }
+}
+
+.insight-card {
+  background: var(--bone);
+  border: 1px solid var(--kelp);
+  padding: 20px 16px;
+  position: relative;
+  min-height: 160px;
+}
+.insight-card-header {
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  margin-bottom: 12px;
+  color: #6B6343;
+}
+.insight-card-text {
+  font-family: 'DM Serif Display', serif;
+  font-size: 16px;
+  line-height: 1.4;
+  min-height: 80px;
+}
+.insight-confidence {
+  font-size: 11px;
+  color: var(--rose);
+  margin-top: 12px;
+}
+
+.insights-annotation {
+  position: relative;
+  margin-top: 16px;
+  text-align: right;
+  padding-right: 10px;
+}
+
+/* ============ HOW IT WORKS ============ */
+.howitworks-section { --rot: -0.6deg; margin-left: -20px; }
+
+.terminal-panel .panel-body {
+  background: var(--terminal-bg);
+  color: #C4B88A;
+}
+
+.step-row {
+  display: flex;
+  gap: 16px;
+  align-items: flex-start;
+  margin-bottom: 24px;
+  padding-bottom: 24px;
+  border-bottom: 1px solid rgba(196, 184, 138, 0.15);
+}
+.step-row:last-of-type { border-bottom: none; margin-bottom: 0; padding-bottom: 0; }
+
+.step-icon {
+  flex-shrink: 0;
+  width: 40px; height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24px;
+  background: rgba(196, 184, 138, 0.1);
+  border-radius: 4px;
+}
+.step-content { flex: 1; }
+.step-number {
+  font-size: 11px;
+  color: var(--rose);
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  margin-bottom: 4px;
+}
+.step-title {
+  font-family: 'DM Serif Display', serif;
+  font-size: 20px;
+  color: var(--bone);
+  margin-bottom: 6px;
+}
+.step-desc {
+  font-size: 14px;
+  color: #A09672;
+  line-height: 1.5;
+}
+
+.terminal-disclaimer {
+  font-size: 10px;
+  color: #6B6343;
+  margin-top: 20px;
+  padding-top: 16px;
+  border-top: 1px solid rgba(196, 184, 138, 0.15);
+  line-height: 1.5;
+}
+
+/* ============ GHOSTFOX ============ */
+.ghostfox-section { --rot: 1.5deg; margin-right: -10px; }
+
+.ghostfox-header {
+  text-align: center;
+  margin-bottom: 20px;
+}
+.ghostfox-header h2 {
+  font-size: clamp(24px, 4vw, 36px);
+  margin-bottom: 4px;
+}
+.ghostfox-header .subtitle {
+  font-size: 14px;
+  color: #6B6343;
+}
+.ghostfox-badge {
+  display: inline-block;
+  background: var(--rose);
+  color: var(--kelp);
+  font-size: 11px;
+  font-weight: bold;
+  padding: 2px 8px;
+  border-radius: 2px;
+  margin-bottom: 12px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+.ghostfox-compat {
+  text-align: center;
+  font-size: 13px;
+  margin-bottom: 20px;
+  color: #6B6343;
+}
+.btn-ghostfox {
+  display: block;
+  width: 100%;
+  max-width: 320px;
+  margin: 0 auto 20px;
+  font-family: 'Fira Code', monospace;
+  font-size: 16px;
+  background: var(--kelp);
+  color: var(--bone);
+  border: none;
+  padding: 14px 24px;
+  cursor: pointer;
+  min-height: 48px;
+  transition: background 0.2s;
+}
+.btn-ghostfox:hover:not(:disabled) { background: var(--rose); color: var(--kelp); }
+.btn-ghostfox:disabled { opacity: 0.6; cursor: not-allowed; }
+
+.ghostfox-rating {
+  text-align: center;
+  font-size: 20px;
+  margin-bottom: 8px;
+}
+.ghostfox-rating-text {
+  text-align: center;
+  font-size: 12px;
+  color: #6B6343;
+  margin-bottom: 20px;
+}
+.ghostfox-testimonial {
+  background: var(--bone);
+  border-left: 3px solid var(--rose);
+  padding: 16px;
+  font-style: italic;
+  font-size: 14px;
+}
+.ghostfox-testimonial cite {
+  display: block;
+  margin-top: 8px;
+  font-style: normal;
+  font-size: 12px;
+  color: #6B6343;
+}
+
+/* Error modal */
+.modal-overlay {
+  display: none;
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(59, 53, 30, 0.5);
+  z-index: 9999;
+  align-items: center;
+  justify-content: center;
+}
+.modal-overlay.active { display: flex; }
+.modal-box {
+  background: var(--card-bg);
+  border: 2px solid var(--kelp);
+  padding: 0;
+  max-width: 400px;
+  width: 90%;
+  box-shadow: 8px 8px 0 rgba(59, 53, 30, 0.2);
+}
+.modal-box-titlebar {
+  background: var(--kelp);
+  color: var(--bone);
+  padding: 6px 12px;
+  font-size: 12px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.modal-box-body {
+  padding: 24px;
+  text-align: center;
+}
+.modal-box-body p {
+  font-size: 16px;
+  margin-bottom: 20px;
+}
+.modal-box-body .error-icon {
+  font-size: 40px;
+  margin-bottom: 12px;
+}
+.btn-modal-ok {
+  font-family: 'Fira Code', monospace;
+  font-size: 14px;
+  background: var(--kelp);
+  color: var(--bone);
+  border: none;
+  padding: 10px 32px;
+  cursor: pointer;
+  min-height: 44px;
+  transition: background 0.2s;
+}
+.btn-modal-ok:hover { background: var(--rose); color: var(--kelp); }
+
+/* ============ COMMUNITY CONFESSIONS ============ */
+.confessions-section { --rot: -0.9deg; margin-left: -5px; }
+
+.confessions-board {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 16px;
+  position: relative;
+}
+@media (min-width: 600px) {
+  .confessions-board { grid-template-columns: 1fr 1fr; }
+}
+
+.confession-post {
+  padding: 16px;
+  font-size: 14px;
+  line-height: 1.5;
+  position: relative;
+}
+.confession-post.sticky {
+  background: #F5E6A0;
+  transform: rotate(var(--crot, 0deg));
+  box-shadow: 3px 3px 8px rgba(59, 53, 30, 0.15);
+}
+.confession-post.forum {
+  background: var(--bone);
+  border: 1px solid var(--kelp);
+}
+.confession-post.screenshot {
+  background: #fff;
+  border: 2px solid #ccc;
+  padding: 0;
+}
+.confession-post.screenshot .screenshot-bar {
+  background: #e0e0e0;
+  padding: 4px 8px;
+  font-size: 10px;
+  color: #666;
+  display: flex;
+  gap: 4px;
+  align-items: center;
+}
+.confession-post.screenshot .screenshot-bar .sdot {
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  background: #ccc;
+}
+.confession-post.screenshot .screenshot-inner {
+  padding: 12px;
+  background: var(--bone);
+  border: 1px solid #ddd;
+  margin: 8px;
+  font-size: 13px;
+}
+.confession-author {
+  font-size: 11px;
+  color: #6B6343;
+  margin-top: 8px;
+}
+.confession-handle { color: var(--rose); }
+
+.donate-callout {
+  background: var(--kelp);
+  color: var(--bone);
+  padding: 16px 20px;
+  font-size: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+.donate-callout span { flex: 1; min-width: 150px; }
+.toggle-track {
+  width: 48px; height: 26px;
+  background: #6B6343;
+  border-radius: 13px;
+  position: relative;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: background 0.3s;
+  border: none;
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+  padding: 0 2px;
+}
+.toggle-track.on { background: var(--rose); }
+.toggle-knob {
+  width: 22px; height: 22px;
+  background: var(--bone);
+  border-radius: 50%;
+  transition: transform 0.3s;
+  pointer-events: none;
+}
+.toggle-track.on .toggle-knob { transform: translateX(22px); }
+.donate-thanks {
+  font-family: 'Caveat', cursive;
+  font-size: 18px;
+  color: var(--rose);
+  margin-left: 8px;
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+.donate-thanks.show { opacity: 1; }
+
+/* ============ FOOTER ============ */
+.footer-section {
+  padding: 60px 20px 40px;
+  text-align: center;
+  max-width: 600px;
+  margin: 0 auto;
+}
+.footer-note {
+  font-family: 'Caveat', cursive;
+  font-size: clamp(20px, 3.5vw, 24px);
+  color: var(--kelp);
+  line-height: 1.5;
+  margin-bottom: 40px;
+}
+.footer-legal {
+  font-size: 11px;
+  color: #6B6343;
+}
+.footer-legal a {
+  color: #6B6343;
+  text-decoration: underline;
+}
+
+/* ============ RESPONSIVE ============ */
+@media (max-width: 768px) {
+  .panel {
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+    transform: rotate(0deg) translateY(30px) !important;
+  }
+  .panel.visible {
+    transform: rotate(0deg) translateY(0) !important;
+  }
+  .panel-body { padding: 16px; }
+  .step-row { flex-direction: column; gap: 8px; }
+  .insight-card { min-height: auto; }
+}
+
+@media (max-width: 480px) {
+  .container { padding: 12px; }
+  .confessions-board { grid-template-columns: 1fr; }
+  .insights-grid { grid-template-columns: 1fr; }
+}
+</style>
+</head>
+<body x-data="waxPoetic()">
+<div class="container">
+
+  <!-- ====== HERO ====== -->
+  <section class="hero">
+    <div class="hero-logo">Wax<span>Poetic</span>.io</div>
+    <div class="hero-tagline">your search history is your real diary<span class="hero-cursor"></span></div>
+    <button class="btn-parse" @click="startParsing()" x-text="parseButtonText" :disabled="isParsing"></button>
+    <div class="hero-version">v3.1.4 — now reading 47% more regret</div>
+  </section>
+
+  <!-- ====== PARSING THEATER ====== -->
+  <div class="panel parsing-section" style="--rot: -1.2deg" x-ref="parsingPanel">
+    <div class="panel-titlebar">
+      <div class="dots"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>
+      <span>WaxPoetic — Parsing Engine v3.1</span>
+    </div>
+    <div class="panel-body">
+      <div class="progress-row">
+        <div class="progress-label"><span>Cookie Chronology</span><span x-text="progressA + '%'"></span></div>
+        <div class="progress-bar"><div class="progress-fill" :style="'width:' + progressA + '%'"></div></div>
+      </div>
+      <div class="progress-row">
+        <div class="progress-label"><span>Search Sentiment</span><span x-text="progressB + '%'"></span></div>
+        <div class="progress-bar"><div class="progress-fill" :style="'width:' + progressB + '%'"></div></div>
+      </div>
+      <div class="progress-row">
+        <div class="progress-label"><span>Habitual Highlights</span><span x-text="progressC + '%'"></span></div>
+        <div class="progress-bar"><div class="progress-fill" :style="'width:' + progressC + '%'"></div></div>
+      </div>
+
+      <div class="parse-log" :class="{ 'parse-hidden': !showLog }">
+        <div class="parse-log-inner" x-ref="logInner"></div>
+      </div>
+
+      <div class="affirmation-card" :class="{ 'show': showAffirmation }">
+        <h3>// your affirmation //</h3>
+        <div class="affirmation-text" x-text="currentAffirmation"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ====== INSIGHTS DASHBOARD ====== -->
+  <div class="panel insights-section" style="--rot: 0.8deg">
+    <div class="panel-titlebar">
+      <div class="dots"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>
+      <span>Your Insights — LIVE DASHBOARD</span>
+    </div>
+    <div class="panel-body">
+      <div class="insights-grid">
+        <template x-for="(insight, i) in activeInsights" :key="i">
+          <div class="insight-card">
+            <div class="insight-card-header" x-text="insightHeaders[i]"></div>
+            <div class="insight-card-text" x-text="insight.text"></div>
+            <div class="insight-confidence" x-text="insight.confidence + '% confidence'"></div>
+          </div>
+        </template>
+      </div>
+      <div class="insights-annotation">
+        <span class="anya-note">this one's about my ex, honestly — a.</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ====== HOW IT WORKS ====== -->
+  <div class="panel howitworks-section terminal-panel" style="--rot: -0.6deg">
+    <div class="panel-titlebar">
+      <div class="dots"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>
+      <span>$ cat how-it-works.md</span>
+    </div>
+    <div class="panel-body">
+      <div class="step-row">
+        <div class="step-icon">👁</div>
+        <div class="step-content">
+          <div class="step-number">Step 01</div>
+          <div class="step-title">We gently observe your digital footprint.</div>
+          <div class="step-desc">Like a therapist, but one who lives in your browser cache and has never once asked about your mother.</div>
+        </div>
+      </div>
+      <div class="step-row">
+        <div class="step-icon">✦</div>
+        <div class="step-content">
+          <div class="step-number">Step 02</div>
+          <div class="step-title">Our algorithm finds the poetry in your patterns.</div>
+          <div class="step-desc">Seventeen searches for "is it normal to…" in one sitting? That's not anxiety. That's a sonnet.</div>
+        </div>
+      </div>
+      <div class="step-row">
+        <div class="step-icon">💌</div>
+        <div class="step-content">
+          <div class="step-number">Step 03</div>
+          <div class="step-title">You receive the affirmation you didn't know you needed.</div>
+          <div class="step-desc">Delivered with the gentle precision of someone who has read your 2am Googles and still thinks you're doing fine.</div>
+        </div>
+      </div>
+      <div class="terminal-disclaimer">⚠ WaxPoetic.io is not a licensed therapist, life coach, or competent adult. Affirmations are generated from the collective unconscious of people who also Googled "how to adult" at 3am. This is not professional advice. This is barely advice at all. By breathing near this website you agree to our Terms of Emotional Service.</div>
+    </div>
+  </div>
+
+  <!-- ====== GHOSTFOX ====== -->
+  <div class="panel ghostfox-section" style="--rot: 1.5deg">
+    <div class="panel-titlebar">
+      <div class="dots"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>
+      <span>GhostFox™ Partnership — ANNOUNCEMENT</span>
+    </div>
+    <div class="panel-body">
+      <div class="ghostfox-header">
+        <div class="ghostfox-badge">New Partnership</div>
+        <h2>Now Compatible with GhostFox Browser™</h2>
+        <div class="subtitle">Hyper-personalized affirmations. Zero privacy. Maximum feelings.</div>
+      </div>
+      <div class="ghostfox-compat">Works with GhostFox 4.2+ | Windows 98 SE | Netscape Navigator 7</div>
+      <button class="btn-ghostfox" @click="downloadGhostFox()" x-text="ghostFoxBtnText" :disabled="ghostFoxDisabled"></button>
+      <div class="ghostfox-rating">★★★★☆</div>
+      <div class="ghostfox-rating-text">4.2 out of 5 stars — 3 reviews (one was from Anya's mom)</div>
+      <div class="ghostfox-testimonial">
+        "Absolutely not."
+        <cite>— Brad Wilcox, Data Privacy Attorney</cite>
+      </div>
+    </div>
+  </div>
+
+  <!-- ====== COMMUNITY CONFESSIONS ====== -->
+  <div class="panel confessions-section" style="--rot: -0.9deg">
+    <div class="panel-titlebar">
+      <div class="dots"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>
+      <span>Community Confessions — waxpoetic.io/forum</span>
+    </div>
+    <div class="panel-body">
+      <div class="confessions-board">
+        <div class="confession-post sticky" style="--crot: 1.8deg">
+          <div>"WaxPoetic told me my frequent Wikipedia visits about medieval siege weapons suggest I'm 'planning something beautiful.' I cried a little."</div>
+          <div class="confession-author"><span class="confession-handle">@trebuchet_truths</span> · 3h ago</div>
+        </div>
+        <div class="confession-post forum">
+          <div>My affirmation was: "Your 14 open tabs about sourdough starters indicate a person who believes fermentation is a personality trait. You're right." I feel seen in a way my therapist never achieved.</div>
+          <div class="confession-author"><span class="confession-handle">@gluten_for_punishment</span> · 7h ago</div>
+        </div>
+        <div class="confession-post screenshot">
+          <div class="screenshot-bar"><span class="sdot"></span><span class="sdot"></span><span class="sdot"></span> waxpoetic.io/result</div>
+          <div class="screenshot-inner">
+            <strong style="font-family:'DM Serif Display',serif;">Your Affirmation:</strong><br>
+            "Searching 'do dogs think about their owners when they're away' 9 times doesn't make you pathetic. It makes you the kind of person a dog would be lucky to think about."
+          </div>
+          <div style="padding: 8px 12px;">
+            <div class="confession-author"><span class="confession-handle">@definitely_not_crying</span> · screenshotted this because i needed proof</div>
+          </div>
+        </div>
+        <div class="confession-post sticky" style="--crot: -1.2deg">
+          <div>"It said my browsing pattern matched 'someone who peaked emotionally in 2014.' I have never been so accurately insulted."</div>
+          <div class="confession-author"><span class="confession-handle">@vintage_sadness</span> · 12h ago</div>
+        </div>
+        <div class="confession-post forum">
+          <div>Mine just said: "You Googled 'how to know if you're happy' which means you already know the answer." And then I stared at a wall for 20 minutes. Five stars.</div>
+          <div class="confession-author"><span class="confession-handle">@existential_yelp</span> · 1d ago</div>
+        </div>
+      </div>
+
+      <div class="donate-callout" style="margin-top: 20px;">
+        <span>Donate Your Data — help us help you feel things</span>
+        <div style="display:flex;align-items:center;gap:8px;">
+          <button class="toggle-track" :class="{ 'on': donateToggle }" @click="donateToggle = !donateToggle" aria-label="Toggle data donation">
+            <div class="toggle-knob"></div>
+          </button>
+          <span class="donate-thanks" :class="{ 'show': donateToggle }">thank you for your honesty</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ====== FOOTER ====== -->
+<section class="footer-section">
+  <div class="footer-note">
+    I built this because the most honest thing my ex ever did was Google "how to be a better person" at 2am and never tell anyone. You deserve to know that the person you are at 3am — searching, wondering, hoping — is the real one. That's the person who deserves the affirmation.
+    <br><br>— Anya
+  </div>
+  <div class="footer-legal">
+    © 2024 WaxPoetic.io · All rights reserved · <a href="#" @click.prevent="">Terms of Emotional Service</a> · <a href="#" @click.prevent="">Privacy (lol)</a> · Built with insomnia and regret
+  </div>
+</section>
+
+<!-- Error Modal -->
+<div class="modal-overlay" :class="{ 'active': showModal }" @click.self="closeModal()">
+  <div class="modal-box">
+    <div class="modal-box-titlebar">
+      <span>⚠ System Error</span>
+      <span>×</span>
+    </div>
+    <div class="modal-box-body">
+      <div class="error-icon">🕯</div>
+      <p><strong>Wax Depleted.</strong><br>Please browse more erratically.</p>
+      <button class="btn-modal-ok" @click="closeModal()">OK</button>
+    </div>
+  </div>
+</div>
+
+<script src="/assets/js/alpine.min.js" defer></script>
+<script>
+document.addEventListener('alpine:init', function() {
+  Alpine.data('waxPoetic', function() {
+    return {
+      // Parsing state
+      isParsing: false,
+      parseButtonText: 'Let WaxPoetic Read You',
+      progressA: 0,
+      progressB: 0,
+      progressC: 0,
+      showLog: false,
+      showAffirmation: false,
+      currentAffirmation: '',
+      parseComplete: false,
+
+      // Insights
+      insightHeaders: ['Behavioral Pattern #7', 'Emotional Vector #12', 'Habitual Anomaly #3'],
+      activeInsights: [
+        { text: 'Your frequent visits to cat memes suggest you\'re avoiding adult responsibilities — keep procrastinating, you magnificent disaster.', confidence: 94 },
+        { text: 'You\'ve searched "is this normal" 38 times this month. Statistically: yes. Emotionally: we\'re concerned.', confidence: 87 },
+        { text: 'Your cookie data suggests you\'re the kind of person who opens the fridge, finds nothing, closes it, and opens it again. Digitally.', confidence: 91 }
+      ],
+      insightPool: [
+        { text: 'Your frequent visits to cat memes suggest you\'re avoiding adult responsibilities — keep procrastinating, you magnificent disaster.', confidence: 94 },
+        { text: 'You\'ve searched "is this normal" 38 times this month. Statistically: yes. Emotionally: we\'re concerned.', confidence: 87 },
+        { text: 'Your cookie data suggests you\'re the kind of person who opens the fridge, finds nothing, closes it, and opens it again. Digitally.', confidence: 91 },
+        { text: 'You have visited 14 different recipe sites this week but ordered takeout every night. Your ambition outpaces your follow-through and that\'s beautiful.', confidence: 73 },
+        { text: 'Your 3am search for "why am I like this" was immediately followed by "best pizza near me." This is called emotional intelligence.', confidence: 88 },
+        { text: 'You\'ve Googled your own name 6 times this quarter. That\'s either self-awareness or a cry for help. Either way, we support it.', confidence: 82 },
+        { text: 'Your browsing pattern matches "person who peaked emotionally in 2016 and is still processing it." You are not alone.', confidence: 96 },
+        { text: 'You opened 23 productivity articles and closed all of them. This is the most productive thing you did all day.', confidence: 79 },
+        { text: 'Your search history reveals you\'ve been looking up "how to be more spontaneous." The irony here is the affirmation.', confidence: 85 },
+        { text: 'Cookie analysis shows you accept cookies everywhere. You trust the internet more than you trust people. Fair.', confidence: 90 },
+        { text: 'You searched "can you die from embarrassment" after a Zoom call. Medically no. Spiritually, we\'re not sure.', confidence: 77 },
+        { text: 'Your data shows you read your horoscope every Monday but claim not to believe in astrology. The stars see you. We see you.', confidence: 93 }
+      ],
+
+      // GhostFox
+      ghostFoxBtnText: '⬇ Download GhostFox Extension',
+      ghostFoxDisabled: false,
+      showModal: false,
+
+      // Confessions
+      donateToggle: false,
+
+      // Cursor
+      cursorClasses: ['cursor-cookie', 'cursor-magnify', 'cursor-heart', 'cursor-tab', 'cursor-question'],
+      cursorIndex: -1,
+
+      // Affirmations pool
+      affirmations: [
+        'Your 47 visits to "how to be okay" suggest a person who hasn\'t given up yet. That\'s not desperation. That\'s the bravest thing in your browser history.',
+        'You searched "songs to cry to" and then "upbeat workout playlist" within the same hour. You contain multitudes. Also, contradictions.',
+        'Your late-night Wikipedia spiral from "bioluminescent fungi" to "can plants feel pain" to "meaning of life" suggests you\'re either a philosopher or profoundly avoiding sleep.',
+        'Eighteen tabs open. Zero of them are what you should be doing right now. This is not chaos — this is creative divergence, and you\'re the Picasso of procrastination.',
+        'You Googled "how to tell if someone likes you" and then immediately "how to be alone without being lonely." Both of these questions have the same answer and you already know it.',
+        'Your search for "apartment plants hard to kill" reveals a person who wants to nurture something but has trust issues with their own capability. Buy the pothos. You\'re ready.',
+        'Cookie data shows you visited 8 self-help sites and 12 meme pages today. This is what balance looks like.',
+        'You searched "is it too late to start over" at 2:17am. The algorithm says: historically, that particular search precedes the best decisions people ever make.',
+        'Your recurring search for "how to apologize" suggests you already know what you need to do. The search bar can\'t do it for you, but we believe in you.',
+        'Browsing data indicates you looked up "normal amount of time to think about your ex." There is no normal. But yours is 3x the average. This affirmation counts as therapy.',
+        'You researched "how to be more confident" 11 times, which itself requires a staggering amount of confidence. Paradox resolved. You\'re already there.',
+        'Your history of Googling song lyrics and then Googling what those lyrics mean suggests a person who wants to feel things correctly. You can\'t get feelings wrong.',
+        'Analysis complete: you are 73% "desperately searching for meaning," 22% "looking at things you can\'t afford," and 5% "weather." This makes you profoundly human.',
+        'You saved 34 bookmarks this month and visited zero of them. You\'re not disorganized — you\'re curating a museum of intentions, and that has value.',
+        'Your data suggests you\'re the kind of person who reads their email at 6am but doesn\'t respond until 4pm. This isn\'t avoidance. This is emotional pacing.',
+        'You searched "why do I feel this way for no reason." The algorithm found 147 reasons. None of them are your fault. All of them are valid.',
+        'Your 3am search history is more honest than most people\'s therapy sessions. The person typing those questions deserves every good thing the morning brings.'
+      ],
+      affirmationIndex: 0,
+
+      // Log messages
+      logMessages: [
+        'initializing wax_engine v3.1.4...',
+        'scanning cookie jar... found 2,847 crumbs',
+        'detected: 47 visits to "how to be okay"... parsing...',
+        'cross-referencing emotional vectors...',
+        'search sentiment: "hopeful but tired"',
+        'flagged: 3am activity spike... analyzing...',
+        'cookie_type: "comfort-seeking" — confidence: 94%',
+        'habitual loop detected: open tab → panic → close tab → reopen',
+        'running affirmation_synthesis.exe...',
+        'matching pattern: "person who texts back too fast"',
+        'correlating with loneliness_index... [REDACTED]',
+        'detected: 12 searches for "is this normal"',
+        'applying poetic_filter_v2...',
+        'WARNING: subject appears to be "going through it"',
+        'generating personalized truth...',
+        'affirmation locked. delivering...'
+      ],
+
+      // Timers
+      _insightTimer: null,
+      _cursorTimer: null,
+
+      init: function() {
+        this.shuffleAffirmations();
+        this.startInsightRotation();
+        this.startCursorCycle();
+        this.observePanels();
+      },
+
+      shuffleAffirmations: function() {
+        for (var i = this.affirmations.length - 1; i > 0; i--) {
+          var j = Math.floor(Math.random() * (i + 1));
+          var tmp = this.affirmations[i];
+          this.affirmations[i] = this.affirmations[j];
+          this.affirmations[j] = tmp;
+        }
+      },
+
+      startInsightRotation: function() {
+        var self = this;
+        this._insightTimer = setInterval(function() {
+          var idx = Math.floor(Math.random() * 3);
+          var pool = self.insightPool.filter(function(item) {
+            return item.text !== self.activeInsights[idx].text;
+          });
+          var pick = pool[Math.floor(Math.random() * pool.length)];
+          self.activeInsights[idx] = { text: pick.text, confidence: pick.confidence };
+        }, 8000);
+      },
+
+      startCursorCycle: function() {
+        var self = this;
+        this._cursorTimer = setInterval(function() {
+          if (self.cursorIndex >= 0) {
+            document.body.classList.remove(self.cursorClasses[self.cursorIndex]);
+          }
+          self.cursorIndex = (self.cursorIndex + 1) % self.cursorClasses.length;
+          document.body.classList.add(self.cursorClasses[self.cursorIndex]);
+        }, 15000);
+      },
+
+      observePanels: function() {
+        var panels = document.querySelectorAll('.panel');
+        var observer = new IntersectionObserver(function(entries) {
+          entries.forEach(function(entry) {
+            if (entry.isIntersecting) {
+              entry.target.classList.add('visible');
+              observer.unobserve(entry.target);
+            }
+          });
+        }, { threshold: 0.15 });
+        panels.forEach(function(p) { observer.observe(p); });
+      },
+
+      startParsing: function() {
+        if (this.isParsing) return;
+        var self = this;
+        this.isParsing = true;
+        this.showAffirmation = false;
+        this.showLog = true;
+        this.progressA = 0;
+        this.progressB = 0;
+        this.progressC = 0;
+        this.parseButtonText = 'Parsing...';
+        document.body.classList.add('parsing-active');
+
+        // Scroll to parsing section
+        var parsingEl = this.$refs.parsingPanel;
+        if (parsingEl) {
+          parsingEl.classList.add('visible');
+          parsingEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+
+        // Clear log
+        if (this.$refs.logInner) {
+          this.$refs.logInner.innerHTML = '';
+        }
+
+        // Erratic progress bars
+        var duration = 4000;
+        var startTime = Date.now();
+        var logIndex = 0;
+
+        function erraticProgress(current, speed) {
+          var jump = Math.random() * speed;
+          var stutter = Math.random() < 0.2 ? -Math.random() * 5 : 0;
+          return Math.min(100, Math.max(0, current + jump + stutter));
+        }
+
+        var progressInterval = setInterval(function() {
+          var elapsed = Date.now() - startTime;
+          var ratio = elapsed / duration;
+
+          self.progressA = Math.min(100, erraticProgress(self.progressA, 3 + ratio * 4));
+          self.progressB = Math.min(100, erraticProgress(self.progressB, 2.5 + ratio * 3.5));
+          self.progressC = Math.min(100, erraticProgress(self.progressC, 2 + ratio * 5));
+
+          if (elapsed >= duration) {
+            self.progressA = 100;
+            self.progressB = 100;
+            self.progressC = 100;
+            clearInterval(progressInterval);
+            self.finishParsing();
+          }
+        }, 100);
+
+        // Log streaming
+        var logInterval = setInterval(function() {
+          if (logIndex >= self.logMessages.length) {
+            clearInterval(logInterval);
+            return;
+          }
+          if (self.$refs.logInner) {
+            var line = document.createElement('div');
+            line.textContent = '> ' + self.logMessages[logIndex];
+            self.$refs.logInner.appendChild(line);
+            // Keep only last 6 lines visible
+            while (self.$refs.logInner.children.length > 6) {
+              self.$refs.logInner.removeChild(self.$refs.logInner.firstChild);
+            }
+          }
+          logIndex++;
+        }, 250);
+      },
+
+      finishParsing: function() {
+        var self = this;
+        this.currentAffirmation = this.affirmations[this.affirmationIndex % this.affirmations.length];
+        this.affirmationIndex++;
+        setTimeout(function() {
+          self.showAffirmation = true;
+          self.isParsing = false;
+          self.parseButtonText = 'Parse Me Again';
+          self.parseComplete = true;
+          document.body.classList.remove('parsing-active');
+        }, 500);
+      },
+
+      downloadGhostFox: function() {
+        this.showModal = true;
+      },
+
+      closeModal: function() {
+        this.showModal = false;
+        this.ghostFoxBtnText = 'Try Again Later';
+        this.ghostFoxDisabled = true;
+      }
+    };
+  });
+});
+</script>
+</body>
+</html>

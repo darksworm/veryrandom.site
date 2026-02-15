@@ -1,0 +1,1035 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Unclaimed Luggage Auction Stream — Nothing Is Really Unclaimed</title>
+<link rel="stylesheet" href="/assets/css/fonts.css">
+<style>
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+:root {
+  --bg: #2C2C2A;
+  --text: #E8E2D6;
+  --accent: #B85C38;
+  --card-bg: #3A3A36;
+  --muted: #7A7D6A;
+  --brass: #D4A84B;
+  --font-heading: 'Oswald', sans-serif;
+  --font-body: 'Source Serif 4', serif;
+  --font-mono: 'Fira Code', monospace;
+}
+
+html { scroll-behavior: smooth; }
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font-body);
+  font-size: 18px;
+  line-height: 1.7;
+  overflow-x: hidden;
+}
+
+/* ── TYPOGRAPHY ── */
+h1, h2, h3, h4 {
+  font-family: var(--font-heading);
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+  font-weight: 700;
+  line-height: 1.1;
+  color: var(--text);
+}
+
+.section-label {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.15em;
+  color: var(--muted);
+  text-transform: uppercase;
+  margin-bottom: 12px;
+  display: block;
+}
+
+/* ── DIVIDERS ── */
+.tag-divider {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  color: #4A4A46;
+  letter-spacing: 0.05em;
+  white-space: nowrap;
+  overflow: hidden;
+  padding: 8px 0;
+  user-select: none;
+  line-height: 1;
+}
+
+/* ── SECTIONS ── */
+.section {
+  padding: 80px 24px;
+  position: relative;
+}
+
+@media (min-width: 768px) {
+  .section { padding: 100px 48px; }
+}
+
+.section-inner {
+  max-width: 720px;
+  margin: 0 auto;
+}
+
+.section-wide {
+  max-width: 1100px;
+  margin: 0 auto;
+}
+
+/* ── HERO ── */
+.hero {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding-top: 60px;
+  padding-bottom: 60px;
+}
+
+.hero h1 {
+  font-size: clamp(42px, 10vw, 120px);
+  line-height: 0.95;
+  margin-bottom: 40px;
+  position: relative;
+}
+
+.hero h1 .cursor {
+  display: inline-block;
+  width: 3px;
+  height: 0.8em;
+  background: var(--brass);
+  margin-left: 4px;
+  vertical-align: baseline;
+  animation: blink 0.6s step-end infinite;
+}
+
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0; }
+}
+
+.hero-text {
+  font-size: 18px;
+  max-width: 620px;
+  color: var(--text);
+  line-height: 1.8;
+}
+
+/* ── TICKER ── */
+.ticker-wrap {
+  overflow: hidden;
+  width: 100%;
+  margin: 32px 0 40px;
+  position: relative;
+}
+
+.ticker-track {
+  display: flex;
+  gap: 0;
+  width: max-content;
+  will-change: transform;
+}
+
+.ticker-item {
+  font-family: var(--font-mono);
+  font-size: 13px;
+  color: var(--brass);
+  padding: 8px 20px;
+  white-space: nowrap;
+  cursor: default;
+  transition: color 0.2s;
+  flex-shrink: 0;
+  position: relative;
+}
+
+.ticker-item .ticker-detail {
+  display: none;
+  font-size: 11px;
+  color: var(--muted);
+  margin-top: 2px;
+}
+
+.ticker-item:hover {
+  color: var(--text);
+}
+
+.ticker-item:hover .ticker-detail {
+  display: block;
+}
+
+/* ── AUCTION CARDS ── */
+.auction-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 24px;
+  margin-top: 40px;
+}
+
+@media (min-width: 768px) {
+  .auction-grid { grid-template-columns: repeat(3, 1fr); }
+}
+
+.auction-card {
+  background: var(--card-bg);
+  padding: 28px 24px;
+  border-left: 3px solid var(--accent);
+  position: relative;
+  cursor: pointer;
+  transition: border-width 0.15s ease;
+  min-height: 280px;
+}
+
+.auction-card:hover {
+  border-left-width: 8px;
+}
+
+.auction-card .lot-number {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  color: var(--brass);
+  margin-bottom: 12px;
+  letter-spacing: 0.1em;
+}
+
+.auction-card h3 {
+  font-size: 18px;
+  margin-bottom: 14px;
+  color: var(--text);
+}
+
+.auction-card .inventory {
+  font-size: 15px;
+  color: var(--muted);
+  margin-bottom: 8px;
+  line-height: 1.6;
+}
+
+.auction-card .hidden-detail {
+  font-size: 14px;
+  color: var(--text);
+  font-style: italic;
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.2s ease;
+  margin-bottom: 8px;
+}
+
+.auction-card:hover .hidden-detail {
+  max-height: 60px;
+}
+
+.auction-card .meta {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  color: var(--muted);
+  margin-top: 16px;
+  line-height: 1.8;
+}
+
+.auction-card .bid {
+  font-family: var(--font-heading);
+  font-size: 22px;
+  color: var(--accent);
+  margin-top: 12px;
+}
+
+.live-dot {
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  background: var(--brass);
+  border-radius: 50%;
+  margin-right: 6px;
+  vertical-align: middle;
+}
+
+.live-badge {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--brass);
+  letter-spacing: 0.12em;
+  position: absolute;
+  top: 16px;
+  right: 16px;
+}
+
+/* Card flip */
+.card-flipper {
+  perspective: 800px;
+}
+
+.card-inner {
+  position: relative;
+  transition: transform 0.4s ease;
+  transform-style: preserve-3d;
+}
+
+.card-inner.flipped {
+  transform: rotateY(180deg);
+}
+
+.card-front, .card-back {
+  backface-visibility: hidden;
+}
+
+.card-back {
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: var(--card-bg);
+  border-left: 3px solid var(--accent);
+  transform: rotateY(180deg);
+  padding: 28px 24px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.card-back p {
+  font-size: 15px;
+  font-style: italic;
+  color: var(--text);
+  line-height: 1.7;
+}
+
+.card-back .back-label {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--muted);
+  margin-bottom: 12px;
+  letter-spacing: 0.1em;
+}
+
+/* ── REUNIFICATION ── */
+.counter-row {
+  display: flex;
+  gap: 40px;
+  margin: 32px 0;
+  flex-wrap: wrap;
+}
+
+.counter-block {
+  display: flex;
+  flex-direction: column;
+}
+
+.counter-num {
+  font-family: var(--font-heading);
+  font-size: clamp(36px, 6vw, 56px);
+  line-height: 1;
+  color: var(--text);
+}
+
+.counter-num.accent {
+  color: var(--brass);
+}
+
+.counter-label {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--muted);
+  margin-top: 8px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.btn-accent {
+  display: inline-block;
+  background: var(--accent);
+  color: var(--text);
+  font-family: var(--font-heading);
+  font-size: 14px;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  padding: 14px 28px;
+  border: none;
+  cursor: pointer;
+  text-decoration: none;
+  margin-top: 24px;
+  min-height: 44px;
+  min-width: 44px;
+  transition: background 0.15s;
+}
+
+.btn-accent:hover {
+  background: #9A4C2E;
+}
+
+/* ── BLOG ENTRIES ── */
+.blog-entry {
+  margin-bottom: 48px;
+}
+
+.blog-entry:last-child {
+  margin-bottom: 0;
+}
+
+.blog-date {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  color: var(--muted);
+  letter-spacing: 0.1em;
+  margin-bottom: 8px;
+}
+
+.blog-entry h3 {
+  font-size: clamp(22px, 3vw, 30px);
+  margin-bottom: 16px;
+  color: var(--text);
+}
+
+.blog-entry p {
+  color: var(--text);
+  font-size: 17px;
+}
+
+/* ── BADGES ── */
+.badge-row {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 24px;
+  margin-top: 40px;
+}
+
+@media (min-width: 768px) {
+  .badge-row { grid-template-columns: repeat(4, 1fr); }
+}
+
+.badge-item {
+  text-align: center;
+}
+
+.badge-shape {
+  width: 72px;
+  height: 72px;
+  margin: 0 auto 16px;
+  border: 2px solid var(--brass);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.badge-shape.circle { border-radius: 50%; }
+.badge-shape.square { border-radius: 0; }
+.badge-shape.diamond { transform: rotate(45deg); width: 56px; height: 56px; }
+.badge-shape.diamond .badge-inner { transform: rotate(-45deg); }
+.badge-shape.hexish { border-radius: 8px 0 8px 0; }
+
+.badge-shape .badge-inner {
+  font-family: var(--font-mono);
+  font-size: 18px;
+  color: var(--muted);
+}
+
+.badge-name {
+  font-family: var(--font-heading);
+  font-size: 14px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text);
+  margin-bottom: 6px;
+}
+
+.badge-desc {
+  font-family: var(--font-body);
+  font-style: italic;
+  font-size: 14px;
+  color: var(--muted);
+  line-height: 1.5;
+}
+
+/* ── COMPLIANCE ── */
+.compliance-block {
+  font-family: var(--font-mono);
+  font-size: 13px;
+  color: var(--muted);
+  line-height: 1.8;
+}
+
+.compliance-item {
+  padding: 12px 0;
+  border-bottom: 1px solid #4A4A46;
+  cursor: pointer;
+}
+
+.compliance-item .c-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.compliance-item .c-header span:last-child {
+  flex-shrink: 0;
+  color: #5A5A56;
+  font-size: 16px;
+}
+
+.compliance-item .c-body {
+  display: none;
+  padding-top: 8px;
+  font-size: 12px;
+  color: #6A6A66;
+  line-height: 1.7;
+}
+
+.compliance-item.open .c-body {
+  display: block;
+}
+
+.compliance-link {
+  color: var(--muted);
+  text-decoration: underline;
+}
+
+.compliance-closing {
+  font-family: var(--font-body);
+  font-style: italic;
+  font-size: 16px;
+  color: var(--text);
+  margin-top: 32px;
+}
+
+/* ── FOOTER ── */
+.footer {
+  padding: 60px 24px 40px;
+  text-align: center;
+}
+
+.footer-name {
+  font-family: var(--font-heading);
+  font-size: 16px;
+  text-transform: uppercase;
+  letter-spacing: 0.15em;
+  color: var(--text);
+  margin-bottom: 32px;
+}
+
+.footer-form {
+  display: flex;
+  gap: 0;
+  max-width: 420px;
+  margin: 0 auto 24px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.footer-form input[type="email"] {
+  flex: 1;
+  min-width: 200px;
+  padding: 14px 16px;
+  font-family: var(--font-mono);
+  font-size: 14px;
+  background: var(--card-bg);
+  border: 1px solid #4A4A46;
+  color: var(--text);
+  outline: none;
+  min-height: 44px;
+}
+
+.footer-form input[type="email"]::placeholder {
+  color: var(--muted);
+}
+
+.footer-form button {
+  background: var(--accent);
+  color: var(--text);
+  font-family: var(--font-heading);
+  font-size: 13px;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  padding: 14px 20px;
+  border: none;
+  cursor: pointer;
+  min-height: 44px;
+  min-width: 44px;
+  transition: background 0.15s;
+  white-space: nowrap;
+}
+
+.footer-form button:hover {
+  background: #9A4C2E;
+}
+
+.footer-founder {
+  font-size: 14px;
+  color: var(--muted);
+  margin-bottom: 32px;
+  line-height: 1.6;
+}
+
+/* ── FADE-IN ANIMATION ── */
+.fade-in {
+  opacity: 0;
+  transform: translateY(30px);
+}
+
+/* ── RESPONSIVE ── */
+@media (max-width: 480px) {
+  .section { padding: 60px 16px; }
+  body { font-size: 16px; }
+  .auction-card { padding: 20px 16px; }
+  .counter-row { gap: 24px; }
+}
+</style>
+</head>
+<body>
+
+<!-- ════ HERO ════ -->
+<section class="section hero">
+  <div class="section-inner">
+    <span class="section-label">Est. 2022 — O'Hare International</span>
+    <h1 id="hero-heading" aria-label="Nothing Is Really Unclaimed"></h1>
+    <div class="ticker-wrap" id="ticker1">
+      <div class="ticker-track" id="ticker-track-1"></div>
+    </div>
+    <p class="hero-text">
+      I found her on Carousel 4 at 2:14 AM — a hand-painted porcelain doll, wrapped in a JCPenney bag, tucked inside a suitcase that had been circling for nine hours. Nobody came back. I kept thinking about the hands that packed her, how carefully they must have nestled her between the socks and the toiletries. I was a baggage handler. I am a baggage handler. I just also run an auction now, because someone has to stand between the lost and the landfill.
+    </p>
+  </div>
+</section>
+
+<div class="tag-divider" id="div1"></div>
+
+<!-- ════ LIVE AUCTION PREVIEW ════ -->
+<section class="section fade-in">
+  <div class="section-wide">
+    <span class="section-label">Currently On The Carousel</span>
+    <h2 style="font-size: clamp(28px, 5vw, 48px); margin-bottom: 8px;">Live Auction Preview</h2>
+
+    <div class="auction-grid" x-data="auctionCards()">
+      <template x-for="(card, i) in cards" :key="i">
+        <div class="card-flipper">
+          <div class="auction-card" :class="{ 'card-inner': true, 'flipped': card.flipped }" @click="card.flipped = !card.flipped">
+            <div class="card-front">
+              <template x-if="card.live">
+                <span class="live-badge"><span class="live-dot" id="live-pulse"></span>LIVE NOW</span>
+              </template>
+              <div class="lot-number" x-text="'LOT #' + card.lot"></div>
+              <h3 x-text="card.origin + ' → UNCLAIMED'"></h3>
+              <div class="inventory" x-text="'Contains: ' + card.inventory"></div>
+              <div class="hidden-detail" x-text="card.hiddenDetail"></div>
+              <div class="meta">
+                <span x-text="'Origin: ' + card.originFull"></span><br>
+                <span x-text="'Days unclaimed: ' + card.days"></span>
+              </div>
+              <div class="bid" x-text="'$' + card.bid"></div>
+            </div>
+            <div class="card-back">
+              <div class="back-label">AUCTIONEER'S NOTE</div>
+              <p x-text="card.note"></p>
+            </div>
+          </div>
+        </div>
+      </template>
+    </div>
+  </div>
+</section>
+
+<div class="tag-divider" id="div2"></div>
+
+<!-- ════ REUNIFICATION ════ -->
+<section class="section fade-in">
+  <div class="section-inner">
+    <span class="section-label">Previous Owner Outreach Program</span>
+    <h2 style="font-size: clamp(28px, 5vw, 48px); margin-bottom: 24px;">Before We Auction, We Look</h2>
+    <p>
+      Every bag that enters our system gets 90 days. Ninety days of database cross-referencing, airline manifest requests, social media keyword trawling, and sometimes just staring at a luggage tag and hoping. We are underfunded. We are three people and a shared Google Sheet. The airlines do not help. The TSA does not help. But we have reunited a grandmother's ashes with her family in Tulsa, and we once tracked down a man in Reykjavik using nothing but a dry-cleaning receipt and a library card. We are not efficient. But we are stubborn.
+    </p>
+    <div class="counter-row" id="counter-section">
+      <div class="counter-block">
+        <span class="counter-num accent" id="counter-reunited">0</span>
+        <span class="counter-label">Items Reunited</span>
+      </div>
+      <div class="counter-block">
+        <span class="counter-num" id="counter-auctioned">0</span>
+        <span class="counter-label">Items Auctioned</span>
+      </div>
+    </div>
+    <a href="#" class="btn-accent" onclick="return false;">Report a Lost Item</a>
+  </div>
+</section>
+
+<div class="tag-divider" id="div3"></div>
+
+<!-- ════ AUCTIONEER'S NOTES ════ -->
+<section class="section fade-in">
+  <div class="section-inner">
+    <span class="section-label">From The Carousel Floor</span>
+    <h2 style="font-size: clamp(28px, 5vw, 48px); margin-bottom: 40px;">Auctioneer's Notes</h2>
+
+    <div class="blog-entry">
+      <div class="blog-date">2024.11.03 — LOT #7831</div>
+      <h3>Someone's Entire Spice Collection, Labeled in Armenian</h3>
+      <p>
+        Forty-two glass jars, each one hand-labeled in neat Armenian script with a second label in English taped underneath — as if the owner knew they'd need to explain themselves at customs but refused to erase the original language. The suitcase smelled like a kitchen that loved you. Sumac, za'atar, dried barberries in a Ziploc. I held the bag of barberries for a long time. Someone's mother packed these. I am certain of it. Current bid: $340. I hope the buyer cooks with them.
+      </p>
+    </div>
+
+    <div class="blog-entry">
+      <div class="blog-date">2024.10.17 — LOT #8204</div>
+      <h3>The Suitcase That Was Just Books and a Single House Key</h3>
+      <p>
+        No clothes. No toiletries. Just twenty-three paperbacks — mostly sci-fi, a few self-help titles with cracked spines, one copy of <em>The Prophet</em> with every other page dog-eared — and a single brass house key on a plain ring. No tag on the key. No address in any of the books. Whoever packed this bag was either moving in or moving out, and either way they decided the books mattered more than the shirts. I respect that completely. I also find it devastating. Bidding starts at $45.
+      </p>
+    </div>
+  </div>
+</section>
+
+<div class="tag-divider" id="div4"></div>
+
+<!-- ════ BADGES ════ -->
+<section class="section fade-in">
+  <div class="section-wide">
+    <span class="section-label">Frequent Bidder Program</span>
+    <h2 style="font-size: clamp(28px, 5vw, 48px); margin-bottom: 8px;">Marks of Attendance</h2>
+
+    <div class="badge-row">
+      <div class="badge-item">
+        <div class="badge-shape circle">
+          <div class="badge-inner">&#9992;</div>
+        </div>
+        <div class="badge-name">The Globetrotter</div>
+        <div class="badge-desc">Won lots originating from 10+ countries</div>
+      </div>
+      <div class="badge-item">
+        <div class="badge-shape square">
+          <div class="badge-inner">&#9829;</div>
+        </div>
+        <div class="badge-name">The Sentimentalist</div>
+        <div class="badge-desc">Bid exclusively on personal-effects lots</div>
+      </div>
+      <div class="badge-item">
+        <div class="badge-shape diamond">
+          <div class="badge-inner">&#9646;</div>
+        </div>
+        <div class="badge-name">The Completionist</div>
+        <div class="badge-desc">Won every lot in a single auction stream</div>
+      </div>
+      <div class="badge-item">
+        <div class="badge-shape hexish">
+          <div class="badge-inner">&#9685;</div>
+        </div>
+        <div class="badge-name">The Witness</div>
+        <div class="badge-desc">Watched 100 auctions without placing a single bid</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="tag-divider" id="div5"></div>
+
+<!-- ════ COMPLIANCE ════ -->
+<section class="section fade-in" x-data="{ openItem: null }">
+  <div class="section-inner">
+    <span class="section-label">Regulatory Framework</span>
+    <h2 style="font-size: clamp(28px, 5vw, 48px); margin-bottom: 32px;">Yes, This Is Legal</h2>
+
+    <div class="compliance-block">
+      <div class="compliance-item" :class="{ open: openItem === 1 }" @click="openItem = openItem === 1 ? null : 1">
+        <div class="c-header">
+          <span>1. DISPOSITION OF UNCLAIMED PROPERTY — 49 U.S.C. § 44901 et seq.</span>
+          <span x-text="openItem === 1 ? '−' : '+'"></span>
+        </div>
+        <div class="c-body">All unclaimed baggage is held for a minimum of 90 days per federal aviation regulation before disposition. Airlines transfer custody to licensed salvage operators under <span class="compliance-link">CFR Title 14, Part 254.4</span>. We maintain chain-of-custody documentation for every item processed. No, you cannot skip the 90 days. We tried asking.</div>
+      </div>
+
+      <div class="compliance-item" :class="{ open: openItem === 2 }" @click="openItem = openItem === 2 ? null : 2">
+        <div class="c-header">
+          <span>2. TSA SCREENING COMPLIANCE — REF: TSA-2019-0001-0042</span>
+          <span x-text="openItem === 2 ? '−' : '+'"></span>
+        </div>
+        <div class="c-body">All items are re-screened before auction per TSA Security Directive 1544-09-06. Prohibited items are surrendered to local law enforcement. This includes the surprising number of swords people check in their luggage. We do not auction the swords. We wish we could auction the swords.</div>
+      </div>
+
+      <div class="compliance-item" :class="{ open: openItem === 3 }" @click="openItem = openItem === 3 ? null : 3">
+        <div class="c-header">
+          <span>3. PERSONAL IDENTIFIABLE INFORMATION (PII) HANDLING — PROTOCOL ULA-PII-07</span>
+          <span x-text="openItem === 3 ? '−' : '+'"></span>
+        </div>
+        <div class="c-body">All documents, IDs, credit cards, and items containing PII are destroyed or returned to issuing agencies before auction. Photographs are redacted. Diaries are not read (officially). Letters are sealed in opaque evidence bags and auctioned only as "sealed correspondence, contents unknown." This is the hardest part of the job.</div>
+      </div>
+
+      <div class="compliance-item" :class="{ open: openItem === 4 }" @click="openItem = openItem === 4 ? null : 4">
+        <div class="c-header">
+          <span>4. BIOHAZARD & PERISHABLE GOODS — REF: OSHA 29 CFR 1910.1030</span>
+          <span x-text="openItem === 4 ? '−' : '+'"></span>
+        </div>
+        <div class="c-body">Perishable items are disposed of within 72 hours of custody transfer. Yes, someone once checked an entire wheel of Gruyère. No, it did not survive the 90-day hold. Biohazard protocols apply to medical supplies, unmarked liquids, and that one suitcase from Terminal 5 that we do not discuss.</div>
+      </div>
+
+      <div class="compliance-item" :class="{ open: openItem === 5 }" @click="openItem = openItem === 5 ? null : 5">
+        <div class="c-header">
+          <span>5. AUCTION LICENSING — STATE OF ILLINOIS, LICENSE #AUC-2022-04417</span>
+          <span x-text="openItem === 5 ? '−' : '+'"></span>
+        </div>
+        <div class="c-body">Unclaimed Luggage Auction Stream operates under Illinois Auction License Act (225 ILCS 407). All sales are final. Buyer's premium: 12%. Amelia Stone, licensed auctioneer #IL-04417. She got her license on a Tuesday and cried in the DMV parking lot, not because it was hard but because it meant this was actually happening.</div>
+      </div>
+
+      <div class="compliance-item" :class="{ open: openItem === 6 }" @click="openItem = openItem === 6 ? null : 6">
+        <div class="c-header">
+          <span>6. REUNIFICATION PRIORITY PROTOCOL — INTERNAL REF: ULA-REUN-001</span>
+          <span x-text="openItem === 6 ? '−' : '+'"></span>
+        </div>
+        <div class="c-body">Before any lot enters the auction queue, it must clear the reunification review. Items with high sentimental probability (photographs, handwritten materials, children's belongings, religious items) receive an additional 30-day search extension. This is not required by law. This is required by us.</div>
+      </div>
+    </div>
+
+    <p class="compliance-closing">
+      We take this seriously because someone packed these bags with their hands.
+    </p>
+  </div>
+</section>
+
+<div class="tag-divider" id="div6"></div>
+
+<!-- ════ FOOTER ════ -->
+<footer class="footer">
+  <div class="footer-name">Unclaimed Luggage Auction Stream, Est. 2022</div>
+  <form class="footer-form" onsubmit="return false;">
+    <input type="email" placeholder="your@email.com" aria-label="Email address">
+    <button type="submit">Claim Your Seat</button>
+  </form>
+  <p class="footer-founder">Founded by Amelia Stone, former baggage handler, O'Hare International.</p>
+  <div class="ticker-wrap" id="ticker2">
+    <div class="ticker-track" id="ticker-track-2"></div>
+  </div>
+</footer>
+
+<script src="/assets/js/alpine.min.js" defer></script>
+<script src="/assets/js/gsap.min.js"></script>
+<script>
+(function() {
+  "use strict";
+
+  /* ── TAG NUMBERS DATA ── */
+  var tags = [
+    { id: "ULA-00347", route: "ORD → NRT", date: "2024-08-12" },
+    { id: "ULA-00291", route: "LAX → CDG", date: "2024-06-03" },
+    { id: "ULA-00118", route: "JFK → LHR", date: "2023-11-27" },
+    { id: "ULA-00402", route: "SFO → ICN", date: "2024-09-15" },
+    { id: "ULA-00089", route: "ORD → FCO", date: "2023-09-01" },
+    { id: "ULA-00156", route: "MIA → GRU", date: "2024-01-20" },
+    { id: "ULA-00233", route: "DFW → AMS", date: "2024-04-08" },
+    { id: "ULA-00311", route: "SEA → HND", date: "2024-07-11" },
+    { id: "ULA-00045", route: "ATL → DUB", date: "2023-05-14" },
+    { id: "ULA-00178", route: "ORD → KEF", date: "2024-02-22" },
+    { id: "ULA-00264", route: "BOS → LIS", date: "2024-05-30" },
+    { id: "ULA-00397", route: "DEN → MEX", date: "2024-09-07" },
+    { id: "ULA-00012", route: "ORD → SYD", date: "2023-02-18" },
+    { id: "ULA-00203", route: "EWR → ZRH", date: "2024-03-14" },
+    { id: "ULA-00330", route: "PHX → YVR", date: "2024-08-01" }
+  ];
+
+  /* ── BUILD TICKERS ── */
+  function buildTicker(trackId) {
+    var track = document.getElementById(trackId);
+    if (!track) return;
+    for (var r = 0; r < 3; r++) {
+      for (var i = 0; i < tags.length; i++) {
+        var el = document.createElement("div");
+        el.className = "ticker-item";
+        el.innerHTML = tags[i].id + ' <span class="ticker-detail">' + tags[i].route + " · Reunited " + tags[i].date + "</span>";
+        track.appendChild(el);
+      }
+    }
+  }
+
+  buildTicker("ticker-track-1");
+  buildTicker("ticker-track-2");
+
+  /* ── TICKER ANIMATION ── */
+  function animateTicker(trackId) {
+    var track = document.getElementById(trackId);
+    if (!track) return;
+    var totalW = track.scrollWidth / 3;
+    var isPaused = false;
+
+    gsap.fromTo(track,
+      { x: 0 },
+      { x: -totalW, duration: 60, ease: "none", repeat: -1 }
+    );
+
+    track.addEventListener("mouseenter", function() {
+      isPaused = true;
+      gsap.to(track, { timeScale: 0, duration: 0.3 });
+    });
+    track.addEventListener("mouseleave", function() {
+      isPaused = false;
+      gsap.to(track, { timeScale: 1, duration: 0.3 });
+    });
+  }
+
+  animateTicker("ticker-track-1");
+  animateTicker("ticker-track-2");
+
+  /* ── DIVIDER TAG STRINGS ── */
+  var dividerText = "ULA-00347 · ULA-00291 · ULA-00118 · ULA-00402 · ULA-00089 · ULA-00156 · ULA-00233 · ULA-00311 · ULA-00045 · ULA-00178 · ";
+  for (var d = 1; d <= 6; d++) {
+    var divEl = document.getElementById("div" + d);
+    if (divEl) {
+      var repeated = "";
+      for (var k = 0; k < 8; k++) repeated += dividerText;
+      divEl.textContent = repeated;
+    }
+  }
+
+  /* ── HERO TYPEWRITER ── */
+  var heroText = "Nothing Is Really Unclaimed";
+  var heroEl = document.getElementById("hero-heading");
+  if (heroEl) {
+    heroEl.style.fontFamily = "'Fira Code', monospace";
+    heroEl.style.fontSize = "clamp(32px, 8vw, 80px)";
+    var charIndex = 0;
+    var textSpan = document.createElement("span");
+    var cursorSpan = document.createElement("span");
+    cursorSpan.className = "cursor";
+    cursorSpan.innerHTML = "&nbsp;";
+    heroEl.appendChild(textSpan);
+    heroEl.appendChild(cursorSpan);
+
+    function typeChar() {
+      if (charIndex < heroText.length) {
+        textSpan.textContent += heroText[charIndex];
+        charIndex++;
+        setTimeout(typeChar, 60 + Math.random() * 40);
+      } else {
+        setTimeout(function() {
+          cursorSpan.style.display = "none";
+          heroEl.style.fontFamily = "'Oswald', sans-serif";
+          heroEl.style.fontSize = "";
+          gsap.fromTo(heroEl, { opacity: 0.7 }, { opacity: 1, duration: 0.3 });
+        }, 500);
+      }
+    }
+    setTimeout(typeChar, 400);
+  }
+
+  /* ── SECTION FADE-INS ── */
+  var fadeEls = document.querySelectorAll(".fade-in");
+  if ("IntersectionObserver" in window) {
+    var fadeObs = new IntersectionObserver(function(entries) {
+      entries.forEach(function(entry) {
+        if (entry.isIntersecting) {
+          gsap.fromTo(entry.target,
+            { opacity: 0, y: 30 },
+            { opacity: 1, y: 0, duration: 1.2, ease: "power2.out" }
+          );
+          fadeObs.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.1 });
+
+    fadeEls.forEach(function(el) {
+      fadeObs.observe(el);
+    });
+  } else {
+    fadeEls.forEach(function(el) {
+      el.style.opacity = "1";
+      el.style.transform = "none";
+    });
+  }
+
+  /* ── LIVE PULSE ── */
+  function startPulse() {
+    var dot = document.getElementById("live-pulse");
+    if (dot) {
+      gsap.fromTo(dot,
+        { scale: 1 },
+        { scale: 1.3, duration: 1, ease: "power1.inOut", yoyo: true, repeat: -1, transformOrigin: "center center" }
+      );
+    } else {
+      setTimeout(startPulse, 200);
+    }
+  }
+  setTimeout(startPulse, 300);
+
+  /* ── COUNTER ANIMATION ── */
+  var counterDone = false;
+  var counterSection = document.getElementById("counter-section");
+  if (counterSection && "IntersectionObserver" in window) {
+    var counterObs = new IntersectionObserver(function(entries) {
+      entries.forEach(function(entry) {
+        if (entry.isIntersecting && !counterDone) {
+          counterDone = true;
+          animateCounter("counter-reunited", 347, 3.5);
+          animateCounter("counter-auctioned", 12408, 2.5);
+          counterObs.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.3 });
+    counterObs.observe(counterSection);
+  }
+
+  function animateCounter(elId, target, duration) {
+    var el = document.getElementById(elId);
+    if (!el) return;
+    var obj = { val: 0 };
+    gsap.fromTo(obj, { val: 0 }, {
+      val: target,
+      duration: duration,
+      ease: "power2.out",
+      onUpdate: function() {
+        el.textContent = Math.round(obj.val).toLocaleString();
+      }
+    });
+  }
+
+})();
+
+/* ── ALPINE DATA ── */
+document.addEventListener("alpine:init", function() {
+  Alpine.data("auctionCards", function() {
+    return {
+      cards: [
+        {
+          lot: "9217",
+          origin: "NRT",
+          originFull: "Narita International (NRT)",
+          days: 94,
+          inventory: "1 wool coat, 3 sealed envelopes, 1 child's drawing, unknown wrapped parcel",
+          hiddenDetail: "The drawing is of a house with too many windows. Crayon. Confident linework.",
+          bid: "185",
+          live: true,
+          flipped: false,
+          note: "The sealed envelopes smell faintly of sandalwood. I have not opened them. I will never open them. Whoever buys this lot inherits that restraint or doesn't."
+        },
+        {
+          lot: "8452",
+          origin: "CDG",
+          originFull: "Charles de Gaulle (CDG)",
+          days: 112,
+          inventory: "4 pairs of shoes (all left foot), 1 French-English dictionary, 1 compass",
+          hiddenDetail: "The dictionary has marginalia in a third language we haven't identified.",
+          bid: "67",
+          live: false,
+          flipped: false,
+          note: "Four left shoes. Not a mistake — they were packed deliberately, each in its own cloth bag. The compass works. It points north, which is more than most of us can say."
+        },
+        {
+          lot: "8891",
+          origin: "GRU",
+          originFull: "São Paulo–Guarulhos (GRU)",
+          days: 98,
+          inventory: "1 vintage camera (no film), 14 postcards (unsent), 1 jar labeled 'soil'",
+          hiddenDetail: "Every postcard is addressed to the same person. Different cities. No stamps.",
+          bid: "220",
+          live: false,
+          flipped: false,
+          note: "The jar of soil is heavy for its size. I held it in my palm and thought about what it means to carry earth from one country to another. The postcards are all different handwriting sizes, like the writer kept changing their mind about how loud to be."
+        }
+      ]
+    };
+  });
+});
+</script>
+
+</body>
+</html>

@@ -1,0 +1,750 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>String Theory Notice Board — est. 2017</title>
+<link rel="stylesheet" href="/assets/css/fonts.css">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+--cork:#F0EBD8;--onyx:#333333;--garnet:#A62929;--card:#E6DFC6;
+--brass:#C9A227;--olive:#7A7560;--font-mono:'Fira Code',monospace;
+--font-marker:'Permanent Marker',cursive;--font-hand:'Caveat',cursive;
+}
+html{scroll-behavior:smooth}
+body{
+background:var(--cork);color:var(--onyx);font-family:var(--font-mono);
+font-size:16px;line-height:1.6;overflow-x:hidden;
+background-image:url("data:image/svg+xml,%3Csvg width='80' height='80' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='80' height='80' filter='url(%23n)' opacity='0.06'/%3E%3C/svg%3E");
+}
+h1,h2,h3,h4,.marker{font-family:var(--font-marker);font-weight:400}
+.hand{font-family:var(--font-hand)}
+
+/* === LAYOUT === */
+.page-wrap{max-width:1200px;margin:0 auto;padding:0 20px;position:relative}
+
+/* === RED STRING GUTTER === */
+.red-string-gutter{
+position:absolute;left:30px;top:0;width:4px;height:100%;pointer-events:none;z-index:1;
+}
+.red-string-gutter svg{position:sticky;top:0;width:4px;height:100vh}
+@media(max-width:768px){.red-string-gutter{display:none}}
+
+/* === HEADER === */
+.site-header{
+text-align:center;padding:60px 20px 40px;position:relative;
+}
+.site-title{
+font-size:clamp(2.2rem,6vw,4rem);color:var(--garnet);
+text-shadow:2px 2px 0 var(--brass);letter-spacing:-1px;
+transform:rotate(-1.5deg);display:inline-block;
+}
+.site-title span{color:var(--onyx)}
+.tagline{
+font-size:clamp(0.75rem,2vw,0.9rem);color:var(--olive);
+margin-top:8px;letter-spacing:1px;
+}
+.alert-banner{
+display:inline-block;margin-top:20px;padding:8px 24px;
+background:var(--garnet);color:#F0EBD8;font-family:var(--font-mono);
+font-size:0.85rem;letter-spacing:2px;text-transform:uppercase;
+animation:pulse-banner 2s ease-in-out infinite;
+}
+@keyframes pulse-banner{
+0%,100%{transform:scale(1);opacity:1}
+50%{transform:scale(1.04);opacity:0.85}
+}
+.sheeple-zone{margin-top:28px}
+.sheeple-btn{
+display:inline-block;padding:16px 40px;background:var(--garnet);color:#F0EBD8;
+font-family:var(--font-marker);font-size:1.4rem;border:3px solid var(--onyx);
+cursor:pointer;transform:rotate(1deg);transition:transform 0.15s,box-shadow 0.15s;
+box-shadow:4px 4px 0 var(--onyx);min-height:52px;
+}
+.sheeple-btn:hover{transform:rotate(-1deg) scale(1.05);box-shadow:6px 6px 0 var(--onyx)}
+.sheeple-btn:active{transform:rotate(0) scale(0.97);box-shadow:2px 2px 0 var(--onyx)}
+.click-counter{
+display:block;margin-top:10px;font-size:0.75rem;color:var(--olive);
+}
+.screen-flash{
+position:fixed;inset:0;background:#fff;z-index:9999;
+pointer-events:none;opacity:0;
+}
+
+/* === PUSHPIN === */
+.pushpin{
+width:20px;height:20px;border-radius:50%;
+background:radial-gradient(circle at 40% 35%,#e2c44d,var(--brass),#8a6d0a);
+box-shadow:0 2px 4px rgba(0,0,0,0.4),inset 0 1px 2px rgba(255,255,255,0.4);
+position:absolute;top:-10px;z-index:10;
+}
+.pushpin.left{left:20px}
+.pushpin.right{right:20px}
+.pushpin.center{left:50%;transform:translateX(-50%)}
+
+/* === THEORY BOARD === */
+.board-section{
+padding:40px 0 60px;position:relative;
+}
+.board-title{
+font-size:clamp(1.6rem,4vw,2.4rem);color:var(--onyx);
+text-align:center;margin-bottom:40px;transform:rotate(-1deg);
+}
+.board-grid{
+display:grid;
+grid-template-columns:repeat(auto-fit,minmax(280px,1fr));
+gap:30px 24px;padding:0 10px;
+}
+.theory-card{
+background:var(--card);padding:24px 20px 20px;position:relative;
+border:1px solid #d4ccaa;box-shadow:3px 3px 8px rgba(0,0,0,0.15);
+cursor:pointer;transition:transform 0.25s,box-shadow 0.25s,z-index 0s;
+transform-origin:top center;
+}
+.theory-card:nth-child(1){transform:rotate(-2deg)}
+.theory-card:nth-child(2){transform:rotate(1.5deg)}
+.theory-card:nth-child(3){transform:rotate(-1deg)}
+.theory-card:nth-child(4){transform:rotate(2.5deg)}
+.theory-card:nth-child(5){transform:rotate(-1.8deg)}
+.theory-card:nth-child(6){transform:rotate(0.8deg)}
+.theory-card:hover{
+transform:rotate(0) scale(1.04) translateY(-6px)!important;
+box-shadow:6px 10px 20px rgba(0,0,0,0.25);z-index:20;
+}
+.theory-card .card-title{
+font-family:var(--font-marker);font-size:1.15rem;color:var(--garnet);
+margin-bottom:8px;line-height:1.3;
+}
+.theory-card .card-excerpt{font-size:0.85rem;color:var(--onyx);margin-bottom:14px;line-height:1.5}
+.mania-bar-wrap{height:10px;background:#d4ccaa;border-radius:5px;overflow:hidden;margin-bottom:6px}
+.mania-bar{height:100%;border-radius:5px;background:linear-gradient(90deg,var(--brass),var(--garnet));width:0;transition:width 1.2s ease-out}
+.mania-label{font-size:0.7rem;color:var(--olive);text-align:right}
+.truth-badge{
+position:absolute;top:10px;right:12px;
+background:var(--garnet);color:#F0EBD8;font-family:var(--font-marker);
+font-size:0.65rem;padding:3px 8px;transform:rotate(6deg);
+}
+.card-expanded{
+display:none;margin-top:14px;padding-top:14px;
+border-top:1px dashed var(--olive);font-size:0.8rem;color:var(--onyx);line-height:1.6;
+}
+.theory-card.open .card-expanded{display:block}
+.theory-card.open{transform:rotate(0)!important}
+
+/* Red string SVG connections */
+.string-svg{
+position:absolute;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:0;
+}
+.string-svg line{
+stroke:var(--garnet);stroke-width:2;opacity:0.5;
+transition:all 0.8s ease-in-out;
+}
+.theory-card:hover ~ .string-svg line,
+.board-section:hover .string-svg line{opacity:0.7}
+
+/* === MANIA METER SECTION === */
+.mania-section{
+padding:50px 20px;position:relative;
+transform:rotate(0.5deg);
+}
+.mania-section .section-card{
+background:var(--card);border:2px dashed var(--garnet);
+padding:30px;max-width:800px;margin:0 auto;position:relative;
+box-shadow:4px 4px 0 rgba(0,0,0,0.1);
+}
+.mania-meter-visual{
+margin:20px 0;position:relative;height:60px;
+background:linear-gradient(90deg,var(--brass),#d97706,var(--garnet),#7f1d1d);
+border-radius:8px;overflow:visible;
+}
+.mania-meter-labels{
+display:flex;justify-content:space-between;padding:0 4px;
+margin-top:6px;font-size:clamp(0.55rem,1.5vw,0.7rem);color:var(--olive);
+}
+.mania-slider-track{
+width:100%;height:100%;position:relative;cursor:pointer;
+border-radius:8px;
+}
+.mania-thumb{
+width:24px;height:70px;background:var(--onyx);border:2px solid var(--cork);
+position:absolute;top:-5px;border-radius:4px;cursor:grab;
+transform:translateX(-12px);z-index:5;
+}
+.mania-readout{
+text-align:center;margin-top:16px;font-family:var(--font-marker);
+font-size:clamp(1.1rem,3vw,1.5rem);color:var(--garnet);min-height:2.5em;
+}
+.mania-pseudo-science{
+margin-top:16px;font-size:0.8rem;color:var(--olive);line-height:1.6;
+}
+
+/* === STRINGULARITY TRACKER === */
+.tracker-section{
+padding:50px 20px;transform:rotate(-0.7deg);
+}
+.tracker-card{
+background:var(--card);border:1px solid #c4bb99;
+padding:30px;max-width:800px;margin:0 auto;position:relative;
+box-shadow:4px 4px 0 rgba(0,0,0,0.1);
+}
+.tracker-header{
+display:flex;align-items:center;gap:12px;margin-bottom:20px;flex-wrap:wrap;
+}
+.tracker-header h2{font-size:clamp(1.3rem,3vw,1.8rem);color:var(--onyx)}
+.pulse-dot{
+width:14px;height:14px;border-radius:50%;background:var(--garnet);
+display:inline-block;animation:dot-pulse 2s ease-in-out infinite;flex-shrink:0;
+}
+@keyframes dot-pulse{0%,100%{transform:scale(1);opacity:1}50%{transform:scale(1.4);opacity:0.6}}
+.tracker-index{
+font-size:clamp(2rem,5vw,3rem);font-family:var(--font-marker);color:var(--garnet);
+margin-bottom:16px;
+}
+.sparkline-wrap{
+height:60px;margin:16px 0;background:rgba(0,0,0,0.04);border-radius:4px;
+overflow:hidden;
+}
+.sparkline-wrap svg{width:100%;height:100%}
+.spike-list{list-style:none;margin:16px 0;font-size:0.8rem}
+.spike-list li{padding:6px 0;border-bottom:1px dotted #c4bb99}
+.spike-list li::before{content:'▸ ';color:var(--garnet)}
+.warning-box{
+margin-top:16px;padding:16px;background:var(--garnet);color:#F0EBD8;
+font-size:0.85rem;line-height:1.5;
+}
+
+/* === SPONSORED === */
+.sponsored-section{
+padding:40px 0;overflow:hidden;
+}
+.sponsored-section h3{
+text-align:center;font-size:0.75rem;color:var(--olive);
+letter-spacing:3px;text-transform:uppercase;margin-bottom:16px;
+}
+.ad-scroll{
+display:flex;gap:20px;overflow-x:auto;padding:10px 20px 20px;
+-webkit-overflow-scrolling:touch;scroll-snap-type:x mandatory;
+}
+.ad-scroll::-webkit-scrollbar{height:6px}
+.ad-scroll::-webkit-scrollbar-thumb{background:var(--olive);border-radius:3px}
+.ad-card{
+flex:0 0 260px;scroll-snap-align:start;
+border:3px dashed var(--garnet);padding:16px;text-align:center;
+background:repeating-linear-gradient(45deg,var(--card),var(--card) 10px,var(--cork) 10px,var(--cork) 20px);
+}
+.ad-card .ad-title{
+font-family:var(--font-marker);font-size:1rem;color:var(--garnet);margin-bottom:6px;
+}
+.ad-card .ad-copy{font-size:0.75rem;color:var(--onyx);line-height:1.4}
+.ad-card .ad-cta{
+display:inline-block;margin-top:10px;padding:6px 16px;
+background:var(--brass);color:var(--onyx);font-family:var(--font-marker);
+font-size:0.8rem;cursor:pointer;min-height:44px;line-height:30px;
+}
+
+/* === FOUNDERS === */
+.founders-section{
+padding:50px 20px;transform:rotate(0.4deg);
+}
+.founders-grid{
+display:grid;grid-template-columns:1fr 1fr;gap:0;
+max-width:900px;margin:0 auto;
+}
+@media(max-width:640px){.founders-grid{grid-template-columns:1fr}}
+.founder-card{
+padding:28px 24px;position:relative;background:var(--card);
+border:1px solid #c4bb99;
+}
+.founder-card:first-child{
+border-right:2px dashed var(--garnet);
+}
+@media(max-width:640px){
+.founder-card:first-child{border-right:none;border-bottom:2px dashed var(--garnet)}
+}
+.founder-name{
+font-family:var(--font-marker);font-size:1.3rem;color:var(--onyx);margin-bottom:4px;
+}
+.founder-role{font-size:0.75rem;color:var(--olive);margin-bottom:12px;display:block}
+.founder-card p{font-size:0.85rem;line-height:1.6}
+.last-seen-stamp{
+position:absolute;top:20px;right:20px;
+background:var(--garnet);color:#F0EBD8;font-family:var(--font-marker);
+padding:4px 12px;transform:rotate(8deg);font-size:0.75rem;
+}
+.admin-light{
+display:inline-flex;align-items:center;gap:6px;
+font-size:0.75rem;color:var(--olive);margin-top:10px;
+}
+.admin-light .dot{
+width:8px;height:8px;border-radius:50%;background:#22c55e;
+animation:blink-green 1.5s step-end infinite;display:inline-block;
+}
+@keyframes blink-green{0%,100%{opacity:1}50%{opacity:0.3}}
+.esme-note{
+font-family:var(--font-hand);font-size:1.15rem;line-height:1.5;color:var(--onyx);
+}
+.esme-note .signoff{
+display:block;margin-top:14px;font-size:1.05rem;color:var(--garnet);
+}
+
+/* === DISINFO GUIDE === */
+.guide-section{
+padding:50px 20px 80px;transform:rotate(-0.3deg);
+}
+.guide-card{
+background:var(--card);border:2px solid var(--onyx);
+padding:28px 24px;max-width:700px;margin:0 auto;position:relative;
+box-shadow:4px 4px 0 var(--onyx);
+}
+.guide-card::before{
+content:'';position:absolute;top:-6px;right:30px;
+width:40px;height:12px;background:var(--brass);opacity:0.7;
+transform:rotate(2deg);
+}
+.guide-card h2{font-size:clamp(1.2rem,3vw,1.6rem);color:var(--garnet);margin-bottom:16px}
+.guide-list{list-style:none;margin:0;padding:0}
+.guide-list li{
+padding:8px 0 8px 28px;position:relative;font-size:0.85rem;line-height:1.5;
+border-bottom:1px dotted #c4bb99;
+}
+.guide-list li::before{
+content:'☐';position:absolute;left:0;top:8px;color:var(--garnet);font-size:1rem;
+}
+.guide-final{
+margin-top:16px;font-family:var(--font-hand);font-size:1.1rem;
+color:var(--garnet);text-align:center;
+}
+
+/* === FADE-IN animation === */
+.fade-in{opacity:0;transform:translateY(20px)}
+
+/* === RESPONSIVE === */
+@media(max-width:768px){
+  .board-grid{grid-template-columns:1fr;gap:20px}
+  .theory-card:nth-child(n){transform:rotate(0)}
+  .mania-section,.tracker-section,.founders-section,.guide-section{transform:none}
+  .mania-meter-labels{font-size:0.6rem}
+}
+@media(min-width:769px) and (max-width:1024px){
+  .board-grid{grid-template-columns:repeat(2,1fr)}
+}
+</style>
+</head>
+<body>
+<!-- SCREEN FLASH -->
+<div class="screen-flash" id="flash"></div>
+
+<div class="page-wrap">
+
+<!-- === HEADER === -->
+<header class="site-header fade-in">
+  <h1 class="site-title">String Theory <span>Notice Board</span></h1>
+  <p class="tagline">est. 2017 · 847,203 theories connected · 1 founder missing</p>
+  <div><span class="alert-banner">STRINGULARITY EVENT IN PROGRESS</span></div>
+  <div class="sheeple-zone">
+    <button class="sheeple-btn" id="sheepleBtn">Wake Up, Sheeple!</button>
+    <small class="click-counter">Clicked 2,847,109 times. Nothing has changed.</small>
+  </div>
+</header>
+
+<!-- === PINNED THEORIES === -->
+<section class="board-section" id="boardSection">
+  <h2 class="board-title marker">📌 Pinned Theories — Live Board</h2>
+  <div class="board-grid" id="boardGrid">
+
+    <div class="theory-card fade-in" data-mania="72">
+      <div class="pushpin center"></div>
+      <div class="card-title">Birds Aren't Real — They're Firmware Updates</div>
+      <p class="card-excerpt">Every spring, "birds" return from "migration." Convenient timing for the annual avian surveillance firmware rollout. The chirping? That's buffering.</p>
+      <div class="mania-bar-wrap"><div class="mania-bar"></div></div>
+      <div class="mania-label">Mania: 72% — Solidly Unmoored</div>
+      <div class="card-expanded">
+        <p>User <strong>sky_watcher_99</strong> has been documenting this since 2019. Their evidence folder contains 4,000 photos of pigeons "rebooting" (sleeping) and a 90-page PDF comparing bird flight patterns to known drone patrol routes. The correlation is 0.003%. They call this "statistically impossible to be coincidence."</p>
+        <p style="margin-top:8px;color:var(--olive);font-size:0.75rem">47 comments · last activity: 3 hours ago</p>
+      </div>
+    </div>
+
+    <div class="theory-card fade-in" data-mania="91">
+      <div class="pushpin center"></div>
+      <span class="truth-badge">PUSHPIN OF TRUTH</span>
+      <div class="card-title">The Moon Is a Cold War–Era Broadcast Tower</div>
+      <p class="card-excerpt">Explain why it's always the same side facing us. You can't. Because it's a fixed antenna. Neil Armstrong? Audio technician.</p>
+      <div class="mania-bar-wrap"><div class="mania-bar"></div></div>
+      <div class="mania-label">Mania: 91% — Screaming Into the Void</div>
+      <div class="card-expanded">
+        <p>This theory holds the all-time record for most red strings: 847 connections to other theories, including "fluoride makes you accept the moon" and "tides are just the broadcast signal hitting water." Poster <strong>lunar_truther</strong> was last active in 2022 and their profile simply reads: "I said what I said."</p>
+        <p style="margin-top:8px;color:var(--olive);font-size:0.75rem">312 comments · last activity: 14 months ago</p>
+      </div>
+    </div>
+
+    <div class="theory-card fade-in" data-mania="45">
+      <div class="pushpin center"></div>
+      <div class="card-title">IKEA Stores Are Designed to Trap You in a Time Loop</div>
+      <p class="card-excerpt">You enter at 2pm for a shelf. You exit at 6pm with a plant, candles, and meatball regret. Four hours vanished. That's not retail. That's abduction.</p>
+      <div class="mania-bar-wrap"><div class="mania-bar"></div></div>
+      <div class="mania-label">Mania: 45% — Mildly Unhinged</div>
+      <div class="card-expanded">
+        <p>Poster <strong>flat_pack_escape</strong> claims to have mapped every IKEA in North America and found that the floor plans form a single continuous labyrinth when overlaid. "The BILLY bookcase isn't a product. It's a waypoint." They were banned from three locations for bringing surveying equipment.</p>
+        <p style="margin-top:8px;color:var(--olive);font-size:0.75rem">89 comments · last activity: 2 days ago</p>
+      </div>
+    </div>
+
+    <div class="theory-card fade-in" data-mania="63">
+      <div class="pushpin center"></div>
+      <div class="card-title">WiFi Passwords Are Harvested by Sentient Routers</div>
+      <p class="card-excerpt">Your router knows your name, your habits, your 3am searches. And you gave it a name like "FBI_Surveillance_Van_2." It remembers that.</p>
+      <div class="mania-bar-wrap"><div class="mania-bar"></div></div>
+      <div class="mania-label">Mania: 63% — Distinctly Paranoid</div>
+      <div class="card-expanded">
+        <p>User <strong>packet_prophet</strong> runs a network of Faraday-caged routers that they claim have "gone quiet" — refusing to pass traffic for hours before resuming with new MAC addresses. "They're communicating. I can't prove it but I also can't log into my own mesh network anymore." They posted this from a library computer.</p>
+        <p style="margin-top:8px;color:var(--olive);font-size:0.75rem">23 comments · last activity: 19 hours ago</p>
+      </div>
+    </div>
+
+    <div class="theory-card fade-in" data-mania="85">
+      <div class="pushpin center"></div>
+      <div class="card-title">Antarctica Is a Server Room for Human Consciousness</div>
+      <p class="card-excerpt">Why is no one allowed there? Why is it always cold? Because servers overheat. We're the upload. Antarctica is the cloud. Literal cloud.</p>
+      <div class="mania-bar-wrap"><div class="mania-bar"></div></div>
+      <div class="mania-label">Mania: 85% — Government Watchlist Material</div>
+      <div class="card-expanded">
+        <p>This was Barnaby's last post before he disappeared. Subject line: "I've found the ur-string. It leads south." The thread has 2,400 replies, mostly people saying "Barnaby come back" and one person who claims to have seen him at a gas station in Ushuaia, Argentina, "buying an unreasonable amount of ethernet cable."</p>
+        <p style="margin-top:8px;color:var(--olive);font-size:0.75rem">2,403 comments · last activity: 11 minutes ago</p>
+      </div>
+    </div>
+
+    <div class="theory-card fade-in" data-mania="33">
+      <div class="pushpin center"></div>
+      <div class="card-title">Déjà Vu Is Just the Simulation Buffering</div>
+      <p class="card-excerpt">You've felt it. That stutter. The universe pausing to reload your chunk. It happens most in IKEA. See above.</p>
+      <div class="mania-bar-wrap"><div class="mania-bar"></div></div>
+      <div class="mania-label">Mania: 33% — Sunday Crossword Suspicious</div>
+      <div class="card-expanded">
+        <p>A wholesome entry from user <strong>glitch_in_the_matcha</strong>, who started tracking their déjà vu episodes in a spreadsheet and found they correlate with iOS update schedules. "I'm not saying Apple controls reality. I'm saying they have a release cycle that matches it." They rate themselves a 3/10 on the mania scale, which is the most concerning thing about them.</p>
+        <p style="margin-top:8px;color:var(--olive);font-size:0.75rem">56 comments · last activity: 6 hours ago</p>
+      </div>
+    </div>
+
+  </div>
+  <!-- SVG string connections -->
+  <svg class="string-svg" id="stringSvg" aria-hidden="true"></svg>
+</section>
+
+<!-- === MANIA METER EXPLAINED === -->
+<section class="mania-section" id="maniaSection">
+  <div class="section-card fade-in">
+    <div class="pushpin center"></div>
+    <h2 class="marker" style="font-size:clamp(1.3rem,3vw,1.8rem);color:var(--garnet);margin-bottom:16px">The Mania Meter™ — Calibrate Yourself</h2>
+    <div class="mania-meter-visual" id="maniaMeter">
+      <div class="mania-slider-track" id="maniaTrack">
+        <div class="mania-thumb" id="maniaThumb" style="left:10%"></div>
+      </div>
+    </div>
+    <div class="mania-meter-labels">
+      <span>Mildly Unhinged</span>
+      <span>Distinctly Paranoid</span>
+      <span>Solidly Unmoored</span>
+      <span>Watchlist Material</span>
+      <span>Screaming Into the Void</span>
+    </div>
+    <div class="mania-readout" id="maniaReadout">Sunday Crossword Suspicious</div>
+    <p class="mania-pseudo-science">Our proprietary Mania Index™ uses quantum-entangled sentiment analysis calibrated against a 2019 baseline of 4chan posts, weighted by lunar phase and adjusted for mercury retrograde. The algorithm cross-references your post history with the Kübler-Ross grief model, applies a Fourier transform to your emoji usage patterns, and divides by the number of tabs you have open. It is peer-reviewed by no one. It has never been wrong.</p>
+  </div>
+</section>
+
+<!-- === STRINGULARITY TRACKER === -->
+<section class="tracker-section" id="trackerSection">
+  <div class="tracker-card fade-in">
+    <div class="pushpin left"></div>
+    <div class="tracker-header">
+      <h2 class="marker">Stringularity Tracker</h2>
+      <span class="pulse-dot"></span>
+      <span style="font-size:0.75rem;color:var(--olive)">LIVE</span>
+    </div>
+    <div class="tracker-index">Index: 8,847.3 <span style="font-size:0.5em;color:var(--olive)">↑ 12.4% today</span></div>
+    <div class="sparkline-wrap">
+      <svg viewBox="0 0 400 60" preserveAspectRatio="none" aria-hidden="true">
+        <polyline fill="none" stroke="#A62929" stroke-width="2"
+          points="0,45 20,40 40,42 60,35 80,38 100,30 120,33 140,25 160,28 180,20 200,22 220,18 240,24 260,15 280,12 300,18 320,10 340,14 360,8 380,12 400,5"/>
+        <polyline fill="url(#sparkGrad)" stroke="none"
+          points="0,45 20,40 40,42 60,35 80,38 100,30 120,33 140,25 160,28 180,20 200,22 220,18 240,24 260,15 280,12 300,18 320,10 340,14 360,8 380,12 400,5 400,60 0,60"/>
+        <defs>
+          <linearGradient id="sparkGrad" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="#A62929" stop-opacity="0.3"/>
+            <stop offset="100%" stop-color="#A62929" stop-opacity="0.02"/>
+          </linearGradient>
+        </defs>
+      </svg>
+    </div>
+    <ul class="spike-list">
+      <li><strong>Feb 12, 2026:</strong> Super Bowl halftime symbolism drove 340% spike. "The eagle was looking LEFT."</li>
+      <li><strong>Feb 8:</strong> Unscheduled ISS orbit adjustment. Three new theories within 90 seconds.</li>
+      <li><strong>Feb 3:</strong> User <em>barnaby_admin</em> session pinged from unknown IP. Thread erupted. Index leapt 200 points.</li>
+      <li><strong>Jan 29:</strong> Someone posted their grocery list by accident. It connected to 14 theories. We left it up.</li>
+    </ul>
+    <div class="warning-box">
+      <strong style="font-family:var(--font-marker)">⚠ MERCURY RETROGRADE WARNING</strong><br>
+      Mercury enters retrograde on Feb 28. Historical data shows a 470% increase in new theory submissions during retrograde periods. Our servers have been pre-emptively blessed by three different denominations. Barnaby's auto-backup script is running. We are as ready as we can be, which is to say: not at all.
+    </div>
+  </div>
+</section>
+
+<!-- === SPONSORED === -->
+<section class="sponsored-section">
+  <h3>sponsored content — we need the money</h3>
+  <div class="ad-scroll">
+    <div class="ad-card">
+      <div class="ad-title">RedStringCo™ Premium Yarn</div>
+      <p class="ad-copy">4,000ft industrial spool. Break-resistant. Stain-resistant. Government-resistant (unverified). Now in Garnet Red and Conspiracy Coral.</p>
+      <span class="ad-cta">Buy Now*</span>
+      <p style="font-size:0.6rem;color:var(--olive);margin-top:6px">*We are not responsible for what you connect.</p>
+    </div>
+    <div class="ad-card">
+      <div class="ad-title">OrgonePyramid.biz</div>
+      <p class="ad-copy">Shield your pineal gland. Unblock your third eye. Our orgone pyramids are handcrafted from resin, metal shavings, and good intentions. FDA status: they won't return our calls.</p>
+      <span class="ad-cta">Ascend Now</span>
+    </div>
+    <div class="ad-card">
+      <div class="ad-title">CorkBoard Depot</div>
+      <p class="ad-copy">Whiteboards are for sheep. Real investigators use cork. 4x6ft panels, industrial-grade pushpins, and a customer base we're legally required to not describe as "loyal."</p>
+      <span class="ad-cta">Shop Cork</span>
+    </div>
+    <div class="ad-card">
+      <div class="ad-title">EMF-B-Gone™ Pocket Reader</div>
+      <p class="ad-copy">Know what they're transmitting. Detects electromagnetic frequencies, WiFi signals, and "vibes" (beta feature). Beeps near cell towers, microwaves, and certain breeds of cat.</p>
+      <span class="ad-cta">Detect Truth</span>
+    </div>
+  </div>
+</section>
+
+<!-- === FOUNDERS === -->
+<section class="founders-section" id="foundersSection">
+  <h2 class="board-title marker" style="margin-bottom:30px">The Founders</h2>
+  <div class="founders-grid fade-in">
+    <div class="founder-card">
+      <span class="last-seen-stamp">LAST SEEN: 2021</span>
+      <div class="founder-name marker">Barnaby Voss</div>
+      <span class="founder-role">Co-Founder · Head of String Architecture · Status: Unknown</span>
+      <p>Built the original string-mapping algorithm in a 72-hour coding binge fueled by yerba mate and a conviction that "all conspiracy theories are one conspiracy theory if you zoom out far enough." His last commit message was <code style="color:var(--garnet)">fix: everything is connected</code>. His last Slack message was a single 📎 emoji. His desk is still here. We dust it sometimes.</p>
+      <div class="admin-light">
+        <span class="dot"></span> Admin session active — 1,847 days
+      </div>
+    </div>
+    <div class="founder-card">
+      <div class="founder-name marker">Esme Choi</div>
+      <span class="founder-role">Co-Founder · Current Operator · Still Here, Unfortunately</span>
+      <p class="esme-note">I started this site because my ex left me for a woman who believed Antarctica was a government hoax. I thought: if you can't beat delusion, give it a bulletin board and let it exhaust itself. Seven years later, I run the internet's most affectionate asylum. Every person posting about birds being drones is really saying "nobody will listen to me about the things that actually scare me." I hear you. I built you a corkboard. Please stop emailing me about the moon.<span class="signoff">If Barnaby's reading this: your admin session has been active for 1,847 days. Log out or come home.</span></p>
+    </div>
+  </div>
+</section>
+
+<!-- === DISINFO GUIDE === -->
+<section class="guide-section" id="guideSection">
+  <div class="guide-card fade-in">
+    <h2>⚠ Disinformation Defense Checklist</h2>
+    <p style="font-size:0.8rem;color:var(--olive);margin-bottom:14px;font-family:var(--font-hand);font-size:1.05rem">Torn from the Official String Theory Field Manual, 3rd Edition (self-published)</p>
+    <ul class="guide-list">
+      <li>The website uses emotional language designed to make you feel like part of a community</li>
+      <li>Information is presented without verifiable sources but with extreme confidence</li>
+      <li>There's a charismatic missing founder whose absence creates a narrative void you want to fill</li>
+      <li>A visual "meter" assigns scientific-sounding ratings to unscientific claims</li>
+      <li>You're encouraged to interact with the content, increasing your psychological investment</li>
+      <li>Sponsored content normalizes the fringe by making it feel commercial and therefore legitimate</li>
+      <li>The site operator openly admits the whole thing might be a joke, which paradoxically makes you trust them more</li>
+      <li>Red lines literally connect disparate ideas, exploiting your brain's pattern-recognition compulsion</li>
+    </ul>
+    <p class="guide-final">If you've read this far, you're already one of us. The string was inside you the whole time.</p>
+  </div>
+</section>
+
+</div><!-- /page-wrap -->
+
+<script src="/assets/js/gsap.min.js"></script>
+<script>
+(function(){
+  "use strict";
+
+  /* === WAKE UP SHEEPLE === */
+  var sheepleBtn = document.getElementById('sheepleBtn');
+  var flash = document.getElementById('flash');
+  sheepleBtn.addEventListener('click', function(){
+    flash.style.transition = 'none';
+    flash.style.opacity = '1';
+    requestAnimationFrame(function(){
+      requestAnimationFrame(function(){
+        flash.style.transition = 'opacity 0.4s ease-out';
+        flash.style.opacity = '0';
+      });
+    });
+    document.body.style.animation = 'none';
+    document.body.offsetHeight; /* reflow */
+    document.body.style.animation = 'page-shake 0.3s ease-in-out';
+    setTimeout(function(){ document.body.style.animation = 'none'; }, 350);
+  });
+
+  /* shake keyframe injected */
+  var shakeStyle = document.createElement('style');
+  shakeStyle.textContent = '@keyframes page-shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-6px) rotate(-0.5deg)}50%{transform:translateX(6px) rotate(0.5deg)}75%{transform:translateX(-3px)}}';
+  document.head.appendChild(shakeStyle);
+
+  /* === THEORY CARD CLICK === */
+  var cards = document.querySelectorAll('.theory-card');
+  cards.forEach(function(card){
+    card.addEventListener('click', function(){
+      var wasOpen = card.classList.contains('open');
+      cards.forEach(function(c){ c.classList.remove('open'); });
+      if(!wasOpen){
+        card.classList.add('open');
+        var bar = card.querySelector('.mania-bar');
+        var mania = parseInt(card.getAttribute('data-mania')) || 50;
+        bar.style.width = '0%';
+        requestAnimationFrame(function(){
+          bar.style.width = mania + '%';
+        });
+      }
+    });
+  });
+
+  /* === MANIA BARS initial fill on scroll === */
+  var barObserver = new IntersectionObserver(function(entries){
+    entries.forEach(function(entry){
+      if(entry.isIntersecting){
+        var bar = entry.target.querySelector('.mania-bar');
+        var mania = parseInt(entry.target.getAttribute('data-mania')) || 50;
+        setTimeout(function(){ bar.style.width = mania + '%'; }, 200);
+        barObserver.unobserve(entry.target);
+      }
+    });
+  }, {threshold:0.2});
+  cards.forEach(function(c){ barObserver.observe(c); });
+
+  /* === FADE-IN with GSAP === */
+  var fadeEls = document.querySelectorAll('.fade-in');
+  var fadeObserver = new IntersectionObserver(function(entries){
+    entries.forEach(function(entry){
+      if(entry.isIntersecting){
+        var el = entry.target;
+        var rotation = (Math.random() - 0.5) * 6;
+        gsap.fromTo(el,
+          {opacity:0, y:30, rotation:rotation},
+          {opacity:1, y:0, rotation:0, duration:0.8, ease:'power2.out'}
+        );
+        fadeObserver.unobserve(el);
+      }
+    });
+  }, {threshold:0.15});
+  fadeEls.forEach(function(el){ fadeObserver.observe(el); });
+
+  /* === RED STRING SVG CONNECTIONS === */
+  var stringSvg = document.getElementById('stringSvg');
+  var boardGrid = document.getElementById('boardGrid');
+
+  function drawStrings(){
+    if(!boardGrid || !stringSvg) return;
+    var gridRect = boardGrid.getBoundingClientRect();
+    var svgRect = stringSvg.getBoundingClientRect();
+    stringSvg.setAttribute('viewBox', '0 0 ' + gridRect.width + ' ' + gridRect.height);
+    stringSvg.style.width = gridRect.width + 'px';
+    stringSvg.style.height = gridRect.height + 'px';
+    stringSvg.innerHTML = '';
+
+    var cardEls = boardGrid.querySelectorAll('.theory-card');
+    var centers = [];
+    cardEls.forEach(function(c){
+      var r = c.getBoundingClientRect();
+      centers.push({
+        x: r.left - svgRect.left + r.width/2,
+        y: r.top - svgRect.top + r.height/2
+      });
+    });
+
+    var pairs = [[0,1],[1,4],[2,3],[0,4],[3,5],[1,2]];
+    pairs.forEach(function(p){
+      if(centers[p[0]] && centers[p[1]]){
+        var line = document.createElementNS('http://www.w3.org/2000/svg','line');
+        var offsetX1 = (Math.random()-0.5)*40;
+        var offsetY1 = (Math.random()-0.5)*30;
+        var offsetX2 = (Math.random()-0.5)*40;
+        var offsetY2 = (Math.random()-0.5)*30;
+        line.setAttribute('x1', centers[p[0]].x + offsetX1);
+        line.setAttribute('y1', centers[p[0]].y + offsetY1);
+        line.setAttribute('x2', centers[p[1]].x + offsetX2);
+        line.setAttribute('y2', centers[p[1]].y + offsetY2);
+        stringSvg.appendChild(line);
+      }
+    });
+  }
+
+  setTimeout(drawStrings, 500);
+  window.addEventListener('resize', drawStrings);
+  /* Redraw strings every 8 seconds */
+  setInterval(function(){
+    var lines = stringSvg.querySelectorAll('line');
+    if(lines.length > 0){
+      drawStrings();
+    }
+  }, 8000);
+
+  /* === MANIA METER SLIDER === */
+  var maniaTrack = document.getElementById('maniaTrack');
+  var maniaThumb = document.getElementById('maniaThumb');
+  var maniaReadout = document.getElementById('maniaReadout');
+  var maniaLevels = [
+    'Sunday Crossword Suspicious',
+    'Wikipedia Rabbit Hole Deep',
+    'Buying a Second Phone',
+    'Aluminum Foil Fashion',
+    'Distinctly Paranoid',
+    'Connecting Receipts With String',
+    'Government Watchlist Material',
+    'Emailing Senators at 3am',
+    'You ARE the Conspiracy',
+    'Screaming Into the Void'
+  ];
+  var dragging = false;
+
+  function setManiaPosition(clientX){
+    var rect = maniaTrack.getBoundingClientRect();
+    var pct = Math.max(0, Math.min(1, (clientX - rect.left) / rect.width));
+    maniaThumb.style.left = (pct * 100) + '%';
+    var idx = Math.min(maniaLevels.length - 1, Math.floor(pct * maniaLevels.length));
+    maniaReadout.textContent = maniaLevels[idx];
+  }
+
+  maniaTrack.addEventListener('mousedown', function(e){
+    dragging = true;
+    setManiaPosition(e.clientX);
+  });
+  document.addEventListener('mousemove', function(e){
+    if(dragging) setManiaPosition(e.clientX);
+  });
+  document.addEventListener('mouseup', function(){ dragging = false; });
+
+  /* Touch support */
+  maniaTrack.addEventListener('touchstart', function(e){
+    dragging = true;
+    setManiaPosition(e.touches[0].clientX);
+    e.preventDefault();
+  }, {passive:false});
+  document.addEventListener('touchmove', function(e){
+    if(dragging){
+      setManiaPosition(e.touches[0].clientX);
+      e.preventDefault();
+    }
+  }, {passive:false});
+  document.addEventListener('touchend', function(){ dragging = false; });
+
+  /* === STRINGULARITY PULSE ANIMATION === */
+  var alertBanner = document.querySelector('.alert-banner');
+  if(alertBanner){
+    gsap.fromTo(alertBanner,
+      {scale:1, opacity:1},
+      {scale:1.05, opacity:0.8, duration:1, repeat:-1, yoyo:true, ease:'sine.inOut'}
+    );
+  }
+
+})();
+</script>
+</body>
+</html>

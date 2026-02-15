@@ -1,0 +1,897 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>RetroCondo.biz — Fully Furnished. Frozen In Time. Finally Home.</title>
+<link rel="stylesheet" href="/assets/css/fonts.css">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg: #2a2a2f;
+  --text: #c8ccd0;
+  --teal: #3a9e9e;
+  --carrot: #ff6e2a;
+  --card: #1e1e22;
+  --muted: #3d3d44;
+  --bevel: inset 2px 2px 0 #3d3d44, inset -2px -2px 0 #1e1e22;
+  --bevel-pressed: inset 2px 2px 0 #1e1e22, inset -2px -2px 0 #3d3d44;
+}
+
+html { scroll-behavior: smooth; }
+
+body {
+  font-family: 'Fira Code', monospace;
+  font-size: 16px;
+  line-height: 1.6;
+  color: var(--text);
+  background: var(--bg);
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: 'Oswald', sans-serif;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #e0e3e7;
+  line-height: 1.2;
+}
+
+a { color: var(--teal); text-decoration: underline; }
+a:hover { color: var(--carrot); }
+
+/* === LOADING SCREEN === */
+#loading-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  background: #111114;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 20px;
+}
+
+#loading-overlay .load-text {
+  font-family: 'Fira Code', monospace;
+  font-size: 14px;
+  color: var(--teal);
+}
+
+#loading-overlay .load-subtext {
+  font-family: 'Fira Code', monospace;
+  font-size: 11px;
+  color: #666;
+  margin-top: -10px;
+}
+
+.progress-track {
+  width: 320px;
+  max-width: 80vw;
+  height: 24px;
+  background: var(--card);
+  border: 2px solid var(--teal);
+  box-shadow: var(--bevel-pressed);
+  position: relative;
+}
+
+.progress-fill {
+  height: 100%;
+  width: 0%;
+  background: repeating-linear-gradient(
+    90deg,
+    var(--teal) 0px,
+    var(--teal) 8px,
+    #2d7a7a 8px,
+    #2d7a7a 10px
+  );
+  transition: none;
+}
+
+.cancel-btn {
+  font-family: 'Oswald', sans-serif;
+  font-size: 13px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  background: var(--muted);
+  color: var(--text);
+  border: none;
+  padding: 6px 24px;
+  box-shadow: var(--bevel);
+  cursor: pointer;
+  min-height: 44px;
+  min-width: 44px;
+}
+
+.cancel-btn:active {
+  box-shadow: var(--bevel-pressed);
+}
+
+/* === MAIN CONTAINER === */
+.site-container {
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 16px;
+}
+
+/* === PANEL (boxy windows) === */
+.panel {
+  background: var(--card);
+  border: 2px solid var(--teal);
+  box-shadow: var(--bevel);
+  margin-bottom: 24px;
+  overflow: hidden;
+}
+
+.panel-titlebar {
+  background: linear-gradient(90deg, #1a5c5c 0%, var(--teal) 100%);
+  padding: 6px 12px;
+  font-family: 'Oswald', sans-serif;
+  font-size: 13px;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.panel-titlebar .dots {
+  display: flex;
+  gap: 4px;
+}
+
+.panel-titlebar .dot {
+  width: 10px;
+  height: 10px;
+  background: var(--muted);
+  border: 1px solid #555;
+}
+
+.panel-body {
+  padding: 20px;
+}
+
+/* === SECTION FADE-IN === */
+.section-animate {
+  opacity: 0;
+  transform: translateY(20px);
+}
+
+/* === HERO === */
+.hero-logo {
+  font-family: 'Oswald', sans-serif;
+  font-size: clamp(28px, 6vw, 48px);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: #e0e3e7;
+  text-align: center;
+  padding-bottom: 8px;
+  border-bottom: 3px solid var(--teal);
+  margin-bottom: 16px;
+}
+
+.hero-logo span { color: var(--teal); }
+
+.hero-tagline {
+  font-size: clamp(13px, 2.5vw, 15px);
+  text-align: center;
+  max-width: 640px;
+  margin: 0 auto 20px;
+  color: var(--text);
+}
+
+/* HGTV Banner */
+.hgtv-banner {
+  text-align: center;
+  padding: 10px;
+  font-family: 'Oswald', sans-serif;
+  font-size: clamp(12px, 2.5vw, 15px);
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  font-weight: 700;
+  animation: hgtv-blink 1.5s step-end infinite;
+  border: 2px dashed var(--carrot);
+  margin-top: 10px;
+}
+
+@keyframes hgtv-blink {
+  0%, 49.9% {
+    background: var(--teal);
+    color: var(--carrot);
+  }
+  50%, 100% {
+    background: var(--carrot);
+    color: var(--card);
+  }
+}
+
+/* === CONDO OF THE MONTH === */
+.slideshow-container {
+  position: relative;
+  width: 100%;
+  overflow: hidden;
+}
+
+.slideshow-track {
+  display: flex;
+  transition: transform 0.6s ease;
+}
+
+.slide {
+  min-width: 100%;
+  padding: 12px;
+}
+
+.polaroid {
+  background: #d4d0c8;
+  padding: 12px 12px 40px;
+  box-shadow: 2px 2px 8px #00000066;
+  position: relative;
+  max-width: 400px;
+  margin: 0 auto;
+}
+
+.polaroid-image {
+  width: 100%;
+  aspect-ratio: 4/3;
+  background: var(--muted);
+  position: relative;
+  overflow: hidden;
+}
+
+.polaroid-image .scanlines {
+  position: absolute;
+  inset: 0;
+  background: repeating-linear-gradient(
+    0deg,
+    transparent 0px,
+    transparent 2px,
+    rgba(0,0,0,0.08) 2px,
+    rgba(0,0,0,0.08) 4px
+  );
+  pointer-events: none;
+  z-index: 2;
+}
+
+.polaroid-image .room-placeholder {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Fira Code', monospace;
+  font-size: 12px;
+  color: #888;
+  text-align: center;
+  padding: 10px;
+  animation: crt-glitch 6s infinite;
+}
+
+.polaroid-image .room-placeholder::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  opacity: 0;
+  animation: rgb-split 6s infinite;
+  background: linear-gradient(90deg, rgba(255,0,0,0.1) 33%, rgba(0,255,0,0.1) 33% 66%, rgba(0,0,255,0.1) 66%);
+  pointer-events: none;
+}
+
+@keyframes crt-glitch {
+  0%, 89%, 91%, 93%, 100% { transform: translateX(0); opacity: 1; }
+  89.5% { transform: translateX(-3px); opacity: 0.96; }
+  90% { transform: translateX(4px); opacity: 0.95; }
+  90.5% { transform: translateX(-2px); opacity: 0.98; }
+  92% { transform: translateX(3px); opacity: 0.97; }
+  92.5% { transform: translateX(0); opacity: 1; }
+}
+
+@keyframes rgb-split {
+  0%, 89%, 93%, 100% { opacity: 0; }
+  89.5%, 92.5% { opacity: 1; }
+}
+
+.polaroid-caption {
+  position: absolute;
+  bottom: 8px;
+  left: 12px;
+  right: 12px;
+  font-family: 'Fira Code', monospace;
+  font-size: 11px;
+  color: #333;
+  text-align: center;
+}
+
+.slide-indicators {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.slide-dot {
+  width: 12px;
+  height: 12px;
+  background: var(--muted);
+  border: 1px solid var(--teal);
+  cursor: pointer;
+  min-width: 44px;
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.slide-dot.active {
+  background: var(--teal);
+}
+
+.condo-specs {
+  margin-top: 16px;
+  font-size: 13px;
+  line-height: 2;
+}
+
+.condo-specs .spec-line {
+  border-bottom: 1px solid var(--muted);
+  padding: 2px 0;
+}
+
+.condo-specs .spec-line:last-child { border-bottom: none; }
+
+/* === BROWSE BY YEAR === */
+.year-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 8px;
+}
+
+@media (max-width: 600px) {
+  .year-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+.year-tile {
+  background: var(--muted);
+  border: none;
+  box-shadow: var(--bevel);
+  font-family: 'Oswald', sans-serif;
+  font-size: clamp(14px, 2vw, 16px);
+  color: var(--text);
+  text-align: center;
+  padding: 10px 4px;
+  cursor: pointer;
+  position: relative;
+  min-height: 44px;
+  transition: background 0.05s;
+}
+
+.year-tile:hover {
+  background: var(--carrot);
+  color: var(--card);
+}
+
+.year-tile:active, .year-tile.pressed {
+  box-shadow: var(--bevel-pressed);
+}
+
+.year-tooltip {
+  position: fixed;
+  background: var(--card);
+  border: 1px solid var(--teal);
+  color: var(--text);
+  font-family: 'Fira Code', monospace;
+  font-size: 11px;
+  padding: 6px 10px;
+  pointer-events: none;
+  z-index: 100;
+  max-width: 240px;
+  white-space: nowrap;
+  display: none;
+}
+
+/* Toast notification */
+.toast {
+  position: fixed;
+  bottom: 80px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--card);
+  border: 1px solid var(--teal);
+  color: var(--teal);
+  font-family: 'Fira Code', monospace;
+  font-size: 12px;
+  padding: 8px 16px;
+  z-index: 200;
+  opacity: 0;
+  transition: opacity 0.3s;
+  pointer-events: none;
+}
+
+.toast.visible { opacity: 1; }
+
+/* === FAQ ACCORDION === */
+.faq-item {
+  border-bottom: 1px solid var(--muted);
+}
+
+.faq-item:last-child { border-bottom: none; }
+
+.faq-question {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  background: none;
+  border: none;
+  color: #e0e3e7;
+  font-family: 'Oswald', sans-serif;
+  font-size: clamp(14px, 2.5vw, 16px);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  padding: 14px 8px;
+  cursor: pointer;
+  text-align: left;
+  min-height: 44px;
+}
+
+.faq-question:hover { color: var(--carrot); }
+
+.faq-toggle {
+  font-family: 'Fira Code', monospace;
+  font-size: 14px;
+  color: var(--teal);
+  width: 24px;
+  flex-shrink: 0;
+}
+
+.faq-answer {
+  overflow: hidden;
+  max-height: 0;
+  transition: max-height 0.35s ease, padding 0.35s ease;
+  padding: 0 8px;
+}
+
+.faq-answer.open {
+  max-height: 300px;
+  padding: 0 8px 14px;
+}
+
+.faq-answer p {
+  font-size: 13px;
+  line-height: 1.7;
+  color: var(--text);
+}
+
+/* === FORUM TABLE === */
+.forum-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: clamp(11px, 2vw, 13px);
+}
+
+.forum-table th {
+  font-family: 'Oswald', sans-serif;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-size: 12px;
+  background: var(--muted);
+  color: var(--teal);
+  padding: 8px 10px;
+  text-align: left;
+  border-bottom: 2px solid var(--teal);
+}
+
+.forum-table td {
+  padding: 10px;
+  border-bottom: 1px solid var(--muted);
+  vertical-align: top;
+}
+
+.forum-table tr:nth-child(even) td {
+  background: #252528;
+}
+
+.forum-table tr:nth-child(odd) td {
+  background: var(--card);
+}
+
+.forum-table .topic-title { color: var(--teal); }
+.forum-table .forum-user { color: #888; font-size: 11px; }
+.forum-table .forum-count { text-align: center; color: var(--carrot); font-weight: bold; }
+
+/* === FOOTER === */
+.site-footer {
+  text-align: center;
+  padding: 24px 16px;
+  font-size: 11px;
+  color: #777;
+  border-top: 2px solid var(--teal);
+  margin-top: 8px;
+}
+
+.site-footer a { color: var(--teal); }
+
+.hit-counter {
+  display: inline-block;
+  background: #111;
+  border: 1px solid var(--muted);
+  padding: 4px 12px;
+  font-family: 'Fira Code', monospace;
+  font-size: 13px;
+  color: #00cc00;
+  margin-top: 10px;
+  letter-spacing: 2px;
+}
+
+/* === RESPONSIVE === */
+@media (max-width: 768px) {
+  .site-container { padding: 10px; }
+  .panel-body { padding: 14px; }
+  .forum-table .hide-mobile { display: none; }
+}
+
+@media (max-width: 480px) {
+  .panel-body { padding: 10px; }
+}
+</style>
+</head>
+<body>
+
+<!-- LOADING OVERLAY -->
+<div id="loading-overlay">
+  <div class="load-text">Negotiating Mortgage (Please Wait...)</div>
+  <div class="load-subtext">Contacting lender... verifying credit... adjusting for nostalgia index...</div>
+  <div class="progress-track">
+    <div class="progress-fill" id="progress-fill"></div>
+  </div>
+  <button class="cancel-btn" onclick="void(0)">Cancel</button>
+</div>
+
+<!-- MAIN PAGE (hidden behind loading) -->
+<div class="site-container" x-data="retroCondo()" x-cloak>
+
+  <!-- HERO -->
+  <div class="panel section-animate">
+    <div class="panel-titlebar">
+      <div class="dots"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>
+      RetroCondo.biz — Home
+    </div>
+    <div class="panel-body" style="text-align:center;">
+      <div class="hero-logo">Retro<span>Condo</span>.biz</div>
+      <p class="hero-tagline">Fully furnished condos frozen in time. Every year from 1985 to 2005. Down to the TV Guide on the coffee table and the half-used bottle of Pert Plus in the shower. What if the thing you need is still exactly where you left it.</p>
+      <div class="hgtv-banner">&#9733; As Seen On HGTV's "That Was Then, This Is Now!" &#9733; Season 3, Ep. 7 — "The Man Who Won't Let Go" &#9733;</div>
+    </div>
+  </div>
+
+  <!-- CONDO OF THE MONTH -->
+  <div class="panel section-animate">
+    <div class="panel-titlebar">
+      <div class="dots"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>
+      Condo Of The Month — Unit 7B
+    </div>
+    <div class="panel-body">
+      <div class="slideshow-container">
+        <div class="slideshow-track" :style="'transform: translateX(-' + (currentSlide * 100) + '%)'">
+          <div class="slide">
+            <div class="polaroid">
+              <div class="polaroid-image" style="background:#4a3f35;">
+                <div class="scanlines"></div>
+                <div class="room-placeholder">[ LIVING ROOM ]<br>Floral sofa. Wood-panel TV console.<br>A copy of Jurassic Park on VHS,<br>rewound and ready.</div>
+              </div>
+              <div class="polaroid-caption">Living room — exactly as Aunt Deb left it, 1993</div>
+            </div>
+          </div>
+          <div class="slide">
+            <div class="polaroid">
+              <div class="polaroid-image" style="background:#3a4a3a;">
+                <div class="scanlines"></div>
+                <div class="room-placeholder">[ KITCHEN ]<br>Avocado blender on harvest gold counter.<br>Magnetized pizza coupons (expired 1994).<br>Smells like Folgers and linoleum.</div>
+              </div>
+              <div class="polaroid-caption">Kitchen — the blender still works. You'll know.</div>
+            </div>
+          </div>
+          <div class="slide">
+            <div class="polaroid">
+              <div class="polaroid-image" style="background:#3a3a4a;">
+                <div class="scanlines"></div>
+                <div class="room-placeholder">[ BEDROOM ]<br>Waterbed (king). Mirrored headboard.<br>Alarm clock set to 6:47 AM forever.<br>Comforter pattern: southwestern geometry.</div>
+              </div>
+              <div class="polaroid-caption">Master bedroom — the waterbed is insured (ask Dale)</div>
+            </div>
+          </div>
+          <div class="slide">
+            <div class="polaroid">
+              <div class="polaroid-image" style="background:#4a3a3a;">
+                <div class="scanlines"></div>
+                <div class="room-placeholder">[ BATHROOM ]<br>Pert Plus (37% remaining).<br>Seashell soap dish. Mauve towels.<br>Mirror still has a Post-it:<br>"Call Mom — Tues"</div>
+              </div>
+              <div class="polaroid-caption">Bathroom — some things are better left exactly as found</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="slide-indicators">
+        <template x-for="(s, i) in 4">
+          <button class="slide-dot" :class="currentSlide === i ? 'active' : ''" @click="currentSlide = i" :aria-label="'Slide ' + (i+1)"></button>
+        </template>
+      </div>
+      <div class="condo-specs">
+        <div class="spec-line"><strong style="color:var(--teal);">Year:</strong> 1993</div>
+        <div class="spec-line"><strong style="color:var(--teal);">Unit:</strong> 7B, Tulsa, OK</div>
+        <div class="spec-line"><strong style="color:var(--teal);">Wallpaper:</strong> Floral (original, load-bearing)</div>
+        <div class="spec-line"><strong style="color:var(--teal);">Track lighting:</strong> Functional (3 of 4 bulbs)</div>
+        <div class="spec-line"><strong style="color:var(--teal);">Avocado blender:</strong> Loud. Operational. Non-negotiable.</div>
+        <div class="spec-line"><strong style="color:var(--teal);">Waterbed:</strong> Insured through 2007 (ask about renewal)</div>
+        <div class="spec-line"><strong style="color:var(--teal);">Asking price:</strong> What's a feeling worth to you?</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- BROWSE BY YEAR -->
+  <div class="panel section-animate">
+    <div class="panel-titlebar">
+      <div class="dots"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>
+      Browse By Year — Select Your Era
+    </div>
+    <div class="panel-body">
+      <p style="font-size:13px;margin-bottom:14px;color:#999;">Each year is a different room you can't go back to. Pick one. We'll furnish it.</p>
+      <div class="year-grid">
+        <template x-for="year in years" :key="year.y">
+          <button
+            class="year-tile"
+            :class="pressedYear === year.y ? 'pressed' : ''"
+            @click="clickYear(year.y)"
+            @mouseenter="showTooltip($event, year.tip)"
+            @mouseleave="hideTooltip()"
+            x-text="year.y"
+          ></button>
+        </template>
+      </div>
+    </div>
+  </div>
+
+  <!-- TOOLTIP (positioned via JS) -->
+  <div class="year-tooltip" id="year-tooltip" x-ref="tooltip"></div>
+
+  <!-- TOAST -->
+  <div class="toast" :class="toastVisible ? 'visible' : ''">Unit listings loading...</div>
+
+  <!-- FAQ -->
+  <div class="panel section-animate">
+    <div class="panel-titlebar">
+      <div class="dots"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>
+      FAQ &amp; Disclosures
+    </div>
+    <div class="panel-body" style="padding:0;">
+      <template x-for="(faq, idx) in faqs" :key="idx">
+        <div class="faq-item">
+          <button class="faq-question" @click="toggleFaq(idx)">
+            <span class="faq-toggle" x-text="openFaq === idx ? '[-]' : '[+]'"></span>
+            <span x-text="faq.q"></span>
+          </button>
+          <div class="faq-answer" :class="openFaq === idx ? 'open' : ''">
+            <p x-text="faq.a"></p>
+          </div>
+        </div>
+      </template>
+    </div>
+  </div>
+
+  <!-- FORUM -->
+  <div class="panel section-animate">
+    <div class="panel-titlebar">
+      <div class="dots"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>
+      Forum Preview — Avocado Appliances Anonymous
+    </div>
+    <div class="panel-body" style="padding:0;overflow-x:auto;">
+      <table class="forum-table">
+        <thead>
+          <tr>
+            <th>Topic</th>
+            <th style="width:70px;text-align:center;">Replies</th>
+            <th class="hide-mobile" style="width:160px;">Last Post</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>
+              <span class="topic-title">My KitchenAid harvest gold mixer just died. I'm not okay.</span><br>
+              <span class="forum-user">by waterbedking_dale · General Discussion</span>
+            </td>
+            <td class="forum-count">47</td>
+            <td class="hide-mobile"><span class="forum-user">avocadowidow22<br>Feb 11, 2026 9:14pm</span></td>
+          </tr>
+          <tr>
+            <td>
+              <span class="topic-title">Found a working Harvest Gold crockpot at Goodwill. Cried in the parking lot.</span><br>
+              <span class="forum-user">by crock_prophet · Finds &amp; Recoveries</span>
+            </td>
+            <td class="forum-count">23</td>
+            <td class="hide-mobile"><span class="forum-user">pertplus_forever<br>Feb 10, 2026 3:41pm</span></td>
+          </tr>
+          <tr>
+            <td>
+              <span class="topic-title">Wife replaced the avocado fridge. Sleeping in Unit 7B tonight.</span><br>
+              <span class="forum-user">by dale_actual · Coping Strategies</span>
+            </td>
+            <td class="forum-count">89</td>
+            <td class="hide-mobile"><span class="forum-user">floralsofa_grl<br>Feb 9, 2026 11:58pm</span></td>
+          </tr>
+          <tr>
+            <td>
+              <span class="topic-title">PSA: The almond-colored dishwasher was never "beige." Respect the nomenclature.</span><br>
+              <span class="forum-user">by color_archivist · Standards &amp; Terminology</span>
+            </td>
+            <td class="forum-count">112</td>
+            <td class="hide-mobile"><span class="forum-user">dale_actual<br>Feb 8, 2026 7:22am</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- FOOTER -->
+  <footer class="site-footer section-animate" id="site-footer">
+    <p>&copy; 1998&ndash;2005 RetroCondo.biz. All rights reserved. A Dale Krump enterprise.</p>
+    <p style="margin-top:6px;"><a href="javascript:void(0)">GeoCities Mirror</a> &middot; <a href="javascript:void(0)">Guestbook</a> &middot; <a href="javascript:void(0)">Webring</a></p>
+    <div class="hit-counter">You are visitor #<span id="hit-count">00004,871</span></div>
+    <p style="margin-top:10px;font-size:10px;color:#555;">Best viewed in Netscape Navigator 4.0 at 800&times;600. Dale is not a licensed therapist.</p>
+  </footer>
+
+</div>
+
+<script src="/assets/js/alpine.min.js" defer></script>
+<script src="/assets/js/gsap.min.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+
+  // === LOADING BAR ANIMATION ===
+  var fill = document.getElementById('progress-fill');
+  var overlay = document.getElementById('loading-overlay');
+
+  var tl = gsap.timeline({
+    onComplete: function() {
+      gsap.fromTo(overlay,
+        { opacity: 1, y: 0 },
+        { opacity: 0, y: -40, duration: 0.5, delay: 0.3, onComplete: function() {
+          overlay.style.display = 'none';
+          initScrollAnimations();
+        }}
+      );
+    }
+  });
+
+  tl.fromTo(fill, { width: '0%' }, { width: '43%', duration: 1.2, ease: 'power1.inOut' });
+  tl.to(fill, { width: '43%', duration: 0.8 }); // stall at 43%
+  tl.fromTo(fill, { width: '43%' }, { width: '100%', duration: 0.8, ease: 'power2.in' });
+
+  // === SCROLL ANIMATIONS ===
+  function initScrollAnimations() {
+    var sections = document.querySelectorAll('.section-animate');
+    var observer = new IntersectionObserver(function(entries) {
+      entries.forEach(function(entry) {
+        if (entry.isIntersecting) {
+          gsap.fromTo(entry.target,
+            { opacity: 0, y: 20 },
+            { opacity: 1, y: 0, duration: 0.6, ease: 'power2.out' }
+          );
+          observer.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.1 });
+
+    sections.forEach(function(s) { observer.observe(s); });
+  }
+
+  // === HIT COUNTER ===
+  var hitCount = 4871;
+  var hitEl = document.getElementById('hit-count');
+  var footerEl = document.getElementById('site-footer');
+
+  function formatHit(n) {
+    var s = String(n).padStart(8, '0');
+    return s.slice(0,5) + ',' + s.slice(5);
+  }
+
+  var footerObserver = new IntersectionObserver(function(entries) {
+    entries.forEach(function(entry) {
+      if (entry.isIntersecting) {
+        hitCount++;
+        hitEl.textContent = formatHit(hitCount);
+      }
+    });
+  }, { threshold: 0.5 });
+
+  footerObserver.observe(footerEl);
+
+  // === AUTO-ADVANCE SLIDESHOW ===
+  setInterval(function() {
+    var evt = new CustomEvent('next-slide');
+    document.dispatchEvent(evt);
+  }, 5000);
+});
+
+// === ALPINE DATA ===
+function retroCondo() {
+  return {
+    currentSlide: 0,
+    pressedYear: null,
+    toastVisible: false,
+    openFaq: null,
+    years: [
+      { y: 1985, tip: '1985 — Reagan on TV. Carpet everywhere.' },
+      { y: 1986, tip: '1986 — Peak brass fixtures.' },
+      { y: 1987, tip: '1987 — Mauve decade begins.' },
+      { y: 1988, tip: '1988 — Oak cabinets. No regrets.' },
+      { y: 1989, tip: '1989 — Last good year for wallpaper.' },
+      { y: 1990, tip: '1990 — Teal enters the chat.' },
+      { y: 1991, tip: '1991 — Peak floral. Peak safety.' },
+      { y: 1992, tip: '1992 — Track lighting golden age.' },
+      { y: 1993, tip: '1993 — The avocado blender year.' },
+      { y: 1994, tip: '1994 — Beige, everywhere, forever.' },
+      { y: 1995, tip: '1995 — Windows 95. Last real excitement.' },
+      { y: 1996, tip: '1996 — Lava lamps come back wrong.' },
+      { y: 1997, tip: '1997 — Dial-up. Nothing bad yet.' },
+      { y: 1998, tip: '1998 — Inflatable furniture era.' },
+      { y: 1999, tip: '1999 — Y2K prep kits in closet.' },
+      { y: 2000, tip: '2000 — Silver everything. Millennium panic.' },
+      { y: 2001, tip: '2001 — The last innocent January.' },
+      { y: 2002, tip: '2002 — Earth tones return, sadder now.' },
+      { y: 2003, tip: '2003 — Flat-screen CRT. Transitional grief.' },
+      { y: 2004, tip: '2004 — IKEA creep begins. Hold the line.' },
+      { y: 2005, tip: '2005 — Brushed nickel takes the first wall.' }
+    ],
+    faqs: [
+      { q: 'Is there asbestos?', a: 'Probably. We disclose everything. You sign the waiver. The waiver is laminated and smells like 1993. We have a pen.' },
+      { q: 'Are the Beanie Babies included?', a: 'Non-negotiable. They stay. The Princess Diana bear is on the mantel where God intended. Touch nothing.' },
+      { q: 'Did Marnie really leave?', a: 'She runs NewNewCondo.biz now. All quartz countertops and brushed nickel. We don\'t talk about it. She took the Le Creuset.' },
+      { q: 'Can I modernize the unit after purchase?', a: 'Legally, yes. Morally, no. We reserve the right to weep openly if you install recessed lighting. Read the covenant.' },
+      { q: 'What about the windbreakers in the closet?', a: 'Every unit ships with two (2) windbreakers, one teal, one magenta, both XL. They are part of the structure. Do not remove them.' },
+      { q: 'Is Dale okay?', a: 'Dale sold waterbed insurance in Tulsa for eleven years before the shrimp night changed everything. Dale is focused. Dale has a business plan. Dale is fine.' }
+    ],
+
+    init: function() {
+      var self = this;
+      document.addEventListener('next-slide', function() {
+        self.currentSlide = (self.currentSlide + 1) % 4;
+      });
+    },
+
+    showTooltip: function(ev, text) {
+      var tip = document.getElementById('year-tooltip');
+      tip.textContent = text;
+      tip.style.display = 'block';
+      var rect = ev.target.getBoundingClientRect();
+      var tipRect = tip.getBoundingClientRect();
+      var left = rect.left + rect.width / 2 - tipRect.width / 2;
+      if (left < 4) left = 4;
+      if (left + tipRect.width > window.innerWidth - 4) left = window.innerWidth - tipRect.width - 4;
+      tip.style.left = left + 'px';
+      tip.style.top = (rect.top - tipRect.height - 6) + 'px';
+    },
+
+    hideTooltip: function() {
+      document.getElementById('year-tooltip').style.display = 'none';
+    },
+
+    clickYear: function(y) {
+      var self = this;
+      this.pressedYear = y;
+      this.toastVisible = true;
+      setTimeout(function() { self.pressedYear = null; }, 150);
+      setTimeout(function() { self.toastVisible = false; }, 2500);
+    },
+
+    toggleFaq: function(idx) {
+      this.openFaq = this.openFaq === idx ? null : idx;
+    }
+  };
+}
+</script>
+</body>
+</html>

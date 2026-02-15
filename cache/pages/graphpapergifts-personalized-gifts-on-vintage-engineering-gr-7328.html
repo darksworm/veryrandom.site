@@ -1,0 +1,981 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GraphPaperGifts — Personalized Gifts on Vintage Engineering Graph Paper</title>
+<link rel="stylesheet" href="/assets/css/fonts.css">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg: #F5F0E8;
+  --text: #2C2C2C;
+  --grid: #C8D8D0;
+  --accent: #B85C38;
+  --card-bg: #FFFDF7;
+  --struck: #8B8B8B;
+  --grid-opacity: 0.08;
+}
+
+html { scroll-behavior: smooth; }
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Source Serif 4', Georgia, serif;
+  font-size: 18px;
+  line-height: 1.65;
+  overflow-x: hidden;
+  min-height: 100vh;
+}
+
+/* Grid overlay */
+.grid-overlay {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  pointer-events: none;
+  z-index: 0;
+  overflow: hidden;
+}
+
+.grid-overlay svg {
+  width: 100%;
+  height: 200%;
+  position: absolute;
+  top: 0; left: 0;
+}
+
+/* Typography */
+h1, h2, h3, h4, nav, .mono {
+  font-family: 'IBM Plex Mono', 'Courier New', monospace;
+}
+
+.caveat, .annotation {
+  font-family: 'Caveat', cursive;
+}
+
+.body-text {
+  font-family: 'Source Serif 4', Georgia, serif;
+}
+
+/* Layout */
+.content-column {
+  max-width: 680px;
+  margin: 0 auto;
+  padding: 0 24px;
+  position: relative;
+  z-index: 1;
+}
+
+/* Section base */
+.section {
+  padding: 80px 0;
+  opacity: 0;
+  transform: translateY(20px);
+}
+
+.section.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* ═══ HERO ═══ */
+.hero {
+  padding-top: 120px;
+  padding-bottom: 60px;
+  text-align: left;
+}
+
+.hero h1 {
+  font-size: clamp(28px, 5vw, 42px);
+  font-weight: 700;
+  letter-spacing: -0.5px;
+  line-height: 1.15;
+  margin-bottom: 8px;
+  color: var(--text);
+}
+
+.hero .tagline {
+  font-size: clamp(16px, 2.5vw, 20px);
+  line-height: 1.55;
+  max-width: 560px;
+  margin-bottom: 48px;
+  color: var(--text);
+}
+
+.hero-product-wrapper {
+  position: relative;
+  max-width: 480px;
+}
+
+.hero-product {
+  background: var(--card-bg);
+  border: 1px solid var(--grid);
+  padding: 40px 32px;
+  position: relative;
+  left: 20px;
+}
+
+@media (min-width: 768px) {
+  .hero-product {
+    left: 40px;
+  }
+}
+
+.hero-product-inner {
+  text-align: center;
+}
+
+.hero-product-icon {
+  font-size: 48px;
+  margin-bottom: 12px;
+  display: block;
+  color: var(--accent);
+}
+
+.hero-product .product-name {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 14px;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: var(--text);
+}
+
+.hero-annotation {
+  position: absolute;
+  top: -28px;
+  right: -10px;
+  font-family: 'Caveat', cursive;
+  font-size: 20px;
+  color: var(--accent);
+  transform: rotate(3deg);
+}
+
+.hero-annotation-arrow {
+  display: inline-block;
+  transform: rotate(120deg);
+  margin-right: 4px;
+}
+
+/* ═══ STORY ═══ */
+.story p {
+  margin-bottom: 20px;
+  font-size: 18px;
+}
+
+.story .struck-text {
+  color: var(--struck);
+  text-decoration: line-through;
+  cursor: pointer;
+  transition: color 0.3s;
+  position: relative;
+}
+
+.story .struck-text:hover {
+  color: #6B6B6B;
+}
+
+.struck-expanded {
+  display: none;
+  color: var(--struck);
+  font-style: italic;
+  margin: 8px 0;
+  font-size: 16px;
+  overflow: hidden;
+}
+
+.struck-expanded.show {
+  display: block;
+}
+
+.struck-expanded .restrike {
+  text-decoration: line-through;
+}
+
+.story-photo {
+  background: var(--card-bg);
+  border: 1px solid var(--grid);
+  padding: 20px;
+  margin: 32px 0;
+  text-align: center;
+  position: relative;
+}
+
+.story-photo-placeholder {
+  width: 100%;
+  height: 180px;
+  background: repeating-linear-gradient(
+    0deg,
+    transparent,
+    transparent 7px,
+    var(--grid) 7px,
+    var(--grid) 8px
+  ),
+  repeating-linear-gradient(
+    90deg,
+    transparent,
+    transparent 7px,
+    var(--grid) 7px,
+    var(--grid) 8px
+  );
+  opacity: 0.4;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.story-photo-label {
+  font-family: 'Caveat', cursive;
+  font-size: 18px;
+  color: var(--struck);
+  position: absolute;
+  bottom: 8px;
+  right: 16px;
+  transform: rotate(-2deg);
+}
+
+/* ═══ PRODUCTS ═══ */
+.products-heading {
+  font-size: clamp(22px, 3.5vw, 30px);
+  margin-bottom: 48px;
+  letter-spacing: -0.3px;
+}
+
+.product-grid {
+  display: grid;
+  gap: 28px;
+}
+
+@media (min-width: 640px) {
+  .product-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+  .product-card:nth-child(2) {
+    transform: translateY(24px);
+  }
+  .product-card:nth-child(3) {
+    grid-column: 1 / -1;
+    max-width: 340px;
+    justify-self: center;
+    transform: translateX(-20px);
+  }
+}
+
+.product-card {
+  background: var(--card-bg);
+  border: 2px dashed var(--grid);
+  padding: 28px 24px;
+  position: relative;
+  cursor: default;
+  transition: border-color 0.3s;
+  opacity: 0;
+  transform: scale(0.97);
+}
+
+.product-card.visible {
+  opacity: 1;
+  transform: scale(1);
+}
+
+.product-card.solid-border {
+  border-style: solid;
+}
+
+/* SVG pencil border for hover */
+.product-card .pencil-border {
+  position: absolute;
+  top: -3px; left: -3px;
+  width: calc(100% + 6px);
+  height: calc(100% + 6px);
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+
+.product-card .pencil-border rect {
+  fill: none;
+  stroke: var(--accent);
+  stroke-width: 2;
+  stroke-dasharray: 800;
+  stroke-dashoffset: 800;
+  transition: stroke-dashoffset 0.6s ease;
+}
+
+.product-card:hover .pencil-border {
+  opacity: 1;
+}
+
+.product-card:hover .pencil-border rect {
+  stroke-dashoffset: 0;
+}
+
+.product-card h3 {
+  font-size: 15px;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  margin-bottom: 10px;
+  line-height: 1.35;
+  color: var(--text);
+}
+
+.product-card .product-desc {
+  font-size: 16px;
+  line-height: 1.5;
+  margin-bottom: 16px;
+  color: var(--text);
+}
+
+.product-card .product-price {
+  font-family: 'Caveat', cursive;
+  font-size: 24px;
+  color: var(--accent);
+  display: inline-block;
+  transition: transform 0.15s;
+}
+
+.product-card:hover .product-price {
+  animation: wiggle 0.4s ease-in-out infinite alternate;
+}
+
+@keyframes wiggle {
+  0% { transform: rotate(-1deg); }
+  100% { transform: rotate(1deg); }
+}
+
+/* ═══ COMPARISON ═══ */
+.comparison-heading {
+  font-size: clamp(20px, 3vw, 26px);
+  margin-bottom: 12px;
+}
+
+.comparison-toggle-wrap {
+  margin-bottom: 32px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.toggle-label {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 13px;
+  color: var(--text);
+  letter-spacing: 0.3px;
+}
+
+.toggle-switch {
+  width: 48px;
+  height: 26px;
+  background: var(--grid);
+  border-radius: 13px;
+  position: relative;
+  cursor: pointer;
+  transition: background 0.3s;
+  flex-shrink: 0;
+  border: none;
+  padding: 0;
+}
+
+.toggle-switch[aria-checked="true"] {
+  background: var(--accent);
+}
+
+.toggle-switch .toggle-knob {
+  width: 22px;
+  height: 22px;
+  background: #fff;
+  border-radius: 50%;
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  transition: left 0.3s;
+  pointer-events: none;
+}
+
+.toggle-switch[aria-checked="true"] .toggle-knob {
+  left: 24px;
+}
+
+.comparison-panels {
+  display: grid;
+  gap: 20px;
+}
+
+@media (min-width: 640px) {
+  .comparison-panels {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+.panel {
+  padding: 28px 24px;
+  border: 1px solid;
+  transition: all 0.6s ease;
+}
+
+.panel-theirs {
+  background: #FFFFFF;
+  border-color: #E0E0E0;
+  font-family: 'Inter', Arial, sans-serif;
+}
+
+.panel-theirs.flipped {
+  background: var(--card-bg);
+  border-color: var(--grid);
+  font-family: 'Source Serif 4', serif;
+}
+
+.panel-mine {
+  background: var(--card-bg);
+  border-color: var(--grid);
+}
+
+.panel-mine.flipped {
+  background: #FFFFFF;
+  border-color: #E0E0E0;
+  font-family: 'Inter', Arial, sans-serif;
+}
+
+.panel h3 {
+  font-size: 16px;
+  margin-bottom: 12px;
+}
+
+.panel-theirs h3 {
+  font-family: 'Inter', Arial, sans-serif;
+  font-weight: 600;
+  color: #555555;
+}
+
+.panel-theirs.flipped h3 {
+  font-family: 'IBM Plex Mono', monospace;
+  color: var(--text);
+}
+
+.panel-mine.flipped h3 {
+  font-family: 'Inter', Arial, sans-serif;
+  font-weight: 600;
+  color: #555555;
+}
+
+.panel p {
+  font-size: 15px;
+  line-height: 1.55;
+}
+
+.panel-theirs p {
+  color: #777777;
+}
+
+.panel-theirs.flipped p {
+  color: var(--text);
+}
+
+.panel-mine.flipped p {
+  color: #777777;
+}
+
+.comparison-review {
+  margin-top: 28px;
+  padding: 20px 24px;
+  background: var(--card-bg);
+  border-left: 3px solid var(--accent);
+  font-style: italic;
+  font-size: 16px;
+  color: var(--text);
+}
+
+.comparison-review .reviewer {
+  display: block;
+  margin-top: 8px;
+  font-style: normal;
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 12px;
+  color: var(--struck);
+}
+
+/* ═══ FINE PRINT ═══ */
+.fine-print {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 14px;
+  line-height: 1.7;
+}
+
+.fine-print h2 {
+  font-size: clamp(20px, 3vw, 26px);
+  margin-bottom: 36px;
+}
+
+.fine-print h4 {
+  font-size: 13px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin-bottom: 8px;
+  margin-top: 28px;
+  color: var(--accent);
+}
+
+.fine-print h4:first-of-type {
+  margin-top: 0;
+}
+
+.fine-print p {
+  margin-bottom: 16px;
+  color: var(--text);
+}
+
+.fine-print .caveat-note {
+  font-family: 'Caveat', cursive;
+  font-size: 18px;
+  color: var(--struck);
+  transform: rotate(-0.8deg);
+  display: inline-block;
+  margin-top: 4px;
+}
+
+/* ═══ FOOTER ═══ */
+.site-footer {
+  padding: 60px 0 48px;
+  text-align: center;
+  position: relative;
+  z-index: 1;
+}
+
+.site-footer .footer-link {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 14px;
+  color: var(--accent);
+  text-decoration: none;
+  letter-spacing: 0.5px;
+}
+
+.site-footer .footer-link:hover {
+  text-decoration: underline;
+}
+
+.site-footer .footer-est {
+  font-family: 'Source Serif 4', serif;
+  font-size: 14px;
+  color: var(--struck);
+  margin-top: 12px;
+  line-height: 1.5;
+}
+
+.site-footer .footer-note {
+  font-family: 'Caveat', cursive;
+  font-size: 18px;
+  color: var(--struck);
+  margin-top: 20px;
+  transform: rotate(-1deg);
+  display: inline-block;
+}
+
+/* ═══ PULL QUOTE ═══ */
+.pull-quote {
+  font-family: 'Source Serif 4', serif;
+  font-size: clamp(20px, 3vw, 26px);
+  font-style: italic;
+  color: var(--accent);
+  line-height: 1.45;
+  padding: 20px 0;
+  margin: 20px 0;
+  position: relative;
+  transform: rotate(-1.2deg);
+}
+
+/* ═══ ANNOTATIONS ═══ */
+.margin-note {
+  font-family: 'Caveat', cursive;
+  font-size: 18px;
+  color: var(--accent);
+  position: absolute;
+  white-space: nowrap;
+}
+
+@media (max-width: 767px) {
+  .margin-note {
+    position: relative;
+    display: block;
+    white-space: normal;
+    margin: 8px 0;
+  }
+}
+
+/* ═══ GRID ENTRY ANIMATION ═══ */
+.grid-line-anim {
+  stroke-dasharray: 2000;
+  stroke-dashoffset: 2000;
+}
+
+.grid-line-anim.animate {
+  stroke-dashoffset: 0;
+  transition: stroke-dashoffset 1.2s ease-out;
+}
+
+/* ═══ RESPONSIVE ═══ */
+@media (max-width: 639px) {
+  body { font-size: 16px; }
+  .hero { padding-top: 80px; padding-bottom: 40px; }
+  .section { padding: 50px 0; }
+  .hero-product { left: 0; padding: 28px 20px; }
+  .product-grid { grid-template-columns: 1fr; }
+  .comparison-panels { grid-template-columns: 1fr; }
+  .hero-annotation { top: -24px; right: 0; font-size: 17px; }
+}
+</style>
+</head>
+<body>
+
+<!-- Grid Overlay -->
+<div class="grid-overlay" id="gridOverlay">
+<svg id="gridSvg" xmlns="http://www.w3.org/2000/svg" width="100%" height="100%" aria-hidden="true">
+  <defs>
+    <pattern id="smallGrid" width="8" height="8" patternUnits="userSpaceOnUse">
+      <path d="M 8 0 L 0 0 0 8" fill="none" stroke="#C8D8D0" stroke-width="0.5" class="grid-line-anim"/>
+    </pattern>
+    <pattern id="bigGrid" width="40" height="40" patternUnits="userSpaceOnUse">
+      <rect width="40" height="40" fill="url(#smallGrid)"/>
+      <path d="M 40 0 L 0 0 0 40" fill="none" stroke="#C8D8D0" stroke-width="1" class="grid-line-anim"/>
+    </pattern>
+  </defs>
+  <rect width="100%" height="100%" fill="url(#bigGrid)" opacity="0.08"/>
+</svg>
+</div>
+
+<!-- HERO -->
+<section class="section hero" id="hero">
+  <div class="content-column">
+    <h1>GraphPaperGifts</h1>
+    <p class="tagline">Personalized gifts printed on vintage engineering graph paper. For people who show love through precision.</p>
+
+    <div class="hero-product-wrapper">
+      <div class="hero-product">
+        <div class="hero-product-inner">
+          <span class="hero-product-icon"><i data-lucide="coffee" style="width:48px;height:48px;color:#B85C38"></i></span>
+          <span class="product-name">The Graph Paper Tea Cozy</span>
+        </div>
+      </div>
+      <span class="hero-annotation"><span class="hero-annotation-arrow">↳</span> yes, someone cried over this</span>
+    </div>
+  </div>
+</section>
+
+<!-- THE STORY -->
+<section class="section story" id="story">
+  <div class="content-column" style="position:relative;">
+    <h2 style="font-size:clamp(22px,3.5vw,30px);margin-bottom:28px;">The Story</h2>
+
+    <p>My father was a civil engineer for forty years. When he died in 2018, he left behind a house full of blueprints that smelled like cedar and eraser shavings and the particular loneliness of someone who expressed love exclusively through accurate measurements. I inherited the blueprints, the cedar smell, and apparently the condition.</p>
+
+    <p>I started GraphPaperGifts because I realized the paper mattered more than what was drawn on it. The grid itself is a love language — for people who show affection through precision and quiet, obsessive care. <span class="struck-text" id="alistairStruck" role="button" tabindex="0" aria-expanded="false">Alistair said I was romanticizing office supplies.</span></p>
+
+    <div class="struck-expanded" id="alistairExpanded">Alistair said I was romanticizing office supplies, that I was sublimating grief into a Shopify store, and that no one needs a tea cozy printed with the Fibonacci sequence. Then he left. For someone who sells motivational posters on Etsy.</div>
+
+    <div class="pull-quote">"The measurements matter. The margins matter. The person who spent three hours aligning your message to a Cartesian grid loved you more than they knew how to say out loud."</div>
+
+    <div class="story-photo">
+      <div class="story-photo-placeholder"></div>
+      <span class="story-photo-label">forty years of blueprints, one storage unit</span>
+    </div>
+
+    <span class="margin-note" style="right:-140px;top:60px;transform:rotate(2deg);" aria-hidden="true">^ this still smells like cedar</span>
+  </div>
+</section>
+
+<!-- PRODUCTS -->
+<section class="section products" id="products">
+  <div class="content-column">
+    <h2 class="products-heading">What We Make</h2>
+
+    <div class="product-grid">
+      <div class="product-card" data-product>
+        <svg class="pencil-border" aria-hidden="true"><rect x="1" y="1" width="calc(100% - 2px)" height="calc(100% - 2px)" rx="0"/></svg>
+        <h3>Custom Anniversary Prints</h3>
+        <p class="product-desc">Your coordinates, your date, your inside joke — typeset on 1960s engineering paper salvaged from closing drafting firms.</p>
+        <span class="product-price">$68 – $120</span>
+      </div>
+
+      <div class="product-card" data-product>
+        <svg class="pencil-border" aria-hidden="true"><rect x="1" y="1" width="calc(100% - 2px)" height="calc(100% - 2px)" rx="0"/></svg>
+        <h3>Gifts for Topographic Surveyors (and those who love them)</h3>
+        <p class="product-desc">Contour-line love letters. Elevation profiles of the place you met. For the person who finds USGS maps romantic.</p>
+        <span class="product-price">$85 – $140</span>
+      </div>
+
+      <div class="product-card" data-product>
+        <svg class="pencil-border" aria-hidden="true"><rect x="1" y="1" width="calc(100% - 2px)" height="calc(100% - 2px)" rx="0"/></svg>
+        <h3>The Graph Paper Tea Cozy</h3>
+        <p class="product-desc">Our best seller and honestly, our weirdest product. Hand-printed graph paper fabric. Keeps tea warm. Makes people emotional.</p>
+        <span class="product-price">$42</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- GRID GOODS COMPARISON -->
+<section class="section comparison" id="comparison">
+  <div class="content-column">
+    <h2 class="comparison-heading">The Difference</h2>
+
+    <div class="comparison-toggle-wrap">
+      <span class="toggle-label">see it their way</span>
+      <button class="toggle-switch" id="comparisonToggle" role="switch" aria-checked="false" aria-label="Toggle comparison view">
+        <span class="toggle-knob"></span>
+      </button>
+      <span class="toggle-label">see it my way</span>
+    </div>
+
+    <div class="comparison-panels">
+      <div class="panel panel-theirs" id="panelTheirs">
+        <h3>Grid Goods&trade;</h3>
+        <p>Laser-cut. Next-day shipping. Precision-engineered gifting solutions. Our proprietary GridAlign&trade; technology ensures pixel-perfect results every time. No soul required.</p>
+      </div>
+      <div class="panel panel-mine" id="panelMine">
+        <h3>GraphPaperGifts</h3>
+        <p>Three hours aligning your anniversary message to a Cartesian grid. Paper sourced from a closing drafting firm in Tucson. Ships when it ships. The margins are hand-measured and yes, I did cry a little while making yours.</p>
+      </div>
+    </div>
+
+    <div class="comparison-review">
+      "I gave my husband the tea cozy for our anniversary. He's a structural engineer. He held it up to the light to check the grid spacing, confirmed it was accurate to within 0.3mm, and then cried for eleven minutes."
+      <span class="reviewer">— Rachel T., verified purchase, still married</span>
+    </div>
+  </div>
+</section>
+
+<!-- THE FINE PRINT -->
+<section class="section fine-print" id="finePrint">
+  <div class="content-column">
+    <h2>The Fine Print</h2>
+
+    <h4>Return Policy</h4>
+    <p>We cannot offer returns on items where the error is less than 0.5mm from the specified dimensions. If the error exceeds 0.5mm, we will reprint it, refund you, and also probably not sleep for a week. Precision is a personality trait, not a marketing claim.</p>
+
+    <h4>Shipping FAQ</h4>
+    <p>All orders ship via USPS Priority. Tracking status will read "In Transit to Cartesian Plane" which is not our doing but which we refuse to correct. Estimated delivery: 5–8 business days, or whenever the postal service decides your coordinates are real.</p>
+
+    <h4>Discontinued Items</h4>
+    <p>The Graph Paper Origami Kit (2019–2021). It was beautiful. The fold tolerances were impossible. Three customers sent photos of themselves weeping over crumpled chrysanthemums.</p>
+    <span class="caveat-note">sold out, never to return — like most good things</span>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer class="site-footer">
+  <div class="content-column">
+    <a href="https://instagram.com/GraphPaperGifts" class="footer-link" target="_blank" rel="noopener">@GraphPaperGifts</a>
+    <p class="footer-est">est. 2018, the year everything changed and I started selling feelings on graph paper.</p>
+    <span class="footer-note">Alistair, if you're reading this, I kept the slide rule collection.</span>
+  </div>
+</footer>
+
+<script src="/assets/js/gsap.min.js"></script>
+<script src="/assets/js/lucide.min.js"></script>
+<script>
+(function() {
+  "use strict";
+
+  // Initialize Lucide icons
+  lucide.createIcons();
+
+  // Fix SVG pencil borders — calc() doesn't work in SVG attributes
+  document.querySelectorAll('.pencil-border').forEach(function(svg) {
+    var card = svg.parentElement;
+    function resize() {
+      var w = card.offsetWidth + 6;
+      var h = card.offsetHeight + 6;
+      svg.setAttribute('viewBox', '0 0 ' + w + ' ' + h);
+      svg.setAttribute('width', w);
+      svg.setAttribute('height', h);
+      var rect = svg.querySelector('rect');
+      rect.setAttribute('width', w - 2);
+      rect.setAttribute('height', h - 2);
+    }
+    resize();
+    window.addEventListener('resize', resize);
+  });
+
+  // Grid overlay parallax
+  var gridSvg = document.getElementById('gridSvg');
+  var ticking = false;
+  window.addEventListener('scroll', function() {
+    if (!ticking) {
+      ticking = true;
+      requestAnimationFrame(function() {
+        var scrollY = window.pageYOffset || document.documentElement.scrollTop;
+        gridSvg.style.transform = 'translateY(' + (-scrollY * 0.3) + 'px)';
+        ticking = false;
+      });
+    }
+  });
+
+  // Grid entry animation — draw lines in
+  setTimeout(function() {
+    document.querySelectorAll('.grid-line-anim').forEach(function(el) {
+      el.classList.add('animate');
+    });
+  }, 100);
+
+  // Section reveal with IntersectionObserver
+  var sections = document.querySelectorAll('.section');
+  var sectionDelay = 0;
+
+  function revealSection(entries) {
+    entries.forEach(function(entry) {
+      if (entry.isIntersecting && !entry.target.classList.contains('visible')) {
+        gsap.fromTo(entry.target,
+          { opacity: 0, y: 20 },
+          { opacity: 1, y: 0, duration: 0.7, ease: 'power2.out' }
+        );
+        entry.target.classList.add('visible');
+
+        // Animate Caveat annotations after parent
+        var annotations = entry.target.querySelectorAll('.annotation, .margin-note, .hero-annotation, .caveat-note, .story-photo-label');
+        annotations.forEach(function(ann, i) {
+          gsap.fromTo(ann,
+            { opacity: 0, y: 10, rotation: 0 },
+            { opacity: 1, y: 0, rotation: (Math.random() - 0.5) * 4, duration: 0.5, delay: 0.2 + i * 0.1, ease: 'power2.out' }
+          );
+        });
+      }
+    });
+  }
+
+  var observer = new IntersectionObserver(revealSection, {
+    threshold: 0.12,
+    rootMargin: '0px 0px -40px 0px'
+  });
+
+  sections.forEach(function(s) {
+    observer.observe(s);
+  });
+
+  // Product card animations
+  var productCards = document.querySelectorAll('.product-card');
+  var cardObserver = new IntersectionObserver(function(entries) {
+    entries.forEach(function(entry) {
+      if (entry.isIntersecting && !entry.target.classList.contains('visible')) {
+        var idx = Array.prototype.indexOf.call(productCards, entry.target);
+        gsap.fromTo(entry.target,
+          { opacity: 0, scale: 0.97 },
+          { opacity: 1, scale: 1, duration: 0.6, delay: idx * 0.15, ease: 'power2.out' }
+        );
+        entry.target.classList.add('visible');
+
+        // Dash to solid border
+        gsap.to(entry.target, {
+          duration: 0.8,
+          delay: idx * 0.15 + 0.3,
+          ease: 'power1.out',
+          onComplete: function() {
+            entry.target.classList.add('solid-border');
+          }
+        });
+      }
+    });
+  }, { threshold: 0.15 });
+
+  productCards.forEach(function(card) {
+    cardObserver.observe(card);
+  });
+
+  // Strikethrough reveal — Alistair
+  var struckEl = document.getElementById('alistairStruck');
+  var expandedEl = document.getElementById('alistairExpanded');
+  var strikeTimer = null;
+
+  function toggleStrike() {
+    var isExpanded = expandedEl.classList.contains('show');
+    if (isExpanded) return; // already showing, let it auto-close
+
+    struckEl.setAttribute('aria-expanded', 'true');
+    expandedEl.classList.add('show');
+    gsap.fromTo(expandedEl,
+      { opacity: 0, height: 0 },
+      { opacity: 1, height: 'auto', duration: 0.4, ease: 'power2.out' }
+    );
+
+    // Re-strike after 4 seconds
+    strikeTimer = setTimeout(function() {
+      expandedEl.querySelector('span') || (function() {
+        var inner = expandedEl.innerHTML;
+        expandedEl.innerHTML = '<span class="restrike">' + inner + '</span>';
+      })();
+      var span = expandedEl.querySelector('.restrike');
+      if (span) span.classList.add('restrike');
+
+      setTimeout(function() {
+        gsap.to(expandedEl, {
+          opacity: 0,
+          height: 0,
+          duration: 0.4,
+          ease: 'power2.in',
+          onComplete: function() {
+            expandedEl.classList.remove('show');
+            expandedEl.style.height = '';
+            expandedEl.style.opacity = '';
+            struckEl.setAttribute('aria-expanded', 'false');
+          }
+        });
+      }, 800);
+    }, 4000);
+  }
+
+  struckEl.addEventListener('click', toggleStrike);
+  struckEl.addEventListener('keydown', function(e) {
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault();
+      toggleStrike();
+    }
+  });
+
+  // Comparison toggle
+  var toggle = document.getElementById('comparisonToggle');
+  var panelTheirs = document.getElementById('panelTheirs');
+  var panelMine = document.getElementById('panelMine');
+
+  toggle.addEventListener('click', function() {
+    var checked = toggle.getAttribute('aria-checked') === 'true';
+    var newState = !checked;
+    toggle.setAttribute('aria-checked', String(newState));
+
+    if (newState) {
+      panelTheirs.classList.add('flipped');
+      panelMine.classList.add('flipped');
+    } else {
+      panelTheirs.classList.remove('flipped');
+      panelMine.classList.remove('flipped');
+    }
+  });
+
+  // Initial page load — stagger content fade after grid draws
+  setTimeout(function() {
+    sections.forEach(function(s) {
+      // Force check if already in viewport
+      var rect = s.getBoundingClientRect();
+      if (rect.top < window.innerHeight && rect.bottom > 0) {
+        if (!s.classList.contains('visible')) {
+          gsap.fromTo(s,
+            { opacity: 0, y: 20 },
+            { opacity: 1, y: 0, duration: 0.7, ease: 'power2.out' }
+          );
+          s.classList.add('visible');
+
+          var annotations = s.querySelectorAll('.annotation, .margin-note, .hero-annotation, .caveat-note, .story-photo-label');
+          annotations.forEach(function(ann, i) {
+            gsap.fromTo(ann,
+              { opacity: 0, y: 10 },
+              { opacity: 1, y: 0, duration: 0.5, delay: 0.2 + i * 0.1, ease: 'power2.out' }
+            );
+          });
+        }
+      }
+    });
+  }, 400);
+
+})();
+</script>
+</body>
+</html>

@@ -6,96 +6,101 @@ eval "$(fnm env)"
 
 AGENT="${1:-claude}"
 
-# Pick a fresh idea
-PARAMS=$(node src/pick-idea.js)
-IDEA=$(echo "$PARAMS" | jq -r '.idea')
-STYLE=$(echo "$PARAMS" | jq -r '.style')
-COLOR=$(echo "$PARAMS" | jq -r '.color')
-LAYOUT=$(echo "$PARAMS" | jq -r '.layout')
-CAT=$(echo "$PARAMS" | jq -r '.catMode')
+FONT_LIST="'Space Grotesk' (modern geometric sans), 'Playfair Display' (elegant high-contrast serif), 'IBM Plex Mono' (clean monospace), 'Crimson Pro' (editorial serif), 'Inter' (neutral UI sans), 'Archivo Black' (heavy blocky display), 'Caveat' (handwritten/casual), 'DM Serif Display' (elegant display serif), 'Fira Code' (monospace with ligatures), 'Josefin Sans' (geometric art-deco sans), 'Libre Baskerville' (classic book serif), 'Oswald' (tall condensed sans), 'Permanent Marker' (graffiti/marker), 'Rubik' (rounded geometric sans), 'Source Serif 4' (editorial serif), 'Unbounded' (futuristic/techy display), 'Work Sans' (clean neutral sans)"
 
-DENSITY=$(echo "$PARAMS" | jq -r '.density')
-DENSITY_PROMPT=$(echo "$PARAMS" | jq -r '.densityPrompt')
+# ── Phase 1+2: Sparks + Grok quality gate ──────────────────────────
+echo "⏳ Phase 1: Generating sparks + quality gate..."
+SPARKS=$(node src/pick-idea.js)
+echo "━━━ Sparks ━━━"
+echo "$SPARKS" | head -15
+echo "━━━━━━━━━━━━━━"
 
-CHAOS=$(echo "$PARAMS" | jq -r '.chaosMode')
+# ── Phase 3: Synthesize identity (Claude CLI) ──────────────────────
+echo "⏳ Phase 2: Synthesizing identity via Claude..."
+IDENTITY=$(echo "Here are raw creative sparks about a fake website someone built:
 
-CAT_LINE=""
-if [ "$CAT" = "true" ]; then
-  CAT_LINE="SPECIAL: The entire site must be cat-themed. Cat puns everywhere, paw prints, everything through feline eyes."
-  echo "🐱 CAT MODE"
-fi
+${SPARKS}
 
-CHAOS_LINE=""
-if [ "$CHAOS" = "true" ]; then
-  CHAOS_LINE="WILDCARD: Be very creative and break the rules of common web design, in an artistic way. Surprise me."
-  echo "🎨 CHAOS MODE"
-fi
+Now become this person. Write in first person. Tell me:
+- Who you are (name, background, one sentence)
+- What your website does and why it matters to you personally
+- What emotional truth your website is really about (under the absurdity)
+- How you want visitors to feel when they land on your site
+- What your website is trying to say to the world
 
-NONPROFIT_LINE=""
-if [ $((RANDOM % 10)) -eq 0 ]; then
-  NONPROFIT_LINE="TWIST: This is a non-profit organization. They have a donate button, a mission statement, volunteer opportunities, and that specific earnest non-profit energy. They genuinely believe they are making the world a better place."
-  echo "🕊️ NONPROFIT MODE"
-fi
+Stay in character. Be specific and sincere. 1-2 short paragraphs. No preamble. No markdown." | claude -p --dangerously-skip-permissions)
 
-echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-echo "Idea:    $IDEA"
-echo "Style:   $STYLE"
-echo "Color:   $COLOR"
-echo "Layout:  $LAYOUT"
-echo "Density: $DENSITY"
-echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+echo "━━━ Identity ━━━"
+echo "$IDENTITY" | head -10
+echo "━━━━━━━━━━━━━━━━"
 
-echo "🧠 Expanding idea via AI..."
-EXPANDED_IDEA=$(node src/expand-idea.js "$IDEA" "$STYLE" "$COLOR" "$LAYOUT" "$DENSITY")
-echo "━━━ Creative Brief ━━━"
-echo "$EXPANDED_IDEA" | head -20
-echo "━━━━━━━━━━━━━━━━━━━━━━"
+# ── Phase 4: Blueprint (Claude CLI) ────────────────────────────────
+echo "⏳ Phase 3: Creating build blueprint via Claude..."
+BLUEPRINT=$(echo "You are a wildly creative director planning a single-page website. Look things up online for inspiration if you need — real weird corners of the internet, design trends, obscure references, anything that sparks ideas for THIS specific site.
 
+WEBSITE IDENTITY:
+${IDENTITY}
+
+RAW CREATIVE MATERIAL:
+${SPARKS}
+
+AVAILABLE FONTS (pick 1-3):
+${FONT_LIST}
+
+Now plan this website. There is no template — every site is different. Maybe this one is a single giant interactive thing. Maybe it's a long scroll of dense text. Maybe it's a grid of cards. Maybe it's something that reacts to how long you've been staring at it. You decide what THIS site needs.
+
+Your blueprint must include:
+- FONTS: Which fonts and where
+- COLORS: Exact hex codes (4-6 colors)
+- A concrete description of what to build — structure, content, interactions, animations, vibe. Be as specific as possible so a developer can execute it without guessing.
+
+Any interactive elements must ACTUALLY WORK client-side (no backend). Alpine.js state, localStorage, CSS tricks, timers, randomization, canvas — whatever fits. But only add interactivity if it serves the site. Not every site needs a quiz.
+
+Be decisive. Be weird. If your first instinct feels familiar, throw it away and go deeper. No \"could\" or \"maybe\". No preamble. No markdown headers." | claude -p --dangerously-skip-permissions)
+
+echo "━━━ Blueprint ━━━"
+echo "$BLUEPRINT" | head -20
+echo "━━━━━━━━━━━━━━━━━"
+
+# ── Phase 5: Build the page ────────────────────────────────────────
 ID="$(date +%s)$(printf '%04x' $RANDOM)"
 TARGET="cache/pages/${ID}.html"
 
-echo "⏳ Generating via ${AGENT}..."
+echo "⏳ Phase 4: Building page via ${AGENT}..."
 
 PROMPT="Write the file using: cat > ${TARGET} << 'HTMLEOF' ... HTMLEOF. Build a single-page website and write it to the file: ${TARGET}. Custom CSS in a style tag, custom JS in a script tag. No fetch/XMLHttpRequest/WebSocket. Zero JS errors.
 
 DO NOT OPEN THE WEBPAGE FOR ME TO VIEW.
 
-You have these LOCAL assets available on the webserver (use them freely, they are already hosted):
-- /assets/css/pico.min.css — Pico CSS classless framework (makes bare HTML look polished)
-- /assets/css/fonts.css — Web fonts (link this to use them)
-- /assets/js/alpine.min.js — Alpine.js (reactive UI via HTML attributes: x-data, x-show, x-on:click, x-text, x-for, etc.)
-- /assets/js/gsap.min.js — GSAP animation library (gsap.to, gsap.fromTo, gsap.timeline, ScrollTrigger not included). NEVER use gsap.from() — it leaves elements stuck at opacity 0. Always use gsap.fromTo() with explicit start AND end values, e.g. gsap.fromTo(el, {y:20, opacity:0}, {y:0, opacity:1, duration:0.6, clearProps:'opacity,transform'})
-- /assets/js/lucide.min.js — Lucide icon library (after including, call lucide.createIcons() and use <i data-lucide=\"icon-name\"></i>)
-Available fonts (via /assets/css/fonts.css): 'Space Grotesk' (modern sans), 'Playfair Display' (elegant serif), 'IBM Plex Mono' (monospace), 'Crimson Pro' (editorial serif), 'Inter' (clean sans). Pick 1-2 that fit the style.
+LOCAL ASSETS (already hosted, use freely):
+- /assets/css/pico.min.css — Pico CSS classless framework
+- /assets/css/fonts.css — All web fonts below (link this to use them)
+- /assets/js/alpine.min.js — Alpine.js (x-data, x-show, x-on:click, x-text, x-for, etc.)
+- /assets/js/gsap.min.js — GSAP (gsap.to, gsap.fromTo, gsap.timeline). NEVER use gsap.from() — always gsap.fromTo() with explicit start AND end values.
+- /assets/js/lucide.min.js — Lucide icons (call lucide.createIcons(), use <i data-lucide=\"icon-name\"></i>)
 
-You do NOT have to use all of them — pick what fits the creative direction. Do NOT use any other external resources.
+AVAILABLE FONTS (via /assets/css/fonts.css):
+${FONT_LIST}
 
-THE WORLD (seed idea): ${IDEA}
+Do NOT use any external resources. Pick only what the blueprint specifies.
 
-CREATIVE BRIEF (from our creative director — treat this as inspiration, not a rigid spec. Cherry-pick the details you love, ignore the rest, and add your own spin):
-${EXPANDED_IDEA}
+═══ WHO I AM ═══
+${IDENTITY}
 
-If none of the above clicks or feels forced, riff on the general vibe, the category, the energy, and come up with something in that space that YOU find funny and can commit to. The seed idea and brief are starting points, not a cage.
+═══ BUILD BLUEPRINT ═══
+${BLUEPRINT}
 
-CRITICAL: Do NOT build a page that explains or showcases this concept. Do NOT make a meta page ABOUT the idea. Instead, build the ACTUAL website as if you ARE this business/organization/entity. The visitor should feel like they stumbled onto a real (but unhinged) website.
+Execute this blueprint. Build the ACTUAL website — not a page ABOUT the concept. You ARE this business/person/entity. The visitor stumbled onto a real (but unhinged) website.
 
-VOICE & CHARACTER — MOST IMPORTANT: Before writing ANY code, figure out WHO is behind this website. Give them a name, a backstory, a reason they started this. Write the ENTIRE site from their perspective. If it's a blender dating app, you ARE the blender — you have abandonment issues, a specific model number, a rival (the NutriBullet). If it's a dust removal service, you're the obsessive founder who had a life-changing experience with dust at age 7. The character's emotional reality should bleed through every section — the pricing page, the FAQ, the testimonials, ALL of it. One consistent running joke or emotional thread throughout the whole page. Not random weirdness — MOTIVATED weirdness from a character who believes in what they're doing.
+Follow the blueprint closely — it specifies fonts, colors, layout, sections, and interactions. Every interactive element the blueprint specifies must ACTUALLY WORK — no dead buttons or fake forms. Bring your own writing craft: every sentence SHARP, SPECIFIC, and FUNNY. Short punchy copy > walls of text.
 
-WRITING QUALITY: The writing must be SHARP, SPECIFIC, and FUNNY. Do NOT write generic filler text. Do NOT be verbose. Every sentence should earn its place. Lean into DETAILS — specific product names, specific prices (\$47.99/month, not 'affordable pricing'), specific fake customer names and quotes that reveal character, specific ridiculous statistics ('93% of dust returns within 48 hours'). The humor comes from SPECIFICITY and DEADPAN COMMITMENT. Short punchy copy > walls of text. Think Clickhole, The Onion, obvious plant. If a testimonial isn't funny on its own, cut it. If a section is just filler, cut it. LESS TEXT, MORE PUNCH. Fewer sections done brilliantly > many sections done generically. Every page should have at least 2-3 moments that make someone laugh or screenshot it.
+MANDATORY — BOTTOM-RIGHT CLEAR: No fixed/sticky elements in the bottom-right corner. Reserved for external overlay.
 
-STRUCTURE: Do NOT use a formulaic beginning/middle/end structure. Do NOT label sections like 'Chapter 1' or 'The Journey'. This is a WEBSITE, not a story. Structure it like a real website would be structured — nav, hero, features, pricing, testimonials, FAQ, footer, whatever fits. Mix it up. Some pages should be simple landing pages, some should be dense content sites, some should be app-like. Vary the structure every time. Never be predictable.
+MANDATORY — RESPONSIVE: Must work on mobile (375px), tablet (768px), desktop (1440px+). Viewport meta, fluid widths, min 16px body text, min 44px tap targets, no horizontal scroll.
 
-Visual style: ${STYLE}. Color palette: ${COLOR}. Layout: ${LAYOUT}. ${CAT_LINE} ${CHAOS_LINE} ${NONPROFIT_LINE} CREATIVE DIRECTION: ${DENSITY_PROMPT}
-
-MANDATORY — KEEP BOTTOM-RIGHT CORNER CLEAR: Do not place any fixed/sticky elements, popups, toasts, chat widgets, or important text in the bottom-right corner of the screen. That area is reserved for an external overlay.
-
-MANDATORY — RESPONSIVE: The page MUST look good on all screen sizes — mobile (375px), tablet (768px), and desktop (1440px+). Use viewport meta tag, fluid widths, readable font sizes (min 16px body), tap-friendly buttons (min 44px), and no horizontal scroll on any size. Use media queries or flexible CSS (flexbox/grid with wrapping, max-width, clamp()) so the layout adapts naturally.
-
-MANDATORY — TEXT CONTRAST: Every single piece of text must be clearly readable. NEVER use rgba() for text color — use solid hex colors only. NEVER use opacity below 0.9 on text elements. 'Muted' or 'secondary' text must still have at least 4.5:1 contrast ratio — e.g. use #555 on white, not #999. If your background is dark, text must be #ffffff or #e0e0e0 at minimum. If your background is light, text must be #000000 to #444444. Check EVERY element including small text, labels, captions, placeholder text, and nav links. This is the #1 most common failure — do not fail at this.
+MANDATORY — TEXT CONTRAST: All text clearly readable. No rgba() text colors — solid hex only. No opacity below 0.9 on text. Min 4.5:1 contrast ratio everywhere.
 
 Write the complete HTML to ${TARGET} and nothing else.
-
-Maybe this page doesn't need to have sign up tiers, you think about it :) First think up the outline of the idea, then fill in the content you want to put on the page, and then finally build the site :)
 "
 
 case "$AGENT" in
@@ -127,6 +132,25 @@ if [ "$SIZE" -lt 3000 ]; then
   echo "Too small ($SIZE bytes), skipping — need at least 3KB"
   rm "$TARGET"
   exit 1
+fi
+
+# ── Rename to slug-based filename ─────────────────────────────────
+RAW_TITLE=$(sed -n 's/.*<title>\([^<]*\)<\/title>.*/\1/Ip' "$TARGET" | head -1)
+if [ -z "$RAW_TITLE" ]; then
+  RAW_TITLE=$(sed -n 's/.*<h1[^>]*>\([^<]*\).*/\1/Ip' "$TARGET" | head -1)
+fi
+
+if [ -n "$RAW_TITLE" ]; then
+  SLUG=$(echo "$RAW_TITLE" | tr '[:upper:]' '[:lower:]' | sed 's/[^a-z0-9]/-/g; s/--*/-/g; s/^-//; s/-$//' | cut -c1-60)
+fi
+
+if [ -n "$SLUG" ] && [ ${#SLUG} -gt 2 ]; then
+  HEX=$(printf '%04x' $RANDOM)
+  NEW_ID="${SLUG}-${HEX}"
+  NEW_TARGET="cache/pages/${NEW_ID}.html"
+  mv "$TARGET" "$NEW_TARGET"
+  TARGET="$NEW_TARGET"
+  ID="$NEW_ID"
 fi
 
 echo "✅ Saved: ${ID} ($SIZE bytes)"

@@ -1,0 +1,915 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SeventiesAura.biz — Custom Graph Paper for the Quietly Defeated</title>
+<link rel="stylesheet" href="/assets/css/fonts.css">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg: #F2E8D5;
+  --text: #3B3A2F;
+  --accent1: #C4652E;
+  --accent2: #B8A44C;
+  --card-bg: #E8DCC6;
+  --muted: #7A7560;
+  --grid-color: rgba(184, 164, 76, 0.10);
+}
+
+html { scroll-behavior: smooth; }
+
+body {
+  font-family: 'Work Sans', sans-serif;
+  font-weight: 300;
+  font-size: 17px;
+  line-height: 1.65;
+  color: var(--text);
+  background-color: var(--bg);
+  background-image:
+    linear-gradient(var(--grid-color) 1px, transparent 1px),
+    linear-gradient(90deg, var(--grid-color) 1px, transparent 1px);
+  background-size: 24px 24px;
+  min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
+}
+
+a { color: var(--accent1); text-decoration: underline; text-underline-offset: 3px; }
+a:hover { color: #A14E1E; }
+
+.container {
+  max-width: 720px;
+  margin: 0 auto;
+  padding: 0 24px;
+  position: relative;
+}
+
+/* Torn edge dividers */
+.torn-edge {
+  height: 12px;
+  margin: 48px 0;
+  background: repeating-linear-gradient(
+    90deg,
+    var(--accent2) 0px, var(--accent2) 4px,
+    transparent 4px, transparent 8px
+  );
+  opacity: 0.3;
+  mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='12'%3E%3Cpath d='M0,2 Q10,8 20,3 T40,5 T60,2 T80,6 T100,3 T120,5 T140,2 T160,7 T180,3 T200,4' fill='none' stroke='black' stroke-width='12'/%3E%3C/svg%3E");
+  -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='12'%3E%3Cpath d='M0,2 Q10,8 20,3 T40,5 T60,2 T80,6 T100,3 T120,5 T140,2 T160,7 T180,3 T200,4' fill='none' stroke='black' stroke-width='12'/%3E%3C/svg%3E");
+  mask-repeat: repeat-x;
+  -webkit-mask-repeat: repeat-x;
+}
+
+/* Margin notes */
+.margin-note {
+  font-family: 'Permanent Marker', cursive;
+  font-size: 14px;
+  color: var(--accent1);
+  position: absolute;
+  left: -60px;
+  width: 80px;
+  transform: rotate(-3deg);
+  line-height: 1.3;
+  opacity: 0.85;
+}
+
+@media (max-width: 900px) {
+  .margin-note {
+    position: relative;
+    left: 0;
+    width: auto;
+    display: block;
+    margin-bottom: 8px;
+    transform: rotate(-1deg);
+  }
+}
+
+/* Headings */
+h1, h2, h3 {
+  font-family: 'IBM Plex Mono', monospace;
+  letter-spacing: 0.05em;
+  font-weight: 600;
+  line-height: 1.3;
+}
+
+h1 { font-size: clamp(28px, 5vw, 42px); margin-bottom: 16px; }
+h2 { font-size: clamp(20px, 3.5vw, 26px); margin-bottom: 16px; }
+h3 { font-size: clamp(17px, 2.5vw, 20px); margin-bottom: 8px; }
+
+/* Sections */
+section {
+  padding: 32px 0;
+  position: relative;
+}
+
+.fade-in {
+  opacity: 0;
+  transform: translateY(15px);
+}
+
+/* ═══ HERO ═══ */
+.hero { padding-top: 64px; text-align: center; }
+.hero .tagline {
+  font-size: 15px;
+  color: var(--muted);
+  font-weight: 400;
+  margin-bottom: 40px;
+  letter-spacing: 0.02em;
+}
+.hero .logo-text {
+  font-family: 'IBM Plex Mono', monospace;
+  letter-spacing: 0.08em;
+  font-size: clamp(12px, 2vw, 14px);
+  color: var(--muted);
+  text-transform: uppercase;
+  margin-bottom: 8px;
+}
+
+.graph-container {
+  max-width: 400px;
+  margin: 0 auto;
+  position: relative;
+}
+.graph-container svg { width: 100%; height: auto; }
+.graph-label {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 11px;
+  fill: var(--muted);
+}
+.graph-line {
+  stroke: var(--accent1);
+  stroke-width: 2.5;
+  fill: none;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.graph-grid-line {
+  stroke: var(--accent2);
+  stroke-width: 0.5;
+  opacity: 0.3;
+}
+.graph-dot {
+  fill: var(--accent1);
+}
+.graph-axis {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 10px;
+  color: var(--muted);
+  text-align: center;
+  margin-top: 4px;
+}
+
+/* ═══ SWATCHES ═══ */
+.swatches-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  justify-content: center;
+  margin-top: 24px;
+}
+.swatch {
+  cursor: pointer;
+  text-align: center;
+  width: 110px;
+  min-height: 44px;
+  position: relative;
+  padding: 0;
+  background: none;
+  border: none;
+  font-family: 'Work Sans', sans-serif;
+}
+.swatch-color {
+  width: 100%;
+  height: 64px;
+  border-radius: 4px;
+  border: 2px solid rgba(59,58,47,0.15);
+  transition: transform 0.2s ease;
+  position: relative;
+}
+.swatch:hover .swatch-color { transform: scale(1.05); }
+.swatch-name {
+  font-size: 12px;
+  font-weight: 400;
+  color: var(--text);
+  margin-top: 6px;
+  line-height: 1.3;
+}
+.swatch.active .swatch-color::after {
+  content: '';
+  position: absolute;
+  inset: -8px;
+  border: 3px solid var(--accent1);
+  border-radius: 50%;
+  /* hand-drawn circle SVG */
+  border-image-source: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100' height='100'%3E%3Cellipse cx='50' cy='50' rx='45' ry='42' fill='none' stroke='%23C4652E' stroke-width='2.5' stroke-dasharray='6,3' transform='rotate(-2,50,50)'/%3E%3C/svg%3E");
+  border-image-slice: 20;
+  border-image-repeat: stretch;
+}
+.swatch .sold-out-badge {
+  position: absolute;
+  top: 4px;
+  right: -6px;
+  background: #C4652E;
+  color: #F2E8D5;
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 8px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  padding: 2px 6px;
+  transform: rotate(4deg);
+  white-space: nowrap;
+}
+
+/* ═══ VIBE GENERATOR ═══ */
+.applet-window {
+  border: 3px outset #C0C0C0;
+  background: #D4D0C8;
+  max-width: 440px;
+  margin: 24px auto 0;
+  position: relative;
+}
+.applet-titlebar {
+  background: linear-gradient(90deg, #000080, #1084D0);
+  color: #FFFFFF;
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 12px;
+  font-weight: 600;
+  padding: 3px 8px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.applet-titlebar-btn {
+  background: #C0C0C0;
+  border: 1px outset #FFFFFF;
+  width: 16px;
+  height: 14px;
+  font-size: 9px;
+  line-height: 14px;
+  text-align: center;
+  cursor: default;
+  color: #000000;
+  display: inline-block;
+}
+.applet-body {
+  padding: 24px;
+  text-align: center;
+  min-height: 160px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+}
+.applet-statusbar {
+  background: #C0C0C0;
+  border-top: 1px solid #808080;
+  padding: 2px 8px;
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 10px;
+  color: #3B3A2F;
+}
+.applet-overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(212, 208, 200, 0.92);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2;
+  cursor: pointer;
+}
+.applet-overlay-text {
+  background: #FFFFCC;
+  border: 1px solid #808080;
+  padding: 12px 20px;
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 12px;
+  color: #3B3A2F;
+  text-align: center;
+  box-shadow: 2px 2px 0 rgba(0,0,0,0.15);
+}
+.vibe-btn {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 14px;
+  font-weight: 600;
+  background: #C0C0C0;
+  border: 2px outset #FFFFFF;
+  padding: 10px 24px;
+  cursor: pointer;
+  color: #3B3A2F;
+  min-height: 44px;
+  min-width: 44px;
+}
+.vibe-btn:active { border-style: inset; }
+.vibe-progress {
+  width: 200px;
+  height: 18px;
+  background: #FFFFFF;
+  border: 1px inset #808080;
+  margin: 16px 0;
+  overflow: hidden;
+}
+.vibe-progress-fill {
+  height: 100%;
+  background: #000080;
+  width: 0%;
+  transition: width 0.1s linear;
+}
+.vibe-result {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 16px;
+  font-weight: 600;
+  background: #FFFFCC;
+  border: 1px solid #808080;
+  padding: 12px 20px;
+  color: #3B3A2F;
+  margin-top: 12px;
+}
+.vibe-counter {
+  font-size: 12px;
+  color: var(--muted);
+  margin-top: 12px;
+  font-family: 'IBM Plex Mono', monospace;
+}
+
+/* ═══ PRODUCT CARDS ═══ */
+.product-card {
+  background: var(--card-bg);
+  border: 1px solid rgba(184,164,76,0.3);
+  padding: 24px;
+  margin-bottom: 20px;
+  position: relative;
+}
+.product-card h3 { margin-bottom: 4px; }
+.product-desc {
+  font-size: 15px;
+  color: var(--muted);
+  margin-bottom: 12px;
+}
+.product-price {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 20px;
+  font-weight: 600;
+  color: var(--text);
+}
+.product-card.sold-out {
+  opacity: 0.55;
+  position: relative;
+}
+.product-card.sold-out::after {
+  content: 'SOLD OUT';
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  font-family: 'Permanent Marker', cursive;
+  font-size: 18px;
+  color: var(--accent1);
+  transform: rotate(3deg);
+}
+.waitlist-form {
+  margin-top: 16px;
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.waitlist-form input[type="email"] {
+  font-family: 'Work Sans', sans-serif;
+  font-size: 14px;
+  padding: 10px 12px;
+  border: 1px solid rgba(59,58,47,0.3);
+  background: var(--bg);
+  color: var(--text);
+  flex: 1;
+  min-width: 180px;
+  min-height: 44px;
+}
+.waitlist-form button {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 13px;
+  font-weight: 600;
+  padding: 10px 16px;
+  background: var(--accent1);
+  color: #F2E8D5;
+  border: none;
+  cursor: pointer;
+  min-height: 44px;
+  min-width: 44px;
+  letter-spacing: 0.03em;
+}
+.waitlist-form button:hover { background: #A14E1E; }
+.waitlist-msg {
+  font-size: 13px;
+  color: var(--muted);
+  margin-top: 8px;
+  font-style: italic;
+}
+
+/* ═══ TESTIMONIALS ═══ */
+.testimonial {
+  border-left: 3px solid var(--accent2);
+  padding: 16px 0 16px 20px;
+  margin-bottom: 24px;
+}
+.testimonial p {
+  font-style: italic;
+  margin-bottom: 8px;
+}
+.testimonial cite {
+  font-size: 13px;
+  color: var(--muted);
+  font-style: normal;
+}
+.blog-entry h3 { margin-top: 16px; }
+.blog-entry p {
+  color: var(--muted);
+  font-size: 15px;
+  margin: 8px 0;
+}
+
+/* ═══ FAQ ═══ */
+.faq-item {
+  border-bottom: 1px solid rgba(184,164,76,0.3);
+  padding: 16px 0;
+}
+.faq-question {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  min-height: 44px;
+  background: none;
+  border: none;
+  width: 100%;
+  text-align: left;
+  color: var(--text);
+  letter-spacing: 0.03em;
+  padding: 0;
+  gap: 12px;
+}
+.faq-question:hover { color: var(--accent1); }
+.faq-arrow {
+  font-size: 18px;
+  transition: transform 0.3s ease;
+  flex-shrink: 0;
+}
+.faq-arrow.open { transform: rotate(180deg); }
+.faq-answer {
+  overflow: hidden;
+  max-height: 0;
+  transition: max-height 0.4s ease;
+}
+.faq-answer-inner {
+  padding: 12px 0 4px;
+  font-size: 15px;
+  color: var(--text);
+}
+.faq-answer.open { max-height: 200px; }
+.faq-cursor {
+  display: inline-block;
+  width: 8px;
+  height: 16px;
+  background: var(--text);
+  margin-left: 2px;
+  animation: blink 1s step-end infinite;
+  vertical-align: text-bottom;
+}
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0; }
+}
+
+/* ═══ FOOTER ═══ */
+footer {
+  padding: 48px 0 32px;
+  text-align: center;
+}
+.modem-lights {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  margin: 16px 0;
+}
+.modem-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #5A8F3C;
+}
+.modem-dot:nth-child(1) { animation: modemA 1.2s ease-in-out infinite; }
+.modem-dot:nth-child(2) { animation: modemB 1.2s ease-in-out infinite 0.4s; }
+@keyframes modemA {
+  0%, 100% { background: #5A8F3C; }
+  50% { background: #C4842E; }
+}
+@keyframes modemB {
+  0%, 100% { background: #C4842E; }
+  50% { background: #5A8F3C; }
+}
+footer .sign-off {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 13px;
+  color: var(--muted);
+  margin-top: 16px;
+  line-height: 1.5;
+}
+footer .copyright {
+  font-size: 12px;
+  color: var(--muted);
+  margin-top: 12px;
+}
+
+/* ═══ RESPONSIVE ═══ */
+@media (max-width: 768px) {
+  body { font-size: 16px; }
+  section { padding: 24px 0; }
+  .torn-edge { margin: 32px 0; }
+  .swatch { width: 90px; }
+  .swatch-color { height: 52px; }
+  .hero { padding-top: 40px; }
+  .applet-window { margin: 16px auto 0; }
+}
+
+@media (max-width: 420px) {
+  .container { padding: 0 16px; }
+  .swatches-row { gap: 10px; }
+  .swatch { width: 72px; }
+  .swatch-color { height: 44px; }
+  .swatch-name { font-size: 10px; }
+  .waitlist-form { flex-direction: column; }
+  .waitlist-form input[type="email"] { min-width: 100%; }
+}
+</style>
+</head>
+<body x-data="seventiesAura()" x-init="init()">
+
+<div class="container">
+
+  <!-- ═══ HERO ═══ -->
+  <section class="hero fade-in">
+    <div class="logo-text">SeventiesAura.biz</div>
+    <h1>Custom Graph Paper for the Quietly Defeated</h1>
+    <p class="tagline">Est. 2023. No refunds. No transformations. Just grids.</p>
+
+    <div class="graph-container">
+      <svg viewBox="0 0 400 200" xmlns="http://www.w3.org/2000/svg" aria-label="A graph showing enthusiasm declining over years at desk">
+        <!-- Grid -->
+        <line x1="50" y1="20" x2="50" y2="170" class="graph-grid-line"/>
+        <line x1="130" y1="20" x2="130" y2="170" class="graph-grid-line"/>
+        <line x1="210" y1="20" x2="210" y2="170" class="graph-grid-line"/>
+        <line x1="290" y1="20" x2="290" y2="170" class="graph-grid-line"/>
+        <line x1="370" y1="20" x2="370" y2="170" class="graph-grid-line"/>
+        <line x1="50" y1="20" x2="370" y2="20" class="graph-grid-line"/>
+        <line x1="50" y1="57" x2="370" y2="57" class="graph-grid-line"/>
+        <line x1="50" y1="95" x2="370" y2="95" class="graph-grid-line"/>
+        <line x1="50" y1="132" x2="370" y2="132" class="graph-grid-line"/>
+        <line x1="50" y1="170" x2="370" y2="170" class="graph-grid-line"/>
+        <!-- Axes -->
+        <line x1="50" y1="170" x2="370" y2="170" stroke="#3B3A2F" stroke-width="1.5"/>
+        <line x1="50" y1="20" x2="50" y2="170" stroke="#3B3A2F" stroke-width="1.5"/>
+        <!-- Y-axis label -->
+        <text x="14" y="95" class="graph-label" transform="rotate(-90, 14, 95)" text-anchor="middle">Enthusiasm</text>
+        <!-- X-axis labels -->
+        <text x="90" y="188" class="graph-label" text-anchor="middle">2</text>
+        <text x="170" y="188" class="graph-label" text-anchor="middle">5</text>
+        <text x="250" y="188" class="graph-label" text-anchor="middle">8</text>
+        <text x="330" y="188" class="graph-label" text-anchor="middle">11</text>
+        <!-- The line -->
+        <path id="hero-graph-line" class="graph-line"
+          d="M50,35 C90,38 110,55 150,72 S210,108 250,128 S310,152 350,158"
+          stroke-dasharray="450"
+          stroke-dashoffset="450"/>
+        <!-- End dot (the sigh) -->
+        <circle id="hero-graph-dot" class="graph-dot" cx="350" cy="165" r="4" opacity="0"/>
+      </svg>
+      <div class="graph-axis">Years at desk →</div>
+    </div>
+  </section>
+
+  <div class="torn-edge"></div>
+
+  <!-- ═══ DISAPPOINTMENT SPECTRUM ═══ -->
+  <section class="fade-in" style="position:relative;">
+    <div class="margin-note" style="top: 0;">↓ real paint chips from my apartment</div>
+    <h2>The Disappointment Spectrum™</h2>
+    <p>Every color tested in fluorescent office lighting. Every shade verified against a specific Tuesday.</p>
+
+    <div class="swatches-row">
+      <template x-for="(swatch, i) in swatches" :key="i">
+        <button class="swatch"
+          :class="{ 'active': activeSwatch === i }"
+          @click="selectSwatch(i)"
+          :aria-label="'Select ' + swatch.name">
+          <div class="swatch-color" :style="'background:' + swatch.hex + ';'">
+            <span class="sold-out-badge" x-show="swatch.soldOut">SOLD OUT</span>
+          </div>
+          <div class="swatch-name" x-text="swatch.name"></div>
+        </button>
+      </template>
+    </div>
+  </section>
+
+  <div class="torn-edge"></div>
+
+  <!-- ═══ VIBE GENERATOR ═══ -->
+  <section class="fade-in" style="position:relative;">
+    <div class="margin-note" style="top: -8px;">this took me 3 weeks</div>
+    <h2>Vibe Generator</h2>
+    <p>Formerly a Java applet. Now just JavaScript pretending to be worse than it is.</p>
+
+    <div class="applet-window">
+      <div class="applet-titlebar">
+        <span>VibeCalc.class</span>
+        <span>
+          <span class="applet-titlebar-btn">_</span>
+          <span class="applet-titlebar-btn">□</span>
+          <span class="applet-titlebar-btn">×</span>
+        </span>
+      </div>
+      <div class="applet-body">
+        <!-- Plugin warning overlay -->
+        <div class="applet-overlay" x-show="showOverlay" @click="showOverlay = false" x-transition>
+          <div class="applet-overlay-text">
+            ⚠ This plugin is not supported.<br>
+            <small style="color:#7A7560;">(Click to dismiss and proceed anyway)</small>
+          </div>
+        </div>
+
+        <template x-if="vibeState === 'idle'">
+          <div>
+            <button class="vibe-btn" @click="generateVibe()">Generate Your Vibe</button>
+          </div>
+        </template>
+        <template x-if="vibeState === 'loading'">
+          <div>
+            <div style="font-family:'IBM Plex Mono',monospace;font-size:13px;color:#3B3A2F;margin-bottom:8px;">Calculating existential parameters...</div>
+            <div class="vibe-progress">
+              <div class="vibe-progress-fill" :style="'width:' + vibeProgress + '%'"></div>
+            </div>
+          </div>
+        </template>
+        <template x-if="vibeState === 'done'">
+          <div>
+            <div class="vibe-result" x-text="vibeResult"></div>
+            <button class="vibe-btn" style="margin-top:16px;font-size:12px;" @click="generateVibe()">Again</button>
+          </div>
+        </template>
+      </div>
+      <div class="applet-statusbar">
+        <span x-text="vibeState === 'loading' ? 'Applet running...' : 'Applet loaded'"></span>
+      </div>
+    </div>
+    <div class="vibe-counter" x-show="vibeCount > 0">
+      Vibes generated: <span x-text="vibeCount.toLocaleString()"></span>
+    </div>
+  </section>
+
+  <div class="torn-edge"></div>
+
+  <!-- ═══ THE COLLECTION ═══ -->
+  <section class="fade-in" style="position:relative;">
+    <div class="margin-note" style="top: 0;">my accountant says "stop"</div>
+    <h2>The Collection</h2>
+
+    <div class="product-card">
+      <h3>The Standard Resignation</h3>
+      <p class="product-desc">Classic 5mm grid in Ashtray Beige. Accepts pencil, pen, and quiet weeping without feathering.</p>
+      <div class="product-price">$4.50 <span style="font-size:13px;font-weight:400;color:#7A7560;">/ 50 sheets</span></div>
+    </div>
+
+    <div class="product-card">
+      <h3>The Nixon Edition</h3>
+      <p class="product-desc">Watermarked with a faint seal of plausible deniability. Limited run. $2 more because history costs extra.</p>
+      <div class="product-price">$6.50 <span style="font-size:13px;font-weight:400;color:#7A7560;">/ 50 sheets</span></div>
+    </div>
+
+    <div class="product-card sold-out">
+      <h3>Midlife Crisis Mauve</h3>
+      <p class="product-desc">Permanently out of stock. The color was too honest. Manufacturing refused to continue.</p>
+      <div class="product-price" style="text-decoration:line-through;color:#7A7560;">$5.00</div>
+      <div class="waitlist-form" @submit.prevent="joinWaitlist()">
+        <input type="email" placeholder="your@email.com" aria-label="Email for waitlist" x-model="waitlistEmail">
+        <button type="button" @click="joinWaitlist()">Join Waitlist</button>
+      </div>
+      <p class="waitlist-msg" x-show="waitlistJoined" x-text="waitlistMsg"></p>
+    </div>
+  </section>
+
+  <div class="torn-edge"></div>
+
+  <!-- ═══ TESTIMONIALS & BLOG ═══ -->
+  <section class="fade-in">
+    <h2>Voices from the Grid</h2>
+
+    <div class="testimonial">
+      <p>"I used your graph paper to plan my escape from the corporate rat race. It didn't work. The grid is inescapable, much like the rat race itself. Beautiful paper, though."</p>
+      <cite>— Anonymous, Disillusioned &nbsp;·&nbsp; ★★☆☆☆</cite>
+    </div>
+
+    <div class="blog-entry" style="position:relative;">
+      <div class="margin-note" style="top: 0; left: -55px;">I peaked here</div>
+      <h3>Latest from the Blog</h3>
+      <p style="font-family:'IBM Plex Mono',monospace;font-size:14px;color:var(--text);font-weight:600;">The Perfect Graph Paper for Charting Your Inevitable Decline: A Retrospective</p>
+      <p>It's all in the title, really.</p>
+      <a href="#" @click.prevent>Read More →</a>
+    </div>
+  </section>
+
+  <div class="torn-edge"></div>
+
+  <!-- ═══ FAQ ═══ -->
+  <section class="fade-in">
+    <h2>Frequently Asked Questions</h2>
+    <p style="font-size:14px;color:#7A7560;margin-bottom:16px;">Asked by real people. Answered by Barnaby. Allegedly.</p>
+
+    <template x-for="(faq, i) in faqs" :key="i">
+      <div class="faq-item">
+        <button class="faq-question" @click="toggleFaq(i)">
+          <span x-text="faq.q"></span>
+          <span class="faq-arrow" :class="{ 'open': faq.open }">▾</span>
+        </button>
+        <div class="faq-answer" :class="{ 'open': faq.open }">
+          <div class="faq-answer-inner">
+            <span x-html="faq.displayed"></span><span class="faq-cursor" x-show="faq.open"></span>
+          </div>
+        </div>
+      </div>
+    </template>
+  </section>
+
+  <div class="torn-edge"></div>
+
+  <!-- ═══ FOOTER ═══ -->
+  <footer class="fade-in">
+    <div class="modem-lights">
+      <div class="modem-dot"></div>
+      <div class="modem-dot"></div>
+    </div>
+    <div class="sign-off">You don't have to be grateful for the grid.<br>You just have to be in it.</div>
+    <div class="copyright">© 1977–1983, perpetually reserved until heat death.<br>SeventiesAura.biz · Dayton, OH · A Barnaby "Bones" Butterfield Joint</div>
+  </footer>
+
+</div>
+
+<script src="/assets/js/gsap.min.js"></script>
+<script src="/assets/js/alpine.min.js" defer></script>
+<script>
+document.addEventListener('alpine:init', function() {
+  Alpine.data('seventiesAura', function() {
+    return {
+      showOverlay: true,
+      activeSwatch: -1,
+      vibeState: 'idle',
+      vibeProgress: 0,
+      vibeResult: '',
+      vibeCount: parseInt(localStorage.getItem('sa_vibeCount') || '0'),
+      waitlistEmail: '',
+      waitlistJoined: false,
+      waitlistMsg: '',
+      swatches: [
+        { name: 'Ashtray Beige', hex: '#C8B99A', grid: 'rgba(200,185,154,0.18)', soldOut: false },
+        { name: 'Mustard Regret', hex: '#B8A44C', grid: 'rgba(184,164,76,0.18)', soldOut: false },
+        { name: 'Divorce Brown', hex: '#8B6914', grid: 'rgba(139,105,20,0.18)', soldOut: false },
+        { name: 'Midlife Crisis Mauve', hex: '#9E7B9E', grid: 'rgba(158,123,158,0.18)', soldOut: true },
+        { name: 'Fluorescent Resignation', hex: '#A8B87A', grid: 'rgba(168,184,122,0.18)', soldOut: false }
+      ],
+      faqs: [
+        { q: 'Why is shipping so slow?', a: "We only ship on Thursdays. It's a vibe.", open: false, displayed: '', typing: false },
+        { q: 'Do you offer bulk discounts?', a: "We don't encourage bulk resignation. But yes. 10% off 500 sheets.", open: false, displayed: '', typing: false },
+        { q: 'Where is Barnaby?', a: "Last seen in late 2024, muttering about perfecting the void. The site runs itself now. Like most things.", open: false, displayed: '', typing: false }
+      ],
+
+      init: function() {
+        this.animateHeroGraph();
+        this.setupScrollAnimations();
+      },
+
+      selectSwatch: function(i) {
+        this.activeSwatch = i;
+        var swatch = this.swatches[i];
+        document.body.style.backgroundImage =
+          'linear-gradient(' + swatch.grid + ' 1px, transparent 1px), ' +
+          'linear-gradient(90deg, ' + swatch.grid + ' 1px, transparent 1px)';
+      },
+
+      generateVibe: function() {
+        var self = this;
+        self.vibeState = 'loading';
+        self.vibeProgress = 0;
+        var vibes = ['Tuesday Gloom', 'Existential Dread', 'Quiet Acceptance'];
+
+        // Uneven progress: fast to 40, slower to 73, pause, then finish
+        var steps = [
+          { target: 40, duration: 400 },
+          { target: 73, duration: 800 },
+          { target: 73, duration: 500 }, // pause at 73
+          { target: 100, duration: 300 }
+        ];
+
+        var stepIndex = 0;
+        function runStep() {
+          if (stepIndex >= steps.length) {
+            self.vibeState = 'done';
+            self.vibeResult = vibes[Math.floor(Math.random() * vibes.length)];
+            self.vibeCount++;
+            localStorage.setItem('sa_vibeCount', String(self.vibeCount));
+            return;
+          }
+          var step = steps[stepIndex];
+          var startVal = self.vibeProgress;
+          var startTime = Date.now();
+          function animate() {
+            var elapsed = Date.now() - startTime;
+            var progress = Math.min(elapsed / step.duration, 1);
+            self.vibeProgress = startVal + (step.target - startVal) * progress;
+            if (progress < 1) {
+              requestAnimationFrame(animate);
+            } else {
+              self.vibeProgress = step.target;
+              stepIndex++;
+              runStep();
+            }
+          }
+          requestAnimationFrame(animate);
+        }
+        runStep();
+      },
+
+      toggleFaq: function(i) {
+        var faq = this.faqs[i];
+        if (faq.open) {
+          faq.open = false;
+          faq.displayed = '';
+          faq.typing = false;
+          return;
+        }
+        // Close others
+        this.faqs.forEach(function(f, idx) {
+          if (idx !== i) { f.open = false; f.displayed = ''; f.typing = false; }
+        });
+        faq.open = true;
+        faq.displayed = '';
+        faq.typing = true;
+        var charIndex = 0;
+        var fullText = faq.a;
+        function typeChar() {
+          if (charIndex < fullText.length && faq.open) {
+            charIndex++;
+            faq.displayed = fullText.substring(0, charIndex);
+            setTimeout(typeChar, 28 + Math.random() * 22);
+          } else {
+            faq.typing = false;
+          }
+        }
+        typeChar();
+      },
+
+      joinWaitlist: function() {
+        this.waitlistJoined = true;
+        this.waitlistMsg = 'You have been added to the waitlist. Current position: 2,347. Estimated availability: unclear.';
+      },
+
+      animateHeroGraph: function() {
+        var line = document.getElementById('hero-graph-line');
+        var dot = document.getElementById('hero-graph-dot');
+        if (!line || !dot) return;
+        var length = line.getTotalLength();
+        line.style.strokeDasharray = length;
+        line.style.strokeDashoffset = length;
+        gsap.fromTo(line,
+          { strokeDashoffset: length },
+          { strokeDashoffset: 0, duration: 3, ease: 'power1.inOut', delay: 0.5 }
+        );
+        gsap.fromTo(dot,
+          { opacity: 0, cy: 158 },
+          { opacity: 1, cy: 165, duration: 0.6, ease: 'power2.in', delay: 3.3 }
+        );
+      },
+
+      setupScrollAnimations: function() {
+        var sections = document.querySelectorAll('.fade-in');
+        if (!sections.length) return;
+        var observer = new IntersectionObserver(function(entries) {
+          entries.forEach(function(entry) {
+            if (entry.isIntersecting) {
+              gsap.fromTo(entry.target,
+                { opacity: 0, y: 15 },
+                { opacity: 1, y: 0, duration: 0.8, ease: 'power1.out' }
+              );
+              observer.unobserve(entry.target);
+            }
+          });
+        }, { threshold: 0.1 });
+        sections.forEach(function(s) { observer.observe(s); });
+      }
+    };
+  });
+});
+</script>
+</body>
+</html>

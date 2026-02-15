@@ -867,6 +867,8 @@ hr {
 var DialUpSynth = (function(){
   var ctx = null;
   var masterGain = null;
+  var busNode = null; /* all sounds route here, then through effects */
+  var lineHissNode = null;
   var activeNodes = [];
   var loopTimer = null;
 
@@ -874,22 +876,111 @@ var DialUpSynth = (function(){
     if(!ctx){
       ctx = new (window.AudioContext || window.webkitAudioContext)();
       masterGain = ctx.createGain();
-      masterGain.gain.value = 0.3;
+      masterGain.gain.value = 0.35;
       masterGain.connect(ctx.destination);
+
+      /* === PHONE LINE EFFECT CHAIN === */
+      /* Bus node — everything connects here first */
+      busNode = ctx.createGain();
+      busNode.gain.value = 1.0;
+
+      /* 1. Telephone bandpass — 300Hz to 3400Hz */
+      var hiPass = ctx.createBiquadFilter();
+      hiPass.type = 'highpass';
+      hiPass.frequency.value = 250;
+      hiPass.Q.value = 0.7;
+
+      var loPass = ctx.createBiquadFilter();
+      loPass.type = 'lowpass';
+      loPass.frequency.value = 3600;
+      loPass.Q.value = 0.7;
+
+      /* 2. Resonant peak at ~1kHz (phone line characteristic) */
+      var phonePeak = ctx.createBiquadFilter();
+      phonePeak.type = 'peaking';
+      phonePeak.frequency.value = 1000;
+      phonePeak.gain.value = 4;
+      phonePeak.Q.value = 1.5;
+
+      /* 3. Waveshaper — tape saturation / fuzz */
+      var shaper = ctx.createWaveShaper();
+      var n = 256, curve = new Float32Array(n);
+      for(var i = 0; i < n; i++){
+        var x = (i * 2) / n - 1;
+        /* Soft clipping tanh curve with extra drive */
+        curve[i] = Math.tanh(x * 2.5);
+      }
+      shaper.curve = curve;
+      shaper.oversample = '2x';
+
+      /* 4. Post-distortion rolloff */
+      var postFilter = ctx.createBiquadFilter();
+      postFilter.type = 'lowpass';
+      postFilter.frequency.value = 3200;
+      postFilter.Q.value = 0.5;
+
+      /* Chain: bus → hipass → lopass → peak → shaper → postFilter → master */
+      busNode.connect(hiPass);
+      hiPass.connect(loPass);
+      loPass.connect(phonePeak);
+      phonePeak.connect(shaper);
+      shaper.connect(postFilter);
+      postFilter.connect(masterGain);
     }
     if(ctx.state === 'suspended') ctx.resume();
     return ctx;
+  }
+
+  /* Start continuous line hiss + occasional crackle */
+  function startLineNoise(ac){
+    stopLineNoise();
+    /* Constant hiss */
+    var bufLen = ac.sampleRate * 2;
+    var hissBuf = ac.createBuffer(1, bufLen, ac.sampleRate);
+    var hissData = hissBuf.getChannelData(0);
+    for(var i = 0; i < bufLen; i++) hissData[i] = (Math.random() * 2 - 1);
+    var hissSrc = ac.createBufferSource();
+    hissSrc.buffer = hissBuf;
+    hissSrc.loop = true;
+    var hissFilt = ac.createBiquadFilter();
+    hissFilt.type = 'bandpass';
+    hissFilt.frequency.value = 1800;
+    hissFilt.Q.value = 0.3;
+    var hissGain = ac.createGain();
+    hissGain.gain.value = 0.06;
+    hissSrc.connect(hissFilt);
+    hissFilt.connect(hissGain);
+    hissGain.connect(masterGain); /* hiss goes direct, not through phone filter */
+    hissSrc.start();
+    lineHissNode = hissSrc;
+    activeNodes.push(hissSrc);
+
+    /* 60Hz hum (mains) */
+    var hum = ac.createOscillator();
+    hum.type = 'sine';
+    hum.frequency.value = 60;
+    var humGain = ac.createGain();
+    humGain.gain.value = 0.015;
+    hum.connect(humGain);
+    humGain.connect(masterGain);
+    hum.start();
+    activeNodes.push(hum);
+  }
+
+  function stopLineNoise(){
+    lineHissNode = null;
   }
 
   function stopAll(){
     if(loopTimer){ clearTimeout(loopTimer); loopTimer = null; }
     activeNodes.forEach(function(n){ try{ n.stop(); }catch(e){} try{ n.disconnect(); }catch(e){} });
     activeNodes = [];
+    lineHissNode = null;
   }
 
   /* Create filtered noise burst */
   function noiseBurst(ac, startT, dur, freq, Q, gain){
-    var bufSize = ac.sampleRate * dur;
+    var bufSize = Math.max(1, Math.floor(ac.sampleRate * dur));
     var buf = ac.createBuffer(1, bufSize, ac.sampleRate);
     var data = buf.getChannelData(0);
     for(var i = 0; i < bufSize; i++) data[i] = (Math.random() * 2 - 1);
@@ -904,7 +995,7 @@ var DialUpSynth = (function(){
     g.gain.exponentialRampToValueAtTime(0.001, startT + dur);
     src.connect(filt);
     filt.connect(g);
-    g.connect(masterGain);
+    g.connect(busNode);
     src.start(startT);
     src.stop(startT + dur);
     activeNodes.push(src);
@@ -919,7 +1010,7 @@ var DialUpSynth = (function(){
     g.gain.setValueAtTime(gain, startT);
     if(endGain !== undefined) g.gain.exponentialRampToValueAtTime(Math.max(endGain, 0.001), startT + dur);
     osc.connect(g);
-    g.connect(masterGain);
+    g.connect(busNode);
     osc.start(startT);
     osc.stop(startT + dur);
     activeNodes.push(osc);
@@ -936,7 +1027,7 @@ var DialUpSynth = (function(){
     g.gain.setValueAtTime(gain, startT);
     g.gain.exponentialRampToValueAtTime(0.001, startT + dur);
     osc.connect(g);
-    g.connect(masterGain);
+    g.connect(busNode);
     osc.start(startT);
     osc.stop(startT + dur);
     activeNodes.push(osc);
@@ -1166,12 +1257,19 @@ var DialUpSynth = (function(){
   function play(idx){
     stopAll();
     var ac = getCtx();
+    startLineNoise(ac);
     var t = ac.currentTime + 0.05;
     var dur = presets[idx](ac, t);
 
     /* Loop after the sequence finishes */
     loopTimer = setTimeout(function loopFn(){
-      activeNodes = [];
+      /* Keep line noise nodes, clear the rest */
+      var keep = [];
+      activeNodes.forEach(function(n){
+        if(n === lineHissNode) keep.push(n);
+        else { try{ n.stop(); }catch(e){} try{ n.disconnect(); }catch(e){} }
+      });
+      activeNodes = keep;
       var t2 = ac.currentTime + 0.05;
       dur = presets[idx](ac, t2);
       loopTimer = setTimeout(loopFn, dur * 1000 + 500);

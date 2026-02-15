@@ -1,7 +1,7 @@
 // Creative pipeline Phase 1: generate sparks + quality gate.
 //
-// 1. Four micro-prompts via Gemini Flash (cheap entropy sparks)
-// 2. Grok critic: scores 1-10, must hit 8+ — retry with new seeds if below threshold (up to 3 attempts)
+// 1. Four micro-prompts via random creative model (Trinity / Mistral Creative)
+// 2. Grok critic: scores 1-10, must hit 8+ — retry with new seeds if below threshold (up to 10 attempts)
 //
 // Outputs approved sparks to stdout. Phases 2-4 happen in run.sh via Claude CLI.
 // Usage: node src/pick-idea.js
@@ -83,6 +83,20 @@ const WILD_CARDS = [
   'an out-of-order sign','a company newsletter nobody reads',
 ];
 
+// ~30% chance the concept gets a format nudge toward interactive/simulator
+const FORMATS = [
+  'an interactive simulator you can actually use (buttons, state, feedback)',
+  'a working dashboard with live-updating numbers and controls',
+  'a tool or calculator that does something absurd but functional',
+  'a machine or device you interact with directly (insert coins, press buttons, pull levers)',
+  'a filing system or bureaucratic form you can actually fill out',
+  'a monitoring console with gauges, alerts, and status indicators',
+  'a configurator or builder where you customize something ridiculous',
+  'a chat interface or terminal where something talks back to you',
+  'a mesmerizing generative art piece with an interactive 3D background',
+  'a page where the entire background is a living, breathing WebGL shader',
+];
+
 const VERBOSE = process.argv.includes('--verbose');
 function log(msg) { if (VERBOSE) process.stderr.write(msg + '\n'); }
 
@@ -105,15 +119,16 @@ function buildEntropySeeds() {
     decade: random(DECADES),
     emotion: random(EMOTIONS),
     material: random(MATERIALS),
+    format: Math.random() < 0.3 ? random(FORMATS) : null,
   };
 }
 
 // ── LLM call helper ────────────────────────────────────────────────
 
-async function ask(apiKey, model, system, user, { maxTokens = 300, temperature = 1.5 } = {}) {
+async function ask(apiKey, model, system, user, { maxTokens = 300, temperature = 1.25 } = {}) {
   const response = await fetch(OPENROUTER_URL, {
     method: 'POST',
-    signal: AbortSignal.timeout(30000),
+    signal: AbortSignal.timeout(90000),
     headers: {
       Authorization: `Bearer ${apiKey}`,
       'Content-Type': 'application/json',
@@ -150,11 +165,19 @@ async function ask(apiKey, model, system, user, { maxTokens = 300, temperature =
 const TERSE = 'Output ONLY what is asked. No preamble, no "Sure!", no markdown headers. Just the raw text.';
 
 async function getConcept(apiKey, model, seeds) {
+  const formatNudge = seeds.format
+    ? `\n\nFORMAT DIRECTION: This should be ${seeds.format}. Not a marketing page ABOUT the thing — the actual thing itself that visitors interact with directly.`
+    : '';
   return ask(apiKey, model,
     `You invent absurd fake website concepts. You always reply with exactly ONE concept in 1-2 sentences. Never two concepts. Never bullet points. ${TERSE}`,
     `Entropy seeds (absorb the vibe, don't use literally): ${seeds.words.join(', ')} / ${seeds.decade} / ${seeds.emotion} / ${seeds.material}
 
-Invent ONE fake website concept. Not a real business. Not a parody of something specific. Something wholly original and strange, played totally straight. ONE concept, 1-2 sentences, nothing else.`,
+Invent ONE fake website concept. The concept must be INSTANTLY graspable — if someone needs more than one sentence to "get" the joke, it's too convoluted. Think: a real thing taken to an absurd extreme, or a mundane service delivered with unhinged sincerity. The humor should be obvious from the name alone.
+
+BAD: layered meta-concepts that require explanation ("a blockchain-based archive of emotional debts converted into weather patterns")
+GOOD: simple premises committed to fully ("a funeral home for discontinued snack foods" or "a law firm that only represents houseplants")
+
+Not a real business. Played totally straight. ONE concept, 1-2 sentences, nothing else.${formatNudge}`,
     { maxTokens: 150 }
   );
 }
@@ -192,18 +215,28 @@ Describe the visual direction for this website in 2-3 sentences. Be specific abo
   );
 }
 
-async function generateSparks(apiKey, sparkModel) {
+async function generateSparks(apiKey, sparkModels) {
   const seeds = buildEntropySeeds();
+  const pick = () => sparkModels[Math.floor(Math.random() * sparkModels.length)];
 
-  const concept = await getConcept(apiKey, sparkModel, seeds);
+  const conceptModel = pick();
+  log(`[pick-idea]   concept model: ${conceptModel}`);
+  if (seeds.format) log(`[pick-idea]   format nudge: ${seeds.format}`);
+  const concept = await getConcept(apiKey, conceptModel, seeds);
   log(`[pick-idea]   concept: ${concept.slice(0, 80)}...`);
 
+  const charModel = pick(), detailModel = pick(), visualModel = pick();
+  log(`[pick-idea]   character model: ${charModel}`);
+  log(`[pick-idea]   details model: ${detailModel}`);
+  log(`[pick-idea]   visual model: ${visualModel}`);
+
   const [character, details, visual] = await Promise.all([
-    getCharacter(apiKey, sparkModel, concept),
-    getDetails(apiKey, sparkModel, concept),
-    getVisual(apiKey, sparkModel, concept, seeds),
+    getCharacter(apiKey, charModel, concept),
+    getDetails(apiKey, detailModel, concept),
+    getVisual(apiKey, visualModel, concept, seeds),
   ]);
 
+  const formatLine = seeds.format ? `\n\nFORMAT: ${seeds.format}` : '';
   return `CONCEPT: ${concept}
 
 CHARACTER: ${character}
@@ -211,7 +244,7 @@ CHARACTER: ${character}
 DETAILS:
 ${details}
 
-VISUAL DIRECTION: ${visual}`;
+VISUAL DIRECTION: ${visual}${formatLine}`;
 }
 
 // ── Phase 2: Grok critic ───────────────────────────────────────────
@@ -257,9 +290,39 @@ ${sparks}`,
   return { passed, score, feedback: response, notes };
 }
 
+// ── Phase 3: Grok enhancement pass ────────────────────────────────
+
+async function enhance(apiKey, criticModel, sparks, feedback) {
+  return ask(apiKey, criticModel,
+    `You are a comedy writer refining a satirical website concept. You have the original concept and a critic's feedback. Your job is to REWRITE the concept — same format, same sections — but sharper, funnier, and with the critic's notes addressed.
+
+Keep the same structure:
+CONCEPT: ...
+CHARACTER: ...
+DETAILS: ...
+VISUAL DIRECTION: ...
+
+Rules:
+- Fix weaknesses the critic identified
+- Lean harder into whatever makes this concept funny
+- Add specificity — real-sounding names, dates, prices, procedures
+- Keep the deadpan tone — never wink at the audience
+- Don't water it down or make it safer
+- Output ONLY the rewritten concept in the exact format above, nothing else`,
+    `ORIGINAL CONCEPT:
+${sparks}
+
+CRITIC FEEDBACK:
+${feedback}
+
+Rewrite and enhance this concept based on the feedback.`,
+    { maxTokens: 800, temperature: 1.1 }
+  );
+}
+
 // ── Main ───────────────────────────────────────────────────────────
 
-const MAX_ATTEMPTS = 3;
+const MAX_ATTEMPTS = 10;
 
 async function main() {
   const apiKey = process.env.OPENROUTER_API_KEY;
@@ -268,34 +331,40 @@ async function main() {
     process.exit(1);
   }
 
-  const sparkModel = process.env.OPENROUTER_SPARK_MODEL || 'google/gemini-2.0-flash-001';
+  const sparkModels = (process.env.OPENROUTER_SPARK_MODELS || 'deepseek/deepseek-v3.2').split(',').map(s => s.trim());
   const criticModel = process.env.OPENROUTER_CRITIC_MODEL || 'x-ai/grok-3-mini-beta';
 
   for (let attempt = 1; attempt <= MAX_ATTEMPTS; attempt++) {
-    log(`[pick-idea] Attempt ${attempt}/${MAX_ATTEMPTS}: generating sparks...`);
-    const sparks = await generateSparks(apiKey, sparkModel);
+    try {
+      log(`[pick-idea] Attempt ${attempt}/${MAX_ATTEMPTS}: generating sparks...`);
+      const sparks = await generateSparks(apiKey, sparkModels);
 
-    log('[pick-idea] Asking Grok for quality check...');
-    const { passed, score, feedback, notes } = await criticize(apiKey, criticModel, sparks);
-    process.stderr.write(`[grok] ${feedback}\n`);
-    process.stderr.write(`[pick-idea] Score: ${score}/10${passed ? ' — PASSED' : ' — below threshold (8+)'}\n`);
+      log('[pick-idea] Asking Grok for quality check...');
+      const { passed, score, feedback, notes } = await criticize(apiKey, criticModel, sparks);
+      process.stderr.write(`[grok] ${feedback}\n`);
+      process.stderr.write(`[pick-idea] Score: ${score}/10${passed ? ' — PASSED' : ' — below threshold (8+)'}\n`);
 
-    if (passed) {
-      let output = sparks;
-      if (notes) output += `\n\nCRITIC NOTES: ${notes}`;
-      process.stdout.write(output);
-      return;
-    }
+      if (passed) {
+        log('[pick-idea] Passed! Running Grok enhancement pass...');
+        const enhanced = await enhance(apiKey, criticModel, sparks, feedback);
+        log(`[pick-idea] Enhanced output ready (${enhanced.length} chars)`);
+        process.stdout.write(enhanced);
+        return;
+      }
 
-    process.stderr.write(`[pick-idea] ${attempt < MAX_ATTEMPTS ? 'Retrying with new seeds...' : 'Using anyway (max attempts)'}\n`);
-
-    if (attempt === MAX_ATTEMPTS) {
-      let output = sparks;
-      if (notes) output += `\n\nCRITIC NOTES: ${notes}`;
-      process.stdout.write(output);
-      return;
+      if (attempt < MAX_ATTEMPTS) {
+        process.stderr.write(`[pick-idea] Retrying with new seeds...\n`);
+      }
+    } catch (err) {
+      process.stderr.write(`[pick-idea] Attempt ${attempt} failed: ${err.message}\n`);
+      if (attempt < MAX_ATTEMPTS) {
+        process.stderr.write(`[pick-idea] Retrying...\n`);
+      }
     }
   }
+
+  process.stderr.write('[pick-idea] No idea scored 8+ after 10 attempts. Giving up.\n');
+  process.exit(1);
 }
 
 main().catch(err => {

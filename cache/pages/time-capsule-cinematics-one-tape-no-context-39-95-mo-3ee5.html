@@ -1,0 +1,770 @@
+<!DOCTYPE html>
+<html lang="en" style="filter: saturate(0.85);">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Time-Capsule Cinematics — One Tape. No Context. $39.95/mo.</title>
+<link rel="stylesheet" href="/assets/css/fonts.css">
+<script defer src="/assets/js/alpine.min.js"></script>
+<script src="/assets/js/gsap.min.js"></script>
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html { scroll-behavior: smooth; }
+
+body {
+  background: #1A1A1E;
+  color: #C4A484;
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 16px;
+  line-height: 1.7;
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+}
+
+body::after {
+  content: '';
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: repeating-linear-gradient(
+    transparent 0px,
+    transparent 1px,
+    rgba(26,26,30,0.15) 2px
+  );
+  background-size: 100% 3px;
+  pointer-events: none;
+  z-index: 9999;
+}
+
+@keyframes trackingDrift {
+  0% { top: -4px; }
+  100% { top: 100vh; }
+}
+
+.tracking-band {
+  position: fixed;
+  left: 0; right: 0;
+  height: 4px;
+  background: #5F9EA0;
+  opacity: 0.3;
+  z-index: 9998;
+  pointer-events: none;
+  animation: trackingDrift 12s linear infinite;
+}
+
+h1, h2, h3, .oswald { font-family: 'Oswald', sans-serif; font-weight: 700; letter-spacing: -0.02em; text-transform: uppercase; }
+.caveat { font-family: 'Caveat', cursive; font-weight: 400; }
+.mono { font-family: 'IBM Plex Mono', monospace; font-weight: 400; }
+
+.container {
+  max-width: 720px;
+  margin: 0 auto;
+  padding-left: 24px;
+  padding-right: 24px;
+}
+
+.section {
+  padding: 80px 0;
+}
+
+.section-dark { background: #1A1A1E; }
+.section-mid { background: #2A2A30; }
+
+/* SECTION 1 — COLD OPEN */
+.cold-open {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+}
+
+.play-label {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 14px;
+  color: #4A4A52;
+  transition: opacity 0.2s;
+}
+
+@keyframes playFlicker {
+  0% { opacity: 1; }
+  30% { opacity: 0.3; }
+  100% { opacity: 1; }
+}
+
+.flicker { animation: playFlicker 0.2s ease; }
+
+/* SECTION 2 — HERO */
+.hero-title {
+  font-size: 48px;
+  color: #C4A484;
+  line-height: 1.1;
+  margin-bottom: 24px;
+}
+
+.hero-line { border: none; border-top: 1px solid #4A4A52; margin-bottom: 32px; }
+
+.hero-body { font-size: 15px; line-height: 1.7; }
+.hero-body .price { color: #CD7F32; }
+
+@keyframes borderFlicker {
+  0%, 90%, 100% { border-color: #5F9EA0; }
+  95% { border-color: rgba(95,158,160,0.3); }
+}
+
+.quote-box {
+  border: 1px solid #5F9EA0;
+  padding: 24px;
+  text-align: center;
+  font-style: italic;
+  font-size: 14px;
+  margin-top: 40px;
+  animation: borderFlicker 8s ease infinite;
+}
+
+/* SECTION 3 — WHAT ARRIVES */
+.tape-badge {
+  display: inline-block;
+  color: #CD7F32;
+  border: 1px solid #CD7F32;
+  padding: 4px 12px;
+  font-family: 'Oswald', sans-serif;
+  font-weight: 700;
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: -0.02em;
+  margin-bottom: 12px;
+}
+
+.tape-item {
+  margin-bottom: 32px;
+  opacity: 0;
+  transform: translateY(12px);
+  transition: opacity 0.6s ease, transform 0.6s ease;
+}
+
+.tape-item.visible { opacity: 1; transform: translateY(0); }
+
+.tape-desc { font-size: 14px; line-height: 1.7; }
+
+/* SVG divider */
+.svg-divider {
+  display: block;
+  max-width: 720px;
+  margin: 0 auto;
+  padding: 0 24px;
+  opacity: 0.4;
+}
+
+/* SECTION 4 — PRICING */
+.pricing-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+  margin-bottom: 32px;
+}
+
+.price-box {
+  background: #2A2A30;
+  border: 1px solid #4A4A52;
+  padding: 32px;
+}
+
+.price-box h3 { font-size: 20px; color: #C4A484; margin-bottom: 16px; }
+.price-amount { font-size: 24px; color: #CD7F32; font-family: 'IBM Plex Mono', monospace; margin-bottom: 16px; }
+.price-desc { font-size: 14px; margin-bottom: 24px; line-height: 1.7; }
+
+.btn-subscribe {
+  display: inline-block;
+  background: #5F9EA0;
+  color: #1A1A1E;
+  font-family: 'Oswald', sans-serif;
+  font-weight: 700;
+  font-size: 14px;
+  text-transform: uppercase;
+  letter-spacing: -0.02em;
+  padding: 12px 32px;
+  border: none;
+  cursor: pointer;
+  transition: background 0.2s ease, opacity 0.2s ease;
+  min-height: 44px;
+}
+
+.btn-subscribe:hover:not(:disabled) { background: #C4A484; }
+.btn-subscribe:disabled { opacity: 0.5; cursor: default; }
+
+.pricing-note {
+  color: #5F9EA0;
+  font-size: 18px;
+  transform: rotate(-1.5deg);
+  margin-top: 8px;
+}
+
+/* SECTION 5 — VCR PREFERENCE */
+.vcr-select {
+  display: block;
+  width: 100%;
+  max-width: 480px;
+  background: #1A1A1E;
+  color: #C4A484;
+  border: 1px solid #4A4A52;
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 14px;
+  padding: 12px 16px;
+  margin-top: 20px;
+  min-height: 44px;
+  appearance: auto;
+}
+
+.vcr-confirm {
+  font-size: 12px;
+  color: #4A4A52;
+  margin-top: 12px;
+  transition: opacity 0.3s ease;
+}
+
+/* SECTION 6 — TESTIMONIAL */
+.testimonial-wrapper {
+  display: flex;
+  gap: 32px;
+  align-items: flex-start;
+}
+
+blockquote {
+  font-size: 16px;
+  line-height: 1.8;
+  border: none;
+  padding: 0;
+  margin: 0;
+  flex: 1;
+}
+
+.testimonial-attr {
+  font-size: 13px;
+  color: #4A4A52;
+  margin-top: 16px;
+}
+
+.testimonial-note {
+  color: #5F9EA0;
+  font-size: 20px;
+  transform: rotate(-3deg);
+  white-space: nowrap;
+  flex-shrink: 0;
+  max-width: 200px;
+  white-space: normal;
+  line-height: 1.3;
+  padding-top: 12px;
+}
+
+/* SECTION 7 — FAQ */
+.faq-item { border-bottom: 1px solid #4A4A52; padding: 20px 0; }
+
+.faq-q {
+  font-size: 15px;
+  color: #C4A484;
+  cursor: pointer;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  min-height: 44px;
+  user-select: none;
+}
+
+.faq-toggle {
+  font-size: 20px;
+  color: #5F9EA0;
+  transition: transform 0.3s ease;
+  flex-shrink: 0;
+  margin-left: 16px;
+}
+
+.faq-toggle.open { transform: rotate(45deg); }
+
+.faq-a {
+  overflow: hidden;
+  max-height: 0;
+  transition: max-height 0.4s ease, padding 0.3s ease;
+  font-size: 14px;
+  line-height: 1.7;
+  color: #C4A484;
+}
+
+.faq-a.open { max-height: 300px; padding-top: 16px; }
+
+/* SECTION 8 — INVENTORY LOG */
+.log-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 24px;
+}
+
+@keyframes pulse {
+  0%, 100% { box-shadow: 0 0 4px #5F9EA0; }
+  50% { box-shadow: 0 0 12px #5F9EA0; }
+}
+
+.live-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #5F9EA0;
+  animation: pulse 2s ease infinite;
+  display: inline-block;
+}
+
+.live-label { font-size: 10px; color: #5F9EA0; font-family: 'IBM Plex Mono', monospace; }
+
+.log-area {
+  border-left: 2px solid #5F9EA0;
+  padding-left: 16px;
+  min-height: 120px;
+}
+
+.log-entry {
+  font-size: 12px;
+  line-height: 1.6;
+  margin-bottom: 8px;
+  transition: opacity 0.3s ease;
+}
+
+.log-entry .timestamp { color: #5F9EA0; }
+.log-entry .entry-text { color: #C4A484; }
+.log-entry.faded { opacity: 0.5; }
+
+/* SECTION 9 — ABOUT */
+.about-main { font-size: 14px; line-height: 1.7; margin-bottom: 24px; }
+.about-aside { font-size: 12px; color: #4A4A52; line-height: 1.7; }
+
+/* FOOTER */
+.footer {
+  padding: 40px 0;
+  border-top: 1px solid #4A4A52;
+}
+
+.footer-content {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.footer-copy { font-size: 12px; color: #4A4A52; }
+.footer-link {
+  font-size: 12px;
+  color: #5F9EA0;
+  text-decoration: none;
+  cursor: pointer;
+  transition: text-decoration 0.2s ease;
+}
+.footer-link:hover { text-decoration: underline; }
+.footer-shipment { font-size: 12px; color: #4A4A52; }
+
+/* RESPONSIVE */
+@media (max-width: 768px) {
+  .section { padding: 48px 0; }
+  .hero-title { font-size: 36px; }
+  .pricing-grid { grid-template-columns: 1fr; }
+  .testimonial-wrapper { flex-direction: column; }
+  .testimonial-note { transform: rotate(-2deg); max-width: 100%; }
+  .footer-content { flex-direction: column; align-items: flex-start; }
+}
+
+@media (max-width: 480px) {
+  .hero-title { font-size: 32px; }
+}
+</style>
+</head>
+<body x-data="site()" @scroll.window="handleScroll()">
+
+<div class="tracking-band"></div>
+
+<!-- SECTION 1 — COLD OPEN -->
+<section class="cold-open section-dark">
+  <div class="play-label" :class="{ 'flicker': flickering }">
+    <span x-show="!started" x-transition>PLAY ▶</span>
+    <span x-show="started" x-cloak x-text="clock"></span>
+  </div>
+</section>
+
+<!-- MAIN CONTENT -->
+<div x-show="contentVisible" x-transition.opacity.duration.1500ms x-cloak>
+
+<!-- SECTION 2 — HERO -->
+<section class="section section-dark">
+  <div class="container">
+    <h1 class="hero-title oswald">Time-Capsule Cinematics</h1>
+    <hr class="hero-line">
+    <p class="hero-body mono">
+      One unlabeled VHS tape.<br>
+      Five minutes of anonymous hotel atrium footage.<br>
+      No context. No explanation.<br>
+      <span class="price">$39.95/month.</span>
+    </p>
+    <div class="quote-box mono">
+      You are allowed to experience something without understanding it.
+    </div>
+  </div>
+</section>
+
+<!-- SECTION 3 — WHAT ARRIVES -->
+<section class="section section-mid" id="whatArrives" x-data="tapeSection()">
+  <div class="container" x-ref="tapeContainer">
+    <h2 class="oswald" style="font-size:28px; margin-bottom:40px;">WHAT ARRIVES</h2>
+    <template x-for="(tape, i) in tapes" :key="i">
+      <div class="tape-item" :class="{ 'visible': revealed }" :style="'transition-delay:' + (i * 0.4) + 's'">
+        <div class="tape-badge" x-text="'TAPE #' + tape.num"></div>
+        <p class="tape-desc mono" x-text="tape.desc"></p>
+      </div>
+    </template>
+  </div>
+</section>
+
+<!-- SVG DIVIDER -->
+<div style="background:#1A1A1E; padding:0;">
+  <svg class="svg-divider" viewBox="0 0 720 40" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="none" style="width:100%;max-width:720px;height:40px;">
+    <path d="M0,20 Q180,0 360,20 T720,20" stroke="#4A4A52" stroke-width="1.5" fill="none"/>
+  </svg>
+</div>
+
+<!-- SECTION 4 — PRICING -->
+<section class="section section-dark" x-data="pricing()">
+  <div class="container">
+    <h2 class="oswald" style="font-size:28px; margin-bottom:32px;">SUBSCRIPTION TIERS</h2>
+    <div class="pricing-grid">
+      <div class="price-box">
+        <h3 class="oswald">STANDARD TRACKING</h3>
+        <div class="price-amount">$39.95/mo</div>
+        <p class="price-desc mono">One tape. One atrium. Zero context. Your VCR does the rest.</p>
+        <button class="btn-subscribe" :disabled="btn1Disabled" @click="clickBtn(1)" x-text="btn1Text"></button>
+      </div>
+      <div class="price-box">
+        <h3 class="oswald">ANALOG OBSESSION</h3>
+        <div class="price-amount">$59.95/mo</div>
+        <p class="price-desc mono">Each tape arrives in a scuffed, second-hand case with a faded barcode from a defunct Blockbuster in Reno, Nevada. The opening seconds may contain residual audio of a 1985 episode of &lsquo;Who&rsquo;s the Boss?&rsquo;</p>
+        <button class="btn-subscribe" :disabled="btn2Disabled" @click="clickBtn(2)" x-text="btn2Text"></button>
+      </div>
+    </div>
+    <p class="caveat pricing-note">neither button does anything. this is a VHS tape company, not a tech startup.</p>
+  </div>
+</section>
+
+<!-- SECTION 5 — VCR PLAYBACK PREFERENCE -->
+<section class="section section-mid" x-data="{ pref: '', selected: false }">
+  <div class="container">
+    <h2 class="oswald" style="font-size:20px; margin-bottom:8px;">REQUIRED: VCR PLAYBACK PREFERENCE</h2>
+    <select class="vcr-select" x-model="pref" @change="selected = pref !== ''">
+      <option value="" disabled selected>— Select your playback configuration —</option>
+      <option value="standard">Standard Tracking // I'll make do with what works</option>
+      <option value="ruthless">Ruthless Tracking // My 1982 Magnavox devours tapes, and I'm fine with the chaos</option>
+      <option value="none">No VCR // I just hold the tape up to a lamp and squint</option>
+    </select>
+    <p class="vcr-confirm mono" :style="{ opacity: selected ? 1 : 0 }">Preference recorded. This information will not be used.</p>
+  </div>
+</section>
+
+<!-- SECTION 6 — TESTIMONIAL -->
+<section class="section section-dark">
+  <div class="container">
+    <div class="testimonial-wrapper">
+      <div>
+        <blockquote class="mono">
+          &ldquo;Tape #137 arrived last week&mdash;I&rsquo;m convinced it&rsquo;s the atrium of the 1995 Dallas Sheraton based on that quirky escalator rhythm. This service has me questioning my life choices. Highly recommend. 5 stars.&rdquo;
+        </blockquote>
+        <p class="testimonial-attr mono">&mdash; D. Moreno, Tape Subscriber since 2019</p>
+      </div>
+      <div class="testimonial-note caveat">I didn't ask for this testimonial. It arrived in the mail on a napkin.</div>
+    </div>
+  </div>
+</section>
+
+<!-- SVG DIVIDER -->
+<div style="background:#2A2A30; padding:0;">
+  <svg class="svg-divider" viewBox="0 0 720 40" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="none" style="width:100%;max-width:720px;height:40px;">
+    <path d="M0,20 Q180,0 360,20 T720,20" stroke="#4A4A52" stroke-width="1.5" fill="none"/>
+  </svg>
+</div>
+
+<!-- SECTION 7 — FAQ -->
+<section class="section section-mid" x-data="faq()">
+  <div class="container">
+    <h2 class="oswald" style="font-size:28px; margin-bottom:32px;">MYSTERIES UNRAVELED (BARELY)</h2>
+    <template x-for="(item, i) in items" :key="i">
+      <div class="faq-item">
+        <div class="faq-q mono" @click="toggle(i)">
+          <span x-text="item.q"></span>
+          <span class="faq-toggle" :class="{ 'open': item.open }">+</span>
+        </div>
+        <div class="faq-a mono" :class="{ 'open': item.open }">
+          <span x-text="item.a"></span>
+        </div>
+      </div>
+    </template>
+  </div>
+</section>
+
+<!-- SVG DIVIDER (between 7 and 8) -->
+<div style="background:#1A1A1E; padding:0;">
+  <svg class="svg-divider" viewBox="0 0 720 40" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="none" style="width:100%;max-width:720px;height:40px;">
+    <path d="M0,20 Q180,0 360,20 T720,20" stroke="#4A4A52" stroke-width="1.5" fill="none"/>
+  </svg>
+</div>
+
+<!-- SECTION 8 — INVENTORY LOG -->
+<section class="section section-dark" id="inventoryLog" x-data="inventoryLog()">
+  <div class="container">
+    <div class="log-header">
+      <h2 class="oswald" style="font-size:28px;">INVENTORY LOG</h2>
+      <span class="live-dot"></span>
+      <span class="live-label">LIVE</span>
+    </div>
+    <div class="log-area">
+      <template x-for="(entry, i) in visibleEntries" :key="entry.id">
+        <div class="log-entry" :class="{ 'faded': i < visibleEntries.length - 1 }">
+          <span class="timestamp" x-text="entry.time"></span>
+          <span class="entry-text" x-text="' ' + entry.text"></span>
+        </div>
+      </template>
+    </div>
+  </div>
+</section>
+
+<!-- SECTION 9 — ABOUT LEO -->
+<section class="section section-mid">
+  <div class="container">
+    <p class="about-main mono">Founded in 2009 by Leo Vance, a former insurance actuary out of Columbus who spent eleven years calculating the precise dollar value of other people&rsquo;s catastrophes before buying a bankrupt VHS duplication plant off eBay for reasons he still can&rsquo;t fully articulate. Our meticulous process removes all context&mdash;clocks are pixelated, newspapers redacted, and any visible branding erased, ensuring each tape delivers a pristine void for $39.95 a month.</p>
+    <p class="about-aside mono">Leo does not respond to the podcaster who called his tapes &ldquo;overhyped echoes of boredom.&rdquo; He has, however, mailed that podcaster Tape #001 every month for three years without explanation.</p>
+  </div>
+</section>
+
+<!-- SECTION 10 — FOOTER -->
+<footer class="section-dark">
+  <div class="container footer">
+    <div class="footer-content">
+      <span class="footer-copy mono">&copy; 2009&ndash;2024 Time-Capsule Cinematics</span>
+      <a class="footer-link mono" href="#inventoryLog">Inventory Log</a>
+      <span class="footer-shipment mono" x-data="{ now: new Date() }" x-text="'Last Verified Shipment: ' + now.toLocaleDateString('en-US') + ' ' + now.toLocaleTimeString('en-US', { hour:'2-digit', minute:'2-digit', second:'2-digit' }) + ' EST'"></span>
+    </div>
+  </div>
+</footer>
+
+</div><!-- end x-show contentVisible -->
+
+<script>
+function site() {
+  return {
+    started: false,
+    contentVisible: false,
+    flickering: false,
+    clock: '',
+    clockColor: false,
+    _timer: null,
+    _clockInterval: null,
+    _sixtyTimer: null,
+
+    init() {
+      this._timer = setTimeout(() => {
+        if (!this.started) {
+          this.flickering = true;
+          setTimeout(() => {
+            this.flickering = false;
+            this.startPlayback();
+          }, 200);
+        }
+      }, 2000);
+
+      this._sixtyTimer = setTimeout(() => {
+        this.clockColor = true;
+        setTimeout(() => { this.clockColor = false; }, 2000);
+      }, 60000);
+    },
+
+    handleScroll() {
+      if (!this.started) {
+        clearTimeout(this._timer);
+        this.startPlayback();
+      }
+    },
+
+    startPlayback() {
+      this.started = true;
+      this.contentVisible = true;
+      this.updateClock();
+      this._clockInterval = setInterval(() => this.updateClock(), 1000);
+    },
+
+    updateClock() {
+      var d = new Date();
+      var h = String(d.getHours()).padStart(2, '0');
+      var m = String(d.getMinutes()).padStart(2, '0');
+      var s = String(d.getSeconds()).padStart(2, '0');
+      this.clock = h + ':' + m + ':' + s;
+    }
+  };
+}
+
+function tapeSection() {
+  var descriptions = [
+    "4:58 of a Marriott atrium, somewhere in the Midwest. A man in a gray suit crosses the frame at 2:13. He never returns.",
+    "5:00 of escalator footage. The escalator is not moving. Someone left a newspaper on step 14.",
+    "4:47. A hotel lobby piano plays itself via MIDI. The song is unidentifiable. The bench is empty.",
+    "4:52 of a revolving door from the inside. Seven people enter. None of them look up.",
+    "5:00 of a check-in desk at 3 AM. The clerk is reading a paperback. The title is illegible. A suitcase wheel squeaks at 4:11.",
+    "4:39. A fountain in a Hyatt atrium. The water sounds like applause. Nobody is clapping."
+  ];
+
+  var shuffled = descriptions.sort(function() { return 0.5 - Math.random(); });
+  var picked = shuffled.slice(0, 3);
+
+  return {
+    revealed: false,
+    tapes: picked.map(function(d) {
+      return { num: Math.floor(Math.random() * 500) + 1, desc: d };
+    }),
+    init() {
+      var self = this;
+      var observer = new IntersectionObserver(function(entries) {
+        entries.forEach(function(entry) {
+          if (entry.isIntersecting) {
+            self.revealed = true;
+            observer.disconnect();
+          }
+        });
+      }, { threshold: 0.2 });
+      observer.observe(this.$refs.tapeContainer);
+    }
+  };
+}
+
+function pricing() {
+  return {
+    btn1Text: 'SUBSCRIBE',
+    btn2Text: 'SUBSCRIBE',
+    btn1Disabled: false,
+    btn2Disabled: false,
+    _timeout1: null,
+    _timeout2: null,
+
+    clickBtn(n) {
+      var self = this;
+      // Reset both
+      clearTimeout(this._timeout1);
+      clearTimeout(this._timeout2);
+      this.btn1Text = 'SUBSCRIBE';
+      this.btn2Text = 'SUBSCRIBE';
+      this.btn1Disabled = false;
+      this.btn2Disabled = false;
+
+      var setTxt = function(v) {
+        if (n === 1) self.btn1Text = v; else self.btn2Text = v;
+      };
+      var setDis = function(v) {
+        if (n === 1) self.btn1Disabled = v; else self.btn2Disabled = v;
+      };
+
+      setTxt('PROCESSING...');
+      var t1 = setTimeout(function() { setTxt('REWINDING...'); }, 1000);
+      var t2 = setTimeout(function() {
+        setTxt('TAPE NOT FOUND');
+        setDis(true);
+      }, 2000);
+
+      if (n === 1) { this._timeout1 = t1; this._timeout2 = t2; }
+      else { this._timeout1 = t1; this._timeout2 = t2; }
+    }
+  };
+}
+
+function faq() {
+  return {
+    items: [
+      {
+        q: 'Can I request a specific hotel or city?',
+        a: 'Absolutely not. Anonymity ensures the pure, unadulterated thrill. Our inventory includes footage from the now-demolished 1987 Chicago Hyatt Regency and a rumored haunted spot in Atlantic City, but good luck guessing which is Tape #204.',
+        open: false
+      },
+      {
+        q: 'What if my tape is blank?',
+        a: 'Then you have received five minutes of perfect silence from an anonymous location. This is not a defect. Some subscribers have reported this as their favorite tape.',
+        open: false
+      },
+      {
+        q: 'Who is filming these atriums?',
+        a: 'We cannot disclose this. The footage arrives at our facility in unmarked boxes. We do not ask questions. Neither should you.',
+        open: false
+      },
+      {
+        q: 'Is this a joke?',
+        a: '$39.95 is not a joke. It is a monthly reminder that mystery still exists.',
+        open: false
+      }
+    ],
+    toggle(i) { this.items[i].open = !this.items[i].open; }
+  };
+}
+
+function inventoryLog() {
+  var entries = [
+    "Tape #458 — Final restoration. 27 min of deliberate inactivity.",
+    "Tape #291 — Flagged for review. Visible clock at 3:41. Clock must be pixelated before shipping.",
+    "Tape #512 — Atrium confirmed. Source: [REDACTED]. Ambient hum level: acceptable.",
+    "Tape #103 — Remastered. Escalator rhythm normalized. Newspaper on step 14 preserved.",
+    "Tape #377 — Incoming. Branding detected in frame 4,200. Initiating erasure protocol.",
+    "Tape #044 — Returned by subscriber. Reason given: 'Too real.' Restocking.",
+    "Tape #619 — Audio anomaly at 2:07. Sounds like distant laughter. Origin: inconclusive.",
+    "Tape #085 — Lobby fountain malfunction visible at 1:33. Classified as 'atmosphere.'",
+    "Tape #330 — Escalator footage. Fourteen seconds of a child waving at the camera. Flagged for redaction.",
+    "Tape #271 — Quality check passed. Five minutes of nothing happening, beautifully."
+  ];
+
+  return {
+    allEntries: entries,
+    visibleEntries: [],
+    _idx: 0,
+    _entryId: 0,
+    _typing: false,
+
+    init() {
+      var self = this;
+      this.addEntry();
+      setInterval(function() { self.addEntry(); }, 4000);
+    },
+
+    addEntry() {
+      var self = this;
+      var d = new Date();
+      var ts = '[' + String(d.getHours()).padStart(2, '0') + ':' +
+               String(d.getMinutes()).padStart(2, '0') + ':' +
+               String(d.getSeconds()).padStart(2, '0') + ']';
+      var fullText = this.allEntries[this._idx % this.allEntries.length];
+      this._idx++;
+      this._entryId++;
+
+      var entry = { id: this._entryId, time: ts, text: '', _full: fullText };
+      this.visibleEntries.push(entry);
+
+      // Keep only last 5
+      if (this.visibleEntries.length > 5) {
+        this.visibleEntries.shift();
+      }
+
+      // Typewriter effect
+      var charIdx = 0;
+      var ref = this.visibleEntries[this.visibleEntries.length - 1];
+      var typeInterval = setInterval(function() {
+        charIdx++;
+        ref.text = fullText.substring(0, charIdx);
+        if (charIdx >= fullText.length) {
+          clearInterval(typeInterval);
+        }
+      }, 30);
+    }
+  };
+}
+</script>
+
+</body>
+</html>

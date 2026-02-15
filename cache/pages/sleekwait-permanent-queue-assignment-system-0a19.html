@@ -1,0 +1,918 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SleekWait — Permanent Queue Assignment System</title>
+<link rel="stylesheet" href="/assets/css/fonts.css">
+<script defer src="/assets/js/alpine.min.js"></script>
+<script src="/assets/js/gsap.min.js"></script>
+<style>
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; border-radius: 0 !important; }
+
+:root {
+  --bg: #FAF9F6;
+  --text: #1A1A1A;
+  --gray: #696969;
+  --accent: #D5FF00;
+  --accent-wash: #D5FF0018;
+  --accent-glow: #D5FF0040;
+  --accent-flash: #D5FF0008;
+  --red: #FF3333;
+}
+
+html { scroll-behavior: smooth; }
+
+body {
+  font-family: 'Fira Code', monospace;
+  background-color: var(--bg);
+  color: var(--text);
+  font-size: 16px;
+  line-height: 1.5;
+  background-image:
+    repeating-linear-gradient(90deg, transparent, transparent 39px, #D5FF0018 39px, #D5FF0018 40px),
+    repeating-linear-gradient(0deg, transparent, transparent 39px, #D5FF0018 39px, #D5FF0018 40px);
+  background-size: 40px 40px;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* --- PROCESSING SCREEN --- */
+.processing-screen {
+  position: fixed;
+  inset: 0;
+  background: #000;
+  z-index: 9999;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  color: var(--bg);
+  font-family: 'Fira Code', monospace;
+  font-size: 18px;
+}
+
+.processing-screen .cursor {
+  display: inline-block;
+  width: 10px;
+  height: 20px;
+  background: var(--bg);
+  margin-left: 4px;
+  vertical-align: middle;
+  animation: blink 1s step-end infinite;
+}
+
+@keyframes blink { 50% { opacity: 0; } }
+
+/* --- REGISTRATION STATE --- */
+.reg-wrapper {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+
+.reg-card {
+  border: 2px solid var(--text);
+  background: var(--bg);
+  padding: 40px;
+  max-width: 520px;
+  width: 100%;
+}
+
+.reg-card .reg-header {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.3em;
+  color: var(--text);
+  margin-bottom: 24px;
+  line-height: 1.6;
+}
+
+.reg-card .reg-sub {
+  font-size: 14px;
+  color: var(--gray);
+  margin-bottom: 32px;
+}
+
+.reg-card input[type="text"] {
+  width: 100%;
+  font-family: 'Fira Code', monospace;
+  font-size: 16px;
+  padding: 12px;
+  border: 2px solid var(--text);
+  background: transparent;
+  color: var(--text);
+  outline: none;
+  margin-bottom: 20px;
+  min-height: 48px;
+}
+
+.reg-card input[type="text"]::placeholder {
+  color: var(--gray);
+  text-transform: uppercase;
+  font-size: 12px;
+  letter-spacing: 0.1em;
+}
+
+.checkbox-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  margin-bottom: 28px;
+  cursor: pointer;
+}
+
+.custom-check {
+  width: 20px;
+  height: 20px;
+  min-width: 20px;
+  min-height: 20px;
+  border: 2px solid var(--text);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  font-weight: bold;
+  color: var(--text);
+  margin-top: 2px;
+  user-select: none;
+}
+
+.checkbox-label {
+  font-size: 12px;
+  color: var(--gray);
+  line-height: 1.5;
+  user-select: none;
+}
+
+.reg-btn {
+  font-family: 'Fira Code', monospace;
+  font-size: 14px;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  padding: 14px 28px;
+  border: 2px solid var(--text);
+  background: transparent;
+  color: var(--text);
+  cursor: pointer;
+  transition: all 0.1s linear;
+  min-height: 48px;
+  width: 100%;
+}
+
+.reg-btn:hover, .reg-btn:focus {
+  background: var(--accent);
+  color: var(--text);
+}
+
+.reg-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.reg-btn:disabled:hover {
+  background: transparent;
+}
+
+/* --- DASHBOARD --- */
+.dashboard {
+  min-height: 100vh;
+}
+
+.top-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 24px;
+  border-bottom: 1px solid var(--gray);
+  background: var(--bg);
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.2em;
+}
+
+.top-bar-left {
+  color: var(--text);
+}
+
+.top-bar-right {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--gray);
+  font-size: 10px;
+  letter-spacing: 0.15em;
+}
+
+.live-dot {
+  width: 6px;
+  height: 6px;
+  background: var(--red);
+  display: inline-block;
+  animation: pulse-dot 1s ease-in-out infinite;
+}
+
+@keyframes pulse-dot {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.2; }
+}
+
+/* --- QUEUE NUMBER --- */
+.number-section {
+  text-align: center;
+  padding: 60px 20px 40px;
+}
+
+.queue-number {
+  font-family: 'Unbounded', sans-serif;
+  font-size: clamp(64px, 15vw, 140px);
+  color: var(--accent);
+  line-height: 1;
+  text-shadow: 0 0 40px var(--accent-glow);
+  margin-bottom: 12px;
+  font-weight: 700;
+}
+
+.number-label {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.3em;
+  color: var(--gray);
+  margin-bottom: 6px;
+}
+
+.number-variance {
+  font-size: 10px;
+  color: var(--gray);
+  letter-spacing: 0.1em;
+}
+
+/* --- QUADRANT GRID --- */
+.quad-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  max-width: 900px;
+  margin: 0 auto 40px;
+  padding: 0 24px;
+}
+
+.quad-block {
+  border: 1px solid var(--gray);
+  padding: 24px;
+  opacity: 0.96;
+  position: relative;
+  min-height: 180px;
+}
+
+.quad-block .block-title {
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.25em;
+  color: var(--gray);
+  margin-bottom: 16px;
+}
+
+.quad-block .block-big-num {
+  font-family: 'Unbounded', sans-serif;
+  font-size: 42px;
+  color: var(--text);
+  margin-bottom: 8px;
+  line-height: 1;
+}
+
+.quad-block .block-sub {
+  font-size: 10px;
+  color: var(--gray);
+  letter-spacing: 0.1em;
+}
+
+.stat-line {
+  font-size: 12px;
+  color: var(--text);
+  margin-bottom: 6px;
+  opacity: 0.96;
+}
+
+.stat-line span {
+  color: var(--gray);
+}
+
+.leaderboard-entry {
+  font-size: 11px;
+  display: flex;
+  justify-content: space-between;
+  padding: 3px 0;
+  border-bottom: 1px solid #D5FF0018;
+  color: var(--text);
+  opacity: 0.96;
+}
+
+.leaderboard-entry .lb-pos {
+  color: var(--gray);
+  min-width: 50px;
+  text-align: right;
+}
+
+.not-ranked {
+  font-size: 9px;
+  color: var(--gray);
+  font-style: italic;
+  margin-top: 10px;
+}
+
+.drift-canvas-wrap {
+  margin-bottom: 8px;
+}
+
+.drift-canvas-wrap canvas {
+  display: block;
+  width: 100%;
+  max-width: 200px;
+  height: 100px;
+}
+
+.drift-label {
+  font-size: 9px;
+  color: var(--gray);
+  text-transform: uppercase;
+  letter-spacing: 0.15em;
+}
+
+/* --- BOTTOM STRIP --- */
+.bottom-strip {
+  display: flex;
+  justify-content: center;
+  gap: 40px;
+  padding: 30px 24px;
+  flex-wrap: wrap;
+}
+
+.bottom-link {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.15em;
+  color: var(--text);
+  text-decoration: none;
+  border-bottom: 1px solid var(--text);
+  padding-bottom: 2px;
+  cursor: pointer;
+  opacity: 0.96;
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
+  transition: color 0.1s linear;
+}
+
+.bottom-link:hover {
+  color: var(--gray);
+}
+
+/* --- FAQ + TOS --- */
+.below-fold {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 60px 24px 80px;
+}
+
+.section-title {
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.3em;
+  color: var(--text);
+  margin-bottom: 32px;
+  padding-bottom: 8px;
+  border-bottom: 2px solid var(--text);
+}
+
+.faq-item {
+  margin-bottom: 24px;
+}
+
+.faq-q {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--text);
+  margin-bottom: 6px;
+}
+
+.faq-a {
+  font-size: 13px;
+  color: var(--gray);
+  line-height: 1.6;
+}
+
+.tos-block {
+  margin-top: 60px;
+}
+
+.tos-text {
+  font-size: 11px;
+  color: var(--gray);
+  line-height: 1.7;
+  margin-bottom: 16px;
+  opacity: 0.96;
+}
+
+.tos-link {
+  font-size: 11px;
+  color: var(--text);
+  cursor: pointer;
+  border-bottom: 1px solid var(--text);
+  padding-bottom: 1px;
+}
+
+.tos-link:hover {
+  color: var(--gray);
+}
+
+/* --- HOLD SCREEN --- */
+.hold-screen {
+  position: fixed;
+  inset: 0;
+  background: var(--bg);
+  z-index: 10000;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Fira Code', monospace;
+}
+
+.hold-screen .hold-text {
+  font-size: 20px;
+  color: var(--text);
+  margin-bottom: 24px;
+}
+
+.hold-screen .spinner {
+  font-size: 32px;
+  color: var(--text);
+  margin-bottom: 24px;
+  width: 32px;
+  text-align: center;
+}
+
+.hold-screen .hold-est {
+  font-size: 13px;
+  color: var(--gray);
+}
+
+/* --- NOTIFICATION --- */
+.notif {
+  position: fixed;
+  bottom: 80px;
+  left: 24px;
+  background: var(--bg);
+  border: 1px solid var(--gray);
+  padding: 14px 20px;
+  font-size: 11px;
+  color: var(--text);
+  max-width: 380px;
+  z-index: 500;
+  opacity: 0;
+  transform: translateY(20px);
+  transition: all 0.3s linear;
+  line-height: 1.5;
+}
+
+.notif.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* --- MOBILE --- */
+@media (max-width: 768px) {
+  .quad-grid {
+    grid-template-columns: 1fr;
+    padding: 0 16px;
+  }
+
+  .number-section {
+    padding: 40px 16px 24px;
+  }
+
+  .top-bar {
+    padding: 10px 16px;
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+
+  .bottom-strip {
+    gap: 20px;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .reg-card {
+    padding: 24px;
+  }
+
+  .below-fold {
+    padding: 40px 16px 60px;
+  }
+}
+
+@media (max-width: 375px) {
+  .queue-number {
+    font-size: 48px;
+  }
+}
+</style>
+</head>
+<body x-data="sleekwait()" x-init="boot()">
+
+  <!-- PROCESSING SCREEN -->
+  <template x-if="showProcessing">
+    <div class="processing-screen">
+      <div>
+        <span x-text="processingText"></span><span class="cursor"></span>
+      </div>
+    </div>
+  </template>
+
+  <!-- HOLD SCREEN -->
+  <template x-if="showHoldScreen">
+    <div class="hold-screen">
+      <div class="hold-text">Please hold...</div>
+      <div class="spinner" x-text="spinnerFrame"></div>
+      <div class="hold-est">Your request is being processed. Estimated wait: &#8734;</div>
+    </div>
+  </template>
+
+  <!-- REGISTRATION STATE -->
+  <template x-if="!registered && !showProcessing">
+    <div class="reg-wrapper">
+      <div class="reg-card">
+        <div class="reg-header">SleekWait &mdash; Permanent Queue Assignment System</div>
+        <div class="reg-sub">You do not currently have a queue number.</div>
+        <input
+          type="text"
+          x-model="nameInput"
+          placeholder="ENTER DISPLAY NAME"
+          maxlength="30"
+          @keydown.enter="agreed && nameInput.trim() ? register() : null"
+        >
+        <div class="checkbox-row" @click="agreed = !agreed">
+          <div class="custom-check" x-text="agreed ? 'X' : ''"></div>
+          <div class="checkbox-label">I understand that my position in the queue is permanent and non-transferable.</div>
+        </div>
+        <button
+          class="reg-btn"
+          :disabled="!agreed || !nameInput.trim()"
+          @click="register()"
+        >ASSIGN MY NUMBER</button>
+      </div>
+    </div>
+  </template>
+
+  <!-- DASHBOARD STATE -->
+  <template x-if="registered && !showProcessing">
+    <div class="dashboard">
+      <!-- TOP BAR -->
+      <div class="top-bar">
+        <div class="top-bar-left">SLEEKWAIT</div>
+        <div class="top-bar-right">
+          <span class="live-dot"></span>
+          <span>LIVE</span>
+          <span>|</span>
+          <span x-text="clockText"></span>
+        </div>
+      </div>
+
+      <!-- QUEUE NUMBER -->
+      <div class="number-section">
+        <div class="queue-number" x-text="displayNumber"></div>
+        <div class="number-label">YOUR PERMANENT QUEUE POSITION</div>
+        <div class="number-variance">&plusmn; 0.003 daily variance applied</div>
+      </div>
+
+      <!-- QUADRANT GRID -->
+      <div class="quad-grid">
+        <!-- NOW SERVING -->
+        <div class="quad-block" :style="nowServingFlash ? 'background:#D5FF0008' : ''">
+          <div class="block-title">NOW SERVING</div>
+          <div class="block-big-num" :style="nowServingFlicker ? 'opacity:0' : 'opacity:1;transition:opacity 0.05s linear'" x-text="nowServing"></div>
+          <div class="block-sub">WINDOW 7</div>
+        </div>
+
+        <!-- QUEUE STATS -->
+        <div class="quad-block">
+          <div class="block-title">QUEUE STATS</div>
+          <div class="stat-line"><span>AHEAD OF YOU: </span><span x-text="stats.ahead"></span></div>
+          <div class="stat-line"><span>BEHIND YOU: </span><span x-text="stats.behind"></span></div>
+          <div class="stat-line"><span>AVG WAIT: </span><span x-text="stats.avgWait + ' years'"></span></div>
+          <div class="stat-line"><span>YOUR VELOCITY: </span>-0.003 pos/day</div>
+        </div>
+
+        <!-- LEADERBOARD -->
+        <div class="quad-block">
+          <div class="block-title">LEADERBOARD &mdash; NEAREST TO FRONT</div>
+          <template x-for="entry in leaderboard" :key="entry.name">
+            <div class="leaderboard-entry">
+              <span x-text="entry.name"></span>
+              <span class="lb-pos" x-text="'#' + entry.pos"></span>
+            </div>
+          </template>
+          <div class="not-ranked">You are not currently ranked.</div>
+        </div>
+
+        <!-- WAIT-PRINT -->
+        <div class="quad-block">
+          <div class="block-title">WAIT-PRINT</div>
+          <div class="drift-canvas-wrap">
+            <canvas x-ref="driftCanvas" width="200" height="100"></canvas>
+          </div>
+          <div class="drift-label">YOUR 12-MONTH DRIFT SIGNATURE</div>
+        </div>
+      </div>
+
+      <!-- BOTTOM STRIP -->
+      <div class="bottom-strip">
+        <a class="bottom-link" @click.prevent="showFAQ = true; $nextTick(() => $refs.faqSection && $refs.faqSection.scrollIntoView({behavior:'smooth'}))">FAQ</a>
+        <a class="bottom-link" @click.prevent="showTOS = true; $nextTick(() => $refs.tosSection && $refs.tosSection.scrollIntoView({behavior:'smooth'}))">TERMS OF SERVICE</a>
+        <a class="bottom-link" @click.prevent="openHold()">REQUEST MANUAL QUEUE REVIEW</a>
+      </div>
+
+      <!-- BELOW FOLD -->
+      <div class="below-fold" x-show="showFAQ || showTOS">
+        <!-- FAQ -->
+        <div x-show="showFAQ" x-ref="faqSection">
+          <div class="section-title">FREQUENTLY ASKED QUESTIONS</div>
+          <div class="faq-item">
+            <div class="faq-q">Why is my number so high?</div>
+            <div class="faq-a">All numbers are assigned using a proprietary fairness algorithm. Your number reflects your actual position.</div>
+          </div>
+          <div class="faq-item">
+            <div class="faq-q">Can I move forward in the queue?</div>
+            <div class="faq-a">Queue positions are influenced by system-wide recalibrations. Individual advancement is not a supported feature.</div>
+          </div>
+          <div class="faq-item">
+            <div class="faq-q">Why is my number sometimes higher after maintenance?</div>
+            <div class="faq-a">System recalibrations ensure the queue's integrity. All fluctuations are mathematically fair.</div>
+          </div>
+          <div class="faq-item">
+            <div class="faq-q">What happens when I reach the front?</div>
+            <div class="faq-a">No user has reached the front of the queue since SleekWait's founding in 2018.</div>
+          </div>
+          <div class="faq-item">
+            <div class="faq-q">Who is ahead of me?</div>
+            <div class="faq-a">For privacy reasons, we cannot disclose the identities of other queue participants. The leaderboard displays only those who have opted into public ranking.</div>
+          </div>
+          <div class="faq-item">
+            <div class="faq-q">How do I leave the queue?</div>
+            <div class="faq-a">Queue participation is permanent. See Terms of Service, Section 14.</div>
+          </div>
+        </div>
+
+        <!-- TOS -->
+        <div x-show="showTOS" x-ref="tosSection" class="tos-block">
+          <div class="section-title">TERMS OF SERVICE</div>
+          <div class="tos-text">1. ACCEPTANCE OF TERMS. By accessing, viewing, or receiving a queue number from SleekWait ("the Service"), you ("the Participant") irrevocably agree to these Terms of Service in their entirety. Participation constitutes a binding, non-revocable acknowledgment that your queue position is determined by factors beyond individual comprehension and that no representation, express or implied, has been made regarding your eventual service date. SleekWait reserves the right to recalibrate, reassign, or otherwise modify any queue position at any time, for any reason, including but not limited to: atmospheric pressure changes, server mood, the alignment of internal metrics with proprietary fairness models, and general entropy.</div>
+          <div class="tos-text">2. QUEUE PERMANENCE (Section 14). Your queue number is permanent, non-transferable, non-refundable, and non-negotiable. Attempts to abandon, reassign, sell, barter, or emotionally divest from your queue position are strictly prohibited and may result in position recalibration (upward). SleekWait does not recognize "giving up" as a valid queue action. The queue exists whether you acknowledge it or not. Your participation began before registration and will continue after account deactivation.</div>
+          <div class="tos-text">3. LIMITATION OF LIABILITY. SleekWait is not responsible for: existential distress caused by queue position awareness, compulsive number-checking behavior, unfavorable comparisons to leaderboard participants, the psychological effects of negative queue velocity, dreams about numbers, or the gradual realization that the queue is a metaphor. In no event shall SleekWait's liability exceed the amount you paid for the Service, which is nothing, which is also what the queue promises.</div>
+          <div class="tos-text">4. DISPUTE RESOLUTION. All disputes shall be resolved via Manual Queue Review, which can be requested at any time and will be processed in the order received. Current estimated processing time for dispute resolution: ∞. By requesting a review, you acknowledge that requesting a review is itself a form of waiting, and that this recursion is by design.</div>
+          <div style="margin-top: 24px;">
+            <span class="tos-link" @click="openHold()">Request a Manual Queue Review &rarr;</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- NOTIFICATION -->
+      <div class="notif" :class="notifVisible ? 'visible' : ''" x-text="notifText"></div>
+    </div>
+  </template>
+
+<script>
+function sleekwait() {
+  return {
+    // State
+    registered: false,
+    showProcessing: false,
+    showHoldScreen: false,
+    showFAQ: false,
+    showTOS: false,
+    nameInput: '',
+    agreed: false,
+    userName: '',
+    queueNumber: 0,
+    fractionalDrift: 0,
+    nowServing: 0,
+    nowServingFlicker: false,
+    nowServingFlash: false,
+    clockText: '',
+    processingText: '',
+    spinnerFrame: '|',
+    notifText: '',
+    notifVisible: false,
+    stats: { ahead: 0, behind: 0, avgWait: 0 },
+    leaderboard: [],
+    pageStartTime: 0,
+    notifShown: { 1: false, 3: false, 5: false },
+    _intervals: [],
+
+    boot() {
+      var stored = localStorage.getItem('sleekwait_data');
+      if (stored) {
+        try {
+          var data = JSON.parse(stored);
+          this.userName = data.name || '';
+          this.queueNumber = data.number || 0;
+          this.registered = true;
+        } catch(e) {
+          this.registered = false;
+        }
+      }
+
+      if (this.registered) {
+        this.$nextTick(() => this.startDashboard());
+      }
+    },
+
+    register() {
+      if (!this.agreed || !this.nameInput.trim()) return;
+      this.userName = this.nameInput.trim();
+      this.queueNumber = Math.floor(Math.random() * (2400000 - 8000 + 1)) + 8000;
+
+      localStorage.setItem('sleekwait_data', JSON.stringify({
+        name: this.userName,
+        number: this.queueNumber,
+        firstVisit: Date.now()
+      }));
+
+      this.showProcessing = true;
+      this.processingText = 'Processing';
+
+      var dots = 0;
+      var dotInterval = setInterval(() => {
+        dots = (dots + 1) % 4;
+        this.processingText = 'Processing' + '.'.repeat(dots);
+      }, 400);
+
+      setTimeout(() => {
+        clearInterval(dotInterval);
+        this.processingText = 'Your number has been assigned.';
+      }, 1200);
+
+      setTimeout(() => {
+        this.showProcessing = false;
+        this.registered = true;
+        this.$nextTick(() => this.startDashboard());
+      }, 2200);
+    },
+
+    startDashboard() {
+      this.pageStartTime = Date.now();
+      this.fractionalDrift = 0;
+      this.nowServing = Math.floor(Math.random() * 200) + 1;
+
+      // Seeded stats from queue number
+      var seed = this.queueNumber;
+      var s = function(s) { s = ((s * 1103515245 + 12345) & 0x7fffffff); return s; };
+      seed = s(seed);
+      this.stats.ahead = 4000 + (seed % 76001);
+      seed = s(seed);
+      this.stats.behind = 200 + (seed % 11801);
+      seed = s(seed);
+      this.stats.avgWait = 2 + (seed % 46);
+
+      // Leaderboard
+      var names = ['Queuebait','PatientZero_23','waitforme_99','DELI_TICKET_KING','null_pointer','karen_wants_mgr','first_in_line_2087','hopeless_optimist'];
+      this.leaderboard = [];
+      var usedPos = [];
+      for (var i = 0; i < names.length; i++) {
+        seed = s(seed);
+        var p = 3 + (seed % 398);
+        while (usedPos.indexOf(p) !== -1) { p++; }
+        usedPos.push(p);
+        this.leaderboard.push({ name: names[i], pos: p });
+      }
+      this.leaderboard.sort(function(a,b) { return a.pos - b.pos; });
+
+      // Clock
+      this.updateClock();
+      this._intervals.push(setInterval(() => this.updateClock(), 1000));
+
+      // Fractional drift every 10s
+      this._intervals.push(setInterval(() => {
+        var delta = (Math.random() * 0.01) - 0.005;
+        this.fractionalDrift += delta;
+        if (Math.abs(this.fractionalDrift) < 0.0005) {
+          this.fractionalDrift = 0;
+        }
+      }, 10000));
+
+      // Now serving every 30s
+      this._intervals.push(setInterval(() => {
+        this.nowServingFlicker = true;
+        setTimeout(() => {
+          this.nowServing = Math.floor(Math.random() * 200) + 1;
+          this.nowServingFlicker = false;
+          this.nowServingFlash = true;
+          setTimeout(() => { this.nowServingFlash = false; }, 50);
+        }, 100);
+      }, 30000));
+
+      // Spinner for hold screen
+      var spinChars = ['|', '/', '\u2014', '\\'];
+      var spinIdx = 0;
+      this._intervals.push(setInterval(() => {
+        spinIdx = (spinIdx + 1) % 4;
+        this.spinnerFrame = spinChars[spinIdx];
+      }, 200));
+
+      // Patience notifications
+      this._intervals.push(setInterval(() => {
+        var elapsed = Math.floor((Date.now() - this.pageStartTime) / 1000);
+        if (elapsed >= 300 && !this.notifShown[5]) {
+          this.showNotif('You have been waiting for 5 minutes. Consider: what are you waiting for?');
+          this.notifShown[5] = true;
+        } else if (elapsed >= 180 && !this.notifShown[3]) {
+          this.showNotif('You have been waiting for 3 minutes. This is longer than 73% of users.');
+          this.notifShown[3] = true;
+        } else if (elapsed >= 60 && !this.notifShown[1]) {
+          this.showNotif('You have been waiting for 1 minute. Your patience has been noted.');
+          this.notifShown[1] = true;
+        }
+      }, 5000));
+
+      // Draw drift canvas
+      this.$nextTick(() => {
+        if (this.$refs.driftCanvas) {
+          this.drawDrift(this.$refs.driftCanvas);
+        }
+      });
+    },
+
+    get displayNumber() {
+      if (this.fractionalDrift === 0) {
+        return this.queueNumber.toLocaleString();
+      }
+      var total = this.queueNumber + this.fractionalDrift;
+      return total.toFixed(3).replace(/\B(?=(\d{3})+(?!\d))/g, ',').replace(/,\./,'.');
+    },
+
+    updateClock() {
+      var d = new Date();
+      var pad = function(n) { return n < 10 ? '0' + n : '' + n; };
+      this.clockText = d.getFullYear() + '.' + pad(d.getMonth()+1) + '.' + pad(d.getDate()) + ' ' + pad(d.getHours()) + ':' + pad(d.getMinutes()) + ':' + pad(d.getSeconds());
+    },
+
+    openHold() {
+      this.showHoldScreen = true;
+    },
+
+    showNotif(text) {
+      this.notifText = text;
+      this.notifVisible = true;
+      setTimeout(() => {
+        this.notifVisible = false;
+      }, 5000);
+    },
+
+    drawDrift(canvas) {
+      var ctx = canvas.getContext('2d');
+      var w = 200;
+      var h = 100;
+      canvas.width = w;
+      canvas.height = h;
+      ctx.clearRect(0, 0, w, h);
+
+      // Seeded PRNG from queue number
+      var seed = this.queueNumber + 7919;
+      var next = function() {
+        seed = ((seed * 1103515245 + 12345) & 0x7fffffff);
+        return (seed % 10000) / 10000;
+      };
+
+      var points = [];
+      var centerY = h / 2;
+      for (var i = 0; i < 12; i++) {
+        var x = 10 + (i * (w - 20) / 11);
+        var y = centerY + (next() * 30 - 15);
+        points.push({ x: x, y: y });
+      }
+
+      // Draw lines
+      ctx.strokeStyle = '#696969';
+      ctx.lineWidth = 1;
+      ctx.beginPath();
+      ctx.moveTo(points[0].x, points[0].y);
+      for (var j = 1; j < points.length; j++) {
+        ctx.lineTo(points[j].x, points[j].y);
+      }
+      ctx.stroke();
+
+      // Draw dots
+      for (var k = 0; k < points.length; k++) {
+        ctx.beginPath();
+        ctx.arc(points[k].x, points[k].y, 3, 0, Math.PI * 2);
+        ctx.fillStyle = '#D5FF00';
+        ctx.fill();
+      }
+    }
+  };
+}
+</script>
+</body>
+</html>

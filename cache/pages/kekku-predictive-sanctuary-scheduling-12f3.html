@@ -1,0 +1,1159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>KEKKU — Predictive Sanctuary Scheduling</title>
+<link rel="stylesheet" href="/assets/css/fonts.css">
+<script defer src="/assets/js/alpine.min.js"></script>
+<script src="/assets/js/gsap.min.js"></script>
+<style>
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+:root {
+  --blackout: #0F1114;
+  --panel: #1C2028;
+  --blue: #3B8BF2;
+  --white: #F4F5F7;
+  --red: #FF3B3B;
+  --border: #2A2D35;
+}
+
+html { scroll-behavior: smooth; }
+
+body {
+  background: var(--blackout);
+  color: var(--white);
+  font-family: 'Inter', sans-serif;
+  font-size: 16px;
+  line-height: 1.6;
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* SCAN LINES */
+.scan-lines::after {
+  content: '';
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: repeating-linear-gradient(
+    to bottom,
+    rgba(244,245,247,0.04) 0px,
+    rgba(244,245,247,0.04) 1px,
+    transparent 1px,
+    transparent 3px
+  );
+  pointer-events: none;
+  z-index: 9998;
+}
+
+.scan-lines-heavy::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: repeating-linear-gradient(
+    to bottom,
+    rgba(244,245,247,0.06) 0px,
+    rgba(244,245,247,0.06) 1px,
+    transparent 1px,
+    transparent 3px
+  );
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* SURVEILLANCE OVERLAY */
+.surveillance-overlay {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  pointer-events: none;
+  z-index: 9999;
+  padding: 16px 20px;
+  font-family: 'Fira Code', monospace;
+  font-size: 11px;
+  color: var(--blue);
+}
+
+.surv-tl { position: absolute; top: 16px; left: 20px; }
+.surv-tr { position: absolute; top: 16px; right: 20px; }
+.surv-bl { position: absolute; bottom: 16px; left: 20px; display: flex; align-items: center; gap: 6px; }
+.surv-br { position: absolute; bottom: 16px; right: 80px; }
+
+@keyframes pulse-red {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.2; }
+}
+
+.rec-dot {
+  display: inline-block;
+  width: 8px; height: 8px;
+  background: var(--red);
+  border-radius: 50%;
+  animation: pulse-red 1.2s ease-in-out infinite;
+}
+
+/* HERO */
+.hero {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  padding: 40px 20px;
+}
+
+.hero-quote {
+  font-family: 'Inter', sans-serif;
+  font-size: 18px;
+  font-style: italic;
+  color: var(--white);
+  text-align: center;
+  max-width: 500px;
+  opacity: 0;
+}
+
+.hero-product {
+  text-align: center;
+  margin-top: 32px;
+  opacity: 0;
+}
+
+.hero-product-name {
+  font-family: 'Fira Code', monospace;
+  font-size: clamp(48px, 10vw, 72px);
+  letter-spacing: 0.3em;
+  color: var(--white);
+  display: inline-block;
+}
+
+.hero-product-name span {
+  display: inline-block;
+  opacity: 0;
+}
+
+.hero-subtitle {
+  font-family: 'Inter', sans-serif;
+  font-size: 14px;
+  color: #B0B3BA;
+  margin-top: 12px;
+  opacity: 0;
+}
+
+@keyframes pulse-line {
+  0%, 100% { opacity: 0.2; }
+  50% { opacity: 0.6; }
+}
+
+.scroll-indicator {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: var(--blue);
+  animation: pulse-line 3s ease-in-out infinite;
+}
+
+/* SECTIONS */
+.section {
+  padding: 80px 20px;
+  max-width: 1100px;
+  margin: 0 auto;
+}
+
+.section-heading {
+  font-family: 'Fira Code', monospace;
+  font-size: 13px;
+  text-transform: uppercase;
+  letter-spacing: 0.2em;
+  color: var(--blue);
+  text-align: center;
+  margin-bottom: 48px;
+}
+
+/* INTRUSION GRID */
+.intrusion-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+  margin-bottom: 48px;
+}
+
+@media (max-width: 768px) {
+  .intrusion-grid { grid-template-columns: 1fr; }
+}
+
+.intrusion-card {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 20px;
+  opacity: 0;
+  transform: translateY(20px);
+  transition: border-color 0.3s, box-shadow 0.3s;
+}
+
+.intrusion-card:hover {
+  border-color: var(--blue);
+  box-shadow: 0 0 20px rgba(59,139,242,0.1);
+}
+
+.intrusion-time {
+  font-family: 'Fira Code', monospace;
+  font-size: 11px;
+  color: var(--blue);
+  margin-bottom: 8px;
+}
+
+.intrusion-desc {
+  font-size: 14px;
+  color: var(--white);
+  margin-bottom: 10px;
+}
+
+.severity-pill {
+  display: inline-block;
+  font-family: 'Fira Code', monospace;
+  font-size: 10px;
+  padding: 2px 8px;
+  border-radius: 3px;
+  letter-spacing: 0.05em;
+}
+
+.severity-low { background: rgba(255,59,59,0.12); color: #E88; }
+.severity-med { background: rgba(255,59,59,0.22); color: #F99; }
+.severity-high { background: rgba(255,59,59,0.35); color: #FA9; }
+.severity-critical { background: rgba(255,59,59,0.5); color: var(--red); }
+
+.after-grid-text {
+  text-align: center;
+  font-size: 16px;
+  font-style: italic;
+  color: #C0C3CA;
+  opacity: 0;
+}
+
+/* DASHBOARD */
+.dashboard-section {
+  padding: 80px 20px;
+  max-width: 1100px;
+  margin: 0 auto;
+}
+
+.dashboard-container {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 32px;
+  position: relative;
+  overflow: hidden;
+}
+
+.dashboard-container::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: repeating-linear-gradient(
+    to bottom,
+    rgba(244,245,247,0.04) 0px,
+    rgba(244,245,247,0.04) 1px,
+    transparent 1px,
+    transparent 3px
+  );
+  pointer-events: none;
+}
+
+.dashboard-header {
+  font-family: 'Fira Code', monospace;
+  font-size: 12px;
+  color: var(--blue);
+  margin-bottom: 32px;
+  text-align: center;
+}
+
+.gauge-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-bottom: 32px;
+}
+
+.gauge-svg {
+  width: 180px;
+  height: 180px;
+  transform: rotate(-90deg);
+}
+
+.gauge-track {
+  fill: none;
+  stroke: var(--border);
+  stroke-width: 8;
+}
+
+.gauge-fill {
+  fill: none;
+  stroke: var(--blue);
+  stroke-width: 8;
+  stroke-linecap: round;
+  stroke-dasharray: 502.65;
+  stroke-dashoffset: 502.65;
+}
+
+.gauge-text {
+  font-family: 'Fira Code', monospace;
+  font-size: 48px;
+  color: var(--white);
+  margin-top: -120px;
+  margin-bottom: 60px;
+  text-align: center;
+  position: relative;
+  z-index: 2;
+}
+
+.intrusion-low-label {
+  font-family: 'Fira Code', monospace;
+  font-size: 11px;
+  color: #5BA8F2;
+  text-align: center;
+  margin-bottom: 32px;
+}
+
+.stat-boxes {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+}
+
+@media (max-width: 600px) {
+  .stat-boxes { grid-template-columns: 1fr; }
+}
+
+.stat-box {
+  background: var(--blackout);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 16px;
+  text-align: center;
+}
+
+.stat-label {
+  font-family: 'Fira Code', monospace;
+  font-size: 10px;
+  color: #8A8D94;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 8px;
+}
+
+.stat-value {
+  font-family: 'Fira Code', monospace;
+  font-size: 14px;
+  color: var(--white);
+}
+
+.mini-bars {
+  display: inline-flex;
+  align-items: flex-end;
+  gap: 2px;
+  margin-left: 8px;
+  vertical-align: middle;
+}
+
+.mini-bar {
+  width: 4px;
+  background: var(--blue);
+  border-radius: 1px;
+}
+
+/* FEATURES */
+.features-list {
+  margin-top: 64px;
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+  max-width: 600px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.feature-item {
+  display: flex;
+  gap: 16px;
+  align-items: flex-start;
+}
+
+.feature-dot {
+  width: 10px;
+  height: 10px;
+  background: var(--blue);
+  border-radius: 50%;
+  margin-top: 6px;
+  flex-shrink: 0;
+}
+
+.feature-title {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--white);
+  margin-bottom: 4px;
+}
+
+.feature-desc {
+  font-size: 14px;
+  color: #B0B3BA;
+}
+
+/* CONFESSION */
+.confession-section {
+  padding: 100px 20px;
+  display: flex;
+  justify-content: center;
+}
+
+.confession-block {
+  max-width: 560px;
+  font-family: 'Caveat', cursive;
+  font-size: 20px;
+  color: #D8DAE0;
+  line-height: 1.7;
+  opacity: 0;
+}
+
+.confession-sig {
+  margin-top: 20px;
+  font-family: 'Caveat', cursive;
+  font-size: 18px;
+  color: #9A9DA4;
+}
+
+/* TESTIMONIALS */
+.testimonials-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+}
+
+@media (max-width: 768px) {
+  .testimonials-grid { grid-template-columns: 1fr; }
+}
+
+.testimonial-card {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 24px;
+  position: relative;
+  overflow: hidden;
+  opacity: 0;
+  transform: translateY(20px);
+}
+
+.testimonial-handle {
+  font-family: 'Fira Code', monospace;
+  font-size: 11px;
+  color: var(--blue);
+  margin-bottom: 12px;
+}
+
+.testimonial-text {
+  font-size: 14px;
+  color: #D0D3DA;
+  margin-bottom: 16px;
+}
+
+.verified-badge {
+  font-family: 'Fira Code', monospace;
+  font-size: 9px;
+  color: var(--blue);
+  border: 1px solid var(--blue);
+  padding: 2px 6px;
+  border-radius: 2px;
+  float: right;
+}
+
+/* PRICING */
+.pricing-section {
+  padding: 80px 20px;
+  max-width: 1100px;
+  margin: 0 auto;
+  position: relative;
+}
+
+.pricing-annotation {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%) rotate(-7deg);
+  font-family: 'Caveat', cursive;
+  font-size: 28px;
+  color: var(--red);
+  opacity: 0.35;
+  white-space: nowrap;
+  pointer-events: none;
+  z-index: 10;
+}
+
+.pricing-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+}
+
+@media (max-width: 768px) {
+  .pricing-grid { grid-template-columns: 1fr; }
+}
+
+.pricing-card {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 32px 24px;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+}
+
+.pricing-card.featured {
+  border-color: var(--blue);
+  box-shadow: 0 0 30px rgba(59,139,242,0.1);
+}
+
+.pricing-tier-name {
+  font-family: 'Fira Code', monospace;
+  font-size: 12px;
+  color: var(--blue);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  margin-bottom: 16px;
+}
+
+.pricing-amount {
+  font-family: 'Fira Code', monospace;
+  font-size: 36px;
+  color: var(--white);
+  margin-bottom: 4px;
+}
+
+.pricing-card.featured .pricing-amount {
+  color: var(--blue);
+}
+
+.pricing-period {
+  font-family: 'Fira Code', monospace;
+  font-size: 12px;
+  color: #8A8D94;
+  margin-bottom: 24px;
+}
+
+.pricing-features {
+  list-style: none;
+  text-align: left;
+  margin-bottom: 32px;
+  flex-grow: 1;
+}
+
+.pricing-features li {
+  font-size: 13px;
+  color: #B0B3BA;
+  padding: 6px 0;
+  border-bottom: 1px solid rgba(42,45,53,0.6);
+}
+
+.pricing-features li::before {
+  content: '→ ';
+  color: var(--blue);
+  font-family: 'Fira Code', monospace;
+}
+
+.pricing-btn {
+  display: inline-block;
+  font-family: 'Fira Code', monospace;
+  font-size: 13px;
+  padding: 12px 24px;
+  border: 1px solid var(--blue);
+  border-radius: 4px;
+  color: var(--blue);
+  background: transparent;
+  cursor: pointer;
+  text-decoration: none;
+  transition: background 0.3s, color 0.3s;
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.pricing-btn:hover {
+  background: var(--blue);
+  color: var(--blackout);
+}
+
+.pricing-btn.filled {
+  background: var(--blue);
+  color: var(--blackout);
+}
+
+.pricing-btn.filled:hover {
+  background: #5BA0FF;
+}
+
+/* FAQ */
+.faq-section {
+  padding: 80px 20px;
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.faq-item {
+  border-bottom: 1px solid var(--border);
+}
+
+.faq-question {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 20px 0;
+  cursor: pointer;
+  min-height: 44px;
+  width: 100%;
+  background: none;
+  border: none;
+  text-align: left;
+  color: var(--white);
+}
+
+.faq-question:hover .faq-q-text { color: var(--blue); }
+
+.faq-code {
+  font-family: 'Fira Code', monospace;
+  font-size: 12px;
+  color: var(--blue);
+  flex-shrink: 0;
+}
+
+.faq-q-text {
+  font-size: 14px;
+  color: var(--white);
+  transition: color 0.2s;
+}
+
+.faq-arrow {
+  margin-left: auto;
+  font-family: 'Fira Code', monospace;
+  font-size: 12px;
+  color: #8A8D94;
+  flex-shrink: 0;
+  transition: transform 0.3s;
+}
+
+.faq-answer {
+  overflow: hidden;
+  transition: max-height 0.4s ease, opacity 0.3s ease;
+}
+
+.faq-answer-inner {
+  padding: 0 0 20px 0;
+  font-size: 14px;
+  color: #B0B3BA;
+  padding-left: calc(12px * 6 + 16px);
+}
+
+@media (max-width: 600px) {
+  .faq-answer-inner { padding-left: 0; }
+}
+
+/* FOOTER */
+.site-footer {
+  padding: 60px 20px 40px;
+  text-align: center;
+}
+
+.footer-brand {
+  font-family: 'Fira Code', monospace;
+  font-size: 14px;
+  color: #6A6D74;
+  margin-bottom: 8px;
+}
+
+.footer-tagline {
+  font-size: 14px;
+  font-style: italic;
+  color: #8A8D94;
+  margin-bottom: 16px;
+}
+
+.footer-legal {
+  font-family: 'Fira Code', monospace;
+  font-size: 10px;
+  color: #50535A;
+}
+
+.footer-credit {
+  margin-top: 16px;
+  font-size: 10px;
+  color: #50535A;
+}
+
+.footer-credit a {
+  color: #6A6D74;
+}
+</style>
+</head>
+<body class="scan-lines" x-data="surveillanceApp()">
+
+<!-- SURVEILLANCE OVERLAY -->
+<div class="surveillance-overlay">
+  <div class="surv-tl">CAM-01 // KEKKU.APP</div>
+  <div class="surv-tr" x-text="timestamp"></div>
+  <div class="surv-bl">REC <span class="rec-dot"></span></div>
+  <div class="surv-br" x-text="'SUBJECT: ' + subjectStatus"></div>
+</div>
+
+<!-- HERO -->
+<section class="hero">
+  <p class="hero-quote" id="hero-quote">"fourteen people watched and nobody said anything."</p>
+  <div class="hero-product" id="hero-product">
+    <div class="hero-product-name" id="kekku-letters">
+      <span>K</span><span>E</span><span>K</span><span>K</span><span>U</span>
+    </div>
+    <p class="hero-subtitle" id="hero-subtitle">predictive sanctuary scheduling</p>
+  </div>
+  <div class="scroll-indicator"></div>
+</section>
+
+<!-- INTRUSION LOG -->
+<section class="section" id="intrusion-section">
+  <h2 class="section-heading">DAILY INTRUSION LOG</h2>
+  <div class="intrusion-grid" id="intrusion-grid">
+
+    <div class="intrusion-card">
+      <div class="intrusion-time">09:14:32</div>
+      <div class="intrusion-desc">Shoulder tap. "Got a sec?"</div>
+      <span class="severity-pill severity-med">MED</span>
+    </div>
+
+    <div class="intrusion-card">
+      <div class="intrusion-time">09:31:07</div>
+      <div class="intrusion-desc">Calendar invite: "Quick Sync (30 min)"</div>
+      <span class="severity-pill severity-high">HIGH</span>
+    </div>
+
+    <div class="intrusion-card">
+      <div class="intrusion-time">10:02:44</div>
+      <div class="intrusion-desc">Slack: "hey r u around?"</div>
+      <span class="severity-pill severity-med">MED</span>
+    </div>
+
+    <div class="intrusion-card">
+      <div class="intrusion-time">10:15:00</div>
+      <div class="intrusion-desc">Someone heated fish tacos in the microwave</div>
+      <span class="severity-pill severity-critical">CRITICAL</span>
+    </div>
+
+    <div class="intrusion-card">
+      <div class="intrusion-time">10:48:21</div>
+      <div class="intrusion-desc">Manager walks past desk. Walks past again.</div>
+      <span class="severity-pill severity-high">HIGH</span>
+    </div>
+
+    <div class="intrusion-card">
+      <div class="intrusion-time">11:30:00</div>
+      <div class="intrusion-desc">Mandatory fun: icebreaker Kahoot</div>
+      <span class="severity-pill severity-critical">CRITICAL</span>
+    </div>
+
+    <div class="intrusion-card">
+      <div class="intrusion-time">13:05:12</div>
+      <div class="intrusion-desc">Open-plan neighbor takes call on speaker</div>
+      <span class="severity-pill severity-high">HIGH</span>
+    </div>
+
+    <div class="intrusion-card">
+      <div class="intrusion-time">14:22:38</div>
+      <div class="intrusion-desc">"We should grab coffee sometime" from someone you've never seen</div>
+      <span class="severity-pill severity-low">LOW</span>
+    </div>
+
+    <div class="intrusion-card">
+      <div class="intrusion-time">15:45:00</div>
+      <div class="intrusion-desc">Surprise all-hands. No agenda provided.</div>
+      <span class="severity-pill severity-critical">CRITICAL</span>
+    </div>
+
+  </div>
+  <p class="after-grid-text" id="after-grid-text">Kekku would have predicted all of these.</p>
+</section>
+
+<!-- HOW IT WORKS — DASHBOARD -->
+<section class="dashboard-section" id="dashboard-section">
+  <h2 class="section-heading">HOW IT WORKS</h2>
+  <div class="dashboard-container">
+    <div class="dashboard-header">PRIVACY FORTRESS // STATUS</div>
+
+    <div class="gauge-wrap">
+      <svg class="gauge-svg" viewBox="0 0 180 180">
+        <circle class="gauge-track" cx="90" cy="90" r="80"></circle>
+        <circle class="gauge-fill" id="gauge-fill" cx="90" cy="90" r="80"></circle>
+      </svg>
+      <div class="gauge-text" id="gauge-text">0%</div>
+    </div>
+
+    <div class="intrusion-low-label">INTRUSION PROBABILITY: LOW</div>
+
+    <div class="stat-boxes">
+      <div class="stat-box">
+        <div class="stat-label">NEXT SAFE WINDOW</div>
+        <div class="stat-value">14:32 — 14:43</div>
+      </div>
+      <div class="stat-box">
+        <div class="stat-label">OPTIMAL ROUTE</div>
+        <div class="stat-value">East stairwell, 2nd floor</div>
+      </div>
+      <div class="stat-box">
+        <div class="stat-label">DETECTION RISK</div>
+        <div class="stat-value">
+          12%
+          <span class="mini-bars">
+            <span class="mini-bar" style="height:6px"></span>
+            <span class="mini-bar" style="height:10px"></span>
+            <span class="mini-bar" style="height:4px"></span>
+            <span class="mini-bar" style="height:14px"></span>
+            <span class="mini-bar" style="height:8px"></span>
+          </span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="features-list">
+    <div class="feature-item">
+      <div class="feature-dot"></div>
+      <div>
+        <div class="feature-title">Calendar Infiltration</div>
+        <div class="feature-desc">Syncs with Google Calendar, Outlook, and whatever your company uses to ambush you. Identifies gaps between meetings where you won't be missed.</div>
+      </div>
+    </div>
+    <div class="feature-item">
+      <div class="feature-dot"></div>
+      <div>
+        <div class="feature-title">Ambient Threat Detection</div>
+        <div class="feature-desc">Monitors Slack activity spikes, email velocity, and badge-swipe patterns to calculate when the coast is actually clear.</div>
+      </div>
+    </div>
+    <div class="feature-item">
+      <div class="feature-dot"></div>
+      <div>
+        <div class="feature-title">Escape Route Mapping</div>
+        <div class="feature-desc">Learns your building's blind spots. The second-floor bathroom that nobody uses. The fire escape that's technically not for breaks. The supply closet with the broken lock.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- MILES'S CONFESSION -->
+<section class="confession-section">
+  <div class="confession-block" id="confession-block">
+    <p>I built this because I had a panic attack in a glass conference room and fourteen people on the other side of the glass kept eating their lunches. I watched them not look at me. Or maybe they did look and then decided not to. I don't know which is worse.</p>
+    <br>
+    <p>After that I started timing things. How long between meetings. How long the bathroom on the third floor stays empty. How long you can sit in your car in the parking garage before someone from facilities knocks on your window. I put all of that into a spreadsheet and the spreadsheet became an algorithm and the algorithm became Kekku.</p>
+    <br>
+    <p>I didn't set out to build a product. I set out to answer one question: when can I be alone? Turns out a lot of people are asking.</p>
+    <div class="confession-sig">— Miles Vex, founder</div>
+  </div>
+</section>
+
+<!-- TESTIMONIALS -->
+<section class="section" id="testimonials-section">
+  <h2 class="section-heading">INTERCEPTED TRANSMISSIONS</h2>
+  <div class="testimonials-grid" id="testimonials-grid">
+
+    <div class="testimonial-card scan-lines-heavy">
+      <div class="testimonial-handle">[Hidden@DailyGrind.com]</div>
+      <div class="testimonial-text">"Finally, a break from the bosses' gaze. Kekku found me 11 minutes between standup and the all-hands. I used it to sit in my car and breathe. That's it. Just breathe. Five stars."</div>
+      <span class="verified-badge">VERIFIED ESCAPE</span>
+    </div>
+
+    <div class="testimonial-card scan-lines-heavy">
+      <div class="testimonial-handle">[Redacted@CubiclePrison.net]</div>
+      <div class="testimonial-text">"I used to schedule fake meetings with myself. Now Kekku does it automatically and routes me to the one conference room without glass walls. Jim from accounting still hasn't found me."</div>
+      <span class="verified-badge">VERIFIED ESCAPE</span>
+    </div>
+
+    <div class="testimonial-card scan-lines-heavy">
+      <div class="testimonial-handle">[Anonymous@OpenPlanHell.org]</div>
+      <div class="testimonial-text">"The Iron Curtain tier predicted my manager's walking route with 94% accuracy. I haven't made unwanted eye contact in three weeks. My therapist says this is 'avoidance.' I call it engineering."</div>
+      <span class="verified-badge">VERIFIED ESCAPE</span>
+    </div>
+
+  </div>
+</section>
+
+<!-- PRICING -->
+<section class="pricing-section" id="pricing-section">
+  <h2 class="section-heading">EVACUATION TIERS</h2>
+  <div class="pricing-annotation">you shouldn't have to pay for this</div>
+  <div class="pricing-grid">
+
+    <div class="pricing-card">
+      <div class="pricing-tier-name">FIRE EXIT</div>
+      <div class="pricing-amount">$0</div>
+      <div class="pricing-period">Free</div>
+      <ul class="pricing-features">
+        <li>Calendar gap detection (basic)</li>
+        <li>3 sanctuary slots per day</li>
+        <li>Manual escape logging</li>
+      </ul>
+      <button class="pricing-btn">START HIDING</button>
+    </div>
+
+    <div class="pricing-card featured">
+      <div class="pricing-tier-name">IRON CURTAIN</div>
+      <div class="pricing-amount">$7.99/mo</div>
+      <div class="pricing-period">Most popular</div>
+      <ul class="pricing-features">
+        <li>Everything in Fire Exit</li>
+        <li>Predictive rescheduling</li>
+        <li>High Priority Evasion calendar tags</li>
+        <li>Slack activity monitoring</li>
+        <li>Ambient threat scoring</li>
+      </ul>
+      <button class="pricing-btn filled">FORTIFY</button>
+    </div>
+
+    <div class="pricing-card">
+      <div class="pricing-tier-name">SENTINEL PRO</div>
+      <div class="pricing-amount">$9.99/mo</div>
+      <div class="pricing-period">Full disappearance</div>
+      <ul class="pricing-features">
+        <li>Everything in Iron Curtain</li>
+        <li>Audio &amp; digital alert suppression</li>
+        <li>Multi-floor escape routing</li>
+        <li>Real-time detection risk dashboard</li>
+        <li>"I'm in a meeting" auto-responder with procedurally generated meeting names</li>
+      </ul>
+      <button class="pricing-btn">DISAPPEAR</button>
+    </div>
+
+  </div>
+</section>
+
+<!-- FAQ -->
+<section class="faq-section" x-data="{ open: null }">
+  <h2 class="section-heading">INCIDENT REPORTS // FAQ</h2>
+
+  <div class="faq-item">
+    <button class="faq-question" @click="open = open === 1 ? null : 1">
+      <span class="faq-code">[INC-001]</span>
+      <span class="faq-q-text">My scheduled retreat got hijacked by a surprise team huddle. Is that covered?</span>
+      <span class="faq-arrow" :style="open === 1 ? 'transform:rotate(90deg)' : ''">▸</span>
+    </button>
+    <div class="faq-answer" :style="open === 1 ? 'max-height:300px;opacity:1' : 'max-height:0;opacity:0'">
+      <div class="faq-answer-inner">Basic plans cover visual disruptions only. Upgrade to Sentinel Pro for audio and digital alerts. We believe forced fun should be classified as a workplace hazard, but HR hasn't returned our emails.</div>
+    </div>
+  </div>
+
+  <div class="faq-item">
+    <button class="faq-question" @click="open = open === 2 ? null : 2">
+      <span class="faq-code">[INC-002]</span>
+      <span class="faq-q-text">Can my employer see that I'm using Kekku?</span>
+      <span class="faq-arrow" :style="open === 2 ? 'transform:rotate(90deg)' : ''">▸</span>
+    </button>
+    <div class="faq-answer" :style="open === 2 ? 'max-height:300px;opacity:1' : 'max-height:0;opacity:0'">
+      <div class="faq-answer-inner">No. Kekku operates as a calendar overlay. To your employer, you're "in a meeting" with "Cross-Functional Alignment Review (Do Not Disturb)." Nobody has ever voluntarily attended a meeting with that name. Nobody will check.</div>
+    </div>
+  </div>
+
+  <div class="faq-item">
+    <button class="faq-question" @click="open = open === 3 ? null : 3">
+      <span class="faq-code">[INC-003]</span>
+      <span class="faq-q-text">What happens if I cancel?</span>
+      <span class="faq-arrow" :style="open === 3 ? 'transform:rotate(90deg)' : ''">▸</span>
+    </button>
+    <div class="faq-answer" :style="open === 3 ? 'max-height:300px;opacity:1' : 'max-height:0;opacity:0'">
+      <div class="faq-answer-inner">Per Clause 5.a, refunds are available only for sessions derailed by mandatory group activities — icebreaker games, forced trust falls, surprise birthday celebrations for someone you've spoken to once. Upload a timestamped photo of the event setup as proof. We will believe you. We always believe you.</div>
+    </div>
+  </div>
+
+  <div class="faq-item">
+    <button class="faq-question" @click="open = open === 4 ? null : 4">
+      <span class="faq-code">[INC-004]</span>
+      <span class="faq-q-text">Is this just corporate-grade introversion?</span>
+      <span class="faq-arrow" :style="open === 4 ? 'transform:rotate(90deg)' : ''">▸</span>
+    </button>
+    <div class="faq-answer" :style="open === 4 ? 'max-height:300px;opacity:1' : 'max-height:0;opacity:0'">
+      <div class="faq-answer-inner">No. Introversion is a personality trait. Needing eleven minutes alone in a building designed to make that impossible is a structural problem. We didn't make you this way. The open floor plan did.</div>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer class="site-footer">
+  <div class="footer-brand">KEKKU</div>
+  <div class="footer-tagline">you are allowed to hide.</div>
+  <div class="footer-legal">© 2025 Kekku Inc. / All sanctuary sessions are private. / We don't track you. That's the point.</div>
+  <div class="footer-credit">Photo by <a href="https://www.pexels.com/@toan-van-1745332">Toàn Văn</a> on <a href="https://www.pexels.com">Pexels</a></div>
+</footer>
+
+<script>
+// Alpine.js app for surveillance overlay
+function surveillanceApp() {
+  return {
+    timestamp: '',
+    subjectStatus: 'UNIDENTIFIED',
+    _startTime: Date.now(),
+    init() {
+      var self = this;
+      // Update timestamp every second
+      function updateTime() {
+        var now = new Date();
+        var y = now.getFullYear();
+        var mo = String(now.getMonth() + 1).padStart(2, '0');
+        var d = String(now.getDate()).padStart(2, '0');
+        var h = String(now.getHours()).padStart(2, '0');
+        var mi = String(now.getMinutes()).padStart(2, '0');
+        var s = String(now.getSeconds()).padStart(2, '0');
+        self.timestamp = y + '-' + mo + '-' + d + ' ' + h + ':' + mi + ':' + s;
+      }
+      updateTime();
+      setInterval(updateTime, 1000);
+
+      // Subject status transitions
+      setInterval(function() {
+        var elapsed = (Date.now() - self._startTime) / 1000;
+        if (elapsed > 180) {
+          self.subjectStatus = 'SAFE';
+        } else if (elapsed > 120) {
+          self.subjectStatus = 'NEEDS THIS';
+        } else if (elapsed > 30) {
+          self.subjectStatus = 'STILL HERE';
+        } else if (elapsed > 5) {
+          self.subjectStatus = 'OBSERVING';
+        }
+      }, 1000);
+    }
+  };
+}
+
+// Wait for DOM
+document.addEventListener('DOMContentLoaded', function() {
+
+  // Register GSAP ScrollTrigger plugin
+  gsap.registerPlugin(ScrollTrigger);
+
+  // ===== HERO ANIMATION TIMELINE =====
+  var heroTL = gsap.timeline();
+  var quoteEl = document.getElementById('hero-quote');
+  var productEl = document.getElementById('hero-product');
+  var letters = document.querySelectorAll('#kekku-letters span');
+  var subtitleEl = document.getElementById('hero-subtitle');
+
+  // 1. Pause 1.5s, then fade in quote over 2s
+  heroTL.fromTo(quoteEl, { opacity: 0 }, { opacity: 1, duration: 2, delay: 1.5 });
+  // 2. Sit for 3s, then fade to lower opacity
+  heroTL.to(quoteEl, { opacity: 0.5, duration: 0.8, delay: 3 });
+  // 3. Show product container
+  heroTL.fromTo(productEl, { opacity: 0 }, { opacity: 1, duration: 0.01 });
+  // 4. Type in letters one by one
+  letters.forEach(function(letter, i) {
+    heroTL.fromTo(letter, { opacity: 0 }, { opacity: 1, duration: 0.05 }, '-=0.0' + (i === 0 ? '0' : ''));
+    if (i < letters.length - 1) {
+      heroTL.to({}, { duration: 0.12 });
+    }
+  });
+  // 5. Fade in subtitle
+  heroTL.fromTo(subtitleEl, { opacity: 0 }, { opacity: 1, duration: 1 }, '+=0.3');
+
+  // ===== INTRUSION CARDS STAGGER =====
+  var cards = document.querySelectorAll('.intrusion-card');
+  gsap.fromTo(cards,
+    { opacity: 0, y: 20 },
+    {
+      opacity: 1,
+      y: 0,
+      duration: 0.5,
+      stagger: 0.1,
+      scrollTrigger: {
+        trigger: '#intrusion-grid',
+        start: 'top 80%',
+        once: true
+      }
+    }
+  );
+
+  // After grid text
+  gsap.fromTo('#after-grid-text',
+    { opacity: 0 },
+    {
+      opacity: 1,
+      duration: 1,
+      scrollTrigger: {
+        trigger: '#after-grid-text',
+        start: 'top 85%',
+        once: true
+      }
+    }
+  );
+
+  // ===== DASHBOARD GAUGE =====
+  var gaugeFill = document.getElementById('gauge-fill');
+  var gaugeText = document.getElementById('gauge-text');
+  var circumference = 2 * Math.PI * 80; // 502.65
+  var targetPercent = 87;
+  var targetOffset = circumference * (1 - targetPercent / 100);
+
+  gsap.fromTo(gaugeFill,
+    { strokeDashoffset: circumference },
+    {
+      strokeDashoffset: targetOffset,
+      duration: 3,
+      ease: 'power2.out',
+      scrollTrigger: {
+        trigger: '#dashboard-section',
+        start: 'top 70%',
+        once: true
+      },
+      onUpdate: function() {
+        var currentOffset = parseFloat(gaugeFill.style.strokeDashoffset || gaugeFill.getAttribute('style').match(/stroke-dashoffset:\s*([\d.]+)/)?.[1] || circumference);
+        var pct = Math.round((1 - currentOffset / circumference) * 100);
+        gaugeText.textContent = pct + '%';
+      }
+    }
+  );
+
+  // ===== CONFESSION FADE IN =====
+  gsap.fromTo('#confession-block',
+    { opacity: 0 },
+    {
+      opacity: 1,
+      duration: 1.5,
+      scrollTrigger: {
+        trigger: '#confession-block',
+        start: 'top 80%',
+        once: true
+      }
+    }
+  );
+
+  // ===== TESTIMONIAL CARDS =====
+  var testCards = document.querySelectorAll('.testimonial-card');
+  gsap.fromTo(testCards,
+    { opacity: 0, y: 20 },
+    {
+      opacity: 1,
+      y: 0,
+      duration: 0.6,
+      stagger: 0.15,
+      scrollTrigger: {
+        trigger: '#testimonials-grid',
+        start: 'top 80%',
+        once: true
+      }
+    }
+  );
+
+});
+</script>
+
+</body>
+</html>

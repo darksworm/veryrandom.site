@@ -1,0 +1,1320 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sorry for Your Loss — Digital Bereavement Services</title>
+<link rel="stylesheet" href="/assets/css/fonts.css">
+<script defer src="/assets/js/alpine.min.js"></script>
+<script src="/assets/js/gsap.min.js"></script>
+<style>
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+:root {
+  --void: #1A1A1E;
+  --slate: #5A5A5A;
+  --aqua: #4D8C7F;
+  --crimson: #A62A2A;
+  --parchment: #F5F0E8;
+  --card-bg: #2A2A2E;
+}
+
+html { scroll-behavior: smooth; }
+
+body {
+  background-color: var(--void);
+  color: var(--parchment);
+  font-family: 'Fira Code', monospace;
+  font-size: 15px;
+  line-height: 1.6;
+  overflow-x: hidden;
+  position: relative;
+}
+
+/* 404 background pattern */
+.bg-pattern {
+  position: fixed;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  z-index: 0;
+  pointer-events: none;
+  opacity: 0.04;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='60' viewBox='0 0 120 60'%3E%3Ctext x='10' y='40' font-family='monospace' font-size='28' fill='%23F5F0E8' transform='rotate(-12 60 30)'%3E404%3C/text%3E%3C/svg%3E");
+  background-repeat: repeat;
+}
+
+.page-content {
+  position: relative;
+  z-index: 1;
+}
+
+/* === HERO / ENVELOPE === */
+.hero {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem 1rem;
+}
+
+.envelope-wrapper {
+  perspective: 800px;
+  width: 340px;
+  max-width: 90vw;
+}
+
+.envelope {
+  position: relative;
+  width: 100%;
+  height: 220px;
+  background: linear-gradient(135deg, #D4C9A8, #C4B896);
+  border-radius: 0 0 6px 6px;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.5);
+}
+
+.envelope-flap {
+  position: absolute;
+  top: 0; left: 0;
+  width: 100%; height: 50%;
+  background: linear-gradient(180deg, #CBBF9E, #D4C9A8);
+  clip-path: polygon(0 0, 50% 100%, 100% 0);
+  transform-origin: top center;
+  transform: rotateX(0deg);
+  z-index: 3;
+  transition: transform 1s ease-in-out;
+}
+
+.envelope-flap.open {
+  transform: rotateX(180deg);
+}
+
+.envelope-seal {
+  position: absolute;
+  top: 40%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 48px; height: 48px;
+  background: var(--crimson);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 4;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.4);
+  transition: opacity 0.5s ease;
+}
+
+.envelope-seal.hidden { opacity: 0; pointer-events: none; }
+
+.envelope-seal svg {
+  width: 24px; height: 24px;
+  fill: none;
+  stroke: var(--parchment);
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.card-rise {
+  position: absolute;
+  bottom: 10px;
+  left: 50%;
+  transform: translateX(-50%) translateY(100%);
+  width: 85%;
+  background: var(--parchment);
+  border-radius: 4px;
+  padding: 2rem 1.5rem;
+  text-align: center;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+  z-index: 2;
+  opacity: 0;
+}
+
+.card-rise h1 {
+  font-family: 'DM Serif Display', serif;
+  font-size: clamp(32px, 6vw, 56px);
+  color: var(--void);
+  line-height: 1.1;
+  margin-bottom: 0.5rem;
+}
+
+.card-rise p {
+  font-family: 'Fira Code', monospace;
+  font-size: clamp(11px, 2vw, 13px);
+  color: var(--aqua);
+  line-height: 1.4;
+}
+
+.hero-nav {
+  margin-top: 3rem;
+  display: flex;
+  gap: 1.5rem;
+  flex-wrap: wrap;
+  justify-content: center;
+  opacity: 0;
+}
+
+.hero-nav a {
+  font-family: 'Fira Code', monospace;
+  font-size: 13px;
+  color: var(--aqua);
+  text-decoration: none;
+  transition: color 0.2s;
+}
+
+.hero-nav a:hover { color: var(--parchment); }
+
+.hero-nav .nav-dot { color: var(--slate); }
+
+/* === SECTION COMMON === */
+section {
+  padding: 5rem 1.5rem;
+  max-width: 1100px;
+  margin: 0 auto;
+}
+
+.section-divider {
+  text-align: center;
+  color: var(--slate);
+  font-size: 18px;
+  letter-spacing: 8px;
+  padding: 2rem 0;
+  max-width: 1100px;
+  margin: 0 auto;
+}
+
+.section-heading {
+  font-family: 'DM Serif Display', serif;
+  font-size: clamp(28px, 5vw, 40px);
+  color: var(--parchment);
+  text-align: center;
+  margin-bottom: 3rem;
+}
+
+/* === THE GRIEF === */
+.grief-section {
+  display: flex;
+  gap: 3rem;
+  align-items: flex-start;
+  flex-wrap: wrap;
+}
+
+.grief-text {
+  flex: 1;
+  min-width: 300px;
+  max-width: 640px;
+  line-height: 1.85;
+  color: var(--parchment);
+  font-size: 15px;
+}
+
+.grief-text p { margin-bottom: 1.5rem; }
+
+.grief-text .emphasis {
+  color: var(--aqua);
+  font-style: italic;
+}
+
+.sympathy-stack {
+  position: relative;
+  flex: 0 0 320px;
+  height: 360px;
+  max-width: 100%;
+}
+
+.sympathy-card {
+  position: absolute;
+  top: 0; left: 0;
+  width: 300px;
+  max-width: 100%;
+  background: var(--parchment);
+  border: 1px solid var(--aqua);
+  border-radius: 2px;
+  padding: 1.5rem;
+  color: var(--void);
+  font-family: 'Caveat', cursive;
+  font-size: 20px;
+  line-height: 1.5;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.3);
+  transition: transform 0.4s ease, opacity 0.4s ease;
+  animation: cardFloat 4s ease-in-out infinite;
+  cursor: default;
+}
+
+@keyframes cardFloat {
+  0%, 100% { transform: rotate(var(--rot)) translateY(0); }
+  50% { transform: rotate(var(--rot)) translateY(-3px); }
+}
+
+.sympathy-card .card-from {
+  display: block;
+  margin-top: 1rem;
+  font-size: 16px;
+  color: var(--slate);
+}
+
+/* === GRIEF ASSESSMENT === */
+.assessment-section { text-align: center; }
+
+.assessment-select-wrap {
+  position: relative;
+  display: inline-block;
+  margin-bottom: 2rem;
+}
+
+.assessment-select {
+  font-family: 'Fira Code', monospace;
+  font-size: 15px;
+  background: var(--card-bg);
+  color: var(--parchment);
+  border: 1px solid var(--slate);
+  padding: 12px 40px 12px 16px;
+  appearance: none;
+  cursor: pointer;
+  min-width: 320px;
+  max-width: 90vw;
+}
+
+.assessment-select:focus {
+  outline: none;
+  border-color: var(--aqua);
+}
+
+.assessment-select-wrap::after {
+  content: '▾';
+  position: absolute;
+  right: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--aqua);
+  pointer-events: none;
+  font-size: 14px;
+}
+
+.assessment-response {
+  max-width: 560px;
+  margin: 0 auto;
+  background: var(--card-bg);
+  border: 1px solid var(--aqua);
+  padding: 1.5rem 2rem;
+  font-family: 'Caveat', cursive;
+  font-size: 22px;
+  line-height: 1.5;
+  color: var(--parchment);
+  text-align: left;
+}
+
+.assessment-return {
+  font-size: 13px;
+  color: var(--aqua);
+  margin-bottom: 1rem;
+}
+
+/* === PRICING === */
+.pricing-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 1.5rem;
+}
+
+.price-card {
+  background: var(--card-bg);
+  border: 1px solid var(--slate);
+  padding: 2rem 1.5rem;
+  position: relative;
+  transition: border-color 0.3s, transform 0.3s;
+}
+
+.price-card:hover {
+  border-color: var(--aqua);
+  transform: translateY(-2px);
+}
+
+.price-ext {
+  font-size: 14px;
+  color: var(--aqua);
+  margin-bottom: 0.25rem;
+}
+
+.price-tier {
+  font-size: 20px;
+  color: var(--parchment);
+  margin-bottom: 0.25rem;
+}
+
+.price-amount {
+  font-size: 28px;
+  color: var(--parchment);
+  margin-bottom: 1.5rem;
+}
+
+.price-amount span { font-size: 14px; color: var(--slate); }
+
+.price-features {
+  list-style: none;
+  margin-bottom: 2rem;
+}
+
+.price-features li {
+  font-size: 13px;
+  color: #B0ADA6;
+  padding: 0.4rem 0;
+  padding-left: 1.2rem;
+  position: relative;
+}
+
+.price-features li::before {
+  content: '>';
+  position: absolute;
+  left: 0;
+  color: var(--aqua);
+}
+
+.price-tag {
+  position: absolute;
+  top: 1rem; right: -0.5rem;
+  background: var(--crimson);
+  color: var(--parchment);
+  font-size: 10px;
+  padding: 3px 8px;
+  transform: rotate(2deg);
+  letter-spacing: 1px;
+  text-transform: uppercase;
+}
+
+.price-btn {
+  display: inline-block;
+  font-family: 'Fira Code', monospace;
+  font-size: 14px;
+  background: var(--aqua);
+  color: var(--void);
+  border: none;
+  padding: 12px 24px;
+  cursor: pointer;
+  transition: background 0.2s;
+  min-height: 44px;
+  text-align: center;
+  width: 100%;
+}
+
+.price-btn:hover { background: #5EA294; }
+
+/* Modal */
+.modal-overlay {
+  position: fixed;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  background: rgba(0,0,0,0.7);
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+}
+
+.modal-dialog {
+  background: #323236;
+  border: 1px solid var(--slate);
+  max-width: 440px;
+  width: 100%;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.6);
+}
+
+.modal-titlebar {
+  background: var(--slate);
+  color: var(--parchment);
+  font-size: 13px;
+  padding: 6px 12px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.modal-body {
+  padding: 1.5rem;
+  font-size: 14px;
+  color: var(--parchment);
+  line-height: 1.7;
+}
+
+.modal-buttons {
+  display: flex;
+  gap: 0.75rem;
+  margin-top: 1.5rem;
+  flex-wrap: wrap;
+}
+
+.modal-btn {
+  font-family: 'Fira Code', monospace;
+  font-size: 13px;
+  padding: 10px 18px;
+  border: 1px solid var(--slate);
+  cursor: pointer;
+  min-height: 44px;
+  flex: 1;
+  text-align: center;
+}
+
+.modal-btn-ok {
+  background: var(--aqua);
+  color: var(--void);
+  border-color: var(--aqua);
+}
+
+.modal-btn-cancel {
+  background: transparent;
+  color: var(--parchment);
+}
+
+.modal-btn:hover { opacity: 0.85; }
+
+/* Flash */
+.flash-crimson {
+  animation: flashRed 0.15s ease;
+}
+
+@keyframes flashRed {
+  0% { background-color: var(--crimson); }
+  100% { background-color: var(--void); }
+}
+
+/* === MEMORIAL WALL === */
+.memorial-section {
+  padding: 5rem 1.5rem;
+  max-width: 1100px;
+  margin: 0 auto;
+}
+
+.memorial-rain {
+  position: relative;
+  height: 360px;
+  overflow: hidden;
+  margin-bottom: 2.5rem;
+}
+
+.memorial-column {
+  position: absolute;
+  top: 0;
+  width: 25%;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.memorial-column:nth-child(1) { left: 0; }
+.memorial-column:nth-child(2) { left: 25%; }
+.memorial-column:nth-child(3) { left: 50%; }
+.memorial-column:nth-child(4) { left: 75%; }
+
+.memorial-name {
+  font-family: 'Fira Code', monospace;
+  font-size: 13px;
+  color: var(--aqua);
+  text-align: center;
+  text-shadow: 0 0 8px rgba(77,140,127,0.4);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  padding: 0 4px;
+}
+
+.memorial-name.honored {
+  color: var(--crimson);
+  text-shadow: 0 0 8px rgba(166,42,42,0.5);
+  animation: candleFlicker 1.5s ease-in-out infinite alternate;
+}
+
+@keyframes candleFlicker {
+  0% { opacity: 0.9; }
+  25% { opacity: 1; }
+  50% { opacity: 0.92; }
+  75% { opacity: 1; }
+  100% { opacity: 0.9; }
+}
+
+.memorial-rain::before,
+.memorial-rain::after {
+  content: '';
+  position: absolute;
+  left: 0; right: 0;
+  height: 60px;
+  z-index: 2;
+  pointer-events: none;
+}
+
+.memorial-rain::before {
+  top: 0;
+  background: linear-gradient(to bottom, var(--void), transparent);
+}
+
+.memorial-rain::after {
+  bottom: 0;
+  background: linear-gradient(to top, var(--void), transparent);
+}
+
+.memorial-input-row {
+  display: flex;
+  gap: 0.75rem;
+  justify-content: center;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.memorial-input {
+  font-family: 'Fira Code', monospace;
+  font-size: 14px;
+  background: var(--card-bg);
+  color: var(--parchment);
+  border: 1px solid var(--slate);
+  padding: 12px 16px;
+  min-width: 240px;
+  max-width: 90vw;
+  min-height: 44px;
+}
+
+.memorial-input:focus {
+  outline: none;
+  border-color: var(--aqua);
+}
+
+.memorial-submit {
+  font-family: 'Fira Code', monospace;
+  font-size: 13px;
+  background: var(--aqua);
+  color: var(--void);
+  border: none;
+  padding: 12px 20px;
+  cursor: pointer;
+  min-height: 44px;
+  white-space: nowrap;
+}
+
+.memorial-submit:hover { background: #5EA294; }
+
+.memorial-price {
+  text-align: center;
+  font-size: 12px;
+  color: var(--slate);
+  margin-top: 0.75rem;
+}
+
+/* Toast */
+.toast-beacon {
+  position: fixed;
+  bottom: 80px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--card-bg);
+  border: 1px solid var(--aqua);
+  color: var(--parchment);
+  font-family: 'Fira Code', monospace;
+  font-size: 13px;
+  padding: 10px 20px;
+  z-index: 900;
+  opacity: 0;
+  transition: opacity 0.4s;
+  pointer-events: none;
+  text-align: center;
+  max-width: 90vw;
+}
+
+.toast-beacon.show { opacity: 1; }
+
+/* === FAQ === */
+.faq-section {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 5rem 1.5rem;
+}
+
+.faq-terminal {
+  background: #0A0A0A;
+  border: 1px solid #333;
+  padding: 2rem;
+  font-family: 'Fira Code', monospace;
+  font-size: 14px;
+  overflow-x: auto;
+}
+
+.faq-entry { margin-bottom: 2rem; }
+.faq-entry:last-child { margin-bottom: 0; }
+
+.faq-q {
+  color: var(--aqua);
+  margin-bottom: 0.75rem;
+}
+
+.faq-a {
+  color: #B0ADA6;
+  padding-left: 1rem;
+  line-height: 1.7;
+}
+
+.faq-a .prompt-prefix { color: var(--slate); }
+
+.faq-yn {
+  color: var(--slate);
+  margin-top: 0.5rem;
+  padding-left: 1rem;
+}
+
+.blink-cursor::after {
+  content: '█';
+  animation: blink 1s step-end infinite;
+  color: var(--aqua);
+}
+
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0; }
+}
+
+/* === TESTIMONIAL === */
+.testimonial-section {
+  padding: 4rem 1.5rem;
+  max-width: 600px;
+  margin: 0 auto;
+  display: flex;
+  justify-content: center;
+}
+
+.sticky-note {
+  background: linear-gradient(135deg, #F5F0E8 0%, #EDE7D9 40%, #F0EBE0 60%, #E8E2D4 100%);
+  padding: 2rem 2rem 1.5rem;
+  transform: rotate(-3deg);
+  box-shadow: 2px 3px 12px rgba(0,0,0,0.4);
+  max-width: 420px;
+  position: relative;
+}
+
+.sticky-note::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: repeating-linear-gradient(
+    0deg,
+    transparent,
+    transparent 2px,
+    rgba(0,0,0,0.01) 2px,
+    rgba(0,0,0,0.01) 4px
+  );
+  pointer-events: none;
+}
+
+.sticky-note blockquote {
+  font-family: 'Caveat', cursive;
+  font-size: 22px;
+  color: #2A2A2E;
+  line-height: 1.4;
+  margin-bottom: 1rem;
+}
+
+.sticky-note cite {
+  font-family: 'Fira Code', monospace;
+  font-size: 12px;
+  color: var(--slate);
+  font-style: normal;
+  display: block;
+}
+
+/* === FOOTER === */
+footer {
+  text-align: center;
+  padding: 3rem 1.5rem;
+  font-size: 12px;
+  color: var(--slate);
+}
+
+.footer-ghost {
+  display: inline-block;
+  cursor: default;
+  position: relative;
+}
+
+.footer-ghost svg {
+  width: 16px; height: 16px;
+  vertical-align: middle;
+  fill: var(--slate);
+  transition: transform 0.2s;
+}
+
+.footer-ghost:hover svg {
+  animation: ghostFlutter 0.4s ease-in-out 2;
+}
+
+@keyframes ghostFlutter {
+  0%, 100% { transform: translateY(0) rotate(0deg); }
+  25% { transform: translateY(-2px) rotate(-5deg); }
+  75% { transform: translateY(-1px) rotate(5deg); }
+}
+
+footer .subtext {
+  margin-top: 0.75rem;
+  font-size: 11px;
+  color: #4A4A4A;
+}
+
+/* === AMBIENT TOAST === */
+.ambient-toast {
+  position: fixed;
+  bottom: 20px;
+  left: 20px;
+  font-family: 'Fira Code', monospace;
+  font-size: 12px;
+  color: var(--slate);
+  opacity: 0;
+  transition: opacity 1s ease;
+  pointer-events: none;
+  z-index: 800;
+  max-width: 300px;
+}
+
+.ambient-toast.visible { opacity: 1; }
+
+/* === GSAP REVEAL === */
+.reveal { opacity: 0; transform: translateY(20px); }
+
+/* === MOBILE === */
+@media (max-width: 768px) {
+  .grief-section {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .sympathy-stack {
+    flex: none;
+    width: 100%;
+    max-width: 320px;
+    height: 300px;
+  }
+
+  .memorial-column:nth-child(4) { display: none; }
+  .memorial-column { width: 33.33%; }
+  .memorial-column:nth-child(1) { left: 0; }
+  .memorial-column:nth-child(2) { left: 33.33%; }
+  .memorial-column:nth-child(3) { left: 66.66%; }
+
+  .faq-terminal { padding: 1rem; font-size: 13px; }
+
+  section { padding: 3rem 1rem; }
+
+  .pricing-grid { grid-template-columns: 1fr; }
+}
+
+@media (max-width: 480px) {
+  .memorial-column:nth-child(3) { display: none; }
+  .memorial-column { width: 50%; }
+  .memorial-column:nth-child(1) { left: 0; }
+  .memorial-column:nth-child(2) { left: 50%; }
+
+  .sympathy-stack { height: 260px; }
+  .sympathy-card { width: 260px; font-size: 18px; padding: 1.2rem; }
+}
+</style>
+</head>
+<body>
+
+<div class="bg-pattern" aria-hidden="true"></div>
+
+<div class="page-content" x-data="siteApp()">
+
+  <!-- ===== 1. HERO / ENVELOPE ===== -->
+  <header class="hero" id="top">
+    <div class="envelope-wrapper">
+      <div class="envelope" id="envelope">
+        <div class="envelope-flap" id="envelopeFlap"></div>
+        <div class="envelope-seal" id="envelopeSeal">
+          <svg viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+        </div>
+        <div class="card-rise" id="heroCard">
+          <h1>Sorry for Your Loss</h1>
+          <p>A bereavement service for the digitally dispossessed</p>
+        </div>
+      </div>
+    </div>
+
+    <nav class="hero-nav" id="heroNav">
+      <a href="#grief">The Grief</a>
+      <span class="nav-dot">·</span>
+      <a href="#box">The Box</a>
+      <span class="nav-dot">·</span>
+      <a href="#memorial">The Memorial</a>
+      <span class="nav-dot">·</span>
+      <a href="#farewell">The Farewell</a>
+    </nav>
+  </header>
+
+  <!-- ===== 2. THE GRIEF ===== -->
+  <div class="section-divider">· · · · · · · · · · · ·</div>
+
+  <section id="grief">
+    <div class="grief-section">
+      <div class="grief-text reveal">
+        <p>You know that feeling. You're trying to log into something — could be anything, your old email, your first social media account, that cloud storage you set up in college — and the screen says <span class="emphasis">"Account not found."</span></p>
+        <p>Or worse, it asks for a phone number you haven't had since 2013. And behind that wall? Ten years of photos. Messages from someone who's gone now. Your grandmother's pierogi recipe.</p>
+        <p>People tell you to move on. "It's just data." But you know it's not.</p>
+        <p class="emphasis">We know it's not.</p>
+        <p>That's why we started Sorry for Your Loss. Not because the world needed another subscription box. But because nobody was sending condolence cards when your Hotmail died. Nobody was holding space for the quiet devastation of a deactivated account. We are.</p>
+      </div>
+
+      <div class="sympathy-stack reveal" x-data="cardStack()" @mouseleave="activeCard = 0">
+        <template x-for="(card, i) in cards" :key="i">
+          <div class="sympathy-card"
+               :style="'--rot:' + card.rot + 'deg; z-index:' + (activeCard >= i ? (10 + i) : (5 - i)) + '; opacity:' + (activeCard >= i ? 1 : 0) + '; transform: rotate(' + card.rot + 'deg) translate(' + (i * 4) + 'px, ' + (i * 6) + 'px);'"
+               @mouseenter="activeCard = i"
+               @touchstart="activeCard = i">
+            <div x-html="card.msg"></div>
+            <span class="card-from" x-text="card.from"></span>
+          </div>
+        </template>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== 3. GRIEF ASSESSMENT ===== -->
+  <div class="section-divider">· · · · · · · · · · · ·</div>
+
+  <section id="assessment" class="assessment-section" x-data="griefAssessment()">
+    <h2 class="section-heading reveal">Assess Your Digital Grief Level</h2>
+
+    <p class="assessment-return" x-show="returning" x-text="'Welcome back. Still in ' + savedStage + '?'" x-cloak></p>
+
+    <div class="assessment-select-wrap reveal">
+      <select class="assessment-select" x-model="stage" @change="onSelect()">
+        <option value="">— Select Your Stage —</option>
+        <option value="denial">Denial — "It's probably in my email drafts"</option>
+        <option value="anger">Anger — "Damn two-step verification!"</option>
+        <option value="bargaining">Bargaining — "I'll update all my passwords if you just let me in"</option>
+        <option value="depression">Depression — "Without my Instagram, who even am I?"</option>
+        <option value="acceptance">Acceptance — "Time to start fresh with yet another app"</option>
+      </select>
+    </div>
+
+    <div class="assessment-response reveal" x-show="stage" x-transition x-cloak>
+      <p x-text="responses[stage]"></p>
+    </div>
+  </section>
+
+  <!-- ===== 4. THE BOX (Pricing) ===== -->
+  <div class="section-divider">· · · · · · · · · · · ·</div>
+
+  <section id="box">
+    <h2 class="section-heading reveal">The Box</h2>
+
+    <div class="pricing-grid">
+      <div class="price-card reveal">
+        <div class="price-ext">.csv</div>
+        <div class="price-tier">Basic</div>
+        <div class="price-amount">$9.99 <span>/mo</span></div>
+        <ul class="price-features">
+          <li>Monthly sympathy card from a random abandoned username</li>
+          <li>Digital grief stage sticker sheet (PDF)</li>
+          <li>Access to the "Lost & Not Found" community forum</li>
+        </ul>
+        <button class="price-btn" @click="showModal = true">Begin Grieving</button>
+      </div>
+
+      <div class="price-card reveal" style="position:relative;">
+        <div class="price-tag">MOST GRIEVED</div>
+        <div class="price-ext">.json</div>
+        <div class="price-tier">Standard</div>
+        <div class="price-amount">$19.99 <span>/mo</span></div>
+        <ul class="price-features">
+          <li>Everything in .csv</li>
+          <li>Personalized account recovery tips (we actually try)</li>
+          <li>Quarterly "What We Found" report on your old accounts</li>
+          <li>One commemorative username printed on archival card stock</li>
+        </ul>
+        <button class="price-btn" @click="showModal = true">Begin Grieving</button>
+      </div>
+
+      <div class="price-card reveal">
+        <div class="price-ext">.bak</div>
+        <div class="price-tier">Unlimited</div>
+        <div class="price-amount">$49.99 <span>/mo</span></div>
+        <ul class="price-features">
+          <li>Everything in .json</li>
+          <li>Monthly 15-min call on the Account Resurrection Hotline</li>
+          <li>A real human grief counselor who gets why you're crying about a Tumblr</li>
+          <li>Annual "Digital Estate" planning session</li>
+          <li>Priority shredding (see FAQ)</li>
+        </ul>
+        <button class="price-btn" @click="showModal = true">Begin Grieving</button>
+      </div>
+    </div>
+
+    <!-- Modal -->
+    <div class="modal-overlay" x-show="showModal" x-transition.opacity x-cloak @click.self="showModal = false">
+      <div class="modal-dialog">
+        <div class="modal-titlebar">
+          <span>⚠ grief.exe — Are you sure?</span>
+          <span style="cursor:pointer;" @click="showModal = false">✕</span>
+        </div>
+        <div class="modal-body">
+          <p>You are about to acknowledge a digital loss. This action cannot be undone. Your feelings are valid but non-refundable.</p>
+          <div class="modal-buttons">
+            <button class="modal-btn modal-btn-ok" @click="showModal = false">[OK, I'm Ready]</button>
+            <button class="modal-btn modal-btn-cancel" @click="doDenial()">[Cancel (Denial)]</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== 5. MEMORIAL WALL ===== -->
+  <div class="section-divider">· · · · · · · · · · · ·</div>
+
+  <section id="memorial" class="memorial-section">
+    <h2 class="section-heading reveal">The Memorial Wall</h2>
+
+    <div class="memorial-rain" id="memorialRain"></div>
+
+    <div class="memorial-input-row reveal">
+      <input class="memorial-input" type="text" placeholder="Enter a username to honor" id="memorialNameInput" maxlength="30">
+      <button class="memorial-submit" id="memorialSubmitBtn">Light a Virtual Beacon — $1.99</button>
+    </div>
+    <p class="memorial-price">All proceeds fund the ongoing maintenance of this wall and our collective digital grief.</p>
+
+    <div class="toast-beacon" id="beaconToast"></div>
+  </section>
+
+  <!-- ===== 6. FAQ ===== -->
+  <div class="section-divider" id="farewell">· · · · · · · · · · · ·</div>
+
+  <section class="faq-section">
+    <h2 class="section-heading reveal">FAQ</h2>
+
+    <div class="faq-terminal reveal">
+      <div class="faq-entry">
+        <div class="faq-q">$ help --topic "what-do-you-actually-do"</div>
+        <div class="faq-a">
+          <span class="prompt-prefix">&gt;</span> We conduct a secular digital farewell protocol. Your usernames<br>
+          <span class="prompt-prefix">&gt;</span> and passwords are etched onto biodegradable rice paper, shredded<br>
+          <span class="prompt-prefix">&gt;</span> in a commercial-grade document destroyer, and the remains are<br>
+          <span class="prompt-prefix">&gt;</span> mailed back to you with a certificate of completion.<br>
+          <span class="prompt-prefix">&gt;</span> Optionally, a streamed video of the event is available for $4.99.
+        </div>
+        <div class="faq-yn">[Y/n] Would you like to know more?</div>
+      </div>
+
+      <div class="faq-entry">
+        <div class="faq-q">$ help --topic "is-this-a-joke"</div>
+        <div class="faq-a">
+          <span class="prompt-prefix">&gt;</span> Grief is never a joke. But sometimes a joke is grief wearing<br>
+          <span class="prompt-prefix">&gt;</span> a fake mustache. We are a real service for a real feeling that<br>
+          <span class="prompt-prefix">&gt;</span> the world hasn't invented proper language for yet. Your loss<br>
+          <span class="prompt-prefix">&gt;</span> is stupid and small and also completely legitimate.
+        </div>
+        <div class="faq-yn">[Y/n] Would you like to know more?</div>
+      </div>
+
+      <div class="faq-entry">
+        <div class="faq-q">$ help --topic "my-sister-says-just-use-a-password-manager"</div>
+        <div class="faq-a">
+          <span class="prompt-prefix">&gt;</span> Your sister sounds like she runs FortressKey. Tell her we said hi.<br>
+          <span class="prompt-prefix">&gt;</span> Tell her the pierogi recipe is still locked in Dropbox. Tell her<br>
+          <span class="prompt-prefix">&gt;</span> Mom is still asking about it.
+        </div>
+        <div class="faq-yn">[Y/n] Would you like to know more?</div>
+      </div>
+
+      <div class="faq-entry">
+        <div class="faq-q">$ help --topic "what-is-priority-shredding"</div>
+        <div class="faq-a">
+          <span class="prompt-prefix">&gt;</span> .bak tier subscribers get front-of-line access to our monthly<br>
+          <span class="prompt-prefix">&gt;</span> Ceremonial Shredding Livestream. We print your defunct passwords<br>
+          <span class="prompt-prefix">&gt;</span> on linen cardstock, read them aloud one last time, and feed them<br>
+          <span class="prompt-prefix">&gt;</span> into a cross-cut shredder while a cellist plays Barber's Adagio<br>
+          <span class="prompt-prefix">&gt;</span> for Strings. Tissues are included. Catharsis is not guaranteed.
+        </div>
+        <div class="faq-yn">[Y/n] Would you like to know more?</div>
+      </div>
+
+      <div class="faq-entry">
+        <div class="faq-q">$ help --topic "can-you-actually-recover-my-accounts" <span class="blink-cursor"></span></div>
+        <div class="faq-a">
+          <span class="prompt-prefix">&gt;</span> Sometimes. Our .json and .bak tiers include genuine recovery<br>
+          <span class="prompt-prefix">&gt;</span> assistance. We've reunited 340+ people with their old accounts<br>
+          <span class="prompt-prefix">&gt;</span> this year. But sometimes the account is truly gone, and the<br>
+          <span class="prompt-prefix">&gt;</span> healthiest thing we can offer is a really good sympathy card<br>
+          <span class="prompt-prefix">&gt;</span> and fifteen minutes on the phone with someone who won't say<br>
+          <span class="prompt-prefix">&gt;</span> "just make a new one."
+        </div>
+        <div class="faq-yn">[Y/n] Would you like to know more?</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== 7. TESTIMONIAL ===== -->
+  <section class="testimonial-section">
+    <div class="sticky-note reveal">
+      <blockquote>"The 'Condolences from ForgottenEmailer42' card hit me right in the feels — my therapist didn't get it, but Sorry for Your Loss turned my lost TikTok drafts into a therapeutic breakthrough. I cried, I laughed, I changed all my passwords. 10/10 grief."</blockquote>
+      <cite>— Verified Griever, .json tier</cite>
+    </div>
+  </section>
+
+  <!-- ===== 8. FOOTER ===== -->
+  <footer>
+    <div>
+      <span class="footer-ghost" title="Established in 2015 after our CEO lost access to a Dropbox folder with 500 family recipes and her first Facebook posts from 2009.">
+        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 2C8.13 2 5 5.13 5 9v5.5c0 .28.22.5.5.5s.5-.22.5-.5V14h1v1.5c0 .28.22.5.5.5s.5-.22.5-.5V14h1v2.5c0 .28.22.5.5.5s.5-.22.5-.5V14h2v2.5c0 .28.22.5.5.5s.5-.22.5-.5V14h1v1.5c0 .28.22.5.5.5s.5-.22.5-.5V14h1v.5c0 .28.22.5.5.5s.5-.22.5-.5V9c0-3.87-3.13-7-7-7zm-3 9a1 1 0 110-2 1 1 0 010 2zm6 0a1 1 0 110-2 1 1 0 010 2z"/></svg>
+      </span>
+      2025 Sorry for Your Loss Grief Services LLC
+    </div>
+    <div class="subtext">This site best viewed in Netscape Navigator 4.0 or a browser that hasn't been sunset yet.</div>
+  </footer>
+
+</div>
+
+<!-- Ambient toast (periodic messages) -->
+<div class="ambient-toast" id="ambientToast"></div>
+
+<script>
+// === Alpine Components ===
+document.addEventListener('alpine:init', () => {
+
+  Alpine.data('siteApp', () => ({
+    showModal: false,
+    doDenial() {
+      this.showModal = false;
+      document.body.classList.add('flash-crimson');
+      setTimeout(() => document.body.classList.remove('flash-crimson'), 200);
+    }
+  }));
+
+  Alpine.data('cardStack', () => ({
+    activeCard: 0,
+    cards: [
+      {
+        rot: 2,
+        msg: 'Dear <strong>CoffeeAddict_2007</strong>,<br><br>We regret to inform you that your account has entered permanent rest. Your 847 unread messages and 12 draft emails will not be joining you in the afterlife. They asked us to tell you they\'re at peace.',
+        from: '— With deepest sympathy, The Recovery Team'
+      },
+      {
+        rot: -1.5,
+        msg: 'Dear <strong>xXDarkAngelXx</strong>,<br><br>Your MySpace page has been classified as a historical artifact. The auto-playing Fall Out Boy track can no longer hurt anyone. Your top 8 friends have moved on. We hope you can too.',
+        from: '— The Bureau of Defunct Profiles'
+      },
+      {
+        rot: 3,
+        msg: 'Dear <strong>CoolMom1987</strong>,<br><br>The 2,400 photos in your Picasa account have achieved digital nirvana. Your children\'s first steps now exist only in your memory, which, honestly, is where they always mattered most.',
+        from: '— Cloud Storage Hospice Care'
+      },
+      {
+        rot: -2.5,
+        msg: 'Dear <strong>BandGirl2009</strong>,<br><br>Your Dropbox has been inactive for 1,847 days. The pierogi recipe is in a better place now. Your grandmother would understand. She always said the secret ingredient was love, not file syncing.',
+        from: '— Inactive Account Services'
+      },
+      {
+        rot: 1,
+        msg: 'Dear <strong>PixelPirate</strong>,<br><br>Your DeviantArt portfolio from 2006 has been laid to rest. The wolf-with-angel-wings digital painting lives on in the hearts of the three people who favorited it. You were ahead of your time.',
+        from: '— The Creative Afterlife Division'
+      }
+    ]
+  }));
+
+  Alpine.data('griefAssessment', () => ({
+    stage: '',
+    savedStage: '',
+    returning: false,
+    responses: {
+      denial: "It\'s okay. We all start here. You think maybe if you try one more email variation, one more security question, it\'ll just... open. It won\'t. But we admire the optimism. Here\'s a sympathy card while you keep trying.",
+      anger: "We hear you. The two-factor authentication was supposed to protect you, not become the final boss. Your rage is valid. Your security questions are not. \"What was your first pet\'s name?\" You had SEVEN pets, Sharon.",
+      bargaining: "\"I\'ll change all my passwords.\" \"I\'ll use a password manager.\" \"I\'ll write them on actual paper.\" We believe you. We also believed you in 2016 when you said the same thing after losing your Tumblr.",
+      depression: "The account is gone. The photos are gone. The messages are gone. And no one around you understands why you\'re staring at a login screen with tears in your eyes at 2 AM. We understand. Sit with it. We\'re here.",
+      acceptance: "Welcome to the other side. It\'s quieter here. The data is gone, but you\'re still here, and that counts for something. Your new username awaits. May it outlive the platform it\'s built on."
+    },
+    init() {
+      var saved = localStorage.getItem('sfyl_grief_stage');
+      if (saved && this.responses[saved]) {
+        this.savedStage = saved.charAt(0).toUpperCase() + saved.slice(1);
+        this.returning = true;
+        this.stage = saved;
+      }
+    },
+    onSelect() {
+      if (this.stage) {
+        localStorage.setItem('sfyl_grief_stage', this.stage);
+        this.returning = false;
+      }
+    }
+  }));
+});
+
+// === HERO ANIMATION ===
+(function heroAnim() {
+  var flap = document.getElementById('envelopeFlap');
+  var seal = document.getElementById('envelopeSeal');
+  var card = document.getElementById('heroCard');
+  var nav = document.getElementById('heroNav');
+
+  setTimeout(function() {
+    flap.classList.add('open');
+    seal.classList.add('hidden');
+  }, 1500);
+
+  setTimeout(function() {
+    gsap.fromTo(card,
+      { y: 60, opacity: 0 },
+      { y: -80, opacity: 1, duration: 1.2, ease: 'power2.out' }
+    );
+  }, 2200);
+
+  setTimeout(function() {
+    gsap.fromTo(nav,
+      { opacity: 0, y: 10 },
+      { opacity: 1, y: 0, duration: 0.8, ease: 'power2.out' }
+    );
+  }, 3400);
+})();
+
+// === SCROLL ANIMATIONS (GSAP) ===
+(function scrollReveal() {
+  var reveals = document.querySelectorAll('.reveal');
+  var observer = new IntersectionObserver(function(entries) {
+    entries.forEach(function(entry) {
+      if (entry.isIntersecting) {
+        gsap.fromTo(entry.target,
+          { opacity: 0, y: 24 },
+          { opacity: 1, y: 0, duration: 0.8, ease: 'power2.out' }
+        );
+        observer.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.15 });
+
+  reveals.forEach(function(el) { observer.observe(el); });
+})();
+
+// === MEMORIAL WALL ===
+(function memorialWall() {
+  var container = document.getElementById('memorialRain');
+  var defaultNames = [
+    'WorkoutWarrior85', 'CryptoKing2020', 'SelfieQueen', 'BandGirl2009',
+    'ForgottenEmailer42', 'xXDarkAngelXx', 'CoolMom1987', 'PixelPirate',
+    'TechBro_Alpha', 'GardenGuru55', 'LiveLaughLogin', 'BufferOverflo',
+    'Y2Ksurvivr', 'NapsterFan99', 'DialUpDreamer', 'AIMaway_msg_4ever',
+    'GeoCitiesGhost', 'MP3collector', 'FarmVilleMayor', 'Clippy_Was_Right',
+    'AskJeeves4Life', 'NotARobot2008', 'EncartaScholar', 'WinAmpSkinz',
+    'ICQ_247365', 'StumbleUponMe', 'ZuneOwner_Real', 'VineLoopGod',
+    'GooglePlusUser', 'BlockbusterCard'
+  ];
+
+  var honored = [];
+  try {
+    var stored = JSON.parse(localStorage.getItem('sfyl_honored') || '[]');
+    if (Array.isArray(stored)) honored = stored;
+  } catch(e) {}
+
+  var columnCount = 4;
+  var speeds = [18, 24, 20, 26];
+  var columns = [];
+
+  for (var c = 0; c < columnCount; c++) {
+    var col = document.createElement('div');
+    col.className = 'memorial-column';
+    col.style.left = (c * 25) + '%';
+    container.appendChild(col);
+    columns.push(col);
+  }
+
+  function populateColumn(col, colIndex) {
+    var shuffled = defaultNames.slice().sort(function() { return Math.random() - 0.5; });
+    var subset = shuffled.slice(0, 8 + Math.floor(Math.random() * 4));
+
+    if (colIndex === 0) {
+      honored.forEach(function(name) {
+        var span = document.createElement('div');
+        span.className = 'memorial-name honored';
+        span.textContent = name;
+        col.appendChild(span);
+      });
+    }
+
+    subset.forEach(function(name) {
+      var span = document.createElement('div');
+      span.className = 'memorial-name';
+      span.textContent = name;
+      col.appendChild(span);
+    });
+  }
+
+  columns.forEach(function(col, i) { populateColumn(col, i); });
+
+  // Scroll animation
+  columns.forEach(function(col, i) {
+    var h = col.scrollHeight;
+    gsap.fromTo(col,
+      { y: 0 },
+      { y: -h / 2, duration: speeds[i], ease: 'none', repeat: -1,
+        onRepeat: function() {
+          // duplicate content for seamless loop
+        }
+      }
+    );
+    // duplicate for seamless
+    var clone = col.innerHTML;
+    col.innerHTML = col.innerHTML + clone;
+  });
+
+  // Honor a username
+  var input = document.getElementById('memorialNameInput');
+  var btn = document.getElementById('memorialSubmitBtn');
+  var toast = document.getElementById('beaconToast');
+
+  btn.addEventListener('click', function() {
+    var name = input.value.trim();
+    if (!name) return;
+
+    honored.push(name);
+    localStorage.setItem('sfyl_honored', JSON.stringify(honored));
+
+    // Add to first visible column
+    var span = document.createElement('div');
+    span.className = 'memorial-name honored';
+    span.textContent = name;
+    columns[0].insertBefore(span, columns[0].firstChild);
+
+    // Show toast
+    toast.textContent = 'A beacon has been lit for ' + name + '. They are remembered.';
+    toast.classList.add('show');
+    setTimeout(function() { toast.classList.remove('show'); }, 4000);
+
+    input.value = '';
+  });
+})();
+
+// === AMBIENT TOASTS ===
+(function ambientMessages() {
+  var messages = [
+    'Another account was lost while you were reading this.',
+    'Somewhere, a password was forgotten.',
+    'A security question went unanswered.',
+    'An email verification link just expired.',
+    'Two-factor authentication claimed another soul.',
+    'A recovery email bounced back to the void.',
+    'Someone just typed their old password and felt nothing.'
+  ];
+
+  var el = document.getElementById('ambientToast');
+  var idx = 0;
+
+  function showToast() {
+    el.textContent = messages[idx % messages.length];
+    el.classList.add('visible');
+    setTimeout(function() {
+      el.classList.remove('visible');
+    }, 5000);
+    idx++;
+  }
+
+  setTimeout(function() {
+    showToast();
+    setInterval(showToast, 60000);
+  }, 60000);
+})();
+</script>
+
+</body>
+</html>

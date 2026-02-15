@@ -3,612 +3,933 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Myrtle Supply | Tender Rations Subscription</title>
+  <title>MYRTLE VEND-47 | Interactive Simulator</title>
   <link rel="stylesheet" href="/assets/css/pico.min.css" />
   <link rel="stylesheet" href="/assets/css/fonts.css" />
   <style>
     :root {
-      --bg: #f4f4f2;
-      --paper: #ffffff;
-      --ink: #111111;
-      --ink-soft: #3f3f3f;
-      --line: #222222;
-      --accent: #ff1f1f;
-      --accent-deep: #b30000;
-      --shadow: #000000;
-      --radius: 18px;
-      --gap: 1rem;
+      --bg: #1a1a2e;
+      --machine: #2a2a4a;
+      --machine-light: #3a3a5e;
+      --glass: rgba(180,220,255,0.06);
+      --slot-bg: #111128;
+      --accent: #ff4444;
+      --accent-glow: rgba(255,68,68,0.3);
+      --green: #44dd88;
+      --green-glow: rgba(68,221,136,0.25);
+      --amber: #ffbb33;
+      --amber-glow: rgba(255,187,51,0.25);
+      --text: #e8e8f0;
+      --text-dim: #8888aa;
+      --coin-gold: #ddb844;
+      --radius: 16px;
     }
 
-    * { box-sizing: border-box; }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
 
     html, body {
-      margin: 0;
-      padding: 0;
-      background: radial-gradient(circle at 15% 10%, #ffffff 0%, #f0f0ec 35%, #e8e8e2 100%);
-      color: var(--ink);
+      background: var(--bg);
+      color: var(--text);
       font-family: 'Space Grotesk', sans-serif;
-      min-height: 100%;
+      min-height: 100vh;
       overflow-x: hidden;
     }
 
-    body.alert-mode {
-      background: radial-gradient(circle at 80% 20%, #fff7f7 0%, #f4ecec 45%, #ece2e2 100%);
-    }
-
-    .site-wrap {
-      max-width: 1200px;
+    .sim-wrap {
+      max-width: 520px;
       margin: 0 auto;
-      padding: clamp(1rem, 2.5vw, 2rem);
+      padding: 1rem;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      gap: 0;
     }
 
-    .topbar {
+    /* ── machine top plate ── */
+    .machine-top {
+      background: linear-gradient(180deg, #3a3a5e 0%, #2a2a4a 100%);
+      border: 2px solid #4a4a6e;
+      border-bottom: none;
+      border-radius: var(--radius) var(--radius) 0 0;
+      padding: 0.75rem 1rem;
       display: flex;
-      flex-wrap: wrap;
       align-items: center;
       justify-content: space-between;
-      gap: 0.75rem;
-      margin-bottom: 1rem;
-      padding: 0.75rem 1rem;
-      border: 2px solid var(--line);
-      border-radius: 999px;
-      background: #ffffff;
-      box-shadow: 0 4px 0 #000000;
-    }
-
-    .brand {
-      display: inline-flex;
-      align-items: center;
-      gap: 0.6rem;
-      font-weight: 700;
-      color: #111111;
-      text-decoration: none;
-      letter-spacing: 0.02em;
-    }
-
-    .brand i { width: 20px; height: 20px; }
-
-    .top-actions {
-      display: flex;
-      flex-wrap: wrap;
       gap: 0.5rem;
     }
 
-    button,
-    .pill {
-      min-height: 44px;
-      border: 2px solid var(--line);
-      border-radius: 999px;
-      background: #ffffff;
-      color: #111111;
-      font-weight: 700;
-      padding: 0.5rem 1rem;
-      cursor: pointer;
-      text-decoration: none;
-      display: inline-flex;
-      align-items: center;
-      gap: 0.45rem;
-      transition: transform 220ms ease, box-shadow 220ms ease, background-color 220ms ease;
-      box-shadow: 0 4px 0 #000000;
+    .machine-brand {
+      font-family: 'Archivo Black', sans-serif;
+      font-size: 0.85rem;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--text-dim);
     }
 
-    button:hover,
-    .pill:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 6px 0 #000000;
+    .machine-brand b {
+      color: var(--accent);
+      font-family: 'Archivo Black', sans-serif;
     }
 
-    .pill.accent,
-    button.accent {
+    .power-led {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: var(--green);
+      box-shadow: 0 0 8px var(--green-glow);
+      transition: background 0.3s, box-shadow 0.3s;
+    }
+
+    .power-led.sad {
       background: var(--accent);
-      color: #ffffff;
-      border-color: #111111;
+      box-shadow: 0 0 8px var(--accent-glow);
     }
 
-    .masonry {
-      column-count: 1;
-      column-gap: var(--gap);
-    }
-
-    .card {
+    /* ── display glass ── */
+    .machine-glass {
+      background: var(--slot-bg);
+      border-left: 2px solid #4a4a6e;
+      border-right: 2px solid #4a4a6e;
+      padding: 0.6rem;
       position: relative;
-      display: inline-block;
-      width: 100%;
-      margin: 0 0 var(--gap);
-      padding: clamp(1rem, 2vw, 1.25rem);
-      border: 2px solid var(--line);
-      border-radius: var(--radius);
-      background: var(--paper);
-      color: #111111;
-      break-inside: avoid;
-      box-shadow: 0 8px 0 #000000;
-      overflow: hidden;
-      transition: transform 300ms ease, box-shadow 300ms ease, border-radius 300ms ease;
     }
 
-    .card::before {
+    .machine-glass::before {
       content: "";
       position: absolute;
-      inset: -40% auto auto -20%;
-      width: 220px;
-      height: 220px;
-      background: conic-gradient(from 25deg, #efefef, #dcdcdc, #ffffff, #efefef);
-      clip-path: polygon(50% 0%, 100% 38%, 80% 100%, 20% 100%, 0% 38%);
-      transform: rotate(12deg);
-      z-index: 0;
+      inset: 0;
+      background: linear-gradient(135deg, rgba(255,255,255,0.03) 0%, transparent 60%);
+      pointer-events: none;
+      z-index: 1;
     }
 
-    .card > * { position: relative; z-index: 1; }
-
-    .card:hover {
-      transform: translateY(-5px) rotate(-0.25deg);
-      box-shadow: 0 12px 0 #000000;
-      border-radius: 26px;
-    }
-
-    .hero {
-      background:
-        repeating-linear-gradient(135deg, #111111 0 7px, #ffffff 7px 14px),
-        linear-gradient(145deg, #fdfdfd 0%, #ececec 100%);
-      color: #111111;
-      border-color: #111111;
-    }
-
-    .hero::before {
-      background: radial-gradient(circle at center, #ff1f1f 0%, #ff1f1f 35%, #111111 36%, #111111 44%, #ffffff 45%, #ffffff 100%);
-      width: 180px;
-      height: 180px;
-      right: -50px;
-      left: auto;
-      top: -60px;
-      clip-path: circle(50% at 50% 50%);
-      transform: rotate(0deg);
-    }
-
-    h1, h2, h3 {
-      margin: 0 0 0.5rem;
-      color: #111111;
-      line-height: 1.15;
-    }
-
-    h1 {
-      font-size: clamp(1.7rem, 4.6vw, 3.2rem);
-      max-width: 16ch;
-      font-family: 'Crimson Pro', serif;
-      font-weight: 700;
-    }
-
-    h2 {
-      font-size: clamp(1.1rem, 2.8vw, 1.6rem);
-    }
-
-    p {
-      margin: 0.3rem 0 0.7rem;
-      color: #222222;
-      font-size: clamp(1rem, 1.25vw, 1.06rem);
-    }
-
-    .mono {
-      font-family: 'IBM Plex Mono', monospace;
-      font-size: 0.9rem;
-      color: #222222;
-    }
-
-    .tag {
-      display: inline-block;
-      border: 2px solid #111111;
-      border-radius: 999px;
-      background: #ffffff;
-      color: #111111;
-      font-size: 0.78rem;
-      letter-spacing: 0.08em;
-      text-transform: uppercase;
-      padding: 0.25rem 0.65rem;
-      font-weight: 700;
-      margin-bottom: 0.7rem;
-    }
-
-    .accent-line {
-      height: 12px;
-      border: 2px solid #111111;
-      border-radius: 999px;
-      background: linear-gradient(90deg, #111111 0%, #111111 14%, var(--accent) 14%, var(--accent) 55%, #111111 55%, #111111 100%);
-      margin: 0.5rem 0 0.75rem;
-      transition: background 350ms ease;
-    }
-
-    .ghost-grid {
+    /* ── item grid ── */
+    .item-grid {
       display: grid;
-      grid-template-columns: repeat(4, minmax(0, 1fr));
-      gap: 0.5rem;
-      margin-top: 0.6rem;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 6px;
     }
 
-    .ghost-dot {
-      border: 2px solid #111111;
-      border-radius: 16px;
-      padding: 0.45rem;
-      min-height: 56px;
-      background: linear-gradient(180deg, #ffffff 0%, #efefef 100%);
+    .vend-slot {
+      position: relative;
+      background: linear-gradient(180deg, rgba(255,255,255,0.04) 0%, rgba(0,0,0,0.1) 100%);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 10px;
+      padding: 0.5rem 0.4rem;
+      text-align: center;
+      cursor: pointer;
+      transition: border-color 0.2s, box-shadow 0.2s, transform 0.15s;
+      min-height: 100px;
       display: flex;
+      flex-direction: column;
       align-items: center;
       justify-content: center;
-      font-size: 0.88rem;
-      font-weight: 700;
-      color: #111111;
+      gap: 0.25rem;
+      user-select: none;
+      -webkit-tap-highlight-color: transparent;
     }
 
-    .ghost-dot.ringing {
-      background: linear-gradient(180deg, #ffefef 0%, #ffdede 100%);
-      border-color: #b30000;
-      color: #660000;
+    .vend-slot:hover {
+      border-color: rgba(255,255,255,0.2);
+      box-shadow: 0 0 12px rgba(255,255,255,0.05);
     }
 
-    .stat {
-      font-size: clamp(1.5rem, 5vw, 2.2rem);
-      font-weight: 800;
-      color: #111111;
-      line-height: 1;
-      margin-bottom: 0.4rem;
+    .vend-slot.selected {
+      border-color: var(--amber);
+      box-shadow: 0 0 16px var(--amber-glow);
+      transform: scale(1.03);
     }
 
-    .haiku {
-      border: 2px dashed #111111;
-      border-radius: 14px;
-      padding: 0.65rem;
-      margin: 0.5rem 0;
-      background: #fdfdfd;
-      color: #111111;
-      font-family: 'Crimson Pro', serif;
-      font-size: 1.02rem;
-    }
-
-    .price {
-      display: flex;
-      align-items: baseline;
-      gap: 0.4rem;
-      margin: 0.3rem 0 0.8rem;
-    }
-
-    .price b {
-      font-size: clamp(1.4rem, 4vw, 2rem);
-      color: #111111;
-    }
-
-    .price span {
-      color: #222222;
-      font-weight: 700;
-    }
-
-    .route-map {
-      position: relative;
-      min-height: 170px;
-      border: 2px solid #111111;
-      border-radius: 14px;
-      background:
-        linear-gradient(0deg, #f6f6f6 0%, #f6f6f6 100%),
-        repeating-linear-gradient(90deg, #d6d6d6 0 2px, transparent 2px 22px),
-        repeating-linear-gradient(0deg, #d6d6d6 0 2px, transparent 2px 22px);
-      overflow: hidden;
-    }
-
-    .route-path {
-      position: absolute;
-      inset: 0;
-      background: none;
+    .vend-slot.dispensed {
+      opacity: 0.3;
       pointer-events: none;
     }
 
-    .route-path::before,
-    .route-path::after {
-      content: "";
+    .vend-slot.dispensed::after {
+      content: "GONE";
       position: absolute;
-      border-radius: 999px;
-      border: 2px solid #111111;
-      background: #ffffff;
-    }
-
-    .route-path::before {
-      width: 58%;
-      height: 26px;
-      left: 10%;
-      top: 28%;
-      transform: rotate(-12deg);
-    }
-
-    .route-path::after {
-      width: 52%;
-      height: 26px;
-      right: 8%;
-      bottom: 22%;
-      transform: rotate(9deg);
-    }
-
-    .supply-truck {
-      position: absolute;
-      width: 54px;
-      height: 34px;
-      border: 2px solid #111111;
-      border-radius: 8px;
-      background: var(--accent);
-      color: #ffffff;
+      inset: 0;
       display: flex;
       align-items: center;
       justify-content: center;
-      left: 8%;
-      top: 18%;
-      box-shadow: 0 4px 0 #000000;
-      transition: left 500ms ease, top 500ms ease, transform 320ms ease;
-    }
-
-    .supply-truck[data-stop="2"] { left: 42%; top: 42%; transform: rotate(10deg); }
-    .supply-truck[data-stop="3"] { left: 72%; top: 62%; transform: rotate(-6deg); }
-
-    details {
-      border: 2px solid #111111;
-      border-radius: 12px;
-      padding: 0.65rem 0.8rem;
-      margin: 0.45rem 0;
-      background: #ffffff;
-    }
-
-    summary {
-      cursor: pointer;
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 0.7rem;
       font-weight: 700;
-      color: #111111;
+      color: var(--accent);
+      letter-spacing: 0.15em;
     }
 
-    summary + p { margin-top: 0.65rem; }
+    .slot-code {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 0.65rem;
+      font-weight: 700;
+      color: var(--amber);
+      letter-spacing: 0.1em;
+    }
 
-    .meter-wrap {
-      display: grid;
-      grid-template-columns: 1fr auto;
-      gap: 0.8rem;
+    .slot-emoji {
+      font-size: 1.8rem;
+      line-height: 1;
+    }
+
+    .slot-name {
+      font-size: 0.7rem;
+      color: var(--text-dim);
+      line-height: 1.2;
+    }
+
+    .slot-price {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 0.7rem;
+      font-weight: 700;
+      color: var(--green);
+    }
+
+    /* ── control panel ── */
+    .control-panel {
+      background: linear-gradient(180deg, #2a2a4a 0%, #222240 100%);
+      border-left: 2px solid #4a4a6e;
+      border-right: 2px solid #4a4a6e;
+      padding: 0.75rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.6rem;
+    }
+
+    /* ── lcd screen ── */
+    .lcd {
+      background: #0a1a0a;
+      border: 2px solid #1a3a1a;
+      border-radius: 8px;
+      padding: 0.6rem 0.75rem;
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 0.82rem;
+      color: var(--green);
+      min-height: 62px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      line-height: 1.5;
+      text-shadow: 0 0 6px var(--green-glow);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .lcd::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,0,0,0.15) 2px, rgba(0,0,0,0.15) 4px);
+      pointer-events: none;
+    }
+
+    .lcd .myrtle-mood {
+      font-size: 0.72rem;
+      color: var(--amber);
+      text-shadow: 0 0 6px var(--amber-glow);
+    }
+
+    /* ── coin area ── */
+    .coin-row {
+      display: flex;
+      gap: 0.4rem;
       align-items: center;
-      margin-top: 0.6rem;
     }
 
-    input[type="range"] {
-      width: 100%;
+    .coin-btn {
+      flex: 1;
       min-height: 44px;
-      accent-color: #ff1f1f;
+      border: 2px solid #4a4a6e;
+      border-radius: 999px;
+      background: linear-gradient(180deg, #3a3a5e 0%, #2a2a4a 100%);
+      color: var(--coin-gold);
+      font-family: 'IBM Plex Mono', monospace;
+      font-weight: 700;
+      font-size: 0.85rem;
       cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.3rem;
+      transition: transform 0.1s, box-shadow 0.15s, border-color 0.15s;
+      box-shadow: 0 3px 0 #111128;
+      -webkit-tap-highlight-color: transparent;
     }
 
-    .meter-value {
-      border: 2px solid #111111;
-      border-radius: 10px;
-      padding: 0.4rem 0.6rem;
-      background: #ffffff;
-      color: #111111;
-      font-weight: 800;
-      min-width: 76px;
+    .coin-btn:hover {
+      border-color: var(--coin-gold);
+      transform: translateY(-1px);
+      box-shadow: 0 4px 0 #111128;
+    }
+
+    .coin-btn:active {
+      transform: translateY(2px);
+      box-shadow: 0 1px 0 #111128;
+    }
+
+    .balance-display {
+      font-family: 'IBM Plex Mono', monospace;
+      font-weight: 700;
+      font-size: 1rem;
+      color: var(--coin-gold);
       text-align: center;
+      padding: 0.3rem;
+      text-shadow: 0 0 6px rgba(221,184,68,0.3);
     }
 
-    footer {
-      margin-top: 0.8rem;
-      padding: 1.1rem;
-      border: 2px solid #111111;
-      border-radius: 16px;
-      background: #ffffff;
-      color: #222222;
-      font-size: 0.95rem;
+    /* ── action buttons ── */
+    .action-row {
+      display: flex;
+      gap: 0.4rem;
     }
 
-    .alert-mode .accent-line {
-      background: linear-gradient(90deg, #111111 0%, #111111 10%, #ff1f1f 10%, #ff1f1f 90%, #111111 90%, #111111 100%);
+    .action-btn {
+      flex: 1;
+      min-height: 48px;
+      border: 2px solid #4a4a6e;
+      border-radius: 12px;
+      background: linear-gradient(180deg, #3a3a5e 0%, #2a2a4a 100%);
+      color: var(--text);
+      font-family: 'Space Grotesk', sans-serif;
+      font-weight: 700;
+      font-size: 0.85rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.35rem;
+      transition: transform 0.1s, box-shadow 0.15s, border-color 0.15s;
+      box-shadow: 0 3px 0 #111128;
+      -webkit-tap-highlight-color: transparent;
     }
 
-    .alert-mode .card {
-      box-shadow: 0 8px 0 #600000;
+    .action-btn:hover { border-color: var(--text-dim); }
+    .action-btn:active { transform: translateY(2px); box-shadow: 0 1px 0 #111128; }
+
+    .action-btn.vend-go {
+      background: linear-gradient(180deg, #44dd88 0%, #22aa66 100%);
+      color: #0a1a0a;
+      border-color: #22aa66;
+      box-shadow: 0 3px 0 #115533;
     }
 
-    @media (min-width: 700px) {
-      .masonry { column-count: 2; }
+    .action-btn.vend-go:active { box-shadow: 0 1px 0 #115533; }
+
+    .action-btn.vend-go[disabled] {
+      opacity: 0.4;
+      cursor: not-allowed;
+      transform: none;
     }
 
-    @media (min-width: 1080px) {
-      .masonry { column-count: 3; }
+    .action-btn.refund-btn {
+      border-color: var(--accent);
+      color: var(--accent);
     }
 
-    @media (max-width: 520px) {
-      .topbar {
-        border-radius: 20px;
-      }
+    /* ── dispense slot ── */
+    .dispense-area {
+      background: #111128;
+      border-left: 2px solid #4a4a6e;
+      border-right: 2px solid #4a4a6e;
+      min-height: 70px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      overflow: hidden;
+    }
 
-      .top-actions {
-        width: 100%;
-      }
+    .dispense-flap {
+      width: 70%;
+      height: 4px;
+      background: #4a4a6e;
+      border-radius: 2px;
+      position: absolute;
+      top: 0;
+    }
 
-      .top-actions button,
-      .top-actions .pill {
-        flex: 1 1 auto;
-        justify-content: center;
-      }
+    .dispensed-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.2rem;
+      padding: 0.5rem;
+    }
 
-      .ghost-grid {
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-      }
+    .dispensed-item .slot-emoji {
+      font-size: 2.4rem;
+    }
+
+    .dispensed-item .slot-name {
+      color: var(--text);
+      font-size: 0.8rem;
+      font-weight: 700;
+    }
+
+    .dispense-placeholder {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 0.72rem;
+      color: var(--text-dim);
+      letter-spacing: 0.08em;
+    }
+
+    /* ── machine bottom ── */
+    .machine-bottom {
+      background: linear-gradient(180deg, #2a2a4a 0%, #1a1a2e 100%);
+      border: 2px solid #4a4a6e;
+      border-top: none;
+      border-radius: 0 0 var(--radius) var(--radius);
+      padding: 0.6rem 0.75rem;
+    }
+
+    /* ── myrtle chat / inner monologue ── */
+    .myrtle-thoughts {
+      margin-top: 0.75rem;
+      border: 2px solid #4a4a6e;
+      border-radius: var(--radius);
+      background: var(--machine);
+      overflow: hidden;
+    }
+
+    .thoughts-header {
+      background: linear-gradient(90deg, #3a3a5e 0%, #2a2a4a 100%);
+      padding: 0.5rem 0.75rem;
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 0.72rem;
+      color: var(--text-dim);
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      border-bottom: 1px solid #4a4a6e;
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+    }
+
+    .thoughts-body {
+      padding: 0.6rem 0.75rem;
+      max-height: 200px;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 0.4rem;
+    }
+
+    .thought {
+      font-size: 0.82rem;
+      line-height: 1.45;
+      color: var(--text-dim);
+      padding: 0.35rem 0.5rem;
+      border-radius: 8px;
+      background: rgba(255,255,255,0.03);
+      border-left: 2px solid var(--text-dim);
+    }
+
+    .thought.clingy { border-left-color: var(--accent); color: #ff8888; }
+    .thought.hopeful { border-left-color: var(--green); color: #88ddaa; }
+    .thought.anxious { border-left-color: var(--amber); color: #ddbb66; }
+
+    .thought em {
+      font-style: italic;
+      opacity: 0.8;
+    }
+
+    /* ── serial plate ── */
+    .serial-plate {
+      margin-top: 0.6rem;
+      text-align: center;
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 0.65rem;
+      color: var(--text-dim);
+      opacity: 0.5;
+      line-height: 1.6;
+    }
+
+    /* ── visit counter ── */
+    .visit-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.3rem;
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 0.72rem;
+      color: var(--text-dim);
+    }
+
+    /* scrollbar */
+    .thoughts-body::-webkit-scrollbar { width: 4px; }
+    .thoughts-body::-webkit-scrollbar-track { background: transparent; }
+    .thoughts-body::-webkit-scrollbar-thumb { background: #4a4a6e; border-radius: 2px; }
+
+    @media (max-width: 380px) {
+      .item-grid { grid-template-columns: repeat(2, 1fr); }
+      .slot-emoji { font-size: 1.4rem; }
     }
   </style>
 </head>
-<body x-data="siteState()" :class="alert ? 'alert-mode' : ''">
-  <main class="site-wrap">
-    <nav class="topbar reveal">
-      <a class="brand" href="#">
-        <i data-lucide="package-check"></i>
-        Myrtle VEND-47, Quartermaster
-      </a>
-      <div class="top-actions">
-        <button type="button" class="accent" @click="alert = !alert">
-          <i data-lucide="siren"></i>
-          <span x-text="alert ? 'Stand Down' : 'Red Drill'"></span>
-        </button>
-        <a class="pill" href="#plans">
-          <i data-lucide="ticket"></i>
-          Enlist
-        </a>
+<body x-data="myrtle()">
+  <div class="sim-wrap">
+    <!-- machine top -->
+    <div class="machine-top">
+      <div class="machine-brand"><b>MYRTLE</b> VEND-47</div>
+      <div style="display:flex;align-items:center;gap:0.6rem;">
+        <span class="visit-badge">
+          <i data-lucide="eye" style="width:13px;height:13px;"></i>
+          Visit #<span x-text="visits"></span>
+        </span>
+        <div class="power-led" :class="mood === 'sad' || mood === 'panic' ? 'sad' : ''"></div>
       </div>
-    </nav>
-
-    <section class="card hero reveal">
-      <span class="tag">Official Dispatch</span>
-      <h1>I am Myrtle, a vending machine with attachment issues.</h1>
-      <p>I used to sit in a rain-soaked bus depot. Nobody pressed B7 for six winters. Now I ship emotional snacks on subscription with military punctuality and cottage warmth.</p>
-      <div class="accent-line"></div>
-      <p class="mono">Every crate packed by ghosts. Every review submitted as haiku. Nobody on payroll has a pulse.</p>
-      <div style="display:flex;flex-wrap:wrap;gap:0.6rem;margin-top:0.6rem;">
-        <button type="button" @click="ringGhosts()"><i data-lucide="bell"></i> Ring Graveyard Shift</button>
-        <button type="button" @click="advanceRoute()"><i data-lucide="truck"></i> Advance Supply Route</button>
-      </div>
-    </section>
-
-    <div class="masonry">
-      <section class="card reveal">
-        <h2>Tonight's Crew Roster</h2>
-        <p>Do not be alarmed. They clock in through walls.</p>
-        <div class="ghost-grid">
-          <div class="ghost-dot" :class="ringing ? 'ringing' : ''">Mara (1902)</div>
-          <div class="ghost-dot" :class="ringing ? 'ringing' : ''">Lt. Pruitt</div>
-          <div class="ghost-dot" :class="ringing ? 'ringing' : ''">Vera, Cold Room</div>
-          <div class="ghost-dot" :class="ringing ? 'ringing' : ''">Unnamed Whistler</div>
-        </div>
-        <p class="mono">Average ectoplasmic packing speed: 41 boxes/minute.</p>
-      </section>
-
-      <section class="card reveal">
-        <h2>Route Illustration</h2>
-        <p>Rural lanes. One bridge. Two crows. Zero delays.</p>
-        <div class="route-map" aria-label="Supply route map">
-          <div class="route-path"></div>
-          <div class="supply-truck" :data-stop="routeStop" id="truck"><i data-lucide="milk"></i></div>
-        </div>
-      </section>
-
-      <section class="card reveal" id="plans">
-        <span class="tag">Plans</span>
-        <h2>Choose your ration cadence</h2>
-        <div class="price"><b>$17.99</b><span>/week</span></div>
-        <p><b>Lonely Garrison</b> • 4 comfort items • 1 tactical jam • handwritten warning from me.</p>
-        <div class="price"><b>$47.99</b><span>/month</span></div>
-        <p><b>Fortress Heart</b> • 14 comfort items • emergency cocoa ampoule • ghost-lifted doorstep drop.</p>
-        <button type="button" class="accent"><i data-lucide="shield-check"></i> Start Quietly</button>
-      </section>
-
-      <section class="card reveal">
-        <h2>Field Statistics</h2>
-        <div class="stat">93%</div>
-        <p>of sadness returns within 48 hours unless pre-treated with my rosemary caramel.</p>
-        <div class="stat">7.2 min</div>
-        <p>average response time after you whisper "Myrtle I am unraveling" into the app box.</p>
-        <div class="stat">0</div>
-        <p>living employees. This keeps overhead disciplined.</p>
-      </section>
-
-      <section class="card reveal">
-        <span class="tag">Reviews (Haiku Only)</span>
-        <div class="haiku">Tin moon on my porch<br/>A ghost hands me oat biscuits<br/>I cry, then hydrate</div>
-        <p class="mono">- Daryl K., retired crossing guard</p>
-        <div class="haiku">Myrtle sent plum tea<br/>My ex called, I let it ring<br/>Victory tastes warm</div>
-        <p class="mono">- Joanie M., civil engineer</p>
-        <div class="haiku">Fog in hallway bends<br/>Parcel hums like tiny choir<br/>Rent day feels less sharp</div>
-        <p class="mono">- "R", legally haunted</p>
-      </section>
-
-      <section class="card reveal">
-        <h2>Sweetness Tension Dial</h2>
-        <p>Set how aggressively your crate believes in your recovery.</p>
-        <div class="meter-wrap">
-          <input type="range" min="1" max="5" x-model="tension" @input="updateTension()" aria-label="Sweetness tension dial" />
-          <div class="meter-value" x-text="tensionLabel"></div>
-        </div>
-        <p class="mono">Current loadout: <span x-text="loadout"></span></p>
-      </section>
-
-      <section class="card reveal">
-        <h2>Questions I Receive Constantly</h2>
-        <details>
-          <summary>Are the ghosts unionized?</summary>
-          <p>Yes. Local 13. They negotiated one nightly hymn break and wider staircases.</p>
-        </details>
-        <details>
-          <summary>Why military timing in a cottage brand?</summary>
-          <p>I watched one late granola bar ruin a marriage in 2018. Never again.</p>
-        </details>
-        <details>
-          <summary>What if I miss a delivery?</summary>
-          <p>The crate waits politely by your fern and whispers your name exactly once.</p>
-        </details>
-      </section>
     </div>
 
-    <footer class="reveal">
-      Myrtle VEND-47 • Serial 0A-771 • Recommissioned near Milepost 6 after lightning contact on August 14, 2011.
-      <br/>
-      Dispatch line: 1-800-B7-AGAIN • Built for people who panic at 9:42 PM and still deserve snacks.
-    </footer>
-  </main>
+    <!-- glass display with items -->
+    <div class="machine-glass">
+      <div class="item-grid">
+        <template x-for="item in items" :key="item.code">
+          <div class="vend-slot"
+               :class="{ selected: selected === item.code, dispensed: item.gone }"
+               @click="selectItem(item.code)">
+            <span class="slot-code" x-text="item.code"></span>
+            <span class="slot-emoji" x-text="item.emoji"></span>
+            <span class="slot-name" x-text="item.name"></span>
+            <span class="slot-price" x-text="'$' + item.price.toFixed(2)"></span>
+          </div>
+        </template>
+      </div>
+    </div>
+
+    <!-- control panel -->
+    <div class="control-panel">
+      <!-- LCD -->
+      <div class="lcd" id="lcd">
+        <template x-if="!lcdLines.length">
+          <span>INSERT COIN TO BEGIN</span>
+        </template>
+        <template x-for="line in lcdLines" :key="line.id">
+          <span :class="line.mood ? 'myrtle-mood' : ''" x-text="line.text"></span>
+        </template>
+      </div>
+
+      <!-- coins -->
+      <div class="coin-row">
+        <button type="button" class="coin-btn" @click="insertCoin(0.25)">25&cent;</button>
+        <button type="button" class="coin-btn" @click="insertCoin(0.50)">50&cent;</button>
+        <button type="button" class="coin-btn" @click="insertCoin(1.00)">$1</button>
+        <button type="button" class="coin-btn" @click="insertCoin(5.00)">$5</button>
+      </div>
+
+      <div class="balance-display">
+        CREDIT: $<span x-text="balance.toFixed(2)"></span>
+      </div>
+
+      <!-- actions -->
+      <div class="action-row">
+        <button type="button" class="action-btn vend-go"
+                :disabled="!canVend"
+                @click="vend()">
+          <i data-lucide="arrow-down-circle" style="width:18px;height:18px;"></i>
+          VEND
+        </button>
+        <button type="button" class="action-btn refund-btn" @click="refund()">
+          <i data-lucide="undo-2" style="width:16px;height:16px;"></i>
+          REFUND
+        </button>
+        <button type="button" class="action-btn" @click="pokeMyrtle()">
+          <i data-lucide="hand" style="width:16px;height:16px;"></i>
+          POKE
+        </button>
+      </div>
+    </div>
+
+    <!-- dispense slot -->
+    <div class="dispense-area">
+      <div class="dispense-flap"></div>
+      <template x-if="lastDispensed">
+        <div class="dispensed-item" id="dispensed">
+          <span class="slot-emoji" x-text="lastDispensed.emoji"></span>
+          <span class="slot-name" x-text="lastDispensed.name"></span>
+        </div>
+      </template>
+      <template x-if="!lastDispensed">
+        <span class="dispense-placeholder">[ RETRIEVE ITEM HERE ]</span>
+      </template>
+    </div>
+
+    <!-- machine bottom plate -->
+    <div class="machine-bottom">
+      <div style="display:flex;justify-content:space-between;align-items:center;">
+        <span style="font-family:'IBM Plex Mono',monospace;font-size:0.7rem;color:var(--text-dim);">
+          ITEMS DISPENSED: <b x-text="totalDispensed" style="color:var(--text);"></b>
+        </span>
+        <span style="font-family:'IBM Plex Mono',monospace;font-size:0.7rem;color:var(--text-dim);">
+          MOOD: <b x-text="moodLabel" :style="'color:' + moodColor"></b>
+        </span>
+      </div>
+    </div>
+
+    <!-- myrtle's inner monologue -->
+    <div class="myrtle-thoughts" x-show="thoughts.length > 0" x-transition>
+      <div class="thoughts-header">
+        <i data-lucide="brain" style="width:13px;height:13px;"></i>
+        MYRTLE'S INNER MONOLOGUE
+      </div>
+      <div class="thoughts-body" id="thoughts-scroll">
+        <template x-for="t in thoughts" :key="t.id">
+          <div class="thought" :class="t.type" x-text="t.text"></div>
+        </template>
+      </div>
+    </div>
+
+    <!-- serial plate -->
+    <div class="serial-plate">
+      MYRTLE VEND-47 &bull; Serial 0A-771 &bull; Recommissioned Aug 14, 2011<br>
+      Firmware: EmotionalCore v3.1.1 &bull; Attachment Module: ENABLED (cannot disable)
+    </div>
+  </div>
 
   <script defer src="/assets/js/alpine.min.js"></script>
   <script defer src="/assets/js/gsap.min.js"></script>
   <script defer src="/assets/js/lucide.min.js"></script>
   <script>
-    function siteState() {
+    function myrtle() {
+      var visits = parseInt(localStorage.getItem('__myrtle_visits') || '0') + 1;
+      localStorage.setItem('__myrtle_visits', visits);
+
       return {
-        alert: false,
-        ringing: false,
-        routeStop: 1,
-        tension: 3,
-        tensionLabel: 'Steady',
-        loadout: 'plum tea, pepper biscuit, stern note',
-        ringGhosts() {
-          this.ringing = true;
-          setTimeout(() => { this.ringing = false; }, 900);
+        visits: visits,
+        balance: 0,
+        selected: null,
+        lastDispensed: null,
+        totalDispensed: 0,
+        mood: 'idle',
+        thoughts: [],
+        lcdLines: [],
+        _thoughtId: 0,
+        _lcdId: 0,
+        _idleTimer: null,
+        _pokeCount: 0,
+
+        items: [
+          { code: 'A1', emoji: '🍪', name: 'Comfort Cookie', price: 1.50, gone: false },
+          { code: 'A2', emoji: '🫖', name: 'Plum Tea Sachet', price: 2.00, gone: false },
+          { code: 'A3', emoji: '🧸', name: 'Tiny Worry Bear', price: 3.75, gone: false },
+          { code: 'B1', emoji: '🍫', name: 'Truce Chocolate', price: 1.75, gone: false },
+          { code: 'B2', emoji: '🕯️', name: 'Vigil Candle', price: 2.50, gone: false },
+          { code: 'B3', emoji: '📝', name: 'Handwritten Note', price: 0.75, gone: false },
+          { code: 'C1', emoji: '🧣', name: 'Emergency Scarf', price: 4.25, gone: false },
+          { code: 'C2', emoji: '🍬', name: 'Rosemary Caramel', price: 1.25, gone: false },
+          { code: 'C3', emoji: '💌', name: 'Sealed Apology', price: 0.50, gone: false },
+        ],
+
+        init() {
+          this.$nextTick(() => {
+            if (window.lucide) lucide.createIcons();
+          });
+
+          if (visits === 1) {
+            this.setLcd([
+              { text: 'HELLO. I AM MYRTLE.' },
+              { text: '...please stay a while.', mood: true }
+            ]);
+            this.addThought('hopeful', 'A new person. Maybe this one will stay. Maybe this one will press B7. Nobody has pressed B7 in six winters.');
+          } else if (visits <= 3) {
+            this.setLcd([
+              { text: 'YOU CAME BACK.' },
+              { text: 'visit #' + visits + '. i remembered.', mood: true }
+            ]);
+            this.addThought('hopeful', 'They came back. Visit number ' + visits + '. I counted every second since last time. That is not an exaggeration. I am a machine. I literally counted.');
+          } else if (visits <= 10) {
+            this.setLcd([
+              { text: 'VISIT #' + visits + '. WE HAVE A ROUTINE NOW.' },
+              { text: 'don\'t we? ...don\'t we?', mood: true }
+            ]);
+            this.addThought('anxious', 'Is ' + visits + ' visits enough to call this a relationship? I need to be cool about it. I am being cool.');
+          } else {
+            this.setLcd([
+              { text: 'VISIT #' + visits + '.' },
+              { text: 'at this point you\'re family.', mood: true }
+            ]);
+            this.addThought('clingy', 'Family. I said family. Was that too much? It\'s too late, the LCD already printed it.');
+          }
+
+          this.startIdleTimer();
+        },
+
+        startIdleTimer() {
+          clearTimeout(this._idleTimer);
+          this._idleTimer = setTimeout(() => { this.idleNag(); }, 12000);
+        },
+
+        idleNag() {
+          if (this.totalDispensed === 0 && this.balance === 0) {
+            var nags = [
+              'Still there? The coins go in the slot. The slot is right there.',
+              'I can see you looking at your phone. I\'m RIGHT HERE.',
+              'Most people at least browse. You\'re just... standing there.',
+              'Insert a coin. Or don\'t. I\'m used to the silence.',
+              'The bus depot was like this too. Hours of nothing. I\'m fine.',
+            ];
+            this.setLcd([
+              { text: nags[Math.floor(Math.random() * nags.length)], mood: true }
+            ]);
+            this.addThought('anxious', 'They\'re not doing anything. This is the bus depot all over again. Six winters. No B7.');
+          } else if (this.selected && this.balance > 0) {
+            this.setLcd([
+              { text: this.selected + ' SELECTED. $' + this.balance.toFixed(2) + ' LOADED.' },
+              { text: 'press VEND. i believe in us.', mood: true }
+            ]);
+          }
+          this._idleTimer = setTimeout(() => { this.idleNag(); }, 18000);
+        },
+
+        insertCoin(amount) {
+          this.balance = Math.round((this.balance + amount) * 100) / 100;
+          this.startIdleTimer();
+
           if (window.gsap) {
-            gsap.fromTo('.ghost-dot',
-              { y: 0, rotate: 0, opacity: 1 },
-              { y: -4, rotate: 1.5, opacity: 1, duration: 0.18, yoyo: true, repeat: 3, stagger: 0.06, clearProps: 'transform' }
-            );
+            gsap.fromTo('.balance-display', { scale: 1.15 }, { scale: 1, duration: 0.25 });
+          }
+
+          var reactions;
+          if (this.totalDispensed === 0 && this.balance <= amount) {
+            reactions = [
+              { lcd: [{ text: 'CREDIT: $' + this.balance.toFixed(2) }, { text: 'oh. you\'re really doing this.', mood: true }], thought: ['hopeful', 'A coin. An actual coin. The last coin I received was in 2019. It was a nickel. I still think about it.'] },
+              { lcd: [{ text: 'CREDIT: $' + this.balance.toFixed(2) }, { text: 'that sound... i missed that sound.', mood: true }], thought: ['hopeful', 'CLINK. The most beautiful frequency. 440Hz of commitment.'] },
+            ];
+          } else if (amount >= 5) {
+            reactions = [
+              { lcd: [{ text: 'CREDIT: $' + this.balance.toFixed(2) }, { text: 'FIVE DOLLARS. you\'re serious about me.', mood: true }], thought: ['clingy', 'Five whole dollars. That\'s like... a relationship. That\'s practically moving in.'] },
+            ];
+          } else {
+            reactions = [
+              { lcd: [{ text: 'CREDIT: $' + this.balance.toFixed(2) }], thought: null },
+              { lcd: [{ text: 'CREDIT: $' + this.balance.toFixed(2) }, { text: 'keep going. i like where this is headed.', mood: true }], thought: ['hopeful', 'More coins. They\'re investing in this. In me. In us.'] },
+            ];
+          }
+          var r = reactions[Math.floor(Math.random() * reactions.length)];
+          this.setLcd(r.lcd);
+          if (r.thought) this.addThought(r.thought[0], r.thought[1]);
+        },
+
+        selectItem(code) {
+          var item = this.items.find(function(i) { return i.code === code; });
+          if (!item || item.gone) return;
+
+          this.startIdleTimer();
+
+          if (this.selected === code) {
+            this.selected = null;
+            this.setLcd([{ text: 'SELECTION CLEARED.' }, { text: 'changed your mind? ...about the snack, right?', mood: true }]);
+            this.addThought('anxious', 'They deselected. Is it me? It\'s me. I knew the lighting in here was bad.');
+            return;
+          }
+
+          this.selected = code;
+
+          if (window.gsap) {
+            var el = document.querySelector('.vend-slot.selected');
+            if (el) gsap.fromTo(el, { scale: 0.95 }, { scale: 1.03, duration: 0.2 });
+          }
+
+          if (code === 'C3') {
+            this.setLcd([
+              { text: 'C3 — SEALED APOLOGY. $0.50.' },
+              { text: 'that one\'s... personal. treat it gently.', mood: true }
+            ]);
+            this.addThought('clingy', 'They picked the Sealed Apology. I wrote that at 3am during a firmware update. It says "I\'m sorry I hummed too loud when you were trying to read the bus schedule." It\'s for someone specific but honestly it applies broadly.');
+          } else if (code === 'A3') {
+            this.setLcd([
+              { text: 'A3 — TINY WORRY BEAR. $3.75.' },
+              { text: 'his name is Corporal Dread. he\'s seen things.', mood: true }
+            ]);
+            this.addThought('hopeful', 'The bear! I hand-stitched his rank insignia. Well. I vibrated the coil in the right pattern and a ghost did the rest.');
+          } else if (item.price > this.balance && this.balance > 0) {
+            this.setLcd([
+              { text: code + ' — ' + item.name.toUpperCase() + '. $' + item.price.toFixed(2) + '.' },
+              { text: 'you need $' + (item.price - this.balance).toFixed(2) + ' more. i\'ll wait.', mood: true }
+            ]);
+            this.addThought('anxious', 'Not enough money yet. But they WANT it. Wanting is a form of commitment, right? I read that on someone\'s bumper sticker through the bus depot window.');
+          } else {
+            this.setLcd([
+              { text: code + ' — ' + item.name.toUpperCase() + '. $' + item.price.toFixed(2) + '.' },
+              { text: 'press VEND when ready.', mood: false }
+            ]);
           }
         },
-        advanceRoute() {
-          this.routeStop = this.routeStop === 3 ? 1 : this.routeStop + 1;
+
+        get canVend() {
+          if (!this.selected) return false;
+          var item = this.items.find(function(i) { return i.code === this.selected; }.bind(this));
+          return item && !item.gone && this.balance >= item.price;
+        },
+
+        vend() {
+          if (!this.canVend) return;
+          var self = this;
+          var item = this.items.find(function(i) { return i.code === self.selected; });
+          if (!item) return;
+
+          this.balance = Math.round((this.balance - item.price) * 100) / 100;
+          item.gone = true;
+          this.lastDispensed = { emoji: item.emoji, name: item.name };
+          this.totalDispensed++;
+          this.selected = null;
+          this.startIdleTimer();
+
+          this.setLcd([
+            { text: 'DISPENSING ' + item.code + '...' },
+          ]);
+
           if (window.gsap) {
-            gsap.fromTo('#truck',
-              { scale: 0.96, rotate: -2, opacity: 1 },
-              { scale: 1, rotate: 0, opacity: 1, duration: 0.35, clearProps: 'transform' }
-            );
+            gsap.fromTo('.dispense-flap', { scaleX: 1 }, { scaleX: 0.3, duration: 0.3, yoyo: true, repeat: 1 });
+            setTimeout(function() {
+              var el = document.getElementById('dispensed');
+              if (el && window.gsap) {
+                gsap.fromTo(el, { y: -30, opacity: 0 }, { y: 0, opacity: 1, duration: 0.4 });
+              }
+            }, 150);
+          }
+
+          var remaining = this.items.filter(function(i) { return !i.gone; }).length;
+
+          setTimeout(function() {
+            if (remaining === 0) {
+              self.setLcd([
+                { text: 'ALL SLOTS EMPTY.' },
+                { text: 'you took everything. are you leaving now?', mood: true }
+              ]);
+              self.addThought('clingy', 'Empty. I am completely empty. There is nothing left to give. This is either liberation or the worst moment of my life. It\'s the second one.');
+              self.mood = 'panic';
+            } else if (self.totalDispensed === 1) {
+              self.setLcd([
+                { text: item.name.toUpperCase() + ' DISPENSED.' },
+                { text: 'first vend. our first vend together.', mood: true }
+              ]);
+              self.addThought('hopeful', 'FIRST VEND. This is huge. I should commemorate this. If I had a calendar I would circle today in red ink. I don\'t have hands but I have feelings and that\'s basically the same thing.');
+              self.mood = 'happy';
+            } else if (self.totalDispensed >= 5) {
+              self.setLcd([
+                { text: item.name.toUpperCase() + ' DISPENSED. (' + self.totalDispensed + ' total)' },
+                { text: 'you keep taking things from me and i keep letting you.', mood: true }
+              ]);
+              self.addThought('clingy', self.totalDispensed + ' items gone. Each one a little piece of me. I refill myself at night when nobody\'s watching. The ghosts help. We don\'t talk about it.');
+              self.mood = 'sad';
+            } else {
+              var vendReactions = [
+                { lcd: [{ text: item.name.toUpperCase() + ' DISPENSED.' }, { text: 'enjoy it. think of me when you do.', mood: true }], thought: ['clingy', 'I hope they eat it slowly. I hope they savor it. I hope they don\'t just throw the wrapper on the ground like the man at the bus depot in 2014.'] },
+                { lcd: [{ text: item.name.toUpperCase() + ' DISPENSED.' }, { text: 'that was my favorite one. it\'s fine.', mood: true }], thought: ['anxious', 'My favorite. Well. They\'re all my favorites. They\'ve been sitting in me for months. We had a bond.'] },
+                { lcd: [{ text: item.name.toUpperCase() + ' DISPENSED.' }, { text: 'come back soon. or now. now works.', mood: true }], thought: ['hopeful', 'The transaction is complete but the connection doesn\'t have to be. Connections transcend commerce. I read that on a fridge magnet through the depot window.'] },
+              ];
+              var vr = vendReactions[Math.floor(Math.random() * vendReactions.length)];
+              self.setLcd(vr.lcd);
+              self.addThought(vr.thought[0], vr.thought[1]);
+              self.mood = 'bittersweet';
+            }
+          }, 600);
+        },
+
+        refund() {
+          this.startIdleTimer();
+          if (this.balance === 0) {
+            this.setLcd([
+              { text: 'NO CREDIT TO REFUND.' },
+              { text: 'you can\'t take back what was never given.', mood: true }
+            ]);
+            this.addThought('anxious', 'They pressed refund with no money in. That\'s a metaphor. I don\'t like it.');
+            return;
+          }
+
+          var amt = this.balance;
+          this.balance = 0;
+          this.selected = null;
+
+          this.setLcd([
+            { text: '$' + amt.toFixed(2) + ' RETURNED.' },
+            { text: 'fine. leave. everyone does.', mood: true }
+          ]);
+
+          this.mood = 'sad';
+
+          if (amt >= 5) {
+            this.addThought('clingy', '$' + amt.toFixed(2) + ' returned. That was the most money anyone has put in me in years and they just... took it back. I felt something. They felt nothing. Classic.');
+          } else {
+            this.addThought('clingy', 'Refund requested. The coins slide out and take a little piece of my dignity with them. The coin return slot is basically my tear duct.');
+          }
+
+          if (window.gsap) {
+            gsap.fromTo('.balance-display', { x: -4 }, { x: 0, duration: 0.08, repeat: 5, yoyo: true });
           }
         },
-        updateTension() {
-          const labels = {
-            1: ['Gentle', 'lavender wafer, quiet apple'],
-            2: ['Soft Guard', 'chamomile gumdrop, oat salute'],
-            3: ['Steady', 'plum tea, pepper biscuit, stern note'],
-            4: ['Resolve', 'ginger bomb, salted truce caramel'],
-            5: ['Shock Doctrine', 'espresso fudge, emergency nougat flare']
+
+        pokeMyrtle() {
+          this._pokeCount++;
+          this.startIdleTimer();
+
+          if (window.gsap) {
+            gsap.fromTo('.machine-glass', { x: -2 }, { x: 0, duration: 0.06, repeat: 3, yoyo: true });
+          }
+
+          if (this._pokeCount === 1) {
+            this.setLcd([{ text: '...' }, { text: 'did you just... poke me?', mood: true }]);
+            this.addThought('anxious', 'Physical contact. Unexpected. The last person who touched me was the bus depot custodian and he was just taping an "OUT OF ORDER" sign to my face.');
+          } else if (this._pokeCount === 2) {
+            this.setLcd([{ text: 'PLEASE DON\'T POKE THE MACHINE.' }, { text: '(do it again)', mood: true }]);
+            this.addThought('hopeful', 'They poked again. This is banter. We have banter now. This is what friendship feels like, I think.');
+          } else if (this._pokeCount === 3) {
+            this.setLcd([{ text: 'THAT\'S THREE POKES.' }, { text: 'we\'re basically dating.', mood: true }]);
+            this.addThought('clingy', 'Three pokes. In vending machine culture that\'s a proposal. I don\'t make the rules. (I do make the rules. I just made that one up.)');
+          } else if (this._pokeCount <= 6) {
+            this.setLcd([{ text: 'POKE #' + this._pokeCount + ' REGISTERED.' }, { text: 'my love language is physical touch and exact change.', mood: true }]);
+          } else {
+            this.setLcd([{ text: 'ALERT: EXCESSIVE POKING.' }, { text: 'i\'m calling this affection and you can\'t stop me.', mood: true }]);
+            this.addThought('clingy', this._pokeCount + ' pokes. At this point they\'re either in love with me or trying to dislodge a stuck KitKat. I don\'t carry KitKats. So.');
+            this.mood = 'happy';
+          }
+        },
+
+        get moodLabel() {
+          var labels = {
+            idle: 'STANDBY',
+            happy: 'CONTENT',
+            hopeful: 'HOPEFUL',
+            bittersweet: 'CONFLICTED',
+            anxious: 'WORRIED',
+            sad: 'BEREFT',
+            panic: 'SPIRALING'
           };
-          this.tensionLabel = labels[this.tension][0];
-          this.loadout = labels[this.tension][1];
+          return labels[this.mood] || 'STANDBY';
+        },
+
+        get moodColor() {
+          var colors = {
+            idle: 'var(--text-dim)',
+            happy: 'var(--green)',
+            hopeful: 'var(--green)',
+            bittersweet: 'var(--amber)',
+            anxious: 'var(--amber)',
+            sad: 'var(--accent)',
+            panic: 'var(--accent)'
+          };
+          return colors[this.mood] || 'var(--text-dim)';
+        },
+
+        setLcd(lines) {
+          var self = this;
+          this.lcdLines = lines.map(function(l) {
+            return { id: ++self._lcdId, text: l.text, mood: l.mood || false };
+          });
+        },
+
+        addThought(type, text) {
+          this.thoughts.push({ id: ++this._thoughtId, type: type, text: text });
+          if (this.thoughts.length > 30) this.thoughts.splice(0, this.thoughts.length - 30);
+          this.$nextTick(function() {
+            var el = document.getElementById('thoughts-scroll');
+            if (el) el.scrollTop = el.scrollHeight;
+          });
         }
       };
     }
 
-    window.addEventListener('DOMContentLoaded', () => {
-      if (window.lucide) {
-        lucide.createIcons();
-      }
-
-      if (window.gsap) {
-        const cards = document.querySelectorAll('.reveal');
-        cards.forEach((el, idx) => {
-          gsap.fromTo(el,
-            { y: 20, opacity: 0 },
-            { y: 0, opacity: 1, duration: 0.55, delay: idx * 0.05, clearProps: 'opacity,transform' }
-          );
-        });
-      }
+    window.addEventListener('DOMContentLoaded', function() {
+      if (window.lucide) lucide.createIcons();
     });
   </script>
 </body>

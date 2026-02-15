@@ -1,0 +1,1232 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>PONYWARDS.COM</title>
+  <link rel="stylesheet" href="/assets/css/pico.min.css" />
+  <link rel="stylesheet" href="/assets/css/fonts.css" />
+  <style>
+    :root {
+      --ivory: #F5F0E1;
+      --midnight: #1A1A1A;
+      --blue: #7BA3B8;
+      --red: #C4423B;
+      --tan: #D4C89E;
+      --brass: #8B7355;
+      --forum-bg: #E8E4D8;
+      --gold-1: #D4A54F;
+      --gold-2: #8B7355;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: 'Fira Code', monospace;
+      font-size: 16px;
+      line-height: 1.5;
+      color: var(--midnight);
+      background-color: var(--ivory);
+      background-image:
+        linear-gradient(to right, rgba(212, 200, 158, 0.15) 1px, transparent 1px),
+        linear-gradient(to bottom, rgba(212, 200, 158, 0.15) 1px, transparent 1px);
+      background-size: 48px 48px;
+      animation: tileDrift 30s linear infinite;
+      overflow-x: hidden;
+      min-width: 320px;
+    }
+
+    @keyframes tileDrift {
+      0% { background-position: 0 0, 0 0; }
+      50% { background-position: 2px 1px, 1px 2px; }
+      100% { background-position: 0 0, 0 0; }
+    }
+
+    main {
+      width: min(1120px, calc(100vw - 2rem));
+      margin: 0 auto;
+      padding-bottom: 5rem;
+    }
+
+    .divider {
+      border-top: 1px solid var(--brass);
+      margin: 2.5rem 40px;
+    }
+
+    .section {
+      padding: 1rem 0;
+    }
+
+    .fluorescent {
+      width: 100%;
+      height: 4px;
+      background: var(--blue);
+      animation: hum 3s ease-in-out infinite, doubleFlicker 45s linear infinite;
+      transform-origin: center;
+    }
+
+    @keyframes hum {
+      0%, 100% { opacity: 0.4; }
+      50% { opacity: 1; }
+    }
+
+    @keyframes doubleFlicker {
+      0%, 98.7%, 100% { filter: brightness(1); }
+      98.8% { filter: brightness(0.55); }
+      99.0% { filter: brightness(1); }
+      99.2% { filter: brightness(0.5); }
+      99.45% { filter: brightness(1); }
+    }
+
+    .header-wrap {
+      text-align: center;
+      padding-top: 1.8rem;
+    }
+
+    .site-title {
+      font-family: 'Oswald', sans-serif;
+      text-transform: uppercase;
+      letter-spacing: 0.3em;
+      font-size: clamp(3rem, 9vw, 6rem);
+      color: var(--midnight);
+      margin: 1.2rem 0 0.6rem;
+      line-height: 1;
+      padding-left: 0.3em;
+      word-break: break-word;
+    }
+
+    .subline {
+      color: var(--brass);
+      font-size: 0.75rem;
+      margin: 0;
+    }
+
+    .scribble {
+      margin-top: 1rem;
+      font-family: 'Caveat', cursive;
+      color: var(--red);
+      font-size: clamp(1.2rem, 2.2vw, 1.8rem);
+      transform: rotate(-1.5deg);
+      display: inline-block;
+    }
+
+    .header-spacer { height: 120px; }
+
+    .section-head {
+      font-family: 'Oswald', sans-serif;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--midnight);
+      font-size: clamp(1.6rem, 3.5vw, 2.4rem);
+      margin: 0 0 1rem;
+    }
+
+    .terminal-input {
+      width: 100%;
+      border: 2px solid var(--blue);
+      background: var(--midnight);
+      color: var(--ivory);
+      font-family: 'Fira Code', monospace;
+      border-radius: 0;
+      min-height: 52px;
+      padding: 0.85rem 1rem;
+      font-size: 0.96rem;
+    }
+
+    .terminal-input::placeholder {
+      color: #D4C89E;
+      opacity: 1;
+    }
+
+    .terminal-input:focus {
+      outline: 2px solid var(--blue);
+      box-shadow: none;
+    }
+
+    .terminal-input,
+    input,
+    select,
+    button,
+    label[for],
+    .file-drop {
+      min-height: 44px;
+    }
+
+    .search-results {
+      margin-top: 0.85rem;
+      display: grid;
+      gap: 0.45rem;
+    }
+
+    .result-row {
+      border: 1px solid var(--brass);
+      background: var(--tan);
+      color: var(--midnight);
+      padding: 0.7rem 0.8rem;
+      display: grid;
+      grid-template-columns: 2fr 0.7fr 1.8fr 1.6fr 1.4fr;
+      gap: 0.7rem;
+      align-items: center;
+      font-size: 0.85rem;
+    }
+
+    .result-row:nth-child(even) {
+      background: #E1D7B2;
+    }
+
+    .name-cell {
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+    }
+
+    .missing-dot {
+      width: 9px;
+      height: 9px;
+      border-radius: 50%;
+      background: var(--red);
+      display: inline-block;
+      animation: dotPulse 1.2s ease-in-out infinite;
+      flex-shrink: 0;
+    }
+
+    @keyframes dotPulse {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.35); }
+    }
+
+    .recall-badge {
+      display: inline-block;
+      background: var(--red);
+      color: #FFF;
+      border: 1px solid #8E2F2A;
+      font-size: 0.7rem;
+      padding: 0.12rem 0.35rem;
+      margin-left: 0.35rem;
+      white-space: nowrap;
+    }
+
+    .no-match {
+      font-family: 'Caveat', cursive;
+      color: var(--red);
+      font-size: 1.5rem;
+      border: 1px dashed var(--red);
+      padding: 0.8rem;
+      background: #F1E3DF;
+    }
+
+    .map-wrap {
+      border: 1px solid var(--brass);
+      background: #EEE5C9;
+      padding: 1rem;
+      position: relative;
+    }
+
+    .map-svg {
+      width: 100%;
+      height: auto;
+      display: block;
+    }
+
+    .state {
+      fill: var(--tan);
+      stroke: var(--brass);
+      stroke-width: 1;
+    }
+
+    .state-dot {
+      fill: var(--blue);
+      cursor: pointer;
+      stroke: #46697A;
+      stroke-width: 0.8;
+    }
+
+    .tooltip {
+      position: absolute;
+      background: var(--midnight);
+      color: var(--ivory);
+      border: 1px solid var(--blue);
+      font-size: 0.78rem;
+      padding: 0.45rem 0.6rem;
+      pointer-events: none;
+      z-index: 2;
+      max-width: 220px;
+    }
+
+    .map-note {
+      font-family: 'Caveat', cursive;
+      color: var(--midnight);
+      font-size: 1.45rem;
+      margin-top: 0.8rem;
+    }
+
+    .mobile-sightings {
+      display: none;
+      border: 1px solid var(--brass);
+      background: var(--tan);
+      padding: 0.8rem;
+      font-size: 0.88rem;
+      color: var(--midnight);
+    }
+
+    .mobile-sightings ul {
+      margin: 0;
+      padding-left: 1.2rem;
+    }
+
+    .welcome-note {
+      font-family: 'Caveat', cursive;
+      color: var(--red);
+      font-size: 1.5rem;
+      margin: 0 0 0.5rem;
+    }
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 0.9rem;
+    }
+
+    .form-grid .full {
+      grid-column: 1 / -1;
+    }
+
+    label {
+      font-family: 'Oswald', sans-serif;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--midnight);
+      font-size: 0.9rem;
+      margin-bottom: 0.25rem;
+      display: block;
+    }
+
+    input[type="text"],
+    select {
+      width: 100%;
+      border: 1px solid var(--brass);
+      background: #FFFDF7;
+      color: var(--midnight);
+      font-family: 'Fira Code', monospace;
+      padding: 0.65rem 0.7rem;
+      border-radius: 0;
+      font-size: 0.95rem;
+    }
+
+    .verify-label {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      font-family: 'Caveat', cursive;
+      text-transform: none;
+      letter-spacing: 0;
+      font-size: 1.45rem;
+      color: var(--midnight);
+      cursor: pointer;
+      margin: 0;
+    }
+
+    input[type="checkbox"] {
+      width: 24px;
+      height: 24px;
+      border: 2px solid var(--brass);
+      accent-color: var(--blue);
+      flex-shrink: 0;
+    }
+
+    .file-drop {
+      border: 2px dashed var(--brass);
+      background: #F7F1DF;
+      padding: 0.75rem;
+      display: grid;
+      gap: 0.55rem;
+      align-content: start;
+      color: var(--midnight);
+    }
+
+    .file-drop input[type="file"] {
+      font-family: 'Fira Code', monospace;
+      color: var(--midnight);
+    }
+
+    .photo-preview {
+      max-width: 180px;
+      max-height: 140px;
+      object-fit: cover;
+      border: 1px solid var(--brass);
+      background: #FFF;
+    }
+
+    .rejection-note {
+      color: var(--red);
+      font-size: 0.78rem;
+      font-family: 'Fira Code', monospace;
+      margin: 0;
+    }
+
+    .submit-btn,
+    .donate-btn {
+      border: 1px solid #000;
+      background: var(--midnight);
+      color: var(--ivory);
+      font-family: 'Oswald', sans-serif;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      padding: 0.7rem 1rem;
+      border-radius: 0;
+      cursor: pointer;
+      transition: background-color 0.2s ease;
+      min-height: 46px;
+    }
+
+    .submit-btn:hover,
+    .submit-btn:focus,
+    .donate-btn:hover,
+    .donate-btn:focus {
+      background: var(--red);
+      color: #FFF;
+      outline: none;
+    }
+
+    .form-warning {
+      font-family: 'Caveat', cursive;
+      color: var(--red);
+      font-size: 1.5rem;
+      margin: 0.2rem 0 0;
+    }
+
+    .pending-wrap {
+      margin-top: 1rem;
+      display: grid;
+      gap: 0.6rem;
+    }
+
+    .pending-card {
+      background: var(--tan);
+      border: 1px solid var(--brass);
+      color: var(--brass);
+      padding: 0.65rem 0.75rem;
+      font-size: 0.82rem;
+      display: grid;
+      gap: 0.3rem;
+    }
+
+    .pending-card img {
+      max-width: 120px;
+      max-height: 90px;
+      object-fit: cover;
+      border: 1px solid var(--brass);
+    }
+
+    .forum {
+      background: var(--forum-bg);
+      border: 1px solid var(--brass);
+      box-shadow: inset 0 0 0 1px #D1C6A2;
+      padding: 0.8rem;
+    }
+
+    .crumbs {
+      font-size: 0.75rem;
+      font-family: 'Fira Code', monospace;
+      color: var(--brass);
+      margin-bottom: 0.65rem;
+    }
+
+    .forum-title {
+      background: var(--blue);
+      color: #FFF;
+      font-family: 'Oswald', sans-serif;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      padding: 0.5rem 0.65rem;
+      font-size: 1.05rem;
+      margin-bottom: 0.8rem;
+    }
+
+    .post {
+      background: #F9F4E6;
+      border: 1px solid var(--brass);
+      margin-bottom: 0.7rem;
+      display: grid;
+      grid-template-columns: 130px 1fr;
+    }
+
+    .post-meta {
+      border-right: 1px solid var(--brass);
+      padding: 0.6rem;
+      font-size: 0.75rem;
+      color: var(--midnight);
+    }
+
+    .username {
+      font-family: 'Oswald', sans-serif;
+      font-size: 1rem;
+      letter-spacing: 0.04em;
+      margin: 0 0 0.3rem;
+      color: var(--midnight);
+      word-break: break-word;
+    }
+
+    .badge {
+      display: inline-block;
+      font-size: 0.64rem;
+      padding: 0.1rem 0.35rem;
+      border: 1px solid var(--brass);
+      margin-bottom: 0.4rem;
+      background: #E7D8A3;
+      color: #3B301F;
+    }
+
+    .badge.mod {
+      background: var(--blue);
+      border-color: #46697A;
+      color: #FFF;
+    }
+
+    .tooth-avatar {
+      width: 44px;
+      height: 52px;
+      margin-top: 0.3rem;
+      background: #DAD2BA;
+      border: 1px solid var(--brass);
+      clip-path: polygon(25% 0%, 75% 0%, 90% 25%, 84% 58%, 64% 100%, 50% 82%, 36% 100%, 16% 58%, 10% 25%);
+    }
+
+    .post-content {
+      padding: 0.7rem;
+      font-family: 'Fira Code', monospace;
+      font-size: 0.85rem;
+      color: var(--midnight);
+      position: relative;
+    }
+
+    .margin-note {
+      font-family: 'Caveat', cursive;
+      color: var(--red);
+      font-size: 1.35rem;
+      transform: rotate(-2deg);
+      margin-top: 0.45rem;
+    }
+
+    .reply-count {
+      font-size: 0.78rem;
+      color: var(--brass);
+      font-family: 'Fira Code', monospace;
+    }
+
+    .fund-para,
+    .elite-para {
+      font-family: 'Fira Code', monospace;
+      color: var(--midnight);
+      margin-bottom: 0.85rem;
+      font-size: 0.95rem;
+    }
+
+    .fund-amount {
+      font-family: 'Oswald', sans-serif;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--midnight);
+      margin-bottom: 0.35rem;
+      font-size: 1.4rem;
+    }
+
+    .progress {
+      width: 100%;
+      border: 1px solid var(--tan);
+      outline: 1px solid var(--brass);
+      background: var(--ivory);
+      height: 28px;
+      overflow: hidden;
+      margin-bottom: 0.5rem;
+    }
+
+    .progress-fill {
+      height: 100%;
+      width: 49.4%;
+      background:
+        repeating-linear-gradient(
+          45deg,
+          #C4423B 0 12px,
+          #CD5A53 12px 24px
+        );
+      animation: stripeMove 4s linear infinite;
+    }
+
+    @keyframes stripeMove {
+      0% { background-position: 0 0; }
+      100% { background-position: -48px 0; }
+    }
+
+    .fund-note,
+    .donate-note {
+      font-family: 'Caveat', cursive;
+      color: var(--red);
+      font-size: 1.45rem;
+      margin-top: 0.4rem;
+    }
+
+    .badge-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 0.8rem;
+    }
+
+    .elite-card {
+      border: 1px solid var(--brass);
+      background: var(--tan);
+      padding: 0.7rem;
+      display: grid;
+      gap: 0.35rem;
+      color: var(--midnight);
+      min-height: 130px;
+      align-content: start;
+    }
+
+    .elite-user {
+      font-size: 0.95rem;
+      font-family: 'Fira Code', monospace;
+      font-weight: 700;
+      word-break: break-word;
+    }
+
+    .elite-count {
+      font-size: 0.82rem;
+      color: #4E412E;
+      font-family: 'Fira Code', monospace;
+    }
+
+    .foil {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      background: radial-gradient(circle at 30% 30%, var(--gold-1), var(--gold-2));
+      border: 1px solid #6E5538;
+      color: #FFF;
+      display: inline-grid;
+      place-items: center;
+      font-size: 0.95rem;
+      font-weight: 700;
+    }
+
+    .founder-note {
+      font-family: 'Caveat', cursive;
+      color: var(--red);
+      font-size: 1.35rem;
+      margin-top: 0.25rem;
+    }
+
+    .simon-note {
+      max-width: 600px;
+      margin: 0 auto;
+      text-align: center;
+      font-family: 'Caveat', cursive;
+      color: var(--midnight);
+      font-size: 1.1rem;
+      line-height: 1.5;
+    }
+
+    .simon-note p {
+      margin: 0 0 1rem;
+    }
+
+    .last-updated {
+      text-align: center;
+      color: var(--tan);
+      font-size: 0.75rem;
+      margin-top: 1.2rem;
+      font-family: 'Fira Code', monospace;
+    }
+
+    a {
+      color: var(--blue);
+    }
+
+    @media (max-width: 900px) {
+      .result-row {
+        grid-template-columns: 1.6fr 0.6fr 1.2fr;
+        grid-auto-rows: auto;
+      }
+
+      .result-row > span:nth-child(4),
+      .result-row > span:nth-child(5) {
+        grid-column: span 1;
+      }
+
+      .form-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .badge-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+    }
+
+    @media (max-width: 768px) {
+      main {
+        width: min(1120px, calc(100vw - 1rem));
+      }
+
+      .divider {
+        margin: 2.2rem 16px;
+      }
+
+      .post {
+        grid-template-columns: 1fr;
+      }
+
+      .post-meta {
+        border-right: 0;
+        border-bottom: 1px solid var(--brass);
+      }
+
+      .map-wrap {
+        display: none;
+      }
+
+      .mobile-sightings {
+        display: block;
+      }
+    }
+
+    @media (max-width: 520px) {
+      .site-title {
+        letter-spacing: 0.18em;
+        padding-left: 0.18em;
+      }
+
+      .result-row {
+        grid-template-columns: 1fr;
+        gap: 0.22rem;
+      }
+
+      .badge-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body x-data="ponywardsApp()">
+  <div class="fluorescent" aria-hidden="true"></div>
+
+  <main>
+    <section class="section header-wrap">
+      <h1 class="site-title">PONYWARDS.COM</h1>
+      <p class="subline">est. 2005 — the only complete database of commercial-grade porcelain ponies in 1980s dentist office waiting rooms</p>
+      <p class="scribble">"Unconfirmed hobbyist guesses." — Ellen Crisp, DentalNostalgiaDB. We'll see about that.</p>
+      <div class="header-spacer" aria-hidden="true"></div>
+    </section>
+
+    <div class="divider" aria-hidden="true"></div>
+
+    <section class="section" aria-label="Search registry">
+      <input
+        class="terminal-input"
+        type="text"
+        x-model="query"
+        @input="onSearchInput"
+        placeholder='SEARCH REGISTRY — partial names accepted (try "Breezy" or "Hoof")'
+        aria-label="Search registry"
+      />
+
+      <div class="search-results" x-ref="results">
+        <template x-if="filteredEntries.length === 0">
+          <div class="no-match">No matches. If you've spotted this pony, submit proof below. We need you.</div>
+        </template>
+
+        <template x-for="entry in filteredEntries" :key="entry.id">
+          <article class="result-row">
+            <span class="name-cell">
+              <span x-show="entry.missing" class="missing-dot" aria-hidden="true"></span>
+              <span x-text="entry.name"></span>
+            </span>
+            <span x-text="entry.year"></span>
+            <span x-text="entry.mall"></span>
+            <span x-text="entry.manufacturer"></span>
+            <span>
+              <span x-text="entry.glaze"></span>
+              <span x-show="entry.recall" class="recall-badge">⚠ 1987 RECALL</span>
+            </span>
+          </article>
+        </template>
+      </div>
+    </section>
+
+    <div class="divider" aria-hidden="true"></div>
+
+    <section class="section" aria-label="Confirmed sightings map">
+      <h2 class="section-head">Confirmed Sightings — Continental U.S.</h2>
+
+      <div class="map-wrap" @mouseleave="hideTooltip()">
+        <svg class="map-svg" viewBox="0 0 900 460" role="img" aria-label="Stylized map of the continental United States">
+          <g>
+            <rect class="state" x="60" y="120" width="70" height="45"></rect>
+            <rect class="state" x="140" y="115" width="75" height="45"></rect>
+            <rect class="state" x="225" y="110" width="80" height="48"></rect>
+            <rect class="state" x="315" y="112" width="85" height="52"></rect>
+            <rect class="state" x="410" y="118" width="90" height="50"></rect>
+            <rect class="state" x="510" y="125" width="88" height="50"></rect>
+            <rect class="state" x="610" y="130" width="90" height="52"></rect>
+            <rect class="state" x="705" y="137" width="85" height="48"></rect>
+
+            <rect class="state" x="95" y="175" width="78" height="48"></rect>
+            <rect class="state" x="182" y="170" width="84" height="52"></rect>
+            <rect class="state" x="275" y="170" width="88" height="54"></rect>
+            <rect class="state" x="370" y="172" width="95" height="54"></rect>
+            <rect class="state" x="475" y="178" width="92" height="52"></rect>
+            <rect class="state" x="575" y="184" width="88" height="50"></rect>
+            <rect class="state" x="670" y="190" width="92" height="48"></rect>
+
+            <rect class="state" x="130" y="232" width="84" height="52"></rect>
+            <rect class="state" x="225" y="230" width="92" height="55"></rect>
+            <rect class="state" x="328" y="230" width="92" height="55"></rect>
+            <rect class="state" x="430" y="235" width="98" height="55"></rect>
+            <rect class="state" x="538" y="238" width="90" height="52"></rect>
+            <rect class="state" x="635" y="240" width="90" height="52"></rect>
+
+            <rect class="state" x="180" y="290" width="95" height="54"></rect>
+            <rect class="state" x="286" y="292" width="98" height="56"></rect>
+            <rect class="state" x="395" y="294" width="102" height="58"></rect>
+            <rect class="state" x="510" y="296" width="98" height="56"></rect>
+            <rect class="state" x="620" y="298" width="95" height="55"></rect>
+          </g>
+
+          <template x-for="spot in mapSpots" :key="spot.id">
+            <circle
+              class="state-dot"
+              :cx="spot.x"
+              :cy="spot.y"
+              r="6"
+              @mouseenter="showTooltip(spot, $event)"
+              @click="showTooltip(spot, $event)"
+            ></circle>
+          </template>
+        </svg>
+
+        <div
+          class="tooltip"
+          x-show="tooltip.visible"
+          x-text="tooltip.text"
+          :style="`left:${tooltip.left}px;top:${tooltip.top}px`"
+          x-transition.opacity.duration.100ms
+        ></div>
+      </div>
+
+      <div class="mobile-sightings" aria-label="State list of confirmed sightings">
+        <strong>CONFIRMED STATES</strong>
+        <ul>
+          <template x-for="state in mobileStates" :key="state">
+            <li x-text="state"></li>
+          </template>
+        </ul>
+      </div>
+
+      <p class="map-note">Floor plans of extinct malls available upon request. Email ponygraft@ponywards.com.</p>
+    </section>
+
+    <div class="divider" aria-hidden="true"></div>
+
+    <section class="section" aria-label="Submit a pony">
+      <h2 class="section-head">Submit a Pony</h2>
+      <p class="welcome-note" x-show="submissions.length > 0">Welcome back. <span x-text="submissions.length"></span> pending submissions. We haven't forgotten.</p>
+
+      <form @submit.prevent="submitPony" class="form-grid">
+        <div>
+          <label for="ponyName">Pony Name</label>
+          <input id="ponyName" type="text" x-model="form.name" placeholder="Full name or best guess from plaque" required />
+        </div>
+
+        <div>
+          <label for="installYear">Year of Installation</label>
+          <select id="installYear" x-model="form.year" required>
+            <option value="" disabled>Select year</option>
+            <template x-for="year in years" :key="year">
+              <option :value="year" x-text="year"></option>
+            </template>
+          </select>
+        </div>
+
+        <div class="full">
+          <label for="mallLocation">Mall Location</label>
+          <input id="mallLocation" type="text" x-model="form.mall" placeholder="Mall name, city, state" required />
+        </div>
+
+        <div>
+          <label for="manufacturer">Manufacturer</label>
+          <select id="manufacturer" x-model="form.manufacturer" required>
+            <option value="Miller Dental Ceramics">Miller Dental Ceramics</option>
+            <option value="Dentsply Heritage">Dentsply Heritage</option>
+            <option value="Crown Porcelain Ltd">Crown Porcelain Ltd</option>
+            <option value="Unknown">Unknown</option>
+          </select>
+        </div>
+
+        <div>
+          <label for="glazeType">Glaze Type</label>
+          <input id="glazeType" type="text" x-model="form.glaze" placeholder="e.g., Seafoam Satin, Ivory Pearl" required />
+        </div>
+
+        <div class="full">
+          <label class="verify-label" for="tileVerify">
+            <input id="tileVerify" type="checkbox" x-model="form.tileVerified" />
+            I confirm visible Armstrong-brand ceiling tiles (1984-1989) in my photograph
+          </label>
+        </div>
+
+        <div class="full file-drop">
+          <label for="photoUpload">Photo Upload</label>
+          <input id="photoUpload" type="file" accept="image/*" @change="handleFile" />
+          <img class="photo-preview" x-show="photoPreview" :src="photoPreview" alt="Uploaded pony preview" />
+          <p class="rejection-note">POST-1990 STRIP MALL SUBMISSIONS REJECTED. DO NOT WASTE OUR TIME.</p>
+        </div>
+
+        <div class="full">
+          <button class="submit-btn" type="submit">Submit Entry</button>
+          <p class="form-warning" x-show="formWarning">Cannot process without ceiling tile verification. This is what separates us from DentalNostalgiaDB.</p>
+        </div>
+      </form>
+
+      <div class="pending-wrap" x-show="submissions.length > 0">
+        <h3 class="section-head" style="font-size:1.3rem;margin:1rem 0 0.5rem;">Pending Review</h3>
+        <template x-for="item in submissions" :key="item.id">
+          <article class="pending-card">
+            <div><strong x-text="item.name"></strong> (<span x-text="item.year"></span>)</div>
+            <div x-text="item.mall"></div>
+            <div><span x-text="item.manufacturer"></span> · <span x-text="item.glaze"></span></div>
+            <div x-text="item.time"></div>
+            <img x-show="item.photo" :src="item.photo" alt="Submitted pony image" />
+          </article>
+        </template>
+      </div>
+    </section>
+
+    <div class="divider" aria-hidden="true"></div>
+
+    <section class="section" aria-label="Forum sticky">
+      <div class="forum">
+        <div class="crumbs">PONYWARDS FORUM &gt; GENERAL DISCUSSION &gt; STICKY: THE ENDLESS DEBATE</div>
+        <div class="forum-title">THE ENDLESS DEBATE: ARE 1987 RECALL PONIES "CANON"?</div>
+
+        <article class="post">
+          <div class="post-meta">
+            <h3 class="username">Dr_Graft</h3>
+            <span class="badge">★ ADMIN</span>
+            <div>Nov 14, 2009, 2:47 AM</div>
+            <div class="tooth-avatar" aria-hidden="true"></div>
+          </div>
+          <div class="post-content">
+            The 1987 Miller Dental Ceramics granite glaze recall affected 340+ units across 12 states. These ponies existed. They were installed. Children touched them. The chipping was a manufacturing defect, not an identity crisis. THEY ARE CANON. Debate over. — S.G.
+            <div class="margin-note">(It's never over. Fifteen years and counting.)</div>
+          </div>
+        </article>
+
+        <article class="post">
+          <div class="post-meta">
+            <h3 class="username">CrispVerified✓</h3>
+            <span class="badge mod">MODERATOR</span>
+            <div>Nov 14, 2009, 3:12 AM</div>
+          </div>
+          <div class="post-content">
+            Unverified. Without original purchase orders, these are just chipped ponies. Anyone can chip a glaze. Submitted to DENTALNOSTALGIADB standards committee for review. — E.C.
+          </div>
+        </article>
+
+        <div class="reply-count">1,247 replies — LOCKED BY ADMIN (reopened 14 times)</div>
+      </div>
+    </section>
+
+    <div class="divider" aria-hidden="true"></div>
+
+    <section class="section" aria-label="Fundraiser">
+      <h2 class="section-head">Rescue the Galloping Gingiva</h2>
+      <p class="fund-para">Last verified at the 1989 Jacksonville dental expo. Coral Blush glaze. Manufacturer unknown. A collector swore he had it in 2011, then vanished. We need investigator money, motel money, and probably lock-cutting money.</p>
+      <div class="fund-amount">$4,200 / $8,500</div>
+      <div class="progress" role="img" aria-label="Fundraiser progress 49.4 percent">
+        <div class="progress-fill"></div>
+      </div>
+      <p class="fund-note">Every dollar counts. Ellen Crisp said we'd never find it. That's reason enough.</p>
+      <button class="donate-btn" type="button" @click="donateOpen = !donateOpen">Donate</button>
+      <p class="donate-note" x-show="donateOpen">PayPal suspended our account in 2019 after Ellen reported it as "fraud." Working on alternatives. For now, mail checks to: Simon Graft, c/o Night Maintenance Office, Galleria Mall, [REDACTED].</p>
+    </section>
+
+    <div class="divider" aria-hidden="true"></div>
+
+    <section class="section" aria-label="Enamel elite badges">
+      <h2 class="section-head">Enamel Elite — Verified Contributor Badges</h2>
+      <p class="elite-para">Earn this badge by submitting one clear pony photo with GPS coordinates and a period-correct 1980s dental poster in frame. Yes, the "Smile with Novocain!" ad from 1985 still counts.</p>
+
+      <div class="badge-grid">
+        <article class="elite-card">
+          <span class="foil" aria-hidden="true">★</span>
+          <div class="elite-user">MallRat_Steve</div>
+          <div class="elite-count">23 submissions verified</div>
+        </article>
+        <article class="elite-card">
+          <span class="foil" aria-hidden="true">★</span>
+          <div class="elite-user">GlazeHunter77</div>
+          <div class="elite-count">41 submissions verified</div>
+        </article>
+        <article class="elite-card">
+          <span class="foil" aria-hidden="true">★</span>
+          <div class="elite-user">ToothFairy_Actual</div>
+          <div class="elite-count">17 submissions verified</div>
+        </article>
+        <article class="elite-card">
+          <span class="foil" aria-hidden="true">★</span>
+          <div class="elite-user">NovocainNancy</div>
+          <div class="elite-count">31 submissions verified</div>
+        </article>
+        <article class="elite-card">
+          <span class="foil" aria-hidden="true">★</span>
+          <div class="elite-user">CeilingTileCarl</div>
+          <div class="elite-count">29 submissions verified</div>
+        </article>
+        <article class="elite-card">
+          <span class="foil" aria-hidden="true">★</span>
+          <div class="elite-user">Dr_Graft <i data-lucide="badge-check" style="width:14px;height:14px;vertical-align:-2px;"></i></div>
+          <div class="elite-count">847 confirmed entries</div>
+          <div class="founder-note">Founder. 847 confirmed entries. Still counting.</div>
+        </article>
+      </div>
+    </section>
+
+    <div class="divider" aria-hidden="true"></div>
+
+    <section class="section" aria-label="Simon's note">
+      <div class="simon-note">
+        <p>I built this at the night janitor's desk at the Galleria Mall. It's 2 AM most nights when I update the database. The fluorescents buzz. The food court is dark except for the Sbarro sign nobody bothered to disconnect. I still walk past the old dental suite on the second floor. It's a vape shop now.</p>
+        <p>The ponies are gone. Buccal Breeze was there until 2004. I know because I put her there myself, back when I had a practice, back when the glaze still caught the waiting room light just right and kids reached out to touch her nose.</p>
+        <p>Nobody thought they were worth saving. I did. I do.</p>
+        <p>If you remember one, even just the color, even just the feeling of being six and scared in a waiting room and staring at a porcelain horse to stay calm, tell me. That's all this is. A record of small beautiful things in places that don't exist anymore.</p>
+        <p>— Dr. Simon Graft (disbarred, but still correct)</p>
+      </div>
+      <div class="last-updated">Last updated: <span x-text="lastUpdated"></span></div>
+    </section>
+  </main>
+
+  <script src="/assets/js/alpine.min.js"></script>
+  <script src="/assets/js/gsap.min.js"></script>
+  <script src="/assets/js/lucide.min.js"></script>
+  <script>
+    function ponywardsApp() {
+      const entries = [
+        { id: 1, name: 'Buccal Breeze', year: 1986, mall: 'Northgate Mall, Seattle', manufacturer: 'Miller Dental Ceramics', glaze: 'Seafoam Satin', recall: false, missing: false },
+        { id: 2, name: "Dr. Hoofington's Gallop", year: 1984, mall: 'Galleria Mall, Houston', manufacturer: 'Dentsply Heritage', glaze: 'Ivory Pearl', recall: false, missing: false },
+        { id: 3, name: 'Molar Mare', year: 1987, mall: 'Woodward & Lothrop, DC', manufacturer: 'Miller Dental Ceramics', glaze: 'Granite Glaze (RECALL)', recall: true, missing: false },
+        { id: 4, name: 'The Novocain Stallion', year: 1985, mall: "Hess's, Allentown", manufacturer: 'Crown Porcelain Ltd', glaze: 'Arctic White', recall: false, missing: false },
+        { id: 5, name: 'Galloping Gingiva', year: 1983, mall: 'Regency Square, Jacksonville', manufacturer: 'Unknown', glaze: 'Coral Blush — MISSING', recall: false, missing: true },
+        { id: 6, name: 'Peridontal Prancer', year: 1988, mall: 'Crossgates Mall, Albany', manufacturer: 'Dentsply Heritage', glaze: 'Champagne Frost', recall: false, missing: false },
+        { id: 7, name: 'Flossie', year: 1986, mall: 'Mondawmin Mall, Baltimore', manufacturer: 'Crown Porcelain Ltd', glaze: 'Lavender Haze', recall: false, missing: false },
+        { id: 8, name: 'Crown Jewel', year: 1984, mall: 'Northbrook Court, Chicago', manufacturer: 'Miller Dental Ceramics', glaze: '24K Gold Leaf', recall: false, missing: false },
+        { id: 9, name: 'Bicuspid Beauty', year: 1987, mall: 'Tysons Corner, VA', manufacturer: 'Dentsply Heritage', glaze: 'Seafoam Satin', recall: false, missing: false },
+        { id: 10, name: 'Rinse & Rider', year: 1985, mall: 'Landmark Mall, Alexandria', manufacturer: 'Crown Porcelain Ltd', glaze: 'Bubblegum Pink', recall: false, missing: false },
+        { id: 11, name: 'Enamel Empress', year: 1989, mall: 'Fox Hills Mall, Culver City', manufacturer: 'Miller Dental Ceramics', glaze: 'Granite Glaze (RECALL)', recall: true, missing: false },
+        { id: 12, name: 'Plaque Pony', year: 1984, mall: 'Mondawmin Mall, Baltimore', manufacturer: 'Unknown', glaze: 'Arctic White', recall: false, missing: false },
+        { id: 13, name: 'The Amalgam Colt', year: 1986, mall: 'Valley View Mall, Dallas', manufacturer: 'Dentsply Heritage', glaze: 'Copper Patina', recall: false, missing: false },
+        { id: 14, name: 'Sweet Nitrous', year: 1988, mall: 'Eastland Mall, Charlotte', manufacturer: 'Crown Porcelain Ltd', glaze: 'Cotton Candy', recall: false, missing: false },
+        { id: 15, name: 'Fluoride Filly', year: 1983, mall: 'Gwinnett Place Mall, Atlanta', manufacturer: 'Miller Dental Ceramics', glaze: 'Mint Chip', recall: false, missing: false },
+        { id: 16, name: 'Root Canal Ranger', year: 1987, mall: 'Randall Park Mall, Cleveland', manufacturer: 'Dentsply Heritage', glaze: 'Granite Glaze (RECALL)', recall: true, missing: false },
+        { id: 17, name: 'Sealant Sunrise', year: 1985, mall: 'Metrocenter, Phoenix', manufacturer: 'Crown Porcelain Ltd', glaze: 'Desert Rose', recall: false, missing: false },
+        { id: 18, name: 'Cavity Crusader', year: 1989, mall: 'Century III Mall, Pittsburgh', manufacturer: 'Miller Dental Ceramics', glaze: 'Ivory Pearl', recall: false, missing: false },
+        { id: 19, name: 'Wisdom Tooth Wanderer', year: 1984, mall: 'Cloverleaf Mall, Richmond', manufacturer: 'Unknown', glaze: 'Bone China', recall: false, missing: false },
+        { id: 20, name: 'Gumline Ghost', year: 1986, mall: 'Indian Springs Mall, Kansas City', manufacturer: 'Dentsply Heritage', glaze: 'Phantom Gray', recall: false, missing: false }
+      ];
+
+      const mapSpots = [
+        { id: 'wa', x: 112, y: 135, text: 'Northgate Mall, Seattle • 1986 • 1 pony' },
+        { id: 'ca', x: 125, y: 266, text: 'Fox Hills Mall, Culver City • 1989 • 1 pony' },
+        { id: 'az', x: 218, y: 287, text: 'Metrocenter, Phoenix • 1985 • 1 pony' },
+        { id: 'tx', x: 330, y: 312, text: 'Galleria Mall/Valley View • 1984-1986 • 2 ponies' },
+        { id: 'il', x: 488, y: 196, text: 'Northbrook Court, Chicago • 1984 • 1 pony' },
+        { id: 'oh', x: 562, y: 205, text: 'Randall Park Mall, Cleveland • 1987 • 1 pony' },
+        { id: 'pa', x: 626, y: 188, text: 'Century III Mall, Pittsburgh • 1989 • 1 pony' },
+        { id: 'md', x: 669, y: 221, text: 'Mondawmin Mall, Baltimore • 1984/1986 • 2 ponies' },
+        { id: 'va', x: 642, y: 234, text: 'Tysons Corner/Cloverleaf/Landmark • 1984-1987 • 3 ponies' },
+        { id: 'fl', x: 705, y: 333, text: 'Regency Square, Jacksonville • 1983 • 1 missing pony' },
+        { id: 'ga', x: 628, y: 296, text: 'Gwinnett Place Mall, Atlanta • 1983 • 1 pony' },
+        { id: 'nc', x: 664, y: 272, text: 'Eastland Mall, Charlotte • 1988 • 1 pony' }
+      ];
+
+      const mobileStates = [
+        'Washington', 'California', 'Arizona', 'Texas', 'Illinois', 'Ohio',
+        'Pennsylvania', 'Maryland', 'Virginia', 'Georgia', 'North Carolina', 'Florida'
+      ];
+
+      return {
+        entries,
+        query: '',
+        filteredEntries: entries,
+        mapSpots,
+        mobileStates,
+        tooltip: {
+          visible: false,
+          text: '',
+          left: 0,
+          top: 0
+        },
+        years: [1980, 1981, 1982, 1983, 1984, 1985, 1986, 1987, 1988, 1989],
+        form: {
+          name: '',
+          year: '',
+          mall: '',
+          manufacturer: 'Miller Dental Ceramics',
+          glaze: '',
+          tileVerified: false
+        },
+        formWarning: false,
+        photoPreview: '',
+        submissions: [],
+        donateOpen: false,
+        lastUpdated: '',
+
+        init() {
+          this.loadSubmissions();
+          this.lastUpdated = this.makeLastUpdated();
+          this.filterEntries();
+          this.$nextTick(() => {
+            this.animateResults();
+            if (window.lucide) {
+              window.lucide.createIcons();
+            }
+          });
+        },
+
+        onSearchInput() {
+          this.filterEntries();
+          this.$nextTick(() => this.animateResults());
+        },
+
+        filterEntries() {
+          const q = this.query.trim().toLowerCase();
+          if (!q) {
+            this.filteredEntries = this.entries;
+            return;
+          }
+
+          this.filteredEntries = this.entries.filter((entry) => {
+            return (
+              entry.name.toLowerCase().includes(q) ||
+              String(entry.year).includes(q) ||
+              entry.mall.toLowerCase().includes(q) ||
+              entry.manufacturer.toLowerCase().includes(q) ||
+              entry.glaze.toLowerCase().includes(q)
+            );
+          });
+        },
+
+        animateResults() {
+          if (!window.gsap || !this.$refs.results) return;
+          const rows = this.$refs.results.querySelectorAll('.result-row');
+          if (!rows.length) return;
+
+          window.gsap.killTweensOf(rows);
+          window.gsap.fromTo(
+            rows,
+            { opacity: 0, y: 8 },
+            { opacity: 1, y: 0, duration: 0.24, stagger: 0.1, ease: 'power1.out' }
+          );
+        },
+
+        showTooltip(spot, event) {
+          const bounds = event.currentTarget.ownerSVGElement.getBoundingClientRect();
+          this.tooltip.text = spot.text;
+          this.tooltip.left = event.clientX - bounds.left + 12;
+          this.tooltip.top = event.clientY - bounds.top + 12;
+          this.tooltip.visible = true;
+        },
+
+        hideTooltip() {
+          this.tooltip.visible = false;
+        },
+
+        handleFile(event) {
+          const [file] = event.target.files || [];
+          if (!file) {
+            this.photoPreview = '';
+            return;
+          }
+
+          const reader = new FileReader();
+          reader.onload = (e) => {
+            this.photoPreview = e.target && e.target.result ? e.target.result : '';
+          };
+          reader.readAsDataURL(file);
+        },
+
+        submitPony() {
+          this.formWarning = false;
+
+          if (!this.form.tileVerified) {
+            this.formWarning = true;
+            return;
+          }
+
+          const stamp = new Date();
+          const item = {
+            id: `${stamp.getTime()}-${Math.random().toString(16).slice(2)}`,
+            name: this.form.name.trim(),
+            year: this.form.year,
+            mall: this.form.mall.trim(),
+            manufacturer: this.form.manufacturer,
+            glaze: this.form.glaze.trim(),
+            photo: this.photoPreview,
+            time: `Logged ${stamp.toLocaleString('en-US', { month: 'short', day: 'numeric', year: 'numeric', hour: 'numeric', minute: '2-digit' })}`
+          };
+
+          if (!item.name || !item.year || !item.mall || !item.glaze) {
+            return;
+          }
+
+          this.submissions.unshift(item);
+          localStorage.setItem('ponywards_submissions', JSON.stringify(this.submissions));
+
+          this.form = {
+            name: '',
+            year: '',
+            mall: '',
+            manufacturer: 'Miller Dental Ceramics',
+            glaze: '',
+            tileVerified: false
+          };
+          this.photoPreview = '';
+
+          const upload = document.getElementById('photoUpload');
+          if (upload) upload.value = '';
+        },
+
+        loadSubmissions() {
+          const raw = localStorage.getItem('ponywards_submissions');
+          if (!raw) return;
+          try {
+            const parsed = JSON.parse(raw);
+            if (Array.isArray(parsed)) {
+              this.submissions = parsed;
+            }
+          } catch (err) {
+            this.submissions = [];
+          }
+        },
+
+        makeLastUpdated() {
+          const now = new Date();
+          const daysBack = Math.floor(Math.random() * 3) + 1;
+          const randomHours = Math.floor(Math.random() * 24);
+          const randomMinutes = Math.floor(Math.random() * 60);
+          const randomDate = new Date(now.getTime() - daysBack * 24 * 60 * 60 * 1000);
+          randomDate.setHours(randomHours, randomMinutes, 0, 0);
+
+          return randomDate.toLocaleString('en-US', {
+            month: 'long',
+            day: 'numeric',
+            year: 'numeric',
+            hour: 'numeric',
+            minute: '2-digit'
+          });
+        }
+      };
+    }
+  </script>
+</body>
+</html>

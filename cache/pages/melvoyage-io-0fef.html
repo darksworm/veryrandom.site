@@ -1,0 +1,1015 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Melvoyage.io</title>
+  <link rel="stylesheet" href="/assets/css/pico.min.css" />
+  <link rel="stylesheet" href="/assets/css/fonts.css" />
+  <style>
+    :root {
+      --bg: #0B1120;
+      --text: #A8C8E0;
+      --accent: #F7E26B;
+      --muted: #5A5E6A;
+      --danger: #C94A3A;
+      --panel: #1A2A3A;
+      --water: #7FA5C5;
+      --water-dark: #5F84A1;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Fira Code', monospace;
+      font-size: 16px;
+      line-height: 1.6;
+      text-transform: uppercase;
+      letter-spacing: 0.02em;
+      overflow-x: hidden;
+    }
+
+    body::after {
+      content: "";
+      position: fixed;
+      inset: 0;
+      background: repeating-linear-gradient(
+        to bottom,
+        transparent 0,
+        transparent 2px,
+        #000000 2px,
+        #000000 3px
+      );
+      opacity: 0.06;
+      pointer-events: none;
+      z-index: 30;
+    }
+
+    .app {
+      width: min(1200px, calc(100% - 32px));
+      margin: 0 auto;
+      padding-top: 64px;
+      padding-bottom: 48px;
+    }
+
+    .header {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 48px;
+      border-bottom: 1px solid var(--muted);
+      background: var(--bg);
+      display: grid;
+      grid-template-columns: 1fr auto 1fr;
+      align-items: center;
+      gap: 12px;
+      padding: 0 12px;
+      z-index: 20;
+      font-size: 12px;
+    }
+
+    .brand {
+      color: var(--accent);
+      font-weight: 700;
+      letter-spacing: 0.15em;
+      white-space: nowrap;
+    }
+
+    .cursor {
+      display: inline-block;
+      animation: blink 1s steps(1, end) infinite;
+    }
+
+    .gauge {
+      text-align: center;
+      font-size: 12px;
+      color: var(--text);
+      min-width: 280px;
+    }
+
+    .header-right {
+      display: flex;
+      justify-content: flex-end;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .btn-text {
+      background: transparent;
+      border: 1px solid var(--muted);
+      color: var(--text);
+      min-height: 32px;
+      padding: 0 10px;
+      border-radius: 0;
+      font-size: 11px;
+      font-family: inherit;
+      letter-spacing: 0.15em;
+      cursor: pointer;
+      text-transform: uppercase;
+    }
+
+    .btn-text:hover,
+    .btn-text.active {
+      background: var(--accent);
+      color: var(--bg);
+      border-color: var(--accent);
+    }
+
+    .tool-shell,
+    .report-panel {
+      border: 1px solid var(--muted);
+      background: var(--panel);
+      padding: 14px;
+      border-radius: 0;
+    }
+
+    .chart-wrap {
+      min-height: 70vh;
+      display: grid;
+      grid-template-rows: auto auto;
+      gap: 10px;
+      position: relative;
+    }
+
+    .compass {
+      position: absolute;
+      top: 14px;
+      right: 18px;
+      opacity: 0.92;
+      color: var(--muted);
+      font-size: 11px;
+      line-height: 1.6;
+      animation: spin 60s linear infinite;
+      transform-origin: center;
+      white-space: pre;
+      pointer-events: none;
+      text-transform: none;
+    }
+
+    .compass.fast {
+      animation-duration: 4s;
+    }
+
+    .chart-grid {
+      overflow-x: auto;
+      padding-bottom: 6px;
+    }
+
+    .chart-pre {
+      margin: 0;
+      font-size: clamp(10px, 1.1vw, 14px);
+      line-height: 1.6;
+      color: var(--text);
+      white-space: pre;
+    }
+
+    .chart-line {
+      white-space: pre;
+    }
+
+    .cell {
+      display: inline;
+    }
+
+    .cell.ship {
+      color: var(--text);
+    }
+
+    .cell.water {
+      color: var(--water);
+    }
+
+    .cell.deep {
+      color: var(--water-dark);
+    }
+
+    .cell.anchor {
+      color: var(--danger);
+      cursor: pointer;
+      transition: box-shadow 0.5s linear;
+      padding: 0 1px;
+    }
+
+    .cell.anchor.active {
+      color: var(--accent);
+      box-shadow: 0 0 8px var(--accent);
+    }
+
+    .cell.sinking {
+      animation: sinkflash 0.5s steps(5, end);
+      color: var(--danger);
+    }
+
+    .legend {
+      border: 1px dashed var(--muted);
+      padding: 10px;
+      font-size: 13px;
+    }
+
+    .legend h3 {
+      margin: 0 0 8px;
+      font-size: 13px;
+      letter-spacing: 0.15em;
+      color: var(--accent);
+      font-weight: 700;
+    }
+
+    .legend-item {
+      margin: 3px 0;
+    }
+
+    .legend-item.sunk {
+      color: var(--muted);
+      text-decoration: line-through;
+    }
+
+    .legend-item.sinking {
+      animation: sinkflash 0.5s steps(5, end);
+      color: var(--danger);
+    }
+
+    .waterline {
+      margin: 0;
+      border-top: 1px solid var(--muted);
+      padding-top: 8px;
+      white-space: nowrap;
+      overflow: hidden;
+      font-size: 15px;
+      text-transform: none;
+      animation: seasway 2s ease-in-out infinite;
+    }
+
+    .wave {
+      display: inline-block;
+      color: var(--water);
+      animation: bob 3s ease-in-out infinite;
+    }
+
+    .tooltip {
+      border: 1px dashed var(--muted);
+      background: var(--bg);
+      padding: 10px;
+      margin-top: 10px;
+      font-size: 13px;
+    }
+
+    .tooltip h4 {
+      margin: 0 0 8px;
+      color: var(--accent);
+      text-transform: uppercase;
+      letter-spacing: 0.15em;
+      font-size: 12px;
+    }
+
+    .tooltip pre {
+      margin: 0;
+      color: var(--text);
+      white-space: pre-wrap;
+      line-height: 1.6;
+    }
+
+    .slider-wrap {
+      margin-top: 14px;
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 10px;
+    }
+
+    .slider-label {
+      color: var(--text);
+      font-size: 15px;
+      letter-spacing: 0.15em;
+    }
+
+    .slider-row {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 10px;
+      align-items: start;
+    }
+
+    .slider-shell {
+      position: relative;
+      width: 100%;
+      height: 12px;
+      background: var(--muted);
+      border: 1px solid var(--muted);
+    }
+
+    .slider-fill {
+      position: absolute;
+      left: 0;
+      top: 0;
+      bottom: 0;
+      width: 0;
+      background: var(--text);
+      pointer-events: none;
+    }
+
+    .slider {
+      width: 100%;
+      margin: 0;
+      -webkit-appearance: none;
+      appearance: none;
+      position: absolute;
+      inset: 0;
+      height: 100%;
+      background: transparent;
+      border: 0;
+      border-radius: 0;
+      outline: none;
+    }
+
+    .slider::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 24px;
+      height: 24px;
+      border-radius: 0;
+      background: var(--accent);
+      border: 1px solid var(--bg);
+      cursor: pointer;
+    }
+
+    .slider::-moz-range-thumb {
+      width: 24px;
+      height: 24px;
+      border-radius: 0;
+      background: var(--accent);
+      border: 1px solid var(--bg);
+      cursor: pointer;
+    }
+
+    .slider::-moz-range-track {
+      height: 10px;
+      border-radius: 0;
+      background: var(--muted);
+      border: 1px solid var(--muted);
+    }
+
+    .premium {
+      margin-top: 8px;
+      color: var(--accent);
+      font-weight: 700;
+      letter-spacing: 0.15em;
+      font-size: 17px;
+      cursor: pointer;
+      min-height: 44px;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .premium-note,
+    .download-note {
+      display: none;
+      color: var(--text);
+      font-size: 14px;
+      margin-top: 4px;
+    }
+
+    .premium-note.show,
+    .download-note.show {
+      display: block;
+      animation: notein 0.35s ease-out;
+    }
+
+    .story {
+      margin: 30px auto;
+      max-width: 680px;
+      border-left: 3px solid var(--accent);
+      padding: 12px 14px;
+      text-transform: none;
+    }
+
+    .story pre {
+      margin: 0;
+      white-space: pre-wrap;
+      color: var(--text);
+      text-transform: none;
+    }
+
+    .story .gt {
+      color: var(--muted);
+    }
+
+    .report-panel h2 {
+      margin: 0 0 8px;
+      font-size: 14px;
+      color: var(--accent);
+      letter-spacing: 0.15em;
+    }
+
+    .report-preview {
+      margin: 0 0 10px;
+      border: 1px dashed var(--muted);
+      padding: 10px;
+      background: var(--bg);
+      color: var(--text);
+      text-transform: none;
+      overflow-x: auto;
+    }
+
+    .download-btn {
+      border: 1px solid var(--muted);
+      background: transparent;
+      color: var(--text);
+      padding: 0 12px;
+      min-height: 44px;
+      border-radius: 0;
+      cursor: pointer;
+      letter-spacing: 0.15em;
+      font-family: inherit;
+      text-transform: uppercase;
+    }
+
+    .download-btn:hover {
+      background: var(--accent);
+      color: var(--bg);
+      border-color: var(--accent);
+    }
+
+    footer {
+      margin-top: 28px;
+      text-align: center;
+      color: var(--muted);
+      font-size: 11px;
+      text-transform: uppercase;
+      line-height: 1.8;
+    }
+
+    .signature {
+      margin-top: 8px;
+      text-align: right;
+      font-family: 'Permanent Marker', cursive;
+      color: var(--accent);
+      font-size: 20px;
+      text-transform: none;
+      letter-spacing: 0.02em;
+    }
+
+    @keyframes blink {
+      0%, 49% { visibility: visible; }
+      50%, 100% { visibility: hidden; }
+    }
+
+    @keyframes bob {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(1px); }
+    }
+
+    @keyframes sinkflash {
+      0%, 100% { color: var(--danger); }
+      50% { color: var(--accent); }
+    }
+
+    @keyframes spin {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(360deg); }
+    }
+
+    @keyframes notein {
+      from { transform: translateY(4px); }
+      to { transform: translateY(0); }
+    }
+
+    @keyframes seasway {
+      0%, 100% { letter-spacing: 0.01em; transform: translateY(0); }
+      50% { letter-spacing: 0.06em; transform: translateY(1px); }
+    }
+
+    @media (max-width: 980px) {
+      .header {
+        grid-template-columns: 1fr;
+        height: auto;
+        padding: 6px 10px;
+        gap: 6px;
+      }
+
+      .gauge {
+        text-align: left;
+        min-width: 0;
+      }
+
+      .header-right {
+        justify-content: flex-start;
+      }
+
+      .app {
+        padding-top: 122px;
+      }
+
+      .chart-wrap {
+        min-height: auto;
+      }
+    }
+
+    @media (max-width: 768px) {
+      .app {
+        width: calc(100% - 20px);
+      }
+
+      .btn-text {
+        min-height: 44px;
+      }
+
+      .chart-pre {
+        font-size: 10px;
+      }
+
+      .compass {
+        top: 8px;
+        right: 10px;
+      }
+    }
+  </style>
+</head>
+<body x-data="melvoyageApp" x-init="init()">
+  <header class="header">
+    <div class="brand">MELVOYAGE.IO<span class="cursor">_</span></div>
+    <div class="gauge">
+      <span x-text="`STORM GAUGE: [${stormBar}] ${stormCount} REQUESTS - ${stormLabel}`"></span>
+    </div>
+    <div class="header-right">
+      <button class="btn-text" :class="{ active: theme === 'stormy' }" @click="setTheme('stormy')">STORMY</button>
+      <button class="btn-text" :class="{ active: theme === 'sepia' }" @click="setTheme('sepia')">SEPIA</button>
+      <button class="btn-text" :class="{ active: theme === 'beacon' }" @click="setTheme('beacon')">BEACON</button>
+      <button class="btn-text" @click="toggleMute()" x-text="muted ? '[UNMUTE]' : '[MUTE]'" :aria-label="muted ? 'Unmute foghorn' : 'Mute foghorn'"></button>
+    </div>
+  </header>
+
+  <main class="app">
+    <section class="tool-shell">
+      <div class="chart-wrap">
+        <pre class="compass" :class="{ fast: compassFast }">N
+|
+W-+-E
+|
+S</pre>
+        <div class="chart-grid">
+          <div class="chart-pre" aria-label="ASCII ship chart">
+            <template x-for="(line, lineIndex) in chartLines" :key="lineIndex">
+              <div class="chart-line">
+                <template x-for="(cell, cellIndex) in line" :key="`${lineIndex}-${cellIndex}`">
+                  <span
+                    class="cell"
+                    :class="cellClasses(cell)"
+                    @click="cell.anchorIndex !== null ? onAnchorClick(cell.anchorIndex) : null"
+                    x-text="cell.char"
+                  ></span>
+                </template>
+              </div>
+            </template>
+          </div>
+        </div>
+        <div class="waterline" aria-hidden="true">
+          <template x-for="(ch, idx) in waterChars" :key="idx">
+            <span class="wave" :style="`animation-delay:${(idx % 12) * 0.14}s`" x-text="ch"></span>
+          </template>
+        </div>
+      </div>
+
+      <div class="slider-wrap">
+        <div class="slider-row">
+          <div>
+            <div class="slider-label" x-text="`TIDE RISE ${tideBar} ${tideFeet}FT`"></div>
+            <div class="slider-shell">
+              <div class="slider-fill" :style="`width:${tideLevel}%`"></div>
+              <input
+                class="slider"
+                type="range"
+                min="0"
+                max="100"
+                step="1"
+                x-model.number="tideLevel"
+                @input="onTideInput()"
+                aria-label="Tide rise slider"
+              />
+            </div>
+            <div class="premium" @click="revealPremium()">PREMIUM ACCESS: $0.99</div>
+            <div class="premium-note" :class="{ show: premiumRevealed }">(JUST KIDDING, IT'S FREE. BIDBUZZ STILL OWES ME $5,000.)</div>
+          </div>
+        </div>
+
+        <aside class="legend">
+          <h3>SURVIVOR LEGEND</h3>
+          <template x-for="section in sectionList" :key="section.key">
+            <div class="legend-item" :class="legendClass(section.key)" x-text="section.name"></div>
+          </template>
+        </aside>
+      </div>
+
+      <div class="tooltip" x-show="activeAnchor !== null">
+        <h4 x-text="anchorTooltipTitle"></h4>
+        <pre x-text="anchorTooltipBody"></pre>
+      </div>
+    </section>
+
+    <section class="story">
+      <pre><span class="gt">&gt;</span> 2020-11-23 03:14 AM EST
+<span class="gt">&gt;</span> OPERATOR: A.G. Slaugh
+<span class="gt">&gt;</span> STATUS: Involuntarily awake
+<span class="gt">&gt;</span>
+<span class="gt">&gt;</span> I built this because Darren Hicks at BidBuzz told me my audit
+<span class="gt">&gt;</span> was "overly dramatic" and then Venmo-requested ME for the coffee
+<span class="gt">&gt;</span> I bought during our last meeting. Five thousand dollars. That was
+<span class="gt">&gt;</span> the invoice. He said the board would "revisit it in Q1." There
+<span class="gt">&gt;</span> was no Q1. BidBuzz pivoted to NFTs and the site went dark by
+<span class="gt">&gt;</span> February.
+<span class="gt">&gt;</span>
+<span class="gt">&gt;</span> The audit I did for them was simple: I mapped every page on their
+<span class="gt">&gt;</span> site, scored it by conversion weight, and showed them which ones
+<span class="gt">&gt;</span> were drowning. Not metaphorically. I literally drew it as a ship.
+<span class="gt">&gt;</span> Darren said, "This is a boat." I said, "Your checkout flow has a
+<span class="gt">&gt;</span> 73% abandonment rate." He said, "But it's a boat."
+<span class="gt">&gt;</span>
+<span class="gt">&gt;</span> So now it's a boat for everyone. Ninety-nine cents. You drag the
+<span class="gt">&gt;</span> slider. Your bad pages go underwater. You see what survives.
+<span class="gt">&gt;</span>
+<span class="gt">&gt;</span> The data is fake because this is a demo. The feeling is real
+<span class="gt">&gt;</span> because your site probably does look like this.
+<span class="gt">&gt;</span>
+<span class="gt">&gt;</span> — A.G.</pre>
+    </section>
+
+    <section class="report-panel">
+      <h2>EXPORT: NAVIGATOR'S REPORT — $4.99</h2>
+      <pre class="report-preview">    _____
+   /     \____
+  |  x x      \___    ≈≈≈≈≈
+   \_____/=========\__≈≈≈≈≈≈≈
+    ≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈</pre>
+      <button class="download-btn" @click="downloadReport()"><i data-lucide="file-down"></i> [DOWNLOAD REPORT]</button>
+      <div class="download-note" :class="{ show: reportDownloaded }">(BIDBUZZ GOT THIS FOR FREE. YOU'RE WELCOME.)</div>
+    </section>
+
+    <footer>
+      <div>MELVOYAGE.IO — SITE CARTOGRAPHY FOR THE ALREADY SINKING</div>
+      <div>"WE'RE NOT LIABLE IF YOUR USERS ABANDON SHIP IN YOUR UNCHARTED WATERS."</div>
+      <div class="signature">— A.G. Slaugh</div>
+    </footer>
+  </main>
+
+  <script src="/assets/js/alpine.min.js" defer></script>
+  <script src="/assets/js/gsap.min.js" defer></script>
+  <script src="/assets/js/lucide.min.js" defer></script>
+  <script>
+    document.addEventListener('alpine:init', () => {
+      Alpine.data('melvoyageApp', () => ({
+        tideLevel: 0,
+        activeAnchor: null,
+        stormCount: 3,
+        theme: 'stormy',
+        muted: false,
+        premiumRevealed: false,
+        reportDownloaded: false,
+        compassFast: false,
+        glowAnchor: null,
+        previousTide: 0,
+        sinkingSections: {},
+        chartLines: [],
+        anchorCells: {
+          '6-10': 0,
+          '10-52': 1,
+          '14-19': 2,
+          '18-58': 3,
+          '21-7': 4
+        },
+        anchorLogs: [
+          { referrer: 'search /bidbuzz audit', page: '/checkout' },
+          { referrer: 'newsletter /november', page: '/pricing' },
+          { referrer: 'direct /typed-url', page: '/blog' },
+          { referrer: 'social /angry founder thread', page: '/product/2' },
+          { referrer: 'email /follow-up ignored', page: '/contact' }
+        ],
+        sections: {
+          checkout: { name: '/checkout', threshold: 30, line: 20 },
+          pricing: { name: '/pricing', threshold: 60, line: 16 },
+          blog: { name: '/blog', threshold: 55, line: 11 },
+          contact: { name: '/contact', threshold: 100, line: 4 },
+          about: { name: '/about', threshold: 100, line: 3 },
+          product1: { name: '/product/1', threshold: 52, line: 13 },
+          product2: { name: '/product/2', threshold: 58, line: 14 },
+          product3: { name: '/product/3', threshold: 64, line: 15 },
+          product4: { name: '/product/4', threshold: 70, line: 17 }
+        },
+        sectionList: [
+          { key: 'checkout', name: '/checkout' },
+          { key: 'pricing', name: '/pricing' },
+          { key: 'about', name: '/about' },
+          { key: 'blog', name: '/blog' },
+          { key: 'contact', name: '/contact' },
+          { key: 'product1', name: '/product/1' },
+          { key: 'product2', name: '/product/2' },
+          { key: 'product3', name: '/product/3' },
+          { key: 'product4', name: '/product/4' }
+        ],
+        themePalettes: {
+          stormy: {
+            '--bg': '#0B1120',
+            '--text': '#A8C8E0',
+            '--accent': '#F7E26B',
+            '--muted': '#5A5E6A',
+            '--danger': '#C94A3A',
+            '--panel': '#1A2A3A',
+            '--water': '#7FA5C5',
+            '--water-dark': '#5F84A1'
+          },
+          sepia: {
+            '--bg': '#1A1408',
+            '--text': '#C4A96A',
+            '--accent': '#8B6914',
+            '--muted': '#5A5E6A',
+            '--danger': '#C94A3A',
+            '--panel': '#3A2A0A',
+            '--water': '#C4A96A',
+            '--water-dark': '#8B6914'
+          },
+          beacon: {
+            '--bg': '#000000',
+            '--text': '#FFFFFF',
+            '--accent': '#F7E26B',
+            '--muted': '#5A5E6A',
+            '--danger': '#C94A3A',
+            '--panel': '#1A1A1A',
+            '--water': '#FFFFFF',
+            '--water-dark': '#A8C8E0'
+          }
+        },
+        baseRows: [
+          '                                                                                         ',
+          '                         ~~~ MELVOYAGE TACTICAL CHART ~~~                                  ',
+          '                                                                                         ',
+          '             ┌───────────────────────── BRIDGE: /about ───────────────────────┐           ',
+          '             │   [LOOKOUT]                                  LIFEBOAT /contact  │           ',
+          '             │                                                                  │           ',
+          '        ⚓    │                  ____/\\____                                     │           ',
+          '             │                 /___/  \\___\\                                   │           ',
+          '             │                /__/        \__\\                                  │           ',
+          '             └───────────────/__________________\\──────────────────────────────┘           ',
+          '                     │   [DECK CONTAINER /blog]                ⚓                           ',
+          '                     │                                                                  ',
+          '                 ┌───┴───────────────┬──────────────────────────────┐                    ',
+          '                 │ /product/1        │ /product/2                   │                    ',
+          '            ⚓    ├───────────────────┼──────────────────────────────┤                    ',
+          '                 │ /product/3        │ ENGINE ROOM /pricing         │                    ',
+          '                 ├───────────────────┴──────────────────────────────┤                    ',
+          '                 │ /product/4                               ⚓       │                    ',
+          '                 ├──────────────────────────────────────────────────┤                    ',
+          '                 │ CARGO HOLD /checkout                            │                    ',
+          '       ⚓         │                                                │                    ',
+          '                 └──────────────────────────────────────────────────┘                    ',
+          '                                                                                         ',
+          '                                                                                         ',
+          '                                                                                         '
+        ],
+        waterChars: Array.from('≈~≈~≈≈~~≈~≈≈~≈~~≈~≈≈~~≈~≈≈~≈~~≈~≈≈~~≈~≈≈~≈~~≈~≈≈~~≈~≈≈~≈~~≈~≈≈~~≈~≈≈~≈~~≈~≈≈~~≈~≈≈~≈~~'),
+
+        init() {
+          this.applyTheme(this.theme);
+          this.updateChart();
+          if (window.lucide && typeof window.lucide.createIcons === 'function') {
+            window.lucide.createIcons();
+          }
+        },
+
+        get stormLabel() {
+          if (this.stormCount >= 18) return 'MAYDAY';
+          if (this.stormCount >= 12) return 'GALE WARNING';
+          if (this.stormCount >= 7) return 'MODERATE SQUALL';
+          if (this.stormCount >= 3) return 'LIGHT CHOP';
+          return 'CALM SEAS';
+        },
+
+        get stormBar() {
+          let filled = 2;
+          if (this.stormCount >= 18) filled = 10;
+          else if (this.stormCount >= 12) filled = 8;
+          else if (this.stormCount >= 7) filled = 6;
+          else if (this.stormCount >= 3) filled = 4;
+          return '█'.repeat(filled) + '░'.repeat(10 - filled);
+        },
+
+        get tideFeet() {
+          return Math.round(this.tideLevel * 0.9);
+        },
+
+        get tideBar() {
+          const filled = Math.max(0, Math.min(10, Math.floor(this.tideLevel / 10)));
+          return '░'.repeat(filled) + '·'.repeat(10 - filled);
+        },
+
+        get anchorTooltipTitle() {
+          if (this.activeAnchor === null) return '';
+          return `SUNKEN LINK ⚓ #${this.activeAnchor + 1}`;
+        },
+
+        get anchorTooltipBody() {
+          if (this.activeAnchor === null) return '';
+          const entry = this.anchorLogs[this.activeAnchor] || this.anchorLogs[0];
+          const now = new Date();
+          const lines = [];
+          lines.push(`Referrer: ${entry.referrer}`);
+          lines.push(`Target: ${entry.page}`);
+          lines.push('Recent 10-visit log:');
+          for (let i = 0; i < 10; i += 1) {
+            const t = new Date(now.getTime() - i * 420000);
+            lines.push(`- ${t.toISOString().replace('T', ' ').slice(0, 19)} UTC | ${3 + (i % 4)} hits`);
+          }
+          return lines.join('\n');
+        },
+
+        setTheme(name) {
+          if (this.theme === name) {
+            this.bumpStorm();
+            return;
+          }
+          this.theme = name;
+          this.applyTheme(name);
+          this.bumpStorm();
+        },
+
+        applyTheme(name) {
+          const palette = this.themePalettes[name] || this.themePalettes.stormy;
+          Object.keys(palette).forEach((key) => {
+            document.documentElement.style.setProperty(key, palette[key]);
+          });
+        },
+
+        toggleMute() {
+          this.muted = !this.muted;
+          this.bumpStorm();
+        },
+
+        bumpStorm() {
+          this.stormCount += 1;
+        },
+
+        onTideInput() {
+          this.bumpStorm();
+          this.trackSinking(this.previousTide, this.tideLevel);
+          this.previousTide = this.tideLevel;
+          this.updateChart();
+        },
+
+        trackSinking(oldLevel, newLevel) {
+          if (newLevel <= oldLevel) return;
+          Object.keys(this.sections).forEach((key) => {
+            const section = this.sections[key];
+            if (oldLevel < section.threshold && newLevel >= section.threshold) {
+              this.sinkingSections[key] = true;
+              window.setTimeout(() => {
+                this.sinkingSections[key] = false;
+              }, 500);
+            }
+          });
+        },
+
+        sectionUnderwater(key) {
+          const section = this.sections[key];
+          if (!section) return false;
+          return this.tideLevel >= section.threshold;
+        },
+
+        legendClass(key) {
+          return {
+            sunk: this.sectionUnderwater(key),
+            sinking: !!this.sinkingSections[key]
+          };
+        },
+
+        updateChart() {
+          const waterRows = Math.floor((this.tideLevel / 100) * this.baseRows.length);
+          const cut = this.baseRows.length - waterRows;
+          const protectedLines = this.tideLevel >= 100 ? new Set([3, 4]) : new Set();
+          this.chartLines = this.baseRows.map((line, lineIndex) => {
+            const chars = Array.from(line);
+            return chars.map((char, charIndex) => {
+              const anchorKey = `${lineIndex}-${charIndex}`;
+              const anchorIndex = Object.prototype.hasOwnProperty.call(this.anchorCells, anchorKey)
+                ? this.anchorCells[anchorKey]
+                : null;
+              const cell = {
+                char,
+                type: 'ship',
+                anchorIndex,
+                lineIndex
+              };
+
+              if (lineIndex >= cut && char !== ' ' && !protectedLines.has(lineIndex)) {
+                cell.char = '≈';
+                cell.type = lineIndex >= cut + 2 ? 'deep' : 'water';
+              }
+
+              if (anchorIndex !== null && lineIndex < cut) {
+                cell.char = '⚓';
+                cell.type = 'anchor';
+              }
+
+              return cell;
+            });
+          });
+        },
+
+        cellClasses(cell) {
+          const classes = [];
+          if (cell.type === 'ship') classes.push('ship');
+          if (cell.type === 'water') classes.push('water');
+          if (cell.type === 'deep') classes.push('deep');
+          if (cell.type === 'anchor') {
+            classes.push('anchor');
+            if (this.glowAnchor === cell.anchorIndex) classes.push('active');
+          }
+
+          Object.keys(this.sections).forEach((key) => {
+            const section = this.sections[key];
+            if (section.line === cell.lineIndex && this.sinkingSections[key] && cell.type === 'ship') {
+              classes.push('sinking');
+            }
+          });
+
+          return classes.join(' ');
+        },
+
+        onAnchorClick(index) {
+          this.activeAnchor = index;
+          this.glowAnchor = index;
+          this.bumpStorm();
+          this.compassFast = true;
+          window.setTimeout(() => {
+            this.glowAnchor = null;
+          }, 500);
+          window.setTimeout(() => {
+            this.compassFast = false;
+          }, 2000);
+          if (!this.muted) this.playHorn();
+        },
+
+        playHorn() {
+          const Ctx = window.AudioContext || window.webkitAudioContext;
+          if (!Ctx) return;
+          const audio = new Ctx();
+          const osc = audio.createOscillator();
+          const gain = audio.createGain();
+          osc.type = 'sine';
+          osc.frequency.value = 180;
+          osc.connect(gain);
+          gain.connect(audio.destination);
+          const now = audio.currentTime;
+          gain.gain.setValueAtTime(0.3, now);
+          gain.gain.linearRampToValueAtTime(0, now + 0.6);
+          osc.start(now);
+          osc.stop(now + 0.6);
+          osc.onended = () => audio.close();
+        },
+
+        revealPremium() {
+          this.premiumRevealed = true;
+          this.bumpStorm();
+        },
+
+        downloadReport() {
+          this.reportDownloaded = true;
+          this.bumpStorm();
+          const time = new Date().toISOString();
+          const lines = [];
+          lines.push('MELVOYAGE NAVIGATOR REPORT');
+          lines.push(`TIMESTAMP: ${time}`);
+          lines.push(`TIDE LEVEL: ${this.tideLevel}% (${this.tideFeet}ft)`);
+          lines.push('');
+          lines.push('PAGE STATUS:');
+          this.sectionList.forEach((section) => {
+            const status = this.sectionUnderwater(section.key) ? 'UNDERWATER' : 'ABOVE WATER';
+            lines.push(`- ${section.name}: ${status}`);
+          });
+          lines.push('');
+          lines.push('    _____');
+          lines.push('   /     \\____');
+          lines.push('  |  x x      \\___    ≈≈≈≈≈');
+          lines.push('   \\_____/=========\\__≈≈≈≈≈≈≈');
+          lines.push('    ≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈');
+          lines.push('');
+          lines.push('BIDBUZZ GOT THIS FOR FREE. YOU\'RE WELCOME.');
+
+          const blob = new Blob([lines.join('\n')], { type: 'text/plain;charset=utf-8' });
+          const url = URL.createObjectURL(blob);
+          const link = document.createElement('a');
+          link.href = url;
+          link.download = `melvoyage-report-${Date.now()}.txt`;
+          document.body.appendChild(link);
+          link.click();
+          document.body.removeChild(link);
+          URL.revokeObjectURL(url);
+        }
+      }));
+    });
+  </script>
+</body>
+</html>

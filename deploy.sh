@@ -9,6 +9,9 @@ echo "deploying to $SERVER..."
 # Push latest code
 git push origin main
 
+# Reset server working tree so untracked/modified cache pages don't block pull
+ssh "$SERVER" "cd $APP_DIR && git checkout -- . && git clean -fd cache/pages/"
+
 # Pull, install, restart on server
 ssh "$SERVER" "cd $APP_DIR && git pull && npm install --production && sudo cp nginx.conf /etc/nginx/sites-available/veryrandom && sudo nginx -t && sudo systemctl reload nginx && sudo systemctl restart veryrandom"
 

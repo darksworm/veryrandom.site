@@ -1,0 +1,863 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>ChurchBase 1987</title>
+  <link rel="stylesheet" href="/assets/css/pico.min.css">
+  <link rel="stylesheet" href="/assets/css/fonts.css">
+  <style>
+    :root {
+      --cream: #FFF8E7;
+      --ink: #2B1A0E;
+      --wine: #8B1A1A;
+      --green: #3D5A1E;
+      --tape: #C4A35A;
+      --smudge: #3D3228;
+      --legal: #FFF8A0;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html,
+    body {
+      margin: 0;
+      padding: 0;
+      min-height: 100%;
+      background:
+        radial-gradient(circle at 82% 84%, #6B5B4A 0%, #6B5B4A 8%, #FFF8E7 32%, #FFF8E7 100%),
+        radial-gradient(circle at 4px 4px, #C4A35A 1px, transparent 1.3px),
+        radial-gradient(circle at 14px 10px, #6B5B4A 0.8px, transparent 1.2px),
+        radial-gradient(circle at 25px 18px, #C4A35A 1px, transparent 1.4px),
+        #FFF8E7;
+      background-size: auto, 28px 28px, 28px 28px, 28px 28px, auto;
+      background-position: center, 0 0, 7px 11px, 16px 5px, center;
+      color: var(--ink);
+      font-family: 'Libre Baskerville', serif;
+      font-size: 16px;
+      line-height: 1.55;
+      overflow-x: hidden;
+      box-shadow: inset 0 0 0 0.5px #6B5B4A;
+    }
+
+    body {
+      min-height: 100vh;
+    }
+
+    .board {
+      width: min(1200px, 96vw);
+      margin: 0 auto;
+      padding: 1rem 1rem 2.8rem;
+      position: relative;
+    }
+
+    .torn-strip {
+      position: relative;
+      background: #FFFDF7;
+      padding: 1.1rem 1rem;
+      border: 2px solid var(--tape);
+      clip-path: polygon(0% 7%, 5% 1%, 11% 6%, 17% 2%, 24% 7%, 31% 1%, 39% 6%, 47% 2%, 55% 7%, 63% 1%, 72% 6%, 80% 2%, 88% 7%, 94% 2%, 100% 8%, 100% 93%, 94% 98%, 89% 94%, 82% 99%, 74% 94%, 67% 99%, 59% 94%, 50% 98%, 42% 94%, 33% 99%, 25% 94%, 17% 98%, 9% 93%, 0% 99%);
+      filter: drop-shadow(0 7px 8px #6B5B4A);
+    }
+
+    .header-strip {
+      transform: rotate(-1.2deg);
+      text-align: center;
+      margin-top: 0.4rem;
+    }
+
+    .pushpin {
+      position: absolute;
+      top: -12px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      background: var(--wine);
+      box-shadow: 0 5px 0 #2B1A0E;
+      border: 2px solid #FFF8E7;
+    }
+
+    .brand {
+      margin: 0;
+      font-family: 'Permanent Marker', cursive;
+      color: var(--wine);
+      font-size: clamp(2rem, 7vw, 3rem);
+      letter-spacing: 3px;
+      line-height: 1;
+    }
+
+    .tagline {
+      margin: 0.35rem 0 0;
+      font-size: 0.9rem;
+      color: var(--ink);
+      font-style: italic;
+    }
+
+    .marquee {
+      margin: 0.8rem 0 1.1rem;
+      background: var(--ink);
+      color: var(--cream);
+      border: 2px solid var(--tape);
+      overflow: hidden;
+      padding: 0.55rem 0;
+      font-family: 'Fira Code', monospace;
+      font-size: 13px;
+      position: relative;
+    }
+
+    .marquee-track {
+      display: inline-flex;
+      min-width: max-content;
+      white-space: nowrap;
+      animation: crawl calc(var(--prayer-count) * 5s) linear infinite;
+      will-change: transform;
+    }
+
+    .marquee.is-paused .marquee-track {
+      animation-play-state: paused;
+    }
+
+    .marquee.is-glitch {
+      animation: flicker 0.2s steps(2, end) 9;
+    }
+
+    .prayer-text {
+      padding-right: 3rem;
+      letter-spacing: 0.15px;
+    }
+
+    .cards {
+      display: grid;
+      grid-template-columns: repeat(12, 1fr);
+      gap: 0.8rem;
+      align-items: start;
+      position: relative;
+    }
+
+    .card {
+      border: 2px solid var(--tape);
+      padding: 1rem;
+      color: var(--ink);
+      box-shadow: 0 8px 12px rgba(43,26,14,0.25);
+      position: relative;
+      --rot: 0deg;
+      opacity: 0;
+      transform: rotate(var(--rot)) scale(0.95);
+      animation: pin-in 0.45s ease forwards;
+      animation-delay: var(--delay, 0ms);
+    }
+
+    .card h2,
+    .card h3 {
+      margin-top: 0;
+      color: var(--wine);
+      font-family: 'Permanent Marker', cursive;
+      letter-spacing: 1px;
+      line-height: 1.1;
+    }
+
+    .card-a {
+      background: #FBF2DA;
+      border-style: dashed;
+      grid-column: 1 / span 7;
+      --rot: -1.7deg;
+      margin-bottom: -0.4rem;
+    }
+
+    .font-samples {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 0.55rem;
+      margin-top: 0.9rem;
+    }
+
+    .font-option {
+      border: 2px solid #6B5B4A;
+      background: #FFFDF7;
+      color: var(--ink);
+      min-height: 70px;
+      width: 100%;
+      text-align: left;
+      padding: 0.5rem;
+      cursor: pointer;
+      display: flex;
+      gap: 0.5rem;
+      align-items: flex-start;
+      border-radius: 4px;
+      font-size: 0.85rem;
+      line-height: 1.2;
+    }
+
+    .font-option.active {
+      border-color: var(--wine);
+      box-shadow: 0 0 0 2px var(--wine);
+    }
+
+    .radio-dot {
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+      border: 2px solid var(--ink);
+      margin-top: 2px;
+      flex-shrink: 0;
+      background: #FFF8E7;
+    }
+
+    .font-option.active .radio-dot {
+      background: var(--wine);
+      border-color: var(--wine);
+    }
+
+    .card-b {
+      background:
+        linear-gradient(90deg, transparent 0 29px, #8B1A1A 29px 31px, transparent 31px),
+        repeating-linear-gradient(to bottom, #FDF7E6 0 25px, #D8CFBB 25px 26px);
+      grid-column: 7 / span 6;
+      --rot: 2.1deg;
+      margin-top: -1.4rem;
+      z-index: 2;
+    }
+
+    .card-b .entry {
+      transform: skewY(-0.5deg);
+      margin-left: 1.7rem;
+      font-size: 0.95rem;
+    }
+
+    .gary-sign {
+      font-family: 'Permanent Marker', cursive;
+      color: var(--wine);
+      transform: rotate(-2.2deg);
+      margin: 0.9rem 0 0 2rem;
+      font-size: 1rem;
+      line-height: 1.2;
+    }
+
+    .coffee-ring {
+      position: absolute;
+      right: 0.7rem;
+      bottom: 1rem;
+      width: 108px;
+      height: 108px;
+      border-radius: 50%;
+      background: radial-gradient(circle, transparent 56%, #6B5B4A 57%, #6B5B4A 61%, transparent 63%);
+      opacity: 0.32;
+      animation: ring-pulse 8s ease-in-out infinite;
+      pointer-events: none;
+    }
+
+    .card-c {
+      background: var(--legal);
+      grid-column: 1 / span 5;
+      --rot: -2.4deg;
+      margin-top: -0.5rem;
+      font-family: 'Fira Code', monospace;
+      font-size: 0.88rem;
+      white-space: pre-line;
+      z-index: 3;
+    }
+
+    .invoice {
+      margin: 0;
+      font-family: 'Fira Code', monospace;
+      color: #2B1A0E;
+      line-height: 1.35;
+      overflow-wrap: anywhere;
+      white-space: pre-wrap;
+    }
+
+    .linger-note {
+      margin-top: 0.9rem;
+      font-family: 'Permanent Marker', cursive;
+      font-size: 15px;
+      color: var(--wine);
+      line-height: 1.35;
+      transition: opacity 0.55s ease;
+    }
+
+    .card-d {
+      background: #F8EED2;
+      grid-column: 5 / span 8;
+      --rot: 1.3deg;
+      margin-top: -2.2rem;
+      z-index: 1;
+    }
+
+    .tri-fold {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 0.7rem;
+    }
+
+    .tri-col {
+      border-left: 1px solid var(--tape);
+      padding-left: 0.65rem;
+      font-size: 0.92rem;
+    }
+
+    .tri-col:first-child {
+      border-left: none;
+      padding-left: 0;
+    }
+
+    .filter-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 0.5rem;
+      margin-top: 0.55rem;
+    }
+
+    .filter-box {
+      border: 2px solid #6B5B4A;
+      min-height: 132px;
+      padding: 0.4rem;
+      background: #FFFDF7;
+      cursor: pointer;
+      border-radius: 3px;
+      transition: transform 0.2s ease;
+    }
+
+    .filter-box:focus-visible,
+    .font-option:focus-visible {
+      outline: 3px solid var(--green);
+      outline-offset: 2px;
+    }
+
+    .filter-box:hover {
+      transform: translateY(-2px);
+    }
+
+    .filter-box.active {
+      border-color: var(--wine);
+      box-shadow: 0 0 0 2px var(--wine);
+    }
+
+    .photo {
+      width: 100%;
+      height: 82px;
+      border: 2px solid #C4A35A;
+      background:
+        radial-gradient(circle at 20% 24%, #D7B28A 0 10%, transparent 11%),
+        radial-gradient(circle at 63% 28%, #B9936A 0 12%, transparent 13%),
+        radial-gradient(circle at 44% 63%, #8FA367 0 17%, transparent 18%),
+        linear-gradient(180deg, #CDB9A0 0%, #A98B6A 100%);
+    }
+
+    .photo.fading {
+      filter: sepia(0.6) contrast(0.87);
+      box-shadow: inset 0 0 0 9px #E5D19A, 0 0 0 1px #6B5B4A;
+      background-image:
+        radial-gradient(circle at 20% 24%, #D7B28A 0 10%, transparent 11%),
+        radial-gradient(circle at 63% 28%, #B9936A 0 12%, transparent 13%),
+        radial-gradient(circle at 44% 63%, #8FA367 0 17%, transparent 18%),
+        linear-gradient(180deg, #CDB9A0 0%, #A98B6A 100%),
+        radial-gradient(circle at 25% 35%, #6B5B4A 1px, transparent 1.4px),
+        radial-gradient(circle at 70% 60%, #6B5B4A 1px, transparent 1.3px);
+      background-size: auto, auto, auto, auto, 16px 16px, 12px 12px;
+    }
+
+    .photo.projector {
+      background:
+        radial-gradient(circle at center, #D1BC9D 15%, #EEE6D7 72%),
+        linear-gradient(180deg, #E8D6BC 0%, #BFA281 100%);
+      box-shadow: inset 0 0 30px #FFF8E7;
+      filter: contrast(0.84) brightness(1.08);
+    }
+
+    .photo.scrapbook {
+      box-shadow: inset 0 0 0 3px #E3B670, inset 0 0 0 10px #F0D7A8;
+      clip-path: polygon(0% 5%, 4% 1%, 9% 6%, 14% 2%, 21% 7%, 28% 3%, 34% 8%, 42% 2%, 48% 7%, 55% 3%, 63% 8%, 70% 2%, 77% 7%, 84% 3%, 91% 8%, 100% 4%, 100% 95%, 94% 99%, 88% 93%, 82% 98%, 75% 92%, 66% 97%, 57% 91%, 49% 98%, 41% 92%, 34% 97%, 25% 91%, 16% 97%, 9% 92%, 0% 96%);
+      filter: saturate(0.86);
+    }
+
+    .filter-label {
+      margin-top: 0.3rem;
+      font-family: 'Fira Code', monospace;
+      font-size: 0.85rem;
+      color: #2B1A0E;
+    }
+
+    .small-note {
+      margin-top: 0.6rem;
+      font-family: 'Fira Code', monospace;
+      font-size: 13px;
+      color: var(--smudge);
+    }
+
+    .card-e {
+      background: #FBF2DA;
+      grid-column: 1 / span 4;
+      --rot: 2.8deg;
+      margin-top: -1.2rem;
+      z-index: 4;
+      padding: 0.8rem;
+    }
+
+    .counter-title {
+      margin: 0 0 0.45rem;
+      font-family: 'Fira Code', monospace;
+      font-size: 0.85rem;
+      letter-spacing: 1px;
+      color: var(--wine);
+    }
+
+    .digits {
+      display: flex;
+      gap: 0.25rem;
+      flex-wrap: nowrap;
+      margin-bottom: 0.35rem;
+    }
+
+    .digit {
+      width: 24px;
+      min-height: 34px;
+      border: 2px solid var(--ink);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      background: #FFFDF7;
+      font-family: 'Fira Code', monospace;
+      font-size: 1rem;
+      color: var(--ink);
+    }
+
+    .visitor-note {
+      margin: 0.4rem 0 0;
+      font-style: italic;
+      font-size: 0.85rem;
+      color: #2B1A0E;
+    }
+
+    .card-f {
+      background: #FFFBF1;
+      grid-column: 4 / span 9;
+      --rot: -1.1deg;
+      margin-top: -1.5rem;
+      border: 4px double var(--tape);
+      z-index: 2;
+    }
+
+    .prayer {
+      text-align: center;
+      font-size: 0.95rem;
+      margin: 0;
+    }
+
+    .fineprint {
+      margin-top: 0.8rem;
+      text-align: center;
+      font-family: 'Fira Code', monospace;
+      font-size: 13px;
+      color: var(--smudge);
+    }
+
+    .footer-strip {
+      margin-top: 1.2rem;
+      transform: rotate(0.6deg);
+      text-align: center;
+      font-family: 'Fira Code', monospace;
+      font-size: 14px;
+      line-height: 1.45;
+      color: var(--ink);
+    }
+
+    .evelyn {
+      position: absolute;
+      right: 2.4rem;
+      bottom: 5.6rem;
+      width: min(285px, 74vw);
+      background:
+        radial-gradient(circle at 70% 28%, #E5D8B8 0 20%, #F4ECD8 63%),
+        #F4ECD8;
+      border: 2px solid var(--tape);
+      border-radius: 11px;
+      padding: 0.9rem;
+      box-shadow: 0 8px 12px #6B5B4A;
+      transform: rotate(-2.4deg);
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 3s ease;
+      z-index: 1;
+    }
+
+    .evelyn.show {
+      opacity: 1;
+    }
+
+    .evelyn h3 {
+      margin: 0;
+      font-family: 'Caveat', cursive;
+      color: var(--ink);
+      font-size: 1.35rem;
+      line-height: 1.1;
+      letter-spacing: 0.4px;
+    }
+
+    .evelyn p {
+      margin: 0.4rem 0 0;
+      font-family: 'Caveat', cursive;
+      color: #2B1A0E;
+      font-size: 1.12rem;
+      line-height: 1.16;
+    }
+
+    .tap-btn {
+      min-height: 44px;
+    }
+
+    @keyframes pin-in {
+      from {
+        opacity: 0;
+        transform: rotate(var(--rot)) scale(0.95);
+      }
+      to {
+        opacity: 1;
+        transform: rotate(var(--rot)) scale(1);
+      }
+    }
+
+    @keyframes crawl {
+      from {
+        transform: translateX(0%);
+      }
+      to {
+        transform: translateX(-50%);
+      }
+    }
+
+    @keyframes flicker {
+      0% { opacity: 1; }
+      14% { opacity: 0.92; }
+      20% { opacity: 1; }
+      35% { opacity: 0.9; }
+      51% { opacity: 1; }
+      66% { opacity: 0.91; }
+      85% { opacity: 1; }
+      100% { opacity: 1; }
+    }
+
+    @keyframes ring-pulse {
+      0% { opacity: 0.32; }
+      50% { opacity: 0.35; }
+      100% { opacity: 0.32; }
+    }
+
+    @media (max-width: 900px) {
+      .card-a,
+      .card-b,
+      .card-c,
+      .card-d,
+      .card-e,
+      .card-f {
+        grid-column: 1 / -1;
+        margin-top: 0;
+        --rot: 0deg;
+      }
+
+      .tri-fold {
+        grid-template-columns: 1fr;
+      }
+
+      .font-samples,
+      .filter-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .evelyn {
+        position: static;
+        margin: 0.8rem auto 0;
+        transform: rotate(-1deg);
+      }
+
+      .card-b .entry,
+      .gary-sign {
+        margin-left: 1rem;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .board {
+        width: 100%;
+        padding: 0.75rem 0.55rem 2rem;
+      }
+
+      .brand {
+        letter-spacing: 1.5px;
+      }
+
+      .card {
+        padding: 0.8rem;
+      }
+
+      .digit {
+        width: 22px;
+        min-height: 32px;
+      }
+
+      .marquee {
+        font-size: 12px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="board" x-data="churchBoard()" x-init="init()">
+    <header class="torn-strip header-strip">
+      <span class="pushpin" aria-hidden="true"></span>
+      <h1 class="brand">ChurchBase 1987</h1>
+      <p class="tagline"><em>The Only Honest Church Website Platform Left On The Internet</em></p>
+    </header>
+
+    <section class="marquee" :class="{ 'is-paused': glitching, 'is-glitch': glitching }" aria-label="Prayer ticker">
+      <div class="marquee-track" style="--prayer-count: 25;">
+        <span class="prayer-text">Intercession for the Wilkinsons' 1984 Chevy that failed its third emissions test</span>
+        <span class="prayer-text">Guidance for Sister Margaret's unresolved debate over the $2.50 price hike on choir robe dry-cleaning</span>
+        <span class="prayer-text">Comfort for Dale who found out his grandson calls Alexa 'Grandma'</span>
+        <span class="prayer-text">Strength for the Thursday night Bible study that has been on Leviticus for 11 months</span>
+        <span class="prayer-text">Patience for whoever keeps moving the fellowship hall thermostat to 78</span>
+        <span class="prayer-text">Healing for Pastor Jim's pride after the Easter bread fiasco of '87</span>
+        <span class="prayer-text">Wisdom for the committee deciding whether 'contemporary' means guitars or just a louder organ</span>
+        <span class="prayer-text">Protection for Gary's RV generator which makes a sound like a cat in a dryer</span>
+        <span class="prayer-text">Mercy on the Hendersons who brought store-bought pie to the bake sale and thought we wouldn't notice</span>
+        <span class="prayer-text">Peace for Evelyn, who has been holding a grudge about the pineapple cake incident since 1985</span>
+        <span class="prayer-text">Courage for Deacon Roy as he attempts Bluetooth pairing for the sixth Sunday in a row</span>
+        <span class="prayer-text">Discernment for the youth pastor choosing between fog machine mode and spiritual restraint</span>
+        <span class="prayer-text">Provision for the copier toner that disappears before newsletter week every month</span>
+        <span class="prayer-text">Charity for whoever wrote 'Bring your own green beans' on the potluck sign-up in permanent marker</span>
+        <span class="prayer-text">Relief for the choir sopranos after one too many key changes in Blessed Assurance</span>
+        <span class="prayer-text">Humility for Gary after he called a div tag 'worldly nonsense' during office hours</span>
+        <span class="prayer-text">Blessing for the folding table with one holy but unstable leg in classroom B</span>
+        <span class="prayer-text">Endurance for the sound booth volunteer counting to four for every hymn intro</span>
+        <span class="prayer-text">Clarity for the elder board trying to decode the handwriting on pledge cards</span>
+        <span class="prayer-text">Forgiveness for the person who microwaved fish before Wednesday prayer circle</span>
+        <span class="prayer-text">Rest for Miss Connie, who still labels every VHS tape by hand in 2026</span>
+        <span class="prayer-text">Wisdom for the nursery team enforcing the no-glitter covenant</span>
+        <span class="prayer-text">Steadiness for the usher who insists the offering plate has an aerodynamic sweet spot</span>
+        <span class="prayer-text">Hope for the church sign letter 'R' that keeps vanishing in high wind</span>
+        <span class="prayer-text">Gratitude for whoever remembered to unplug the percolator before youth lock-in</span>
+
+        <span class="prayer-text">Intercession for the Wilkinsons' 1984 Chevy that failed its third emissions test</span>
+        <span class="prayer-text">Guidance for Sister Margaret's unresolved debate over the $2.50 price hike on choir robe dry-cleaning</span>
+        <span class="prayer-text">Comfort for Dale who found out his grandson calls Alexa 'Grandma'</span>
+        <span class="prayer-text">Strength for the Thursday night Bible study that has been on Leviticus for 11 months</span>
+        <span class="prayer-text">Patience for whoever keeps moving the fellowship hall thermostat to 78</span>
+        <span class="prayer-text">Healing for Pastor Jim's pride after the Easter bread fiasco of '87</span>
+        <span class="prayer-text">Wisdom for the committee deciding whether 'contemporary' means guitars or just a louder organ</span>
+        <span class="prayer-text">Protection for Gary's RV generator which makes a sound like a cat in a dryer</span>
+        <span class="prayer-text">Mercy on the Hendersons who brought store-bought pie to the bake sale and thought we wouldn't notice</span>
+        <span class="prayer-text">Peace for Evelyn, who has been holding a grudge about the pineapple cake incident since 1985</span>
+      </div>
+    </section>
+
+    <section class="cards" aria-label="Pinned bulletin cards">
+      <article class="card card-a" style="--delay: 0ms;" x-data="{ selected: 'libre' }">
+        <h2>WHAT WE DO</h2>
+        <p :style="selected === 'libre' ? 'font-family: \'Libre Baskerville\', serif;' : selected === 'caveat' ? 'font-family: \'Caveat\', cursive;' : 'font-family: \'Archivo Black\', sans-serif; letter-spacing: -0.4px;'">
+          <em>We take your congregation's web presence and we force it back into the look and feel of a 1987 church bulletin board. Three spiritually approved fonts. A grease-stained napkin background. A scrolling prayer marquee that takes five seconds per cycle because some things should not be rushed.</em>
+        </p>
+        <div class="font-samples" role="radiogroup" aria-label="Spiritually approved fonts">
+          <button type="button" class="font-option tap-btn" :class="{ 'active': selected === 'libre' }" @click="selected = 'libre'" aria-label="Select Divine Spacing">
+            <span class="radio-dot" aria-hidden="true"></span>
+            <span>
+              <strong style="font-family: 'Libre Baskerville', serif; letter-spacing: 4px;">Divine Spacing</strong>
+            </span>
+          </button>
+          <button type="button" class="font-option tap-btn" :class="{ 'active': selected === 'caveat' }" @click="selected = 'caveat'" aria-label="Select Radiant Scribble">
+            <span class="radio-dot" aria-hidden="true"></span>
+            <span>
+              <strong style="font-family: 'Caveat', cursive; text-shadow: 1px 1px 0 #C4A35A;">Radiant Scribble</strong>
+            </span>
+          </button>
+          <button type="button" class="font-option tap-btn" :class="{ 'active': selected === 'archivo' }" @click="selected = 'archivo'" aria-label="Select Heavenly Holler">
+            <span class="radio-dot" aria-hidden="true"></span>
+            <span>
+              <strong style="font-family: 'Archivo Black', sans-serif; letter-spacing: -1px; text-transform: uppercase;">Heavenly Holler</strong>
+            </span>
+          </button>
+        </div>
+      </article>
+
+      <article class="card card-b" style="--delay: 200ms;">
+        <h2>GARY'S TESTIMONY</h2>
+        <div class="entry">
+          <p><em>"I built this the night I found my Aunt Darlene's Harvest Festival flyer in her attic. I sat on the floor crying because that smudged mimeograph paper with its crooked clip art cross felt more like church than anything SpireConnect has ever sold for $49.99 a month."</em></p>
+          <p><em>"I miss when community was inconvenient. When you had to squint to read the potluck schedule. When you had to call Evelyn directly to get the pineapple cake recipe because the ink bled through. That friction was the point. It meant you had to talk to each other."</em></p>
+        </div>
+        <p class="gary-sign">- Gary Loomis, Kearney NE, 2:47 AM, March 2014</p>
+        <span class="coffee-ring" aria-hidden="true"></span>
+      </article>
+
+      <article class="card card-c" style="--delay: 400ms;" aria-live="polite">
+        <pre class="invoice">═══════════════════════════════════════
+   C H U R C H B A S E  1 9 8 7
+   MONTHLY SERVICE INVOICE
+═══════════════════════════════════════
+   Standard Bulletin Board Plan
+   ──────────────────────────────
+   3 Spiritually Approved Fonts .... FREE
+   Napkin Background Texture ...... FREE
+   Prayer Marquee (5 sec/cycle) ... FREE
+   Bulletin Builder Icons ......... FREE
+   Image Degradation Filters ...... FREE
+   The Custodian's Closet Admin ... FREE
+   ──────────────────────────────
+   TOTAL ................... $0.00/mo
+
+   (SpireConnect charges $49.99
+    for half of this and none
+    of the honesty)
+═══════════════════════════════════════
+   Donations accepted via mail.
+   Gary Loomis
+   PO Box 1987
+   Kearney, NE 68847
+═══════════════════════════════════════</pre>
+        <p class="linger-note" x-show="secondsOnPage >= 30" x-transition.opacity.duration.500ms>
+          You've been here <span x-text="secondsOnPage"></span> seconds. That's longer than most people stay on a SpireConnect site. Thank you.
+        </p>
+      </article>
+
+      <article class="card card-d" style="--delay: 600ms;" x-data="{ activeFilter: 'fading' }">
+        <h2>FEATURES</h2>
+        <div class="tri-fold">
+          <section class="tri-col">
+            <h3>The Bulletin Builder</h3>
+            <p>Our icon library includes a cross that pixelates above 72dpi, a dove with visible ink bleeds, and a casserole dish we're 60% sure is a casserole dish. Every icon was hand-scanned from a 1986 Epson printout found in a Goodwill box in Lincoln.</p>
+          </section>
+          <section class="tri-col">
+            <h3>Image Filters</h3>
+            <div class="filter-grid" @keydown.right.prevent="activeFilter = activeFilter === 'fading' ? 'projector' : activeFilter === 'projector' ? 'scrapbook' : 'fading'">
+              <button class="filter-box tap-btn" type="button" @click="activeFilter = 'fading'" :class="{ 'active': activeFilter === 'fading' }" aria-label="Fading Polaroid">
+                <div class="photo" :class="activeFilter === 'fading' ? 'fading' : ''"></div>
+                <div class="filter-label">Fading Polaroid</div>
+              </button>
+              <button class="filter-box tap-btn" type="button" @click="activeFilter = 'projector'" :class="{ 'active': activeFilter === 'projector' }" aria-label="Overhead Projector Fade">
+                <div class="photo" :class="activeFilter === 'projector' ? 'projector' : ''"></div>
+                <div class="filter-label">Overhead Projector Fade</div>
+              </button>
+              <button class="filter-box tap-btn" type="button" @click="activeFilter = 'scrapbook'" :class="{ 'active': activeFilter === 'scrapbook' }" aria-label="Sunday School Scrapbook">
+                <div class="photo" :class="activeFilter === 'scrapbook' ? 'scrapbook' : ''"></div>
+                <div class="filter-label">Sunday School Scrapbook</div>
+              </button>
+            </div>
+          </section>
+          <section class="tri-col">
+            <h3>The Custodian's Closet</h3>
+            <p>Our admin panel. Password recovery requires answering: "What was the exact measurement of flour in Pastor Jim's disastrous '87 Easter bread fiasco?" If you get it wrong, you wait 24 hours for Gary to manually email you a reset. This is a feature.</p>
+          </section>
+        </div>
+        <p class="small-note">All features are spiritually approved and legally distinct from SpireConnect&#174;</p>
+      </article>
+
+      <article class="card card-e" style="--delay: 800ms;" aria-live="polite">
+        <p class="counter-title">VISITORS: 000XXX</p>
+        <div class="digits">
+          <template x-for="(digit, index) in paddedCounter" :key="index">
+            <span class="digit" x-text="digit"></span>
+          </template>
+        </div>
+        <p class="visitor-note">You are visitor #<span x-text="visitorCount"></span>. Gary sees you.</p>
+      </article>
+
+      <article class="card card-f" style="--delay: 1000ms;">
+        <h2>A PRAYER FOR THE INTERNET</h2>
+        <p class="prayer"><em>"Lord, we ask that You look upon this internet and see what we have done with it. We took a miracle and we made it into a vending machine. We took the gift of speaking to anyone on earth and we used it to sell each other things we do not need. We took the churches You built with hands and hymnals and we turned them into subscription services with dropdown menus and customer support tickets. Forgive us for making community convenient. Forgive us for the frictionless experience. Forgive us for every autoplaying video and every chat widget that asks 'How can I help you today?' when nobody on the other end is real. We pray for the bulletin boards, Lord. For the smudged ink and the crooked clip art. For the women who typed the newsletters and the men who folded them wrong. For the coffee that was always burnt and the fellowship that was always real. Amen."</em></p>
+        <p class="fineprint">This prayer was composed on a Tandy 1000 in 1987. It has not been updated because it did not need to be.</p>
+      </article>
+    </section>
+
+    <aside class="evelyn" :class="{ 'show': showEvelyn }" aria-live="polite">
+      <h3>Evelyn's Pineapple Upside-Down Cake</h3>
+      <p>
+        2 cans pineapple rings (save the juice)<br>
+        1/2 cup butter<br>
+        1 cup brown sugar<br>
+        Maraschino cherries<br>
+        1 box yellow cake mix<br>
+        Follow the box but use the pineapple juice instead of water<br>
+        Bake at 350° 45 min<br>
+        Flip it while it's hot or don't bother<br>
+        - E.
+      </p>
+    </aside>
+
+    <footer class="torn-strip footer-strip">
+      <div>ChurchBase 1987 · Built by Gary Loomis · Parked RV, Kearney NE · Since March 2014</div>
+      <div>Best viewed on a 14-inch CRT monitor at 640×480</div>
+      <div>This site does not use cookies because cookies are for fellowship hall</div>
+    </footer>
+  </main>
+
+  <script src="/assets/js/alpine.min.js" defer></script>
+  <script src="/assets/js/lucide.min.js" defer></script>
+  <script>
+    function churchBoard() {
+      return {
+        secondsOnPage: 0,
+        glitching: false,
+        showEvelyn: false,
+        visitorCount: 0,
+
+        get paddedCounter() {
+          return String(this.visitorCount).padStart(6, '0').split('');
+        },
+
+        init() {
+          this.setupVisitorCounter();
+          this.startClock();
+          this.startGlitchCycle();
+
+          if (window.lucide && typeof window.lucide.createIcons === 'function') {
+            window.lucide.createIcons();
+          }
+        },
+
+        startClock() {
+          setInterval(() => {
+            this.secondsOnPage += 1;
+            if (this.secondsOnPage >= 120) {
+              this.showEvelyn = true;
+            }
+          }, 1000);
+        },
+
+        startGlitchCycle() {
+          setInterval(() => {
+            this.glitching = true;
+            setTimeout(() => {
+              this.glitching = false;
+            }, 2000);
+          }, 45000);
+        },
+
+        setupVisitorCounter() {
+          var baseKey = 'churchbase1987_counter';
+          var seenKey = 'churchbase1987_seen';
+          var start = 3400 + Math.floor(Math.random() * 401);
+
+          try {
+            var stored = parseInt(localStorage.getItem(baseKey), 10);
+            if (Number.isNaN(stored)) {
+              stored = start;
+            }
+
+            if (!localStorage.getItem(seenKey)) {
+              stored += 1;
+              localStorage.setItem(seenKey, 'true');
+            }
+
+            localStorage.setItem(baseKey, String(stored));
+            this.visitorCount = stored;
+          } catch (err) {
+            this.visitorCount = start;
+          }
+        }
+      };
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,1367 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Confidence Cache™</title>
+  <link rel="stylesheet" href="/assets/css/pico.min.css" />
+  <link rel="stylesheet" href="/assets/css/fonts.css" />
+  <style>
+    :root {
+      --void: #0b0e17;
+      --blue: #2a52be;
+      --parchment: #f5e6c8;
+      --orange: #ff6600;
+      --panel: #1a1d2e;
+      --verdigris: #3d6b4f;
+    }
+
+    * { box-sizing: border-box; }
+
+    html, body {
+      margin: 0;
+      padding: 0;
+      background: var(--void);
+      color: var(--parchment);
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 16px;
+      min-height: 100%;
+      overflow-x: hidden;
+    }
+
+    body { line-height: 1.45; }
+
+    .frame {
+      position: relative;
+      margin: 20px;
+      border: 2px solid var(--blue);
+      background: var(--void);
+      overflow: hidden;
+      min-height: calc(100vh - 40px);
+    }
+
+    .frame::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      background: repeating-linear-gradient(
+        to bottom,
+        transparent 0,
+        transparent 2px,
+        rgba(42, 82, 190, 0.04) 2px,
+        rgba(42, 82, 190, 0.04) 4px
+      );
+      animation: scanlines 1s linear infinite;
+      z-index: 0;
+    }
+
+    @keyframes scanlines {
+      from { background-position: 0 0; }
+      to { background-position: 0 -1px; }
+    }
+
+    .content, .top-bar { position: relative; z-index: 1; }
+
+    .top-bar {
+      position: sticky;
+      top: 0;
+      height: 48px;
+      background: var(--panel);
+      border-bottom: 1px solid var(--blue);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 0 14px;
+    }
+
+    .forecast-line {
+      font-size: 16px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .live-box {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-family: 'Archivo Black', sans-serif;
+      font-size: 12px;
+      color: var(--orange);
+      letter-spacing: 0.05em;
+      flex-shrink: 0;
+    }
+
+    .live-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: var(--orange);
+      animation: pulse 1s infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { transform: scale(0.9); opacity: 1; }
+      50% { transform: scale(1.2); opacity: 0.95; }
+    }
+
+    section { padding: 80px 20px; }
+
+    .wrap {
+      width: min(100%, 700px);
+      margin: 0 auto;
+    }
+
+    .hero { padding-top: 120px; }
+
+    h1, h2, h3 {
+      font-family: 'Archivo Black', sans-serif;
+      color: var(--parchment);
+      margin: 0 0 14px;
+      line-height: 1.1;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+
+    h1 {
+      font-size: clamp(40px, 8vw, 64px);
+      text-align: center;
+      letter-spacing: 0.15em;
+    }
+
+    h2 { font-size: clamp(30px, 5vw, 32px); }
+    h3 { font-size: clamp(24px, 4.8vw, 28px); }
+
+    .rule {
+      width: 200px;
+      height: 1px;
+      background: var(--blue);
+      margin: 18px auto;
+    }
+
+    .subtitle {
+      color: var(--orange);
+      text-align: center;
+      font-size: 16px;
+      margin-bottom: 24px;
+    }
+
+    .lead {
+      margin: 0 auto;
+      max-width: 540px;
+      text-align: center;
+      color: var(--parchment);
+      font-size: 16px;
+    }
+
+    .tier-grid {
+      margin-top: 34px;
+      display: grid;
+      gap: 14px;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .tier-card {
+      border: 1px solid var(--blue);
+      border-radius: 2px;
+      background: var(--panel);
+      padding: 18px;
+      display: flex;
+      flex-direction: column;
+      min-height: 340px;
+    }
+
+    .tier-card h4 {
+      font-family: 'Archivo Black', sans-serif;
+      margin: 0 0 10px;
+      font-size: 22px;
+      letter-spacing: 0.06em;
+    }
+
+    .price {
+      font-family: 'Archivo Black', sans-serif;
+      color: var(--orange);
+      font-size: 38px;
+      margin-bottom: 14px;
+      line-height: 1;
+    }
+
+    .features {
+      font-size: 16px;
+      margin-bottom: 18px;
+      flex: 1;
+    }
+
+    .features li { margin-bottom: 10px; }
+
+    .btn {
+      width: 100%;
+      min-height: 46px;
+      border: 1px solid var(--orange);
+      background: var(--orange);
+      color: var(--void);
+      font-family: 'Archivo Black', sans-serif;
+      font-size: 14px;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      cursor: pointer;
+      padding: 12px 16px;
+    }
+
+    .btn.alt {
+      background: var(--void);
+      color: var(--parchment);
+      border-color: var(--parchment);
+    }
+
+    .shake { animation: shakeX 0.2s linear 1; }
+
+    @keyframes shakeX {
+      0% { transform: translateX(0); }
+      25% { transform: translateX(-3px); }
+      50% { transform: translateX(3px); }
+      75% { transform: translateX(-3px); }
+      100% { transform: translateX(0); }
+    }
+
+    .panel-section { background: var(--panel); }
+    .panel-section.pure { background: var(--void); transition: background 2s ease; }
+
+    .sub {
+      font-size: 16px;
+      color: var(--parchment);
+      margin-bottom: 18px;
+    }
+
+    .text-box {
+      width: 100%;
+      height: 120px;
+      background: var(--void);
+      border: 1px solid var(--blue);
+      color: var(--parchment);
+      font: 16px 'IBM Plex Mono', monospace;
+      padding: 12px;
+      resize: vertical;
+      min-height: 120px;
+    }
+
+    .text-box::placeholder { color: var(--blue); }
+
+    .text-box.exceed {
+      border-color: var(--orange);
+      animation: flashBorder 0.2s linear 2;
+    }
+
+    @keyframes flashBorder {
+      0%, 100% { box-shadow: 0 0 0 0 transparent; }
+      50% { box-shadow: 0 0 0 2px var(--orange); }
+    }
+
+    .counter {
+      text-align: right;
+      font-size: 16px;
+      color: var(--orange);
+      margin: 10px 0 14px;
+    }
+
+    .fade {
+      transform: translateY(8px);
+      transition: transform 0.3s ease;
+      pointer-events: none;
+      visibility: hidden;
+    }
+
+    .letting-go {
+      text-align: center;
+      padding: 20px 0;
+    }
+
+    .countdown {
+      font-family: 'Archivo Black', sans-serif;
+      font-size: clamp(72px, 18vw, 120px);
+      color: var(--blue);
+      text-shadow: 0 0 30px rgba(42, 82, 190, 0.3);
+      line-height: 1;
+      margin-bottom: 12px;
+      transition: transform 1s ease;
+    }
+
+    .countdown.done {
+      transform: scale(2);
+    }
+
+    .status {
+      font-size: 16px;
+      color: var(--parchment);
+      margin-bottom: 8px;
+    }
+
+    .violations {
+      color: var(--orange);
+      font-size: 16px;
+      margin-bottom: 20px;
+    }
+
+    .flash { animation: orangeFlash 0.15s linear 1; }
+
+    @keyframes orangeFlash {
+      0% { background: var(--orange); }
+      100% { background: var(--void); }
+    }
+
+    .archive-line {
+      color: var(--verdigris);
+      font-size: 18px;
+      min-height: 27px;
+      margin-top: 14px;
+    }
+
+    .archive-label {
+      color: var(--parchment);
+      font-size: 16px;
+      min-height: 24px;
+      margin: 10px 0 16px;
+    }
+
+    .progress-shell {
+      width: 100%;
+      height: 32px;
+      background: var(--panel);
+      border: 1px solid var(--blue);
+      border-radius: 2px;
+      overflow: hidden;
+      position: relative;
+      margin: 16px 0;
+    }
+
+    .progress-fill {
+      height: 100%;
+      background: var(--verdigris);
+      transition: width 0.4s ease;
+      min-width: 0;
+    }
+
+    .progress-label {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 16px;
+      color: var(--parchment);
+      font-weight: 600;
+    }
+
+    .stats p { margin: 6px 0; font-size: 16px; }
+    .stats .weight { color: var(--orange); }
+
+    .confetti-host {
+      position: relative;
+      height: 0;
+      overflow: visible;
+    }
+
+    .confetti {
+      position: absolute;
+      top: -24px;
+      left: 50%;
+      width: 8px;
+      height: 8px;
+      animation: burst 2s ease-in forwards;
+      transform: translateX(-50%);
+    }
+
+    @keyframes burst {
+      0% {
+        opacity: 1;
+        transform: translate(-50%, 0) rotate(0deg);
+      }
+      100% {
+        opacity: 0;
+        transform: translate(calc(-50% + var(--x, 0px)), 190px) rotate(var(--r, 360deg));
+      }
+    }
+
+    .toast {
+      margin-top: 14px;
+      color: var(--orange);
+      font-size: 16px;
+      min-height: 24px;
+    }
+
+    .archive-list {
+      border: 1px solid var(--blue);
+      background: var(--panel);
+    }
+
+    .archive-row {
+      display: grid;
+      grid-template-columns: 1fr auto auto;
+      gap: 10px;
+      align-items: center;
+      padding: 12px;
+      border-bottom: 1px solid var(--blue);
+      transition: transform 0.3s ease;
+    }
+
+    .archive-row:last-child { border-bottom: 0; }
+    .archive-row.remove { transform: translateX(40px); }
+
+    .archive-meta,
+    .archive-date {
+      font-size: 16px;
+      color: var(--parchment);
+    }
+
+    .cashout {
+      min-height: 44px;
+      border: 1px solid var(--orange);
+      background: transparent;
+      color: var(--orange);
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 14px;
+      padding: 8px 12px;
+      cursor: pointer;
+    }
+
+    .note {
+      margin-top: 12px;
+      font-size: 16px;
+      color: var(--parchment);
+      font-style: italic;
+    }
+
+    .echo {
+      background: linear-gradient(0deg, rgba(42, 82, 190, 0.08), rgba(42, 82, 190, 0.08)), var(--void);
+    }
+
+    .echo-sub { color: var(--parchment); font-size: 16px; }
+
+    .echo-box {
+      position: relative;
+      height: 400px;
+      border: 1px dashed var(--blue);
+      overflow: hidden;
+      margin-top: 16px;
+    }
+
+    .ghost {
+      position: absolute;
+      font-family: 'Caveat', cursive;
+      line-height: 1.15;
+      white-space: nowrap;
+      animation: ghostDrift 5s ease forwards;
+      pointer-events: none;
+      color: var(--parchment);
+    }
+
+    .ghost.user { color: var(--orange); }
+
+    @keyframes ghostDrift {
+      0% { transform: scale(0.96) translateY(6px); }
+      40% { transform: scale(1.04) translateY(-2px); }
+      100% { transform: scale(1.02) translateY(-8px); }
+    }
+
+    .breathing-wrap { text-align: center; }
+
+    .breath-core {
+      width: 200px;
+      height: 200px;
+      margin: 22px auto 0;
+      border: 2px solid var(--blue);
+      border-radius: 50%;
+      display: grid;
+      place-items: center;
+      background: var(--void);
+      transition: transform linear, background 0.5s ease;
+      transform: scale(1);
+      position: relative;
+    }
+
+    .breath-core.complete { background: var(--verdigris); }
+
+    .breath-text {
+      font-size: 22px;
+      color: var(--parchment);
+      text-transform: uppercase;
+      text-align: center;
+      padding: 0 14px;
+    }
+
+    .ring {
+      width: 230px;
+      height: 230px;
+      margin: -215px auto 0;
+      transform: rotate(-90deg);
+      display: block;
+      pointer-events: none;
+    }
+
+    .ring circle {
+      fill: none;
+      stroke-width: 6;
+      stroke: var(--verdigris);
+      transition: stroke-dashoffset 0.5s linear;
+    }
+
+    .unlock {
+      margin-top: 16px;
+      color: var(--verdigris);
+      font-size: 16px;
+      min-height: 24px;
+    }
+
+    .footer {
+      background: var(--panel);
+      padding: 60px 20px;
+    }
+
+    .journal {
+      font-family: 'Caveat', cursive;
+      font-size: 28px;
+      color: var(--parchment);
+      line-height: 1.25;
+    }
+
+    .smallprint {
+      margin-top: 16px;
+      color: var(--parchment);
+      font-size: 16px;
+    }
+
+    .session-chip {
+      position: fixed;
+      left: 24px;
+      bottom: 18px;
+      border: 1px solid var(--blue);
+      background: var(--void);
+      color: var(--blue);
+      font-size: 12px;
+      padding: 8px 10px;
+      z-index: 5;
+      max-width: calc(100vw - 48px);
+    }
+
+    .intro-overlay {
+      position: fixed;
+      inset: 0;
+      background: var(--void);
+      color: var(--parchment);
+      display: grid;
+      place-items: center;
+      font-size: 24px;
+      z-index: 30;
+    }
+
+    @media (max-width: 900px) {
+      .tier-grid { grid-template-columns: 1fr; }
+      .archive-row { grid-template-columns: 1fr; }
+      .archive-date { color: var(--orange); }
+    }
+
+    @media (max-width: 640px) {
+      .frame { margin: 8px; min-height: calc(100vh - 16px); }
+      .top-bar { padding-inline: 10px; }
+      .forecast-line { font-size: 14px; }
+      .live-box { font-size: 12px; }
+      .session-chip {
+        left: 12px;
+        bottom: 12px;
+        max-width: calc(100vw - 24px);
+      }
+    }
+  </style>
+</head>
+<body x-data="confidenceCache()" x-init="init()">
+  <div class="intro-overlay" x-show="showIntro">
+    "This site will not improve your life."
+  </div>
+
+  <div class="frame">
+    <div class="top-bar">
+      <div class="forecast-line" x-text="forecastDisplay"></div>
+      <div class="live-box"><span class="live-dot"></span><span>LIVE</span></div>
+    </div>
+
+    <div class="content">
+      <section class="hero">
+        <div class="wrap">
+          <h1 id="hero-title">Confidence Cache</h1>
+          <div class="rule"></div>
+          <p class="subtitle">Premium Doubt Repository &amp; Sentimental Weather Archive - Est. 2016</p>
+          <p class="lead">
+            "Your anxiety is not a gamification opportunity. Your self-doubt is not a streak to maintain.
+            No amount of calming ocean sounds will replace the dignity of just admitting you're scared.
+            That said - would you like to deposit a doubt? It's $9.99/month."
+          </p>
+
+          <div class="tier-grid">
+            <article class="tier-card" x-data="{clicked:false}">
+              <h4>Standard Vault</h4>
+              <div class="price">$9.99/mo</div>
+              <ul class="features">
+                <li>Unlimited doubt deposits</li>
+                <li>90-second Letting Go procedure</li>
+                <li>Vault Integrity tracking in Pounds of Twilight Fog</li>
+                <li>Confetti at milestones (non-optional)</li>
+                <li>Fake NOAA archival metadata</li>
+              </ul>
+              <button class="btn" :class="clicked ? 'alt shake' : ''" @click="clicked=true" x-text="clicked ? 'JUST KIDDING. SCROLL DOWN.' : 'SUBSCRIBE NOW'"></button>
+            </article>
+
+            <article class="tier-card" x-data="{clicked:false}">
+              <h4>Premium Echo</h4>
+              <div class="price">$19.99/mo</div>
+              <ul class="features">
+                <li>Everything in Standard</li>
+                <li>Echo Chamber access</li>
+                <li>Your doubts appear on strangers' screens</li>
+                <li>"Community" (we use this word loosely)</li>
+                <li>Priority thunderstorm audio (Texas, 1992)</li>
+              </ul>
+              <button class="btn" :class="clicked ? 'alt shake' : ''" @click="clicked=true" x-text="clicked ? 'JUST KIDDING. SCROLL DOWN.' : 'SUBSCRIBE NOW'"></button>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <section class="panel-section" :class="{'pure': lettingGoActive}">
+        <div class="wrap">
+          <template x-if="!lettingGoActive">
+            <div :class="formFading ? 'fade' : ''">
+              <h2>Deposit A Doubt</h2>
+              <p class="sub">"All deposits are archived alongside meteorological data of equivalent emotional weight."</p>
+              <textarea class="text-box" :class="charCount > 280 ? 'exceed' : ''" x-model="draft" placeholder="Type your doubt here. Be specific. The algorithm feeds on specificity." @input="updateCount()"></textarea>
+              <div class="counter" x-text="`${charCount} / 280`"></div>
+              <button class="btn" @click="submitDeposit()" x-text="submitLabel"></button>
+            </div>
+          </template>
+
+          <template x-if="lettingGoActive">
+            <div class="letting-go" :class="flashClass">
+              <div class="countdown" :class="lettingGoDone ? 'done' : ''" x-text="countdown"></div>
+              <div class="status" x-text="lettingGoStatus"></div>
+              <div class="violations" x-text="`Fidget violations: ${fidgetViolations}`"></div>
+              <div class="archive-line" x-text="archiveTypeText"></div>
+              <div class="archive-label" x-text="archiveLabelText"></div>
+              <button class="btn" x-show="showReturn" @click="resetForm()">Return To Vault</button>
+            </div>
+          </template>
+        </div>
+      </section>
+
+      <section>
+        <div class="wrap">
+          <h3>Vault Integrity Status</h3>
+          <div class="progress-shell">
+            <div class="progress-fill" :style="`width:${progressPct}%`"></div>
+            <div class="progress-label" x-text="`${progressPct.toFixed(1)}% Capacity`"></div>
+          </div>
+          <div class="confetti-host" id="confetti-host"></div>
+          <div class="stats">
+            <p x-text="`Total Deposits: ${doubts.length}`"></p>
+            <p class="weight" x-text="`Vault Weight: ${weight.toFixed(1)} Pounds of Twilight Fog`"></p>
+          </div>
+          <div class="toast" x-text="milestoneToast"></div>
+        </div>
+      </section>
+
+      <section>
+        <div class="wrap">
+          <h3>Deposit Archive</h3>
+          <template x-if="doubts.length === 0">
+            <p class="sub">"The vault is empty. This is either admirable or suspicious."</p>
+          </template>
+
+          <template x-if="doubts.length > 0">
+            <div class="archive-list">
+              <template x-for="item in doubts" :key="item.id">
+                <div class="archive-row" :class="removingId === item.id ? 'remove' : ''">
+                  <div class="archive-meta" x-text="item.label"></div>
+                  <div class="archive-date" x-text="formatDate(item.createdAt)"></div>
+                  <button class="cashout" @click="cashOut(item.id)">CASH OUT</button>
+                </div>
+              </template>
+            </div>
+          </template>
+
+          <p class="note">"Cashing out a doubt does not mean you've resolved it. It means you've chosen to pretend, which is also valid."</p>
+        </div>
+      </section>
+
+      <section class="echo">
+        <div class="wrap">
+          <h3 style="color: var(--orange);">Echo Chamber</h3>
+          <p class="echo-sub">Premium Feature - $19.99/mo (free preview below)</p>
+          <div class="echo-box" id="echo-box"></div>
+        </div>
+      </section>
+
+      <section id="breathing-section">
+        <div class="wrap breathing-wrap">
+          <h3>Mandatory Breathing Exercise</h3>
+          <p class="sub">Complete to unlock the Confidence Forecaster</p>
+
+          <div class="breath-core" :class="breathingComplete ? 'complete' : ''" :style="`transform: scale(${breathScale}); transition-duration:${breathDuration}s;`">
+            <div class="breath-text" x-text="breathText"></div>
+          </div>
+          <svg class="ring" viewBox="0 0 240 240" aria-hidden="true">
+            <circle cx="120" cy="120" r="100" :style="`stroke-dasharray:${ringCircumference}; stroke-dashoffset:${ringOffset};`"></circle>
+          </svg>
+          <div class="unlock" x-text="breathingUnlockText"></div>
+        </div>
+      </section>
+
+      <footer class="footer">
+        <div class="wrap">
+          <p class="journal">
+            "I consign this worry to the simulated squall; let the barometric pressure rename it folly.
+            Perhaps one day the instruments will measure something real, and we will all be sorry we asked."<br>
+            - First Depositor, June 1, 1984<br>
+            Archivist's Note: This entry predates the digital vault by 32 years. We do not question it.
+          </p>
+          <p class="smallprint">
+            Confidence Cache is a product of Sentimental Weather Systems, Inc. Not affiliated with NOAA,
+            any licensed therapist, or your actual well-being. Founded by Amelia Chen, who would like you to know
+            she is also scared. Terrence Vance can go to hell.
+          </p>
+          <p class="smallprint">© 2016-2026 - All doubts archived. None resolved.</p>
+        </div>
+      </footer>
+    </div>
+  </div>
+
+  <div class="session-chip" x-text="`SESSION: ${sessionId} | VAULT: ${doubts.length} | FOG: ${weight.toFixed(1)} lbs`"></div>
+
+  <script defer src="/assets/js/alpine.min.js"></script>
+  <script src="/assets/js/gsap.min.js"></script>
+  <script src="/assets/js/lucide.min.js"></script>
+  <script>
+    function confidenceCache() {
+      return {
+        draft: '',
+        charCount: 0,
+        submitLabel: 'INITIATE DEPOSIT SEQUENCE',
+        formFading: false,
+        lettingGoActive: false,
+        lettingGoDone: false,
+        countdown: 90,
+        lettingGoStatus: 'RELEASE IN PROGRESS - REMAIN STILL',
+        fidgetViolations: 0,
+        flashClass: '',
+        graceUntil: 0,
+        archiveTypeText: '',
+        archiveLabelText: '',
+        showReturn: false,
+        doubts: [],
+        milestonesSeen: [],
+        milestoneToast: '',
+        milestoneToastTimer: null,
+        removingId: null,
+        forecastUnlocked: false,
+        forecastDisplay: 'FORECAST LOCKED - Complete breathing exercise to unlock.',
+        forecastCurrent: '',
+        forecastInterval: null,
+        titleInterval: null,
+        showIntro: false,
+        sessionId: '',
+        echoInterval: null,
+        breathElapsed: 0,
+        breathText: 'READY',
+        breathScale: 1,
+        breathDuration: 0.3,
+        breathingRunning: false,
+        breathingPaused: false,
+        breathingComplete: false,
+        breathingUnlockText: '',
+        ringCircumference: 2 * Math.PI * 100,
+        ringOffset: 2 * Math.PI * 100,
+        breathingObserver: null,
+        breathTickScheduled: false,
+        lettingGoInterval: null,
+        statusRevertTimer: null,
+        thunder: null,
+
+        get weight() {
+          return this.doubts.length * 0.5;
+        },
+
+        get progressPct() {
+          return Math.min(this.weight, 100);
+        },
+
+        init() {
+          this.loadData();
+          this.updateCount();
+          this.setupTitleCycle();
+          this.setupEchoChamber();
+          this.setupBreathingObserver();
+          this.setupFidgetListeners();
+          this.maybeShowIntro();
+          this.applyForecastState();
+          this.$nextTick(() => {
+            if (window.gsap) {
+              gsap.fromTo('#hero-title', { y: -24 }, { y: 0, duration: 0.8, ease: 'power2.out' });
+            }
+            if (window.lucide) {
+              lucide.createIcons();
+            }
+          });
+          if (!this.forecastUnlocked) this.startBreathing();
+        },
+
+        loadData() {
+          try {
+            this.doubts = JSON.parse(localStorage.getItem('cc_doubts') || '[]');
+            this.milestonesSeen = JSON.parse(localStorage.getItem('cc_milestones') || '[]');
+            this.forecastUnlocked = localStorage.getItem('cc_forecaster_unlocked') === '1';
+            this.sessionId = localStorage.getItem('cc_session_id') || this.randomHex(8);
+            localStorage.setItem('cc_session_id', this.sessionId);
+          } catch (e) {
+            this.doubts = [];
+            this.milestonesSeen = [];
+            this.forecastUnlocked = false;
+            this.sessionId = this.randomHex(8);
+          }
+          this.ringOffset = this.ringCircumference;
+        },
+
+        saveDoubts() {
+          localStorage.setItem('cc_doubts', JSON.stringify(this.doubts));
+        },
+
+        saveMilestones() {
+          localStorage.setItem('cc_milestones', JSON.stringify(this.milestonesSeen));
+        },
+
+        maybeShowIntro() {
+          if (!localStorage.getItem('cc_first_visit_seen')) {
+            this.showIntro = true;
+            localStorage.setItem('cc_first_visit_seen', '1');
+            setTimeout(() => { this.showIntro = false; }, 3000);
+          }
+        },
+
+        updateCount() {
+          this.charCount = this.draft.length;
+        },
+
+        submitDeposit() {
+          const text = this.draft.trim();
+          if (!text) {
+            const old = this.submitLabel;
+            this.submitLabel = 'YOU MUST HAVE AT LEAST ONE DOUBT.';
+            setTimeout(() => { this.submitLabel = old; }, 2000);
+            return;
+          }
+          this.formFading = true;
+          setTimeout(() => {
+            this.startLettingGo(text);
+          }, 300);
+        },
+
+        startLettingGo(text) {
+          this.lettingGoActive = true;
+          this.lettingGoDone = false;
+          this.countdown = 90;
+          this.fidgetViolations = 0;
+          this.lettingGoStatus = 'RELEASE IN PROGRESS - REMAIN STILL';
+          this.archiveTypeText = '';
+          this.archiveLabelText = '';
+          this.showReturn = false;
+          this.graceUntil = Date.now() + 3000;
+          this.pendingText = text.slice(0, 280);
+
+          if (this.lettingGoInterval) clearInterval(this.lettingGoInterval);
+          this.startThunder();
+          this.lettingGoInterval = setInterval(() => {
+            this.countdown -= 1;
+            if (this.countdown <= 0) {
+              clearInterval(this.lettingGoInterval);
+              this.completeLettingGo();
+            }
+          }, 1000);
+        },
+
+        setupFidgetListeners() {
+          const handler = () => {
+            if (!this.lettingGoActive || this.lettingGoDone) return;
+            if (Date.now() < this.graceUntil) return;
+            this.countdown = 90;
+            this.fidgetViolations += 1;
+            this.flashClass = 'flash';
+            setTimeout(() => { this.flashClass = ''; }, 160);
+            this.lettingGoStatus = 'FIDGET DETECTED - TIMER RESET - REMAIN STILL';
+            if (this.statusRevertTimer) clearTimeout(this.statusRevertTimer);
+            this.statusRevertTimer = setTimeout(() => {
+              this.lettingGoStatus = 'RELEASE IN PROGRESS - REMAIN STILL';
+            }, 3000);
+            this.graceUntil = Date.now() + 3000;
+          };
+          ['mousemove', 'touchmove', 'scroll'].forEach(evt => window.addEventListener(evt, handler, { passive: true }));
+          window.addEventListener('keydown', handler);
+        },
+
+        completeLettingGo() {
+          this.lettingGoDone = true;
+          this.stopThunder();
+          const label = this.generateArchiveLabel(this.pendingText || 'Generalized concern');
+          const item = {
+            id: this.randomHex(12),
+            text: this.pendingText || '',
+            label,
+            createdAt: Date.now()
+          };
+          this.doubts.unshift(item);
+          this.saveDoubts();
+          this.checkMilestones();
+
+          this.typeText('archiveTypeText', 'YOUR DOUBT HAS BEEN ARCHIVED.', 40).then(() => {
+            setTimeout(() => {
+              this.typeText('archiveLabelText', label, 30).then(() => {
+                this.showReturn = true;
+              });
+            }, 1000);
+          });
+        },
+
+        resetForm() {
+          this.lettingGoActive = false;
+          this.formFading = false;
+          this.draft = '';
+          this.charCount = 0;
+          this.submitLabel = 'INITIATE DEPOSIT SEQUENCE';
+          this.lettingGoDone = false;
+        },
+
+        generateArchiveLabel(text) {
+          const weather = ['Hurricane', 'Light Fog', 'Barometric Shame Front', 'Scattered Self-Doubt with Evening Clearing', 'Cold Snap', 'Tropical Spiral', 'Mild Catastrophic Drizzle', 'Severe Internal Weather Advisory'];
+          const emotions = ['Impostor Syndrome', 'Rejection', 'Abandonment', 'Overthinking', 'Public Speaking Dread', 'Perfectionism', 'Tiny Existential Panic', 'Career Vertigo', 'Loneliness'];
+          const keywords = {
+            job: 'Career Vertigo',
+            work: 'Impostor Syndrome',
+            fail: 'Rejection',
+            rejected: 'Rejection',
+            parent: 'Abandonment',
+            therapist: 'Overthinking',
+            friend: 'Loneliness',
+            scared: 'Tiny Existential Panic',
+            meeting: 'Public Speaking Dread',
+            perfect: 'Perfectionism'
+          };
+          const locations = [
+            'Galveston Humidity Index 94%',
+            'Pacific Northwest Drizzle Advisory',
+            'Oklahoma Panhandle, Station 7',
+            'Lake Michigan Shoreline',
+            'Boise Crosswind Report',
+            'Phoenix Heat Mirage Desk',
+            'Appalachian Mist Corridor',
+            'Cleveland Cloud Density Ledger',
+            'Santa Fe Pressure Annex'
+          ];
+          let emotion = emotions[Math.floor(Math.random() * emotions.length)];
+          const lower = text.toLowerCase();
+          Object.keys(keywords).forEach(k => {
+            if (lower.includes(k)) emotion = keywords[k];
+          });
+
+          const w = weather[Math.floor(Math.random() * weather.length)];
+          const d = this.randomDate(1980, 1999);
+          const l = locations[Math.floor(Math.random() * locations.length)];
+          return `${w} of ${emotion} | ${d} | ${l}`;
+        },
+
+        checkMilestones() {
+          const thresholds = [1, 25, 50, 100];
+          const reached = thresholds.find(t => this.weight >= t && !this.milestonesSeen.includes(t));
+          if (!reached) return;
+          this.milestonesSeen.push(reached);
+          this.saveMilestones();
+          this.launchConfetti();
+          this.milestoneToast = `STORM SURGE CELEBRATION - You've reached ${reached} Pounds of Twilight Fog! This means nothing.`;
+          clearTimeout(this.milestoneToastTimer);
+          this.milestoneToastTimer = setTimeout(() => { this.milestoneToast = ''; }, 5000);
+        },
+
+        launchConfetti() {
+          const host = document.getElementById('confetti-host');
+          if (!host) return;
+          const colors = ['#ff6600', '#2a52be', '#3d6b4f', '#f5e6c8'];
+          for (let i = 0; i < 40; i++) {
+            const node = document.createElement('span');
+            node.className = 'confetti';
+            node.style.background = colors[Math.floor(Math.random() * colors.length)];
+            node.style.setProperty('--x', `${Math.floor(Math.random() * 420) - 210}px`);
+            node.style.setProperty('--r', `${Math.floor(Math.random() * 720) - 360}deg`);
+            node.style.animationDelay = `${Math.random() * 0.2}s`;
+            host.appendChild(node);
+            setTimeout(() => node.remove(), 2200);
+          }
+        },
+
+        cashOut(id) {
+          this.removingId = id;
+          this.playCashSound();
+          setTimeout(() => {
+            this.doubts = this.doubts.filter(d => d.id !== id);
+            this.saveDoubts();
+            this.removingId = null;
+          }, 300);
+        },
+
+        formatDate(ts) {
+          const d = new Date(ts);
+          const pad = n => String(n).padStart(2, '0');
+          return `${pad(d.getMonth() + 1)}.${pad(d.getDate())}.${d.getFullYear()} ${pad(d.getHours())}:${pad(d.getMinutes())}`;
+        },
+
+        setupEchoChamber() {
+          const defaults = [
+            "I think my friends only tolerate me",
+            "I'm not actually good at my job, I'm just fast",
+            "Everyone else seems to know what they're doing",
+            "I haven't read a book in two years",
+            "My therapist is probably bored of me",
+            "I peaked in 2019",
+            "I smile too much in meetings and I don't know why",
+            "What if I'm the difficult one",
+            "I google my own symptoms at 3am and tell no one",
+            "My parents are proud of someone I'm not",
+            "I make to-do lists so I can ignore them",
+            "I call it burnout but maybe I'm just afraid",
+            "I keep saying next week like it's a religion",
+            "I rehearse phone calls and still sound surprised",
+            "I bought another planner instead of making a decision",
+            "My group chat is just weather reports of panic",
+            "I avoid mirrors before presentations",
+            "I keep apologizing for existing in shared space",
+            "I overexplain because silence feels like danger",
+            "I don't trust compliments that arrive too quickly",
+            "I ghost opportunities before they reject me",
+            "I call it perfectionism when it's just fear",
+            "I answer emails at midnight for no good reason",
+            "I call my dread productivity",
+            "I keep waiting for someone to revoke my credentials",
+            "I was supposed to be further along by now",
+            "I use noise-canceling headphones to avoid my own thoughts",
+            "I confuse being needed with being loved",
+            "I keep looking up symptoms instead of calling people",
+            "I don't know how to rest without earning it",
+            "I only feel real when I'm overwhelmed",
+            "I hide in data because feelings are unformatted",
+            "I laugh first so nobody notices the panic",
+            "I overwater plants and undercall friends",
+            "I still hear one comment from 2017",
+            "I say yes because no sounds expensive",
+            "I feel guilty while relaxing",
+            "I fear being ordinary more than being wrong",
+            "I schedule joy like a dentist appointment",
+            "I'm scared I'll become my coping mechanism"
+          ];
+
+          const spawn = () => {
+            const box = document.getElementById('echo-box');
+            if (!box) return;
+            const useUser = this.doubts.length > 0 && Math.random() < 0.2;
+            const pool = useUser ? this.doubts.map(d => d.text).filter(Boolean) : defaults;
+            const msg = pool[Math.floor(Math.random() * pool.length)] || defaults[Math.floor(Math.random() * defaults.length)];
+            const div = document.createElement('div');
+            div.className = `ghost${useUser ? ' user' : ''}`;
+            div.textContent = msg;
+            div.style.left = `${Math.random() * 72 + 4}%`;
+            div.style.top = `${Math.random() * 78 + 4}%`;
+            div.style.fontSize = `${Math.floor(Math.random() * 11) + 18}px`;
+            box.appendChild(div);
+            setTimeout(() => div.remove(), 5200);
+          };
+
+          spawn();
+          this.echoInterval = setInterval(spawn, 6000);
+        },
+
+        startBreathing() {
+          if (this.forecastUnlocked || this.breathingComplete) return;
+          if (!this.breathingRunning) this.breathingRunning = true;
+          this.breathingPaused = false;
+          this.breathingUnlockText = '';
+          this.updateBreathState();
+          if (!this.breathTickScheduled) {
+            this.breathTickScheduled = true;
+            setTimeout(() => this.breathTick(), 1000);
+          }
+        },
+
+        breathTick() {
+          if (!this.breathingRunning || this.breathingPaused) {
+            this.breathTickScheduled = false;
+            return;
+          }
+          this.breathElapsed += 1;
+          this.updateBreathState();
+          if (this.breathElapsed >= 60) {
+            this.breathTickScheduled = false;
+            this.finishBreathing();
+            return;
+          }
+          setTimeout(() => this.breathTick(), 1000);
+        },
+
+        updateBreathState() {
+          const t = this.breathElapsed % 15;
+          this.ringOffset = this.ringCircumference * (1 - this.breathElapsed / 60);
+
+          if (t <= 3) {
+            this.breathText = 'INHALE';
+            this.breathScale = 1.15;
+            this.breathDuration = 4;
+          } else if (t <= 7) {
+            const dots = '.'.repeat((t - 4) + 1);
+            this.breathText = `HOLD${dots}`;
+            this.breathScale = 1.15;
+            this.breathDuration = 1;
+          } else {
+            this.breathText = 'EXHALE';
+            this.breathScale = 1;
+            this.breathDuration = 7;
+          }
+        },
+
+        finishBreathing() {
+          this.breathingRunning = false;
+          this.breathingComplete = true;
+          this.breathText = 'ADEQUATE.';
+          this.breathScale = 1;
+          this.ringOffset = 0;
+          setTimeout(() => {
+            this.breathingUnlockText = '✓ FORECASTER UNLOCKED';
+            this.forecastUnlocked = true;
+            localStorage.setItem('cc_forecaster_unlocked', '1');
+            this.applyForecastState();
+          }, 1000);
+        },
+
+        setupBreathingObserver() {
+          const target = document.getElementById('breathing-section');
+          if (!target) return;
+          this.breathingObserver = new IntersectionObserver((entries) => {
+            const entry = entries[0];
+            if (!entry) return;
+            if (this.breathingComplete || this.forecastUnlocked) return;
+            if (entry.isIntersecting) {
+              if (this.breathingPaused) {
+                this.breathingPaused = false;
+                this.startBreathing();
+              }
+            } else {
+              this.breathingPaused = true;
+              this.breathText = 'YOU LEFT. WE NOTICED.';
+            }
+          }, { threshold: 0.35 });
+          this.breathingObserver.observe(target);
+        },
+
+        applyForecastState() {
+          if (!this.forecastUnlocked) {
+            this.forecastDisplay = 'FORECAST LOCKED - Complete breathing exercise to unlock.';
+            return;
+          }
+          const first = this.generateForecast();
+          this.forecastCurrent = first;
+          this.forecastDisplay = first;
+          this.startForecastRotation();
+        },
+
+        startForecastRotation() {
+          if (this.forecastInterval) clearInterval(this.forecastInterval);
+          this.forecastInterval = setInterval(() => {
+            const next = this.generateForecast();
+            this.animateForecast(next);
+          }, 45000);
+        },
+
+        async animateForecast(nextText) {
+          let current = this.forecastDisplay;
+          while (current.length > 0) {
+            current = current.slice(0, -1);
+            this.forecastDisplay = current;
+            await this.sleep(30);
+          }
+          let out = '';
+          for (const ch of nextText) {
+            out += ch;
+            this.forecastDisplay = out;
+            await this.sleep(30);
+          }
+          this.forecastCurrent = nextText;
+        },
+
+        generateForecast() {
+          const lines = [
+            'Clear skies ahead, with a 95% chance of self-assurance by noon.',
+            'Patchy confidence, lifting after one difficult phone call.',
+            'Early turbulence expected; ego pressure stabilizes by dusk.',
+            'Visibility low before coffee; dramatic improvement by 10:30.',
+            'Strong front of competence moving in from the west wing.',
+            'Mild insecurity with brief outages in overthinking service.',
+            'Advisory canceled: you are allowed to be new at things.',
+            'Localized panic, followed by applause from absolutely nobody.',
+            'Confidence gusts likely after one honest conversation.',
+            'Dense impostor fog burns off when facts are introduced.',
+            'You are not behind; clocks were made by anxious people.',
+            'Today favors brave drafts over perfect silence.',
+            'Cloud cover remains, but runway lights are visible.',
+            'Storm warning lifted after replacing shame with context.',
+            'Temperatures rising in the region of basic self-respect.',
+            'High pressure of competence settles over your inbox.',
+            'Morning doubt expected; afternoon clarity probable.',
+            'Emotional barometer climbing after hydration and boundaries.',
+            'Residual fear with scattered evidence of actual growth.',
+            'Skepticism clearing; confidence index returns to green.',
+            'Minor turbulence in meetings; safe landing likely.',
+            'Forecast includes one tiny win and loud internal narration.',
+            'Self-assurance advisory posted for all coastal departments.',
+            'Visibility fair to excellent once comparisons are discontinued.',
+            'Expect brief uncertainty, then stubborn momentum.',
+            'No precipitation, just old narratives evaporating.',
+            'Conditions favorable for trying anyway.',
+            'You may proceed despite the vibes.',
+            'Cold front of criticism weakening over warm evidence.',
+            'Peak performance unlikely; adequate performance celebrated.',
+            'Low-pressure spiral exits by early evening.',
+            'Confidence stable with intermittent dramatic monologues.'
+          ];
+          const locations = ['Galveston, TX', 'Duluth, MN', 'Santa Fe, NM', 'Boise, ID', 'Burlington, VT', 'Pensacola, FL', 'Cleveland, OH', 'Eureka, CA'];
+          const stations = ['NOAA Station 41043', 'NOAA Station 46013', 'NOAA Station 44008', 'NOAA Station 42001', 'NOAA Station 46059', 'NOAA Station 45139'];
+          const date = this.randomDate(1980, 1999, true);
+          return `CURRENT FORECAST: ${lines[Math.floor(Math.random() * lines.length)]} [${locations[Math.floor(Math.random() * locations.length)]} - ${stations[Math.floor(Math.random() * stations.length)]} - ${date}]`;
+        },
+
+        setupTitleCycle() {
+          const titles = [
+            'Confidence Cache™',
+            'Your doubt is being processed...',
+            'Breathe.',
+            '$9.99/mo for what, exactly?',
+            "We're not helping."
+          ];
+          let i = 0;
+          document.title = titles[0];
+          this.titleInterval = setInterval(() => {
+            i = (i + 1) % titles.length;
+            document.title = titles[i];
+          }, 10000);
+        },
+
+        startThunder() {
+          const AudioCtx = window.AudioContext || window.webkitAudioContext;
+          if (!AudioCtx) return;
+          const ctx = new AudioCtx();
+          const bufferSize = ctx.sampleRate * 2;
+          const buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
+          const out = buffer.getChannelData(0);
+          let last = 0;
+          for (let i = 0; i < bufferSize; i++) {
+            const white = Math.random() * 2 - 1;
+            last = (last + 0.02 * white) / 1.02;
+            out[i] = last * 3.5;
+          }
+
+          const src = ctx.createBufferSource();
+          src.buffer = buffer;
+          src.loop = true;
+
+          const lowpass = ctx.createBiquadFilter();
+          lowpass.type = 'lowpass';
+          lowpass.frequency.value = 320;
+
+          const gain = ctx.createGain();
+          gain.gain.value = 0.0001;
+
+          src.connect(lowpass);
+          lowpass.connect(gain);
+          gain.connect(ctx.destination);
+          src.start();
+
+          gain.gain.linearRampToValueAtTime(0.13, ctx.currentTime + 1.2);
+
+          const rumble = setInterval(() => {
+            const now = ctx.currentTime;
+            const target = 0.07 + Math.random() * 0.1;
+            gain.gain.cancelScheduledValues(now);
+            gain.gain.linearRampToValueAtTime(target, now + 0.8);
+          }, 1400);
+
+          this.thunder = { ctx, src, gain, rumble };
+        },
+
+        stopThunder() {
+          if (!this.thunder) return;
+          const { ctx, src, gain, rumble } = this.thunder;
+          clearInterval(rumble);
+          const now = ctx.currentTime;
+          gain.gain.cancelScheduledValues(now);
+          gain.gain.linearRampToValueAtTime(0.0001, now + 2);
+          setTimeout(() => {
+            try { src.stop(); } catch (_) {}
+            ctx.close();
+          }, 2200);
+          this.thunder = null;
+        },
+
+        playCashSound() {
+          const AudioCtx = window.AudioContext || window.webkitAudioContext;
+          if (!AudioCtx) return;
+          const ctx = new AudioCtx();
+          const osc = ctx.createOscillator();
+          const gain = ctx.createGain();
+          osc.type = 'sine';
+          osc.frequency.value = 880;
+          gain.gain.value = 0.001;
+          osc.connect(gain);
+          gain.connect(ctx.destination);
+          const t = ctx.currentTime;
+          gain.gain.exponentialRampToValueAtTime(0.2, t + 0.01);
+          gain.gain.exponentialRampToValueAtTime(0.0001, t + 0.1);
+          osc.start(t);
+          osc.stop(t + 0.11);
+          setTimeout(() => ctx.close(), 180);
+        },
+
+        async typeText(prop, text, speed) {
+          this[prop] = '';
+          for (const ch of text) {
+            this[prop] += ch;
+            await this.sleep(speed);
+          }
+        },
+
+        randomHex(n) {
+          const chars = 'abcdef0123456789';
+          let out = '';
+          for (let i = 0; i < n; i++) out += chars[Math.floor(Math.random() * chars.length)];
+          return out;
+        },
+
+        randomDate(startYear, endYear, short = false) {
+          const start = new Date(startYear, 0, 1).getTime();
+          const end = new Date(endYear, 11, 31).getTime();
+          const d = new Date(start + Math.random() * (end - start));
+          const months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+          const mm = String(d.getMonth() + 1).padStart(2, '0');
+          const dd = String(d.getDate()).padStart(2, '0');
+          if (short) return `${mm}/${dd}/${d.getFullYear()}`;
+          return `${months[d.getMonth()]} ${d.getDate()}, ${d.getFullYear()}`;
+        },
+
+        sleep(ms) {
+          return new Promise(resolve => setTimeout(resolve, ms));
+        }
+      };
+    }
+  </script>
+</body>
+</html>

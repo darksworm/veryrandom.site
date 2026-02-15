@@ -1,0 +1,1112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FaxYourData.com — Receipt of Intent</title>
+<link rel="stylesheet" href="/assets/css/fonts.css">
+<script defer src="/assets/js/alpine.min.js"></script>
+<script src="/assets/js/gsap.min.js"></script>
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --thermal: #FFF8E8;
+  --ink: #0D0D0D;
+  --mustard: #C2A53C;
+  --olive: #4D652C;
+  --aged: #E8DCC8;
+  --red: #D94F3B;
+  --age: 0;
+}
+
+html { scroll-behavior: smooth; }
+
+body {
+  background: #0D0D0D;
+  font-family: 'Fira Code', monospace;
+  font-size: 16px;
+  line-height: 1.5;
+  color: var(--ink);
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+.receipt-wrapper {
+  max-width: 380px;
+  margin: 0 auto;
+  position: relative;
+}
+
+@media (max-width: 480px) {
+  .receipt-wrapper { max-width: 100%; }
+}
+
+.torn-top {
+  height: 20px;
+  background: var(--thermal);
+  clip-path: polygon(
+    0% 100%, 0% 40%, 2% 80%, 4% 30%, 6% 70%, 8% 20%, 10% 60%,
+    12% 35%, 14% 75%, 16% 25%, 18% 65%, 20% 40%, 22% 80%, 24% 30%,
+    26% 70%, 28% 20%, 30% 55%, 32% 35%, 34% 75%, 36% 15%, 38% 60%,
+    40% 40%, 42% 80%, 44% 25%, 46% 65%, 48% 35%, 50% 70%, 52% 20%,
+    54% 60%, 56% 40%, 58% 75%, 60% 30%, 62% 65%, 64% 20%, 66% 55%,
+    68% 35%, 70% 80%, 72% 25%, 74% 60%, 76% 40%, 78% 75%, 80% 20%,
+    82% 65%, 84% 30%, 86% 70%, 88% 25%, 90% 55%, 92% 40%, 94% 80%,
+    96% 30%, 98% 65%, 100% 40%, 100% 100%
+  );
+}
+
+.receipt-body {
+  background: var(--thermal);
+  padding: 20px 16px;
+  position: relative;
+  background-image:
+    linear-gradient(90deg, transparent 19%, rgba(13,13,13,0.02) 19.5%, rgba(13,13,13,0.02) 20.5%, transparent 21%),
+    linear-gradient(90deg, transparent 79%, rgba(13,13,13,0.02) 79.5%, rgba(13,13,13,0.02) 80.5%, transparent 81%);
+  transition: background-color 60s linear;
+}
+
+.torn-bottom {
+  height: 20px;
+  background: var(--thermal);
+  clip-path: polygon(
+    0% 0%, 0% 60%, 2% 20%, 4% 70%, 6% 30%, 8% 80%, 10% 40%,
+    12% 65%, 14% 25%, 16% 75%, 18% 35%, 20% 60%, 22% 20%, 24% 70%,
+    26% 30%, 28% 80%, 30% 45%, 32% 65%, 34% 25%, 36% 85%, 38% 40%,
+    40% 60%, 42% 20%, 44% 75%, 46% 35%, 48% 65%, 50% 30%, 52% 80%,
+    54% 40%, 56% 60%, 58% 25%, 60% 70%, 62% 35%, 64% 80%, 66% 45%,
+    68% 65%, 70% 20%, 72% 75%, 74% 40%, 76% 60%, 78% 25%, 80% 80%,
+    82% 35%, 84% 70%, 86% 30%, 88% 75%, 90% 45%, 92% 60%, 94% 20%,
+    96% 70%, 98% 35%, 100% 60%, 100% 0%
+  );
+}
+
+.dashed { border-top: 1px dashed #0D0D0D; margin: 10px 0; }
+.double-line { border-top: 3px double #0D0D0D; margin: 10px 0; }
+
+.header-logo {
+  text-align: center;
+  padding: 10px 0 5px;
+}
+.header-logo h1 {
+  font-family: 'Fira Code', monospace;
+  font-size: 22px;
+  letter-spacing: 4px;
+  text-transform: uppercase;
+  font-weight: 700;
+  margin: 0;
+  line-height: 1.3;
+}
+@media (min-width: 360px) {
+  .header-logo h1 { font-size: 26px; letter-spacing: 5px; }
+}
+.header-sub {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  margin-top: 6px;
+}
+.header-time {
+  font-size: 12px;
+  margin-top: 4px;
+}
+.header-txn {
+  font-size: 11px;
+  margin-top: 2px;
+  opacity: 0.9;
+}
+
+/* Line items */
+.line-item {
+  display: flex;
+  justify-content: space-between;
+  font-size: 13px;
+  line-height: 1.4;
+  margin: 4px 0;
+}
+.line-item .desc { flex: 1; padding-right: 8px; }
+.line-item .price { text-align: right; white-space: nowrap; }
+.line-detail {
+  font-size: 11px;
+  padding-left: 20px;
+  margin: 0 0 6px;
+  opacity: 0.9;
+}
+.line-total {
+  font-weight: 700;
+}
+
+/* Handwritten notes */
+.handnote {
+  font-family: 'Caveat', cursive;
+  color: #C2A53C;
+  font-size: 17px;
+  padding: 10px 5px;
+  line-height: 1.3;
+  position: relative;
+}
+.handnote-right {
+  text-align: right;
+  transform: rotate(-2deg);
+  padding-right: 0;
+  margin-right: -4px;
+}
+.handnote-left {
+  transform: rotate(1.5deg);
+  margin-left: -4px;
+}
+.handnote-center {
+  text-align: center;
+  font-size: 18px;
+  transform: rotate(0deg);
+}
+
+/* Thermalizer */
+.thermalizer {
+  border: 2px solid #0D0D0D;
+  padding: 12px;
+  margin: 16px 0;
+}
+.thermalizer-title {
+  text-align: center;
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 2px;
+  margin-bottom: 10px;
+}
+.file-btn {
+  display: block;
+  width: 100%;
+  border: 2px solid #C2A53C;
+  background: transparent;
+  color: #C2A53C;
+  font-family: 'Fira Code', monospace;
+  font-size: 12px;
+  padding: 12px 8px;
+  cursor: pointer;
+  text-align: center;
+  text-transform: uppercase;
+  min-height: 44px;
+  transition: box-shadow 0.3s;
+}
+.file-btn:hover { box-shadow: 0 0 10px rgba(194,165,60,0.4); }
+.file-input { display: none; }
+.progress-line { font-size: 13px; margin: 6px 0 2px; word-break: break-all; }
+.thermal-glow {
+  transition: box-shadow 2.8s ease-out;
+  box-shadow: 0 0 0px rgba(194,165,60,0);
+}
+.thermal-glow.active {
+  box-shadow: 0 0 30px rgba(194,165,60,0.7);
+}
+
+/* Impact ticker */
+.impact-box {
+  background: #4D652C;
+  color: #FFF8E8;
+  padding: 12px 10px;
+  margin: 16px 0;
+  font-size: 12px;
+  line-height: 1.6;
+}
+.impact-box pre {
+  font-family: 'Fira Code', monospace;
+  font-size: 12px;
+  white-space: pre-wrap;
+  word-break: break-all;
+  color: #FFF8E8;
+  margin: 0;
+}
+.impact-footnote {
+  font-size: 9px;
+  text-align: center;
+  margin-top: 6px;
+  letter-spacing: 1px;
+}
+
+/* Schedule */
+.schedule-item {
+  margin: 10px 0;
+  font-size: 12px;
+  line-height: 1.4;
+}
+.schedule-time {
+  font-weight: 700;
+  font-size: 13px;
+}
+.schedule-detail {
+  padding-left: 16px;
+  font-size: 11px;
+}
+.book-btn {
+  display: inline-block;
+  color: #C2A53C;
+  cursor: pointer;
+  font-family: 'Fira Code', monospace;
+  font-size: 12px;
+  background: none;
+  border: none;
+  padding: 4px 0;
+  min-height: 44px;
+  min-width: 44px;
+  text-decoration: underline;
+}
+
+/* Booking form */
+.booking-form {
+  border: 1px dashed #C2A53C;
+  padding: 10px;
+  margin: 8px 0;
+}
+.booking-form label {
+  display: block;
+  font-size: 11px;
+  margin-top: 8px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+.booking-form input {
+  display: block;
+  width: 100%;
+  background: transparent;
+  border: none;
+  border-bottom: 1px solid #0D0D0D;
+  font-family: 'Fira Code', monospace;
+  font-size: 13px;
+  padding: 6px 2px;
+  color: #0D0D0D;
+  min-height: 44px;
+}
+.booking-form input:focus { outline: none; border-bottom-color: #C2A53C; }
+.booking-submit {
+  display: block;
+  width: 100%;
+  margin-top: 12px;
+  padding: 10px;
+  border: 2px solid #C2A53C;
+  background: transparent;
+  color: #C2A53C;
+  font-family: 'Fira Code', monospace;
+  font-size: 12px;
+  cursor: pointer;
+  text-transform: uppercase;
+  min-height: 44px;
+}
+.booking-confirm {
+  font-size: 11px;
+  margin-top: 8px;
+  line-height: 1.5;
+  border-top: 1px dashed #0D0D0D;
+  padding-top: 8px;
+}
+
+/* Ledger */
+.ledger-toggle {
+  cursor: pointer;
+  font-size: 13px;
+  padding: 8px 0;
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+  user-select: none;
+}
+.ledger-entry {
+  color: #D94F3B;
+  font-size: 11px;
+  line-height: 1.5;
+  margin: 10px 0;
+}
+.ledger-entry .entry-date { font-weight: 700; font-size: 12px; }
+
+/* Alert banner */
+.alert-banner {
+  border: 2px dashed #0D0D0D;
+  padding: 12px 10px;
+  margin: 16px 0;
+  text-align: center;
+  font-size: 12px;
+  line-height: 1.5;
+}
+.alert-blink {
+  animation: alertPulse 1.5s ease-in-out infinite;
+}
+@keyframes alertPulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.3; }
+}
+.upgrade-btn {
+  display: inline-block;
+  color: #C2A53C;
+  cursor: pointer;
+  background: none;
+  border: 1px solid #C2A53C;
+  font-family: 'Fira Code', monospace;
+  font-size: 12px;
+  padding: 8px 16px;
+  margin-top: 6px;
+  min-height: 44px;
+  min-width: 44px;
+}
+
+/* Gallery */
+.gallery-card {
+  background: #E8DCC8;
+  padding: 12px 10px;
+  margin: 12px 0;
+  font-size: 11px;
+  line-height: 1.5;
+}
+.gallery-card pre {
+  font-family: 'Fira Code', monospace;
+  font-size: 11px;
+  white-space: pre-wrap;
+  word-break: break-all;
+  color: #0D0D0D;
+  margin: 0;
+}
+
+/* Footer */
+.footer-block {
+  text-align: center;
+  font-size: 12px;
+  line-height: 1.6;
+  padding: 10px 0 20px;
+}
+.barcode {
+  font-size: 18px;
+  letter-spacing: -1px;
+  line-height: 1;
+  margin: 10px 0;
+  word-break: break-all;
+  overflow: hidden;
+}
+
+/* Mute button */
+.mute-btn {
+  position: fixed;
+  bottom: 60px;
+  font-family: 'Fira Code', monospace;
+  font-size: 10px;
+  color: #C2A53C;
+  background: rgba(13,13,13,0.85);
+  border: 1px solid #C2A53C;
+  padding: 4px 8px;
+  cursor: pointer;
+  z-index: 100;
+  min-height: 44px;
+  min-width: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  left: 50%;
+  transform: translateX(calc(-50% + 160px));
+}
+@media (max-width: 480px) {
+  .mute-btn {
+    left: auto;
+    right: 60px;
+    transform: none;
+  }
+}
+
+/* Decay notice */
+.decay-notice {
+  font-size: 11px;
+  color: #D94F3B;
+  text-align: center;
+  padding: 6px;
+  letter-spacing: 1px;
+}
+
+/* Section titles */
+.section-title {
+  text-align: center;
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 2px;
+  margin: 16px 0 10px;
+}
+
+/* Fading sections for thermal decay */
+.decay-target {
+  transition: color 30s linear;
+}
+</style>
+</head>
+<body>
+
+<div x-data="receipt()" x-init="init()">
+
+<!-- Mute button -->
+<button class="mute-btn" @click="muted = !muted" x-text="muted ? '[UNMUTE]' : '[MUTE]'"></button>
+
+<div class="receipt-wrapper">
+<div class="torn-top" :style="{ backgroundColor: paperColor }"></div>
+<div class="receipt-body" :style="{ backgroundColor: paperColor }">
+
+<!-- Decay notice -->
+<div class="decay-notice" x-show="decayStarted" x-cloak>
+  WARNING: THERMAL DECAY DETECTED: EARLY SECTIONS LOSING READABILITY
+</div>
+
+<!-- 1. HEADER -->
+<div class="header-logo" :style="{ color: headerInk }">
+  <h1 :style="{ color: headerInk }">FAXYOURDATA.COM</h1>
+  <div class="dashed"></div>
+  <div class="header-sub">RECEIPT OF INTENT</div>
+  <div class="header-time" x-text="currentTime"></div>
+  <div class="header-txn" x-text="'TXN #' + txnNumber"></div>
+</div>
+<div class="dashed"></div>
+
+<!-- 2. MISSION STATEMENT AS LINE ITEMS -->
+<div :style="{ color: headerInk }">
+  <div class="line-item">
+    <span class="desc">1x HARD DRIVE FAILURE</span>
+    <span class="price">$0.00</span>
+  </div>
+  <div class="line-detail">(Tuesday afternoon, 2001)</div>
+
+  <div class="line-item">
+    <span class="desc">1x FAX MACHINE, HUMMING</span>
+    <span class="price">$0.00</span>
+  </div>
+  <div class="line-detail">(Route 9, condemned bldg)</div>
+
+  <div class="line-item">
+    <span class="desc">1x REALIZATION: PAPER IS HONEST</span>
+    <span class="price">$0.00</span>
+  </div>
+
+  <div class="line-item">
+    <span class="desc">1x THERMAL PAPER ROLL</span>
+    <span class="price">$12.99</span>
+  </div>
+  <div class="line-detail">(1000ft, ARCHIVE GRADE)</div>
+
+  <div class="line-item">
+    <span class="desc">1x VAULT LEASE, PATERSON NJ</span>
+    <span class="price">$449.00</span>
+  </div>
+  <div class="line-detail">(Monthly, climate-controlled)</div>
+
+  <div class="line-item">
+    <span class="desc">1x FATHER'S LOST PHOTOS</span>
+    <span class="price">PRICELESS</span>
+  </div>
+  <div class="line-detail">(30 years, unrecoverable)</div>
+
+  <div class="double-line"></div>
+
+  <div class="line-item">
+    <span class="desc">SUBTOTAL</span>
+    <span class="price">$461.99</span>
+  </div>
+  <div class="line-item">
+    <span class="desc">DIGNITY TAX (8.7%)</span>
+    <span class="price">$40.19</span>
+  </div>
+
+  <div class="double-line"></div>
+
+  <div class="line-item line-total">
+    <span class="desc">TOTAL</span>
+    <span class="price">$502.18</span>
+  </div>
+
+  <div style="margin-top:10px; font-size:12px;">
+    <div>AMOUNT TENDERED: YOUR TRUST</div>
+    <div>CHANGE DUE:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; NONE</div>
+  </div>
+</div>
+<div class="dashed"></div>
+
+<!-- 3. Handwritten note #1 -->
+<div class="handnote handnote-right">
+  "Dad never got those photos back. I still hear the click."
+</div>
+<div class="dashed"></div>
+
+<!-- 4. THE THERMALIZER -->
+<div class="thermalizer thermal-glow" :class="{ active: thermalGlowing }" id="thermalizer">
+  <div class="thermalizer-title">=== THE THERMALIZER ===</div>
+
+  <input type="file" class="file-input" id="fileInput" @change="handleFile($event)">
+  <button class="file-btn" @click="document.getElementById('fileInput').click()" x-show="!processing && !archived">
+    [ SELECT FILE FOR THERMAL ARCHIVAL ]
+  </button>
+
+  <template x-if="selectedFile">
+    <div style="margin-top:10px; font-size:12px;">
+      <div class="line-item">
+        <span class="desc">1x <span x-text="selectedFile.name"></span></span>
+        <span class="price" x-text="'$' + pricePerFt + '/ft'"></span>
+      </div>
+      <div class="line-detail" x-text="'(' + fileSizeMB + 'MB)'"></div>
+    </div>
+  </template>
+
+  <template x-if="processing">
+    <div style="margin-top:10px; font-size:13px;">
+      <div class="progress-line" x-text="progressBar"></div>
+      <div style="font-size:11px; margin-top:4px;">PROCESSING...</div>
+    </div>
+  </template>
+
+  <template x-if="archived">
+    <div style="margin-top:10px; font-size:11px; line-height:1.6;">
+      <div>THERMAL CONVERSION: 100%</div>
+      <div x-text="'PAPER CONSUMED: ' + paperConsumed + ' FEET'"></div>
+      <div x-text="'WEIGHT: ' + paperWeight + ' LBS'"></div>
+      <div x-text="'BINDER CLIPS REQUIRED: ' + binderClips"></div>
+      <div style="margin-top:8px; font-weight:700; letter-spacing:2px; text-align:center;">
+        STATUS: == ARCHIVED ==
+      </div>
+      <div x-text="'VAULT LOCATION: BAY ' + vaultBay + ', SHELF ' + vaultShelf"></div>
+      <div>HUMIDITY: 42.3% (OPTIMAL)</div>
+    </div>
+  </template>
+</div>
+<div class="dashed"></div>
+
+<!-- 5. ENVIRONMENTAL IMPACT TICKER -->
+<div class="impact-box" x-data="impactTicker()" x-init="start()">
+<pre>
++==============================+
+|  DAILY IMPACT REPORT         |
+|                              |
+|  FILES ARCHIVED: <span x-text="String(files).padStart(10,' ')"></span> |
+|  PAPER CONSUMED: <span x-text="paper.padStart(9,' ')"></span> |
+|  TREES EQUIVALENT: <span x-text="String(trees).padStart(7,' ')"></span> |
+|  CARBON OFFSET:       NONE  |
+|                              |
+|    /\ A GREEN /\ ALTERNATIVE |
+|   /  \       /  \            |
++==============================+</pre>
+  <div class="impact-footnote">Sustainability Through Sheer Volume (TM)</div>
+</div>
+<div class="dashed"></div>
+
+<!-- 6. VAULT SCHEDULE & TOURS -->
+<div>
+  <div class="section-title">=== DAILY VAULT OPERATIONS ===</div>
+
+  <div class="schedule-item">
+    <div class="schedule-time">09:00</div>
+    <div>HUMIDITY CALIBRATION</div>
+    <div class="schedule-detail">(Technician Felix, since '04)</div>
+  </div>
+
+  <div class="schedule-item">
+    <div class="schedule-time">11:00</div>
+    <div>RECEIPT ALIGNMENT AUDIT</div>
+    <div class="schedule-detail">(All bays, visual inspection)</div>
+  </div>
+
+  <div class="schedule-item" x-data="bookingForm()" x-init="checkReturning()">
+    <div class="schedule-time">13:00</div>
+    <div>WASTE WALKABOUT TOUR</div>
+    <div class="schedule-detail">"Eco-Elegance: A Philosophy"</div>
+    <div class="schedule-detail">Led by Marnie (promoted '12)</div>
+
+    <div x-show="returningGuest && !showForm && !confirmed" style="font-size:11px; margin:6px 0; color:#C2A53C;">
+      RETURNING GUEST DETECTED: <span x-text="returningName"></span>
+    </div>
+
+    <button class="book-btn" @click="showForm = true" x-show="!showForm && !confirmed">[ BOOK YOUR SPOT ]</button>
+
+    <div class="booking-form thermal-glow" :class="{ active: formGlow }" x-show="showForm && !confirmed" x-cloak>
+      <label>NAME:</label>
+      <input type="text" x-model="name" placeholder="Your name">
+      <label>EMAIL:</label>
+      <input type="email" x-model="email" placeholder="your@email.com">
+      <label>PREFERRED TOUR DATE:</label>
+      <input type="date" x-model="tourDate">
+      <button class="booking-submit" @click="submitBooking()">[ CONFIRM BOOKING ]</button>
+    </div>
+
+    <div class="booking-confirm" x-show="confirmed" x-cloak>
+      <div>BOOKING CONFIRMED</div>
+      <div x-text="'GUEST: ' + confirmedName"></div>
+      <div x-text="'DATE: ' + confirmedDate"></div>
+      <div>ATTENDANT: MARNIE</div>
+      <div>PLEASE WEAR CLOSED-TOE SHOES</div>
+    </div>
+  </div>
+
+  <div class="schedule-item">
+    <div class="schedule-time">15:00</div>
+    <div>THERMAL DECAY ASSESSMENT</div>
+    <div class="schedule-detail">(Sections A-F, Bays 1-12)</div>
+  </div>
+
+  <div class="schedule-item">
+    <div class="schedule-time">17:00</div>
+    <div>BULK SHREDDING: OVERDUE</div>
+    <div class="schedule-detail">FILES (90+ DAYS UNCLAIMED)</div>
+  </div>
+</div>
+<div class="dashed"></div>
+
+<!-- 7. Handwritten note #2 -->
+<div class="handnote handnote-left">
+  "Marnie hasn't taken a sick day since 2014. I worry about her but she says the paper needs her."
+</div>
+<div class="dashed"></div>
+
+<!-- 8. THE ACCOUNTABILITY LEDGER -->
+<div x-data="{ ledgerOpen: false }">
+  <div class="ledger-toggle" @click="ledgerOpen = !ledgerOpen">
+    <span x-text="ledgerOpen ? '[ &#9650; THE ACCOUNTABILITY LEDGER ]' : '[ &#9660; THE ACCOUNTABILITY LEDGER ]'"></span>
+  </div>
+
+  <div x-show="ledgerOpen" x-cloak>
+    <div style="text-align:center; font-size:13px; font-weight:700; letter-spacing:2px; color:#D94F3B;">== INCIDENT LOG ==</div>
+
+    <div class="ledger-entry">
+      <div class="entry-date">07/15/2023 14:22</div>
+      <div>PRINTER BAY 4: PAPER JAM</div>
+      <div>DURATION: 90 MIN</div>
+      <div>COST: $0.02/SHEET x 4,200 SHEETS</div>
+      <div>TOTAL LOSS: $84.00</div>
+      <div>TECH NOTE: "It sounded like it was trying to say something" -- Felix :)</div>
+    </div>
+    <div class="dashed" style="border-color:#D94F3B;"></div>
+
+    <div class="ledger-entry">
+      <div class="entry-date">11/02/2023 09:15</div>
+      <div>VAULT HUMIDITY SPIKE: 78.2%</div>
+      <div>ACTION: EMERGENCY DEHUMIDIFICATION</div>
+      <div>PAPER AFFECTED: 12,400 SHEETS</div>
+      <div>INTEGRITY LOSS: 3.2%</div>
+      <div>TECH NOTE: "The paper remembers what we did to it" -- Marnie :)</div>
+    </div>
+    <div class="dashed" style="border-color:#D94F3B;"></div>
+
+    <div class="ledger-entry">
+      <div class="entry-date">01/08/2024 16:45</div>
+      <div>THERMAL DECAY EVENT: SECTION 9C</div>
+      <div>SHEETS AFFECTED: 8,100</div>
+      <div>DATA READABILITY: DEGRADED</div>
+      <div>CLIENT NOTIFIED: YES</div>
+      <div>CLIENT RESPONSE: "That's sort of the point, isn't it?"</div>
+      <div>TECH NOTE: "Yes." -- Alaric :)</div>
+    </div>
+    <div class="dashed" style="border-color:#D94F3B;"></div>
+
+    <div class="ledger-entry">
+      <div class="entry-date">03/22/2024 11:30</div>
+      <div>UNAUTHORIZED READING: BAY 11</div>
+      <div>STAFF MEMBER: FELIX</div>
+      <div>FILE: CLIENT #4412 (DIVORCE PAPERS)</div>
+      <div>ACTION TAKEN: VERBAL WARNING</div>
+      <div>FELIX'S DEFENSE: "I wasn't reading, I was auditing the font weight"</div>
+      <div>TECH NOTE: "Technically accurate" -- Marnie :)</div>
+    </div>
+    <div class="dashed" style="border-color:#D94F3B;"></div>
+
+    <div class="ledger-entry">
+      <div class="entry-date">06/14/2024 08:02</div>
+      <div>SQUIRREL BREACH: VENTILATION SHAFT C</div>
+      <div>PAPER GNAWED: 340 SHEETS</div>
+      <div>CLIENT NOTIFIED: NO (UNDETECTABLE)</div>
+      <div>TECH NOTE: "The squirrel made editorial choices I respect" -- Alaric :)</div>
+    </div>
+    <div class="dashed" style="border-color:#D94F3B;"></div>
+
+    <div class="ledger-entry">
+      <div class="entry-date">09/29/2024 15:18</div>
+      <div>EXISTENTIAL PAUSE: ALL PRINTERS</div>
+      <div>DURATION: 47 SECONDS</div>
+      <div>CAUSE: UNKNOWN (SIMULTANEOUS)</div>
+      <div>FILES IN QUEUE: 2,891</div>
+      <div>TECH NOTE: "They all stopped at once. Like they agreed on something." -- Felix :)</div>
+    </div>
+  </div>
+</div>
+<div class="dashed"></div>
+
+<!-- 9. COMMUNITY ALERT BANNER -->
+<div x-data="{ upgraded: false }">
+  <div class="alert-banner" :class="{ 'alert-blink': !upgraded }">
+    <div style="font-weight:700;">* VAULT PURGE DAY *</div>
+    <div>SEPTEMBER 15, 2026</div>
+    <div style="margin-top:6px;">UPGRADE TO RECYCLED PAPER</div>
+    <div>"AUTUMN LEAF TAN" FINISH</div>
+    <div>ONLY $9.99/FILE</div>
+    <div style="margin-top:8px;">
+      <button class="upgrade-btn" @click="upgraded = true" x-show="!upgraded">[ UPGRADE NOW ]</button>
+    </div>
+    <div x-show="upgraded" style="margin-top:8px; font-size:11px;" x-cloak>
+      UPGRADE REGISTERED. YOUR FILES WILL DECAY WITH DIGNITY.
+    </div>
+  </div>
+</div>
+<div class="dashed"></div>
+
+<!-- 10. THE GALLERY -->
+<div>
+  <div class="section-title">=== USER SUBMISSIONS ===</div>
+
+  <div class="gallery-card">
+<pre>+-- USER SUBMISSION #0441 -----+
+| "My wedding vows"            |
+| Section 12B, Bay 3           |
+| Stack height: 5.3 ft         |
+| Weight: 12.4 lbs             |
+| Binder clips: 4 (industrial) |
+|                               |
+| ARCHIVIST VERIFIED            |
+| Integrity: 98.4%             |
+| Eco-Impact: 1.6%             |
+| --- STAMPED ---               |
++-------------------------------+</pre>
+  </div>
+
+  <div class="gallery-card">
+<pre>+-- USER SUBMISSION #1087 -----+
+| "Complete sourdough starter   |
+|  recipe collection 2009-2024" |
+| Section 4A, Bay 9             |
+| Stack height: 11.7 ft         |
+| Weight: 28.1 lbs             |
+| Binder clips: 9 (industrial) |
+|                               |
+| ARCHIVIST VERIFIED            |
+| Integrity: 94.1%             |
+| Eco-Impact: 4.2%             |
+| Note: "Smells faintly of     |
+|  yeast. Probably unrelated."  |
+| --- STAMPED ---               |
++-------------------------------+</pre>
+  </div>
+
+  <div class="gallery-card">
+<pre>+-- USER SUBMISSION #2203 -----+
+| "Entire email inbox,          |
+|  2009-2013 (unread included)" |
+| Section 8F, Bay 1             |
+| Stack height: 42.6 ft         |
+| Weight: 97.3 lbs             |
+| Binder clips: 31 (reinf.)    |
+|                               |
+| ARCHIVIST VERIFIED            |
+| Integrity: 71.2%             |
+| Eco-Impact: 14.8%            |
+| Note: "Client wept during    |
+|  handoff. We understand."     |
+| --- STAMPED ---               |
++-------------------------------+</pre>
+  </div>
+</div>
+<div class="dashed"></div>
+
+<!-- 11. Final handwritten note -->
+<div class="handnote handnote-center">
+  "You can hold paper. You can smell it. You can watch it yellow and curl and know that time is passing, which is more than any cloud server will ever give you."
+</div>
+<div class="dashed"></div>
+
+<!-- 12. FOOTER -->
+<div class="footer-block">
+  <div style="letter-spacing:2px;">================================</div>
+  <div style="font-weight:700; font-size:14px; letter-spacing:3px; margin-top:6px;">FAXYOURDATA.COM</div>
+  <div style="font-size:11px;">EST. 2003 -- PATERSON, NJ</div>
+  <div style="margin-top:8px; font-style:italic; font-size:12px;">"Paper: The Renewable Waste"</div>
+  <div style="margin-top:10px; font-size:12px;">
+    <div>ITEMS: 1&nbsp;&nbsp;&nbsp;&nbsp;TOTAL: YOUR PEACE</div>
+  </div>
+  <div style="margin-top:10px; font-size:12px;">THANK YOU FOR YOUR TRUST</div>
+  <div style="font-size:11px;">PLEASE RETAIN THIS RECEIPT</div>
+  <div style="margin-top:10px; font-size:11px;">
+    <div>*** NO RETURNS ***</div>
+    <div>*** NO REFUNDS ***</div>
+    <div>*** NO PERMANENCE ***</div>
+  </div>
+  <div style="letter-spacing:2px; margin-top:6px;">================================</div>
+
+  <!-- Barcode -->
+  <div class="barcode" x-text="barcode"></div>
+</div>
+
+</div><!-- receipt-body -->
+<div class="torn-bottom" :style="{ backgroundColor: paperColor }"></div>
+</div><!-- receipt-wrapper -->
+
+</div><!-- x-data -->
+
+<script>
+function receipt() {
+  return {
+    currentTime: '',
+    txnNumber: '',
+    barcode: '',
+    muted: false,
+    ageMinutes: 0,
+    decayStarted: false,
+    headerInk: '#0D0D0D',
+    paperColor: '#FFF8E8',
+
+    // Thermalizer
+    selectedFile: null,
+    fileSizeMB: '0',
+    pricePerFt: '5.99',
+    processing: false,
+    archived: false,
+    progressBar: '',
+    thermalGlowing: false,
+    paperConsumed: '0',
+    paperWeight: '0',
+    binderClips: 0,
+    vaultBay: 0,
+    vaultShelf: '',
+
+    // Audio
+    audioCtx: null,
+    scrollTimeout: null,
+
+    init() {
+      // Generate TXN number
+      this.txnNumber = '';
+      for (let i = 0; i < 12; i++) this.txnNumber += Math.floor(Math.random() * 10);
+
+      // Generate barcode
+      var chars = ['|', '|', '||', '|', '|||', '|', '|', '||'];
+      var bc = '';
+      for (var i = 0; i < 60; i++) {
+        bc += chars[Math.floor(Math.random() * chars.length)];
+        if (Math.random() > 0.5) bc += ' ';
+      }
+      this.barcode = bc;
+
+      // Update time every second
+      this.updateTime();
+      setInterval(() => this.updateTime(), 1000);
+
+      // Aging effect - every 60 seconds
+      setInterval(() => {
+        this.ageMinutes++;
+        // Shift paper color toward aged
+        var t = Math.min(this.ageMinutes / 10, 1);
+        var r = Math.round(255 + (232 - 255) * t);
+        var g = Math.round(248 + (220 - 248) * t);
+        var b = Math.round(232 + (200 - 232) * t);
+        this.paperColor = 'rgb(' + r + ',' + g + ',' + b + ')';
+
+        // After 5 minutes, fade header text
+        if (this.ageMinutes >= 5) {
+          this.decayStarted = true;
+          var tt = Math.min((this.ageMinutes - 5) / 5, 1);
+          var c = Math.round(13 + (58 - 13) * tt);
+          this.headerInk = 'rgb(' + c + ',' + c + ',' + c + ')';
+        }
+      }, 60000);
+
+      // Scroll sound
+      var self = this;
+      window.addEventListener('scroll', function() {
+        if (self.muted) return;
+        if (self.scrollTimeout) return;
+        self.scrollTimeout = setTimeout(function() {
+          self.scrollTimeout = null;
+        }, 800);
+        self.playPaperSound();
+      });
+    },
+
+    updateTime() {
+      var d = new Date();
+      var mo = String(d.getMonth() + 1).padStart(2, '0');
+      var da = String(d.getDate()).padStart(2, '0');
+      var yr = d.getFullYear();
+      var hr = String(d.getHours()).padStart(2, '0');
+      var mi = String(d.getMinutes()).padStart(2, '0');
+      var se = String(d.getSeconds()).padStart(2, '0');
+      this.currentTime = mo + '/' + da + '/' + yr + ' ' + hr + ':' + mi + ':' + se + ' EST';
+    },
+
+    handleFile(event) {
+      var file = event.target.files[0];
+      if (!file) return;
+      this.selectedFile = file;
+      this.fileSizeMB = (file.size / (1024 * 1024)).toFixed(1);
+      this.pricePerFt = (3 + Math.random() * 7).toFixed(2);
+      this.processing = true;
+      this.archived = false;
+
+      // Calculate stats
+      var mb = parseFloat(this.fileSizeMB);
+      this.paperConsumed = (mb * 2.5).toFixed(1);
+      this.paperWeight = (parseFloat(this.paperConsumed) * 0.13).toFixed(1);
+      this.binderClips = Math.ceil(parseFloat(this.paperWeight) / 2);
+      this.vaultBay = Math.floor(Math.random() * 12) + 1;
+      var letters = 'ABCDEF';
+      this.vaultShelf = letters[Math.floor(Math.random() * 6)] + (Math.floor(Math.random() * 30) + 1);
+
+      // Progress bar animation
+      var total = 40;
+      var filled = 0;
+      this.progressBar = this.buildBar(filled, total);
+
+      // Start dot-matrix sound
+      if (!this.muted) this.startPrinterSound();
+
+      var self = this;
+      var interval = setInterval(function() {
+        filled++;
+        self.progressBar = self.buildBar(filled, total);
+        if (filled >= total) {
+          clearInterval(interval);
+          self.processing = false;
+          self.archived = true;
+          self.stopPrinterSound();
+
+          // Thermal glow
+          self.thermalGlowing = true;
+          setTimeout(function() { self.thermalGlowing = false; }, 2800);
+        }
+      }, 200);
+    },
+
+    buildBar(filled, total) {
+      var bar = '';
+      for (var i = 0; i < total; i++) {
+        bar += i < filled ? '\u2588' : '\u2591';
+      }
+      return bar;
+    },
+
+    printerOsc: null,
+    printerGain: null,
+    printerInterval: null,
+
+    startPrinterSound() {
+      try {
+        if (!this.audioCtx) this.audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        var ctx = this.audioCtx;
+        this.printerGain = ctx.createGain();
+        this.printerGain.gain.value = 0;
+        this.printerGain.connect(ctx.destination);
+
+        this.printerOsc = ctx.createOscillator();
+        this.printerOsc.type = 'square';
+        this.printerOsc.frequency.value = 200;
+        this.printerOsc.connect(this.printerGain);
+        this.printerOsc.start();
+
+        var gain = this.printerGain;
+        var on = true;
+        this.printerInterval = setInterval(function() {
+          gain.gain.value = on ? 0.04 : 0;
+          on = !on;
+        }, 100);
+      } catch(e) {}
+    },
+
+    stopPrinterSound() {
+      try {
+        if (this.printerInterval) clearInterval(this.printerInterval);
+        if (this.printerOsc) this.printerOsc.stop();
+        this.printerOsc = null;
+        this.printerGain = null;
+      } catch(e) {}
+    },
+
+    playPaperSound() {
+      try {
+        if (!this.audioCtx) this.audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        var ctx = this.audioCtx;
+        var bufferSize = ctx.sampleRate * 0.05;
+        var buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
+        var data = buffer.getChannelData(0);
+        for (var i = 0; i < bufferSize; i++) {
+          data[i] = (Math.random() * 2 - 1) * 0.015;
+        }
+        var source = ctx.createBufferSource();
+        source.buffer = buffer;
+
+        var filter = ctx.createBiquadFilter();
+        filter.type = 'highpass';
+        filter.frequency.value = 3000;
+
+        source.connect(filter);
+        filter.connect(ctx.destination);
+        source.start();
+      } catch(e) {}
+    }
+  };
+}
+
+function impactTicker() {
+  return {
+    files: 456782,
+    paper: '28.7 mi',
+    trees: 19450,
+
+    start() {
+      var self = this;
+      setInterval(function() {
+        var inc = Math.floor(Math.random() * 7) + 1;
+        self.files += inc;
+        var paperMi = 28.7 + (self.files - 456782) * 0.0001;
+        self.paper = paperMi.toFixed(1) + ' mi';
+        self.trees = 19450 + Math.floor((self.files - 456782) * 0.04);
+      }, 3000);
+    }
+  };
+}
+
+function bookingForm() {
+  return {
+    showForm: false,
+    name: '',
+    email: '',
+    tourDate: '',
+    confirmed: false,
+    confirmedName: '',
+    confirmedDate: '',
+    formGlow: false,
+    returningGuest: false,
+    returningName: '',
+
+    checkReturning() {
+      try {
+        var saved = localStorage.getItem('faxvault_booking');
+        if (saved) {
+          var data = JSON.parse(saved);
+          this.returningGuest = true;
+          this.returningName = data.name;
+          this.name = data.name;
+          this.email = data.email || '';
+        }
+      } catch(e) {}
+    },
+
+    submitBooking() {
+      if (!this.name) return;
+      this.confirmedName = this.name.toUpperCase();
+      this.confirmedDate = this.tourDate || 'TBD';
+      this.confirmed = true;
+      this.showForm = false;
+
+      // Glow effect
+      this.formGlow = true;
+      var self = this;
+      setTimeout(function() { self.formGlow = false; }, 2800);
+
+      // Save to localStorage
+      try {
+        localStorage.setItem('faxvault_booking', JSON.stringify({
+          name: this.name,
+          email: this.email,
+          date: this.tourDate
+        }));
+      } catch(e) {}
+    }
+  };
+}
+</script>
+
+</body>
+</html>

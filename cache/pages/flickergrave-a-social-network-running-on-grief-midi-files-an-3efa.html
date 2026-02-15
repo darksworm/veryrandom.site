@@ -1,0 +1,1478 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FLICKERGRAVE — A Social Network Running on Grief, MIDI Files, and Manual Page Refreshes Since 2006</title>
+<link rel="stylesheet" href="/assets/css/fonts.css">
+<script defer src="/assets/js/alpine.min.js"></script>
+<script src="/assets/js/gsap.min.js"></script>
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html { scroll-behavior: auto; }
+
+body {
+  background: #0a0a12;
+  color: #00ff41;
+  font-family: 'Fira Code', monospace;
+  font-size: 16px;
+  line-height: 1.6;
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+[x-cloak] { display: none !important; }
+
+a { color: #ff00ff; text-decoration: underline overline; cursor: pointer; }
+a:hover { color: #ffcc00; }
+
+/* CRT Scanlines */
+#crt-overlay {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  pointer-events: none;
+  z-index: 9999;
+  background: repeating-linear-gradient(
+    transparent, transparent 2px,
+    rgba(0,0,0,0.15) 2px, rgba(0,0,0,0.15) 4px
+  );
+}
+
+/* Under Construction Banner */
+#construction-banner {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  height: 28px;
+  background: repeating-linear-gradient(
+    45deg,
+    #000000, #000000 10px,
+    #ffcc00 10px, #ffcc00 20px
+  );
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+}
+#construction-banner .scroll-text {
+  white-space: nowrap;
+  font-size: 11px;
+  font-family: 'Fira Code', monospace;
+  color: #0a0a12;
+  font-weight: bold;
+  animation: bannerScroll 20s linear infinite;
+  padding: 0 20px;
+}
+@keyframes bannerScroll {
+  0% { transform: translateX(100vw); }
+  100% { transform: translateX(-200%); }
+}
+
+/* Main container */
+.main-wrap {
+  max-width: 760px;
+  margin: 0 auto;
+  padding: 0 16px;
+  width: 100%;
+}
+
+/* Boot Sequence */
+#boot-screen {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: #0a0a12;
+  z-index: 10000;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 20px;
+  font-family: 'Fira Code', monospace;
+  font-size: 14px;
+  color: #00ff41;
+  transition: opacity 0.8s ease;
+}
+#boot-screen.hidden {
+  opacity: 0;
+  pointer-events: none;
+}
+#boot-lines { white-space: pre-wrap; word-break: break-all; }
+#boot-cursor {
+  display: inline-block;
+  width: 8px;
+  height: 16px;
+  background: #00ff41;
+  animation: cursorBlink 0.6s step-end infinite;
+}
+@keyframes cursorBlink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0; }
+}
+#dialup-bar {
+  margin-top: 16px;
+  display: none;
+}
+#dialup-bar .bar {
+  height: 20px;
+  background: #1a1a2e;
+  border: 1px solid #444466;
+  overflow: hidden;
+  font-size: 11px;
+  color: #00ff41;
+  letter-spacing: 1px;
+  line-height: 20px;
+  white-space: nowrap;
+}
+#dialup-bar .status {
+  margin-top: 4px;
+  font-size: 12px;
+  color: #ffcc00;
+}
+
+#resume-flash {
+  position: fixed;
+  top: 40px;
+  right: 16px;
+  font-family: 'Fira Code', monospace;
+  font-size: 12px;
+  color: #00ff41;
+  background: #1a1a2e;
+  border: 1px solid #444466;
+  padding: 4px 10px;
+  z-index: 101;
+  opacity: 0;
+}
+
+/* Section: Header */
+.header-section {
+  padding: 40px 0 24px;
+  text-align: center;
+  background:
+    radial-gradient(1px 1px at 10% 20%, #ffffff 0%, transparent 100%),
+    radial-gradient(1px 1px at 40% 60%, #ffffff 0%, transparent 100%),
+    radial-gradient(1px 1px at 70% 30%, #ffffff 0%, transparent 100%),
+    radial-gradient(1px 1px at 90% 80%, #ffffff 0%, transparent 100%),
+    radial-gradient(1px 1px at 25% 90%, #ffffff 0%, transparent 100%),
+    radial-gradient(1px 1px at 55% 10%, #ffffff 0%, transparent 100%),
+    radial-gradient(1px 1px at 80% 50%, #ccccff 0%, transparent 100%),
+    radial-gradient(1px 1px at 15% 70%, #ccccff 0%, transparent 100%),
+    radial-gradient(1px 1px at 60% 45%, #ffffff 0%, transparent 100%),
+    radial-gradient(1px 1px at 35% 35%, #ffffff 0%, transparent 100%);
+  background-color: #0a0a12;
+  background-size: 200% 100%;
+  animation: starfieldDrift 60s linear infinite;
+}
+@keyframes starfieldDrift {
+  0% { background-position: 0% 0%; }
+  100% { background-position: 200% 0%; }
+}
+
+.logo {
+  font-family: 'Permanent Marker', cursive;
+  font-size: clamp(3rem, 8vw, 5rem);
+  color: #ff00ff;
+  text-shadow:
+    2px 2px 0 #00ffff,
+    -2px -2px 0 #ff0044;
+  animation: glitchFlicker 3s infinite;
+  line-height: 1.1;
+}
+@keyframes glitchFlicker {
+  0%, 90%, 100% { text-shadow: 2px 2px 0 #00ffff, -2px -2px 0 #ff0044; }
+  92% { text-shadow: 4px 1px 0 #00ffff, -1px -3px 0 #ff0044; }
+  94% { text-shadow: -2px 3px 0 #00ffff, 3px -1px 0 #ff0044; }
+  96% { text-shadow: 1px -2px 0 #00ffff, -3px 2px 0 #ff0044; }
+}
+
+.header-tagline {
+  font-family: 'Fira Code', monospace;
+  font-size: 0.85rem;
+  color: #00ff41;
+  margin-top: 12px;
+  padding: 0 8px;
+}
+.header-line {
+  width: 80%;
+  max-width: 400px;
+  height: 1px;
+  background: #ffcc00;
+  margin: 12px auto;
+}
+.header-credit {
+  font-family: 'Fira Code', monospace;
+  font-size: 0.75rem;
+  font-style: italic;
+  color: #ffcc00;
+  padding: 0 8px;
+}
+
+/* Section: Counter */
+.counter-section {
+  border: 1px solid #444466;
+  background: #1a1a2e;
+  padding: 20px;
+  margin: 32px 0;
+  cursor: pointer;
+  user-select: none;
+}
+.counter-label {
+  text-align: center;
+  font-size: 0.8rem;
+  color: #ffcc00;
+  letter-spacing: 0.15em;
+  margin-bottom: 8px;
+}
+.counter-digits {
+  display: flex;
+  justify-content: center;
+  gap: 4px;
+  flex-wrap: wrap;
+}
+.counter-digit {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 48px;
+  background: #0a0a12;
+  border: 1px solid #444466;
+  font-family: 'Fira Code', monospace;
+  font-size: 1.4rem;
+  color: #00ff41;
+  letter-spacing: 0;
+  text-shadow: 0 0 8px #00ff4188;
+}
+.counter-karen {
+  text-align: center;
+  font-size: 0.75rem;
+  color: #444466;
+  margin-top: 12px;
+  animation: karenPulse 4s ease-in-out infinite;
+}
+@keyframes karenPulse {
+  0%, 100% { opacity: 0.4; }
+  50% { opacity: 1; }
+}
+.engagement-panel {
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 1px solid #444466;
+}
+.engagement-score {
+  font-size: 0.85rem;
+  color: #ff00ff;
+  text-align: center;
+}
+.progress-track {
+  width: 100%;
+  height: 12px;
+  background: #0a0a12;
+  border: 1px solid #444466;
+  margin: 8px 0;
+  position: relative;
+  overflow: hidden;
+}
+.progress-fill {
+  height: 100%;
+  background: #ff00ff;
+  transition: width 0.3s;
+  min-width: 1px;
+}
+.engagement-subtext {
+  font-size: 0.7rem;
+  color: #444466;
+  text-align: center;
+}
+.floppy-anim {
+  position: fixed;
+  pointer-events: none;
+  z-index: 200;
+  width: 24px;
+  height: 28px;
+  background: #444466;
+  border-radius: 2px;
+  border: 1px solid #00ff41;
+}
+.floppy-anim::before {
+  content: '';
+  position: absolute;
+  top: 3px; left: 5px; right: 5px;
+  height: 8px;
+  background: #1a1a2e;
+  border-radius: 1px;
+}
+.floppy-anim::after {
+  content: '';
+  position: absolute;
+  bottom: 3px; left: 7px;
+  width: 10px; height: 10px;
+  background: #0a0a12;
+}
+
+/* Section: Manifesto */
+.manifesto-section {
+  padding: 32px 0;
+}
+.manifesto-line {
+  font-family: 'Fira Code', monospace;
+  font-size: 0.9rem;
+  color: #00ff41;
+  margin-bottom: 4px;
+  opacity: 0;
+  animation: fadeInLine 0.5s forwards;
+}
+.manifesto-line .prefix { color: #444466; }
+.manifesto-line.signature { color: #ffcc00; }
+.manifesto-line.blank { height: 16px; }
+
+@keyframes fadeInLine {
+  from { opacity: 0; transform: translateY(4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Section: Neighborhood Selector */
+.neighborhood-section {
+  margin: 32px 0;
+}
+.win98-dialog {
+  border: 2px solid #888888;
+  border-top-color: #ffffff;
+  border-left-color: #ffffff;
+  background: #c0c0c0;
+}
+.win98-titlebar {
+  background: #000080;
+  color: #ffffff;
+  font-size: 0.8rem;
+  padding: 3px 6px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-family: 'Fira Code', monospace;
+}
+.win98-close {
+  background: #c0c0c0;
+  border: 2px solid #ffffff;
+  border-right-color: #555;
+  border-bottom-color: #555;
+  color: #000000;
+  font-size: 11px;
+  width: 18px;
+  height: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-family: 'Fira Code', monospace;
+  padding: 0;
+  line-height: 1;
+  min-height: 18px;
+}
+.win98-body {
+  padding: 12px;
+  color: #000000;
+  font-family: 'Fira Code', monospace;
+  font-size: 0.8rem;
+}
+.win98-select {
+  width: 100%;
+  padding: 4px;
+  font-family: 'Fira Code', monospace;
+  font-size: 0.8rem;
+  background: #ffffff;
+  border: 2px inset #888;
+  color: #000000;
+  margin-top: 8px;
+  min-height: 44px;
+}
+.win98-select option { padding: 2px; }
+.neighborhood-desc {
+  margin-top: 8px;
+  color: #000000;
+  font-size: 0.75rem;
+  font-style: italic;
+}
+.friend-suggestions {
+  margin-top: 12px;
+  background: #ffffff;
+  border: 2px inset #888;
+  padding: 8px;
+}
+.friend-suggestions h4 {
+  font-size: 0.75rem;
+  color: #000080;
+  margin-bottom: 6px;
+}
+.friend-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 4px 0;
+  border-bottom: 1px solid #c0c0c0;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+.friend-item:last-child { border-bottom: none; }
+.friend-name { color: #000080; font-size: 0.75rem; font-weight: bold; }
+.friend-lastseen { color: #666666; font-size: 0.65rem; }
+.friend-status { font-size: 0.65rem; color: #cc0000; font-style: italic; }
+.btn-add-friend {
+  background: #c0c0c0;
+  border: 2px solid #ffffff;
+  border-right-color: #555;
+  border-bottom-color: #555;
+  font-family: 'Fira Code', monospace;
+  font-size: 0.65rem;
+  padding: 2px 8px;
+  cursor: pointer;
+  color: #000000;
+  white-space: nowrap;
+  min-height: 30px;
+}
+.btn-add-friend:active {
+  border-color: #555;
+  border-right-color: #ffffff;
+  border-bottom-color: #ffffff;
+}
+.friendship-popup {
+  background: #ffffcc;
+  border: 2px solid #cc0000;
+  padding: 8px;
+  margin-top: 8px;
+  font-size: 0.7rem;
+  color: #000000;
+}
+.friendship-popup input {
+  font-family: 'Fira Code', monospace;
+  font-size: 0.7rem;
+  border: 1px inset #888;
+  padding: 2px 4px;
+  width: 100%;
+  margin: 4px 0;
+  min-height: 30px;
+}
+
+/* Tiling background overlays for neighborhoods */
+.bg-overlay-area51 {
+  background-image: radial-gradient(circle 1px, #00ff4115 0%, transparent 100%);
+  background-size: 30px 30px;
+}
+.bg-overlay-enchanted {
+  background-image:
+    radial-gradient(circle 3px at 10px 10px, #ff00ff10 0%, transparent 100%),
+    radial-gradient(circle 2px at 25px 25px, #ffcc0010 0%, transparent 100%);
+  background-size: 35px 35px;
+}
+.bg-overlay-sunset {
+  background-image: repeating-linear-gradient(
+    0deg, transparent, transparent 28px, #ff00ff08 28px, #ff00ff08 30px
+  );
+}
+.bg-overlay-bourbon {
+  background-image: repeating-linear-gradient(
+    135deg, transparent, transparent 18px, #ffcc0008 18px, #ffcc0008 20px
+  );
+}
+.bg-overlay-times {
+  background-image:
+    linear-gradient(0deg, transparent 49%, #00ff4108 49%, #00ff4108 51%, transparent 51%),
+    linear-gradient(90deg, transparent 49%, #00ff4108 49%, #00ff4108 51%, transparent 51%);
+  background-size: 24px 24px;
+}
+.bg-overlay-wall {
+  background-image: repeating-linear-gradient(
+    90deg, transparent, transparent 38px, #44446620 38px, #44446620 40px
+  );
+}
+
+/* Guestbook */
+.guestbook-section {
+  margin: 32px 0;
+  background: #1a1a2e;
+  background-image: repeating-linear-gradient(
+    135deg,
+    transparent, transparent 8px,
+    #ffffff03 8px, #ffffff03 9px
+  );
+  border: 1px solid #444466;
+  padding: 20px;
+}
+.guestbook-title {
+  font-family: 'Permanent Marker', cursive;
+  color: #ff00ff;
+  font-size: 1.5rem;
+  text-align: center;
+  margin-bottom: 16px;
+}
+.guestbook-entry {
+  border-bottom: 1px solid #444466;
+  padding: 12px 0;
+}
+.guestbook-entry:last-of-type { border-bottom: none; }
+.guestbook-meta {
+  font-family: 'Fira Code', monospace;
+  font-size: 0.7rem;
+  color: #444466;
+  margin-bottom: 4px;
+}
+.guestbook-msg {
+  font-family: 'Caveat', cursive;
+  font-size: 1.15rem;
+  color: #00ff41;
+  line-height: 1.4;
+}
+.guestbook-form {
+  margin-top: 20px;
+  border-top: 1px solid #444466;
+  padding-top: 16px;
+}
+.gb-field {
+  margin-bottom: 10px;
+}
+.gb-field label {
+  display: block;
+  font-size: 0.75rem;
+  color: #ffcc00;
+  margin-bottom: 4px;
+}
+.gb-input {
+  width: 100%;
+  background: #ffffff;
+  border: 2px inset #888888;
+  padding: 6px 8px;
+  font-family: 'Fira Code', monospace;
+  font-size: 0.85rem;
+  color: #000000;
+  min-height: 44px;
+}
+.gb-textarea {
+  width: 100%;
+  background: #ffffff;
+  border: 2px inset #888888;
+  padding: 6px 8px;
+  font-family: 'Fira Code', monospace;
+  font-size: 0.85rem;
+  color: #000000;
+  resize: vertical;
+  min-height: 80px;
+}
+.gb-submit {
+  background: #c0c0c0;
+  border: 2px solid #ffffff;
+  border-right-color: #555;
+  border-bottom-color: #555;
+  font-family: 'Fira Code', monospace;
+  font-size: 0.85rem;
+  padding: 8px 20px;
+  cursor: pointer;
+  color: #000000;
+  min-height: 44px;
+}
+.gb-submit:active {
+  border-color: #555;
+  border-right-color: #ffffff;
+  border-bottom-color: #ffffff;
+}
+.guestbook-marquee {
+  margin-top: 12px;
+  font-size: 0.75rem;
+  color: #ff00ff;
+}
+
+/* Marquee Message Board */
+.marquee-section {
+  margin: 32px 0;
+}
+.marquee-heading {
+  font-family: 'Permanent Marker', cursive;
+  color: #00ff41;
+  font-size: 1.1rem;
+  text-align: center;
+  margin-bottom: 16px;
+}
+.marquee-stack {
+  border: 1px solid #444466;
+  background: #1a1a2e;
+  padding: 8px;
+  overflow: hidden;
+}
+.marquee-stack marquee {
+  font-family: 'Fira Code', monospace;
+  font-size: 0.8rem;
+  color: #00ff41;
+  padding: 4px 0;
+  display: block;
+}
+.marquee-input-wrap {
+  margin-top: 12px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.marquee-prompt {
+  color: #00ff41;
+  font-size: 0.85rem;
+  animation: cursorBlink 0.6s step-end infinite;
+  flex-shrink: 0;
+}
+.marquee-input {
+  flex: 1;
+  min-width: 200px;
+  background: #0a0a12;
+  border: 1px solid #444466;
+  padding: 8px;
+  font-family: 'Fira Code', monospace;
+  font-size: 0.85rem;
+  color: #00ff41;
+  min-height: 44px;
+}
+.marquee-send {
+  background: #1a1a2e;
+  border: 1px solid #ff00ff;
+  color: #ff00ff;
+  font-family: 'Fira Code', monospace;
+  font-size: 0.8rem;
+  padding: 8px 12px;
+  cursor: pointer;
+  min-height: 44px;
+}
+
+/* Blinkenlights - bottom-left to keep bottom-right clear */
+@keyframes ledPulse {
+  0%, 100% { opacity: 0.3; box-shadow: none; }
+  15% { opacity: 1; box-shadow: 0 0 8px #ffcc00; }
+  20% { opacity: 0.4; }
+  25% { opacity: 1; box-shadow: 0 0 12px #ffcc00; }
+  50% { opacity: 0.6; box-shadow: 0 0 4px #ffcc00; }
+  75% { opacity: 1; box-shadow: 0 0 8px #ffcc00; }
+}
+.ghost-panel {
+  position: fixed;
+  bottom: 56px;
+  left: 16px;
+  z-index: 91;
+  background: #1a1a2e;
+  border: 1px solid #ffcc00;
+  padding: 12px;
+  font-family: 'Fira Code', monospace;
+  font-size: 0.75rem;
+  color: #00ff41;
+  max-width: 300px;
+  width: calc(100vw - 32px);
+}
+.ghost-panel h4 {
+  color: #ffcc00;
+  margin-bottom: 8px;
+  font-size: 0.8rem;
+}
+.ghost-panel .ghost-line { margin: 3px 0; }
+.ghost-toggle {
+  margin-top: 8px;
+  background: none;
+  border: 1px solid #444466;
+  color: #ff00ff;
+  font-family: 'Fira Code', monospace;
+  font-size: 0.7rem;
+  padding: 4px 8px;
+  cursor: pointer;
+  min-height: 36px;
+}
+
+/* Webring */
+.webring-section {
+  margin: 32px 0;
+  background: #c0c0c0;
+  border: 2px solid #888888;
+  border-top-color: #ffffff;
+  border-left-color: #ffffff;
+  padding: 8px 12px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  font-family: 'Fira Code', monospace;
+  font-size: 0.8rem;
+}
+.webring-section span { color: #666666; }
+.webring-btn {
+  background: none;
+  border: none;
+  color: #000080;
+  font-family: 'Fira Code', monospace;
+  font-size: 0.8rem;
+  cursor: pointer;
+  text-decoration: underline;
+  padding: 4px;
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
+}
+.webring-btn:hover { color: #ff00ff; }
+.webring-overlay {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: #1a1a2e;
+  border: 2px solid #444466;
+  padding: 20px;
+  z-index: 500;
+  font-family: 'Fira Code', monospace;
+  font-size: 0.8rem;
+  color: #00ff41;
+  max-width: 400px;
+  width: calc(100vw - 32px);
+  text-align: center;
+}
+.webring-overlay .member {
+  margin: 8px 0;
+  padding: 6px;
+  border-bottom: 1px solid #444466;
+}
+.webring-overlay .member-name { color: #ff00ff; }
+.webring-overlay .member-status { color: #444466; font-size: 0.7rem; }
+.webring-overlay .error-msg { color: #ff0044; margin-top: 12px; }
+.webring-overlay .algo-msg { color: #ffcc00; margin-top: 8px; }
+.webring-refresh-count {
+  text-align: center;
+  font-size: 0.7rem;
+  color: #444466;
+  margin-top: 8px;
+}
+
+/* Footer */
+.footer-section {
+  margin: 48px 0 80px;
+  text-align: center;
+  font-size: 0.7rem;
+  color: #444466;
+  line-height: 1.8;
+}
+.under-construction-gif {
+  display: inline-block;
+  width: 60px;
+  height: 10px;
+  background: repeating-linear-gradient(
+    45deg,
+    #ffcc00, #ffcc00 4px,
+    #000000 4px, #000000 8px
+  );
+  animation: constructionBlink 1s step-end infinite;
+  margin: 8px auto;
+}
+@keyframes constructionBlink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.4; }
+}
+
+/* Screen Flicker */
+@keyframes screenFlicker {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.92; }
+}
+.screen-flicker {
+  animation: screenFlicker 0.1s ease;
+}
+
+/* Typing animation for new guestbook entry */
+@keyframes typeIn {
+  from { width: 0; }
+  to { width: 100%; }
+}
+.typing-entry {
+  overflow: hidden;
+  white-space: nowrap;
+  animation: typeIn 1s steps(40) forwards;
+}
+
+/* Responsive */
+@media (max-width: 480px) {
+  .counter-digit {
+    width: 30px;
+    height: 40px;
+    font-size: 1.1rem;
+  }
+  .friend-item {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  .marquee-input-wrap {
+    flex-direction: column;
+  }
+  .marquee-input { min-width: 0; width: 100%; }
+}
+</style>
+</head>
+<body>
+
+<!-- CRT Scanline Overlay -->
+<div id="crt-overlay"></div>
+
+<!-- Boot Screen -->
+<div id="boot-screen">
+  <div id="boot-lines"></div>
+  <span id="boot-cursor"></span>
+  <div id="dialup-bar">
+    <div class="bar" id="dialup-chars"></div>
+    <div class="status" id="dialup-status"></div>
+  </div>
+</div>
+
+<!-- Resume Flash -->
+<div id="resume-flash">[RESUME SESSION]</div>
+
+<!-- Under Construction Banner -->
+<div id="construction-banner">
+  <span class="scroll-text">&#9888; THIS SITE IS PERMANENTLY UNDER CONSTRUCTION &#9888; WEBMASTER IS CRYING &#9888; PLEASE SIGN THE GUESTBOOK &#9888; THIS SITE IS PERMANENTLY UNDER CONSTRUCTION &#9888; WEBMASTER IS CRYING &#9888; PLEASE SIGN THE GUESTBOOK &#9888;</span>
+</div>
+
+<!-- Main Content -->
+<div class="main-wrap" x-data="flickergrave()">
+
+  <!-- Header -->
+  <header class="header-section">
+    <div class="logo">FLICKERGRAVE</div>
+    <div class="header-tagline">A Social Network Running on Grief, MIDI Files, and Manual Page Refreshes Since 2006</div>
+    <div class="header-line"></div>
+    <div class="header-credit">Built by Cedrick Moose at 3:14 AM on a $49 Compaq Presario &mdash; You're Welcome</div>
+  </header>
+
+  <!-- Visitor Counter -->
+  <section class="counter-section" @click="incrementCounter($event)">
+    <div class="counter-label">VISITORS TRAPPED IN MEMORIES</div>
+    <div class="counter-digits">
+      <template x-for="d in counterDigits" :key="d.i">
+        <span class="counter-digit" x-text="d.v"></span>
+      </template>
+    </div>
+    <div class="counter-karen">Last actual visitor: Karen Smith, 04/17/2009. She said "brb" and never returned.</div>
+    <div class="engagement-panel">
+      <div class="engagement-score">ENGAGEMENT SCORE: <span x-text="engagementScore"></span></div>
+      <div class="progress-track">
+        <div class="progress-fill" :style="'width:' + Math.min(engagementPct, 100) + '%'"></div>
+      </div>
+      <div class="engagement-subtext">Likes converted from floppy disk submissions at 0.01 pts each. TikTok virality worth: $0.00</div>
+    </div>
+  </section>
+
+  <!-- Manifesto -->
+  <section class="manifesto-section">
+    <template x-for="(line, i) in manifestoLines" :key="i">
+      <p class="manifesto-line"
+         :class="{ 'signature': line.sig, 'blank': line.blank }"
+         :style="'animation-delay:' + (i * 0.15) + 's'">
+        <span class="prefix" x-show="line.prefix" x-text="line.prefix"></span>
+        <span x-text="line.text"></span>
+      </p>
+    </template>
+  </section>
+
+  <!-- Neighborhood Selector -->
+  <section class="neighborhood-section">
+    <div class="win98-dialog">
+      <div class="win98-titlebar">
+        <span>GeoCities Neighborhood Selector v2.1</span>
+        <button class="win98-close" @click="closeNeighborhood()">X</button>
+      </div>
+      <div class="win98-body">
+        <div>Select your neighborhood:</div>
+        <select class="win98-select" x-model="selectedHood" @change="selectNeighborhood()">
+          <option value="">-- Choose a Neighborhood --</option>
+          <template x-for="hood in neighborhoods" :key="hood.id">
+            <option :value="hood.id" x-text="hood.name"></option>
+          </template>
+        </select>
+        <div class="neighborhood-desc" x-show="selectedHoodDesc" x-text="selectedHoodDesc"></div>
+
+        <!-- Friend Suggestions -->
+        <div class="friend-suggestions" x-show="friends.length > 0">
+          <h4>&#128190; Friend Suggestions:</h4>
+          <template x-for="(f, fi) in friends" :key="fi">
+            <div class="friend-item">
+              <div>
+                <div class="friend-name" x-text="f.name"></div>
+                <div class="friend-lastseen">Last seen: <span x-text="f.lastSeen"></span></div>
+                <div class="friend-status" x-show="f.pending" x-text="'(pending since 2003)'"></div>
+              </div>
+              <button class="btn-add-friend"
+                      x-show="!f.pending && !f.adding"
+                      @click="addFriend(fi)">Add Friend</button>
+              <div x-show="f.adding" style="font-size:0.65rem;color:#000080;">
+                <div>GENERATING FRIENDSHIP CODE...</div>
+                <div style="color:#cc0000;font-weight:bold;" x-text="f.code"></div>
+                <div style="margin-top:4px;">Re-type the code to confirm:</div>
+                <input type="text" style="font-family:'Fira Code',monospace;font-size:0.65rem;border:1px inset #888;padding:2px 4px;width:100%;min-height:30px;" @keydown.enter="confirmFriend(fi)">
+              </div>
+              <div x-show="f.failed" style="font-size:0.65rem;color:#cc0000;font-weight:bold;">
+                FRIENDSHIP OVERLOADED: Please Try Again in 1999
+              </div>
+            </div>
+          </template>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Guestbook -->
+  <section class="guestbook-section">
+    <div class="guestbook-title">~ Sign My Guestbook ~</div>
+
+    <!-- User entries -->
+    <template x-for="(entry, ei) in userGuestbookEntries" :key="'u'+ei">
+      <div class="guestbook-entry">
+        <div class="guestbook-meta" x-text="entry.name + ' | ' + entry.location + ' | ' + entry.date"></div>
+        <div class="guestbook-msg" x-text="entry.msg"></div>
+      </div>
+    </template>
+
+    <!-- Default entries -->
+    <template x-for="(entry, ei) in defaultGuestbook" :key="'d'+ei">
+      <div class="guestbook-entry">
+        <div class="guestbook-meta" x-text="entry.meta"></div>
+        <div class="guestbook-msg" x-text="entry.msg"></div>
+      </div>
+    </template>
+
+    <!-- Form -->
+    <div class="guestbook-form">
+      <div class="gb-field">
+        <label>Name:</label>
+        <input class="gb-input" type="text" x-model="gbName" placeholder="xX_YourName_Xx" maxlength="40">
+      </div>
+      <div class="gb-field">
+        <label>Location:</label>
+        <input class="gb-input" type="text" x-model="gbLocation" placeholder="The Internet" maxlength="40">
+      </div>
+      <div class="gb-field">
+        <label>Message (200 chars max):</label>
+        <textarea class="gb-textarea" x-model="gbMsg" maxlength="200" placeholder="cool site dude"></textarea>
+      </div>
+      <button class="gb-submit" @click="signGuestbook()">SIGN GUESTBOOK</button>
+    </div>
+
+    <div class="guestbook-marquee">
+      <marquee scrollamount="3">Thank you for signing! Your entry will be preserved until the next server fire.</marquee>
+    </div>
+  </section>
+
+  <!-- Marquee Message Board -->
+  <section class="marquee-section">
+    <div class="marquee-heading">~ Currently Listening To: My Heart Will Go On (MIDI) ~</div>
+    <div class="marquee-stack">
+      <marquee scrollamount="2">cedrick_m: if anyone finds my GeoCities backup email me at cedrick@hotmail.com (inbox full since 2004)</marquee>
+      <marquee scrollamount="3">ghostuser_404: is anyone still here? hello? the marquee keeps scrolling but nobody answers</marquee>
+      <marquee scrollamount="4">~*stargirl*~: i miss when the internet was ugly and slow and mine</marquee>
+      <marquee scrollamount="5">SYSTEM: Read receipts will be delivered to your Hotmail account in 24-48 hours. If you still have one.</marquee>
+      <template x-for="(m, mi) in userMarquees" :key="mi">
+        <marquee :scrollamount="2 + (mi % 4)" x-text="m"></marquee>
+      </template>
+    </div>
+    <div class="marquee-input-wrap">
+      <span class="marquee-prompt">&gt;_</span>
+      <input class="marquee-input" type="text" x-model="marqueeMsg" placeholder="type your message into the void..." @keydown.enter="sendMarquee()" maxlength="200">
+      <button class="marquee-send" @click="sendMarquee()">SEND</button>
+    </div>
+  </section>
+
+  <!-- Webring -->
+  <section class="webring-section">
+    <button class="webring-btn" @click="webringNav()">&lt;&lt; PREV</button>
+    <span>|</span>
+    <button class="webring-btn" @click="webringNav()">RANDOM</button>
+    <span>|</span>
+    <button class="webring-btn" @click="webringNav()">NEXT &gt;&gt;</button>
+    <span>|</span>
+    <button class="webring-btn" @click="webringNav()">LIST ALL SITES</button>
+  </section>
+  <div class="webring-refresh-count" x-text="webringCountText"></div>
+
+  <!-- Webring Overlay -->
+  <div class="webring-overlay" x-show="showWebringOverlay" x-cloak>
+    <template x-if="webringPhase === 'loading'">
+      <div>Loading<span x-text="webringDots"></span></div>
+    </template>
+    <template x-if="webringPhase === 'members'">
+      <div>
+        <div class="member">
+          <div class="member-name">Betty Reynolds</div>
+          <div class="member-status">Last Login: 07/22/2005 | Status: Buffering My Life Choices</div>
+        </div>
+        <div class="member">
+          <div class="member-name">Todd_486DX</div>
+          <div class="member-status">Last Login: 12/01/2003 | Status: Awaiting Windows Update from 2003</div>
+        </div>
+        <div class="member">
+          <div class="member-name">~PrincessMIDI~</div>
+          <div class="member-status">Last Login: 02/14/2004 | Status: Converting Feelings to WAV Files</div>
+        </div>
+      </div>
+    </template>
+    <template x-if="webringPhase === 'error'">
+      <div>
+        <div class="error-msg">ERROR 404: This site existed once. It was beautiful. It is gone.</div>
+      </div>
+    </template>
+    <template x-if="webringPhase === 'algo'">
+      <div>
+        <div class="algo-msg">CONGRATULATIONS: You've refreshed enough times to unlock our Personalized Algorithm&trade;</div>
+        <div style="margin-top:8px;color:#ff00ff;">Recommendation: www.angelfire.com/~sk8rboi2001 [LINK EXPIRED]</div>
+        <div class="algo-msg" style="margin-top:8px;">The algorithm has spoken. It has nothing to say.</div>
+      </div>
+    </template>
+  </div>
+
+  <!-- Footer -->
+  <footer class="footer-section">
+    <div>Flickergrave &copy; 2006-forever | Built on a Compaq Presario</div>
+    <div>"The internet used to be ugly and slow and personal and yours."</div>
+    <div>This site is permanently under construction.</div>
+    <div class="under-construction-gif"></div>
+    <div>Webmaster: cedrick@flickergrave.net (do not email, server is a toaster)</div>
+  </footer>
+
+</div>
+
+<script>
+// ========== BOOT SEQUENCE ==========
+(function() {
+  var bootSeen = false;
+  try { bootSeen = localStorage.getItem('flickergrave_booted') === '1'; } catch(e) {}
+
+  var bootScreen = document.getElementById('boot-screen');
+  var resumeFlash = document.getElementById('resume-flash');
+
+  if (bootSeen) {
+    bootScreen.classList.add('hidden');
+    // Show resume flash
+    resumeFlash.style.opacity = '1';
+    setTimeout(function() {
+      resumeFlash.style.transition = 'opacity 1s';
+      resumeFlash.style.opacity = '0';
+    }, 1500);
+    return;
+  }
+
+  var lines = [
+    'FLICKERGRAVE OS v1.0.6',
+    '(C) 2006 Cedrick Moose, Dayton OH',
+    'Initializing nostalgia drivers... OK',
+    'Loading tiling backgrounds... OK',
+    'Checking for Karen Smith... NOT FOUND',
+    'Mounting floppy drive A:\\... [WARN] No disk inserted',
+    'Establishing dial-up connection...'
+  ];
+
+  var bootLinesEl = document.getElementById('boot-lines');
+  var cursorEl = document.getElementById('boot-cursor');
+  var dialupBar = document.getElementById('dialup-bar');
+  var dialupChars = document.getElementById('dialup-chars');
+  var dialupStatus = document.getElementById('dialup-status');
+
+  var lineIdx = 0;
+  var charIdx = 0;
+  var currentText = '';
+
+  function typeNext() {
+    if (lineIdx >= lines.length) {
+      cursorEl.style.display = 'none';
+      startDialup();
+      return;
+    }
+    var line = lines[lineIdx];
+    if (charIdx < line.length) {
+      currentText += line[charIdx];
+      bootLinesEl.textContent = currentText;
+      charIdx++;
+      setTimeout(typeNext, 35 + Math.random() * 20);
+    } else {
+      currentText += '\n';
+      bootLinesEl.textContent = currentText;
+      lineIdx++;
+      charIdx = 0;
+      setTimeout(typeNext, 200);
+    }
+  }
+
+  function startDialup() {
+    dialupBar.style.display = 'block';
+    var asciiChars = '~+=*#@&%$!?<>{}[]|';
+    var barWidth = 50;
+    var filled = 0;
+    var speeds = ['56K', '28K', '14.4K'];
+    var speedIdx = 0;
+
+    dialupStatus.textContent = 'CONNECTING AT 56K...';
+
+    var dialupInterval = setInterval(function() {
+      filled += 2;
+      var str = '';
+      for (var i = 0; i < Math.min(filled, barWidth); i++) {
+        str += asciiChars[Math.floor(Math.random() * asciiChars.length)];
+      }
+      dialupChars.textContent = str;
+
+      if (filled > 15 && speedIdx === 0) { speedIdx = 1; dialupStatus.textContent = 'CONNECTING AT 28K...'; }
+      if (filled > 30 && speedIdx === 1) { speedIdx = 2; dialupStatus.textContent = 'CONNECTING AT 14.4K...'; }
+      if (filled >= barWidth) {
+        clearInterval(dialupInterval);
+        dialupStatus.textContent = 'CONNECTED (BARELY)';
+        setTimeout(function() {
+          bootScreen.classList.add('hidden');
+          try { localStorage.setItem('flickergrave_booted', '1'); } catch(e) {}
+        }, 800);
+      }
+    }, 80);
+  }
+
+  setTimeout(typeNext, 500);
+})();
+
+// ========== SCREEN FLICKER ==========
+(function() {
+  function flicker() {
+    document.body.classList.add('screen-flicker');
+    setTimeout(function() {
+      document.body.classList.remove('screen-flicker');
+    }, 100);
+    setTimeout(flicker, 15000 + Math.random() * 15000);
+  }
+  setTimeout(flicker, 10000);
+})();
+
+// ========== ALPINE COMPONENTS ==========
+
+document.addEventListener('alpine:init', function() {
+
+  // Blinkenlight component
+  Alpine.data('blinkenlight', function() {
+    return {
+      open: false,
+      privacyOn: true,
+      privacyLabel: 'Privacy Mode: ON',
+      ghostIP: '',
+      ghostISP: '',
+      ghostSeen: '',
+      toggle: function() {
+        this.open = !this.open;
+        if (this.open) {
+          this.ghostIP = Math.floor(Math.random()*255) + '.' + Math.floor(Math.random()*255) + '.' + Math.floor(Math.random()*255) + '.' + Math.floor(Math.random()*255);
+          var isps = ['AOL Dial-Up Cincinnati', 'NetZero Free Internet', 'Juno Online Services', 'CompuServe Classic', 'EarthLink DSL', 'Prodigy Internet'];
+          this.ghostISP = isps[Math.floor(Math.random() * isps.length)];
+          var h = Math.floor(Math.random()*12)+1;
+          var m = String(Math.floor(Math.random()*60)).padStart(2,'0');
+          var ampm = Math.random() > 0.5 ? 'AM' : 'PM';
+          this.ghostSeen = h + ':' + m + ' ' + ampm + ', 0' + (Math.floor(Math.random()*9)+1) + '/2004';
+        }
+      },
+      togglePrivacy: function() {
+        this.privacyLabel = 'Privacy Mode: ON (now playing fax machine sounds in your mind)';
+      }
+    };
+  });
+
+});
+
+// Main Flickergrave Alpine component
+function flickergrave() {
+  return {
+    // Counter
+    visitorCount: 13370001,
+    engagementScore: '0.03',
+    engagementPct: 0.3,
+    counterDigits: [],
+
+    // Manifesto
+    manifestoLines: [],
+
+    // Neighborhoods
+    selectedHood: '',
+    selectedHoodDesc: '',
+    neighborhoods: [
+      { id: 'area51', name: 'Area51/Lair', desc: 'Science fiction, conspiracy theories, alien autopsy footage reviews' },
+      { id: 'enchanted', name: 'EnchantedForest/Glade', desc: 'Fairy GIFs, unicorn cursors, Lisa Frank energy' },
+      { id: 'sunset', name: 'SunsetStrip/Venue', desc: 'Band pages, terrible MP3 rips, "our demo tape coming soon (1999)"' },
+      { id: 'bourbon', name: 'BourbonStreet/Jazz', desc: 'MIDI covers of smooth jazz, animated saxophone GIFs' },
+      { id: 'times', name: 'TimesSquare/Arcade', desc: 'Pixel art, game walkthroughs for games nobody remembers' },
+      { id: 'wall', name: 'WallStreet/Office', desc: 'Spreadsheet enthusiasts, clipart of briefcases' }
+    ],
+    friends: [],
+
+    // Guestbook
+    defaultGuestbook: [
+      { meta: 'ShadowWolf_99 | Topeka, KS | 03/12/2002', msg: 'cool site dude. check out mine its about wolves and also nu-metal' },
+      { meta: '~*AngelEyes*~ | Tampa, FL | 07/04/2002', msg: 'hi! found u thru the webring. ur dragon gif is SO cute even tho its kinda broken lol' },
+      { meta: 'DarkPoet_2k1 | Unknown | 11/22/2002', msg: 'the void stares back. anyway nice MIDI. is that tubthumping?' },
+      { meta: 'Karen S. | Dayton, OH | 04/17/2003', msg: 'brb' },
+      { meta: 'xXMorpheusXx | The Matrix | 08/30/2003', msg: 'what if i told you... this guestbook is the last real place on the internet' },
+      { meta: 'Admin | System | 01/01/2006', msg: 'Guestbook database migrated. 4,302 entries lost. Sorry. \u2014 Cedrick' },
+      { meta: 'LYDIA_VANCE_OFFICIAL | Web 2.0 Wellness Hub | 06/15/2006', msg: 'This page has been flagged for low-engagement noise violations. Fine: $0.99. Have a productive day.' }
+    ],
+    userGuestbookEntries: [],
+    gbName: '',
+    gbLocation: '',
+    gbMsg: '',
+
+    // Marquee
+    userMarquees: [],
+    marqueeMsg: '',
+
+    // Webring
+    showWebringOverlay: false,
+    webringPhase: 'loading',
+    webringDots: '.',
+    webringClicks: 0,
+    webringCountText: '',
+    webringAlgoUnlocked: false,
+
+    init: function() {
+      var self = this;
+
+      // Load counter from localStorage
+      var stored = 0;
+      try { stored = parseInt(localStorage.getItem('flickergrave_clicks') || '0'); } catch(e) {}
+      this.visitorCount = 13370001 + stored;
+      this.updateCounter();
+      this.updateEngagement(stored);
+
+      // Manifesto lines
+      var rawLines = [
+        { prefix: '> ', text: 'I found my Neopets page on a GeoCities mirror last Tuesday.' },
+        { prefix: '> ', text: 'It still had the broken dragon GIF. The one with the transparency' },
+        { prefix: '> ', text: 'error that made its wing look like it was melting.' },
+        { prefix: '> ', text: 'I cried for forty minutes.' },
+        { prefix: '', text: '', blank: true },
+        { prefix: '> ', text: 'Not because of the dragon. Because seven people had signed my' },
+        { prefix: '> ', text: 'guestbook. Seven strangers who typed "cool site dude" and "nice' },
+        { prefix: '> ', text: 'dragon" and one person who just wrote "hi" and I think about' },
+        { prefix: '> ', text: 'that "hi" more than any LinkedIn endorsement I\'ve ever received.' },
+        { prefix: '', text: '', blank: true },
+        { prefix: '> ', text: 'The modern internet turned connection into content. Made us all' },
+        { prefix: '> ', text: 'perform for algorithms that don\'t even like us back. Flickergrave' },
+        { prefix: '> ', text: 'is what happens when you refuse.' },
+        { prefix: '', text: '', blank: true },
+        { prefix: '> ', text: 'Your page loads slow. Your MIDI plays tinny. Your guestbook has' },
+        { prefix: '> ', text: 'seven entries and every single one of them is real.' },
+        { prefix: '', text: '', blank: true },
+        { prefix: '> ', text: 'Welcome home. The counter says you\'re visitor 13,370,001.' },
+        { prefix: '> ', text: 'I know that\'s a lie. But it felt good to type.' },
+        { prefix: '', text: '', blank: true },
+        { prefix: '', text: '\u2014 Cedrick, Dayton OH', sig: true },
+        { prefix: '', text: '   Still refreshing manually', sig: true }
+      ];
+      this.manifestoLines = rawLines;
+
+      // Load guestbook from localStorage
+      try {
+        var gb = JSON.parse(localStorage.getItem('flickergrave_guestbook') || '[]');
+        this.userGuestbookEntries = gb;
+      } catch(e) {}
+
+      // Load marquee messages from localStorage
+      try {
+        var mm = JSON.parse(localStorage.getItem('flickergrave_marquees') || '[]');
+        this.userMarquees = mm;
+      } catch(e) {}
+
+      // Load webring clicks
+      try {
+        this.webringClicks = parseInt(localStorage.getItem('flickergrave_webring') || '0');
+      } catch(e) {}
+      this.updateWebringText();
+
+    },
+
+    updateCounter: function() {
+      var str = String(this.visitorCount).padStart(8, '0');
+      this.counterDigits = [];
+      for (var i = 0; i < str.length; i++) {
+        this.counterDigits.push({ i: i, v: str[i] });
+      }
+    },
+
+    updateEngagement: function(clicks) {
+      var score = (clicks * 0.01).toFixed(2);
+      this.engagementScore = score;
+      this.engagementPct = Math.min(parseFloat(score), 100);
+    },
+
+    incrementCounter: function(ev) {
+      var clicks = 0;
+      try { clicks = parseInt(localStorage.getItem('flickergrave_clicks') || '0'); } catch(e) {}
+      clicks++;
+      try { localStorage.setItem('flickergrave_clicks', String(clicks)); } catch(e) {}
+      this.visitorCount = 13370001 + clicks;
+      this.updateCounter();
+      this.updateEngagement(clicks);
+
+      // Spawn floppy animation
+      var floppy = document.createElement('div');
+      floppy.className = 'floppy-anim';
+      floppy.style.left = ev.clientX + 'px';
+      floppy.style.top = ev.clientY + 'px';
+      document.body.appendChild(floppy);
+      gsap.fromTo(floppy,
+        { y: 0, opacity: 1 },
+        { y: -80, opacity: 0, duration: 0.8, ease: 'power2.out', onComplete: function() { if (floppy.parentNode) floppy.parentNode.removeChild(floppy); } }
+      );
+    },
+
+    // Neighborhoods
+    selectNeighborhood: function() {
+      var self = this;
+      this.selectedHoodDesc = '';
+      this.friends = [];
+
+      if (!this.selectedHood) {
+        document.body.className = '';
+        return;
+      }
+
+      var hood = this.neighborhoods.find(function(n) { return n.id === self.selectedHood; });
+      if (hood) this.selectedHoodDesc = hood.desc;
+
+      // Apply background overlay
+      document.body.className = 'bg-overlay-' + this.selectedHood;
+
+      // Generate friends
+      var allNames = [
+        'xX_DragonSlayer99_Xx', '~*FairyDust2002*~', 'sk8rboi_2001', 'angelbaby_14_f_cali',
+        'MIDI_Wizard_420', '~DarkAngel~', 'InvaderZimFan03', 'xXSephirothXx',
+        'PiXeL_PrInCeSs', 'NaRuTo_RuNnEr_99', 'g0thkitty2003', 'LinkinParkLyrics4u',
+        'AIM_away_msg_poet', '~*~ButterflySoul~*~', 'DoomGuy1337', 'nEoPeTs_QuEeN'
+      ];
+      var shuffled = allNames.sort(function() { return Math.random() - 0.5; });
+      var picked = shuffled.slice(0, 3);
+
+      this.friends = picked.map(function(name) {
+        var yr = 2001 + Math.floor(Math.random() * 6);
+        var mo = String(Math.floor(Math.random() * 12) + 1).padStart(2, '0');
+        var dy = String(Math.floor(Math.random() * 28) + 1).padStart(2, '0');
+        return {
+          name: name,
+          lastSeen: mo + '/' + dy + '/' + yr,
+          pending: false,
+          adding: false,
+          failed: false,
+          code: ''
+        };
+      });
+    },
+
+    closeNeighborhood: function() {
+      alert('Error: You cannot close what was never properly opened.');
+    },
+
+    addFriend: function(idx) {
+      var chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+      var code = '';
+      for (var i = 0; i < 20; i++) code += chars[Math.floor(Math.random() * chars.length)];
+      this.friends[idx].adding = true;
+      this.friends[idx].code = code;
+    },
+
+    confirmFriend: function(idx) {
+      var self = this;
+      this.friends[idx].adding = false;
+      this.friends[idx].failed = true;
+      setTimeout(function() {
+        self.friends[idx].failed = false;
+        self.friends[idx].pending = true;
+      }, 2500);
+    },
+
+    // Guestbook
+    signGuestbook: function() {
+      if (!this.gbName.trim() || !this.gbMsg.trim()) return;
+      var now = new Date();
+      var dateStr = String(now.getMonth()+1).padStart(2,'0') + '/' + String(now.getDate()).padStart(2,'0') + '/' + now.getFullYear();
+      var entry = {
+        name: this.gbName.trim(),
+        location: this.gbLocation.trim() || 'The Internet',
+        date: dateStr,
+        msg: this.gbMsg.trim()
+      };
+      this.userGuestbookEntries.unshift(entry);
+      try {
+        localStorage.setItem('flickergrave_guestbook', JSON.stringify(this.userGuestbookEntries));
+      } catch(e) {}
+      this.gbName = '';
+      this.gbLocation = '';
+      this.gbMsg = '';
+    },
+
+    // Marquee
+    sendMarquee: function() {
+      if (!this.marqueeMsg.trim()) return;
+      this.userMarquees.push(this.marqueeMsg.trim());
+      try {
+        localStorage.setItem('flickergrave_marquees', JSON.stringify(this.userMarquees));
+      } catch(e) {}
+      this.marqueeMsg = '';
+    },
+
+    // Webring
+    webringNav: function() {
+      if (this.showWebringOverlay) return;
+      var self = this;
+      this.webringClicks++;
+      try { localStorage.setItem('flickergrave_webring', String(this.webringClicks)); } catch(e) {}
+      this.updateWebringText();
+
+      // Check if algo unlocked
+      if (this.webringClicks >= 10 && !this.webringAlgoUnlocked) {
+        this.webringAlgoUnlocked = true;
+        this.showWebringOverlay = true;
+        this.webringPhase = 'algo';
+        setTimeout(function() { self.showWebringOverlay = false; }, 6000);
+        return;
+      }
+
+      this.showWebringOverlay = true;
+      this.webringPhase = 'loading';
+      this.webringDots = '.';
+
+      var dotInterval = setInterval(function() {
+        self.webringDots = self.webringDots.length >= 3 ? '.' : self.webringDots + '.';
+      }, 400);
+
+      setTimeout(function() {
+        clearInterval(dotInterval);
+        self.webringPhase = 'members';
+        setTimeout(function() {
+          self.webringPhase = 'error';
+          setTimeout(function() {
+            self.showWebringOverlay = false;
+          }, 2500);
+        }, 2000);
+      }, 1500);
+    },
+
+    updateWebringText: function() {
+      if (this.webringClicks === 0) {
+        this.webringCountText = '';
+      } else {
+        this.webringCountText = 'Webring refreshes: ' + this.webringClicks + (this.webringClicks >= 10 ? ' [ALGORITHM UNLOCKED]' : ' / 10 to unlock algorithm');
+      }
+    }
+  };
+}
+</script>
+
+<!-- Blinkenlight overlay (separate from main x-data, placed here so it works) -->
+<div x-data="blinkenlight()">
+  <div style="position:fixed;bottom:16px;left:16px;z-index:90;display:flex;align-items:center;gap:8px;background:#0a0a12;border:1px solid #444466;padding:6px 10px;cursor:pointer;" @click="toggle()">
+    <div id="blinken-led-real" style="width:16px;height:16px;border-radius:50%;background:#ffcc00;animation:ledPulse 2.5s ease-in-out infinite;flex-shrink:0;"></div>
+    <span style="font-size:0.65rem;color:#ffcc00;white-space:nowrap;font-family:'Fira Code',monospace;">Someone is thinking of you</span>
+  </div>
+  <div class="ghost-panel" x-show="open" x-cloak>
+    <h4>GHOST DETECTION PROTOCOL</h4>
+    <div class="ghost-line">IP: <span x-text="ghostIP"></span></div>
+    <div class="ghost-line">ISP: <span x-text="ghostISP"></span></div>
+    <div class="ghost-line">Last seen: <span x-text="ghostSeen"></span></div>
+    <button class="ghost-toggle" @click="togglePrivacy()" x-text="privacyLabel"></button>
+  </div>
+</div>
+
+</body>
+</html>

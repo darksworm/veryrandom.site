@@ -1,0 +1,1055 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AssureCorrect — Certified Digital Rejection Service</title>
+<link rel="stylesheet" href="/assets/css/fonts.css">
+<script defer src="/assets/js/alpine.min.js"></script>
+<script src="/assets/js/gsap.min.js"></script>
+<style>
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+:root {
+  --bg: #0a0a0a;
+  --card: #2a2a2a;
+  --text: #e0e0e0;
+  --red: #ff3333;
+  --border: #1a1a1a;
+  --dim: #666666;
+  --ghost: #333333;
+}
+
+html { scroll-behavior: auto; }
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 16px;
+  line-height: 1.6;
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* SCANLINE OVERLAY — right edge */
+.scanline-strip {
+  position: fixed;
+  top: 0;
+  right: 0;
+  width: 60px;
+  height: 100vh;
+  z-index: 5;
+  pointer-events: none;
+  background: repeating-linear-gradient(
+    0deg,
+    transparent 0px,
+    transparent 1px,
+    rgba(255,255,255,0.03) 1px,
+    rgba(255,255,255,0.03) 2px
+  );
+  animation: scanDrift 8s linear infinite;
+  opacity: 0.15;
+}
+@keyframes scanDrift {
+  0% { background-position-y: 0; }
+  100% { background-position-y: 200px; }
+}
+
+/* SESSION BAR */
+.session-bar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 100;
+  background: var(--bg);
+  border-bottom: 1px solid var(--border);
+  padding: 8px 20px;
+  font-size: 12px;
+  color: var(--dim);
+  letter-spacing: 0.05em;
+}
+
+/* SECTION 1 — DECLARATION */
+.declaration {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding: 80px 20px 40px;
+  text-align: center;
+}
+.declaration-line {
+  font-size: 18px;
+  letter-spacing: 0.08em;
+  margin-bottom: 16px;
+  opacity: 0;
+  text-transform: uppercase;
+}
+.scroll-prompt {
+  margin-top: 48px;
+  font-size: 13px;
+  color: var(--dim);
+  text-decoration: underline;
+  cursor: pointer;
+  opacity: 0;
+}
+
+/* SECTION 2 — COUNTER BAR */
+.counter-bar {
+  background: var(--card);
+  border-top: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+  padding: 14px 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 14px;
+  z-index: 50;
+  min-height: 48px;
+}
+.counter-bar.is-sticky {
+  position: sticky;
+  top: 33px;
+}
+.counter-label { white-space: nowrap; }
+.counter-number { color: var(--text); transition: color 0.2s; font-weight: 700; }
+.counter-number.flash { color: var(--red); }
+.mute-feed {
+  overflow: hidden;
+  flex: 1;
+  margin-left: 30px;
+  position: relative;
+  height: 20px;
+}
+.mute-feed-item {
+  position: absolute;
+  right: 0;
+  white-space: nowrap;
+  font-size: 12px;
+  color: var(--dim);
+}
+
+/* SECTION 3 — WHAT THIS IS */
+.manifesto-section {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 80px 20px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 60px;
+  align-items: start;
+}
+.manifesto-text {
+  font-size: 14px;
+  line-height: 1.8;
+  color: var(--text);
+}
+.manifesto-text p { margin-bottom: 20px; }
+
+/* WEBCAM FEED */
+.webcam-container {
+  aspect-ratio: 4/3;
+  background: var(--card);
+  border: 1px solid var(--border);
+  position: relative;
+  overflow: hidden;
+}
+.webcam-gradient {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, #1a1a1a 0%, #3a3a3a 50%, #1a1a1a 100%);
+  background-size: 200% 200%;
+  animation: webcamShift 20s ease-in-out infinite;
+  filter: grayscale(1);
+}
+@keyframes webcamShift {
+  0% { background-position: 0% 0%; }
+  50% { background-position: 100% 100%; }
+  100% { background-position: 0% 0%; }
+}
+.webcam-scanlines {
+  position: absolute;
+  inset: 0;
+  background: repeating-linear-gradient(
+    0deg,
+    transparent 0px,
+    transparent 2px,
+    rgba(255,255,255,0.02) 2px,
+    rgba(255,255,255,0.02) 4px
+  );
+  pointer-events: none;
+}
+.webcam-rec {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  color: var(--red);
+}
+.rec-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--red);
+  animation: pulse 1.5s ease-in-out infinite;
+}
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.3; }
+}
+.webcam-timer {
+  position: absolute;
+  bottom: 12px;
+  left: 12px;
+  font-size: 11px;
+  color: var(--dim);
+}
+.webcam-consultant {
+  position: absolute;
+  bottom: 12px;
+  right: 12px;
+  font-size: 11px;
+  color: var(--dim);
+}
+
+/* SECTION 4 — TIERS */
+.tiers-section {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 80px 20px;
+}
+.tiers-heading {
+  text-align: center;
+  font-size: 12px;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--dim);
+  margin-bottom: 48px;
+}
+.tiers-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+}
+.tier-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  padding: 32px 24px;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+}
+.tier-card.expanded {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  margin: 0;
+  padding: 40px;
+  overflow-y: auto;
+  transition: none;
+}
+.tier-name {
+  font-size: 14px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  margin-bottom: 4px;
+}
+.tier-price {
+  font-family: 'Archivo Black', sans-serif;
+  font-size: 42px;
+  color: var(--text);
+  margin-bottom: 20px;
+  line-height: 1.1;
+}
+.tier-desc {
+  font-size: 13px;
+  color: var(--dim);
+  line-height: 1.7;
+  margin-bottom: 8px;
+}
+.tier-rec {
+  font-size: 12px;
+  color: var(--text);
+  margin-top: 12px;
+  margin-bottom: 24px;
+}
+.tier-btn {
+  display: inline-block;
+  padding: 12px 24px;
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 13px;
+  letter-spacing: 0.1em;
+  background: transparent;
+  cursor: pointer;
+  text-align: center;
+  margin-top: auto;
+  color: var(--text);
+  min-height: 44px;
+}
+.tier-btn.basic { border: 1px solid var(--dim); color: var(--dim); }
+.tier-btn.guided { border: 1px solid var(--red); color: var(--red); }
+.tier-btn.master { border: 1px solid var(--text); }
+.tier-btn:hover { background: rgba(255,255,255,0.05); }
+
+/* BOOKING FORM */
+.booking-form { margin-top: 32px; }
+.booking-form label {
+  display: block;
+  font-size: 11px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--dim);
+  margin-bottom: 6px;
+  margin-top: 20px;
+}
+.booking-form input[type="text"] {
+  width: 100%;
+  max-width: 400px;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  color: var(--text);
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 14px;
+  padding: 10px 14px;
+  outline: none;
+  min-height: 44px;
+}
+.booking-form input[type="text"]:focus {
+  border-color: var(--dim);
+}
+.fake-upload {
+  display: inline-block;
+  padding: 10px 20px;
+  border: 1px dashed var(--dim);
+  color: var(--dim);
+  font-size: 12px;
+  cursor: pointer;
+  margin-top: 4px;
+  min-height: 44px;
+  line-height: 24px;
+}
+.upload-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(10,10,10,0.9);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 300;
+  font-size: 14px;
+  color: var(--dim);
+  text-align: center;
+  padding: 20px;
+  cursor: pointer;
+}
+.checkbox-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  margin-top: 24px;
+  font-size: 12px;
+  color: var(--dim);
+  line-height: 1.6;
+}
+.checkbox-row input[type="checkbox"] {
+  margin-top: 4px;
+  width: 18px;
+  height: 18px;
+  min-width: 18px;
+  accent-color: var(--red);
+  cursor: pointer;
+}
+.confirm-btn {
+  display: inline-block;
+  margin-top: 24px;
+  padding: 14px 32px;
+  background: transparent;
+  border: 1px solid var(--red);
+  color: var(--red);
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 14px;
+  letter-spacing: 0.08em;
+  cursor: pointer;
+  min-height: 44px;
+}
+.confirm-btn:hover { background: rgba(255,51,51,0.1); }
+
+/* MUTE SEQUENCE OVERLAY */
+.mute-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 500;
+  background: var(--bg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 20px;
+}
+.mute-overlay-line {
+  font-size: 16px;
+  letter-spacing: 0.08em;
+  margin-bottom: 16px;
+  opacity: 0;
+}
+
+/* CONFIRMED STATE */
+.confirmed-stamp {
+  font-size: 13px;
+  color: var(--dim);
+  text-align: center;
+  padding: 40px 20px;
+}
+
+/* SECTION 5 — TESTIMONIALS */
+.testimonials-section {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 80px 20px;
+}
+.testimonials-heading {
+  font-size: 12px;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--dim);
+  margin-bottom: 48px;
+  text-align: center;
+}
+.testimonial {
+  margin-bottom: 40px;
+}
+.testimonial-video {
+  aspect-ratio: 16/9;
+  background: var(--card);
+  border: 1px solid var(--border);
+  position: relative;
+  cursor: pointer;
+  overflow: hidden;
+}
+.testimonial-video .webcam-scanlines { z-index: 1; }
+.play-triangle {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 0;
+  height: 0;
+  border-left: 24px solid var(--dim);
+  border-top: 16px solid transparent;
+  border-bottom: 16px solid transparent;
+  z-index: 2;
+}
+.testimonial-info {
+  margin-top: 12px;
+  font-size: 13px;
+}
+.testimonial-name { color: var(--text); font-weight: 600; }
+.testimonial-city { color: var(--dim); }
+.testimonial-quote {
+  color: var(--dim);
+  font-size: 13px;
+  margin-top: 6px;
+  font-style: italic;
+}
+.testimonial-archived {
+  font-size: 12px;
+  color: var(--red);
+  margin-top: 10px;
+  letter-spacing: 0.03em;
+}
+
+/* SECTION 6 — CONSULTANTS */
+.consultants-section {
+  padding: 80px 0;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+.consultants-heading {
+  font-size: 12px;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--dim);
+  margin-bottom: 48px;
+  text-align: center;
+  padding: 0 20px;
+}
+.consultants-strip {
+  display: flex;
+  gap: 20px;
+  padding: 0 20px;
+  min-width: min-content;
+}
+.consultant-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  padding: 32px 24px;
+  width: 280px;
+  min-width: 280px;
+  flex-shrink: 0;
+}
+.consultant-silhouette {
+  width: 80px;
+  height: 100px;
+  margin: 0 auto 20px;
+  background: var(--border);
+  border-radius: 40px 40px 10px 10px;
+  position: relative;
+}
+.consultant-silhouette::before {
+  content: '';
+  position: absolute;
+  top: -30px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 50px;
+  height: 50px;
+  background: var(--border);
+  border-radius: 50%;
+}
+.consultant-name {
+  font-size: 13px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--text);
+  margin-bottom: 4px;
+  text-align: center;
+}
+.consultant-title {
+  font-size: 12px;
+  color: var(--dim);
+  text-align: center;
+  margin-bottom: 8px;
+  font-style: italic;
+}
+.consultant-rate {
+  font-size: 12px;
+  color: var(--text);
+  text-align: center;
+  margin-bottom: 12px;
+}
+.consultant-bio {
+  font-size: 12px;
+  color: var(--dim);
+  line-height: 1.6;
+  margin-bottom: 16px;
+}
+.consultant-stat {
+  font-size: 11px;
+  color: var(--dim);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+/* SECTION 7 — FOOTER */
+.footer-section {
+  padding: 80px 20px 40px;
+  text-align: center;
+}
+.footer-main {
+  font-size: 11px;
+  color: var(--dim);
+  letter-spacing: 0.1em;
+  line-height: 2;
+}
+.footer-gut-punch {
+  font-size: 11px;
+  color: var(--ghost);
+  margin-top: 32px;
+  letter-spacing: 0.02em;
+}
+
+/* MOBILE */
+@media (max-width: 768px) {
+  .scanline-strip { display: none; }
+  .manifesto-section {
+    grid-template-columns: 1fr;
+    gap: 40px;
+  }
+  .tiers-grid {
+    grid-template-columns: 1fr;
+  }
+  .mute-feed { display: none; }
+  .consultants-strip {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .consultant-card {
+    width: 100%;
+    min-width: 0;
+  }
+  .declaration-line { font-size: 15px; }
+  .tier-price { font-size: 36px; }
+}
+@media (max-width: 480px) {
+  .declaration-line { font-size: 14px; }
+}
+</style>
+</head>
+<body x-data="assureCorrect()" x-init="init()">
+
+<!-- SCANLINE STRIP -->
+<div class="scanline-strip"></div>
+
+<!-- SESSION BAR -->
+<div class="session-bar">
+  session initiated · <span x-text="sessionTimerDisplay">00:00:00</span>
+</div>
+
+<!-- SECTION 1 — DECLARATION -->
+<section class="declaration" id="declaration">
+  <div>
+    <div class="declaration-line" id="decl-1">YOU HAVE BEEN DIRECTED TO THIS PAGE.</div>
+    <div class="declaration-line" id="decl-2">SOMEONE IS CONSIDERING HAVING YOU MUTED.</div>
+    <div class="declaration-line" id="decl-3">OR PERHAPS YOU ARE THE ONE CONSIDERING IT.</div>
+    <div class="declaration-line" id="decl-4">EITHER WAY, YOU ARE HERE NOW.</div>
+  </div>
+  <a class="scroll-prompt" id="scroll-prompt" @click="document.getElementById('counter-bar').scrollIntoView({behavior:'smooth'})">scroll down to proceed</a>
+</section>
+
+<!-- SECTION 2 — COUNTER BAR -->
+<div class="counter-bar" id="counter-bar" x-bind:class="counterSticky ? 'is-sticky' : ''">
+  <div class="counter-label">
+    MUTES EXECUTED: <span class="counter-number" x-bind:class="counterFlash ? 'flash' : ''" x-text="muteCount.toLocaleString()"></span>
+  </div>
+  <div class="mute-feed">
+    <template x-for="(item, i) in feedItems" :key="item.id">
+      <div class="mute-feed-item" x-text="item.text" :style="'opacity:' + item.opacity"></div>
+    </template>
+  </div>
+</div>
+
+<!-- SECTION 3 — WHAT THIS IS -->
+<section class="manifesto-section">
+  <div class="manifesto-text">
+    <p>My name is Erik Varner. I'm 34. I live in Columbus. In 2021, during a family Zoom call, my ex-girlfriend muted me. Not metaphorically. She clicked the button. My mouth kept moving and nobody heard a thing and nobody said anything about it. I watched myself talk to no one for eleven seconds before I realized what had happened.</p>
+    <p>I spent two years thinking about those eleven seconds.</p>
+    <p>Ghosting is violence done quietly. Every app on your phone has a mute button, a block button, an archive button. They made disappearing someone a feature. They made it frictionless. They made it so easy that we forgot it's supposed to hurt.</p>
+    <p>So I built a service that makes it hurt on purpose. Not for the person being muted — for you, the person doing it. You pay money. You upload their photo. You watch a real human being look you in the eye through a webcam and execute the disconnection you were too comfortable doing silently.</p>
+    <p>AssureCorrect doesn't make rejection easier. It makes it honest.</p>
+  </div>
+  <div class="webcam-container">
+    <div class="webcam-gradient"></div>
+    <div class="webcam-scanlines"></div>
+    <div class="webcam-rec">
+      <div class="rec-dot"></div>
+      REC
+    </div>
+    <div class="webcam-timer">REC · <span x-text="sessionTimerDisplay">00:00:00</span></div>
+    <div class="webcam-consultant">CONSULTANT #7 — STANDBY</div>
+  </div>
+</section>
+
+<!-- SECTION 4 — TIERS -->
+<section class="tiers-section">
+  <div class="tiers-heading">SELECT YOUR TIER — ALL MUTES ARE FINAL</div>
+  <div class="tiers-grid">
+    <!-- BASIC -->
+    <div class="tier-card" x-bind:class="expandedTier === 'basic' ? 'expanded' : ''"
+         x-show="expandedTier === null || expandedTier === 'basic'">
+      <template x-if="!confirmedMutes.basic">
+        <div>
+          <div class="tier-name">BASIC SOLO</div>
+          <div class="tier-price">$29</div>
+          <div class="tier-desc">Self-service mute. You receive a link to a 3-minute recorded session. No eye contact. No live interaction. The consultant addresses your contact by name and executes the mute.</div>
+          <div class="tier-rec">Recommended for: acquaintances, coworkers, dating app matches.</div>
+          <template x-if="expandedTier !== 'basic'">
+            <button class="tier-btn basic" @click="expandedTier = 'basic'">[ BOOK BASIC ]</button>
+          </template>
+          <template x-if="expandedTier === 'basic'">
+            <div class="booking-form">
+              <button class="tier-btn basic" style="margin-bottom:16px;font-size:11px;" @click="expandedTier = null">[ CLOSE ]</button>
+              <label>YOUR NAME</label>
+              <input type="text" x-model="formYourName" placeholder="Enter your name">
+              <label>THEIR NAME</label>
+              <input type="text" x-model="formTheirName" placeholder="Enter their name">
+              <label>THEIR PHOTO (OPTIONAL)</label>
+              <div class="fake-upload" @click="showUploadOverlay = true">[ CHOOSE FILE ]</div>
+              <div class="checkbox-row">
+                <input type="checkbox" x-model="formAgreed" id="agree-basic">
+                <label for="agree-basic" style="margin:0;text-transform:none;font-size:12px;color:#666666;cursor:pointer;">I understand that this mute is symbolic, irreversible in spirit, and non-refundable.</label>
+              </div>
+              <button class="confirm-btn" x-show="formAgreed && formTheirName.length > 0" @click="executeMute('basic', 29)">[ CONFIRM MUTE — $29 ]</button>
+            </div>
+          </template>
+        </div>
+      </template>
+      <template x-if="confirmedMutes.basic">
+        <div class="confirmed-stamp">
+          MUTE CONFIRMED · <span x-text="confirmedMutes.basic"></span>
+        </div>
+      </template>
+    </div>
+
+    <!-- GUIDED -->
+    <div class="tier-card" x-bind:class="expandedTier === 'guided' ? 'expanded' : ''"
+         x-show="expandedTier === null || expandedTier === 'guided'">
+      <template x-if="!confirmedMutes.guided">
+        <div>
+          <div class="tier-name">GUIDED SUPPORT</div>
+          <div class="tier-price">$49</div>
+          <div class="tier-desc">Live 5-minute webcam session. The consultant looks at you while muting your contact. You upload their photo. It appears on-screen. The consultant hovers over it. You watch them click.</div>
+          <div class="tier-rec">Recommended for: friends, family members, long-term partners.</div>
+          <template x-if="expandedTier !== 'guided'">
+            <button class="tier-btn guided" @click="expandedTier = 'guided'">[ BOOK GUIDED ]</button>
+          </template>
+          <template x-if="expandedTier === 'guided'">
+            <div class="booking-form">
+              <button class="tier-btn guided" style="margin-bottom:16px;font-size:11px;" @click="expandedTier = null">[ CLOSE ]</button>
+              <label>YOUR NAME</label>
+              <input type="text" x-model="formYourName" placeholder="Enter your name">
+              <label>THEIR NAME</label>
+              <input type="text" x-model="formTheirName" placeholder="Enter their name">
+              <label>THEIR PHOTO (OPTIONAL)</label>
+              <div class="fake-upload" @click="showUploadOverlay = true">[ CHOOSE FILE ]</div>
+              <div class="checkbox-row">
+                <input type="checkbox" x-model="formAgreed" id="agree-guided">
+                <label for="agree-guided" style="margin:0;text-transform:none;font-size:12px;color:#666666;cursor:pointer;">I understand that this mute is symbolic, irreversible in spirit, and non-refundable.</label>
+              </div>
+              <button class="confirm-btn" x-show="formAgreed && formTheirName.length > 0" @click="executeMute('guided', 49)">[ CONFIRM MUTE — $49 ]</button>
+            </div>
+          </template>
+        </div>
+      </template>
+      <template x-if="confirmedMutes.guided">
+        <div class="confirmed-stamp">
+          MUTE CONFIRMED · <span x-text="confirmedMutes.guided"></span>
+        </div>
+      </template>
+    </div>
+
+    <!-- MASTER -->
+    <div class="tier-card" x-bind:class="expandedTier === 'master' ? 'expanded' : ''"
+         x-show="expandedTier === null || expandedTier === 'master'">
+      <template x-if="!confirmedMutes.master">
+        <div>
+          <div class="tier-name">EMPATHETIC MUTE MASTER</div>
+          <div class="tier-price">$79</div>
+          <div class="tier-desc">Extended 10-minute session with post-mute debrief. The consultant will maintain eye contact for the full duration. They will not look away. Neither should you.</div>
+          <div class="tier-rec">Recommended for: the one you still think about.</div>
+          <template x-if="expandedTier !== 'master'">
+            <button class="tier-btn master" @click="expandedTier = 'master'">[ BOOK MASTER ]</button>
+          </template>
+          <template x-if="expandedTier === 'master'">
+            <div class="booking-form">
+              <button class="tier-btn master" style="margin-bottom:16px;font-size:11px;" @click="expandedTier = null">[ CLOSE ]</button>
+              <label>YOUR NAME</label>
+              <input type="text" x-model="formYourName" placeholder="Enter your name">
+              <label>THEIR NAME</label>
+              <input type="text" x-model="formTheirName" placeholder="Enter their name">
+              <label>THEIR PHOTO (OPTIONAL)</label>
+              <div class="fake-upload" @click="showUploadOverlay = true">[ CHOOSE FILE ]</div>
+              <div class="checkbox-row">
+                <input type="checkbox" x-model="formAgreed" id="agree-master">
+                <label for="agree-master" style="margin:0;text-transform:none;font-size:12px;color:#666666;cursor:pointer;">I understand that this mute is symbolic, irreversible in spirit, and non-refundable.</label>
+              </div>
+              <button class="confirm-btn" x-show="formAgreed && formTheirName.length > 0" @click="executeMute('master', 79)">[ CONFIRM MUTE — $79 ]</button>
+            </div>
+          </template>
+        </div>
+      </template>
+      <template x-if="confirmedMutes.master">
+        <div class="confirmed-stamp">
+          MUTE CONFIRMED · <span x-text="confirmedMutes.master"></span>
+        </div>
+      </template>
+    </div>
+  </div>
+</section>
+
+<!-- UPLOAD OVERLAY -->
+<div class="upload-overlay" x-show="showUploadOverlay" x-cloak @click="showUploadOverlay = false">
+  UPLOAD SIMULATION — NO DATA IS STORED<br><br>
+  <span style="font-size:12px;">(click anywhere to close)</span>
+</div>
+
+<!-- MUTE SEQUENCE OVERLAY -->
+<template x-if="muteSequenceActive">
+  <div class="mute-overlay">
+    <div>
+      <div class="mute-overlay-line" id="mute-line-1" x-text="'MUTE INITIATED FOR ' + muteTargetName.toUpperCase() + '.'"></div>
+      <div class="mute-overlay-line" id="mute-line-2">YOUR SESSION HAS BEEN SCHEDULED.</div>
+      <div class="mute-overlay-line" id="mute-line-3">YOU WILL RECEIVE NOTHING.</div>
+    </div>
+  </div>
+</template>
+
+<!-- SECTION 5 — TESTIMONIALS -->
+<section class="testimonials-section">
+  <div class="testimonials-heading">CLIENT TESTIMONIALS — ARCHIVED SESSIONS</div>
+
+  <div class="testimonial" @click="testimonialClicked[0] = true">
+    <div class="testimonial-video">
+      <div class="webcam-scanlines"></div>
+      <div class="play-triangle"></div>
+    </div>
+    <div class="testimonial-info">
+      <span class="testimonial-name">Sarah Jennings,</span>
+      <span class="testimonial-city"> Portland</span>
+    </div>
+    <div class="testimonial-quote">"It's over — for $49, I finally feel ghosted properly. I cried. The consultant didn't. That's what I needed."</div>
+    <div class="testimonial-archived" x-show="testimonialClicked[0]">THIS TESTIMONY HAS BEEN ARCHIVED. THE CLIENT HAS SINCE BEEN MUTED BY SOMEONE ELSE.</div>
+  </div>
+
+  <div class="testimonial" @click="testimonialClicked[1] = true">
+    <div class="testimonial-video">
+      <div class="webcam-scanlines"></div>
+      <div class="play-triangle"></div>
+    </div>
+    <div class="testimonial-info">
+      <span class="testimonial-name">Marcus Cole,</span>
+      <span class="testimonial-city"> Austin</span>
+    </div>
+    <div class="testimonial-quote">"I booked the Master tier for my brother. He doesn't know yet. I don't plan to tell him. That's the service working."</div>
+    <div class="testimonial-archived" x-show="testimonialClicked[1]">THIS SESSION FILE HAS BEEN CORRUPTED. THE CONSULTANT INVOLVED HAS BEEN REASSIGNED.</div>
+  </div>
+
+  <div class="testimonial" @click="testimonialClicked[2] = true">
+    <div class="testimonial-video">
+      <div class="webcam-scanlines"></div>
+      <div class="play-triangle"></div>
+    </div>
+    <div class="testimonial-info">
+      <span class="testimonial-name">Anonymous,</span>
+      <span class="testimonial-city"> New York</span>
+    </div>
+    <div class="testimonial-quote">"I muted myself. They let me. I sat there for ten minutes watching a stranger look at me with the most professional indifference I've ever experienced. I'm going to be okay."</div>
+    <div class="testimonial-archived" x-show="testimonialClicked[2]">THIS CLIENT REQUESTED PERMANENT DELETION. WE HONORED IT. THAT'S MORE THAN MOST PEOPLE GET.</div>
+  </div>
+</section>
+
+<!-- SECTION 6 — CONSULTANTS -->
+<section class="consultants-section">
+  <div class="consultants-heading">OUR CONSULTANTS — CURRENTLY ON SHIFT</div>
+  <div class="consultants-strip">
+    <div class="consultant-card">
+      <div class="consultant-silhouette"></div>
+      <div class="consultant-name">Consultant #7</div>
+      <div class="consultant-title">"The Efficient Ghoster"</div>
+      <div class="consultant-rate">$39/session</div>
+      <div class="consultant-bio">Handles 20 mutes per shift with a straight face. No pleasantries. No follow-up. Will not remember your name and considers this a feature.</div>
+      <div class="consultant-stat">MUTES THIS WEEK: <span x-text="consultantStats[0]"></span></div>
+    </div>
+    <div class="consultant-card">
+      <div class="consultant-silhouette"></div>
+      <div class="consultant-name">Consultant #12</div>
+      <div class="consultant-title">"The Empathetic Mute Master"</div>
+      <div class="consultant-rate">$59/session</div>
+      <div class="consultant-bio">Will hold your gaze for the full ten minutes. Has been described as "uncomfortably present." Clients report feeling both seen and erased simultaneously.</div>
+      <div class="consultant-stat">MUTES THIS WEEK: <span x-text="consultantStats[1]"></span></div>
+    </div>
+    <div class="consultant-card">
+      <div class="consultant-silhouette"></div>
+      <div class="consultant-name">Consultant #3</div>
+      <div class="consultant-title">"The Proceduralist"</div>
+      <div class="consultant-rate">$49/session</div>
+      <div class="consultant-bio">Treats every mute like a legal proceeding. Will read a prepared statement if requested. Has a notary stamp she uses ironically, except she's not sure it's ironic anymore.</div>
+      <div class="consultant-stat">MUTES THIS WEEK: <span x-text="consultantStats[2]"></span></div>
+    </div>
+  </div>
+</section>
+
+<!-- SECTION 7 — FOOTER -->
+<footer class="footer-section">
+  <div class="footer-main">
+    ASSURECORRECT.COM · EST. 2023 · COLUMBUS, OH<br>
+    A CERTIFIED DIGITAL REJECTION SERVICE<br>
+    ALL MUTES ARE FINAL · NO REFUNDS · NO REUNIONS
+  </div>
+  <div class="footer-gut-punch">
+    you were on this page for <span x-text="sessionTimerDisplay">00:00:00</span>. that's longer than most people stay in a conversation before muting someone.
+  </div>
+</footer>
+
+<style>[x-cloak]{display:none !important;}</style>
+
+<script>
+function assureCorrect() {
+  return {
+    sessionSeconds: 0,
+    sessionTimerDisplay: '00:00:00',
+    timerRunning: true,
+    muteCount: 14847,
+    counterFlash: false,
+    counterSticky: false,
+    feedItems: [],
+    feedIdCounter: 0,
+    expandedTier: null,
+    formYourName: '',
+    formTheirName: '',
+    formAgreed: false,
+    showUploadOverlay: false,
+    muteSequenceActive: false,
+    muteTargetName: '',
+    confirmedMutes: { basic: null, guided: null, master: null },
+    testimonialClicked: [false, false, false],
+    consultantStats: [
+      Math.floor(Math.random() * 27) + 12,
+      Math.floor(Math.random() * 27) + 12,
+      Math.floor(Math.random() * 27) + 12
+    ],
+
+    names: ['Jordan', 'Riley', 'Morgan', 'Casey', 'Avery', 'Quinn', 'Taylor', 'Drew', 'Sage', 'Blake', 'Alex', 'Jamie', 'Reese', 'Hayden', 'Emery', 'Skyler', 'Cameron', 'Dakota', 'Finley', 'Parker'],
+    cities: ['Denver', 'Portland', 'Austin', 'Seattle', 'Chicago', 'Nashville', 'Phoenix', 'Miami', 'Boston', 'Atlanta', 'Minneapolis', 'San Diego', 'Raleigh', 'Detroit', 'Tucson'],
+    quotes: [
+      'Another connection silenced.',
+      'Closure delivered. No reply expected.',
+      'The conversation has been archived permanently.',
+      'They will not be notified of this notification.',
+      'Service rendered. Humanity intact.',
+      'The silence is now mutual.',
+      'What was said has been unsaid.',
+      'Your ghost has been professionalized.',
+      'This concludes the relationship.',
+      'Receipt available upon request.',
+      'No further correspondence will be attempted.',
+      'The mute is complete. The feeling is not.',
+      'Session closed. File retained for 90 days.',
+      'Another name removed from the queue.',
+      'Silence has been successfully deployed.'
+    ],
+
+    init() {
+      // Load confirmed mutes from localStorage
+      var stored = localStorage.getItem('assureCorrectMutes');
+      if (stored) {
+        try { this.confirmedMutes = JSON.parse(stored); } catch(e) {}
+      }
+
+      // Session timer
+      setInterval(() => {
+        if (!this.timerRunning) return;
+        this.sessionSeconds++;
+        this.sessionTimerDisplay = this.formatTime(this.sessionSeconds);
+      }, 1000);
+
+      // Counter increment at random intervals
+      this.scheduleCounterIncrement();
+
+      // Feed items
+      this.scheduleFeedItem();
+
+      // Sticky counter bar on scroll
+      this.setupStickyCounter();
+
+      // Intro animation
+      this.playIntro();
+    },
+
+    formatTime(s) {
+      var h = String(Math.floor(s / 3600)).padStart(2, '0');
+      var m = String(Math.floor((s % 3600) / 60)).padStart(2, '0');
+      var sec = String(s % 60).padStart(2, '0');
+      return h + ':' + m + ':' + sec;
+    },
+
+    scheduleCounterIncrement() {
+      var delay = (Math.random() * 7000) + 8000;
+      setTimeout(() => {
+        this.muteCount++;
+        this.counterFlash = true;
+        setTimeout(() => { this.counterFlash = false; }, 200);
+        this.scheduleCounterIncrement();
+      }, delay);
+    },
+
+    scheduleFeedItem() {
+      var name = this.names[Math.floor(Math.random() * this.names.length)];
+      var city = this.cities[Math.floor(Math.random() * this.cities.length)];
+      var quote = this.quotes[Math.floor(Math.random() * this.quotes.length)];
+      var hour = Math.floor(Math.random() * 12) + 1;
+      var min = String(Math.floor(Math.random() * 60)).padStart(2, '0');
+      var ampm = Math.random() > 0.5 ? 'AM' : 'PM';
+      var text = hour + ':' + min + ' ' + ampm + ' EST \u2014 Mute for ' + name + ', ' + city + ' \u2014 \u201C' + quote + '\u201D';
+
+      this.feedIdCounter++;
+      this.feedItems = [{ id: this.feedIdCounter, text: text, opacity: 1 }];
+
+      setTimeout(() => {
+        if (this.feedItems.length > 0) {
+          this.feedItems[0].opacity = 0;
+        }
+      }, 9000);
+
+      setTimeout(() => {
+        this.scheduleFeedItem();
+      }, 12000);
+    },
+
+    setupStickyCounter() {
+      var self = this;
+      var bar = document.getElementById('counter-bar');
+      if (!bar) return;
+      var observer = new IntersectionObserver(function(entries) {
+        // Use a class-based approach; when the bar has been scrolled past, make it sticky
+      }, { threshold: 0 });
+
+      // Simple scroll-based sticky
+      window.addEventListener('scroll', function() {
+        var barTop = bar.getBoundingClientRect().top;
+        if (barTop <= 33) {
+          self.counterSticky = true;
+        }
+      });
+    },
+
+    playIntro() {
+      var lines = ['decl-1', 'decl-2', 'decl-3', 'decl-4'];
+      lines.forEach(function(id, i) {
+        gsap.fromTo('#' + id,
+          { opacity: 0, y: 10 },
+          { opacity: 1, y: 0, duration: 0.8, delay: 0.5 + (i * 1.2) }
+        );
+      });
+      gsap.fromTo('#scroll-prompt',
+        { opacity: 0 },
+        { opacity: 1, duration: 0.6, delay: 0.5 + (lines.length * 1.2) + 0.8 }
+      );
+    },
+
+    executeMute(tier, price) {
+      var self = this;
+      self.muteTargetName = self.formTheirName;
+      self.muteSequenceActive = true;
+      self.expandedTier = null;
+
+      setTimeout(function() {
+        gsap.fromTo('#mute-line-1', { opacity: 0 }, { opacity: 1, duration: 0.8, delay: 1 });
+        gsap.fromTo('#mute-line-2', { opacity: 0 }, { opacity: 1, duration: 0.8, delay: 4 });
+        gsap.fromTo('#mute-line-3', { opacity: 0 }, { opacity: 1, duration: 0.8, delay: 6 });
+
+        setTimeout(function() {
+          // Stop the timer briefly
+          self.timerRunning = false;
+          // Increment counter
+          self.muteCount++;
+          self.counterFlash = true;
+          setTimeout(function() { self.counterFlash = false; }, 200);
+
+          // Save to localStorage
+          var now = new Date();
+          var timestamp = now.toISOString().replace('T', ' · ').substring(0, 22) + ' UTC';
+          self.confirmedMutes[tier] = timestamp;
+          localStorage.setItem('assureCorrectMutes', JSON.stringify(self.confirmedMutes));
+
+          // Fade out and restore
+          setTimeout(function() {
+            self.muteSequenceActive = false;
+            self.timerRunning = true;
+            self.formYourName = '';
+            self.formTheirName = '';
+            self.formAgreed = false;
+          }, 1500);
+        }, 9000);
+      }, 100);
+    }
+  };
+}
+</script>
+</body>
+</html>

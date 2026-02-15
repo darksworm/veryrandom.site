@@ -1,0 +1,766 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ShoelaceSymposium.com</title>
+<link rel="stylesheet" href="/assets/css/fonts.css">
+<script defer src="/assets/js/alpine.min.js"></script>
+<script src="/assets/js/gsap.min.js"></script>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+[x-cloak]{display:none!important}
+:root{
+--lime:#A1FF00;--black:#212121;--magenta:#E2007A;--navy:#1A1A2E;
+--paper:#F0F0E8;--amber:#FFB800;
+}
+html{scroll-behavior:smooth}
+body{
+background:var(--black);color:var(--paper);
+font-family:'Fira Code',monospace;font-size:16px;line-height:1.6;
+cursor:default;overflow-x:hidden;
+}
+h1,h2,h3,h4{font-family:'Archivo Black',sans-serif;letter-spacing:0.05em;margin:0}
+a{color:var(--lime);text-decoration:underline}
+a:hover{color:var(--magenta)}
+button,select,input[type="number"]{cursor:crosshair}
+a,button,[x-on\\:click],[\\@click]{cursor:crosshair}
+
+/* Marquee */
+.marquee-wrap{
+background:repeating-linear-gradient(45deg,var(--black) 0 10px,var(--lime) 10px 20px);
+overflow:hidden;white-space:nowrap;padding:4px 0;
+}
+.marquee-inner{
+display:inline-block;animation:marquee-scroll 30s linear infinite;
+font-family:'Fira Code',monospace;font-variant:small-caps;
+color:var(--magenta);font-size:14px;font-weight:700;
+padding:4px 0;
+background:var(--black);
+}
+@keyframes marquee-scroll{0%{transform:translateX(0)}100%{transform:translateX(-50%)}}
+
+/* Hero */
+.hero{text-align:center;padding:48px 20px 40px}
+.hero-title{
+font-size:clamp(40px,8vw,80px);color:var(--lime);letter-spacing:0.15em;
+animation:title-glow 4s ease-in-out infinite;
+}
+@keyframes title-glow{
+0%,100%{text-shadow:0 0 20px rgba(161,255,0,0.6),0 0 40px rgba(161,255,0,0.3)}
+50%{text-shadow:0 0 20px rgba(226,0,122,0.6),0 0 40px rgba(226,0,122,0.3)}
+}
+.hero-sub{font-size:14px;color:var(--paper);margin-top:12px}
+.counter-num{color:var(--lime);font-weight:700;display:inline-block;transition:transform 0.15s}
+.counter-pulse{animation:pulse-once 0.3s ease}
+@keyframes pulse-once{0%{transform:scale(1)}50%{transform:scale(1.08)}100%{transform:scale(1)}}
+
+/* Countdown */
+.countdown{display:flex;justify-content:center;gap:12px;flex-wrap:wrap;margin-top:32px}
+.cd-box{
+background:var(--navy);border:2px solid var(--lime);
+box-shadow:0 0 12px rgba(161,255,0,0.15);
+padding:16px 20px;min-width:80px;text-align:center;border-radius:4px;
+}
+.cd-num{font-family:'Archivo Black',sans-serif;font-size:clamp(32px,5vw,48px);color:var(--lime)}
+.cd-label{font-size:11px;color:var(--paper);text-transform:uppercase;letter-spacing:0.1em;margin-top:4px}
+.elara-note{font-family:'Caveat',cursive;font-size:20px;color:var(--paper);margin-top:24px;opacity:0.92}
+
+/* Sections shared */
+.section{padding:48px 20px;max-width:1100px;margin:0 auto}
+.section-full{padding:48px 20px}
+.reveal-section{opacity:0;transform:translateY(30px)}
+
+/* Uncanny Loop */
+.uncanny{background:var(--navy);border:2px solid var(--magenta);padding:40px 24px;max-width:1100px;margin:40px auto;border-radius:4px}
+.uncanny h2{color:var(--paper);display:flex;align-items:center;gap:16px;flex-wrap:wrap}
+.badge-banned{
+display:inline-block;background:var(--magenta);color:#fff;
+font-family:'Fira Code',monospace;font-size:12px;
+padding:4px 12px;border-radius:20px;
+animation:blink-badge 0.8s step-end infinite;
+}
+@keyframes blink-badge{0%,100%{opacity:1}50%{opacity:0}}
+.svg-knot-wrap{display:flex;justify-content:center;margin:32px 0}
+.svg-knot-wrap svg{max-width:300px;width:100%}
+.knot-path{
+stroke-dasharray:800;
+animation:draw-knot 12s ease-in-out infinite alternate;
+stroke-linecap:round;stroke-linejoin:round;fill:none;stroke-width:4;
+}
+@keyframes draw-knot{
+0%{stroke-dashoffset:800;stroke:var(--lime)}
+50%{stroke-dashoffset:0;stroke:var(--magenta)}
+100%{stroke-dashoffset:-800;stroke:var(--lime)}
+}
+.report-btn{
+background:transparent;border:1px solid var(--magenta);color:var(--magenta);
+padding:8px 20px;font-family:'Fira Code',monospace;font-size:13px;
+margin-top:16px;border-radius:2px;
+}
+.report-btn:hover{background:var(--magenta);color:#fff}
+
+/* Calculator */
+.calc-panel{
+background:var(--black);border:1px dashed var(--lime);
+padding:32px 24px;max-width:800px;margin:40px auto;border-radius:2px;
+}
+.calc-panel h2{color:var(--lime);font-size:24px}
+.calc-price{color:var(--magenta);font-size:13px;margin-top:4px}
+.calc-joke{font-family:'Caveat',cursive;font-size:18px;color:var(--paper);margin-top:4px;opacity:0.92}
+.calc-form{display:grid;gap:16px;margin-top:24px}
+.calc-form label{display:block;font-size:13px;color:var(--lime);margin-bottom:4px}
+.calc-form select,.calc-form input[type="number"]{
+width:100%;background:var(--navy);border:1px solid var(--lime);
+color:var(--paper);padding:10px;font-family:'Fira Code',monospace;font-size:14px;
+border-radius:2px;min-height:44px;
+}
+.calc-form input[type="range"]{width:100%;accent-color:var(--lime);min-height:44px}
+.slider-labels{display:flex;justify-content:space-between;font-size:11px;color:var(--paper)}
+.calc-result{
+margin-top:20px;padding:20px;border:2px solid var(--lime);
+background:var(--navy);border-radius:4px;text-align:center;
+}
+.calc-result-num{font-family:'Archivo Black',sans-serif;font-size:clamp(24px,4vw,36px);color:var(--lime)}
+.calc-result-banned{color:var(--magenta)}
+.calc-links{margin-top:12px;font-size:13px}
+.calc-links a{color:var(--magenta);margin:0 8px}
+.flash-magenta{animation:flash-m 0.4s ease}
+@keyframes flash-m{0%{background:var(--magenta)}100%{background:var(--black)}}
+
+/* Badge gallery */
+.badge-gallery-wrap{max-width:1100px;margin:40px auto;padding:0 20px}
+.badge-gallery{
+display:flex;gap:20px;overflow-x:auto;scroll-snap-type:x mandatory;
+padding:20px 0;-webkit-overflow-scrolling:touch;
+}
+.badge-gallery::-webkit-scrollbar{height:6px}
+.badge-gallery::-webkit-scrollbar-track{background:var(--black)}
+.badge-gallery::-webkit-scrollbar-thumb{background:var(--lime);border-radius:3px}
+.badge-card{
+flex:0 0 280px;scroll-snap-align:start;
+background:var(--navy);border:1px solid var(--lime);padding:24px;border-radius:4px;
+}
+.badge-card h3{color:var(--lime);font-size:18px;margin-bottom:4px}
+.badge-year{color:var(--amber);font-size:13px}
+.badge-knot{
+width:80px;height:80px;margin:16px auto;border-radius:50%;
+border:3px solid var(--lime);position:relative;overflow:hidden;
+}
+.badge-knot::before,.badge-knot::after{content:'';position:absolute}
+.badge-knot-1::before{width:40px;height:3px;background:var(--lime);top:38px;left:20px;border-radius:2px;transform:rotate(30deg)}
+.badge-knot-1::after{width:40px;height:3px;background:var(--magenta);top:42px;left:15px;border-radius:2px;transform:rotate(-20deg)}
+.badge-knot-2{border-color:var(--magenta)}
+.badge-knot-2::before{width:30px;height:30px;border:3px solid var(--lime);border-radius:50%;top:10px;left:10px}
+.badge-knot-2::after{width:30px;height:30px;border:3px solid var(--magenta);border-radius:50%;top:30px;left:35px}
+.badge-knot-3{border-style:dashed;animation:spin-knot 8s linear infinite}
+.badge-knot-3::before{width:60px;height:3px;background:var(--lime);top:38px;left:10px;transform:rotate(0deg)}
+.badge-knot-3::after{width:60px;height:3px;background:var(--magenta);top:38px;left:10px;transform:rotate(90deg)}
+@keyframes spin-knot{0%{transform:rotate(0deg)}100%{transform:rotate(360deg)}}
+.badge-knot-4{border-color:var(--amber)}
+.badge-knot-4::before{width:20px;height:20px;background:var(--lime);top:15px;left:15px;border-radius:4px;transform:rotate(45deg)}
+.badge-knot-4::after{width:20px;height:20px;background:var(--magenta);top:35px;left:40px;border-radius:4px;transform:rotate(45deg)}
+.badge-knot-5{border:3px dashed var(--amber);animation:blink-badge 1.5s step-end infinite}
+.badge-desc{font-size:13px;margin:12px 0;color:var(--paper);line-height:1.5}
+.badge-price{color:var(--magenta);font-size:12px}
+.badge-vote{
+display:flex;align-items:center;gap:10px;margin-top:12px;
+}
+.badge-vote button{
+background:var(--lime);color:var(--black);border:none;
+padding:8px 16px;font-family:'Fira Code',monospace;font-size:12px;
+font-weight:700;min-height:44px;min-width:44px;border-radius:2px;
+}
+.badge-vote button:hover{background:var(--amber)}
+.badge-vote span{color:var(--lime);font-size:13px}
+
+/* Forum */
+.forum{
+background:var(--navy);border:1px solid #333;max-width:1100px;
+margin:40px auto;border-radius:4px;overflow:hidden;
+}
+.forum h2{padding:16px 20px;background:#1a1a3e;border-bottom:1px solid #333;color:var(--paper);font-size:20px}
+.forum-table{width:100%;border-collapse:collapse;font-size:13px}
+.forum-table th{
+text-align:left;padding:10px 12px;background:#151530;
+color:var(--lime);font-size:11px;text-transform:uppercase;letter-spacing:0.1em;
+border-bottom:1px solid #333;
+}
+.forum-table td{padding:10px 12px;border-bottom:1px solid #222;vertical-align:top}
+.forum-topic{color:var(--paper);font-weight:700}
+.forum-topic-locked{color:var(--magenta)}
+.forum-author{color:var(--lime);font-size:12px}
+.forum-replies{color:var(--paper);text-align:center}
+.forum-status{font-size:16px;text-align:center;width:32px}
+.forum-row-new{opacity:0;transform:translateY(-10px)}
+
+/* Quotes */
+.quotes-section{
+max-width:800px;margin:40px auto;padding:32px 24px;
+border-left:4px solid var(--lime);position:relative;min-height:120px;
+}
+.quote-text{font-family:'Caveat',cursive;font-size:clamp(22px,3vw,28px);color:var(--paper);transition:opacity 0.6s ease}
+.quote-attr{font-family:'Fira Code',monospace;font-size:12px;color:var(--lime);margin-top:12px;transition:opacity 0.6s ease}
+
+/* Members Only */
+.members-panel{
+max-width:900px;margin:40px auto;padding:4px;border-radius:8px;
+background:linear-gradient(135deg,var(--lime),var(--magenta));
+}
+.members-inner{background:var(--navy);border-radius:6px;padding:32px 24px;position:relative;overflow:hidden}
+.members-blur{filter:blur(5px);transition:filter 0.5s ease}
+.members-blur.revealed{filter:none}
+.members-overlay{
+position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);
+text-align:center;z-index:2;background:rgba(26,26,46,0.9);
+padding:32px;border-radius:8px;border:1px solid var(--lime);
+transition:opacity 0.5s ease;
+}
+.members-overlay.hidden{opacity:0;pointer-events:none}
+.unlock-btn{
+background:var(--lime);color:var(--black);border:none;
+padding:12px 32px;font-family:'Archivo Black',sans-serif;font-size:16px;
+min-height:44px;border-radius:4px;margin-top:16px;
+}
+.unlock-btn:hover{background:var(--amber)}
+
+/* Fake Video */
+.fake-video{
+max-width:900px;margin:40px auto;background:#0a0a15;border-radius:8px;overflow:hidden;
+}
+.video-screen{
+aspect-ratio:16/9;
+background:linear-gradient(135deg,#1a1a2e 0%,#0a0a15 50%,#1a1a2e 100%);
+display:flex;align-items:center;justify-content:center;text-align:center;padding:24px;
+}
+.video-title{font-family:'Archivo Black',sans-serif;font-size:clamp(16px,2.5vw,22px);color:var(--paper);max-width:500px}
+.video-meta{font-size:12px;color:var(--lime);margin-top:8px}
+.video-controls{
+display:flex;align-items:center;gap:16px;padding:12px 16px;background:#0f0f20;
+font-size:14px;color:var(--paper);
+}
+.video-progress{flex:1;height:4px;background:#333;border-radius:2px;position:relative}
+.video-progress-fill{width:73%;height:100%;background:var(--magenta);border-radius:2px}
+.video-controls span{cursor:crosshair;min-width:44px;min-height:44px;display:flex;align-items:center;justify-content:center}
+.comments-toggle{
+background:transparent;border:1px solid #444;color:var(--paper);
+padding:10px 20px;font-family:'Fira Code',monospace;font-size:13px;
+margin:16px 20px;min-height:44px;border-radius:2px;
+}
+.comments-toggle:hover{border-color:var(--lime)}
+.fake-comments{padding:0 20px 20px;font-size:13px}
+.fake-comment{
+text-decoration:line-through;color:#777;padding:8px 0;
+border-bottom:1px solid #222;
+}
+.fake-comment-votes{float:right;font-size:12px;font-style:normal}
+
+/* Closing */
+.closing{
+max-width:800px;margin:60px auto 0;padding:40px 24px;
+border-top:2px solid var(--lime);
+}
+.closing-body{font-family:'Caveat',cursive;font-size:20px;color:var(--paper);opacity:0.92;line-height:1.7}
+.closing-footer{
+font-family:'Fira Code',monospace;font-size:11px;color:var(--paper);
+opacity:0.92;margin-top:32px;padding-bottom:60px;line-height:1.8;
+}
+
+/* Ticker */
+.ticker{
+position:fixed;right:0;top:0;width:32px;height:100vh;
+background:var(--navy);z-index:50;overflow:hidden;
+border-left:1px solid #333;
+}
+.ticker-inner{
+writing-mode:vertical-rl;text-orientation:mixed;
+font-size:10px;color:var(--lime);white-space:nowrap;
+animation:ticker-scroll 40s linear infinite;
+display:inline-block;padding:10px 6px;
+}
+@keyframes ticker-scroll{0%{transform:translateY(100vh)}100%{transform:translateY(-100%)}}
+@media(max-width:1024px){.ticker{display:none}}
+
+/* Responsive */
+@media(max-width:768px){
+  .forum-table th:nth-child(4),.forum-table td:nth-child(4),
+  .forum-table th:nth-child(5),.forum-table td:nth-child(5){display:none}
+  .cd-box{min-width:64px;padding:12px 14px}
+  .section,.section-full{padding:32px 16px}
+  .uncanny,.calc-panel{margin-left:12px;margin-right:12px;padding:24px 16px}
+  .badge-gallery-wrap{padding:0 12px}
+  .forum{margin-left:12px;margin-right:12px}
+  .quotes-section{margin-left:12px;margin-right:12px;padding:24px 16px}
+  .members-panel{margin-left:12px;margin-right:12px}
+  .fake-video{margin-left:12px;margin-right:12px}
+  .closing{padding:32px 16px}
+}
+@media(max-width:400px){
+  .hero-title{letter-spacing:0.05em}
+  .badge-card{flex:0 0 250px}
+}
+
+.photo-credit{font-size:10px;color:#777;margin-top:4px}
+.photo-credit a{color:#999}
+</style>
+</head>
+<body>
+
+<!-- TICKER -->
+<div class="ticker" aria-hidden="true">
+<div class="ticker-inner">
+knotmaster_general voted on Möbius Loop &nbsp;·&nbsp; newlaces2024 earned 'First Tie' badge &nbsp;·&nbsp; BANNED: user tried to post phantom wrap tutorial &nbsp;·&nbsp; speedfingers99 submitted 6.8s DMS tie &nbsp;·&nbsp; aglet_archivist listed vintage 1998 Reebok laces &nbsp;·&nbsp; Dr_Aris_Thorne cited tensile study again &nbsp;·&nbsp; admin_elara pinned meta thread &nbsp;·&nbsp; VelcroVanguard IP banned (3rd time) &nbsp;·&nbsp; certified_looper hit 10,000 posts &nbsp;·&nbsp; 3 users reported phantom wrap sighting &nbsp;·&nbsp; new member: desperatelaces2025 &nbsp;·&nbsp; pike_watch_bot: no activity detected &nbsp;·&nbsp; knotmaster_general voted on Möbius Loop &nbsp;·&nbsp; newlaces2024 earned 'First Tie' badge &nbsp;·&nbsp; BANNED: user tried to post phantom wrap tutorial &nbsp;·&nbsp; speedfingers99 submitted 6.8s DMS tie &nbsp;·&nbsp;
+</div>
+</div>
+
+<!-- SECTION 1: MARQUEE + HERO -->
+<div class="marquee-wrap">
+<div class="marquee-inner" aria-hidden="true">
+⚠ DOUBLE PHANTOM WRAP METHOD STILL BANNED — APPEAL DENIED 03/2025 — DO NOT ATTEMPT ON LIVESTREAM ⚠ SEBASTIAN PIKE KNOTLESS COLLECTIVE BOYCOTT IN EFFECT — IGNORE ALL VELCRO PROPAGANDA ⚠ SPEED-TIE QUALIFIERS OPEN FOR REGISTRATION — 847 SLOTS REMAINING ⚠ AGLET RECALL: BATCH #4419 DEFECTIVE — CHECK YOUR TIPS ⚠ DOUBLE PHANTOM WRAP METHOD STILL BANNED — APPEAL DENIED 03/2025 — DO NOT ATTEMPT ON LIVESTREAM ⚠ SEBASTIAN PIKE KNOTLESS COLLECTIVE BOYCOTT IN EFFECT — IGNORE ALL VELCRO PROPAGANDA ⚠ SPEED-TIE QUALIFIERS OPEN FOR REGISTRATION — 847 SLOTS REMAINING ⚠ AGLET RECALL: BATCH #4419 DEFECTIVE — CHECK YOUR TIPS ⚠&nbsp;
+</div>
+</div>
+
+<div class="hero" x-data="heroCounter()">
+<h1 class="hero-title">SHOELACE SYMPOSIUM</h1>
+<p class="hero-sub">Est. 2021 · Annual Virtual Conference · <span class="counter-num" :class="pulse && 'counter-pulse'" x-text="count.toLocaleString()"></span> attendees and counting</p>
+
+<div class="countdown">
+<div class="cd-box"><div class="cd-num" x-text="days"></div><div class="cd-label">Days</div></div>
+<div class="cd-box"><div class="cd-num" x-text="hours"></div><div class="cd-label">Hours</div></div>
+<div class="cd-box"><div class="cd-num" x-text="mins"></div><div class="cd-label">Min</div></div>
+<div class="cd-box"><div class="cd-num" x-text="secs"></div><div class="cd-label">Sec</div></div>
+</div>
+<p class="elara-note">— Elara's note: if Pike shows up again I swear to god I will cut the stream</p>
+</div>
+
+<!-- SECTION 2: UNCANNY LOOP -->
+<div class="uncanny reveal-section">
+<h2>THE UNCANNY LOOP <span class="badge-banned">BANNED</span></h2>
+
+<div class="svg-knot-wrap">
+<svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+<path class="knot-path" d="M30,100 C30,50 70,30 100,30 C130,30 150,50 150,70 C150,90 130,100 110,100 C90,100 70,90 70,70 C70,50 90,40 100,60 C110,80 130,110 130,130 C130,160 110,170 100,170 C70,170 50,160 50,130 C50,110 70,100 90,100 C110,100 140,120 160,140 C175,155 170,170 170,100"/>
+</svg>
+</div>
+
+<p style="font-size:14px;line-height:1.7;color:var(--paper)">The Double Phantom Wrap: 14 twists. 2-second hold. Outlawed on TikTok March 2023 after 47 documented "knot rage" incidents. 1.5M views. 12,000 remixes. The video you're watching is playing in reverse. You cannot learn this technique from this page. That is the point.</p>
+
+<div x-data="reportBtn()" style="margin-top:16px;display:flex;align-items:center;gap:12px;flex-wrap:wrap">
+<button class="report-btn" @click="report()">Report Violation</button>
+<span style="font-size:13px;color:var(--magenta)" x-text="'Reports filed: ' + reports.toLocaleString()"></span>
+</div>
+</div>
+
+<!-- SECTION 3: CALCULATOR -->
+<div class="calc-panel reveal-section" x-data="laceCalc()" :class="flashClass">
+<h2>LACE LENGTH CALCULATOR™</h2>
+<p class="calc-price">PREMIUM TOOL — $4.99 ONE-TIME FEE</p>
+<p class="calc-joke">— just kidding, Pike would charge you. it's free here.</p>
+
+<div class="calc-form">
+<div>
+<label>Shoe Model</label>
+<select x-model="shoe">
+<option value="af1">Nike Air Force 1</option>
+<option value="chuck">Converse Chuck Taylor</option>
+<option value="docs">Doc Martens 1460</option>
+<option value="nb">New Balance 574</option>
+<option value="other">Other (god help you)</option>
+</select>
+</div>
+<div>
+<label>Eyelet Pairs</label>
+<input type="number" x-model.number="eyelets" min="1" max="12" value="6">
+</div>
+<div>
+<label>Knot Type</label>
+<select x-model="knot">
+<option value="bowknot">Standard Bowknot</option>
+<option value="ian">Ian's Secure Knot</option>
+<option value="surgeon">Surgeon's Loop</option>
+<option value="berluti">Berluti Knot</option>
+<option value="bunny">Bunny Ears (no shame)</option>
+<option value="phantom">Double Phantom Wrap (BANNED)</option>
+</select>
+</div>
+<div>
+<label>Dangle Tolerance: <span x-text="dangle"></span></label>
+<input type="range" x-model.number="dangle" min="1" max="10" value="5">
+<div class="slider-labels"><span>1 — military tuck</span><span>10 — full chaos</span></div>
+</div>
+<div>
+<button class="unlock-btn" style="width:100%" @click="calculate()">CALCULATE</button>
+</div>
+</div>
+
+<div class="calc-result" x-show="showResult" x-cloak>
+<template x-if="!banned">
+<div>
+<div class="calc-result-num" x-text="'RECOMMENDED LACE LENGTH: ' + result + 'mm'"></div>
+<div class="calc-links">
+<a href="#">Shop this length at LaceLab™ →</a>
+<a href="#">Tactical Aglet Solutions™ — 15% off code: ELARA15</a>
+</div>
+</div>
+</template>
+<template x-if="banned">
+<div class="calc-result-banned" style="font-family:'Archivo Black',sans-serif;font-size:18px">
+NICE TRY. This method requires 14 additional centimeters of lace and costs you your dignity. — Management
+</div>
+</template>
+</div>
+</div>
+
+<!-- SECTION 4: BADGE GALLERY -->
+<div class="badge-gallery-wrap reveal-section">
+<h2 style="font-family:'Archivo Black',sans-serif;color:var(--paper);margin-bottom:16px">THE HALL OF LACES</h2>
+<div class="badge-gallery" x-data="badgeGallery()">
+
+<div class="badge-card">
+<div class="badge-year">2021</div>
+<h3>The Inaugural Granny</h3>
+<div class="badge-knot badge-knot-1"></div>
+<p class="badge-desc">Where it all started. 30cm cotton. The knot Elara tied on camera without knowing it was recording.</p>
+<div class="badge-price">Replica: $12.95</div>
+<div class="badge-vote">
+<button @click="vote(0)">VOTE</button>
+<span x-text="votes[0].toLocaleString() + ' votes'"></span>
+</div>
+</div>
+
+<div class="badge-card">
+<div class="badge-year">2022</div>
+<h3>Asymmetric Bowline</h3>
+<div class="badge-knot badge-knot-2"></div>
+<p class="badge-desc">50cm Dyneema cord. The one that made Sebastian cry on stream. Yes, that stream.</p>
+<div class="badge-price">Replica: $19.95</div>
+<div class="badge-vote">
+<button @click="vote(1)">VOTE</button>
+<span x-text="votes[1].toLocaleString() + ' votes'"></span>
+</div>
+</div>
+
+<div class="badge-card">
+<div class="badge-year">2023</div>
+<h3>Möbius Loop</h3>
+<div class="badge-knot badge-knot-3"></div>
+<p class="badge-desc">A knot with no beginning and no end. Theoretical only. Three attendees claim to have tied it. None have proof.</p>
+<div class="badge-price">Replica: UNAVAILABLE</div>
+<div class="badge-vote">
+<button @click="vote(2)">VOTE</button>
+<span x-text="votes[2].toLocaleString() + ' votes'"></span>
+</div>
+</div>
+
+<div class="badge-card">
+<div class="badge-year">2024</div>
+<h3>The Reconciliation Hitch</h3>
+<div class="badge-knot badge-knot-4"></div>
+<p class="badge-desc">Designed by committee after The Incident. We don't talk about The Incident.</p>
+<div class="badge-price">Replica: $24.95</div>
+<div class="badge-vote">
+<button @click="vote(3)">VOTE</button>
+<span x-text="votes[3].toLocaleString() + ' votes'"></span>
+</div>
+</div>
+
+<div class="badge-card">
+<div class="badge-year">2025</div>
+<h3>???</h3>
+<div class="badge-knot badge-knot-5"></div>
+<p class="badge-desc">Voting closes August 15. Current frontrunner: "The Pike Trap" — a knot specifically designed to snag on Velcro.</p>
+<div class="badge-price">TBD</div>
+<div class="badge-vote">
+<button @click="vote(4)">VOTE</button>
+<span x-text="votes[4].toLocaleString() + ' votes'"></span>
+</div>
+</div>
+
+</div>
+</div>
+
+<!-- SECTION 5: FORUM -->
+<div class="forum reveal-section" x-data="forumFeed()">
+<h2>COMMUNITY FORUM — LIVE FEED</h2>
+<table class="forum-table">
+<thead><tr><th style="width:32px"></th><th>Topic</th><th>Author</th><th>Replies</th><th>Last Post</th></tr></thead>
+<tbody>
+<template x-for="(post, i) in posts" :key="post.id">
+<tr class="forum-row" :class="post.isNew && 'forum-row-new'" :data-row-id="post.id">
+<td class="forum-status" x-text="post.status"></td>
+<td :class="post.locked ? 'forum-topic forum-topic-locked' : 'forum-topic'" x-text="post.topic"></td>
+<td class="forum-author" x-text="post.author"></td>
+<td class="forum-replies" x-text="post.replies.toLocaleString()"></td>
+<td style="font-size:11px;color:#999" x-text="post.lastPost"></td>
+</tr>
+</template>
+</tbody>
+</table>
+</div>
+
+<!-- SECTION 6: QUOTES -->
+<div class="quotes-section reveal-section" x-data="quoteRotator()">
+<div class="quote-text" :style="'opacity:' + (fading ? '0' : '1')" x-text="quotes[current].text"></div>
+<div class="quote-attr" :style="'opacity:' + (fading ? '0' : '1')" x-text="'— ' + quotes[current].attr"></div>
+</div>
+
+<!-- SECTION 7: MEMBERS ONLY -->
+<div class="members-panel reveal-section" x-data="{ unlocked: false }">
+<div class="members-inner">
+<div class="members-blur" :class="unlocked && 'revealed'">
+<h3 style="font-family:'Archivo Black',sans-serif;color:var(--lime);font-size:18px;margin-bottom:12px">BEYOND THE AGLET: SPECULATIVE TERMINAL HARDWARE</h3>
+<p style="font-size:14px;line-height:1.7;color:var(--paper)">The Symposium R&D division has been prototyping 3D-printed bioplastic aglets since Q3 2023. Current generation tips achieve 15% superior friction coefficient versus standard acetate cellulose. The compound — a polylactic acid blend reinforced with hemp microfiber — degrades gracefully over 18 months, which is either a feature or a metaphor depending on your attachment style.</p>
+<p style="font-size:14px;line-height:1.7;color:var(--paper);margin-top:12px">Virtual Knot-Athon Schedule: Wednesdays 8PM EST (speed rounds), Fridays 10PM EST (endurance format — 90 minutes, no re-ties). Discord raids happen every other Saturday. We don't start them. We just finish them.</p>
+<p style="font-family:'Caveat',cursive;font-size:18px;color:var(--paper);margin-top:16px;opacity:0.92">— ok fine I thought about charging for this for like one week in 2022 and I'm never living it down</p>
+</div>
+<div class="members-overlay" :class="unlocked && 'hidden'">
+<h3 style="font-family:'Archivo Black',sans-serif;color:var(--paper);font-size:20px">BEYOND THE AGLET:<br>SPECULATIVE TERMINAL HARDWARE</h3>
+<p style="font-size:13px;color:var(--paper);margin-top:8px">Members Only — $9.99/month</p>
+<button class="unlock-btn" @click="unlocked = true">UNLOCK</button>
+</div>
+</div>
+</div>
+
+<!-- SECTION 8: FAKE VIDEO -->
+<div class="fake-video reveal-section" x-data="{ showComments: false }">
+<div class="video-screen">
+<div>
+<div class="video-title">SYNTHETIC VS. NATURAL FIBERS: IS COTTON A CRUTCH?</div>
+<div class="video-meta">2019 Panel · 500,000 views · DEMONETIZED</div>
+</div>
+</div>
+<div class="video-controls">
+<span>▶</span>
+<div class="video-progress"><div class="video-progress-fill"></div></div>
+<span>🔊</span>
+<span>⛶</span>
+</div>
+<div style="padding:0 20px 16px">
+<button class="comments-toggle" @click="showComments = !showComments" x-text="showComments ? 'Hide Comments' : 'Show Comments (disabled due to Policy Violation 2019-11-03)'"></button>
+</div>
+<div class="fake-comments" x-show="showComments" x-cloak>
+<div class="fake-comment">"polyester supremacy is not a controversial opinion it is FACT" <span class="fake-comment-votes">👎 2,341</span></div>
+<div class="fake-comment">"you are all insane" <span class="fake-comment-votes">👍 15,008</span></div>
+<div class="fake-comment">"Dr. Thorne's slide 14 was FABRICATED and I have the tensile test results to prove it" <span class="fake-comment-votes">👎 891</span></div>
+<div class="fake-comment">[REMOVED BY MODERATOR — DOXXING]</div>
+<div class="fake-comment">"i came here from tiktok and i'm genuinely scared" <span class="fake-comment-votes">👍 47,219</span></div>
+</div>
+</div>
+
+<!-- SECTION 9: CLOSING -->
+<div class="closing reveal-section">
+<div class="closing-body">
+Look, I know what this looks like. I know it looks like I built an entire conference around shoelaces because I had a public meltdown and needed something to obsess over that couldn't fire me or go viral for the wrong reasons. And — yeah, that's exactly what happened. But here's the thing nobody tells you about obsession: it doesn't matter what the object is. What matters is that you chose it. You decided this thing, this tiny stupid thing, was worth your full attention. And the second you do that — the second you care about something with your whole chest even though the whole internet is laughing — you become unfireable. Not from a job. From yourself.<br><br>So tie your shoes. Tie them weird. Tie them 14 times if that's what it takes. I'll be here.
+</div>
+<div class="closing-footer">
+© 2021–2025 ShoelaceSymposium.com · Elara Finch · Not affiliated with the Knotless Collective · Sebastian if you're reading this: your Velcro straps are peeling and everyone can see it
+<br>
+<span class="photo-credit">Photo by <a href="https://www.pexels.com/@mart-production">MART PRODUCTION</a> on <a href="https://www.pexels.com">Pexels</a> · Photo by <a href="https://www.pexels.com/@amanjakhar">Aman Jakhar</a> on <a href="https://www.pexels.com">Pexels</a></span>
+</div>
+</div>
+
+<script>
+// Title alternation
+(function(){
+  var titles = ['ShoelaceSymposium.com', '\u26A0 PIKE IS WATCHING \u26A0'];
+  var idx = 0;
+  setInterval(function(){ idx = 1 - idx; document.title = titles[idx]; }, 3000);
+})();
+
+// Hero counter + countdown
+document.addEventListener('alpine:init', function(){
+
+  Alpine.data('heroCounter', function(){
+    return {
+      count: parseInt(localStorage.getItem('ss_count') || '847391'),
+      pulse: false,
+      days: '0', hours: '0', mins: '0', secs: '0',
+      _timer: null,
+      _cdTimer: null,
+      init(){
+        var self = this;
+        function scheduleIncrement(){
+          var delay = 2000 + Math.random() * 5000;
+          self._timer = setTimeout(function(){
+            self.count++;
+            localStorage.setItem('ss_count', self.count);
+            self.pulse = false;
+            void document.offsetHeight;
+            self.pulse = true;
+            setTimeout(function(){ self.pulse = false; }, 350);
+            scheduleIncrement();
+          }, delay);
+        }
+        scheduleIncrement();
+        function updateCountdown(){
+          var now = new Date();
+          var target = new Date(now.getFullYear(), 7, 15);
+          if(now > target) target = new Date(now.getFullYear()+1, 7, 15);
+          var diff = target - now;
+          var d = Math.floor(diff/86400000);
+          var h = Math.floor((diff%86400000)/3600000);
+          var m = Math.floor((diff%3600000)/60000);
+          var s = Math.floor((diff%60000)/1000);
+          self.days = String(d).padStart(2,'0');
+          self.hours = String(h).padStart(2,'0');
+          self.mins = String(m).padStart(2,'0');
+          self.secs = String(s).padStart(2,'0');
+        }
+        updateCountdown();
+        self._cdTimer = setInterval(updateCountdown, 1000);
+      },
+      destroy(){
+        clearTimeout(this._timer);
+        clearInterval(this._cdTimer);
+      }
+    };
+  });
+
+  Alpine.data('reportBtn', function(){
+    return {
+      reports: parseInt(localStorage.getItem('ss_reports') || '2847'),
+      report(){
+        this.reports++;
+        localStorage.setItem('ss_reports', this.reports);
+      }
+    };
+  });
+
+  Alpine.data('laceCalc', function(){
+    return {
+      shoe: 'af1', eyelets: 6, knot: 'bowknot', dangle: 5,
+      showResult: false, result: '', banned: false, flashClass: '',
+      calculate(){
+        var bases = {af1:80,chuck:70,docs:110,nb:75,other:90};
+        var knotMods = {bowknot:20,ian:25,surgeon:30,berluti:35,bunny:15,phantom:0};
+        if(this.knot === 'phantom'){
+          this.banned = true;
+          this.showResult = true;
+          this.flashClass = 'flash-magenta';
+          var self = this;
+          setTimeout(function(){ self.flashClass = ''; }, 400);
+          return;
+        }
+        this.banned = false;
+        var len = this.eyelets * 15.3 + knotMods[this.knot] + this.dangle * 4.7 + bases[this.shoe];
+        this.result = len.toFixed(1);
+        this.showResult = true;
+      }
+    };
+  });
+
+  Alpine.data('badgeGallery', function(){
+    var stored = JSON.parse(localStorage.getItem('ss_votes') || 'null');
+    return {
+      votes: stored || [12847, 8203, 15991, 6044, 22108],
+      vote: function(i){
+        this.votes[i]++;
+        localStorage.setItem('ss_votes', JSON.stringify(this.votes));
+      }
+    };
+  });
+
+  Alpine.data('forumFeed', function(){
+    var basePosts = [
+      {id:1, status:'💬', topic:'RE: Is the Ian Knot actually faster? (Pages: 1 2 3 ... 47)', author:'knotmaster_general', replies:2341, lastPost:'2 min ago', locked:false, isNew:false},
+      {id:2, status:'🔒', topic:'PROOF that polyester has 20% superior tensile strength [LOCKED]', author:'Dr_Aris_Thorne', replies:891, lastPost:'1 hr ago', locked:true, isNew:false},
+      {id:3, status:'🗑️', topic:'Sebastian Pike AMA — CANCELLED BY MODERATORS', author:'VelcroVanguard', replies:0, lastPost:'4 hrs ago', locked:false, isNew:false},
+      {id:4, status:'💬', topic:'just learned to tie my shoes at age 34 and found this place', author:'newlaces2024', replies:487, lastPost:'22 min ago', locked:false, isNew:false},
+      {id:5, status:'📌', topic:'[META] Can we PLEASE stop doxxing people over granny knots', author:'admin_elara', replies:1203, lastPost:'5 min ago', locked:false, isNew:false},
+      {id:6, status:'💬', topic:'Selling: Vintage 1998 Reebok laces, original aglets, museum quality', author:'aglet_archivist', replies:12, lastPost:'3 hrs ago', locked:false, isNew:false},
+      {id:7, status:'💬', topic:'My 7-second DMS tie (video proof inside)', author:'speedfingers99', replies:56, lastPost:'45 min ago', locked:false, isNew:false},
+      {id:8, status:'🔥', topic:'VELCRO IS NOT A KNOT. IT IS NOT A LACE. STOP POSTING HERE.', author:'certified_looper', replies:3891, lastPost:'just now', locked:false, isNew:false}
+    ];
+    var extraPosts = [
+      {status:'💬', topic:'Has anyone tried waxed laces on Chuck Taylors? Life changed.', author:'waxed_and_confused', replies:23, lastPost:'just now'},
+      {status:'⚠️', topic:'WARNING: Amazon selling counterfeit Dyneema laces', author:'aglet_archivist', replies:4, lastPost:'just now'},
+      {status:'💬', topic:'I timed my morning tie at 3.2 seconds AMA', author:'speedfingers99', replies:1, lastPost:'just now'},
+      {status:'🔒', topic:'Pike alt account detected — BANNED [3rd time this month]', author:'admin_elara', replies:0, lastPost:'just now', locked:true},
+      {status:'💬', topic:'Unpopular opinion: the granny knot is underrated', author:'casual_laces_fan', replies:0, lastPost:'just now'},
+      {status:'💬', topic:'3D-printed aglets arrived. They smell like corn. Is that normal?', author:'bioplastic_beta_tester', replies:7, lastPost:'just now'},
+      {status:'🔥', topic:'BREAKING: Nike patent filing mentions "AI-powered lace tension"', author:'patent_watcher_9000', replies:0, lastPost:'just now'},
+      {status:'💬', topic:'My therapist asked why I spend 4 hours a day here. I showed her.', author:'newlaces2024', replies:89, lastPost:'just now'},
+      {status:'💬', topic:'Berluti knot tutorial — 4K, slow motion, no music, no Pike', author:'knotmaster_general', replies:14, lastPost:'just now'},
+      {status:'⚠️', topic:'PSA: Do NOT attempt the phantom wrap with elastic laces', author:'certified_looper', replies:2, lastPost:'just now'}
+    ];
+    return {
+      posts: basePosts.slice(),
+      _nextId: 100,
+      _extraIdx: 0,
+      _timeout: null,
+      init(){
+        var self = this;
+        function addPost(){
+          if(self._extraIdx >= extraPosts.length) self._extraIdx = 0;
+          var p = Object.assign({}, extraPosts[self._extraIdx]);
+          p.id = self._nextId++;
+          p.isNew = true;
+          p.locked = p.locked || false;
+          self._extraIdx++;
+          self.posts.unshift(p);
+          if(self.posts.length > 15) self.posts.pop();
+          self.$nextTick(function(){
+            var row = document.querySelector('[data-row-id="'+p.id+'"]');
+            if(row){
+              gsap.fromTo(row, {y:-20, opacity:0}, {y:0, opacity:1, duration:0.4, ease:'power2.out'});
+            }
+          });
+          var delay = 8000 + Math.random() * 7000;
+          self._timeout = setTimeout(addPost, delay);
+        }
+        self._timeout = setTimeout(addPost, 8000 + Math.random() * 7000);
+      },
+      destroy(){
+        clearTimeout(this._timeout);
+      }
+    };
+  });
+
+  Alpine.data('quoteRotator', function(){
+    return {
+      quotes: [
+        {text: "The bunny ears method isn't a fad; it's an algorithm-proof parallel-loop system that defies TikTok's short-form tyranny.", attr: 'Dr. Aris Thorne, July 2023'},
+        {text: "I didn't leave nursing. Nursing left me. The laces stayed.", attr: 'Elara Finch, Opening Keynote 2021'},
+        {text: "Velcro is the NFT of footwear. It promises convenience and delivers nothing.", attr: '@certified_looper, Twitter, now deleted'},
+        {text: "Every knot is a prayer to friction.", attr: 'Anonymous attendee, 2 AM in the Discord voice chat'},
+        {text: "I will destroy this conference. I will outlast every single one of you loop-dependent cowards.", attr: 'Sebastian Pike, Twitch stream, August 2024'},
+        {text: "The aglet is not the ending. The aglet is where everything begins.", attr: 'Dr. Aris Thorne, closing remarks 2022'}
+      ],
+      current: 0,
+      fading: false,
+      _interval: null,
+      init(){
+        var self = this;
+        self._interval = setInterval(function(){
+          self.fading = true;
+          setTimeout(function(){
+            self.current = (self.current + 1) % self.quotes.length;
+            self.fading = false;
+          }, 600);
+        }, 10000);
+      },
+      destroy(){
+        clearInterval(this._interval);
+      }
+    };
+  });
+
+});
+
+// Scroll reveal with IntersectionObserver + GSAP
+document.addEventListener('DOMContentLoaded', function(){
+  var reveals = document.querySelectorAll('.reveal-section');
+  var observer = new IntersectionObserver(function(entries){
+    entries.forEach(function(entry){
+      if(entry.isIntersecting){
+        gsap.fromTo(entry.target, {y:30, opacity:0}, {y:0, opacity:1, duration:0.7, ease:'power2.out'});
+        observer.unobserve(entry.target);
+      }
+    });
+  }, {threshold: 0.1});
+  reveals.forEach(function(el){ observer.observe(el); });
+});
+</script>
+
+</body>
+</html>

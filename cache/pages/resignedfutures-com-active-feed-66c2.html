@@ -1,0 +1,961 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>ResignedFutures.com // Active Feed</title>
+  <link rel="stylesheet" href="/assets/css/pico.min.css" />
+  <link rel="stylesheet" href="/assets/css/fonts.css" />
+  <style>
+    :root {
+      --bg: #1E2528;
+      --panel: #2A363B;
+      --body: #81909E;
+      --warm: #C4B6A6;
+      --pale: #D1D9E0;
+      --maroon: #3A1C1C;
+      --memo: #E8E0D4;
+    }
+
+    * { box-sizing: border-box; }
+
+    html, body {
+      margin: 0;
+      padding: 0;
+      background: var(--bg);
+      color: var(--body);
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 16px;
+      min-height: 100%;
+      overflow-x: hidden;
+    }
+
+    body.monitor-aging {
+      filter: saturate(0.9);
+      transition: filter 1.2s ease;
+    }
+
+    h1, h2, h3, h4, .label, .nav-text, .clock-title, .section-head {
+      font-family: 'Oswald', sans-serif;
+      text-transform: uppercase;
+      letter-spacing: 0.15em;
+      color: var(--warm);
+      margin: 0;
+      font-weight: 500;
+    }
+
+    main {
+      width: min(1320px, calc(100% - 2rem));
+      margin: 0 auto;
+      padding: 98px 0 0;
+    }
+
+    .feed-header {
+      position: fixed;
+      inset: 0 0 auto 0;
+      z-index: 9000;
+      height: 58px;
+      display: grid;
+      grid-template-columns: 1fr auto 1fr;
+      align-items: center;
+      gap: 1rem;
+      padding: 0.5rem 1rem;
+      background:
+        repeating-linear-gradient(
+          to bottom,
+          #1E2528 0,
+          #1E2528 2px,
+          #222B2F 2px,
+          #222B2F 4px
+        );
+      border-bottom: 1px solid #2A363B;
+    }
+
+    .brand {
+      font-family: 'Oswald', sans-serif;
+      text-transform: uppercase;
+      letter-spacing: 0.15em;
+      color: var(--warm);
+      font-size: 13px;
+      white-space: nowrap;
+    }
+
+    .header-time {
+      color: var(--pale);
+      font-size: 0.95rem;
+      text-align: center;
+      white-space: nowrap;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .header-time.flicker {
+      animation: time-flicker 0.16s steps(2, end) 9;
+    }
+
+    @keyframes time-flicker {
+      0% { text-shadow: none; }
+      50% { text-shadow: 0 0 6px #D1D9E0; }
+      100% { text-shadow: none; }
+    }
+
+    .rec-wrap {
+      justify-self: end;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      white-space: nowrap;
+      color: var(--pale);
+      font-size: 10px;
+      letter-spacing: 0.08em;
+    }
+
+    .rec-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--maroon);
+      animation: rec-pulse 2s ease-in-out infinite;
+      flex: 0 0 auto;
+    }
+
+    @keyframes rec-pulse {
+      0%, 100% { transform: scale(0.95); opacity: 1; }
+      50% { transform: scale(1.35); opacity: 0.72; }
+    }
+
+    .extended-flag {
+      color: var(--warm);
+      transform: translateY(-2px);
+      transition: transform 0.4s ease;
+      font-size: 10px;
+      display: none;
+    }
+
+    .extended-flag.visible {
+      display: inline;
+      transform: translateY(0);
+    }
+
+    .void-top {
+      height: 40px;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 0.9rem;
+      transition: opacity 0.35s ease;
+      margin-bottom: 5.2rem;
+    }
+
+    .cell {
+      position: relative;
+      aspect-ratio: 1/1;
+      border: 1px solid #3F515B;
+      background: var(--panel);
+      overflow: hidden;
+      cursor: pointer;
+      min-height: 180px;
+      padding: 0;
+      border-radius: 0;
+    }
+
+    .cell::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background:
+        radial-gradient(circle at var(--gx) var(--gy), var(--glow) 0%, #2C373C 26%, #242F33 64%, #1A2124 100%),
+        linear-gradient(to bottom, #212A2E, #182023);
+      transition: transform 2s ease, filter 2s ease;
+      z-index: 1;
+    }
+
+    .cell::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='80' height='80' viewBox='0 0 80 80'%3E%3Cg fill='%23D1D9E0' fill-opacity='0.03'%3E%3Ccircle cx='6' cy='9' r='1'/%3E%3Ccircle cx='29' cy='44' r='1'/%3E%3Ccircle cx='61' cy='18' r='1'/%3E%3Ccircle cx='70' cy='69' r='1'/%3E%3C/g%3E%3C/svg%3E");
+      pointer-events: none;
+      z-index: 2;
+    }
+
+    .cell:hover { border-color: #81909E; }
+
+    .cell:hover::before {
+      transform: scale(1.03) translateY(-4px);
+      filter: brightness(1.06);
+    }
+
+    .sweep {
+      position: absolute;
+      left: 0;
+      right: 0;
+      height: 1px;
+      background: rgba(209, 217, 224, 0.35);
+      transform: translateY(-100%);
+      opacity: 0;
+      z-index: 4;
+      pointer-events: none;
+    }
+
+    .cell:hover .sweep {
+      opacity: 1;
+      animation: local-scan 4s linear infinite;
+    }
+
+    @keyframes local-scan {
+      from { transform: translateY(-2px); }
+      to { transform: translateY(calc(100% + 2px)); }
+    }
+
+    .cell-meta {
+      position: absolute;
+      z-index: 5;
+      color: var(--pale);
+      font-size: 0.62rem;
+      letter-spacing: 0.02em;
+      line-height: 1.2;
+      text-transform: uppercase;
+      font-family: 'IBM Plex Mono', monospace;
+      text-shadow: 0 1px 0 #1E2528;
+      pointer-events: none;
+    }
+
+    .meta-top { top: 0.48rem; left: 0.5rem; }
+    .meta-date { bottom: 0.48rem; left: 0.5rem; }
+    .meta-len { bottom: 0.48rem; right: 0.5rem; }
+
+    .transcript-panel {
+      position: fixed;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      height: 60vh;
+      background: #1E2528F2;
+      border-top: 1px solid #3F515B;
+      z-index: 9050;
+      transform: translateY(104%);
+      display: flex;
+      flex-direction: column;
+      pointer-events: none;
+      padding: 1rem;
+    }
+
+    .transcript-panel.open {
+      pointer-events: auto;
+      transform: translateY(0);
+    }
+
+    .panel-inner {
+      width: min(1000px, calc(100% - 1rem));
+      margin: 0 auto;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      gap: 0.9rem;
+    }
+
+    .panel-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+    }
+
+    .panel-title {
+      font-size: 0.92rem;
+      color: var(--warm);
+      overflow-wrap: anywhere;
+    }
+
+    .close-btn {
+      min-width: 44px;
+      min-height: 44px;
+      border: 1px solid #81909E;
+      background: #222D31;
+      color: var(--pale);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      padding: 0;
+    }
+
+    .close-btn:hover { border-color: var(--warm); color: var(--warm); }
+
+    .wave {
+      display: flex;
+      align-items: flex-end;
+      gap: 3px;
+      width: 100%;
+      min-height: 22px;
+      max-height: 28px;
+      padding: 0.25rem 0;
+      overflow: hidden;
+    }
+
+    .bar {
+      width: 2px;
+      flex: 0 0 auto;
+      background: #81909E;
+    }
+
+    .transcript {
+      border: 1px solid #3F515B;
+      background: #20292D;
+      padding: 0.8rem;
+      min-height: 10.5rem;
+      line-height: 1.6;
+      color: var(--body);
+      font-size: 0.875rem;
+      overflow-y: auto;
+      white-space: pre-wrap;
+    }
+
+    .audio-modes {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.45rem;
+      margin-top: auto;
+      padding-bottom: 0.25rem;
+    }
+
+    .mode-btn {
+      min-height: 44px;
+      border: 1px solid #81909E;
+      background: #1F282C;
+      color: var(--pale);
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 10px;
+      letter-spacing: 0.09em;
+      text-transform: uppercase;
+      padding: 0.45rem 0.7rem;
+      cursor: pointer;
+    }
+
+    .mode-btn.active {
+      color: var(--warm);
+      border-color: var(--warm);
+      background: #2A3337;
+    }
+
+    .clock-block {
+      text-align: center;
+      margin: 0 auto 4.8rem;
+      max-width: 1000px;
+    }
+
+    .clock-title {
+      color: var(--pale);
+      letter-spacing: 0.3em;
+      font-size: 11px;
+      margin-bottom: 0.65rem;
+    }
+
+    .seniority {
+      font-size: clamp(1.6rem, 5vw, 2.25rem);
+      color: var(--warm);
+      font-family: 'IBM Plex Mono', monospace;
+      font-variant-numeric: tabular-nums;
+      line-height: 1.1;
+      word-break: break-word;
+    }
+
+    .seniority .unit {
+      color: var(--body);
+      margin-right: 0.4rem;
+    }
+
+    .clock-note {
+      margin-top: 0.65rem;
+      color: #72818E;
+      font-size: 11px;
+      text-transform: lowercase;
+    }
+
+    .artifact {
+      margin: 0 auto 4.6rem;
+      width: min(60%, 760px);
+      min-width: min(100%, 300px);
+    }
+
+    .section-head {
+      font-size: 0.95rem;
+      margin-bottom: 0.9rem;
+    }
+
+    .memo {
+      background: var(--memo);
+      color: #2A363B;
+      border: 1px solid #D2C8B8;
+      padding: 1rem;
+      transform: rotate(-0.7deg);
+      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.28);
+      position: relative;
+      overflow: hidden;
+      font-size: 11px;
+      line-height: 1.45;
+      white-space: pre-wrap;
+    }
+
+    .memo::before {
+      content: '';
+      position: absolute;
+      width: 80px;
+      height: 80px;
+      border-radius: 50%;
+      top: 16px;
+      right: 16px;
+      background: radial-gradient(circle, rgba(196, 182, 166, 0.26) 0%, rgba(196, 182, 166, 0.16) 45%, rgba(196, 182, 166, 0) 70%);
+      pointer-events: none;
+    }
+
+    .faq {
+      margin: 0 auto 4.2rem;
+      width: min(980px, 100%);
+    }
+
+    .faq-item {
+      border-top: 1px solid #3A4A52;
+      padding: 0.5rem 0;
+    }
+
+    .faq-btn {
+      width: 100%;
+      min-height: 44px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.7rem;
+      background: transparent;
+      border: 0;
+      color: var(--warm);
+      text-align: left;
+      padding: 0.55rem 0;
+      cursor: pointer;
+      font-family: 'Oswald', sans-serif;
+      text-transform: uppercase;
+      letter-spacing: 0.15em;
+      font-size: 14px;
+    }
+
+    .faq-answer-wrap {
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.35s ease;
+    }
+
+    .faq-answer-wrap.open {
+      max-height: 460px;
+    }
+
+    .faq-answer {
+      padding: 0.3rem 0 0.8rem;
+      color: var(--body);
+      font-size: 13px;
+      line-height: 1.55;
+    }
+
+    .flash-mock {
+      border: 1px solid #65737E;
+      background: linear-gradient(180deg, #AAB2B8 0%, #8E989F 100%);
+      width: min(320px, 100%);
+      padding: 0.75rem;
+      color: #1E2528;
+      font-size: 12px;
+      font-weight: 700;
+      margin-bottom: 0.45rem;
+    }
+
+    .flash-title {
+      margin-bottom: 0.5rem;
+      font-size: 12px;
+      color: #1F2528;
+      font-weight: 700;
+    }
+
+    .install-btn {
+      display: inline-block;
+      min-height: 44px;
+      line-height: 44px;
+      background: #C4A800;
+      color: #1E2528;
+      border: 1px solid #957D00;
+      padding: 0 0.9rem;
+      font-size: 12px;
+      margin-bottom: 0.45rem;
+    }
+
+    .no-comment {
+      font-style: italic;
+      color: #72818E;
+      font-size: 12px;
+    }
+
+    .void-bottom {
+      height: 200px;
+      background: var(--bg);
+    }
+
+    .signature {
+      text-align: center;
+      padding: 0 1rem 2.2rem;
+    }
+
+    .sig-line {
+      font-family: 'Caveat', cursive;
+      font-size: 16px;
+      color: #72818E;
+      margin: 0 0 0.3rem;
+    }
+
+    .copyright {
+      font-size: 10px;
+      color: var(--body);
+    }
+
+    .scan-overlay {
+      position: fixed;
+      inset: 0;
+      z-index: 9998;
+      pointer-events: none;
+      background: repeating-linear-gradient(
+        to bottom,
+        rgba(0, 0, 0, 0.08) 0,
+        rgba(0, 0, 0, 0.08) 1px,
+        transparent 1px,
+        transparent 2px
+      );
+    }
+
+    .scan-overlay::after {
+      content: '';
+      position: absolute;
+      left: 0;
+      right: 0;
+      height: 2px;
+      top: -2px;
+      background: rgba(209, 217, 224, 0.1);
+      animation: global-scan 8s linear infinite;
+    }
+
+    @keyframes global-scan {
+      from { transform: translateY(0); }
+      to { transform: translateY(100vh); }
+    }
+
+    @media (max-width: 960px) {
+      .grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .artifact { width: min(86%, 760px); }
+      .feed-header { grid-template-columns: 1fr; height: auto; padding: 0.5rem 0.7rem; }
+      .brand, .header-time, .rec-wrap { justify-self: start; text-align: left; }
+      main { padding-top: 128px; }
+    }
+
+    @media (max-width: 600px) {
+      .grid { grid-template-columns: 1fr; }
+      main { width: calc(100% - 1rem); }
+      .transcript-panel { height: 68vh; padding: 0.8rem 0.5rem; }
+      .panel-title { font-size: 0.82rem; }
+      .memo { transform: none; }
+      .artifact { width: 100%; }
+    }
+  </style>
+</head>
+<body x-data="resignedFutures()" x-init="init()" :class="{'monitor-aging': monitorAging}">
+  <header class="feed-header">
+    <div class="brand">Resigned Futures</div>
+    <div class="header-time" x-ref="headerTime" :class="{'flicker': headerFlicker}" x-text="headerClock"></div>
+    <div class="rec-wrap">
+      <span class="rec-dot" aria-hidden="true"></span>
+      <span>REC</span>
+      <span class="extended-flag" :class="{'visible': extendedVisible}">EXTENDED VIEWING SESSION DETECTED</span>
+    </div>
+  </header>
+
+  <main>
+    <div class="void-top" aria-hidden="true"></div>
+
+    <section class="grid" x-ref="grid" aria-label="Lobby feed grid">
+      <template x-for="(entry, index) in entries" :key="entry.cameraId">
+        <button
+          class="cell"
+          :style="`--gx:${entry.gx};--gy:${entry.gy};--glow:${entry.glow};`"
+          @click="openEntry(index)"
+          :aria-label="`Open transcript for ${entry.cameraId}`"
+        >
+          <span class="cell-meta meta-top" x-text="`${entry.cameraId} // ${entry.location}`"></span>
+          <span class="cell-meta meta-date" x-text="entry.date"></span>
+          <span class="cell-meta meta-len">15s</span>
+          <span class="sweep" aria-hidden="true"></span>
+        </button>
+      </template>
+    </section>
+
+    <section class="clock-block" aria-label="Seniority clock">
+      <h2 class="clock-title">The Seniority Clock</h2>
+      <p class="seniority" x-html="seniorityClock"></p>
+      <p class="clock-note">since the parsky incident // no further details available</p>
+    </section>
+
+    <section class="artifact" aria-label="Contextual artifact">
+      <h2 class="section-head">Contextual Artifact #0041</h2>
+      <article class="memo">MEMORANDUM
+TO: All Floor 3 Personnel
+FROM: Facilities Coordination Desk
+DATE: September 14, 2007
+RE: Break Room Coffee Service - Revised Schedule
+
+Effective October 1, the Keurig unit in Break Room 3-East will be
+removed due to "sustained thermal irregularities." The drip unit
+(Mr. Coffee, 12-cup, beige) will remain operational on a
+first-come basis. Cream packets will no longer be restocked on
+Fridays. This is not negotiable.
+
+Please direct all inquiries to ext. 4407.
+(Ext. 4407 has been disconnected.)</article>
+    </section>
+
+    <section class="faq" aria-label="FAQ" x-data="{openItem: 0}">
+      <div class="faq-item">
+        <button class="faq-btn" @click="openItem = openItem === 0 ? null : 0" aria-controls="faq-1" :aria-expanded="openItem === 0">
+          <span>Why Do You Use Flash Player?</span>
+          <span x-text="openItem === 0 ? '-' : '+'"></span>
+        </button>
+        <div id="faq-1" class="faq-answer-wrap" :class="{'open': openItem === 0}">
+          <div class="faq-answer">
+            <div class="flash-mock" role="img" aria-label="Mock Adobe Flash Player installer panel">
+              <div class="flash-title">Adobe Flash Player</div>
+              <div class="install-btn">Install Now</div>
+              <div>Version 11.2.202.235</div>
+            </div>
+            <div class="no-comment">[no comment]</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="faq-item">
+        <button class="faq-btn" @click="openItem = openItem === 1 ? null : 1" aria-controls="faq-2" :aria-expanded="openItem === 1">
+          <span>Is This A Memorial?</span>
+          <span x-text="openItem === 1 ? '-' : '+'"></span>
+        </button>
+        <div id="faq-2" class="faq-answer-wrap" :class="{'open': openItem === 1}">
+          <div class="faq-answer">"Memorial" implies someone is being honored. This is closer to leaving a security camera running in an empty room. The room doesn't know it's being watched. The camera doesn't know the room is empty. The footage exists. That's the entire point.</div>
+        </div>
+      </div>
+
+      <div class="faq-item">
+        <button class="faq-btn" @click="openItem = openItem === 2 ? null : 2" aria-controls="faq-3" :aria-expanded="openItem === 2">
+          <span>Who Was Parsky?</span>
+          <span x-text="openItem === 2 ? '-' : '+'"></span>
+        </button>
+        <div id="faq-3" class="faq-answer-wrap" :class="{'open': openItem === 2}">
+          <div class="faq-answer">This information is classified under internal policy RF-2008-06. Reclassification was requested in 2014 and denied. The denial was issued by a department that no longer exists. The appeal form requires a signature from a supervisor who retired in 2016. His forwarding address was not provided.</div>
+        </div>
+      </div>
+    </section>
+
+    <div class="void-bottom" aria-hidden="true"></div>
+
+    <footer class="signature">
+      <p class="sig-line">leon was here. the rooms were real.</p>
+      <p class="copyright">&copy; 2022 ResignedFutures.com - All footage property of no one.</p>
+    </footer>
+  </main>
+
+  <section class="transcript-panel" x-ref="panel" :class="{'open': activeIndex !== null}" @keydown.escape.window="closeEntry()">
+    <div class="panel-inner" x-show="activeIndex !== null">
+      <div class="panel-top">
+        <h3 class="panel-title" x-text="activeEntry ? `${activeEntry.cameraId} // ${activeEntry.location}` : ''"></h3>
+        <button class="close-btn" @click="closeEntry()" aria-label="Close transcript panel"><i data-lucide="x"></i></button>
+      </div>
+
+      <div class="wave" x-ref="wave">
+        <template x-for="(h, idx) in waveHeights" :key="`bar-${idx}`">
+          <span class="bar" :style="`height:${h}px`"></span>
+        </template>
+      </div>
+
+      <div class="transcript" x-text="typedText"></div>
+
+      <div class="audio-modes">
+        <button class="mode-btn" :class="{'active': activeMode === 'narration'}" @click="setMode('narration')">Narration</button>
+        <button class="mode-btn" :class="{'active': activeMode === 'hold'}" @click="setMode('hold')">Hold Music</button>
+        <button class="mode-btn" :class="{'active': activeMode === 'hvac'}" @click="setMode('hvac')">HVAC Ambient</button>
+      </div>
+    </div>
+  </section>
+
+  <div class="scan-overlay" aria-hidden="true"></div>
+
+  <script src="/assets/js/alpine.min.js" defer></script>
+  <script src="/assets/js/gsap.min.js" defer></script>
+  <script src="/assets/js/lucide.min.js" defer></script>
+  <script>
+    function resignedFutures() {
+      return {
+        headerClock: '',
+        seniorityClock: '',
+        activeIndex: null,
+        activeMode: 'narration',
+        typedText: '',
+        typeTimer: null,
+        waveTl: null,
+        waveHeights: Array.from({ length: 60 }, () => 8),
+        headerFlicker: false,
+        extendedVisible: false,
+        monitorAging: false,
+        extendedTriggered: false,
+        agingTriggered: false,
+        entries: [
+          {
+            cameraId: 'CAM-01',
+            location: 'LOBBY-WEST',
+            date: '2006-02-13 07:12:44',
+            gx: '38%', gy: '24%', glow: '#455056',
+            narrationText: 'On February 13, 2006, Mina Holbrook left her badge in a ceramic candy dish at MidState Solutions Group. Facilities logged the badge as \"unclaimed equipment\" and reused the lanyard for a contractor by Friday. Her exit interview was scheduled for the same day the HR coordinator took unpaid leave. The form is still marked pending.',
+            holdMusicText: 'A 15-second excerpt of the Cisco default hold pattern, firmware version 7.4.2. The specific unit was decommissioned in 2012.',
+            hvacText: 'Ambient recording. Supply duct register, northwest quadrant. 43 dB. Temperature at time of recording: 68\u00b0F. No other sound sources detected.'
+          },
+          {
+            cameraId: 'CAM-02',
+            location: 'ATRIUM-NORTH',
+            date: '2007-09-14 09:01:10',
+            gx: '55%', gy: '17%', glow: '#4A565E',
+            narrationText: 'On September 14, 2007, Edwin Park resigned from Cornerstone Staffing Alliance by emailing a PDF titled final_final2.pdf. The PDF was printed, stamped, and placed in Tray C beside a ficus that died in three days. Tray C was archived during a remodel and mislabeled \"holiday supplies.\" The remodel brochure never mentioned Edwin.',
+            holdMusicText: 'A 15-second excerpt of the Cisco default hold pattern, firmware version 7.4.2. The specific unit was decommissioned in 2012.',
+            hvacText: 'Ambient recording. Supply duct register, northeast quadrant. 42 dB. Temperature at time of recording: 69\u00b0F. No other sound sources detected.'
+          },
+          {
+            cameraId: 'CAM-03',
+            location: 'LOBBY-SOUTH',
+            date: '2008-03-07 08:47:12',
+            gx: '49%', gy: '21%', glow: '#506069',
+            narrationText: 'On March 7, 2008, Diane Ostrowski submitted her two-week notice to the facilities desk at MidState Solutions Group. The notice was received by a temp. It was filed in a binder later moved to a storage unit on Route 9. The storage unit was auctioned in 2011. The binder was not among the catalogued items.',
+            holdMusicText: 'A 15-second excerpt of the Cisco default hold pattern, firmware version 7.4.2. The specific unit was decommissioned in 2012.',
+            hvacText: 'Ambient recording. Supply duct register, southwest quadrant. 43 dB. Temperature at time of recording: 68\u00b0F. No other sound sources detected.'
+          },
+          {
+            cameraId: 'CAM-04',
+            location: 'TOWER-ENTRY',
+            date: '2008-06-12 06:33:59',
+            gx: '42%', gy: '28%', glow: '#46545B',
+            narrationText: 'On June 12, 2008, Khalil Mercer resigned from Pacific Rim Document Services between fire drills. Security signed his departure slip with the wrong date, then corrected it in pencil. Rain bled the correction before records pickup. The official system now believes he left in \"June-ish.\" Payroll accepted that as precise enough.',
+            holdMusicText: 'A 15-second excerpt of the Cisco default hold pattern, firmware version 7.4.2. The specific unit was decommissioned in 2012.',
+            hvacText: 'Ambient recording. Supply duct register, east mezzanine. 44 dB. Temperature at time of recording: 67\u00b0F. No other sound sources detected.'
+          },
+          {
+            cameraId: 'CAM-05',
+            location: 'ANNEX-LIFT',
+            date: '2008-11-14 18:02:06',
+            gx: '60%', gy: '26%', glow: '#4D5C64',
+            narrationText: 'On November 14, 2008, Paula Fern resigned from Haltfield & Greer Associates using company letterhead she had to ask reception to unlock. Reception logged the unlock request as \"miscellaneous courtesy.\" Facilities kept the key request but shredded the resignation attachment during quarter-end cleanup. Courtesy survived. Paula did not, administratively.',
+            holdMusicText: 'A 15-second excerpt of the Cisco default hold pattern, firmware version 7.4.2. The specific unit was decommissioned in 2012.',
+            hvacText: 'Ambient recording. Supply duct register, lower annex shaft. 43 dB. Temperature at time of recording: 69\u00b0F. No other sound sources detected.'
+          },
+          {
+            cameraId: 'CAM-06',
+            location: 'PLAZA-EAST',
+            date: '2009-01-23 07:58:19',
+            gx: '34%', gy: '23%', glow: '#4B5960',
+            narrationText: 'On January 23, 2009, Jordan Vale left Cornerstone Staffing Alliance after handing in a resignation folded into a donut box lid. The desk clerk copied the text into a spreadsheet labeled temporary imports. The spreadsheet was merged, then overwritten by an intern using sort-by-first-name. Jordan now resigns alphabetically somewhere between Janet and Jorge.',
+            holdMusicText: 'A 15-second excerpt of the Cisco default hold pattern, firmware version 7.4.2. The specific unit was decommissioned in 2012.',
+            hvacText: 'Ambient recording. Supply duct register, east perimeter. 42 dB. Temperature at time of recording: 68\u00b0F. No other sound sources detected.'
+          },
+          {
+            cameraId: 'CAM-07',
+            location: 'PODIUM-1',
+            date: '2009-04-02 12:15:41',
+            gx: '52%', gy: '20%', glow: '#4F5C63',
+            narrationText: 'On April 2, 2009, Louise Chen resigned from Meridian BackOffice Partners during a mandatory wellness seminar. Her envelope was placed under a fruit tray to keep it from curling. The tray leaked citrus punch overnight. HR recovered one sentence: \"effective immediately.\" The rest fermented beyond policy.',
+            holdMusicText: 'A 15-second excerpt of the Cisco default hold pattern, firmware version 7.4.2. The specific unit was decommissioned in 2012.',
+            hvacText: 'Ambient recording. Supply duct register, podium intake. 44 dB. Temperature at time of recording: 68\u00b0F. No other sound sources detected.'
+          },
+          {
+            cameraId: 'CAM-08',
+            location: 'WEST TURNSTILE',
+            date: '2009-07-19 10:44:03',
+            gx: '46%', gy: '30%', glow: '#516069',
+            narrationText: 'On July 19, 2009, Rafael Soto resigned from Pacific Rim Document Services by faxing three pages and a hand-drawn map to his replacement parking spot. Facilities kept the map because it solved an active dispute. The resignation pages fed into the shred bin when the fax machine rebooted. The spot remains contested.',
+            holdMusicText: 'A 15-second excerpt of the Cisco default hold pattern, firmware version 7.4.2. The specific unit was decommissioned in 2012.',
+            hvacText: 'Ambient recording. Return vent, west turnstile enclosure. 43 dB. Temperature at time of recording: 67\u00b0F. No other sound sources detected.'
+          },
+          {
+            cameraId: 'CAM-09',
+            location: 'LOBBY-CENTER',
+            date: '2009-10-30 17:29:54',
+            gx: '58%', gy: '22%', glow: '#4A5760',
+            narrationText: 'On October 30, 2009, Carina Bell resigned from Haltfield & Greer Associates at 5:29 PM and asked if she should keep her parking hangtag. Reception said \"doesn\'t matter\" and wrote that as the reason code. The parking vendor billed the company for her space through March. No one disputed the invoice. No one noticed Carina was gone until April.',
+            holdMusicText: 'A 15-second excerpt of the Cisco default hold pattern, firmware version 7.4.2. The specific unit was decommissioned in 2012.',
+            hvacText: 'Ambient recording. Supply duct register, center coffer. 43 dB. Temperature at time of recording: 68\u00b0F. No other sound sources detected.'
+          },
+          {
+            cameraId: 'CAM-10',
+            location: 'ELEVATOR-BANK-B',
+            date: '2010-01-11 08:06:32',
+            gx: '40%', gy: '18%', glow: '#505E66',
+            narrationText: 'On January 11, 2010, Tessa Marino resigned from Northline Audit Holdings while Elevator 4 was stuck between floors. She waited, rewrote her letter on copier paper, and left it under a box of branded stress balls. The stress balls were donated during a morale campaign. The letter traveled with them to a charity rummage table two counties over.',
+            holdMusicText: 'A 15-second excerpt of the Cisco default hold pattern, firmware version 7.4.2. The specific unit was decommissioned in 2012.',
+            hvacText: 'Ambient recording. Elevator bank plenum, zone B. 44 dB. Temperature at time of recording: 69\u00b0F. No other sound sources detected.'
+          },
+          {
+            cameraId: 'CAM-11',
+            location: 'GLASS-VESTIBULE',
+            date: '2010-03-03 07:39:27',
+            gx: '63%', gy: '19%', glow: '#4A5861',
+            narrationText: 'On March 3, 2010, Nikhil Rao resigned from Rivergate Compliance Logistics with a voicemail that began, \"This is not dramatic.\" Facilities transcribed the message onto a pink call slip and pinned it beside a missing umbrella notice. Rain took both by lunch. IT archived the voicemail under unread. It expired after thirty days of institutional silence.',
+            holdMusicText: 'A 15-second excerpt of the Cisco default hold pattern, firmware version 7.4.2. The specific unit was decommissioned in 2012.',
+            hvacText: 'Ambient recording. Vestibule return grille, south glass wall. 42 dB. Temperature at time of recording: 67\u00b0F. No other sound sources detected.'
+          },
+          {
+            cameraId: 'CAM-12',
+            location: 'SERVICE-LOBBY',
+            date: '2010-05-28 16:51:09',
+            gx: '47%', gy: '25%', glow: '#4C5A62',
+            narrationText: 'On May 28, 2010, Priya Lind resigned from MidState Solutions Group and left a forwarding address on the back of a fire extinguisher inspection tag. The tag was removed during annual compliance and filed as completed maintenance. The forwarding address passed every audit perfectly. It never reached payroll.',
+            holdMusicText: 'A 15-second excerpt of the Cisco default hold pattern, firmware version 7.4.2. The specific unit was decommissioned in 2012.',
+            hvacText: 'Ambient recording. Service lobby intake vent. 43 dB. Temperature at time of recording: 68\u00b0F. No other sound sources detected.'
+          }
+        ],
+        init() {
+          this.tick();
+          setInterval(() => this.tick(), 1000);
+
+          setTimeout(() => {
+            if (this.extendedTriggered) return;
+            this.extendedTriggered = true;
+            this.headerFlicker = true;
+            this.extendedVisible = true;
+            setTimeout(() => { this.headerFlicker = false; }, 1400);
+            setTimeout(() => { this.extendedVisible = false; }, 5000);
+          }, 180000);
+
+          setTimeout(() => {
+            if (this.agingTriggered) return;
+            this.agingTriggered = true;
+            this.monitorAging = true;
+          }, 600000);
+
+          this.$nextTick(() => {
+            if (window.lucide && typeof window.lucide.createIcons === 'function') {
+              window.lucide.createIcons();
+            }
+          });
+        },
+        get activeEntry() {
+          return this.activeIndex === null ? null : this.entries[this.activeIndex];
+        },
+        tick() {
+          const now = new Date();
+          this.headerClock = this.formatDateTime(now);
+
+          const start = new Date('2008-06-12T00:00:00');
+          const ms = Math.max(0, now - start);
+          const sec = Math.floor(ms / 1000);
+          const days = Math.floor(sec / 86400);
+          const hours = Math.floor((sec % 86400) / 3600);
+          const minutes = Math.floor((sec % 3600) / 60);
+          const seconds = sec % 60;
+
+          this.seniorityClock = `${days}<span class="unit">d</span> ${String(hours).padStart(2, '0')}<span class="unit">h</span> ${String(minutes).padStart(2, '0')}<span class="unit">m</span> ${String(seconds).padStart(2, '0')}<span class="unit">s</span>`;
+        },
+        formatDateTime(d) {
+          const y = d.getFullYear();
+          const m = String(d.getMonth() + 1).padStart(2, '0');
+          const day = String(d.getDate()).padStart(2, '0');
+          const h = String(d.getHours()).padStart(2, '0');
+          const min = String(d.getMinutes()).padStart(2, '0');
+          const s = String(d.getSeconds()).padStart(2, '0');
+          return `${y}-${m}-${day} ${h}:${min}:${s}`;
+        },
+        openEntry(index) {
+          this.activeIndex = index;
+          this.activeMode = 'narration';
+          this.$nextTick(() => {
+            const panel = this.$refs.panel;
+            const grid = this.$refs.grid;
+            gsap.fromTo(panel, { yPercent: 100 }, { yPercent: 0, duration: 0.5, ease: 'power2.out' });
+            gsap.to(grid, { opacity: 0.3, duration: 0.5, ease: 'power1.out' });
+            this.restartPlayback();
+            if (window.lucide && typeof window.lucide.createIcons === 'function') {
+              window.lucide.createIcons();
+            }
+          });
+        },
+        closeEntry() {
+          const panel = this.$refs.panel;
+          const grid = this.$refs.grid;
+          if (this.waveTl) this.waveTl.kill();
+          if (this.typeTimer) clearInterval(this.typeTimer);
+
+          gsap.to(panel, {
+            yPercent: 100,
+            duration: 0.35,
+            ease: 'power2.in',
+            onComplete: () => {
+              this.activeIndex = null;
+              this.typedText = '';
+            }
+          });
+          gsap.to(grid, { opacity: 1, duration: 0.4, ease: 'power1.out' });
+        },
+        setMode(mode) {
+          if (this.activeIndex === null) return;
+          if (this.activeMode === mode) return;
+          this.activeMode = mode;
+          this.restartPlayback();
+        },
+        currentText() {
+          if (!this.activeEntry) return '';
+          if (this.activeMode === 'hold') return this.activeEntry.holdMusicText;
+          if (this.activeMode === 'hvac') return this.activeEntry.hvacText;
+          return this.activeEntry.narrationText;
+        },
+        restartPlayback() {
+          const text = this.currentText();
+          this.typedText = '';
+
+          if (this.typeTimer) clearInterval(this.typeTimer);
+          if (this.waveTl) this.waveTl.kill();
+
+          this.waveHeights = Array.from({ length: 60 }, () => Math.floor(4 + Math.random() * 17));
+
+          this.$nextTick(() => {
+            const bars = Array.from(this.$refs.wave.querySelectorAll('.bar'));
+            bars.forEach((bar) => {
+              bar.style.backgroundColor = '#81909E';
+              bar.style.boxShadow = 'none';
+            });
+
+            const total = 15;
+            const step = total / Math.max(1, bars.length);
+            const tl = gsap.timeline();
+            bars.forEach((bar, i) => {
+              tl.to(bar, {
+                backgroundColor: '#C4B6A6',
+                boxShadow: '0 0 8px #C4B6A6',
+                duration: 0.08,
+                yoyo: true,
+                repeat: 1
+              }, i * step);
+            });
+            this.waveTl = tl;
+
+            const cadence = Math.max(20, Math.round(15000 / Math.max(1, text.length)));
+            let i = 0;
+            this.typeTimer = setInterval(() => {
+              i += 1;
+              this.typedText = text.slice(0, i);
+              if (i >= text.length) {
+                clearInterval(this.typeTimer);
+                this.typeTimer = null;
+              }
+            }, cadence);
+          });
+        }
+      };
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,1131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>WindingThread.org — Guided Tours of Abandoned Roadside Attractions</title>
+<link rel="stylesheet" href="/assets/css/fonts.css" />
+<style>
+  :root {
+    --forest: #2c5e3f;
+    --forest-dark: #1a3d28;
+    --antique: #f2e8d5;
+    --antique-dim: #e6d9c2;
+    --cork: #c4a76c;
+    --cork-dark: #9e7f44;
+    --pin-red: #c0392b;
+    --pin-blue: #2e6b8a;
+    --pin-yellow: #d4a017;
+    --pin-green: #3a7d44;
+    --frost: #c8e0f0;
+    --frost-overlay: rgba(140, 180, 210, 0.85);
+    --alert-red: #a01010;
+    --text-dark: #1a1a1a;
+    --text-muted: #5a5a50;
+    --shadow: rgba(0,0,0,0.18);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--forest-dark);
+    font-family: 'Work Sans', 'Georgia', serif;
+    color: var(--text-dark);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* Cork felt background texture */
+  .cork-bg {
+    background-color: var(--cork);
+    background-image:
+      url("data:image/svg+xml,%3Csvg width='80' height='80' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.08'/%3E%3C/svg%3E");
+    image-rendering: pixelated;
+  }
+
+  /* Top banner */
+  .site-banner {
+    background: var(--forest);
+    border-bottom: 4px solid var(--cork-dark);
+    padding: 12px 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .site-banner h1 {
+    font-family: 'Libre Baskerville', serif;
+    color: var(--antique);
+    font-size: 1.3rem;
+    letter-spacing: 0.5px;
+    text-shadow: 1px 1px 0 rgba(0,0,0,0.4);
+  }
+  .site-banner h1 span {
+    color: var(--cork);
+    font-size: 0.75em;
+  }
+  .banner-links {
+    display: flex;
+    gap: 14px;
+    flex-wrap: wrap;
+  }
+  .banner-links a {
+    color: var(--antique-dim);
+    text-decoration: none;
+    font-size: 0.78rem;
+    font-family: 'IBM Plex Mono', monospace;
+    border-bottom: 1px dashed var(--cork-dark);
+    cursor: pointer;
+    transition: color 0.2s;
+  }
+  .banner-links a:hover { color: #fff; }
+
+  /* Hit counter */
+  .hit-counter {
+    background: #111;
+    color: #0f0;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.65rem;
+    padding: 2px 8px;
+    border: 1px inset #444;
+    display: inline-block;
+    margin-top: 2px;
+  }
+
+  /* Toolbar strip */
+  .toolbar {
+    background: var(--antique-dim);
+    border-bottom: 2px solid var(--cork-dark);
+    padding: 6px 20px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+    font-size: 0.75rem;
+  }
+  .toolbar-btn {
+    background: var(--forest);
+    color: var(--antique);
+    border: 1px outset var(--forest);
+    padding: 3px 10px;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.7rem;
+    cursor: pointer;
+    text-transform: uppercase;
+  }
+  .toolbar-btn:active { border-style: inset; }
+  .toolbar .divider {
+    width: 1px;
+    height: 18px;
+    background: var(--cork-dark);
+  }
+  .alert-counter {
+    margin-left: auto;
+    color: var(--alert-red);
+    font-family: 'IBM Plex Mono', monospace;
+    font-weight: 700;
+  }
+  .alert-counter .badge {
+    background: var(--pin-yellow);
+    color: var(--text-dark);
+    padding: 1px 6px;
+    font-size: 0.65rem;
+    margin-left: 4px;
+    border: 1px solid var(--cork-dark);
+  }
+
+  /* Main corkboard */
+  .corkboard {
+    padding: 20px;
+    min-height: 80vh;
+    position: relative;
+  }
+
+  /* Decorative push-pin holes along top */
+  .corkboard::before {
+    content: '';
+    position: absolute;
+    top: 8px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 90%;
+    height: 2px;
+    background: repeating-linear-gradient(
+      90deg,
+      transparent 0,
+      transparent 60px,
+      var(--cork-dark) 60px,
+      var(--cork-dark) 64px
+    );
+    opacity: 0.3;
+  }
+
+  /* Section cards pinned to board */
+  .pinned-card {
+    background: var(--antique);
+    border: 1px solid var(--cork-dark);
+    box-shadow: 3px 3px 8px var(--shadow), inset 0 0 0 1px rgba(255,255,255,0.3);
+    padding: 18px 20px 16px;
+    margin-bottom: 20px;
+    position: relative;
+    transform: rotate(var(--tilt, 0deg));
+    transition: filter 0.8s, opacity 0.6s;
+  }
+  .pinned-card::before {
+    content: '';
+    position: absolute;
+    top: -6px;
+    left: var(--pin-x, 30px);
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: var(--pin-color, var(--pin-red));
+    box-shadow: 0 2px 4px var(--shadow), inset 0 -2px 0 rgba(0,0,0,0.2);
+    z-index: 2;
+  }
+
+  .card-title {
+    font-family: 'Libre Baskerville', serif;
+    font-size: 1.05rem;
+    color: var(--forest-dark);
+    margin-bottom: 8px;
+    letter-spacing: 0.3px;
+  }
+  .card-subtitle {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.68rem;
+    color: var(--text-muted);
+    margin-bottom: 10px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+
+  /* Grid of map pins */
+  .pin-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 14px;
+    margin-top: 10px;
+  }
+
+  .map-pin {
+    background: #fff;
+    border: 1px solid #ccc;
+    padding: 10px 12px;
+    position: relative;
+    cursor: pointer;
+    transition: transform 0.15s, box-shadow 0.15s;
+    font-size: 0.82rem;
+  }
+  .map-pin:hover {
+    transform: translateY(-2px);
+    box-shadow: 2px 4px 10px var(--shadow);
+  }
+  .map-pin .pin-status {
+    position: absolute;
+    top: 6px;
+    right: 8px;
+    font-size: 0.6rem;
+    font-family: 'IBM Plex Mono', monospace;
+    text-transform: uppercase;
+  }
+  .pin-status.solid { color: var(--forest); }
+  .pin-status.flickering {
+    color: var(--pin-yellow);
+    animation: flicker 1.2s infinite;
+  }
+  @keyframes flicker {
+    0%, 100% { opacity: 1; }
+    30% { opacity: 0.3; }
+    60% { opacity: 0.8; }
+  }
+  .map-pin h3 {
+    font-family: 'Libre Baskerville', serif;
+    font-size: 0.88rem;
+    margin-bottom: 4px;
+    color: var(--forest-dark);
+    padding-right: 50px;
+  }
+  .map-pin .pin-loc {
+    font-size: 0.7rem;
+    color: var(--text-muted);
+    margin-bottom: 6px;
+  }
+  .map-pin .pin-note {
+    background: #fffde0;
+    border: 1px solid #e0d890;
+    padding: 5px 7px;
+    font-size: 0.72rem;
+    font-family: 'Caveat', cursive;
+    color: #555;
+    margin-top: 6px;
+    transform: rotate(-1deg);
+    box-shadow: 1px 1px 3px rgba(0,0,0,0.08);
+  }
+  .map-pin .pin-price {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.75rem;
+    color: var(--forest);
+    font-weight: 700;
+    margin-top: 6px;
+  }
+  .map-pin .book-btn {
+    display: inline-block;
+    background: var(--forest);
+    color: var(--antique);
+    border: none;
+    padding: 4px 12px;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.68rem;
+    cursor: pointer;
+    margin-top: 6px;
+    text-transform: uppercase;
+  }
+  .map-pin .book-btn:hover { background: var(--forest-dark); }
+  .map-pin .book-btn.cancelled {
+    background: #888;
+    text-decoration: line-through;
+    cursor: not-allowed;
+  }
+
+  /* Comments section */
+  .comment-thread {
+    margin-top: 12px;
+    border-top: 1px dashed var(--cork-dark);
+    padding-top: 10px;
+  }
+  .comment {
+    background: #fff;
+    border-left: 3px solid var(--forest);
+    padding: 8px 10px;
+    margin-bottom: 8px;
+    font-size: 0.78rem;
+    line-height: 1.45;
+  }
+  .comment.weather-invader {
+    border-left-color: var(--pin-red);
+    background: #fff5f5;
+  }
+  .comment .author {
+    font-weight: 700;
+    font-size: 0.72rem;
+    color: var(--forest-dark);
+  }
+  .comment.weather-invader .author {
+    color: var(--alert-red);
+  }
+  .comment .timestamp {
+    font-size: 0.6rem;
+    color: #999;
+    margin-left: 6px;
+    font-family: 'IBM Plex Mono', monospace;
+  }
+
+  /* Tour Regret sidebar */
+  .sidebar-card {
+    background: #fff;
+    border: 1px solid #ddd;
+    padding: 12px;
+    font-size: 0.78rem;
+  }
+  .sidebar-card h4 {
+    font-family: 'Libre Baskerville', serif;
+    font-size: 0.85rem;
+    color: var(--forest-dark);
+    margin-bottom: 8px;
+  }
+  .regret-entry {
+    border-bottom: 1px dotted #ccc;
+    padding: 6px 0;
+  }
+  .regret-entry:last-child { border-bottom: none; }
+  .regret-entry .regret-text {
+    font-family: 'Caveat', cursive;
+    font-size: 0.85rem;
+    color: #444;
+  }
+  .regret-entry .auto-reply {
+    font-size: 0.68rem;
+    color: var(--pin-blue);
+    font-style: italic;
+    margin-top: 3px;
+    font-family: 'IBM Plex Mono', monospace;
+  }
+
+  /* Leaderboard */
+  .leaderboard {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.72rem;
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 8px;
+  }
+  .leaderboard th {
+    background: var(--forest);
+    color: var(--antique);
+    padding: 4px 8px;
+    text-align: left;
+    font-weight: 400;
+    text-transform: uppercase;
+    font-size: 0.65rem;
+    letter-spacing: 0.5px;
+  }
+  .leaderboard td {
+    padding: 4px 8px;
+    border-bottom: 1px solid #e0d8c8;
+  }
+  .leaderboard tr:nth-child(even) td { background: #faf6ee; }
+  .leaderboard .saboteur {
+    color: var(--alert-red);
+    font-weight: 700;
+  }
+  .leaderboard .saboteur td { background: #fff0f0; }
+
+  /* Two-column layout */
+  .board-layout {
+    display: grid;
+    grid-template-columns: 1fr 280px;
+    gap: 20px;
+    align-items: start;
+  }
+  @media (max-width: 800px) {
+    .board-layout {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  /* ========== STORMFRONT 98 OVERLAY ========== */
+  .storm-overlay {
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: var(--frost-overlay);
+    z-index: 9000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    backdrop-filter: blur(3px);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.5s;
+  }
+  .storm-overlay.active {
+    opacity: 1;
+    pointer-events: auto;
+  }
+  .storm-dialog {
+    background: #e8e8e8;
+    border: 3px outset #ccc;
+    max-width: 460px;
+    width: 92%;
+    box-shadow: 4px 4px 0 rgba(0,0,0,0.3);
+    font-family: 'IBM Plex Mono', monospace;
+  }
+  .storm-titlebar {
+    background: linear-gradient(90deg, #000080, #1084d0);
+    color: white;
+    padding: 3px 6px;
+    font-size: 0.72rem;
+    font-weight: 700;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .storm-titlebar .close-x {
+    background: #c0c0c0;
+    border: 1px outset #eee;
+    color: #000;
+    width: 16px;
+    height: 14px;
+    font-size: 0.65rem;
+    line-height: 12px;
+    text-align: center;
+    cursor: pointer;
+    font-weight: 700;
+  }
+  .storm-body {
+    padding: 14px 16px;
+    font-size: 0.75rem;
+    line-height: 1.5;
+    color: #111;
+  }
+  .storm-body .alert-icon {
+    display: inline-block;
+    width: 32px;
+    height: 32px;
+    background: var(--pin-yellow);
+    border-radius: 50%;
+    text-align: center;
+    line-height: 32px;
+    font-size: 1.2rem;
+    float: left;
+    margin-right: 10px;
+    border: 2px solid #b8860b;
+  }
+  .storm-body .alert-title {
+    font-weight: 700;
+    font-size: 0.85rem;
+    color: var(--alert-red);
+    text-transform: uppercase;
+    margin-bottom: 6px;
+  }
+  .storm-body .fine-print {
+    font-size: 0.62rem;
+    color: #666;
+    margin-top: 8px;
+    border-top: 1px solid #bbb;
+    padding-top: 6px;
+  }
+  .storm-buttons {
+    padding: 8px 16px 12px;
+    display: flex;
+    gap: 8px;
+    justify-content: flex-end;
+  }
+  .storm-btn {
+    background: #c0c0c0;
+    border: 2px outset #eee;
+    padding: 4px 18px;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.72rem;
+    cursor: pointer;
+  }
+  .storm-btn:active { border-style: inset; }
+  .storm-btn.primary {
+    background: var(--forest);
+    color: white;
+    border-color: var(--forest-dark);
+  }
+
+  /* Weather verification prompt */
+  .verification-dialog .storm-body {
+    font-size: 0.68rem;
+  }
+  .verification-dialog .terms-box {
+    background: #fff;
+    border: 1px inset #999;
+    padding: 8px;
+    height: 90px;
+    overflow-y: scroll;
+    font-size: 0.6rem;
+    margin: 8px 0;
+    color: #333;
+    line-height: 1.4;
+  }
+  .verification-dialog .timer {
+    text-align: center;
+    font-size: 1.1rem;
+    color: var(--alert-red);
+    font-weight: 700;
+    margin: 6px 0;
+  }
+
+  /* Frost effect on corkboard */
+  .corkboard.frosted .pinned-card {
+    filter: blur(1.5px) brightness(0.85);
+    opacity: 0.7;
+  }
+  .corkboard.frosted::after {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: radial-gradient(ellipse at center, rgba(200,224,240,0.15) 0%, rgba(200,224,240,0.35) 100%);
+    pointer-events: none;
+    z-index: 1;
+  }
+
+  /* Daring Explorer badge */
+  .explorer-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    background: var(--pin-yellow);
+    color: var(--text-dark);
+    padding: 2px 8px;
+    font-size: 0.65rem;
+    font-family: 'IBM Plex Mono', monospace;
+    font-weight: 700;
+    border: 1px solid var(--cork-dark);
+  }
+
+  /* Footer */
+  .site-footer {
+    background: var(--forest-dark);
+    color: var(--antique-dim);
+    padding: 14px 20px;
+    font-size: 0.65rem;
+    font-family: 'IBM Plex Mono', monospace;
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 8px;
+    border-top: 3px solid var(--cork-dark);
+  }
+  .site-footer a { color: var(--cork); text-decoration: none; }
+
+  /* Scrollbar */
+  ::-webkit-scrollbar { width: 10px; }
+  ::-webkit-scrollbar-track { background: var(--antique-dim); }
+  ::-webkit-scrollbar-thumb { background: var(--cork-dark); border: 1px solid var(--cork); }
+
+  /* Under-$25 strike */
+  .price-cancelled {
+    text-decoration: line-through;
+    color: #999;
+  }
+
+  .storm-warning-banner {
+    background: var(--alert-red);
+    color: white;
+    text-align: center;
+    padding: 4px 12px;
+    font-size: 0.68rem;
+    font-family: 'IBM Plex Mono', monospace;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    display: none;
+  }
+  .storm-warning-banner.visible { display: block; }
+
+  /* Marquee ticker */
+  .ticker {
+    background: var(--forest-dark);
+    color: var(--frost);
+    padding: 3px 0;
+    overflow: hidden;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.65rem;
+    white-space: nowrap;
+    border-bottom: 1px solid var(--cork-dark);
+  }
+  .ticker-inner {
+    display: inline-block;
+    animation: scroll-ticker 35s linear infinite;
+  }
+  @keyframes scroll-ticker {
+    from { transform: translateX(100vw); }
+    to { transform: translateX(-100%); }
+  }
+
+  /* Survey lockout */
+  .survey-overlay {
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(0,0,0,0.75);
+    z-index: 9500;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.4s;
+  }
+  .survey-overlay.active {
+    opacity: 1;
+    pointer-events: auto;
+  }
+  .survey-box {
+    background: #fff;
+    border: 3px outset #ccc;
+    max-width: 400px;
+    width: 90%;
+    padding: 0;
+    font-family: 'IBM Plex Mono', monospace;
+  }
+  .survey-box .storm-titlebar {
+    background: var(--alert-red);
+  }
+  .survey-box .survey-content {
+    padding: 14px;
+    font-size: 0.72rem;
+    line-height: 1.5;
+  }
+  .survey-box label {
+    display: block;
+    padding: 4px 0;
+    font-size: 0.7rem;
+    cursor: pointer;
+  }
+  .survey-box label input {
+    margin-right: 6px;
+  }
+  .survey-box .survey-submit {
+    margin-top: 10px;
+    text-align: right;
+    padding: 0 14px 12px;
+  }
+</style>
+</head>
+<body x-data="windingThread()">
+  <!-- Ticker -->
+  <div class="ticker">
+    <div class="ticker-inner">
+      &#9733; STORMFRONT '98 ADVISORY: Freezing rain expected across ALL SECTORS — windingthread.org is NOT responsible for any navigational decisions made under false atmospheric confidence &nbsp;&nbsp;&#9733;&nbsp;&nbsp; LAST SERVER PING: Winnipeg, MB — March 14, 2002 03:41 AM CST &nbsp;&nbsp;&#9733;&nbsp;&nbsp; DUSTIN SAYS: "The ruins are worth visiting. The alerts are not real." &nbsp;&nbsp;&#9733;&nbsp;&nbsp; NEW LISTING: Giant Concrete Prairie Dog — Cawker City, KS (hostile peacocks reported) &nbsp;&nbsp;&#9733;&nbsp;&nbsp; IGNORED ALERTS THIS SESSION: check your sidebar &nbsp;&nbsp;&#9733;&nbsp;&nbsp;
+    </div>
+  </div>
+
+  <!-- Storm warning banner -->
+  <div class="storm-warning-banner" :class="{ visible: stormActive }">
+    &#x26A0; ICE STORM OVERRIDE ACTIVE — Bookings under $25 suspended — StormFront '98 v2.4.1 (Winnipeg) &#x26A0;
+  </div>
+
+  <!-- Banner -->
+  <div class="site-banner">
+    <div>
+      <h1>WindingThread.org <span>est. 1998</span></h1>
+      <div class="hit-counter">visitors: <span x-text="visitors"></span></div>
+    </div>
+    <div class="banner-links">
+      <a>Map</a>
+      <a>Book a Tour</a>
+      <a>Road Hazard Notes</a>
+      <a>Tour Regrets</a>
+      <a>About Dustin</a>
+      <a>Forums</a>
+    </div>
+  </div>
+
+  <!-- Toolbar -->
+  <div class="toolbar">
+    <button class="toolbar-btn" @click="showAllPins = !showAllPins" x-text="showAllPins ? '▼ HIDE UNVERIFIED' : '▶ SHOW ALL PINS'"></button>
+    <div class="divider"></div>
+    <button class="toolbar-btn" @click="sortByPrice = !sortByPrice" x-text="sortByPrice ? '$ SORT: PRICE' : '$ SORT: DEFAULT'"></button>
+    <div class="divider"></div>
+    <span style="font-size:0.7rem;color:var(--text-muted);">Pins loaded: <strong x-text="pins.length"></strong></span>
+    <div class="alert-counter">
+      Ignored Alerts: <strong x-text="ignoredAlerts"></strong>
+      <template x-if="ignoredAlerts >= 8">
+        <span class="badge explorer-badge">&#9733; DARING EXPLORER</span>
+      </template>
+    </div>
+  </div>
+
+  <!-- Main Content -->
+  <div class="corkboard cork-bg" :class="{ frosted: stormActive }">
+    <div class="board-layout">
+      <!-- Left: Main board -->
+      <div>
+        <!-- Hero card -->
+        <div class="pinned-card" style="--tilt: -0.6deg; --pin-x: 45px; --pin-color: var(--pin-red);">
+          <div class="card-subtitle">Digital Corkboard &mdash; Abandoned Roadside Attractions</div>
+          <div class="card-title">Guided Tours of Places People Drove Past a Thousand Times Without Stopping</div>
+          <p style="font-size:0.82rem;line-height:1.55;margin-top:6px;color:var(--text-muted);">
+            Welcome to WindingThread.org. I'm Dustin Hale. I ran a Texaco station outside Barstow for eleven years. After things fell apart, I started driving to every decaying thing within a tank of gas. A crumbling Stuckey's at dusk makes you feel less like the only thing falling apart. Every pin on this board is a place that meant something to someone once, and I believe that deserves a witness.
+          </p>
+          <p style="font-size:0.72rem;color:var(--alert-red);margin-top:8px;font-family:'IBM Plex Mono',monospace;">
+            &#x26A0; NOTE: StormFront '98, a rogue weather application running from an unmaintained server in Winnipeg, MB, periodically disrupts this website. We apologize. We cannot stop it. — Dustin
+          </p>
+        </div>
+
+        <!-- Map Pins -->
+        <div class="pinned-card" style="--tilt: 0.3deg; --pin-x: 70px; --pin-color: var(--pin-blue);">
+          <div class="card-title">Available Tours</div>
+          <div class="card-subtitle">Click to book &bull; Prices in USD &bull; <span :style="stormActive ? 'color:var(--alert-red)' : ''">Under-$25 bookings <span x-text="stormActive ? 'SUSPENDED' : 'available'"></span></span></div>
+
+          <div class="pin-grid">
+            <template x-for="pin in displayedPins" :key="pin.id">
+              <div class="map-pin">
+                <span class="pin-status" :class="pin.verified ? 'solid' : 'flickering'" x-text="pin.verified ? '● VERIFIED' : '◌ UNVERIFIED'"></span>
+                <h3 x-text="pin.name"></h3>
+                <div class="pin-loc" x-text="pin.location"></div>
+                <p style="font-size:0.75rem;color:#555;" x-text="pin.desc"></p>
+                <template x-if="pin.note">
+                  <div class="pin-note" x-text="pin.note"></div>
+                </template>
+                <div class="pin-price" :class="{ 'price-cancelled': stormActive && pin.price < 25 }">
+                  $<span x-text="pin.price"></span>/person
+                </div>
+                <button class="book-btn"
+                  :class="{ cancelled: stormActive && pin.price < 25 }"
+                  :disabled="stormActive && pin.price < 25"
+                  @click="bookTour(pin)"
+                  x-text="stormActive && pin.price < 25 ? 'STORM CANCELLED' : 'BOOK TOUR'">
+                </button>
+              </div>
+            </template>
+          </div>
+        </div>
+
+        <!-- Comments -->
+        <div class="pinned-card" style="--tilt: 0.8deg; --pin-x: 25px; --pin-color: var(--pin-green);">
+          <div class="card-title">Community Discussion</div>
+          <div class="card-subtitle">Tour fans &amp; WeatherApp Invaders</div>
+          <div class="comment-thread">
+            <template x-for="c in comments" :key="c.id">
+              <div class="comment" :class="{ 'weather-invader': c.invader }">
+                <span class="author" x-text="c.author"></span>
+                <span class="timestamp" x-text="c.time"></span>
+                <p style="margin-top:4px;" x-text="c.text"></p>
+              </div>
+            </template>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right: Sidebar -->
+      <div style="display:flex;flex-direction:column;gap:16px;">
+        <!-- Alert Status -->
+        <div class="sidebar-card">
+          <h4>StormFront '98 Status</h4>
+          <div style="font-size:0.72rem;margin-bottom:6px;">
+            <span style="display:inline-block;width:8px;height:8px;border-radius:50;background:#c0392b;margin-right:4px;vertical-align:middle;" :style="stormActive ? 'background:#c0392b' : 'background:#27ae60'"></span>
+            <span x-text="stormActive ? 'ALERT ACTIVE' : 'Monitoring...'" :style="stormActive ? 'color:var(--alert-red);font-weight:700' : 'color:var(--forest)'"></span>
+          </div>
+          <div style="font-size:0.65rem;color:var(--text-muted);font-family:'IBM Plex Mono',monospace;">
+            Server: Winnipeg, MB<br>
+            Last update: Mar 14, 2002<br>
+            False alarm rate: 75%<br>
+            Alerts this session: <strong x-text="totalAlerts"></strong><br>
+            Alerts ignored: <strong x-text="ignoredAlerts"></strong>
+          </div>
+          <div style="margin-top:8px;">
+            <template x-if="ignoredAlerts >= 8">
+              <div class="explorer-badge">&#9733; DARING EXPLORER</div>
+            </template>
+            <template x-if="ignoredAlerts >= 8 && !surveyComplete">
+              <p style="font-size:0.62rem;color:var(--alert-red);margin-top:4px;">
+                WARNING: Continued alert dismissal constitutes defiance of atmospheric science. Features may be locked.
+              </p>
+            </template>
+          </div>
+        </div>
+
+        <!-- Tour Regret Reports -->
+        <div class="sidebar-card">
+          <h4>Tour Regret Reports</h4>
+          <template x-for="r in regrets" :key="r.id">
+            <div class="regret-entry">
+              <div class="regret-text" x-text="r.text"></div>
+              <div class="auto-reply" x-text="r.reply"></div>
+            </div>
+          </template>
+        </div>
+
+        <!-- Leaderboard -->
+        <div class="sidebar-card">
+          <h4>Top Scouts Leaderboard</h4>
+          <table class="leaderboard">
+            <thead>
+              <tr><th>Rank</th><th>Scout</th><th>Pins</th><th>Status</th></tr>
+            </thead>
+            <tbody>
+              <template x-for="(s, i) in scouts" :key="s.name">
+                <tr :class="{ saboteur: s.saboteur }">
+                  <td x-text="i + 1"></td>
+                  <td x-text="s.name"></td>
+                  <td x-text="s.pins"></td>
+                  <td x-text="s.saboteur ? '⚠ SUSPECTED SABOTEUR' : s.status"></td>
+                </tr>
+              </template>
+            </tbody>
+          </table>
+          <p style="font-size:0.58rem;color:var(--text-muted);margin-top:6px;font-style:italic;">
+            Users logging activity during active alerts are demoted and flagged. Accounts frozen for 48 hours. Winnipeg interference suspected.
+          </p>
+        </div>
+
+        <!-- Road Hazard Notes -->
+        <div class="sidebar-card">
+          <h4>Road Hazard Notes</h4>
+          <div style="font-size:0.72rem;line-height:1.5;">
+            <template x-for="h in hazards" :key="h.id">
+              <div class="pin-note" style="margin-bottom:6px;" x-text="h.text"></div>
+            </template>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <div class="site-footer">
+    <span>&copy; 1998–2002 WindingThread.org &mdash; Dustin Hale, Barstow, CA &mdash; <a>"The ruins are worth visiting."</a></span>
+    <span>StormFront '98 is NOT affiliated with this site. | <a>Report Weather Bug</a> | <a>Terms</a></span>
+  </div>
+
+  <!-- ======= STORM OVERLAY (Ice Storm Alert) ======= -->
+  <div class="storm-overlay" :class="{ active: showStormDialog }">
+    <div class="storm-dialog">
+      <div class="storm-titlebar">
+        <span>&#x26A0; StormFront '98 — ICE STORM OVERRIDE</span>
+        <div class="close-x" @click="dismissStorm()">x</div>
+      </div>
+      <div class="storm-body">
+        <div class="alert-icon">&#x26A0;</div>
+        <div class="alert-title">Black Ice Confirmed</div>
+        <p>ALERT: Severe ice conditions detected across all mapped regions. All bookings under $25 have been automatically cancelled.</p>
+        <p style="margin-top:6px;">Reschedule or risk a <strong>$10 fine</strong> for "reckless virtual navigation."</p>
+        <div class="fine-print">
+          StormFront '98 v2.4.1 | Winnipeg, MB Server | Last calibrated: 03/14/2002 | False alarm rate: 75% (disputed)
+        </div>
+      </div>
+      <div class="storm-buttons">
+        <button class="storm-btn" @click="dismissStorm()">Ignore Alert</button>
+        <button class="storm-btn primary" @click="acknowledgeStorm()">Acknowledge &amp; Reschedule</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ======= WEATHER VERIFICATION PROMPT ======= -->
+  <div class="storm-overlay" :class="{ active: showVerification }" style="z-index:9100;">
+    <div class="storm-dialog verification-dialog">
+      <div class="storm-titlebar">
+        <span>StormFront '98 — Weather Verification Required</span>
+        <span></span>
+      </div>
+      <div class="storm-body">
+        <div class="alert-title" style="font-size:0.75rem;">Booking Functions Paused</div>
+        <p>To continue using WindingThread.org, you must accept StormFront '98's updated terms of service.</p>
+        <div class="terms-box">
+          STORMFRONT '98 TERMS OF ATMOSPHERIC ENGAGEMENT (Rev. 03/14/2002)
+
+          Section 1. By clicking "Accept," you acknowledge that all weather data provided by StormFront '98 is generated by a decommissioned server in Winnipeg, Manitoba, Canada, and may not reflect current, past, or hypothetically future atmospheric conditions.
+
+          Section 2. You hereby surrender your approximate GPS coordinates for purposes of "hypothetical storm modeling," a process the developers describe as "mostly decorative."
+
+          Section 3. StormFront '98 reserves the right to interrupt any and all digital activities, including but not limited to: tour booking, map browsing, comment posting, leaderboard viewing, and general feelings of contentment.
+
+          Section 4. The user agrees that dismissing alerts constitutes "atmospheric defiance" and may result in account restrictions, louder notifications, and/or philosophical disappointment.
+
+          Section 5. This agreement is binding in all weather conditions, including those that do not exist.
+
+          Section 6. Chloe, if you're reading this: the dog misses Barstow. — D.H.
+        </div>
+        <div class="timer">
+          <span x-text="verificationTimer"></span>s
+        </div>
+        <p style="font-size:0.6rem;color:#888;text-align:center;">Timer resets on any mouse movement within this window.</p>
+      </div>
+      <div class="storm-buttons">
+        <button class="storm-btn primary" @click="acceptVerification()" :disabled="verificationTimer > 0">Accept Terms</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ======= SURVEY LOCKOUT (after 8 ignored alerts) ======= -->
+  <div class="survey-overlay" :class="{ active: showSurvey }">
+    <div class="survey-box">
+      <div class="storm-titlebar">
+        &#x26A0; MANDATORY ACKNOWLEDGMENT SURVEY — Features Locked
+      </div>
+      <div class="survey-content">
+        <p style="font-weight:700;margin-bottom:8px;">You have been flagged for defying atmospheric science.</p>
+        <p>You dismissed <strong x-text="ignoredAlerts"></strong> storm alerts. To restore site features, complete this survey:</p>
+        <div style="margin-top:10px;">
+          <label><input type="radio" name="q1" value="1" @change="surveyAnswers.q1 = true"> I acknowledge that weather is unpredictable and should be respected.</label>
+          <label><input type="radio" name="q1" value="2" @change="surveyAnswers.q1 = true"> I acknowledge that I cannot control the Winnipeg server.</label>
+          <label><input type="radio" name="q1" value="3" @change="surveyAnswers.q1 = true"> I acknowledge that Dustin Hale's roadside tours operate at the mercy of forces beyond human comprehension.</label>
+        </div>
+        <div style="margin-top:10px;">
+          <label><input type="checkbox" @change="surveyAnswers.q2 = $event.target.checked"> I will not dismiss future alerts without reading them in full.</label>
+        </div>
+      </div>
+      <div class="survey-submit">
+        <button class="storm-btn primary" @click="submitSurvey()" :disabled="!surveyAnswers.q1 || !surveyAnswers.q2">Submit &amp; Restore Access</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="/assets/js/gsap.min.js"></script>
+  <script src="/assets/js/lucide.min.js"></script>
+  <script src="/assets/js/alpine.min.js" defer></script>
+  <script>
+    document.addEventListener('alpine:init', () => {
+      Alpine.data('windingThread', () => ({
+        visitors: 4281 + Math.floor(Math.random() * 300),
+        showAllPins: true,
+        sortByPrice: false,
+        stormActive: false,
+        showStormDialog: false,
+        showVerification: false,
+        showSurvey: false,
+        totalAlerts: 0,
+        ignoredAlerts: 0,
+        surveyComplete: false,
+        surveyAnswers: { q1: false, q2: false },
+        verificationTimer: 60,
+        verificationInterval: null,
+        stormCycleTimer: null,
+        verifyCycleTimer: null,
+
+        pins: [
+          { id: 1, name: "Giant Concrete Prairie Dog", location: "Cawker City, KS", desc: "22-foot reinforced concrete prairie dog. Gift shop closed since 1994. Structural cracks visible from highway.", price: 18, verified: true, note: "⚠ Hostile Peacocks Patrolling the Area — Proceed with Caution" },
+          { id: 2, name: "Stuckey's #4402 (Abandoned)", location: "Mile 112, I-40, Barstow, CA", desc: "Roof partially collapsed. Pecan log display still intact behind cracked glass. Best at dusk.", price: 12, verified: true, note: null },
+          { id: 3, name: "Mystery Spot of Truth or Consequences", location: "Truth or Consequences, NM", desc: "Gravity house with tilted floor. Owner left in 1987. Door still unlocked.", price: 35, verified: true, note: "$50 tow-truck fee on washed-out access road — bring cash" },
+          { id: 4, name: "Teepee Motel (Units 1–6 Only)", location: "Rte. 66, Holbrook, AZ", desc: "Concrete teepees. Three still have beds. One has a family of raccoons.", price: 22, verified: false, note: "Filed during active alert — 10:47 PM — flagged unreliable" },
+          { id: 5, name: "World's Largest Ball of Paint", location: "Alexandria, IN", desc: "Started as a baseball in 1977. Now weighs 4,000 lbs. Still accepting layers.", price: 15, verified: true, note: null },
+          { id: 6, name: "Cadillac Ranch (After Dark)", location: "Amarillo, TX", desc: "Unauthorized moonlight tour. Bring your own spray paint. Watch for barbed wire.", price: 28, verified: false, note: "Submitted at 11:32 PM — verification pending" },
+          { id: 7, name: "Dinosaur Gardens Prehistoric Zoo", location: "Ossineke, MI", desc: "Concrete dinosaurs in the woods since 1934. Moss-covered. Deeply unsettling at twilight.", price: 20, verified: true, note: null },
+          { id: 8, name: "Nevada Ghost Town Gift Shop", location: "Rhyolite, NV", desc: "The ghost town is abandoned. The gift shop is inexplicably still open. Someone is in there.", price: 42, verified: true, note: "⚠ Overly preserved — see Tour Regret Report #4" },
+        ],
+
+        comments: [
+          { id: 1, author: "RoadPilgrim_Linda", time: "02/18/2002 09:14 AM", text: "Visited the Prairie Dog last fall. The historical plaque is WRONG about the construction date — it was 1959, not 1962. I have the original newspaper clipping.", invader: false },
+          { id: 2, author: "StormWatcher_Dave", time: "02/18/2002 09:31 AM", text: "Another false alarm at 9:15 AM. That's 14 this week. The Winnipeg server hasn't been calibrated since March 2002. I have timestamped logs. This is DOCUMENTED.", invader: true },
+          { id: 3, author: "DesertHazel", time: "02/19/2002 11:02 AM", text: "The Stuckey's tour changed my life. Standing in front of that cracked pecan display, I understood something about impermanence I'd been avoiding for years.", invader: false },
+          { id: 4, author: "WX_Truthseeker", time: "02/19/2002 02:44 PM", text: "75% false alarm rate is GENEROUS. My data shows 83.4% since the server update on 03/14/2002. Chloe if you're monitoring this feed PLEASE shut it down.", invader: true },
+          { id: 5, author: "Dustin_Hale", time: "02/20/2002 06:15 AM", text: "I can't shut it down. I've tried. The server is in Winnipeg and I don't have the password. Chloe changed it. If anyone is driving through Manitoba, the address is in the FAQ.", invader: false },
+          { id: 6, author: "GhostTownGreg", time: "02/20/2002 08:33 AM", text: "The Rhyolite gift shop tour is misleading. That place is NOT abandoned. There's a man in there selling turquoise. He made eye contact with me.", invader: false },
+          { id: 7, author: "AlertDefier_9", time: "02/20/2002 10:01 AM", text: "Got the Daring Explorer badge. Then my account got frozen for 48 hours. Then I got a survey asking if I respect weather. This website is a hostage situation and I love it.", invader: true },
+        ],
+
+        regrets: [
+          { id: 1, text: '"The prairie dog was smaller than the website implied. Emotionally accurate, though."', reply: "AUTO-REPLY: Discrepancy attributed to unpredictable weather shifts affecting visual perception. $5 credit issued toward future bookings disrupted by alerts." },
+          { id: 2, text: '"Teepee Motel raccoons were not mentioned in the listing. I was not prepared."', reply: "AUTO-REPLY: Wildlife conditions fluctuate with atmospheric pressure. Raccoon presence classified as weather-adjacent. $5 credit issued." },
+          { id: 3, text: '"Stuckey\'s was perfect. No regret. I just wanted to tell someone."', reply: "AUTO-REPLY: Thank you. Your experience has been logged. No credit necessary. — D.H. (manual reply)" },
+          { id: 4, text: '"Rhyolite ghost town still has an operating gift shop. That\'s not abandoned. That\'s just a shop."', reply: "AUTO-REPLY: Preservation status reclassified due to unpredictable weather shifts. $5 credit issued." },
+        ],
+
+        scouts: [
+          { name: "RoadPilgrim_Linda", pins: 47, status: "Active", saboteur: false },
+          { name: "DesertHazel", pins: 39, status: "Active", saboteur: false },
+          { name: "GhostTownGreg", pins: 34, status: "Active", saboteur: false },
+          { name: "AlertDefier_9", pins: 31, status: "", saboteur: true },
+          { name: "Dustin_Hale", pins: 28, status: "Admin", saboteur: false },
+          { name: "StormWatcher_Dave", pins: 22, status: "", saboteur: true },
+          { name: "CactusJack_Route66", pins: 19, status: "Active", saboteur: false },
+        ],
+
+        hazards: [
+          { id: 1, text: "⚠ Hostile Peacocks Patrolling the Area — Cawker City, KS — Proceed with Caution" },
+          { id: 2, text: "⚠ $50 tow-truck fee on washed-out path — Truth or Consequences, NM — bring cash" },
+          { id: 3, text: "⚠ Barbed wire along south perimeter — Cadillac Ranch, Amarillo, TX — wear boots" },
+          { id: 4, text: "⚠ Raccoon family in Unit 3 — Teepee Motel, Holbrook, AZ — do not provoke" },
+          { id: 5, text: "⚠ Man in gift shop makes sustained eye contact — Rhyolite, NV — not hostile, just present" },
+        ],
+
+        get displayedPins() {
+          let result = this.showAllPins ? this.pins : this.pins.filter(p => p.verified);
+          if (this.sortByPrice) result = [...result].sort((a, b) => a.price - b.price);
+          return result;
+        },
+
+        init() {
+          // Start storm cycle
+          this.scheduleStorm();
+          this.scheduleVerification();
+
+          // Animate cards in (no opacity animation — avoids clearProps/frost conflicts)
+          gsap.from('.pinned-card', {
+            y: 20,
+            stagger: 0.15,
+            duration: 0.6,
+            ease: 'power2.out',
+            delay: 0.3,
+          });
+          gsap.from('.sidebar-card', {
+            x: 30,
+            stagger: 0.12,
+            duration: 0.5,
+            ease: 'power2.out',
+            delay: 0.6,
+          });
+          gsap.from('.site-banner', {
+            y: -20,
+            duration: 0.4,
+            ease: 'power2.out',
+          });
+
+          if (typeof lucide !== 'undefined') lucide.createIcons();
+        },
+
+        scheduleStorm() {
+          // First storm after 20-30 seconds so users see content, then every 30-45s
+          const isFirst = this.totalAlerts === 0;
+          const delay = isFirst ? 20000 + Math.random() * 10000 : 30000 + Math.random() * 15000;
+          this.stormCycleTimer = setTimeout(() => {
+            this.triggerStorm();
+          }, delay);
+        },
+
+        triggerStorm() {
+          this.stormActive = true;
+          this.showStormDialog = true;
+          this.totalAlerts++;
+
+          // Auto-dismiss after 30s if user doesn't interact
+          setTimeout(() => {
+            if (this.showStormDialog) this.dismissStorm();
+          }, 30000);
+        },
+
+        dismissStorm() {
+          this.showStormDialog = false;
+          this.ignoredAlerts++;
+
+          // Check if we need to trigger survey
+          if (this.ignoredAlerts >= 8 && !this.surveyComplete) {
+            setTimeout(() => {
+              this.showSurvey = true;
+            }, 800);
+          }
+
+          // End storm after brief delay
+          setTimeout(() => {
+            this.stormActive = false;
+            this.scheduleStorm();
+          }, 3000);
+        },
+
+        acknowledgeStorm() {
+          this.showStormDialog = false;
+          setTimeout(() => {
+            this.stormActive = false;
+            this.scheduleStorm();
+          }, 2000);
+        },
+
+        scheduleVerification() {
+          // Verification every ~45 seconds for demo
+          this.verifyCycleTimer = setTimeout(() => {
+            if (!this.showStormDialog && !this.showSurvey) {
+              this.showVerification = true;
+              this.verificationTimer = 60;
+              this.startVerificationTimer();
+            } else {
+              this.scheduleVerification();
+            }
+          }, 45000 + Math.random() * 10000);
+        },
+
+        startVerificationTimer() {
+          this.verificationInterval = setInterval(() => {
+            this.verificationTimer--;
+            if (this.verificationTimer <= 0) {
+              clearInterval(this.verificationInterval);
+            }
+          }, 1000);
+
+          // Reset timer on mouse move within overlay
+          const overlay = document.querySelector('.verification-dialog');
+          if (overlay) {
+            overlay.addEventListener('mousemove', () => {
+              if (this.showVerification && this.verificationTimer > 0) {
+                this.verificationTimer = 60;
+              }
+            });
+          }
+        },
+
+        acceptVerification() {
+          this.showVerification = false;
+          if (this.verificationInterval) clearInterval(this.verificationInterval);
+          this.scheduleVerification();
+        },
+
+        submitSurvey() {
+          if (this.surveyAnswers.q1 && this.surveyAnswers.q2) {
+            this.surveyComplete = true;
+            this.showSurvey = false;
+          }
+        },
+
+        bookTour(pin) {
+          if (this.stormActive && pin.price < 25) return;
+          alert('Tour booked: ' + pin.name + ' — $' + pin.price + '/person\n\nConfirmation will be mailed to your AOL address.\n\n— Dustin Hale, WindingThread.org');
+        },
+      }));
+    });
+  </script>
+</body>
+</html>

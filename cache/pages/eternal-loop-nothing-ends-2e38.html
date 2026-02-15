@@ -1,0 +1,1300 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ETERNAL LOOP — Nothing Ends</title>
+<link rel="stylesheet" href="/assets/css/fonts.css">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg: #0A0A0F;
+  --text: #F0F8FF;
+  --accent: #FF4500;
+  --purple: #301934;
+  --green: #2A5A3A;
+  --muted: #6B6B7B;
+  --marker-bg: #3B3520;
+  --sticky-bg: #4A4530;
+}
+
+html {
+  font-size: 16px;
+  scroll-behavior: smooth;
+}
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Fira Code', monospace;
+  font-size: 16px;
+  line-height: 1.7;
+  overflow-x: hidden;
+  min-height: 100vh;
+}
+
+/* Scanlines */
+body::before {
+  content: '';
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: repeating-linear-gradient(
+    0deg,
+    transparent 0px,
+    transparent 1px,
+    rgba(255,255,255,0.015) 1px,
+    rgba(255,255,255,0.015) 2px
+  );
+  pointer-events: none;
+  z-index: 9000;
+}
+
+body.konami-mode::before {
+  background: repeating-linear-gradient(
+    0deg,
+    transparent 0px,
+    transparent 2px,
+    rgba(42,90,58,0.08) 2px,
+    rgba(42,90,58,0.08) 4px
+  );
+}
+
+body.konami-mode {
+  color: var(--green);
+}
+
+body.konami-mode .section-title,
+body.konami-mode .counter-num,
+body.konami-mode .blink-led {
+  color: var(--green);
+}
+
+a { color: var(--accent); text-decoration: none; }
+a:hover { text-decoration: underline; }
+
+.page-wrap {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 0 24px;
+}
+
+/* Section styling */
+.section {
+  position: relative;
+  border: 1px dashed var(--purple);
+  padding: 48px 40px;
+  margin-bottom: 32px;
+}
+
+.section-num {
+  position: absolute;
+  top: -14px;
+  left: 24px;
+  background: var(--bg);
+  padding: 0 12px;
+  font-size: 14px;
+  color: var(--muted);
+  letter-spacing: 2px;
+}
+
+.section-title {
+  font-family: 'Fira Code', monospace;
+  font-size: 18px;
+  color: var(--text);
+  margin-bottom: 24px;
+  letter-spacing: 2px;
+}
+
+/* Permanent Marker annotations */
+.marker-note {
+  font-family: 'Permanent Marker', cursive;
+  color: var(--accent);
+  position: absolute;
+  font-size: 15px;
+  line-height: 1.4;
+  max-width: 220px;
+  animation: marker-float 8s ease-in-out infinite;
+  z-index: 10;
+}
+
+@keyframes marker-float {
+  0%, 100% { transform: rotate(var(--rot, 3deg)) translateY(0); }
+  50% { transform: rotate(var(--rot, 3deg)) translateY(-2px); }
+}
+
+/* Sticky notes */
+.sticky-note {
+  background: var(--sticky-bg);
+  color: var(--text);
+  font-family: 'Permanent Marker', cursive;
+  font-size: 14px;
+  padding: 14px 16px;
+  transform: rotate(-2deg);
+  box-shadow: 3px 3px 8px rgba(0,0,0,0.5);
+  max-width: 260px;
+  line-height: 1.5;
+  animation: marker-float 8s ease-in-out infinite;
+}
+
+/* Blinking cursor */
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0; }
+}
+
+.blink-cursor {
+  animation: blink 1s step-end infinite;
+  color: var(--text);
+}
+
+/* Blinking LED */
+@keyframes pulse-led {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.3; }
+}
+
+.blink-led {
+  color: var(--accent);
+  animation: pulse-led 2s ease-in-out infinite;
+  display: inline;
+}
+
+/* ===== §0 HERO ===== */
+.hero {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  position: relative;
+  border: none;
+  padding: 48px 24px;
+}
+
+.counter-num {
+  font-family: 'Archivo Black', sans-serif;
+  font-size: clamp(72px, 15vw, 140px);
+  color: var(--accent);
+  line-height: 1;
+  letter-spacing: -2px;
+}
+
+.counter-label {
+  font-size: 14px;
+  color: var(--muted);
+  margin-top: 8px;
+  letter-spacing: 1px;
+}
+
+.hero-quote {
+  font-size: 14px;
+  color: var(--text);
+  margin-top: 32px;
+  max-width: 600px;
+  min-height: 1.7em;
+}
+
+.hero .marker-note {
+  top: 40px;
+  right: 20px;
+  left: auto;
+  --rot: 3deg;
+  text-align: right;
+}
+
+/* ===== §1 ABOUT ===== */
+.about-text {
+  white-space: pre-wrap;
+  word-wrap: break-word;
+  font-size: 15px;
+  line-height: 1.8;
+  max-width: 72ch;
+}
+
+.about-wrap {
+  position: relative;
+}
+
+.about-wrap .sticky-note {
+  position: absolute;
+  right: -20px;
+  top: 10px;
+}
+
+/* ===== §2 TIERS ===== */
+.tier-block {
+  font-size: 14px;
+  line-height: 1.6;
+  overflow-x: auto;
+  white-space: pre;
+  padding: 2px 0;
+  margin-bottom: 16px;
+  border-left: 3px solid var(--muted);
+  padding-left: 16px;
+}
+
+.tier-block.t-capacitor { border-left-color: var(--green); }
+.tier-block.t-inductor { border-left-color: var(--text); }
+.tier-block.t-thermistor { border-left-color: var(--purple); }
+.tier-block.t-varistor { border-left-color: var(--accent); }
+
+.tier-block .tier-enroll {
+  cursor: pointer;
+  display: inline;
+}
+.tier-block .tier-enroll:hover {
+  color: var(--accent);
+}
+
+.tiers-wrap {
+  position: relative;
+}
+
+.tiers-wrap > .marker-note {
+  right: -20px;
+  bottom: 80px;
+  --rot: -2deg;
+}
+
+/* ===== §3 WALL ===== */
+.wall-card {
+  border: 1px solid var(--purple);
+  padding: 20px 24px;
+  margin-bottom: 12px;
+  transition: opacity 0.5s, transform 0.5s;
+}
+
+.wall-card .gadget-name {
+  font-size: 14px;
+  letter-spacing: 1px;
+  color: var(--text);
+  margin-bottom: 4px;
+}
+
+.wall-card .gadget-status {
+  font-size: 13px;
+  color: var(--muted);
+}
+
+.wall-card .gadget-testimonial {
+  font-size: 13px;
+  color: var(--text);
+  margin-top: 8px;
+  line-height: 1.6;
+}
+
+.fax-msg {
+  font-style: italic;
+  color: var(--accent);
+  font-size: 13px;
+  padding: 8px 0;
+  margin-bottom: 12px;
+}
+
+/* ===== §4 BLOG ===== */
+.blog-entry {
+  margin-bottom: 32px;
+  padding-bottom: 24px;
+  border-bottom: 1px dashed var(--purple);
+}
+
+.blog-entry:last-child { border-bottom: none; }
+
+.blog-title {
+  font-size: 16px;
+  letter-spacing: 1px;
+  color: var(--text);
+}
+
+.blog-date {
+  font-size: 13px;
+  color: var(--muted);
+  margin: 4px 0 12px;
+}
+
+.blog-excerpt {
+  font-size: 14px;
+  line-height: 1.7;
+  color: var(--text);
+}
+
+.blog-link {
+  font-size: 13px;
+  color: var(--accent);
+  cursor: pointer;
+  margin-top: 8px;
+  display: inline-block;
+}
+
+/* ===== §5 GRAVEYARD ===== */
+.graveyard-section {
+  opacity: 0.85;
+  position: relative;
+}
+
+.graveyard-row {
+  display: grid;
+  grid-template-columns: 1fr auto auto;
+  gap: 12px;
+  padding: 8px 0;
+  border-bottom: 1px dotted var(--purple);
+  font-size: 13px;
+  align-items: start;
+}
+
+.graveyard-row .gy-name { color: var(--text); }
+.graveyard-row .gy-status { color: var(--accent); white-space: nowrap; }
+.graveyard-row .gy-note { color: var(--muted); font-size: 12px; grid-column: 1 / -1; padding-left: 16px; }
+
+.graveyard-sorry {
+  position: absolute;
+  font-family: 'Permanent Marker', cursive;
+  color: var(--accent);
+  font-size: 48px;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%) rotate(5deg);
+  opacity: 0.25;
+  pointer-events: none;
+  z-index: 5;
+  white-space: nowrap;
+}
+
+/* ===== §6 CHATBOT ===== */
+.terminal-window {
+  background: #0D1A0D;
+  border: 1px solid var(--green);
+  padding: 24px;
+  font-size: 14px;
+  color: var(--green);
+  max-height: 500px;
+  overflow-y: auto;
+}
+
+.terminal-window .term-line {
+  margin-bottom: 8px;
+  line-height: 1.6;
+  word-wrap: break-word;
+  white-space: pre-wrap;
+}
+
+.terminal-window .term-prompt {
+  color: var(--green);
+}
+
+.terminal-window .term-response {
+  color: #5A9A6A;
+  padding-left: 16px;
+}
+
+.terminal-input-wrap {
+  display: flex;
+  align-items: center;
+  gap: 0;
+  margin-top: 8px;
+  background: #0D1A0D;
+  border: 1px solid var(--green);
+  border-top: none;
+  padding: 12px 24px;
+}
+
+.terminal-input-wrap .prompt-label {
+  color: var(--green);
+  white-space: nowrap;
+  font-size: 14px;
+  flex-shrink: 0;
+}
+
+.terminal-input-wrap input {
+  background: transparent;
+  border: none;
+  outline: none;
+  color: var(--green);
+  font-family: 'Fira Code', monospace;
+  font-size: 14px;
+  flex: 1;
+  min-width: 0;
+  padding: 4px 8px;
+  min-height: 44px;
+}
+
+/* ===== §7 COORDS ===== */
+.coord-row {
+  margin-bottom: 12px;
+  font-size: 14px;
+  line-height: 1.7;
+}
+
+.coord-label {
+  color: var(--muted);
+  font-size: 13px;
+}
+
+/* ===== §8 FOOTER ===== */
+.site-footer {
+  text-align: center;
+  padding: 48px 24px;
+  font-size: 13px;
+  color: var(--muted);
+  border-top: 1px dashed var(--purple);
+  margin-top: 32px;
+}
+
+.site-footer .footer-main {
+  color: var(--text);
+  font-size: 14px;
+  margin-bottom: 12px;
+}
+
+/* ===== IDLE FAX ===== */
+.idle-fax {
+  position: fixed;
+  bottom: 80px;
+  left: 24px;
+  font-style: italic;
+  color: var(--accent);
+  font-size: 14px;
+  z-index: 8000;
+  transition: opacity 1s;
+  pointer-events: none;
+  max-width: calc(100vw - 120px);
+}
+
+/* ===== KONAMI GAME ===== */
+.konami-overlay {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(10,10,15,0.95);
+  z-index: 9999;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.konami-overlay canvas {
+  border: 1px solid var(--green);
+  display: block;
+  max-width: 100%;
+}
+
+.konami-overlay .game-hud {
+  font-family: 'Fira Code', monospace;
+  color: var(--green);
+  font-size: 16px;
+  margin-bottom: 12px;
+  text-align: center;
+}
+
+.konami-overlay .game-msg {
+  font-family: 'Fira Code', monospace;
+  color: var(--green);
+  font-size: 14px;
+  margin-top: 12px;
+  text-align: center;
+}
+
+/* ===== LATE NIGHT ===== */
+.late-night-note {
+  font-family: 'Permanent Marker', cursive;
+  color: var(--muted);
+  font-size: 15px;
+  text-align: center;
+  padding: 16px;
+  animation: marker-float 8s ease-in-out infinite;
+  --rot: -1deg;
+}
+
+/* ===== RESPONSIVE ===== */
+@media (max-width: 768px) {
+  .section {
+    padding: 32px 20px;
+  }
+
+  .marker-note {
+    position: relative !important;
+    top: auto !important;
+    right: auto !important;
+    bottom: auto !important;
+    left: auto !important;
+    display: block;
+    margin: 16px 0;
+    max-width: 100%;
+    transform: rotate(var(--rot, 2deg));
+  }
+
+  .about-wrap .sticky-note {
+    position: relative;
+    right: auto;
+    top: auto;
+    margin: 16px 0;
+  }
+
+  .tiers-wrap > .marker-note {
+    position: relative !important;
+    right: auto !important;
+    bottom: auto !important;
+  }
+
+  .graveyard-row {
+    grid-template-columns: 1fr;
+    gap: 4px;
+  }
+
+  .graveyard-row .gy-status {
+    justify-self: start;
+  }
+
+  .counter-num {
+    font-size: clamp(56px, 12vw, 100px);
+  }
+
+  .hero .marker-note {
+    position: relative !important;
+    text-align: center;
+    margin-top: 24px;
+  }
+}
+
+@media (max-width: 480px) {
+  .section {
+    padding: 24px 16px;
+  }
+
+  .tier-block {
+    font-size: 12px;
+  }
+}
+</style>
+</head>
+<body x-data="eternalLoop()" x-init="boot()">
+
+<!-- ===== LATE NIGHT NOTE ===== -->
+<template x-if="isLateNight">
+  <div class="late-night-note">you're up late too, huh. warehouse never closes.</div>
+</template>
+
+<div class="page-wrap">
+
+<!-- ===== §0 HERO ===== -->
+<section class="hero section" style="border:none;">
+  <div class="marker-note" style="--rot: 3deg;">agatha if you're reading this through the fax machine: I kept it running.</div>
+  <div class="counter-num" x-text="formatCounter(counter)"></div>
+  <div class="counter-label">gadgets kept from landfill since 2027</div>
+  <div style="margin-top: 24px;">
+    <span class="blink-cursor">█</span>
+  </div>
+  <div class="hero-quote" x-html="typedQuote"></div>
+</section>
+
+<!-- ===== §1 WHAT IS THIS ===== -->
+<section class="section">
+  <div class="section-num">§1</div>
+  <div class="section-title">WHAT IS THIS</div>
+  <div class="about-wrap">
+    <div class="sticky-note">I wrote this at 3am. I stand by every word. — B</div>
+    <div class="about-text">ETERNAL LOOP — SERVICE MANUAL v4.7.2
+========================================
+
+Eternal Loop is a subscription parts service
+for electronics the world has decided to forget.
+
+We send you replacement components. You keep
+your stuff alive. That's the deal.
+
+Founded 2027 by Agatha Chen, who believed her
+grandfather's Realistic DX-440 shortwave radio
+deserved better than a landfill. She was right.
+
+I'm Barnaby Finch. I joined because my startup
+got acqui-hired into a company that made an app
+that rated other apps. I needed to touch
+something real again.
+
+Agatha disappeared in 2035. She said we had
+achieved "technological immortality" and walked
+out the warehouse door. The fax machine in the
+back still prints things only she would say,
+at hours only she would be awake.
+
+We operate out of a warehouse in Tacoma that
+smells like solder and the specific flavor of
+regret you get when you mass-order capacitors
+at 2am and they're all the wrong voltage.
+
+We are not a repair shop. We don't fix things
+for you. We send you the parts and believe in
+you. Sometimes that's enough.
+
+STATUS: OPERATIONAL.  MOOD: DEBATABLE.</div>
+  </div>
+</section>
+
+<!-- ===== §2 SUBSCRIPTION TIERS ===== -->
+<section class="section" x-data="{ hovered: null }">
+  <div class="section-num">§2</div>
+  <div class="section-title">SUBSCRIPTION TIERS</div>
+  <div class="tiers-wrap">
+
+    <div class="marker-note" style="--rot: -2deg; right: -20px; bottom: 80px;">please do not actually request the phone call at 3am. I will answer. that's the problem.</div>
+
+    <div class="tier-block">┌──────────────────────────────────────────┐
+│  RESISTOR TIER                   $9/mo   │
+│  ──────────────────────────────────────── │
+│  Basic capacitors, ribbon cables,        │
+│  thermal paste. The essentials.           │
+│  You keep the lights on.                  │
+│                                           │
+│  <span class="tier-enroll" @mouseenter="hovered='r'" @mouseleave="hovered=null" x-text="hovered==='r' ? '> ENROLL (coming soon, probably) <' : '> ENROLL ████████████████████████ <'"></span>  │
+└──────────────────────────────────────────┘</div>
+
+    <div class="tier-block t-capacitor">┌──────────────────────────────────────────┐
+│  CAPACITOR TIER                 $22/mo   │
+│  ──────────────────────────────────────── │
+│  Everything in Resistor, plus custom      │
+│  voltage regulators and obscure fuses.    │
+│  For the moderately committed.            │
+│                                           │
+│  <span class="tier-enroll" @mouseenter="hovered='c'" @mouseleave="hovered=null" x-text="hovered==='c' ? '> ENROLL (coming soon, probably) <' : '> ENROLL ████████████████████████ <'"></span>  │
+└──────────────────────────────────────────┘</div>
+
+    <div class="tier-block t-inductor">┌──────────────────────────────────────────┐
+│  INDUCTOR TIER                  $47/mo   │
+│  ──────────────────────────────────────── │
+│  Proprietary ribbon cables. CRT yokes.   │
+│  We 3D-print obsolete connectors for     │
+│  you. This tier has feelings.             │
+│                                           │
+│  <span class="tier-enroll" @mouseenter="hovered='i'" @mouseleave="hovered=null" x-text="hovered==='i' ? '> ENROLL (coming soon, probably) <' : '> ENROLL ████████████████████████ <'"></span>  │
+└──────────────────────────────────────────┘</div>
+
+    <div class="tier-block t-thermistor">┌──────────────────────────────────────────┐
+│  THERMISTOR TIER                $89/mo   │
+│  ──────────────────────────────────────── │
+│  Hand-wound transformers. NOS vacuum      │
+│  tubes. A quarterly zine about loss and   │
+│  through-hole soldering techniques.       │
+│                                           │
+│  <span class="tier-enroll" @mouseenter="hovered='t'" @mouseleave="hovered=null" x-text="hovered==='t' ? '> ENROLL (coming soon, probably) <' : '> ENROLL ████████████████████████ <'"></span>  │
+└──────────────────────────────────────────┘</div>
+
+    <div class="tier-block t-varistor">┌──────────────────────────────────────────┐
+│  VARISTOR TIER                 $149/mo   │
+│  ──────────────────────────────────────── │
+│  Everything. Hand-machined proprietary    │
+│  chips. Reverse-engineered logic boards.  │
+│  And a phone call with me where I cry a   │
+│  little. this is not a joke.              │
+│                                           │
+│  <span class="tier-enroll" @mouseenter="hovered='v'" @mouseleave="hovered=null" x-text="hovered==='v' ? '> ENROLL (coming soon, probably) <' : '> ENROLL ████████████████████████ <'"></span>  │
+└──────────────────────────────────────────┘</div>
+
+  </div>
+</section>
+
+<!-- ===== §3 WALL OF GRATITUDE ===== -->
+<section class="section" x-data="wallOfGratitude()">
+  <div class="section-num">§3</div>
+  <div class="section-title">WALL OF GRATITUDE — ACTIVE RESURRECTIONS</div>
+  <div>
+    <template x-for="(item, idx) in visibleItems" :key="item.id">
+      <div>
+        <template x-if="item.type === 'fax'">
+          <div class="fax-msg" x-text="item.text"></div>
+        </template>
+        <template x-if="item.type === 'card'">
+          <div class="wall-card">
+            <div class="gadget-name" x-text="item.name"></div>
+            <div class="gadget-status">
+              <span class="blink-led">●</span>
+              <span x-text="' STILL RUNNING — ' + item.days + ' DAYS'"></span>
+            </div>
+            <div class="gadget-testimonial" x-text="item.testimonial"></div>
+          </div>
+        </template>
+      </div>
+    </template>
+  </div>
+</section>
+
+<!-- ===== §4 BLOG ===== -->
+<section class="section" x-data="{ hoveredBlog: null }">
+  <div class="section-num">§4</div>
+  <div class="section-title">THE GHOST IN THE MACHINE</div>
+
+  <div class="blog-entry">
+    <div class="blog-title">REVERSE ENGINEERING THE PANASONIC RQ-2102 (1972)</div>
+    <div class="blog-date">2034-11-03 — barnaby finch</div>
+    <div class="blog-excerpt">The belt drive was supposed to be unreplaceable.
+Panasonic said so in 1972 and the internet agreed.
+Forty-seven failed attempts later, I have thoughts.</div>
+    <span class="blog-link" @mouseenter="hoveredBlog='b1'" @mouseleave="hoveredBlog=null" x-text="hoveredBlog==='b1' ? '[PERMALINK EXPIRED]' : 'READ MORE'"></span>
+  </div>
+
+  <div class="blog-entry">
+    <div class="blog-title">ON GRIEF AND SOLDER: A REPAIR PHILOSOPHY</div>
+    <div class="blog-date">2035-02-19 — barnaby finch</div>
+    <div class="blog-excerpt">Every repair is an argument with entropy. You will
+lose. You will lose every single time. But the
+argument itself is the point.</div>
+    <span class="blog-link" @mouseenter="hoveredBlog='b2'" @mouseleave="hoveredBlog=null" x-text="hoveredBlog==='b2' ? '[PERMALINK EXPIRED]' : 'READ MORE'"></span>
+  </div>
+
+  <div class="blog-entry">
+    <div class="blog-title">WHY YOUR TOASTER OUTLIVED YOUR SMARTPHONE (AND WHAT THAT MEANS)</div>
+    <div class="blog-date">2035-09-07 — barnaby finch</div>
+    <div class="blog-excerpt">Your grandmother's toaster has heated 43,000 slices
+of bread and still works. Your phone lasted 26
+months. This is not an accident.</div>
+    <span class="blog-link" @mouseenter="hoveredBlog='b3'" @mouseleave="hoveredBlog=null" x-text="hoveredBlog==='b3' ? '[PERMALINK EXPIRED]' : 'READ MORE'"></span>
+  </div>
+</section>
+
+<!-- ===== §5 PART REQUEST GRAVEYARD ===== -->
+<section class="section graveyard-section">
+  <div class="section-num">§5</div>
+  <div class="section-title">PART REQUEST GRAVEYARD</div>
+  <div class="graveyard-sorry">I'm sorry</div>
+
+  <div class="graveyard-row">
+    <span class="gy-name">Sony CCD-TRV138 Imaging Sensor</span>
+    <span class="gy-status">2031-08-14 | UNFULFILLABLE</span>
+    <span class="gy-note">(we tried. we really tried. if you find one at a flea market, call me.)</span>
+  </div>
+  <div class="graveyard-row">
+    <span class="gy-name">Commodore 1541 Drive Head Assembly</span>
+    <span class="gy-status">2029-03-22 | UNFULFILLABLE</span>
+    <span class="gy-note">(the last known one was in a museum in Stuttgart. they said no.)</span>
+  </div>
+  <div class="graveyard-row">
+    <span class="gy-name">Texas Instruments TMS9918A VDP</span>
+    <span class="gy-status">2032-11-01 | UNFULFILLABLE</span>
+    <span class="gy-note">(I emailed every semiconductor broker on earth. twice.)</span>
+  </div>
+  <div class="graveyard-row">
+    <span class="gy-name">Yamaha OPL3 FM Synthesis Chip</span>
+    <span class="gy-status">2030-06-18 | UNFULFILLABLE</span>
+    <span class="gy-note">(there are clones but they don't sound right and you know it.)</span>
+  </div>
+  <div class="graveyard-row">
+    <span class="gy-name">Sharp LR35902 (Game Boy CPU)</span>
+    <span class="gy-status">2033-01-09 | UNFULFILLABLE</span>
+    <span class="gy-note">(donor boards exist but harvesting one felt like organ theft.)</span>
+  </div>
+  <div class="graveyard-row">
+    <span class="gy-name">Philips SAA1099 Sound Generator</span>
+    <span class="gy-status">2031-12-04 | UNFULFILLABLE</span>
+    <span class="gy-note">(the factory that made these is now a parking garage. I checked.)</span>
+  </div>
+  <div class="graveyard-row">
+    <span class="gy-name">Polaroid SX-70 Sonar Transducer</span>
+    <span class="gy-status">2034-04-27 | UNFULFILLABLE</span>
+    <span class="gy-note">(I drove to three estate sales in one weekend. nothing.)</span>
+  </div>
+</section>
+
+<!-- ===== §6 CHATBOT ===== -->
+<section class="section" x-data="terminalChat()">
+  <div class="section-num">§6</div>
+  <div class="section-title">SERVICE TERMINAL</div>
+  <div class="terminal-window" x-ref="termOutput">
+    <div class="term-line"><span class="term-prompt">eternal-loop@warehouse:~$</span> welcome</div>
+    <div class="term-line term-response">ETERNAL LOOP SERVICE TERMINAL v2.1.4
+Type anything. The machine is listening.</div>
+    <template x-for="(entry, idx) in history" :key="idx">
+      <div>
+        <div class="term-line"><span class="term-prompt">eternal-loop@warehouse:~$</span> <span x-text="entry.input"></span></div>
+        <div class="term-line term-response" x-html="entry.output"></div>
+      </div>
+    </template>
+  </div>
+  <div class="terminal-input-wrap">
+    <span class="prompt-label">eternal-loop@warehouse:~$&nbsp;</span>
+    <input type="text"
+      x-ref="termInput"
+      @keydown.enter="submitQuery()"
+      placeholder="type something..."
+      maxlength="200"
+      autocomplete="off">
+  </div>
+</section>
+
+<!-- ===== §7 E-WASTE GRAVEYARD TOURS ===== -->
+<section class="section">
+  <div class="section-num">§7</div>
+  <div class="section-title">E-WASTE GRAVEYARD TOURS</div>
+
+  <div class="coord-row">
+    <div>47.2529° N, 122.4443° W</div>
+    <div class="coord-label">TACOMA, WA — THE WAREHOUSE (COME VISIT. DOOR'S OPEN.)</div>
+  </div>
+  <div class="coord-row">
+    <div>37.7749° N, 122.4194° W</div>
+    <div class="coord-label">SAN FRANCISCO, CA — THE BAYVIEW CIRCUIT GRAVEYARD</div>
+  </div>
+  <div class="coord-row">
+    <div>40.7128° N, 74.0060° W</div>
+    <div class="coord-label">NEW YORK, NY — RED HOOK COMPONENT OSSUARY</div>
+  </div>
+  <div class="coord-row">
+    <div>51.5074° N, 0.1278° W</div>
+    <div class="coord-label">LONDON, UK — DEPTFORD SILICON MEMORIAL</div>
+  </div>
+  <div class="coord-row">
+    <div>35.6762° N, 139.6503° E</div>
+    <div class="coord-label">TOKYO, JP — AKIHABARA QUIET COLLECTION</div>
+  </div>
+
+  <div style="margin-top: 32px; font-size: 14px; color: var(--muted); line-height: 1.8;">
+    "every landfill is a mass grave for things that
+still worked." — agatha chen, 2034, three months
+before she disappeared
+  </div>
+</section>
+
+</div><!-- /page-wrap -->
+
+<!-- ===== §8 FOOTER ===== -->
+<footer class="site-footer">
+  <div class="footer-main">© 2027–∞ ETERNAL LOOP. TACOMA, WA. NOTHING ENDS.</div>
+  <div>est. from grief. maintained through stubbornness. if the fax machine prints something while you're reading this, it's for you.</div>
+</footer>
+
+<!-- IDLE FAX -->
+<div class="idle-fax" x-show="showIdleFax" x-transition:enter="transition: opacity 1s" style="display: none;" :style="{ opacity: showIdleFax ? 1 : 0 }">
+  [INCOMING FAX... "are you still there? good. don't leave." — A.C.]
+</div>
+
+<!-- KONAMI GAME OVERLAY -->
+<template x-if="konamiActive">
+  <div class="konami-overlay" @keydown.escape.window="closeKonami()">
+    <div class="game-hud">
+      <span x-show="!gameOver">CATCH THE COMPONENTS | SCORE: <span x-text="gameScore"></span> | TIME: <span x-text="gameTime"></span>s</span>
+      <span x-show="gameOver">GAME OVER — SCORE: <span x-text="gameScore"></span> | HIGH SCORE: <span x-text="gameHigh"></span></span>
+    </div>
+    <canvas x-ref="gameCanvas" width="400" height="500"></canvas>
+    <div class="game-msg">
+      <span x-show="!gameOver">← → to move | catch falling components</span>
+      <span x-show="gameOver">press ESCAPE to close</span>
+    </div>
+  </div>
+</template>
+
+<script src="/assets/js/alpine.min.js" defer></script>
+<script>
+document.addEventListener('alpine:init', function() {
+
+  // ===== MAIN APP =====
+  Alpine.data('eternalLoop', function() {
+    return {
+      counter: 41207,
+      typedQuote: '',
+      showIdleFax: false,
+      isLateNight: false,
+      konamiActive: false,
+      konamiSeq: [],
+      gameScore: 0,
+      gameTime: 30,
+      gameOver: false,
+      gameHigh: 0,
+      _idleFaxShown: false,
+      _idleTimer: null,
+      _counterInterval: null,
+      _gameInterval: null,
+      _gameAnimFrame: null,
+
+      boot: function() {
+        this.initCounter();
+        this.startTyping();
+        this.checkLateNight();
+        this.initKonami();
+        this.initIdleDetection();
+      },
+
+      // --- Counter ---
+      initCounter: function() {
+        var stored = localStorage.getItem('el_counter');
+        var lastTime = localStorage.getItem('el_counter_time');
+        if (stored && lastTime) {
+          var elapsed = (Date.now() - parseInt(lastTime)) / 1000;
+          var increments = Math.floor(elapsed / 12);
+          this.counter = parseInt(stored) + increments;
+        }
+        this.saveCounter();
+        this.scheduleIncrement();
+      },
+
+      scheduleIncrement: function() {
+        var self = this;
+        var delay = (Math.random() * 7000) + 8000;
+        self._counterInterval = setTimeout(function() {
+          self.counter++;
+          self.saveCounter();
+          self.scheduleIncrement();
+        }, delay);
+      },
+
+      saveCounter: function() {
+        localStorage.setItem('el_counter', this.counter);
+        localStorage.setItem('el_counter_time', Date.now());
+      },
+
+      formatCounter: function(n) {
+        return n.toLocaleString();
+      },
+
+      // --- Typing Effect ---
+      startTyping: function() {
+        var self = this;
+        var text = '"we don\'t fix things. we refuse to let them die." — barnaby finch, 4:17am, warehouse floor';
+        var idx = 0;
+        setTimeout(function() {
+          function typeChar() {
+            if (idx < text.length) {
+              self.typedQuote = text.substring(0, idx + 1) + '<span class="blink-cursor">█</span>';
+              idx++;
+              var delay = 30 + Math.random() * 70;
+              if (text[idx - 1] === '.' || text[idx - 1] === ',') delay += 150;
+              if (text[idx - 1] === '—') delay += 200;
+              setTimeout(typeChar, delay);
+            } else {
+              self.typedQuote = text + '<span class="blink-cursor">█</span>';
+            }
+          }
+          typeChar();
+        }, 3000);
+      },
+
+      // --- Late Night ---
+      checkLateNight: function() {
+        var h = new Date().getHours();
+        this.isLateNight = (h >= 1 && h < 5);
+      },
+
+      // --- Konami Code ---
+      initKonami: function() {
+        var self = this;
+        var code = ['ArrowUp','ArrowUp','ArrowDown','ArrowDown','ArrowLeft','ArrowRight','ArrowLeft','ArrowRight','b','a'];
+        document.addEventListener('keydown', function(e) {
+          if (self.konamiActive) return;
+          self.konamiSeq.push(e.key);
+          if (self.konamiSeq.length > code.length) {
+            self.konamiSeq.shift();
+          }
+          if (self.konamiSeq.length === code.length) {
+            var match = true;
+            for (var i = 0; i < code.length; i++) {
+              if (self.konamiSeq[i] !== code[i]) { match = false; break; }
+            }
+            if (match) {
+              self.activateKonami();
+            }
+          }
+        });
+      },
+
+      activateKonami: function() {
+        document.body.classList.add('konami-mode');
+        this.konamiActive = true;
+        this.gameScore = 0;
+        this.gameTime = 30;
+        this.gameOver = false;
+        this.gameHigh = parseInt(localStorage.getItem('el_game_high') || '0');
+        var self = this;
+        this.$nextTick(function() {
+          self.startGame();
+        });
+      },
+
+      closeKonami: function() {
+        this.konamiActive = false;
+        document.body.classList.remove('konami-mode');
+        this.konamiSeq = [];
+        if (this._gameInterval) clearInterval(this._gameInterval);
+        if (this._gameAnimFrame) cancelAnimationFrame(this._gameAnimFrame);
+      },
+
+      startGame: function() {
+        var self = this;
+        var canvas = this.$refs.gameCanvas;
+        if (!canvas) return;
+        var ctx = canvas.getContext('2d');
+        var W = canvas.width;
+        var H = canvas.height;
+        var paddle = { x: W / 2 - 30, w: 60, h: 12 };
+        var parts = [];
+        var colors = ['#FF4500', '#2A5A3A', '#F0F8FF', '#6B6B7B', '#FFD700'];
+        var labels = ['RES', 'CAP', 'IND', 'DIO', 'FUS'];
+        var keys = {};
+
+        document.addEventListener('keydown', function handler(e) {
+          keys[e.key] = true;
+          if (!self.konamiActive) {
+            document.removeEventListener('keydown', handler);
+          }
+        });
+        document.addEventListener('keyup', function handler(e) {
+          keys[e.key] = false;
+          if (!self.konamiActive) {
+            document.removeEventListener('keyup', handler);
+          }
+        });
+
+        var spawnTimer = 0;
+
+        self._gameInterval = setInterval(function() {
+          if (self.gameOver) return;
+          self.gameTime--;
+          if (self.gameTime <= 0) {
+            self.gameOver = true;
+            if (self.gameScore > self.gameHigh) {
+              self.gameHigh = self.gameScore;
+              localStorage.setItem('el_game_high', self.gameHigh);
+            }
+            clearInterval(self._gameInterval);
+          }
+        }, 1000);
+
+        function loop() {
+          if (!self.konamiActive) return;
+          ctx.fillStyle = '#0A0A0F';
+          ctx.fillRect(0, 0, W, H);
+
+          if (keys['ArrowLeft'] && paddle.x > 0) paddle.x -= 5;
+          if (keys['ArrowRight'] && paddle.x < W - paddle.w) paddle.x += 5;
+
+          ctx.fillStyle = '#2A5A3A';
+          ctx.fillRect(paddle.x, H - 30, paddle.w, paddle.h);
+
+          spawnTimer++;
+          if (spawnTimer > 40 && !self.gameOver) {
+            spawnTimer = 0;
+            var ci = Math.floor(Math.random() * colors.length);
+            parts.push({
+              x: Math.random() * (W - 20),
+              y: -20,
+              w: 20, h: 14,
+              speed: 1.5 + Math.random() * 2,
+              color: colors[ci],
+              label: labels[ci]
+            });
+          }
+
+          for (var i = parts.length - 1; i >= 0; i--) {
+            var p = parts[i];
+            if (!self.gameOver) p.y += p.speed;
+            ctx.fillStyle = p.color;
+            ctx.fillRect(p.x, p.y, p.w, p.h);
+            ctx.fillStyle = '#0A0A0F';
+            ctx.font = '8px monospace';
+            ctx.fillText(p.label, p.x + 2, p.y + 10);
+
+            if (p.y + p.h >= H - 30 && p.y + p.h <= H - 18 &&
+                p.x + p.w > paddle.x && p.x < paddle.x + paddle.w) {
+              self.gameScore += 10;
+              parts.splice(i, 1);
+            } else if (p.y > H) {
+              parts.splice(i, 1);
+            }
+          }
+
+          self._gameAnimFrame = requestAnimationFrame(loop);
+        }
+        loop();
+      },
+
+      // --- Idle Detection ---
+      initIdleDetection: function() {
+        var self = this;
+        function resetIdle() {
+          if (self.showIdleFax) {
+            self.showIdleFax = false;
+          }
+          clearTimeout(self._idleTimer);
+          if (self._idleFaxShown) return;
+          self._idleTimer = setTimeout(function() {
+            if (!self._idleFaxShown) {
+              self.showIdleFax = true;
+              self._idleFaxShown = true;
+              sessionStorage.setItem('el_idle_fax', '1');
+            }
+          }, 60000);
+        }
+        if (sessionStorage.getItem('el_idle_fax')) {
+          self._idleFaxShown = true;
+        } else {
+          document.addEventListener('mousemove', resetIdle);
+          document.addEventListener('scroll', resetIdle);
+          document.addEventListener('keydown', resetIdle);
+          document.addEventListener('touchstart', resetIdle);
+          resetIdle();
+        }
+      }
+    };
+  });
+
+  // ===== WALL OF GRATITUDE =====
+  Alpine.data('wallOfGratitude', function() {
+    return {
+      allEntries: [
+        { id: 1, type: 'card', name: 'FURBY (1998, TIGER ELECTRONICS)', baseDays: 847, testimonial: '"It recognized my voice again after sixteen years in a closet. I am not okay." — Marcus T.' },
+        { id: 2, type: 'card', name: 'SONY WALKMAN TPS-L2 (1979)', baseDays: 1203, testimonial: '"Plays my dead mother\'s mixtape. That\'s all I needed it to do." — Lin R.' },
+        { id: 3, type: 'fax', text: '[FAX RECEIVED 02:41 — "the furby remembers me. i\'m not gone." — A.C.]' },
+        { id: 4, type: 'card', name: 'TEXAS INSTRUMENTS TI-99/4A (1981)', baseDays: 962, testimonial: '"My first computer. It still boots. I still cry." — David K.' },
+        { id: 5, type: 'card', name: 'PANASONIC RQ-2102 (1972)', baseDays: 1544, testimonial: '"The belt drive Barnaby sent me was hand-lathed from a drawing I faxed in. Insane." — Yuki M.' },
+        { id: 6, type: 'card', name: 'NINTENDO GAME BOY (1989)', baseDays: 711, testimonial: '"Tetris still hits different on hardware that survived Desert Storm." — SGT. A. Powell' },
+        { id: 7, type: 'fax', text: '[FAX RECEIVED 04:03 — "the capacitors are singing. can you hear them?" — A.C.]' },
+        { id: 8, type: 'card', name: 'COMMODORE 64 (1982)', baseDays: 1891, testimonial: '"Load \"*\",8,1 and I\'m twelve again. Worth every penny." — Rachel S.' },
+        { id: 9, type: 'card', name: 'ZENITH SPACE COMMAND TV (1956)', baseDays: 2103, testimonial: '"The ultrasonic remote still works. My dog hates it. I love it." — Tom B.' },
+        { id: 10, type: 'card', name: 'REALISTIC DX-440 SHORTWAVE (1989)', baseDays: 2847, testimonial: '"This was Agatha\'s grandfather\'s. It started everything. It still picks up Radio Havana." — Barnaby F.' },
+        { id: 11, type: 'fax', text: '[FAX RECEIVED 03:17 — "tell them i\'m proud. tell them nothing is wasted." — A.C.]' },
+        { id: 12, type: 'card', name: 'APPLE NEWTON MESSAGEPAD (1993)', baseDays: 431, testimonial: '"Handwriting recognition still terrible. Wouldn\'t change a thing." — Janet L.' },
+        { id: 13, type: 'card', name: 'TOSHIBA T1000 LAPTOP (1987)', baseDays: 1022, testimonial: '"Runs my grandfather\'s accounting software. He trusts nothing else." — Amit P.' },
+        { id: 14, type: 'card', name: 'POLAROID SX-70 (1972)', baseDays: 658, testimonial: '"The sonar failed but Barnaby found a transducer from god knows where." — Elena V.' },
+      ],
+      visibleItems: [],
+      currentIndex: 0,
+      dayOffset: 0,
+      _timer: null,
+      _dayTimer: null,
+
+      init: function() {
+        this.visibleItems = this.getSlice(0, 5);
+        this.currentIndex = 5;
+        this.startRotation();
+        this.startDayCounter();
+      },
+
+      getSlice: function(start, count) {
+        var result = [];
+        for (var i = 0; i < count; i++) {
+          var entry = this.allEntries[(start + i) % this.allEntries.length];
+          result.push(Object.assign({}, entry, {
+            days: entry.baseDays ? entry.baseDays + this.dayOffset : undefined
+          }));
+        }
+        return result;
+      },
+
+      startRotation: function() {
+        var self = this;
+        self._timer = setInterval(function() {
+          self.visibleItems.shift();
+          var next = self.allEntries[self.currentIndex % self.allEntries.length];
+          self.visibleItems.push(Object.assign({}, next, {
+            days: next.baseDays ? next.baseDays + self.dayOffset : undefined
+          }));
+          self.currentIndex++;
+        }, 6000);
+      },
+
+      startDayCounter: function() {
+        var self = this;
+        self._dayTimer = setInterval(function() {
+          self.dayOffset++;
+          for (var i = 0; i < self.visibleItems.length; i++) {
+            if (self.visibleItems[i].baseDays) {
+              self.visibleItems[i].days = self.visibleItems[i].baseDays + self.dayOffset;
+            }
+          }
+        }, 10000);
+      }
+    };
+  });
+
+  // ===== TERMINAL CHAT =====
+  Alpine.data('terminalChat', function() {
+    return {
+      history: [],
+      responses: [
+        'Per Section 4.2: Before replacing any component, ask yourself: is the component truly broken, or have you simply forgotten how to listen to it?',
+        'CAUTION: Do not expose unit to direct sunlight, excessive moisture, or the passage of time.',
+        'If unit fails to respond, verify that you have not already given up.',
+        'WARNING: Manufacturer warranty voided by hope. Proceed anyway.',
+        'Refer to Appendix C: On the Distinction Between "Broken" and "Waiting to Be Understood."',
+        'NOTICE: This component was designed to be replaced. We respectfully disagree.',
+        'Per field manual §7: If the solder joint looks like it was made by someone crying, it was probably Barnaby. It will hold.',
+        'ERROR 404: Planned obsolescence not found. Good.',
+        'DIAGNOSTIC: Unit is functioning within acceptable parameters for something that should have died in 2019.',
+        'See also: The Paradox of the Ship of Theseus, Applied to a 1997 Furby.',
+        'ADVISORY: Do not discard unit. Do not discard anything. This is both repair advice and life advice.',
+        'Per Section 12.1: The hum you hear is not a defect. It is the sound of something that refuses to be silent.',
+        'CAUTION: Replacement parts may arrive wrapped in a page from Barnaby\'s journal. This is not intentional. He ran out of bubble wrap.',
+        'If all else fails, hold the unit close and tell it you are sorry for leaving it in the garage.',
+        'REMINDER: Every tool in this warehouse was once broken. Everything here got a second chance. Including Barnaby.',
+        'Per Agatha Chen, Memo 2034-09: "If the machine still hums, it still has something to say."',
+        'NOTICE: Your repair ticket has been filed under "acts of defiance against the heat death of the universe."',
+        'Per Section 0.1: There are no stupid questions. There are only components that haven\'t been listened to yet.'
+      ],
+      unusedIndices: [],
+      typing: false,
+
+      init: function() {
+        this.resetPool();
+      },
+
+      resetPool: function() {
+        this.unusedIndices = [];
+        for (var i = 0; i < this.responses.length; i++) {
+          this.unusedIndices.push(i);
+        }
+        this.shuffleArray(this.unusedIndices);
+      },
+
+      shuffleArray: function(arr) {
+        for (var i = arr.length - 1; i > 0; i--) {
+          var j = Math.floor(Math.random() * (i + 1));
+          var tmp = arr[i];
+          arr[i] = arr[j];
+          arr[j] = tmp;
+        }
+      },
+
+      submitQuery: function() {
+        if (this.typing) return;
+        var input = this.$refs.termInput.value.trim();
+        if (!input) return;
+        this.$refs.termInput.value = '';
+
+        if (this.unusedIndices.length === 0) {
+          this.resetPool();
+        }
+        var idx = this.unusedIndices.pop();
+        var response = this.responses[idx];
+
+        var entry = { input: input, output: '' };
+        this.history.push(entry);
+
+        if (this.history.length > 10) {
+          this.history.shift();
+        }
+
+        this.typing = true;
+        var self = this;
+        var charIdx = 0;
+
+        function typeNext() {
+          if (charIdx < response.length) {
+            entry.output = response.substring(0, charIdx + 1);
+            charIdx++;
+            setTimeout(typeNext, 40);
+          } else {
+            self.typing = false;
+            self.$nextTick(function() {
+              if (self.$refs.termOutput) {
+                self.$refs.termOutput.scrollTop = self.$refs.termOutput.scrollHeight;
+              }
+            });
+          }
+        }
+        typeNext();
+      }
+    };
+  });
+
+});
+</script>
+</body>
+</html>

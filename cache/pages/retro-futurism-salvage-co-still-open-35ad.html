@@ -1,0 +1,1009 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Retro Futurism Salvage Co. — Still Open</title>
+<link rel="stylesheet" href="/assets/css/fonts.css">
+<script defer src="/assets/js/alpine.min.js"></script>
+<script src="/assets/js/gsap.min.js"></script>
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --void-indigo: #3D1C8C;
+  --cyber-grape: #6B3FA0;
+  --dead-pink: #D4A0A0;
+  --terminal-green: #39FF85;
+  --static-white: #E8E4F0;
+  --battery-acid: #C8FF00;
+  --deep-room: #1E1433;
+  --near-black: #0D0A14;
+}
+
+html { scroll-behavior: smooth; }
+
+body {
+  font-family: 'Fira Code', monospace;
+  background: var(--void-indigo);
+  color: var(--static-white);
+  font-size: 16px;
+  line-height: 1.6;
+  overflow-x: hidden;
+  min-height: 100vh;
+}
+
+body.glitch-on {
+  filter: hue-rotate(15deg) contrast(1.1);
+}
+
+body.glitch-on::before {
+  content: '';
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: repeating-linear-gradient(
+    0deg,
+    transparent,
+    transparent 2px,
+    rgba(0,0,0,0.15) 2px,
+    rgba(0,0,0,0.15) 4px
+  );
+  pointer-events: none;
+  z-index: 9998;
+}
+
+body.glitch-on * {
+  text-shadow: 2px 0 #ff0066, -2px 0 #00ffcc !important;
+}
+
+/* ===== NOISE TEXTURE ===== */
+.noise-bg {
+  position: relative;
+}
+.noise-bg::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+  background-size: 256px 256px;
+  pointer-events: none;
+  z-index: 0;
+}
+.noise-bg > * { position: relative; z-index: 1; }
+
+/* ===== FONTS ===== */
+.font-system { font-family: 'Fira Code', monospace; }
+.font-hand { font-family: 'Caveat', cursive; }
+.font-display { font-family: 'Unbounded', sans-serif; }
+
+/* ===== SECTION: THE DOOR ===== */
+.the-door {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 2rem;
+  background: var(--void-indigo);
+}
+
+.neon-sign {
+  font-family: 'Unbounded', sans-serif;
+  font-size: clamp(1.6rem, 5vw, 3.5rem);
+  color: var(--terminal-green);
+  text-shadow:
+    0 0 10px var(--terminal-green),
+    0 0 40px var(--terminal-green),
+    0 0 80px rgba(57, 255, 133, 0.4);
+  animation: neon-flicker 4s infinite;
+  letter-spacing: 0.05em;
+  max-width: 90vw;
+}
+
+@keyframes neon-flicker {
+  0% { opacity: 1; }
+  4% { opacity: 0.3; }
+  6% { opacity: 1; }
+  50% { opacity: 1; }
+  52% { opacity: 0.6; }
+  53% { opacity: 1; }
+  100% { opacity: 1; }
+}
+
+.door-subtitle {
+  font-family: 'Fira Code', monospace;
+  font-size: clamp(0.7rem, 1.5vw, 0.85rem);
+  color: var(--static-white);
+  margin-top: 1.5rem;
+  position: relative;
+}
+
+.door-subtitle .gone-mark {
+  font-family: 'Caveat', cursive;
+  color: var(--dead-pink);
+  font-size: 1.3em;
+  position: relative;
+}
+
+.door-subtitle .struck {
+  text-decoration: line-through;
+  text-decoration-color: var(--dead-pink);
+}
+
+.blink-cursor {
+  display: inline-block;
+  color: var(--terminal-green);
+  font-size: 1.5rem;
+  margin-top: 3rem;
+  animation: blink-step 1s step-end infinite;
+}
+
+@keyframes blink-step {
+  0%, 50% { opacity: 1; }
+  51%, 100% { opacity: 0; }
+}
+
+/* ===== SECTION: FRONT COUNTER ===== */
+.front-counter {
+  background: var(--void-indigo);
+  padding: 6rem 2rem;
+}
+
+.log-container {
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+.log-line {
+  margin-bottom: 0.75rem;
+  font-size: clamp(0.8rem, 1.8vw, 0.95rem);
+  line-height: 1.7;
+  opacity: 0;
+  transform: translateY(20px);
+}
+
+.log-line .prompt {
+  color: var(--terminal-green);
+}
+
+.log-line.personal {
+  color: var(--dead-pink);
+}
+
+/* ===== SECTION: SHOWROOM ===== */
+.showroom {
+  background: var(--void-indigo);
+  padding: 4rem 2rem 6rem;
+}
+
+.showroom-title {
+  font-family: 'Unbounded', sans-serif;
+  font-size: clamp(1.4rem, 3vw, 2rem);
+  color: var(--static-white);
+  text-align: center;
+  margin-bottom: 3rem;
+}
+
+.product-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 1.5rem;
+  max-width: 1100px;
+  margin: 0 auto;
+}
+
+.product-card {
+  border: 2px solid var(--static-white);
+  padding: 1.5rem;
+  background: rgba(107, 63, 160, 0.25);
+  transition: background 0.3s;
+}
+
+.product-card:hover {
+  background: rgba(107, 63, 160, 0.5);
+}
+
+.product-name {
+  font-family: 'Unbounded', sans-serif;
+  font-size: 0.95rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 0.5rem;
+  color: var(--static-white);
+}
+
+.product-desc {
+  font-size: 0.8rem;
+  color: var(--static-white);
+  margin-bottom: 0.75rem;
+  line-height: 1.5;
+}
+
+.product-status {
+  display: inline-block;
+  font-size: 0.7rem;
+  padding: 0.2rem 0.5rem;
+  border: 1px solid;
+  margin-bottom: 0.5rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+}
+
+.status-operational { color: var(--terminal-green); border-color: var(--terminal-green); }
+.status-glitchy { color: var(--battery-acid); border-color: var(--battery-acid); }
+.status-dead { color: var(--dead-pink); border-color: var(--dead-pink); text-decoration: line-through; }
+
+.product-price {
+  font-size: 1.1rem;
+  color: var(--terminal-green);
+  margin-top: 0.5rem;
+  font-weight: 700;
+}
+
+.mortality-toggle {
+  display: inline-block;
+  margin-top: 0.75rem;
+  font-size: 0.75rem;
+  color: var(--dead-pink);
+  cursor: pointer;
+  background: none;
+  border: none;
+  border-bottom: 1px dashed var(--dead-pink);
+  font-family: 'Fira Code', monospace;
+  padding: 0;
+  min-height: 44px;
+  line-height: 44px;
+}
+
+.mortality-report {
+  font-family: 'Caveat', cursive;
+  font-size: 1.15rem;
+  color: var(--dead-pink);
+  margin-top: 0.75rem;
+  padding: 0.75rem;
+  background: rgba(212, 160, 160, 0.08);
+  border-left: 2px solid var(--dead-pink);
+  line-height: 1.5;
+}
+
+/* ===== SECTION: LENS LAGER ===== */
+.lens-lager {
+  background: var(--deep-room);
+  padding: 5rem 2rem;
+}
+
+.forum-container {
+  max-width: 750px;
+  margin: 0 auto;
+  border: 1px solid rgba(232, 228, 240, 0.2);
+  box-shadow: inset 0 0 30px rgba(0,0,0,0.5);
+  padding: 1.5rem;
+}
+
+.forum-title {
+  font-family: 'Unbounded', sans-serif;
+  font-size: clamp(0.75rem, 2vw, 0.95rem);
+  color: var(--battery-acid);
+  margin-bottom: 1.5rem;
+  padding-bottom: 0.75rem;
+  border-bottom: 1px solid rgba(232, 228, 240, 0.15);
+}
+
+.forum-post {
+  display: flex;
+  gap: 1rem;
+  padding: 1rem 0;
+  border-bottom: 1px solid rgba(232, 228, 240, 0.08);
+  align-items: flex-start;
+}
+
+.forum-post:last-child { border-bottom: none; }
+
+.forum-avatar {
+  width: 40px;
+  height: 40px;
+  min-width: 40px;
+  border-radius: 50%;
+  background: var(--cyber-grape);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.7rem;
+  color: var(--static-white);
+  filter: grayscale(50%);
+  font-family: 'Fira Code', monospace;
+}
+
+.forum-user {
+  font-size: 0.75rem;
+  color: var(--terminal-green);
+  margin-bottom: 0.3rem;
+}
+
+.forum-user .banned {
+  color: #FF4444;
+  font-size: 0.65rem;
+  margin-left: 0.5rem;
+}
+
+.forum-text {
+  font-size: 0.8rem;
+  color: var(--static-white);
+  line-height: 1.6;
+}
+
+.forum-text.mod-post {
+  color: var(--dead-pink);
+  font-style: italic;
+}
+
+.forum-date {
+  font-size: 0.6rem;
+  color: rgba(232, 228, 240, 0.4);
+  margin-top: 0.3rem;
+}
+
+/* ===== SECTION: AS-IS GRAVEYARD ===== */
+.graveyard {
+  background: var(--near-black);
+  padding: 6rem 2rem;
+}
+
+.graveyard-title {
+  font-family: 'Unbounded', sans-serif;
+  font-size: clamp(1.5rem, 4vw, 2.5rem);
+  text-align: center;
+  margin-bottom: 0.75rem;
+  color: var(--static-white);
+}
+
+.graveyard-title span {
+  display: inline-block;
+  animation: breathe 4s ease-in-out infinite;
+}
+
+@keyframes breathe {
+  0%, 100% { opacity: 0.5; }
+  50% { opacity: 1; }
+}
+
+.graveyard-sub {
+  font-family: 'Caveat', cursive;
+  color: var(--dead-pink);
+  text-align: center;
+  font-size: 1.3rem;
+  margin-bottom: 3rem;
+}
+
+.graveyard-card {
+  max-width: 700px;
+  margin: 0 auto 2rem;
+  padding: 2rem;
+  border: 1px solid rgba(212, 160, 160, 0.2);
+  background: rgba(212, 160, 160, 0.04);
+  animation: drift 6s ease-in-out infinite;
+}
+
+@keyframes drift {
+  0% { transform: translateX(0); }
+  50% { transform: translateX(2px); }
+  100% { transform: translateX(0); }
+}
+
+.graveyard-card:nth-child(even) {
+  animation-delay: -3s;
+}
+
+.graveyard-item-name {
+  font-family: 'Unbounded', sans-serif;
+  font-size: 1rem;
+  text-decoration: line-through;
+  color: var(--static-white);
+  margin-bottom: 0.75rem;
+}
+
+.cause-of-death {
+  font-size: 0.75rem;
+  color: var(--battery-acid);
+  margin-bottom: 0.75rem;
+}
+
+.graveyard-report {
+  font-family: 'Caveat', cursive;
+  font-size: 1.2rem;
+  color: var(--dead-pink);
+  line-height: 1.5;
+  margin-bottom: 0.75rem;
+}
+
+.graveyard-price {
+  font-size: 0.85rem;
+  color: var(--terminal-green);
+}
+
+/* ===== SECTION: PET CEMETERY ===== */
+.pet-cemetery {
+  background: var(--near-black);
+  padding: 5rem 2rem;
+}
+
+.cemetery-title {
+  font-family: 'Unbounded', sans-serif;
+  font-size: clamp(1.4rem, 3vw, 2rem);
+  text-align: center;
+  color: var(--static-white);
+  margin-bottom: 0.5rem;
+}
+
+.cemetery-sub {
+  font-family: 'Fira Code', monospace;
+  font-size: 0.8rem;
+  text-align: center;
+  color: var(--static-white);
+  margin-bottom: 2.5rem;
+}
+
+.cemetery-form {
+  max-width: 500px;
+  margin: 0 auto;
+}
+
+.form-group {
+  margin-bottom: 1.25rem;
+}
+
+.form-group label {
+  display: block;
+  font-size: 0.75rem;
+  color: var(--terminal-green);
+  margin-bottom: 0.3rem;
+  font-family: 'Fira Code', monospace;
+}
+
+.form-group input,
+.form-group select,
+.form-group textarea {
+  width: 100%;
+  background: rgba(232, 228, 240, 0.06);
+  border: 1px solid rgba(232, 228, 240, 0.2);
+  color: var(--static-white);
+  font-family: 'Caveat', cursive;
+  font-size: 1.15rem;
+  padding: 0.75rem;
+  border-radius: 0;
+  outline: none;
+  transition: border-color 0.2s;
+  min-height: 44px;
+}
+
+.form-group input:focus,
+.form-group select:focus,
+.form-group textarea:focus {
+  border-color: var(--terminal-green);
+}
+
+.form-group textarea {
+  min-height: 100px;
+  resize: vertical;
+}
+
+.form-group select {
+  appearance: none;
+  cursor: pointer;
+}
+
+.form-group select option {
+  background: var(--near-black);
+  color: var(--static-white);
+}
+
+.submit-btn {
+  display: block;
+  width: 100%;
+  padding: 0.85rem 1.5rem;
+  background: transparent;
+  border: 2px solid var(--terminal-green);
+  color: var(--terminal-green);
+  font-family: 'Fira Code', monospace;
+  font-size: 0.85rem;
+  cursor: pointer;
+  letter-spacing: 0.1em;
+  transition: background 0.3s, color 0.3s;
+  min-height: 44px;
+}
+
+.submit-btn:hover {
+  background: var(--terminal-green);
+  color: var(--near-black);
+}
+
+.memorial-wall {
+  max-width: 500px;
+  margin: 3rem auto 0;
+}
+
+.memorial-entry {
+  padding: 1rem;
+  border: 1px solid rgba(212, 160, 160, 0.15);
+  background: rgba(212, 160, 160, 0.04);
+  margin-bottom: 1rem;
+}
+
+.memorial-name {
+  font-family: 'Caveat', cursive;
+  font-size: 1.3rem;
+  color: var(--dead-pink);
+  margin-bottom: 0.25rem;
+}
+
+.memorial-years {
+  font-size: 0.7rem;
+  color: var(--terminal-green);
+  margin-bottom: 0.25rem;
+}
+
+.memorial-cause {
+  font-size: 0.7rem;
+  color: var(--battery-acid);
+  margin-bottom: 0.4rem;
+}
+
+.memorial-words {
+  font-family: 'Caveat', cursive;
+  font-size: 1.1rem;
+  color: var(--static-white);
+  line-height: 1.4;
+}
+
+/* ===== SECTION: BACK WALL ===== */
+.back-wall {
+  background: var(--near-black);
+  padding: 6rem 2rem 4rem;
+  text-align: center;
+}
+
+.back-wall-text {
+  font-family: 'Caveat', cursive;
+  font-size: clamp(1.15rem, 2.5vw, 1.3rem);
+  color: var(--dead-pink);
+  max-width: 550px;
+  margin: 0 auto;
+  line-height: 1.6;
+}
+
+.back-wall-text p {
+  margin-bottom: 1.5rem;
+}
+
+.uptime-counter {
+  font-family: 'Fira Code', monospace;
+  font-size: 0.7rem;
+  color: var(--terminal-green);
+  margin-top: 3rem;
+}
+
+/* ===== GLITCH TOGGLE ===== */
+.glitch-toggle {
+  position: fixed;
+  bottom: 1.5rem;
+  left: 1.5rem;
+  z-index: 9999;
+  background: transparent;
+  border: 1px solid var(--battery-acid);
+  color: var(--battery-acid);
+  font-family: 'Fira Code', monospace;
+  font-size: 0.65rem;
+  padding: 0.5rem 0.75rem;
+  cursor: pointer;
+  min-height: 44px;
+  min-width: 44px;
+  display: flex;
+  align-items: center;
+  letter-spacing: 0.05em;
+}
+
+.glitch-toggle:hover {
+  background: rgba(200, 255, 0, 0.1);
+}
+
+/* ===== TIME MESSAGES ===== */
+.time-message {
+  position: fixed;
+  top: 1rem;
+  left: 0;
+  right: 0;
+  text-align: center;
+  font-family: 'Caveat', cursive;
+  color: var(--dead-pink);
+  font-size: 1rem;
+  z-index: 9997;
+  pointer-events: none;
+  opacity: 0;
+}
+
+/* ===== FADE-IN BASE ===== */
+.fade-section {
+  opacity: 0;
+  transform: translateY(20px);
+}
+
+/* ===== RESPONSIVE ===== */
+@media (max-width: 768px) {
+  .product-grid {
+    grid-template-columns: 1fr;
+  }
+  .forum-post {
+    gap: 0.75rem;
+  }
+  .graveyard-card {
+    padding: 1.5rem;
+  }
+}
+
+@media (max-width: 375px) {
+  .neon-sign {
+    font-size: 1.4rem;
+  }
+  .the-door {
+    padding: 1.5rem;
+  }
+}
+</style>
+</head>
+<body x-data="rfsc()" :class="{ 'glitch-on': glitchOn }">
+
+<!-- TIME MESSAGES -->
+<div class="time-message" id="time-msg-1">you're still here</div>
+<div class="time-message" id="time-msg-2">thanks for staying</div>
+
+<!-- ===== 1. THE DOOR ===== -->
+<section class="the-door noise-bg">
+  <h1 class="neon-sign">RETRO FUTURISM SALVAGE CO.</h1>
+  <p class="door-subtitle">
+    est. 2047 · <span class="struck">Jasper Kai &amp;</span> <span class="gone-mark">gone</span> August Finch · "still open"
+  </p>
+  <span class="blink-cursor">_</span>
+</section>
+
+<!-- ===== 2. THE FRONT COUNTER ===== -->
+<section class="front-counter noise-bg">
+  <div class="log-container">
+    <div class="log-line"><span class="prompt">&gt;</span> RFSC operating log — last updated <span x-text="todayDate"></span></div>
+    <div class="log-line"><span class="prompt">&gt;</span> Bartek's bots hit us again last night. 14,000 requests/sec.</div>
+    <div class="log-line"><span class="prompt">&gt;</span> Replaced the CloudFlare config. Again.</div>
+    <div class="log-line personal"><span class="prompt">&gt;</span> Jasper would have known what to do. Jasper knew every config.</div>
+    <div class="log-line personal"><span class="prompt">&gt;</span> I just keep the lights on.</div>
+    <div class="log-line"><span class="prompt">&gt;</span> Anyway. Welcome to the shop. Here's what we've got.</div>
+  </div>
+</section>
+
+<!-- ===== 3. THE SHOWROOM ===== -->
+<section class="showroom fade-section">
+  <h2 class="showroom-title">CURRENT INVENTORY</h2>
+  <div class="product-grid">
+    <template x-for="(item, i) in products" :key="i">
+      <div class="product-card" :style="'transform: rotate(' + item.rot + 'deg)'">
+        <div class="product-name" x-text="item.name"></div>
+        <div class="product-desc" x-text="item.desc"></div>
+        <span class="product-status"
+          :class="{
+            'status-operational': item.status === 'OPERATIONAL',
+            'status-glitchy': item.status === 'GLITCHY',
+            'status-dead': item.status === 'DEAD'
+          }"
+          x-text="item.status"></span>
+        <div class="product-price" x-text="'$' + item.price"></div>
+        <template x-if="item.status === 'DEAD' && item.eulogy">
+          <div>
+            <button class="mortality-toggle" @click="item.showReport = !item.showReport" x-text="item.showReport ? '▾ close mortality report' : '▸ mortality report'"></button>
+            <div x-show="item.showReport" x-transition class="mortality-report" x-text="item.eulogy"></div>
+          </div>
+        </template>
+      </div>
+    </template>
+  </div>
+</section>
+
+<!-- ===== 4. THE LENS LAGER ===== -->
+<section class="lens-lager fade-section">
+  <div class="forum-container">
+    <div class="forum-title">LENS MAINTENANCE — READ BEFORE POSTING (yes, the acetone thing works but PLEASE ventilate)</div>
+
+    <div class="forum-post">
+      <div class="forum-avatar">gE</div>
+      <div>
+        <div class="forum-user">glassEye99 <span class="forum-date">2051-03-14 09:22</span></div>
+        <div class="forum-text">OK so I found Gen-2 Prism lenses in a dumpster behind a LensCrafters that closed in 2048. One still boots. The other shows a permanent image of a cat that I think was the last thing it rendered. Is this a feature? Can I sell the cat?</div>
+      </div>
+    </div>
+
+    <div class="forum-post">
+      <div class="forum-avatar">CK</div>
+      <div>
+        <div class="forum-user">CyberPunk_Karen <span class="forum-date">2051-03-14 10:07</span></div>
+        <div class="forum-text">The cat is NOT a feature, it's a framebuffer ghost. You need to do a cold reset. Submerge in isopropyl for 30 seconds. I've done this eleven times. My apartment smells like a hospital. Worth it.</div>
+      </div>
+    </div>
+
+    <div class="forum-post">
+      <div class="forum-avatar">B!</div>
+      <div>
+        <div class="forum-user">BarteK_WasHere <span class="banned">[BANNED]</span> <span class="forum-date">2051-03-14 11:33</span></div>
+        <div class="forum-text">lmao just flash custom firmware. i have a repo. the link is [REDACTED BY MODERATOR]. you're all doing this the hard way because you enjoy suffering.</div>
+      </div>
+    </div>
+
+    <div class="forum-post">
+      <div class="forum-avatar">nL</div>
+      <div>
+        <div class="forum-user">nostalgiaLens_04 <span class="forum-date">2051-03-15 02:18</span></div>
+        <div class="forum-text">Has anyone tried the acetone method on Gen-4 lenses? Asking because I already started and the coating is doing something I'd describe as "weeping." It's 2 AM. I'm in my bathroom. Please advise quickly.</div>
+      </div>
+    </div>
+
+    <div class="forum-post">
+      <div class="forum-avatar">pX</div>
+      <div>
+        <div class="forum-user">pixelDust_xo <span class="forum-date">2051-03-15 08:44</span></div>
+        <div class="forum-text">Update: the acetone works on Gen-4 BUT you need to do it in a ventilated area. I cannot stress this enough. I spent 20 minutes outside afterwards seeing colors that don't exist. Beautiful but medically concerning.</div>
+      </div>
+    </div>
+
+    <div class="forum-post">
+      <div class="forum-avatar">AF</div>
+      <div>
+        <div class="forum-user" style="color: var(--dead-pink);">august_finch [MOD] <span class="forum-date">2051-03-15 14:00</span></div>
+        <div class="forum-text mod-post">Locking this thread. Again. If you're using brake fluid on Gen-3 lenses, I cannot help you. If you're using acetone, ventilate or I will personally show up with a fan and a lecture. Bartek, you're banned for the third time. Stop coming back. — August</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== 5. THE AS-IS GRAVEYARD ===== -->
+<section class="graveyard fade-section">
+  <h2 class="graveyard-title">
+    <span style="animation-delay: 0s;">A</span><span style="animation-delay: 0.3s;">S</span><span style="animation-delay: 0.6s;">-</span><span style="animation-delay: 0.9s;">I</span><span style="animation-delay: 1.2s;">S</span>
+    &nbsp;
+    <span style="animation-delay: 1.5s;">G</span><span style="animation-delay: 1.8s;">R</span><span style="animation-delay: 2.1s;">A</span><span style="animation-delay: 2.4s;">V</span><span style="animation-delay: 2.7s;">E</span><span style="animation-delay: 3s;">Y</span><span style="animation-delay: 3.3s;">A</span><span style="animation-delay: 3.6s;">R</span><span style="animation-delay: 3.9s;">D</span>
+  </h2>
+  <p class="graveyard-sub">Everything here is dead. I keep it anyway.</p>
+
+  <template x-for="(g, gi) in graveyard" :key="gi">
+    <div class="graveyard-card" :style="'animation-delay: ' + (gi * -1.5) + 's'">
+      <div class="graveyard-item-name" x-text="g.name"></div>
+      <div class="cause-of-death">CAUSE OF DEATH: <span x-text="g.cause"></span></div>
+      <div class="graveyard-report" x-text="g.report"></div>
+      <div class="graveyard-price" x-text="g.price"></div>
+    </div>
+  </template>
+</section>
+
+<!-- ===== 6. PET CEMETERY ===== -->
+<section class="pet-cemetery fade-section">
+  <h2 class="cemetery-title">PET CEMETERY</h2>
+  <p class="cemetery-sub">If you lost one, you can leave it here.</p>
+
+  <form class="cemetery-form" @submit.prevent="submitMemorial()">
+    <div class="form-group">
+      <label>PET NAME</label>
+      <input type="text" x-model="form.name" placeholder="What did you call them?" required>
+    </div>
+    <div class="form-group">
+      <label>YEARS ACTIVE</label>
+      <input type="text" x-model="form.years" placeholder="e.g. 2003–2011" required>
+    </div>
+    <div class="form-group">
+      <label>CAUSE OF DEATH</label>
+      <select x-model="form.cause" required>
+        <option value="" disabled selected>Select...</option>
+        <option value="battery failure">battery failure</option>
+        <option value="firmware corruption">firmware corruption</option>
+        <option value="neglect (it's okay)">neglect (it's okay)</option>
+        <option value="obsolescence">obsolescence</option>
+        <option value="unknown — they just stopped">unknown — they just stopped</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label>SAY SOMETHING ABOUT THEM</label>
+      <textarea x-model="form.words" placeholder="They deserved better than this..."></textarea>
+    </div>
+    <button type="submit" class="submit-btn">LEAVE IT HERE</button>
+  </form>
+
+  <div class="memorial-wall">
+    <template x-for="(m, mi) in memorials" :key="mi">
+      <div class="memorial-entry">
+        <div class="memorial-name" x-text="m.name"></div>
+        <div class="memorial-years" x-text="m.years"></div>
+        <div class="memorial-cause" x-text="m.cause"></div>
+        <div class="memorial-words" x-text="m.words"></div>
+      </div>
+    </template>
+  </div>
+</section>
+
+<!-- ===== 7. THE BACK WALL ===== -->
+<section class="back-wall fade-section">
+  <div class="back-wall-text">
+    <p>Jasper used to say the whole point of a pet you can't touch is that you learn to care about something that doesn't give you anything back. That was 2053. He was drunk. He was right.</p>
+    <p>If you're here, you probably remember when technology was small and stupid and yours. Before it got big and smart and theirs.</p>
+    <p>We're still open. The lights are still on.</p>
+    <p>— August</p>
+  </div>
+  <div class="uptime-counter">RFSC uptime: <span x-text="uptimeDays"></span> days</div>
+</section>
+
+<!-- ===== 8. GLITCH TOGGLE ===== -->
+<button class="glitch-toggle" @click="toggleGlitch()">
+  <span x-text="glitchOn ? '[ FAULTY LENS: ON ]' : '[ FAULTY LENS ]'"></span>
+</button>
+
+<script>
+function rfsc() {
+  var savedGlitch = false;
+  try { savedGlitch = localStorage.getItem('rfsc-glitch') === 'true'; } catch(e) {}
+
+  var savedMemorials = [];
+  try {
+    var raw = localStorage.getItem('rfsc-memorials');
+    if (raw) savedMemorials = JSON.parse(raw);
+  } catch(e) {}
+
+  return {
+    glitchOn: savedGlitch,
+    glitchInterval: null,
+    todayDate: new Date().toISOString().split('T')[0],
+    uptimeDays: Math.floor((Date.now() - new Date('2047-01-01').getTime()) / 86400000),
+
+    form: { name: '', years: '', cause: '', words: '' },
+    memorials: savedMemorials,
+
+    products: [
+      { name: 'NanoPet Lumina v2', desc: 'Holo-pet. Projects a translucent axolotl that follows your finger. Battery: 6hrs.', status: 'OPERATIONAL', price: '249.00', rot: (Math.random() * 4 - 2).toFixed(1), showReport: false, eulogy: '' },
+      { name: 'PixelPal Orbit', desc: 'Wrist-mounted companion. Displays a dog that barks in morse code. Firmware 3.1 only.', status: 'GLITCHY', price: '185.00', rot: (Math.random() * 4 - 2).toFixed(1), showReport: false, eulogy: '' },
+      { name: 'CrystalEgg Gen-1', desc: 'The original. A holographic egg that hatches into one of 12 creatures. Nobody has seen #12.', status: 'OPERATIONAL', price: '420.00', rot: (Math.random() * 4 - 2).toFixed(1), showReport: false, eulogy: '' },
+      { name: 'DreamLens AR-4', desc: 'AR lens pair. Overlays pixelated butterflies on everything. Cannot be turned off. That is the point.', status: 'OPERATIONAL', price: '310.00', rot: (Math.random() * 4 - 2).toFixed(1), showReport: false, eulogy: '' },
+      { name: 'GhostFish Tank Module', desc: 'Tabletop projector. Shows a single goldfish that remembers your name. Sometimes.', status: 'DEAD', price: '75.00', rot: (Math.random() * 4 - 2).toFixed(1), showReport: false, eulogy: 'This one belonged to a kid in Tacoma. She named it Peach. It ran for 11 years on the same battery. When it finally died, she was 24 and didn\'t cry, and that\'s the saddest part.' },
+      { name: 'Prism Lens Gen-2 (Single)', desc: 'One AR lens. Shows a faint rainbow halo around people you stare at for more than 3 seconds.', status: 'GLITCHY', price: '140.00', rot: (Math.random() * 4 - 2).toFixed(1), showReport: false, eulogy: '' },
+      { name: 'MicroMoth Lantern', desc: 'Holo-pet in a jar. A pixelated moth that flies toward the nearest light source. Calming. Pointless.', status: 'DEAD', price: '55.00', rot: (Math.random() * 4 - 2).toFixed(1), showReport: false, eulogy: 'Found in a foreclosed apartment in Portland. Still had power. The moth was just sitting at the bottom of the jar, not moving. I plugged it in and it flew once, hit the glass, and stopped. I think it was waiting for someone to come home.' },
+      { name: 'Y2K Survivalist Starter Pack', desc: 'Bundle: 1x expired EMP blanket, 2x iodine tabs (decorative), 1x "PREPARE" pamphlet, 1x broken compass.', status: 'OPERATIONAL', price: '89.00', rot: (Math.random() * 4 - 2).toFixed(1), showReport: false, eulogy: '' },
+      { name: 'NeonPup Classic', desc: 'Desktop holo-pet. A puppy made of light that does tricks if you clap. Has not responded to clapping since 2049.', status: 'DEAD', price: '30.00', rot: (Math.random() * 4 - 2).toFixed(1), showReport: false, eulogy: 'Three different owners. None of them returned it. They all just kept it on their desk, watching it not respond. I asked the last owner why. She said "it still wags its tail sometimes when the power flickers." It doesn\'t. But I didn\'t correct her.' },
+      { name: 'RetinaPrint AR-1 (Museum Ed.)', desc: 'First-gen AR lens. Overlay: a single red dot. That\'s it. That\'s the whole product. Collectors only.', status: 'OPERATIONAL', price: '1,200.00', rot: (Math.random() * 4 - 2).toFixed(1), showReport: false, eulogy: '' }
+    ],
+
+    graveyard: [
+      {
+        name: 'StarBuddy Pro (Serial #00441)',
+        cause: 'battery bloat — the lithium pouch swelled until it cracked the housing open like a hatching egg, which would have been poetic if it weren\'t also a fire hazard',
+        report: 'A man in his 40s mailed this to me in a shoebox with a handwritten note that said "Please take care of him." The note was addressed to Jasper. I didn\'t have the heart to write back that Jasper was gone too.',
+        price: '$0.00'
+      },
+      {
+        name: 'HoloFox Pup (unnamed)',
+        cause: 'existential dread — firmware entered a diagnostic loop in 2046 and never exited. Screen reads "THINKING..." permanently',
+        report: 'I keep this one on the counter by the register. Customers ask if it\'s art. I say yes. It\'s the most honest thing in the shop. A small machine that got stuck trying to figure out what it was, and never recovered. Relatable.',
+        price: '$1.00 (for the memory)'
+      },
+      {
+        name: 'PixelPal Orbit (1st gen, blue)',
+        cause: 'owner forgot — sat in a storage unit for 9 years. Battery drained. Corrosion ate through the main board like a slow, patient grief',
+        report: 'The storage unit was auctioned. The new owner found this in a box labeled "KEEP — important." Nine years in the dark, and someone thought it was important enough to label. Just not important enough to remember.',
+        price: '$0.00'
+      },
+      {
+        name: 'DreamLens AR-2 (matched pair)',
+        cause: 'firmware update bricked it — the company apologized, see Corporate Apology #47, which was three sentences long and included the phrase "exciting new direction"',
+        report: 'These were a wedding gift. The couple wore them on their honeymoon so everything had pixelated stars overlaid on it. The update hit on their anniversary. Now they just look through regular glass like everybody else. They said it was fine. Nobody who says "it was fine" is fine.',
+        price: '$1.00 (for the memory)'
+      },
+      {
+        name: 'CrystalEgg Gen-0 (prototype)',
+        cause: 'unknown — it just stopped. No error log. No warning. No diagnostic. One day it was on. The next day it wasn\'t.',
+        report: 'This was Jasper\'s. The only thing he took when he left was his jacket. He left the prototype on the counter with the power cable coiled neatly beside it. I\'ve tried to turn it on maybe a hundred times. I keep the cable coiled. Just in case.',
+        price: '$0.00'
+      }
+    ],
+
+    init() {
+      this.initLogLines();
+      this.initSectionFades();
+      this.initTimeMessages();
+      if (this.glitchOn) {
+        this.startGlitchWobble();
+      }
+    },
+
+    initLogLines() {
+      var lines = document.querySelectorAll('.log-line');
+      var logObserver = new IntersectionObserver(function(entries) {
+        entries.forEach(function(entry) {
+          if (entry.isIntersecting) {
+            var el = entry.target;
+            var i = parseInt(el.getAttribute('data-line-index'), 10);
+            gsap.fromTo(el,
+              { opacity: 0, y: 20 },
+              { opacity: 1, y: 0, duration: 0.6, delay: i * 0.15 }
+            );
+            logObserver.unobserve(el);
+          }
+        });
+      }, { threshold: 0.1 });
+      lines.forEach(function(line, i) {
+        line.setAttribute('data-line-index', i);
+        logObserver.observe(line);
+      });
+    },
+
+    initSectionFades() {
+      var sections = document.querySelectorAll('.fade-section');
+      var sectionObserver = new IntersectionObserver(function(entries) {
+        entries.forEach(function(entry) {
+          if (entry.isIntersecting) {
+            gsap.fromTo(entry.target,
+              { opacity: 0, y: 20 },
+              { opacity: 1, y: 0, duration: 0.8 }
+            );
+            sectionObserver.unobserve(entry.target);
+          }
+        });
+      }, { threshold: 0.1 });
+      sections.forEach(function(section) {
+        sectionObserver.observe(section);
+      });
+    },
+
+    initTimeMessages() {
+      var msg1 = document.getElementById('time-msg-1');
+      var msg2 = document.getElementById('time-msg-2');
+      setTimeout(function() {
+        gsap.fromTo(msg1, { opacity: 0 }, { opacity: 1, duration: 2 });
+      }, 120000);
+      setTimeout(function() {
+        gsap.fromTo(msg2, { opacity: 0 }, { opacity: 1, duration: 2 });
+      }, 300000);
+    },
+
+    toggleGlitch() {
+      this.glitchOn = !this.glitchOn;
+      try { localStorage.setItem('rfsc-glitch', this.glitchOn); } catch(e) {}
+      if (this.glitchOn) {
+        this.startGlitchWobble();
+      } else {
+        this.stopGlitchWobble();
+        document.body.style.transform = '';
+      }
+    },
+
+    startGlitchWobble() {
+      var self = this;
+      this.glitchInterval = setInterval(function() {
+        var skew = (Math.random() - 0.5).toFixed(2);
+        document.body.style.transform = 'skewX(' + skew + 'deg)';
+      }, 3000);
+    },
+
+    stopGlitchWobble() {
+      if (this.glitchInterval) {
+        clearInterval(this.glitchInterval);
+        this.glitchInterval = null;
+      }
+    },
+
+    submitMemorial() {
+      if (!this.form.name || !this.form.years || !this.form.cause) return;
+      var entry = {
+        name: this.form.name,
+        years: this.form.years,
+        cause: this.form.cause,
+        words: this.form.words || ''
+      };
+      this.memorials.push(entry);
+      try { localStorage.setItem('rfsc-memorials', JSON.stringify(this.memorials)); } catch(e) {}
+      this.form = { name: '', years: '', cause: '', words: '' };
+    }
+  };
+}
+</script>
+</body>
+</html>

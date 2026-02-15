@@ -1,0 +1,989 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NostalgicDirt.net — Microbial Culture Archive</title>
+<link rel="stylesheet" href="/assets/css/fonts.css">
+<script defer src="/assets/js/alpine.min.js"></script>
+<script src="/assets/js/gsap.min.js"></script>
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg: #0a0c06;
+  --phosphor: #c8d4a2;
+  --magenta: #e11299;
+  --thermal: #e4dcb3;
+  --muted: #3a5a3a;
+  --stripe: #1a1e12;
+}
+
+html { font-size: 16px; }
+
+body {
+  background: var(--bg);
+  color: var(--phosphor);
+  font-family: 'Fira Code', monospace;
+  line-height: 1.6;
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* Scanline overlay */
+body::after {
+  content: '';
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: repeating-linear-gradient(
+    to bottom,
+    transparent 0px,
+    transparent 2px,
+    rgba(0,0,0,0.04) 2px,
+    rgba(0,0,0,0.04) 4px
+  );
+  pointer-events: none;
+  z-index: 9999;
+}
+
+.paper {
+  max-width: 680px;
+  width: 100%;
+  margin: 0 auto;
+  padding: 2rem 2.5rem;
+  position: relative;
+  background: var(--bg);
+}
+
+/* Tractor feed holes - left */
+.paper::before {
+  content: '';
+  position: absolute;
+  left: -20px;
+  top: 0;
+  bottom: 0;
+  width: 14px;
+  background: radial-gradient(circle 4px at 7px 6.5px, var(--muted) 3px, transparent 3.5px);
+  background-size: 14px 13px;
+}
+
+/* Tractor feed holes - right */
+.paper::after {
+  content: '';
+  position: absolute;
+  right: -20px;
+  top: 0;
+  bottom: 0;
+  width: 14px;
+  background: radial-gradient(circle 4px at 7px 6.5px, var(--muted) 3px, transparent 3.5px);
+  background-size: 14px 13px;
+}
+
+/* Perforation lines */
+.perf-left, .perf-right {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 1px;
+  border-left: 1px dashed var(--muted);
+  opacity: 0.4;
+}
+.perf-left { left: 4px; }
+.perf-right { right: 4px; }
+
+/* Header box */
+.header-box {
+  border: 2px solid var(--phosphor);
+  padding: 0.75rem 1rem;
+  font-size: 0.8rem;
+  line-height: 1.4;
+  white-space: pre;
+  overflow-x: auto;
+}
+.header-box .line { display: block; }
+
+.magenta-rule {
+  height: 2px;
+  background: var(--magenta);
+  margin: 1rem 0 0.5rem;
+  border: none;
+}
+
+.disclaimer {
+  color: var(--thermal);
+  font-size: 0.75rem;
+  font-style: italic;
+  margin-bottom: 2rem;
+}
+
+/* Section spacing */
+.section { margin: 2.5rem 0; }
+.section-head {
+  color: var(--thermal);
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  border-bottom: 1px solid var(--muted);
+  padding-bottom: 0.25rem;
+  margin-bottom: 1rem;
+}
+
+/* Margin annotations */
+.margin-note {
+  font-family: 'Caveat', cursive;
+  color: var(--magenta);
+  font-size: 1.2rem;
+  transform: rotate(-2deg);
+  display: inline-block;
+  margin: 0.5rem 0;
+  line-height: 1.3;
+}
+
+.margin-note-right {
+  text-align: right;
+  width: 100%;
+}
+
+/* Mission text */
+.mission-text {
+  text-align: justify;
+  font-size: 0.85rem;
+  line-height: 1.7;
+}
+
+/* Featured sample */
+.sample-card {
+  border: 3px double var(--phosphor);
+  padding: 1.25rem;
+  margin: 1rem 0;
+}
+
+.sample-field { margin: 0.4rem 0; font-size: 0.8rem; }
+.sample-label { color: var(--thermal); }
+.sample-value { color: var(--phosphor); }
+
+.bar-chart { margin: 0.3rem 0; font-size: 0.8rem; }
+.bar-label { color: var(--thermal); display: inline; }
+.bar-fill { color: var(--phosphor); display: inline; }
+.bar-empty { color: var(--muted); display: inline; }
+.bar-score { color: var(--magenta); display: inline; font-weight: bold; }
+.bar-desc { color: var(--thermal); font-style: italic; display: inline; font-size: 0.75rem; }
+
+.load-btn {
+  background: none;
+  border: 1px solid var(--magenta);
+  color: var(--magenta);
+  font-family: 'Fira Code', monospace;
+  font-size: 0.8rem;
+  padding: 0.5rem 1rem;
+  cursor: pointer;
+  margin-top: 1rem;
+  min-height: 44px;
+  min-width: 44px;
+  transition: background 0.2s;
+}
+.load-btn:hover { background: rgba(225,18,153,0.15); }
+
+/* Scramble animation */
+.scrambling { opacity: 0.7; }
+
+/* Terroir map */
+.terroir-grid {
+  display: grid;
+  grid-template-columns: repeat(20, 1fr);
+  gap: 4px;
+  margin: 1rem 0;
+  padding: 1rem;
+  border: 1px solid var(--muted);
+  background: var(--stripe);
+}
+
+.dot {
+  width: 100%;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background: var(--muted);
+  position: relative;
+  min-width: 6px;
+  min-height: 6px;
+}
+
+.dot.active {
+  background: var(--phosphor);
+  animation: dotPulse 3s ease-in-out infinite;
+}
+
+@keyframes dotPulse {
+  0%, 100% { background: var(--phosphor); }
+  50% { background: var(--magenta); }
+}
+
+.dot-tooltip {
+  display: none;
+  position: absolute;
+  bottom: calc(100% + 6px);
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--bg);
+  border: 1px solid var(--magenta);
+  color: var(--phosphor);
+  font-size: 0.65rem;
+  padding: 2px 6px;
+  white-space: nowrap;
+  z-index: 100;
+  pointer-events: none;
+}
+
+.dot:hover .dot-tooltip {
+  display: block;
+}
+
+/* Submission protocol */
+.protocol-list {
+  list-style: none;
+  counter-reset: step;
+  font-size: 0.8rem;
+}
+.protocol-list li {
+  counter-increment: step;
+  margin: 0.75rem 0;
+  padding-left: 2rem;
+  position: relative;
+  text-transform: uppercase;
+}
+.protocol-list li::before {
+  content: counter(step) ".";
+  position: absolute;
+  left: 0;
+  color: var(--thermal);
+  font-weight: bold;
+}
+.protocol-sub {
+  font-size: 0.75rem;
+  color: var(--thermal);
+  text-transform: none;
+  padding-left: 1rem;
+  margin-top: 0.25rem;
+}
+
+/* Simulator */
+.simulator-controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1.5rem;
+  margin: 1rem 0;
+  align-items: center;
+}
+
+.slider-group { flex: 1; min-width: 200px; }
+.slider-group label {
+  display: block;
+  font-size: 0.75rem;
+  color: var(--thermal);
+  margin-bottom: 0.4rem;
+}
+
+input[type="range"] {
+  -webkit-appearance: none;
+  width: 100%;
+  height: 6px;
+  background: var(--muted);
+  outline: none;
+  border-radius: 0;
+  min-height: 44px;
+}
+input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 16px;
+  height: 24px;
+  background: var(--magenta);
+  cursor: pointer;
+  border: none;
+}
+input[type="range"]::-moz-range-thumb {
+  width: 16px;
+  height: 24px;
+  background: var(--magenta);
+  cursor: pointer;
+  border: none;
+}
+
+.sim-display {
+  font-size: 0.7rem;
+  line-height: 1.2;
+  color: var(--phosphor);
+  white-space: pre;
+  overflow-x: auto;
+  border: 1px solid var(--muted);
+  padding: 0.75rem;
+  background: var(--stripe);
+  min-height: 200px;
+}
+
+.sim-progress {
+  color: var(--magenta);
+  font-size: 0.75rem;
+  margin-top: 0.5rem;
+}
+
+.sim-result {
+  font-size: 0.8rem;
+  margin-top: 0.5rem;
+}
+
+/* Rivalry section */
+.memo-block {
+  font-size: 0.8rem;
+  line-height: 1.7;
+  text-align: justify;
+}
+
+.marcel-quote {
+  border-left: 2px solid var(--muted);
+  padding-left: 1rem;
+  margin: 1rem 0;
+  color: var(--thermal);
+  font-size: 0.8rem;
+  font-style: italic;
+}
+
+/* Shop grid */
+.shop-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1rem;
+  margin: 1rem 0;
+}
+
+.shop-item {
+  border: 1px solid var(--muted);
+  padding: 1rem;
+  font-size: 0.75rem;
+}
+.shop-name {
+  color: var(--thermal);
+  font-size: 0.8rem;
+  font-weight: bold;
+  margin-bottom: 0.3rem;
+}
+.shop-desc { margin-bottom: 0.5rem; }
+.shop-price {
+  color: var(--phosphor);
+  font-weight: bold;
+  margin-bottom: 0.5rem;
+}
+
+.shop-btn {
+  background: none;
+  border: 1px solid var(--magenta);
+  color: var(--magenta);
+  font-family: 'Fira Code', monospace;
+  font-size: 0.7rem;
+  padding: 0.4rem 0.6rem;
+  cursor: pointer;
+  min-height: 44px;
+  width: 100%;
+  transition: background 0.2s;
+}
+.shop-btn:hover { background: rgba(225,18,153,0.15); }
+.shop-btn:disabled {
+  border-color: var(--muted);
+  color: var(--muted);
+  cursor: not-allowed;
+}
+
+/* Footer */
+.footer {
+  margin-top: 3rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--muted);
+  font-size: 0.7rem;
+  color: var(--thermal);
+  line-height: 1.6;
+}
+.footer-final {
+  color: var(--magenta);
+  font-size: 0.7rem;
+  margin-top: 1rem;
+  font-style: italic;
+}
+
+/* Timed messages */
+.timed-msg {
+  font-family: 'Caveat', cursive;
+  color: var(--magenta);
+  font-size: 1.1rem;
+  margin-top: 1.5rem;
+  transition: opacity 0.8s;
+}
+
+/* Printer jam */
+.jam-bar {
+  position: fixed;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: var(--magenta);
+  z-index: 9998;
+  animation: jamDrift 90s linear forwards;
+  pointer-events: none;
+}
+
+@keyframes jamDrift {
+  from { top: -2px; }
+  to { top: 100vh; }
+}
+
+.jam-status {
+  position: fixed;
+  top: 10px;
+  right: 80px;
+  color: var(--magenta);
+  font-family: 'Fira Code', monospace;
+  font-size: 0.7rem;
+  z-index: 9998;
+  animation: blink 0.8s step-end infinite;
+}
+
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0; }
+}
+
+.paper-shifted {
+  transform: translateX(8px);
+  transition: transform 0.2s ease;
+}
+
+.paper-unshifted {
+  transform: translateX(0);
+  transition: transform 0.2s ease;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .paper { padding: 1.5rem 1.5rem; max-width: 100%; }
+  .paper::before, .paper::after { display: none; }
+  .perf-left, .perf-right { display: none; }
+  .header-box { font-size: 0.6rem; white-space: pre-wrap; word-break: break-all; }
+  .shop-grid { grid-template-columns: 1fr; }
+  .terroir-grid { gap: 2px; }
+  .sim-display { font-size: 0.6rem; }
+  .margin-note { font-size: 1rem; }
+}
+
+@media (max-width: 375px) {
+  .paper { padding: 1rem; }
+  .header-box { font-size: 0.55rem; padding: 0.5rem; }
+  .simulator-controls { flex-direction: column; }
+}
+</style>
+</head>
+<body x-data="nostalgicDirt()">
+
+<!-- Printer jam bar -->
+<template x-if="jamActive">
+  <div class="jam-bar"></div>
+</template>
+<template x-if="jamStatusVisible">
+  <div class="jam-status">&#9888; PRINTER JAM — FEED ERROR 0x4A2D</div>
+</template>
+
+<div class="paper" :class="paperShifted ? 'paper-shifted' : 'paper-unshifted'">
+  <div class="perf-left"></div>
+  <div class="perf-right"></div>
+
+  <!-- 1. HEADER BLOCK -->
+  <div class="header-box">&#9556;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9559;
+&#9553;  NOSTAGICDIRT.NET &#8212; MICROBIAL CULTURE ARCHIVE              &#9553;
+&#9553;  EST. 2017 &#8212; KENOSHA, WI                                   &#9553;
+&#9553;  CURATOR: BERTRAND J. HINKLE                               &#9553;
+&#9553;  CLASSIFICATION: HOTEL ICE MACHINE CONDENSATION BIOME      &#9553;
+&#9553;  STATUS: ACTIVE &#8212; LAST UPDATE: <span x-text="lastUpdate"></span>  &#9553;
+&#9562;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9565;</div>
+
+  <hr class="magenta-rule">
+  <p class="disclaimer">This document is not intended for recreational use. If you are reading this, you already know why you're here.</p>
+
+  <!-- 2. MISSION STATEMENT -->
+  <div class="section">
+    <div class="section-head">MISSION STATEMENT — DOCUMENT REF: NCD-MS-001</div>
+    <p class="mission-text">Everything leaves a trace. The mineral ring inside a pipe elbow tells you the water pressure history of a building better than any blueprint. The rust pattern on a drain flange is a topographic map of every shower someone took and forgot about. I spent 38 years reading those stories — under sinks in Toledo, behind walls in Phoenix, inside the crawlspaces of hospitals where the pipes remember patients the records don't. When I retired, I needed something to do with the attention. That is when I noticed the ice machines. Specifically, the condensation trays. Every hotel ice machine in America generates a shallow pool of standing water that nobody drains, nobody cleans, and nobody thinks about. These trays are petri dishes the size of baking sheets. They grow cultures that are unique to their environment — shaped by the tap water chemistry, the HVAC system, the altitude, the guests. A Best Western in Flagstaff grows a different biofilm than a Marriott in Scranton, and if you swab them both and hold them up to the light, you are looking at the biological signature of two entirely different Americas. I catalog these cultures. I score them. I preserve them. I am the only person doing this. That is either a tragedy or a credential, and I have decided it is both.</p>
+    <div class="margin-note-right">
+      <span class="margin-note">"Marcel can go to hell — B.H."</span>
+    </div>
+  </div>
+
+  <!-- 3. FEATURED SAMPLE -->
+  <div class="section" x-data="sampleViewer()">
+    <div class="section-head">FEATURED SAMPLE — RANDOM SELECTION FROM ARCHIVE</div>
+    <div class="sample-card">
+      <div class="sample-field"><span class="sample-label">SAMPLE ID: </span><span class="sample-value" x-text="scrambling ? scrambleText(current.id) : current.id"></span></div>
+      <div class="sample-field"><span class="sample-label">HOTEL: </span><span class="sample-value" x-text="scrambling ? scrambleText(current.hotel) : current.hotel"></span></div>
+      <div class="sample-field"><span class="sample-label">COLLECTION DATE: </span><span class="sample-value" x-text="scrambling ? scrambleText(current.date) : current.date"></span></div>
+      <div class="sample-field"><span class="sample-label">TAP WATER pH: </span><span class="sample-value" x-text="scrambling ? scrambleText(current.ph) : current.ph"></span></div>
+      <div class="sample-field"><span class="sample-label">AMBIENT TEMP: </span><span class="sample-value" x-text="scrambling ? scrambleText(current.temp) : current.temp"></span></div>
+      <div class="sample-field"><span class="sample-label">GUEST ARTIFACTS: </span><span class="sample-value" x-text="scrambling ? scrambleText(current.artifacts) : current.artifacts"></span></div>
+      <div class="sample-field" style="margin-top: 0.75rem;"><span class="sample-label">COLONY DESCRIPTION: </span></div>
+      <div class="sample-field"><span class="sample-value" x-text="scrambling ? scrambleText(current.colony) : current.colony"></span></div>
+      <div style="margin-top: 1rem; font-size: 0.75rem; color: var(--thermal);">PATINA INDEX&#8482; SCORES:</div>
+      <template x-for="(bar, i) in current.bars" :key="i">
+        <div class="bar-chart">
+          <span class="bar-label" x-text="bar.label + '  '"></span><span class="bar-fill" x-text="'█'.repeat(bar.filled)"></span><span class="bar-empty" x-text="'░'.repeat(10 - bar.filled)"></span> <span class="bar-score" x-text="bar.score"></span>  <span class="bar-desc" x-text="'\"' + bar.desc + '\"'"></span>
+        </div>
+      </template>
+      <button class="load-btn" @click="loadAnother()" x-text="scrambling ? '[SCRAMBLING...]' : '[LOAD ANOTHER SAMPLE]'">[LOAD ANOTHER SAMPLE]</button>
+    </div>
+  </div>
+
+  <!-- 4. THE TERROIR MAP -->
+  <div class="section">
+    <div class="section-head">THE TERROIR MAP — SAMPLE DISTRIBUTION OVERVIEW</div>
+    <p style="font-size: 0.75rem; color: var(--thermal); margin-bottom: 0.5rem;">Hover active nodes for location data. Green pulse = active culture site.</p>
+    <div class="terroir-grid">
+      <template x-for="(cell, i) in mapCells" :key="i">
+        <div class="dot" :class="cell.active ? 'active' : ''" :style="cell.active ? '' : ''">
+          <template x-if="cell.active">
+            <div class="dot-tooltip" x-text="cell.city + ' (' + cell.count + ')'"></div>
+          </template>
+        </div>
+      </template>
+    </div>
+  </div>
+
+  <!-- 5. SUBMISSION PROTOCOL -->
+  <div class="section">
+    <div class="section-head">SUBMISSION PROTOCOL — FIELD COLLECTION GUIDELINES</div>
+    <ol class="protocol-list">
+      <li>LOCATE THE ICE MACHINE CONDENSATION TRAY
+        <div class="protocol-sub">Usually behind or beneath the unit. You may need to remove a panel. Do not ask hotel staff. They will say no.</div>
+      </li>
+      <li>PREPARE A STERILE COTTON SWAB (POLYESTER TIP, 6-INCH SHAFT)
+        <div class="protocol-sub">Pre-moistened with distilled water only. Absolutely no Clorox. No rubbing alcohol. No hand sanitizer. No tap water from the hotel room.</div>
+      </li>
+      <li>SWAB THE CENTER OF THE TRAY IN A 3CM x 3CM GRID PATTERN
+        <div class="protocol-sub">Firm, consistent pressure. Rotate the swab 90 degrees halfway through. Do not skip corners.</div>
+      </li>
+      <li>SEAL THE SWAB IN A STERILE VIAL AND LABEL IMMEDIATELY
+        <div class="protocol-sub">Label format: HOTEL-CITY-STATE-DATE-YOUR_INITIALS. Use a Sharpie. Pencil smudges. Pen bleeds.</div>
+      </li>
+      <li>COMPLETE THE CONTAMINANT DECLARATION FORM (NCD-CF-003)
+        <div class="protocol-sub">Declare any cleaning agents observed near the machine. Note ambient odors. Check the box for "visible mold" if applicable. The dropdown includes: bleach, Lysol, Pine-Sol, unknown chemical, none detected.</div>
+      </li>
+      <li>SHIP VIA USPS PRIORITY MAIL TO THE KENOSHA ARCHIVE
+        <div class="protocol-sub">Ice pack recommended but not required if transit is under 48 hours. Mark the exterior "BIOLOGICAL — NON-HAZARDOUS."</div>
+      </li>
+    </ol>
+    <div class="margin-note-right" style="margin-top: 1rem;">
+      <span class="margin-note">"I can tell when people use Clorox. I always can. — B.H."</span>
+    </div>
+  </div>
+
+  <!-- 6. THE SHELF LIFE SIMULATOR -->
+  <div class="section" x-data="simulator()">
+    <div class="section-head">SHELF LIFE SIMULATOR — CONDENSATION CULTURE PROJECTION</div>
+    <div class="simulator-controls">
+      <div class="slider-group">
+        <label>HUMIDITY: <span x-text="humidity + '%'"></span></label>
+        <input type="range" min="30" max="90" x-model="humidity" @input="runSim()">
+      </div>
+      <div class="slider-group">
+        <label>TEMPERATURE: <span x-text="temperature + '°F'"></span></label>
+        <input type="range" min="60" max="95" x-model="temperature" @input="runSim()">
+      </div>
+    </div>
+    <div class="sim-display" x-text="frames[currentFrame]"></div>
+    <div class="sim-progress" x-show="playing" x-text="'[ICE MACHINE CHURN CYCLE: ' + progressBar + ' ACTIVE]'"></div>
+    <div class="sim-result" x-show="showResult" x-html="resultText"></div>
+  </div>
+
+  <!-- 7. THE RIVALRY SECTION -->
+  <div class="section">
+    <div class="section-head">RE: DUBOIS, MARCEL — LYON, FR — "BANAL FUNGI" INCIDENT (2021)</div>
+    <div class="memo-block">
+      <p>On March 14, 2021, Marcel Dubois published a post on his vacuum cleaner enthusiast forum (aspira-lyon.fr, 340 registered users, roughly 12 active) in which he referred to my life's work as "banal fungi collected by an American with too much free time and not enough self-awareness." This from a man who maintains a 900-entry database of Hoover upright models sorted by suction variance. I have never once commented on Marcel's work, because I believe all obsessions have dignity, even his. Marcel does not extend me the same courtesy.</p>
+      <p style="margin-top: 0.75rem;">The cultures are not banal. The culture from a Holiday Inn Express in Reno — sample NCD-2019-RNO-0447 — contained a bacterial strain that had adapted to the specific mineral content of Washoe County tap water in a way that suggests an evolutionary timeline of at least 18 months of uninterrupted growth. That is not banal. That is a tiny civilization that arose in the dark, sustained by nothing but drip water and neglect. Marcel has never held a swab up to a Holiday Inn tray at 2 AM and felt the weight of American transience staring back at him. I have. The difference between us is not expertise. It is willingness to look at something no one else will look at and say: this matters.</p>
+    </div>
+    <div class="marcel-quote">
+      From: m.dubois@aspira-lyon.fr<br>
+      Subject: RE: Your "archive"<br>
+      Date: 2021-03-17<br><br>
+      "Bertrand — I have seen your website. It is condensation. It is not science. You are photographing mildew and calling it heritage. I say this as a colleague: find a real hobby. The vacuum community would welcome you, though I suspect you would bring your swabs. — Marcel"
+    </div>
+    <div class="margin-note-right">
+      <span class="margin-note">"38 years. Thirty-eight. — B.H."</span>
+    </div>
+  </div>
+
+  <!-- 8. CURATED SHOP -->
+  <div class="section" x-data="shop()">
+    <div class="section-head">CURATED ARCHIVE SHOP — FIELD EQUIPMENT &amp; PUBLICATIONS</div>
+    <div class="shop-grid">
+      <template x-for="(item, i) in items" :key="i">
+        <div class="shop-item">
+          <div class="shop-name" x-text="item.name"></div>
+          <div class="shop-desc" x-text="item.desc"></div>
+          <div class="shop-price" x-text="'$' + item.price"></div>
+          <button
+            class="shop-btn"
+            :disabled="!item.inStock || item.state === 'done'"
+            @click="purchase(i)"
+            x-text="item.state === 'processing' ? '[PROCESSING...]' : item.state === 'done' ? '[THANK YOU. YOUR INTEREST HAS BEEN LOGGED.]' : (item.inStock ? '[ADD TO ARCHIVE]' : '[OUT OF STOCK]')"
+          ></button>
+        </div>
+      </template>
+    </div>
+  </div>
+
+  <!-- 9. FOOTER -->
+  <div class="footer">
+    <p>&copy; 2017-<span x-text="new Date().getFullYear()"></span> BERTRAND J. HINKLE. ALL CULTURES PRESERVED UNDER KENOSHA COUNTY ORDINANCE 14-227(b). THIS SITE IS NOT AFFILIATED WITH ANY HOTEL BRAND, PLUMBING UNION, OR MARCEL DUBOIS.</p>
+    <p class="footer-final">The radiator clicks. The light is the color of old milk. Everything leaves a trace.</p>
+  </div>
+
+  <!-- Timed messages -->
+  <div class="timed-msg" x-show="showMsg1" x-transition.opacity.duration.800ms>
+    "You're still here. Most people leave by now. I appreciate that."
+  </div>
+  <div class="timed-msg" x-show="showMsg2" x-transition.opacity.duration.800ms>
+    "The sample from the Tulsa Days Inn is my favorite. I have never told anyone that."
+  </div>
+</div>
+
+<script>
+function nostalgicDirt() {
+  return {
+    lastUpdate: '',
+    showMsg1: false,
+    showMsg2: false,
+    jamActive: false,
+    jamStatusVisible: false,
+    paperShifted: false,
+    mapCells: [],
+
+    init() {
+      var d = new Date();
+      this.lastUpdate = d.toISOString().split('T')[0];
+
+      // Build map: 20x12 = 240 cells
+      var activeLocations = [
+        {idx: 25, city: 'Seattle, WA', count: 3},
+        {idx: 28, city: 'Bozeman, MT', count: 1},
+        {idx: 44, city: 'Reno, NV', count: 7},
+        {idx: 47, city: 'Denver, CO', count: 4},
+        {idx: 50, city: 'Omaha, NE', count: 2},
+        {idx: 66, city: 'Flagstaff, AZ', count: 5},
+        {idx: 71, city: 'Tulsa, OK', count: 6},
+        {idx: 74, city: 'Memphis, TN', count: 3},
+        {idx: 90, city: 'Phoenix, AZ', count: 2},
+        {idx: 93, city: 'Dallas, TX', count: 4},
+        {idx: 96, city: 'Atlanta, GA', count: 3},
+        {idx: 56, city: 'Chicago, IL', count: 8},
+        {idx: 77, city: 'Scranton, PA', count: 2},
+        {idx: 58, city: 'Toledo, OH', count: 5},
+        {idx: 79, city: 'Orlando, FL', count: 3},
+        // Europe
+        {idx: 155, city: 'Lyon, FR', count: 1},
+        {idx: 137, city: 'London, UK', count: 2},
+        {idx: 158, city: 'Zermatt, CH', count: 1},
+      ];
+      var activeMap = {};
+      activeLocations.forEach(function(loc) { activeMap[loc.idx] = loc; });
+
+      var cells = [];
+      for (var i = 0; i < 240; i++) {
+        if (activeMap[i]) {
+          cells.push({active: true, city: activeMap[i].city, count: activeMap[i].count});
+        } else {
+          cells.push({active: false, city: '', count: 0});
+        }
+      }
+      this.mapCells = cells;
+
+      // Printer jam - 1 in 3 chance
+      if (Math.random() < 0.333) {
+        var self = this;
+        setTimeout(function() {
+          self.jamActive = true;
+          self.jamStatusVisible = true;
+          self.paperShifted = true;
+          setTimeout(function() {
+            self.paperShifted = false;
+            self.jamStatusVisible = false;
+          }, 30000);
+        }, 5000);
+      }
+
+      // Timed messages
+      var self = this;
+      setTimeout(function() { self.showMsg1 = true; }, 60000);
+      setTimeout(function() { self.showMsg2 = true; }, 180000);
+    }
+  };
+}
+
+function sampleViewer() {
+  var samples = [
+    {
+      id: 'NCD-2019-RNO-0447',
+      hotel: 'Holiday Inn Express — Reno, NV (Built 2008)',
+      date: '2019-11-03',
+      ph: '7.4',
+      temp: '72°F',
+      artifacts: 'Unopened Neutrogena mini-shampoo; receipt fragment, illegible; single playing card (7 of clubs)',
+      colony: 'Dense gray-green biofilm with concentric growth rings suggesting 14-18 months of undisturbed development. Faint iridescence under UV. Smells like a swimming pool that gave up.',
+      bars: [
+        {label: 'VISUAL TURBIDITY ', filled: 8, score: '7.8', desc: 'cathode-ray snow'},
+        {label: 'OLFACTORY ECHO   ', filled: 6, score: '5.9', desc: 'airport men\'s room, 1983'},
+        {label: 'EMOTIONAL RESIDUE', filled: 9, score: '8.7', desc: 'road trip melancholy'}
+      ]
+    },
+    {
+      id: 'NCD-2020-TUL-0182',
+      hotel: 'Days Inn — Tulsa, OK (Built 1994)',
+      date: '2020-06-17',
+      ph: '6.8',
+      temp: '78°F',
+      artifacts: 'Wedding band (gold-plated, engraved "K+R 2012"); energy bar wrapper; one sock',
+      colony: 'Mottled amber-brown colony with unusual radial symmetry. Substrate adhesion suggests the tray has not been cleaned since the Clinton administration. Beautiful in a way that makes you tired.',
+      bars: [
+        {label: 'VISUAL TURBIDITY ', filled: 6, score: '6.2', desc: 'sunset through dirty windshield'},
+        {label: 'OLFACTORY ECHO   ', filled: 7, score: '7.1', desc: 'motel carpet after rain'},
+        {label: 'EMOTIONAL RESIDUE', filled: 10, score: '9.8', desc: 'divorce paperwork on the nightstand'}
+      ]
+    },
+    {
+      id: 'NCD-2018-SCR-0033',
+      hotel: 'Marriott Courtyard — Scranton, PA (Built 2001)',
+      date: '2018-02-28',
+      ph: '7.1',
+      temp: '68°F',
+      artifacts: 'Conference lanyard (Dunder Mifflin Infinity Launch 2007); breath mint; pen cap',
+      colony: 'Thin, persistent film with micro-colonies arranged in what can only be described as corporate grid formation. The bacteria organized themselves like cubicles. I am not projecting.',
+      bars: [
+        {label: 'VISUAL TURBIDITY ', filled: 4, score: '3.9', desc: 'fluorescent office haze'},
+        {label: 'OLFACTORY ECHO   ', filled: 5, score: '4.7', desc: 'break room microwave, fish day'},
+        {label: 'EMOTIONAL RESIDUE', filled: 7, score: '7.3', desc: 'quiet resignation'}
+      ]
+    },
+    {
+      id: 'NCD-2021-PHX-0091',
+      hotel: 'Super 8 — Phoenix, AZ (Built 1989)',
+      date: '2021-08-12',
+      ph: '8.2',
+      temp: '84°F',
+      artifacts: 'Sunglasses (one lens missing); Arizona Lottery ticket (not a winner); cough drop',
+      colony: 'Aggressive, fast-spreading culture with deep orange pigmentation. Thriving in heat that would kill most human ambitions. The hardiest sample in the archive. I respect it.',
+      bars: [
+        {label: 'VISUAL TURBIDITY ', filled: 9, score: '9.1', desc: 'desert sunset in a puddle'},
+        {label: 'OLFACTORY ECHO   ', filled: 8, score: '8.3', desc: 'hot parking lot at 4 PM'},
+        {label: 'EMOTIONAL RESIDUE', filled: 5, score: '5.0', desc: 'gas station existentialism'}
+      ]
+    },
+    {
+      id: 'NCD-2022-ZRM-0002',
+      hotel: 'Hotel Perren — Zermatt, CH (Built 1956)',
+      date: '2022-01-19',
+      ph: '6.5',
+      temp: '61°F',
+      artifacts: 'Ski pass (expired); chocolate wrapper (Toblerone, naturally); one euro coin',
+      colony: 'Delicate, crystalline growth pattern unlike anything in the North American archive. Alpine water chemistry produces cultures of startling elegance. Shares a microbial signature with a Trump Plaza drain in Atlantic City, which means something about the world even if I cannot say exactly what.',
+      bars: [
+        {label: 'VISUAL TURBIDITY ', filled: 3, score: '2.8', desc: 'frost on a window'},
+        {label: 'OLFACTORY ECHO   ', filled: 4, score: '3.5', desc: 'cold stone and pine'},
+        {label: 'EMOTIONAL RESIDUE', filled: 8, score: '8.1', desc: 'expensive loneliness'}
+      ]
+    },
+    {
+      id: 'NCD-2019-CHI-0271',
+      hotel: 'Palmer House Hilton — Chicago, IL (Built 1871/1925)',
+      date: '2019-05-22',
+      ph: '7.6',
+      temp: '70°F',
+      artifacts: 'Business card (blank on both sides); two aspirin; theater program (Hamilton, 2018)',
+      colony: 'Multilayered colony with distinct geological strata — the lower layers are calcified. This culture has history. Cross-section analysis suggests continuous growth since at least 2014. A five-year civilization in a tray the size of a cookie sheet.',
+      bars: [
+        {label: 'VISUAL TURBIDITY ', filled: 7, score: '7.4', desc: 'lake fog at dawn'},
+        {label: 'OLFACTORY ECHO   ', filled: 6, score: '6.0', desc: 'deep dish and regret'},
+        {label: 'EMOTIONAL RESIDUE', filled: 8, score: '8.4', desc: 'missed connection, Union Station'}
+      ]
+    },
+    {
+      id: 'NCD-2020-ORL-0155',
+      hotel: 'Best Western — Orlando, FL (Built 2003)',
+      date: '2020-12-30',
+      ph: '7.9',
+      temp: '76°F',
+      artifacts: 'Mickey Mouse ears (child size); sunscreen bottle (empty); wristband (Magic Kingdom)',
+      colony: 'Cheerfully aggressive. Bright green with yellow margins. Florida cultures grow like they have nothing to lose, which in a state that is slowly returning to the sea is perhaps appropriate. This one smelled like chlorine and childhood.',
+      bars: [
+        {label: 'VISUAL TURBIDITY ', filled: 7, score: '6.8', desc: 'pool water at a birthday party'},
+        {label: 'OLFACTORY ECHO   ', filled: 8, score: '7.9', desc: 'sunscreen and hotdog steam'},
+        {label: 'EMOTIONAL RESIDUE', filled: 6, score: '6.3', desc: 'family vacation, day four'}
+      ]
+    },
+    {
+      id: 'NCD-2023-LYN-0001',
+      hotel: 'Hotel Le Royal — Lyon, FR (Built 1912)',
+      date: '2023-04-02',
+      ph: '7.0',
+      temp: '65°F',
+      artifacts: 'Aspira-Lyon forum printout (crumpled); espresso cup; one cufflink',
+      colony: 'Refined, minimal, infuriatingly elegant. French water produces cultures that look like they went to finishing school. I collected this sample specifically to prove to Marcel that his own city generates the same "banal fungi" he mocks. He has not responded.',
+      bars: [
+        {label: 'VISUAL TURBIDITY ', filled: 3, score: '2.5', desc: 'morning mist on the Rh\u00f4ne'},
+        {label: 'OLFACTORY ECHO   ', filled: 4, score: '4.1', desc: 'old library, closed for lunch'},
+        {label: 'EMOTIONAL RESIDUE', filled: 9, score: '9.2', desc: 'vindication, bittersweet'}
+      ]
+    }
+  ];
+
+  return {
+    samples: samples,
+    currentIdx: Math.floor(Math.random() * samples.length),
+    scrambling: false,
+    scrambleCounter: 0,
+    scrambleInterval: null,
+
+    get current() {
+      return this.samples[this.currentIdx];
+    },
+
+    scrambleText: function(text) {
+      var chars = '\u2588\u2591\u2592\u2593\u2580\u2584\u258C\u2590\u25A0\u25A1\u25B2\u25BC\u2502\u2500\u253C\u250C\u2510\u2514\u2518';
+      var result = '';
+      for (var i = 0; i < text.length; i++) {
+        if (text[i] === ' ') {
+          result += ' ';
+        } else {
+          result += chars[Math.floor(Math.random() * chars.length)];
+        }
+      }
+      return result;
+    },
+
+    loadAnother: function() {
+      if (this.scrambling) return;
+      var self = this;
+      self.scrambling = true;
+      self.scrambleCounter = 0;
+
+      self.scrambleInterval = setInterval(function() {
+        self.scrambleCounter++;
+        if (self.scrambleCounter >= 9) {
+          clearInterval(self.scrambleInterval);
+          var newIdx;
+          do {
+            newIdx = Math.floor(Math.random() * self.samples.length);
+          } while (newIdx === self.currentIdx && self.samples.length > 1);
+          self.currentIdx = newIdx;
+          self.scrambling = false;
+        }
+      }, 33);
+    }
+  };
+}
+
+function simulator() {
+  var simFrames = [
+    '  ┌──────────────────────┐\n  │                      │\n  │                      │\n  │         · ·          │\n  │                      │\n  │                      │\n  └──────────────────────┘\n  STATUS: STERILE',
+    '  ┌──────────────────────┐\n  │                      │\n  │        · · ·         │\n  │       · ·· ·         │\n  │        · ·           │\n  │                      │\n  └──────────────────────┘\n  STATUS: NUCLEATION',
+    '  ┌──────────────────────┐\n  │       .              │\n  │      ·:· · ·         │\n  │     · ·::· ·         │\n  │      · ·:·           │\n  │        ·             │\n  └──────────────────────┘\n  STATUS: EARLY COLONIZATION',
+    '  ┌──────────────────────┐\n  │     . · .             │\n  │    ·::·:· ·  .       │\n  │   · ·:::·:· ·        │\n  │    · ·::·:·          │\n  │      · ·.            │\n  └──────────────────────┘\n  STATUS: COLONY FORMING',
+    '  ┌──────────────────────┐\n  │   .·: · .:·          │\n  │  ·::·::· ·::·       │\n  │ · ·:::·:::· ·  .    │\n  │  · ·::·::·:·        │\n  │    ·:· ·.:           │\n  └──────────────────────┘\n  STATUS: EXPANSION PHASE',
+    '  ┌──────────────────────┐\n  │  .:·:·:· ·.:·:      │\n  │ ·:::·:::·:·:::·     │\n  │ ·:·::::·::::·:·     │\n  │  ·:::·:::·:::·      │\n  │   ·:·:· ·:·:        │\n  └──────────────────────┘\n  STATUS: BIOFILM ONSET',
+    '  ┌──────────────────────┐\n  │ .::·:::·:·.::·::    │\n  │ ·::::·::::·:::::·   │\n  │ ·::·:::::·:::::·:   │\n  │ ·::::·::::·::::·    │\n  │  ·:::·::·:·:::      │\n  └──────────────────────┘\n  STATUS: MATURE BIOFILM',
+    '  ┌──────────────────────┐\n  │ ::::·:::::·::::::   │\n  │ ·::::::·::::::::::  │\n  │ ::·:::::::·:::::::  │\n  │ ·::::::·:::::::::   │\n  │  :::::·::::·::::    │\n  └──────────────────────┘\n  STATUS: DENSE COLONIZATION',
+    '  ┌──────────────────────┐\n  │ ██::·:████::·:███   │\n  │ :████·:::████::::█  │\n  │ ██::████·::████::█  │\n  │ :████·:::████::::   │\n  │  ██::·:████::·::    │\n  └──────────────────────┘\n  STATUS: CALCIFICATION',
+    '  ┌──────────────────────┐\n  │ ████████████████████ │\n  │ █▓██▓███▓██▓████▓██ │\n  │ ██▓████▓███▓████▓██ │\n  │ █▓██▓███▓██▓████▓█  │\n  │  ███████████████████ │\n  └──────────────────────┘\n  STATUS: FULL SUBSTRATE',
+    '  ┌──────────────────────┐\n  │ █▓▓█▓▓██▓▓█▓▓██▓▓█ │\n  │ ▓██▓▓▓█▓▓▓██▓▓▓█▓▓ │\n  │ █▓▓█▓▓██▓▓█▓▓██▓▓█ │\n  │ ▓██▓▓▓█▓▓▓██▓▓▓█▓▓ │\n  │  █▓▓█▓▓██▓▓█▓▓██▓▓ │\n  └──────────────────────┘\n  STATUS: OVERGROWTH',
+    '  ┌──────────────────────┐\n  │ ▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓ │\n  │ ▓█▓█▓▓▓█▓▓▓▓█▓█▓▓█ │\n  │ ▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓ │\n  │ ▓█▓█▓▓▓█▓▓▓▓█▓█▓▓█ │\n  │  ▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓ │\n  └──────────────────────┘\n  STATUS: CRITICAL MASS'
+  ];
+
+  return {
+    humidity: 60,
+    temperature: 75,
+    currentFrame: 0,
+    frames: simFrames,
+    playing: false,
+    showResult: false,
+    resultText: '',
+    progressBar: '',
+    animTimer: null,
+
+    runSim: function() {
+      if (this.playing) return;
+      var self = this;
+      self.playing = true;
+      self.showResult = false;
+      self.currentFrame = 0;
+      self.progressBar = '';
+      var frame = 0;
+      var totalFrames = self.frames.length;
+
+      if (self.animTimer) clearInterval(self.animTimer);
+
+      self.animTimer = setInterval(function() {
+        self.currentFrame = frame;
+        var filled = Math.round(((frame + 1) / totalFrames) * 16);
+        self.progressBar = '\u2588'.repeat(filled) + '\u2591'.repeat(16 - filled);
+        frame++;
+
+        if (frame >= totalFrames) {
+          clearInterval(self.animTimer);
+          self.playing = false;
+          var months = Math.floor(Math.random() * 15) + 4;
+          self.resultText = 'SIMULATION COMPLETE. ESTIMATED SHELF LIFE: ' + months + ' MONTHS. FEE: $2.00 (<span style="color: var(--magenta);">WAIVED — BETA ACCESS</span>)';
+          self.showResult = true;
+        }
+      }, 333);
+    }
+  };
+}
+
+function shop() {
+  var stockIdx = Math.floor(Math.random() * 4);
+  return {
+    items: [
+      {
+        name: 'REPLICA FREEZE-DRIED CULTURE VIAL',
+        desc: 'Museum-grade sealed vial containing a freeze-dried replica of sample NCD-2019-RNO-0447. Display stand not included. Not for consumption.',
+        price: '19.95',
+        inStock: stockIdx === 0,
+        state: 'idle'
+      },
+      {
+        name: 'STARTER CULTIVATION KIT',
+        desc: 'Everything you need to begin your own condensation tray archive. Includes petri dishes (6), agar medium, sterile swabs, and a 40-page field manual by B.J. Hinkle.',
+        price: '29.99',
+        inStock: stockIdx === 1,
+        state: 'idle'
+      },
+      {
+        name: 'STERILE COTTON SWAB 12-PACK',
+        desc: 'Polyester tip, 6-inch shaft, individually sealed. The same model I have used since 2017. Do not substitute.',
+        price: '12.00',
+        inStock: stockIdx === 2,
+        state: 'idle'
+      },
+      {
+        name: '"THE COMPLETE HINKLE INDEX" VOL. I-III',
+        desc: 'Bound dot-matrix printout. 847 pages. Every sample, every score, every annotation. Spiral-bound because I do not trust perfect binding.',
+        price: '47.50',
+        inStock: stockIdx === 3,
+        state: 'idle'
+      }
+    ],
+    purchase: function(i) {
+      if (this.items[i].state !== 'idle' || !this.items[i].inStock) return;
+      var self = this;
+      self.items[i].state = 'processing';
+      setTimeout(function() {
+        self.items[i].state = 'done';
+      }, 2000);
+    }
+  };
+}
+</script>
+</body>
+</html>

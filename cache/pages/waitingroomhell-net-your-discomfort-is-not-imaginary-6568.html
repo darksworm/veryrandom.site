@@ -1,0 +1,859 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>WaitingRoomHell.net — Your Discomfort Is Not Imaginary</title>
+<link rel="stylesheet" href="/assets/css/fonts.css">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+--bg:#0A0A0A;--bg-warm:#0D0A08;--text:#F5F0E1;--red:#CC2200;--green:#2B5F2B;
+--yellow:#FFD43B;--gray:#5A5A5A;--font-mono:'Fira Code',monospace;
+--font-display:'Archivo Black',sans-serif;--font-hand:'Caveat',cursive;
+}
+html{scroll-behavior:smooth;background:var(--bg)}
+body{
+font-family:var(--font-mono);color:var(--text);background:var(--bg);
+font-size:16px;line-height:1.6;cursor:progress;overflow-x:hidden;
+transition:background-color 60s ease;
+}
+a,button,[role="button"],[x-on\\:click]{cursor:pointer!important}
+/* scrollbar */
+::-webkit-scrollbar{width:8px}
+::-webkit-scrollbar-track{background:#1a1a1a}
+::-webkit-scrollbar-thumb{background:var(--green);border-radius:4px}
+/* grain overlay */
+body::after{
+content:'';position:fixed;top:0;left:0;width:100%;height:100%;
+pointer-events:none;z-index:9998;opacity:0.04;
+background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+background-repeat:repeat;background-size:128px 128px;
+}
+/* subtle background drift */
+@keyframes bgDrift{
+0%{background-position:0 0}
+50%{background-position:0 20px}
+100%{background-position:0 0}
+}
+body::before{
+content:'';position:fixed;top:-20px;left:0;width:100%;height:calc(100% + 40px);
+pointer-events:none;z-index:-1;
+background:linear-gradient(180deg,rgba(10,10,10,0) 0%,rgba(20,18,14,0.03) 50%,rgba(10,10,10,0) 100%);
+animation:bgDrift 30s ease-in-out infinite;
+}
+/* Loading screen */
+#loading-screen{
+position:fixed;top:0;left:0;width:100%;height:100%;background:var(--bg);
+z-index:10000;display:flex;align-items:center;justify-content:center;
+font-family:var(--font-mono);color:var(--text);font-size:1.2rem;
+transition:opacity 0.5s ease;
+}
+#loading-screen.fade-out{opacity:0;pointer-events:none}
+#loading-screen span{animation:loadBlink 1s step-end infinite}
+@keyframes loadBlink{0%,100%{opacity:1}50%{opacity:0.3}}
+/* Main content hidden until loaded */
+#main-content{opacity:0;transition:opacity 0.5s ease}
+#main-content.visible{opacity:1}
+
+/* ═══ TICKET STRIP ═══ */
+#ticket-strip{
+position:fixed;top:0;left:0;right:0;z-index:9999;
+background:var(--green);padding:8px 16px;
+display:flex;align-items:center;justify-content:space-between;
+flex-wrap:wrap;gap:4px;
+border-bottom:2px solid #1a3a1a;
+font-family:var(--font-mono);
+}
+#ticket-strip .serving-label{
+font-family:var(--font-display);color:var(--red);font-size:clamp(0.9rem,2.5vw,1.3rem);
+letter-spacing:2px;display:flex;align-items:center;gap:10px;
+}
+#ticket-strip .serving-num{
+font-family:var(--font-display);color:var(--red);font-size:clamp(1.2rem,3vw,1.8rem);
+transition:text-shadow 0.3s ease;
+}
+#ticket-strip .serving-num.flash{text-shadow:0 0 20px var(--red),0 0 40px var(--red)}
+#ticket-strip .your-num{
+font-family:var(--font-display);color:var(--text);font-size:clamp(0.8rem,2vw,1.1rem);
+text-align:right;
+}
+#ticket-strip .your-num span{
+font-size:clamp(1rem,2.5vw,1.5rem);color:var(--text);
+}
+.blink-dot{
+width:8px;height:8px;border-radius:50%;background:var(--red);
+display:inline-block;animation:blinkDot 2s ease-in-out infinite;
+}
+@keyframes blinkDot{0%,100%{opacity:1}50%{opacity:0.2}}
+#marquee-wrap{
+width:100%;overflow:hidden;height:18px;margin-top:2px;
+}
+#marquee-text{
+display:inline-block;white-space:nowrap;font-size:11px;color:#a0d0a0;
+animation:marqueeScroll 20s linear infinite;
+}
+@keyframes marqueeScroll{0%{transform:translateX(100vw)}100%{transform:translateX(-100%)}}
+/* called state */
+#ticket-strip.called{background:var(--red);animation:stripFlash 0.3s ease 3}
+@keyframes stripFlash{0%,100%{opacity:1}50%{opacity:0.5}}
+#ticket-strip.called .serving-label,
+#ticket-strip.called .serving-num,
+#ticket-strip.called .your-num,
+#ticket-strip.called .your-num span{color:#fff}
+
+/* ═══ FLUORESCENT BAR ═══ */
+.fluorescent{
+width:100%;height:3px;background:#fff;
+animation:flicker 4s ease-in-out infinite;
+margin-bottom:20px;
+}
+@keyframes flicker{
+0%{opacity:0.85}4%{opacity:1}8%{opacity:0.7}12%{opacity:0.95}
+20%{opacity:0.85}24%{opacity:1}30%{opacity:0.6}32%{opacity:1}
+50%{opacity:0.9}55%{opacity:1}60%{opacity:0.75}65%{opacity:1}
+80%{opacity:0.85}85%{opacity:0.6}87%{opacity:1}100%{opacity:0.85}
+}
+
+/* ═══ SECTIONS ═══ */
+.page-wrapper{padding-top:75px}
+section{max-width:900px;margin:0 auto;padding:40px 20px}
+.hero{text-align:center;padding-top:60px}
+.hero h1{
+font-family:var(--font-display);font-size:clamp(2rem,6vw,3.5rem);
+color:var(--text);letter-spacing:3px;margin-bottom:8px;
+}
+.hero .tagline{
+font-family:var(--font-mono);font-size:clamp(0.85rem,2vw,1rem);
+color:var(--gray);font-style:italic;margin-bottom:24px;
+}
+.hero .origin{
+font-size:clamp(0.75rem,1.5vw,0.85rem);color:var(--gray);
+line-height:1.8;max-width:600px;margin:0 auto;
+}
+
+/* ═══ STICKY NOTE ═══ */
+.sticky-note{
+background:var(--yellow);color:#1a1a00;font-family:var(--font-hand);
+font-size:clamp(1rem,2.5vw,1.2rem);padding:16px 20px;
+transform:rotate(-2deg);box-shadow:3px 3px 10px rgba(0,0,0,0.4);
+max-width:340px;margin:30px auto;line-height:1.4;
+position:relative;z-index:2;
+}
+.sticky-note.right{transform:rotate(1.5deg);margin-left:auto;margin-right:20px}
+.sticky-note .sig{font-size:0.9em;margin-top:8px;opacity:0.8}
+
+/* ═══ REVIEW CARDS ═══ */
+.section-header{
+font-family:var(--font-display);font-size:clamp(1.2rem,3vw,1.6rem);
+color:var(--text);border-left:4px solid var(--green);
+padding-left:16px;margin-bottom:30px;letter-spacing:1px;
+}
+.review-card{
+background:#111;border:1px solid #222;padding:24px;margin-bottom:0;
+position:relative;
+}
+.review-card .location{
+font-family:var(--font-display);font-size:clamp(0.85rem,2vw,1rem);
+color:var(--green);letter-spacing:1px;margin-bottom:8px;
+}
+.review-card .meta{
+display:flex;flex-wrap:wrap;gap:12px;align-items:center;
+margin-bottom:12px;font-size:0.8rem;color:var(--gray);
+}
+.wait-badge{
+background:var(--red);color:#fff;padding:2px 8px;
+font-size:0.75rem;letter-spacing:1px;
+}
+.chairs{color:var(--red);letter-spacing:2px;font-size:0.9rem}
+.review-text{
+font-size:clamp(0.85rem,1.8vw,0.95rem);line-height:1.7;
+color:var(--text);margin-bottom:14px;
+}
+.review-tags{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px}
+.review-tags span{
+font-size:0.7rem;padding:2px 8px;border:1px solid var(--gray);
+color:var(--gray);letter-spacing:1px;
+}
+.review-timestamp{font-size:0.7rem;color:var(--gray)}
+.review-divider{
+border:none;border-top:1px dashed #333;margin:0;
+}
+
+/* ═══ AUDIO SECTION ═══ */
+.audio-entry{
+background:#111;border:1px solid #222;padding:16px;
+margin-bottom:8px;
+}
+.audio-entry .audio-title{
+font-size:clamp(0.78rem,1.6vw,0.88rem);color:var(--text);margin-bottom:8px;
+}
+.audio-entry .audio-meta{
+display:flex;flex-wrap:wrap;align-items:center;gap:12px;
+font-size:0.8rem;color:var(--gray);
+}
+.play-btn{
+width:36px;height:36px;min-width:36px;background:var(--green);border:none;color:var(--text);
+font-size:1rem;display:flex;align-items:center;justify-content:center;
+cursor:pointer!important;flex-shrink:0;
+}
+.play-btn:hover{background:#3a7a3a}
+.waveform{display:flex;align-items:end;gap:2px;height:24px}
+.waveform .bar{
+width:3px;background:var(--green);transition:height 0.15s ease;
+}
+.irritation{color:var(--red);font-size:0.8rem;letter-spacing:1px}
+.audio-done{
+font-size:0.75rem;color:var(--gray);font-style:italic;
+margin-top:8px;
+}
+.progress-bar{
+flex:1;height:4px;background:#222;min-width:60px;position:relative;overflow:hidden;
+}
+.progress-bar .fill{height:100%;background:var(--green);width:0%;transition:width 0.1s linear}
+
+/* ═══ OUTLET TABLE ═══ */
+.outlet-table-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch}
+.outlet-table{
+width:100%;border-collapse:collapse;font-size:clamp(0.65rem,1.3vw,0.8rem);
+}
+.outlet-table th{
+text-align:left;padding:8px 10px;border-bottom:2px solid var(--green);
+color:var(--green);font-weight:normal;letter-spacing:1px;
+white-space:nowrap;
+}
+.outlet-table td{
+padding:8px 10px;border-bottom:1px solid #222;
+color:var(--text);vertical-align:top;
+}
+.outlet-table td:nth-child(4){color:var(--red)}
+.outlet-table .notes{color:var(--gray);font-style:italic;max-width:250px}
+
+/* ═══ WAIT TRACKER ═══ */
+.tracker-time{
+font-family:var(--font-display);font-size:clamp(2rem,5vw,3rem);
+color:var(--red);text-align:center;margin:20px 0;letter-spacing:3px;
+}
+.tracker-msg{
+text-align:center;font-size:clamp(0.8rem,1.8vw,0.95rem);
+color:var(--gray);min-height:1.6em;transition:color 0.5s ease;
+}
+
+/* ═══ BADGES ═══ */
+.badge-row{
+display:flex;flex-wrap:wrap;gap:20px;justify-content:center;
+}
+.badge{
+width:100px;text-align:center;opacity:0.3;transition:opacity 0.5s ease;
+}
+.badge.unlocked{opacity:1}
+.badge-icon{
+width:72px;height:72px;border-radius:50%;
+border:3px solid var(--gray);margin:0 auto 8px;
+display:flex;align-items:center;justify-content:center;
+font-size:1.6rem;transition:border-color 0.5s,box-shadow 0.5s;
+background:#111;
+}
+.badge.unlocked .badge-icon{
+border-color:var(--red);
+box-shadow:0 0 12px rgba(204,34,0,0.3);
+}
+.badge-label{font-size:0.65rem;color:var(--gray);line-height:1.3}
+.badge.unlocked .badge-label{color:var(--text)}
+
+/* ═══ FOOTER ═══ */
+footer{
+text-align:center;padding:40px 20px;
+font-size:clamp(0.7rem,1.4vw,0.8rem);color:var(--gray);
+line-height:2;
+}
+footer .receipt-line{color:#333;letter-spacing:3px}
+footer .site-name{
+font-family:var(--font-display);color:var(--text);
+font-size:clamp(0.9rem,2vw,1.1rem);letter-spacing:2px;
+}
+footer .motto{color:var(--text);font-style:italic}
+footer .have-nice{color:var(--text);margin-top:8px}
+footer .wont{color:var(--gray)}
+footer .disclaimer{font-size:10px;color:var(--gray);margin-top:20px}
+footer .credits{font-size:9px;color:#444;margin-top:12px}
+footer .credits a{color:#555}
+
+/* ═══ RESPONSIVE ═══ */
+@media(max-width:768px){
+  #ticket-strip{padding:6px 10px}
+  section{padding:30px 16px}
+  .sticky-note{max-width:280px;margin-left:auto;margin-right:auto}
+  .sticky-note.right{margin-left:auto;margin-right:auto}
+  .outlet-table{font-size:0.65rem}
+  .badge{width:80px}
+  .badge-icon{width:60px;height:60px;font-size:1.3rem}
+}
+@media(max-width:375px){
+  .hero h1{font-size:1.6rem}
+  .review-card{padding:16px}
+}
+</style>
+</head>
+<body>
+<!-- LOADING SCREEN -->
+<div id="loading-screen"><span>PLEASE WAIT...</span></div>
+
+<!-- TICKET STRIP -->
+<div id="ticket-strip" x-data="ticketStrip()" x-init="start()">
+  <div class="serving-label">
+    NOW SERVING <span class="blink-dot"></span>
+    <span class="serving-num" :class="flashClass" x-text="'#' + String(servingNum).padStart(3,'0')"></span>
+  </div>
+  <div class="your-num">
+    YOUR # <span x-text="'#' + String(yourNum).padStart(3,'0')"></span>
+  </div>
+  <div id="marquee-wrap">
+    <div id="marquee-text">Estimated wait: 2 hr 14 min &nbsp;&nbsp;&nbsp;•&nbsp;&nbsp;&nbsp; Estimated wait: 2 hr 14 min &nbsp;&nbsp;&nbsp;•&nbsp;&nbsp;&nbsp; Estimated wait: 2 hr 14 min &nbsp;&nbsp;&nbsp;•&nbsp;&nbsp;&nbsp; Estimated wait: 2 hr 14 min &nbsp;&nbsp;&nbsp;•&nbsp;&nbsp;&nbsp;</div>
+  </div>
+  <div x-show="calledMsg" x-text="calledMsg" style="width:100%;text-align:center;font-family:var(--font-display);font-size:clamp(0.8rem,2vw,1rem);color:#fff;margin-top:4px;letter-spacing:1px" x-cloak></div>
+</div>
+
+<!-- MAIN CONTENT -->
+<div id="main-content" class="page-wrapper" x-data="pageApp()">
+
+<!-- HERO -->
+<section class="hero">
+  <div class="fluorescent"></div>
+  <h1>WAITINGROOMHELL.NET</h1>
+  <p class="tagline">Est. 2019 — "Your Discomfort Is Not Imaginary"</p>
+  <p class="origin">Founded by Marshall Finch after 3 hours at IRS Office #4102, Arlington VA.<br>Built in the back of a taxi. Fueled by spite and a dead phone battery.</p>
+  <div class="sticky-note" style="transform:rotate(-3deg);margin-top:40px">
+    "Brenda Chu says I'm cynical. Brenda has never sat in Seat 12 at the Trenton DMV."
+    <div class="sig">—M.F.</div>
+  </div>
+</section>
+
+<!-- REVIEW WALL -->
+<section id="review-wall">
+  <h2 class="section-header">FILED COMPLAINTS — RECENT SUBMISSIONS</h2>
+
+  <div class="review-card" id="review-gerald">
+    <div class="location">BOSTON DMV — HAYMARKET, MA</div>
+    <div class="meta">
+      <span class="wait-badge">4h 07m</span>
+      <span class="chairs">◼◼◼◼◼</span>
+      <span>5/5 chairs</span>
+    </div>
+    <p class="review-text">Arrived 7:45am for an 8am opening. Already 40 people in line. The waiting room smells like the inside of a laminator. Ceiling tile above seat 7 has a brown ring that I've been staring at for 90 minutes. I've named it. Its name is Gerald. Gerald and I have a complicated relationship.</p>
+    <div class="review-tags">
+      <span>MYSTERY_STAIN</span><span>FLICKERING_LIGHTS</span><span>NO_OUTLETS</span><span>EARLY_LINE</span>
+    </div>
+    <div class="review-timestamp">REVIEWED: 2024-01-18 // TICKET #0412</div>
+  </div>
+  <hr class="review-divider">
+
+  <div class="review-card">
+    <div class="location">IRS OFFICE #4102 — ARLINGTON, VA</div>
+    <div class="meta">
+      <span class="wait-badge">3h 22m</span>
+      <span class="chairs">◼◼◼◼</span>
+      <span>4/5 chairs</span>
+    </div>
+    <p class="review-text">The chairs are bolted to the floor in groups of four, facing each other, so you're forced into eye contact with three strangers who are also dying inside. Fluorescent tube #3 has been flickering since the Obama administration. There is one outlet. It is behind the vending machine. The vending machine is bolted to the wall. I respect this level of hostility.</p>
+    <div class="review-tags">
+      <span>STICKY_CHAIRS</span><span>FLICKERING_LIGHTS</span><span>NO_OUTLETS</span><span>FORCED_EYE_CONTACT</span>
+    </div>
+    <div class="review-timestamp">REVIEWED: 2024-03-14 // TICKET #0847</div>
+  </div>
+  <hr class="review-divider">
+
+  <div class="review-card">
+    <div class="location">SSA FIELD OFFICE — TRENTON, NJ</div>
+    <div class="meta">
+      <span class="wait-badge">2h 51m</span>
+      <span class="chairs">◼◼◼</span>
+      <span>3/5 chairs</span>
+    </div>
+    <p class="review-text">Two working outlets in the entire office. Both occupied by the same man charging a laptop AND a phone using a power strip he brought from home. This man is my hero and my enemy. The security guard watched the whole thing and said nothing. There are no rules here. Only survival.</p>
+    <div class="review-tags">
+      <span>OUTLET_HOG</span><span>NO_WIFI</span><span>CLOCK_WRONG</span>
+    </div>
+    <div class="review-timestamp">REVIEWED: 2024-02-28 // TICKET #0633</div>
+  </div>
+  <hr class="review-divider">
+
+  <div class="review-card">
+    <div class="location">LA PASSPORT OFFICE — FEDERAL BLDG, LOS ANGELES</div>
+    <div class="meta">
+      <span class="wait-badge">5h 11m</span>
+      <span class="chairs">◼◼◼◼◼</span>
+      <span>5/5 chairs</span>
+    </div>
+    <p class="review-text">Five hours. The outlets are painted over. Not broken. Not removed. Painted. Over. Someone made a deliberate choice to seal six electrical outlets beneath beige latex paint. This is not negligence. This is philosophy. This building believes in suffering.</p>
+    <div class="review-tags">
+      <span>NO_OUTLETS</span><span>PAINTED_SHUT</span><span>CLOCK_WRONG</span><span>AC_BROKEN</span>
+    </div>
+    <div class="review-timestamp">REVIEWED: 2023-11-02 // TICKET #1104</div>
+  </div>
+  <hr class="review-divider">
+
+  <div class="review-card">
+    <div class="location">CHICAGO CITY HALL — ROOM 103</div>
+    <div class="meta">
+      <span class="wait-badge">1h 48m</span>
+      <span class="chairs">◼◼◼</span>
+      <span>3/5 chairs</span>
+    </div>
+    <p class="review-text">Guard told me "no charging devices." I plugged in anyway. He looked at me. I looked at him. He walked away. The guard is bluffing. Repeat: the guard is bluffing. Spread the word. Three outlets work. They're behind the bench near the fire exit. You're welcome.</p>
+    <div class="review-tags">
+      <span>GUARD_BLUFF</span><span>OUTLET_WORKS</span><span>BENCH_HARD</span>
+    </div>
+    <div class="review-timestamp">REVIEWED: 2024-04-19 // TICKET #0291</div>
+  </div>
+  <hr class="review-divider">
+
+  <div class="review-card">
+    <div class="location">DMV — TRENTON, NJ (AGAIN)</div>
+    <div class="meta">
+      <span class="wait-badge">3h 40m</span>
+      <span class="chairs">◼◼◼◼◼</span>
+      <span>5/5 chairs</span>
+    </div>
+    <p class="review-text">Seat 12. The legendary Seat 12. Spring broken. Vinyl cracked. Positioned directly beneath the speaker that announces numbers at a volume that suggests the system was designed for an aircraft carrier. Every 90 seconds your skeleton leaves your body. I sat here for three hours because every other seat was taken. I am not the same person I was before Seat 12.</p>
+    <div class="review-tags">
+      <span>STICKY_CHAIRS</span><span>LOUD_SPEAKER</span><span>STRUCTURAL_DAMAGE</span><span>SOUL_DAMAGE</span>
+    </div>
+    <div class="review-timestamp">REVIEWED: 2024-05-03 // TICKET #0077</div>
+  </div>
+  <hr class="review-divider">
+
+  <div class="review-card">
+    <div class="location">COUNTY CLERK — FAIRFAX, VA</div>
+    <div class="meta">
+      <span class="wait-badge">2h 15m</span>
+      <span class="chairs">◼◼</span>
+      <span>2/5 chairs</span>
+    </div>
+    <p class="review-text">Genuinely decent chairs. Padded. Not bolted down. The clock works. There's a water cooler that actually has water in it. I was so confused by the basic competence that I forgot why I came. This is the waiting room equivalent of finding a $20 bill in your coat pocket. I'm suspicious. Something is wrong. Nobody is this kind on purpose.</p>
+    <div class="review-tags">
+      <span>PADDED_SEATS</span><span>CLOCK_WORKS</span><span>WATER_AVAILABLE</span><span>SUSPICIOUS</span>
+    </div>
+    <div class="review-timestamp">REVIEWED: 2024-06-11 // TICKET #0558</div>
+  </div>
+  <hr class="review-divider">
+
+  <div class="review-card">
+    <div class="location">UNEMPLOYMENT OFFICE — NEWARK, NJ</div>
+    <div class="meta">
+      <span class="wait-badge">4h 33m</span>
+      <span class="chairs">◼◼◼◼◼</span>
+      <span>5/5 chairs</span>
+    </div>
+    <p class="review-text">The TV in the corner is tuned to a channel that doesn't exist anymore. Just static with occasional flashes of what might be a weather map from 2019. Nobody has changed it. The remote is zip-tied to the wall mount. The zip tie has been painted over. Twice. I asked the desk clerk about it and she said "we don't control the TV." Nobody controls the TV. The TV controls itself.</p>
+    <div class="review-tags">
+      <span>HAUNTED_TV</span><span>STICKY_CHAIRS</span><span>NO_OUTLETS</span><span>FLICKERING_LIGHTS</span>
+    </div>
+    <div class="review-timestamp">REVIEWED: 2024-07-22 // TICKET #0919</div>
+  </div>
+  <hr class="review-divider">
+
+  <div class="review-card">
+    <div class="location">SOCIAL SECURITY — DOWNTOWN PORTLAND, OR</div>
+    <div class="meta">
+      <span class="wait-badge">2h 02m</span>
+      <span class="chairs">◼◼◼◼</span>
+      <span>4/5 chairs</span>
+    </div>
+    <p class="review-text">Someone's kid playing Cocomelon at full volume. No headphones. For two hours. The parent made eye contact with me once, shrugged, and went back to their phone. The child was seated in a stroller in the middle of the aisle. Seventeen adults stepped over that stroller. Nobody said a word. We are a broken species.</p>
+    <div class="review-tags">
+      <span>COCOMELON</span><span>NO_HEADPHONES</span><span>AISLE_BLOCKED</span><span>CIVILIZATION_FAILED</span>
+    </div>
+    <div class="review-timestamp">REVIEWED: 2024-08-30 // TICKET #0166</div>
+  </div>
+  <hr class="review-divider">
+
+  <div class="review-card">
+    <div class="location">ARLINGTON IRS #4102 — REVISIT #14</div>
+    <div class="meta">
+      <span class="wait-badge">3h 01m</span>
+      <span class="chairs">◼◼◼◼</span>
+      <span>4/5 chairs</span>
+    </div>
+    <p class="review-text">I keep coming back here. I don't even have tax issues anymore. I just sit in the chairs and take notes. The staff recognizes me. One of them nodded at me last week. I think she respects my commitment. Or fears it. Either way, the fluorescent in row 3 is still flickering. Some things are eternal.</p>
+    <div class="review-tags">
+      <span>REPEAT_VISITOR</span><span>FLICKERING_LIGHTS</span><span>EXISTENTIAL</span>
+    </div>
+    <div class="review-timestamp">REVIEWED: 2024-09-14 // TICKET #0847 (AGAIN)</div>
+  </div>
+</section>
+
+<!-- AUDIO EXHIBIT -->
+<section x-data="audioSection()">
+  <h2 class="section-header">AMBIENT MISERY INDEX — FIELD RECORDINGS</h2>
+
+  <template x-for="(track, i) in tracks" :key="i">
+    <div class="audio-entry">
+      <div class="audio-title" x-text="track.title"></div>
+      <div class="audio-meta">
+        <button class="play-btn" @click="togglePlay(i)" x-text="track.playing ? '■' : '▶'" :aria-label="track.playing ? 'Stop' : 'Play'"></button>
+        <div class="waveform">
+          <template x-for="(h, bi) in track.bars" :key="bi">
+            <div class="bar" :style="'height:' + (track.playing ? track.animBars[bi] : h) + 'px'"></div>
+          </template>
+        </div>
+        <div class="progress-bar"><div class="fill" :style="'width:' + track.progress + '%'"></div></div>
+        <span x-text="track.duration"></span>
+        <span class="irritation" x-text="'irritation: ' + track.irritation"></span>
+      </div>
+      <div class="audio-done" x-show="track.done" x-text="'You didn\u2019t actually need to hear this. You already know exactly what it sounds like.'"></div>
+    </div>
+  </template>
+</section>
+
+<!-- OUTLET MAP -->
+<section>
+  <h2 class="section-header">BEST FOR CHARGING — OUTLET RECON REPORTS</h2>
+  <div class="outlet-table-wrap">
+    <table class="outlet-table">
+      <thead>
+        <tr><th>LOCATION</th><th>TOTAL</th><th>WORKING</th><th>RATE</th><th>NOTES</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>BOSTON DMV, HAYMARKET</td><td>4</td><td>1</td><td>25%</td><td class="notes">"Behind vending machine. Bring extension cord."</td></tr>
+        <tr><td>LA PASSPORT OFFICE</td><td>6</td><td>0</td><td>0%</td><td class="notes">"All painted over. Literally painted over."</td></tr>
+        <tr><td>TRENTON SSA</td><td>2</td><td>2</td><td>100%</td><td class="notes">"Both next to the men's room door. Choose wisely."</td></tr>
+        <tr><td>ARLINGTON IRS #4102</td><td>3</td><td>1</td><td>33%</td><td class="notes">"Works but trips breaker if you plug in anything made after 2015."</td></tr>
+        <tr><td>CHICAGO CITY HALL RM 103</td><td>8</td><td>3</td><td>38%</td><td class="notes">"Guard will tell you 'no charging.' Guard is bluffing."</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="sticky-note right" style="margin-top:30px">
+    "I've been doing this for 5 years. The outlet situation has not improved at a single location. Not one."
+    <div class="sig">—M.F.</div>
+  </div>
+</section>
+
+<!-- WAIT TRACKER -->
+<section>
+  <h2 class="section-header">HOW LONG HAVE YOU BEEN ON THIS PAGE?</h2>
+  <div class="tracker-time" x-text="formatTime(elapsed)"></div>
+  <p class="tracker-msg" x-text="waitMsg"></p>
+</section>
+
+<!-- BADGE WALL -->
+<section>
+  <h2 class="section-header">WAIT WOE BADGES — AWARDED FOR ENDURANCE</h2>
+  <div class="badge-row">
+    <div class="badge" :class="badges.firstTimer ? 'unlocked' : ''">
+      <div class="badge-icon">◼</div>
+      <div class="badge-label">FIRST TIMER<br><span style="font-size:0.6rem;color:var(--gray)">visited the page</span></div>
+    </div>
+    <div class="badge" :class="badges.clockWatcher ? 'unlocked' : ''">
+      <div class="badge-icon">⏱</div>
+      <div class="badge-label">CLOCK WATCHER<br><span style="font-size:0.6rem;color:var(--gray)">1 minute</span></div>
+    </div>
+    <div class="badge" :class="badges.overstay ? 'unlocked' : ''">
+      <div class="badge-icon">🏆</div>
+      <div class="badge-label">OVERSTAY EXPERT<br><span style="font-size:0.6rem;color:var(--gray)">30 min cumulative</span></div>
+    </div>
+    <div class="badge" :class="badges.systemDown ? 'unlocked' : ''">
+      <div class="badge-icon">⚡</div>
+      <div class="badge-label">SYSTEM IS DOWN<br><span style="font-size:0.6rem;color:var(--gray)">witnessed the event</span></div>
+    </div>
+    <div class="badge" :class="badges.gerald ? 'unlocked' : ''">
+      <div class="badge-icon">●</div>
+      <div class="badge-label">GERALD'S FRIEND<br><span style="font-size:0.6rem;color:var(--gray)">found the stain</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="receipt-line">- - - - - - - - - - - - - - - - - - - -</div>
+  <div class="site-name">WAITINGROOMHELL.NET</div>
+  <div>EST. 2019 — MARSHALL FINCH, FOUNDER</div>
+  <div class="motto">"Your time matters. Your discomfort is real."</div>
+  <div class="receipt-line">- - - - - - - - - - - - - - - - - - - -</div>
+  <div class="have-nice">HAVE A NICE DAY</div>
+  <div class="wont">(you won't)</div>
+  <div class="receipt-line">- - - - - - - - - - - - - - - - - - - -</div>
+  <div class="disclaimer">Not affiliated with any government agency. They wouldn't claim us either.</div>
+  <div class="credits">
+    Photo by <a href="https://www.pexels.com/@wutthichai-charoenburi-553075115">wutthichai charoenburi</a> on <a href="https://www.pexels.com">Pexels</a> ·
+    Photo by <a href="https://www.pexels.com/@pppsdavid">David Yu</a> on <a href="https://www.pexels.com">Pexels</a>
+  </div>
+</footer>
+
+</div><!-- /main-content -->
+
+<script src="/assets/js/alpine.min.js" defer></script>
+<script>
+// ═══ UTILITIES ═══
+function randInt(min, max) { return Math.floor(Math.random() * (max - min + 1)) + min; }
+
+// ═══ LOADING SCREEN ═══
+document.addEventListener('DOMContentLoaded', function() {
+  setTimeout(function() {
+    var ls = document.getElementById('loading-screen');
+    ls.classList.add('fade-out');
+    setTimeout(function() { ls.style.display = 'none'; }, 500);
+    document.getElementById('main-content').classList.add('visible');
+  }, 1500);
+});
+
+// ═══ LOCALSTORAGE HELPERS ═══
+function getStoredTime() {
+  try { return parseInt(localStorage.getItem('wrh_cumulative') || '0', 10); } catch(e) { return 0; }
+}
+function setStoredTime(s) {
+  try { localStorage.setItem('wrh_cumulative', String(s)); } catch(e) {}
+}
+function getStoredBadges() {
+  try { return JSON.parse(localStorage.getItem('wrh_badges') || '{}'); } catch(e) { return {}; }
+}
+function setStoredBadges(b) {
+  try { localStorage.setItem('wrh_badges', JSON.stringify(b)); } catch(e) {}
+}
+
+// ═══ TICKET STRIP ═══
+function ticketStrip() {
+  var startServing = randInt(760, 810);
+  var gap = randInt(30, 80);
+  return {
+    servingNum: startServing,
+    yourNum: startServing + gap,
+    flashClass: '',
+    calledMsg: '',
+    calledPhase: false,
+    interval: null,
+    start: function() {
+      var self = this;
+      self.tick();
+    },
+    tick: function() {
+      var self = this;
+      var delay = randInt(45, 90) * 1000;
+      setTimeout(function() {
+        if (self.calledPhase) return;
+        self.servingNum++;
+        self.flashClass = 'flash';
+        setTimeout(function() { self.flashClass = ''; }, 400);
+        if (self.servingNum >= self.yourNum) {
+          self.numberCalled();
+        } else {
+          self.tick();
+        }
+      }, delay);
+    },
+    numberCalled: function() {
+      var self = this;
+      self.calledPhase = true;
+      var strip = document.getElementById('ticket-strip');
+      strip.classList.add('called');
+      self.calledMsg = 'WINDOW 3 — PLEASE APPROACH';
+      // chime via Web Audio API
+      try {
+        var ctx = new (window.AudioContext || window.webkitAudioContext)();
+        var osc = ctx.createOscillator();
+        var gain = ctx.createGain();
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.frequency.value = 880;
+        osc.type = 'sine';
+        gain.gain.value = 0.15;
+        osc.start();
+        gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.8);
+        osc.stop(ctx.currentTime + 0.8);
+      } catch(e) {}
+      // Award badge
+      var b = getStoredBadges();
+      b.systemDown = true;
+      setStoredBadges(b);
+      // Dispatch event for pageApp to pick up
+      window.dispatchEvent(new CustomEvent('wrh-system-down'));
+      setTimeout(function() {
+        self.calledMsg = '...JUST KIDDING. THE SYSTEM IS DOWN. PLEASE TAKE A NEW NUMBER.';
+        setTimeout(function() {
+          strip.classList.remove('called');
+          self.calledMsg = '';
+          self.calledPhase = false;
+          var newGap = randInt(30, 80);
+          self.yourNum = self.servingNum + newGap;
+          self.tick();
+        }, 5000);
+      }, 5000);
+    }
+  };
+}
+
+// ═══ AUDIO SECTION ═══
+function audioSection() {
+  var trackData = [
+    { title: 'Angry Stapler Slam — Window 6, Trenton SSA', duration: '0:03', irritation: '████░ 4/5', totalSec: 3 },
+    { title: '5PM Vacuum Roar (Janitor Doesn\'t Care You\'re Still Here)', duration: '1:47', irritation: '█████ 5/5', totalSec: 5 },
+    { title: 'Hold Music → Click → Dial Tone (The Trilogy)', duration: '0:22', irritation: '█████ 5/5', totalSec: 4 },
+    { title: 'Someone\'s Kid Playing Cocomelon At Full Volume, No Headphones', duration: '4:12', irritation: '█████ 5/5', totalSec: 6 },
+    { title: 'Pen Clicking, Escalating Tempo', duration: '0:38', irritation: '███░░ 3/5', totalSec: 4 },
+    { title: 'The Specific Sound Of A Number Being Called That Isn\'t Yours', duration: '0:04', irritation: '█████ 5/5', totalSec: 3 }
+  ];
+  var tracks = trackData.map(function(t) {
+    var bars = [];
+    for (var i = 0; i < 20; i++) bars.push(randInt(4, 22));
+    return {
+      title: t.title, duration: t.duration, irritation: t.irritation,
+      totalSec: t.totalSec,
+      bars: bars, animBars: bars.slice(),
+      playing: false, done: false, progress: 0, animInterval: null, progInterval: null
+    };
+  });
+  return {
+    tracks: tracks,
+    togglePlay: function(i) {
+      var track = this.tracks[i];
+      if (track.playing) {
+        track.playing = false;
+        clearInterval(track.animInterval);
+        clearInterval(track.progInterval);
+        track.animBars = track.bars.slice();
+        return;
+      }
+      // Stop any other playing track
+      for (var j = 0; j < this.tracks.length; j++) {
+        if (this.tracks[j].playing) {
+          this.tracks[j].playing = false;
+          clearInterval(this.tracks[j].animInterval);
+          clearInterval(this.tracks[j].progInterval);
+          this.tracks[j].animBars = this.tracks[j].bars.slice();
+        }
+      }
+      track.playing = true;
+      track.done = false;
+      track.progress = 0;
+      // Animate waveform
+      track.animInterval = setInterval(function() {
+        var newBars = [];
+        for (var b = 0; b < track.bars.length; b++) newBars.push(randInt(3, 22));
+        track.animBars = newBars;
+      }, 150);
+      // Progress bar
+      var startTime = Date.now();
+      var durMs = track.totalSec * 1000;
+      track.progInterval = setInterval(function() {
+        var elapsed = Date.now() - startTime;
+        track.progress = Math.min(100, (elapsed / durMs) * 100);
+        if (elapsed >= durMs) {
+          track.playing = false;
+          track.done = true;
+          track.progress = 100;
+          clearInterval(track.animInterval);
+          clearInterval(track.progInterval);
+          track.animBars = track.bars.slice();
+        }
+      }, 50);
+    }
+  };
+}
+
+// ═══ PAGE APP (TRACKER + BADGES) ═══
+function pageApp() {
+  return {
+    elapsed: 0,
+    sessionStart: 0,
+    waitMsg: '',
+    badges: { firstTimer: false, clockWatcher: false, overstay: false, systemDown: false, gerald: false },
+    geraldObserver: null,
+    init: function() {
+      var self = this;
+      self.sessionStart = Date.now();
+      // Load badges
+      var stored = getStoredBadges();
+      self.badges.firstTimer = true;
+      stored.firstTimer = true;
+      if (stored.clockWatcher) self.badges.clockWatcher = true;
+      if (stored.overstay) self.badges.overstay = true;
+      if (stored.systemDown) self.badges.systemDown = true;
+      if (stored.gerald) self.badges.gerald = true;
+      setStoredBadges(stored);
+      // Load cumulative time
+      var cumulative = getStoredTime();
+      self.elapsed = cumulative;
+      // Tick every second
+      setInterval(function() {
+        var sessionSec = Math.floor((Date.now() - self.sessionStart) / 1000);
+        self.elapsed = getStoredTime() + sessionSec;
+        setStoredTime(self.elapsed);
+        self.updateMessages(sessionSec);
+        self.updateBadges();
+      }, 1000);
+      // Gerald scroll detection
+      self.setupGeraldDetection();
+      // System down event
+      window.addEventListener('wrh-system-down', function() {
+        self.badges.systemDown = true;
+        var b = getStoredBadges();
+        b.systemDown = true;
+        setStoredBadges(b);
+      });
+    },
+    formatTime: function(totalSec) {
+      var h = Math.floor(totalSec / 3600);
+      var m = Math.floor((totalSec % 3600) / 60);
+      var s = totalSec % 60;
+      var parts = [];
+      if (h > 0) parts.push(String(h));
+      parts.push(h > 0 ? String(m).padStart(2, '0') : String(m));
+      parts.push(String(s).padStart(2, '0'));
+      return parts.join(':');
+    },
+    updateMessages: function(sessionSec) {
+      if (sessionSec >= 1800) {
+        this.waitMsg = 'Half an hour. Marshall Finch would be proud. You\'ve earned the OVERSTAY EXPERT badge.';
+      } else if (sessionSec >= 1200) {
+        this.waitMsg = 'At this point you\'re not reading a website. You\'re sitting in the waiting room.';
+        document.body.style.backgroundColor = '#0C0A09';
+      } else if (sessionSec >= 900) {
+        this.waitMsg = 'At this point you\'re not reading a website. You\'re sitting in the waiting room.';
+      } else if (sessionSec >= 600) {
+        this.waitMsg = '10 minutes. You\'ve now waited longer than the average Starbucks order. And nobody even called your name wrong.';
+      } else if (sessionSec >= 300) {
+        this.waitMsg = '5 minutes. That\'s longer than the average person spends reading anything online. We see you.';
+      } else if (sessionSec >= 180) {
+        this.waitMsg = 'Most people leave by now. You must be used to waiting.';
+      } else if (sessionSec >= 60) {
+        this.waitMsg = 'Oh, you\'re still here.';
+      } else {
+        this.waitMsg = '';
+      }
+    },
+    updateBadges: function() {
+      var b = getStoredBadges();
+      var sessionSec = Math.floor((Date.now() - this.sessionStart) / 1000);
+      if (sessionSec >= 60 && !b.clockWatcher) {
+        b.clockWatcher = true;
+        setStoredBadges(b);
+      }
+      if (this.elapsed >= 1800 && !b.overstay) {
+        b.overstay = true;
+        setStoredBadges(b);
+      }
+      this.badges.clockWatcher = !!b.clockWatcher;
+      this.badges.overstay = !!b.overstay;
+      this.badges.systemDown = !!b.systemDown;
+      this.badges.gerald = !!b.gerald;
+    },
+    setupGeraldDetection: function() {
+      var self = this;
+      var geraldEl = document.getElementById('review-gerald');
+      if (!geraldEl) return;
+      var observer = new IntersectionObserver(function(entries) {
+        if (entries[0].isIntersecting) {
+          self.badges.gerald = true;
+          var b = getStoredBadges();
+          b.gerald = true;
+          setStoredBadges(b);
+          observer.disconnect();
+        }
+      }, { threshold: 0.5 });
+      observer.observe(geraldEl);
+    }
+  };
+}
+</script>
+</body>
+</html>

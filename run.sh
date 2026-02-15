@@ -76,13 +76,24 @@ LOCAL ASSETS (already hosted, use freely):
 - /assets/css/pico.min.css — Pico CSS classless framework
 - /assets/css/fonts.css — All web fonts below (link this to use them)
 - /assets/js/alpine.min.js — Alpine.js (x-data, x-show, x-on:click, x-text, x-for, etc.)
-- /assets/js/gsap.min.js — GSAP (gsap.to, gsap.fromTo, gsap.timeline). NEVER use gsap.from() — always gsap.fromTo() with explicit start AND end values.
+- /assets/js/gsap.min.js — GSAP (gsap.to, gsap.fromTo, gsap.timeline). NEVER use gsap.from() — always gsap.fromTo() with explicit start AND end values. NEVER use clearProps with 'opacity'. NEVER set style.opacity='' or style.visibility='' in onComplete callbacks. Once an element is animated to visible, it must STAY visible.
 - /assets/js/lucide.min.js — Lucide icons (call lucide.createIcons(), use <i data-lucide=\"icon-name\"></i>)
+- /assets/js/ogl.min.js — OGL minimal WebGL library. Exposes window.OGL with: Renderer, Camera, Orbit, Transform, Program, Mesh, Geometry, Plane, Sphere, Box, Color, Vec2, Vec3, Mat4. Use for 3D backgrounds, rotating shapes, particle fields, shader effects. Example: const { Renderer, Camera, Program, Mesh, Plane } = OGL;
+- /assets/js/noise.min.js — Simplex noise. createNoise2D() and createNoise3D() return noise functions: noise(x,y) → float -1..1. Use for organic movement, terrain, flow fields, procedural textures.
 
 AVAILABLE FONTS (via /assets/css/fonts.css):
 ${FONT_LIST}
 
-Do NOT use any external resources. Pick only what the blueprint specifies.
+IMAGES: You can search for real photos via Pexels using: node src/image-search.js \"search query\" [count] [orientation]
+  - count: number of images (1-10, default 3)
+  - orientation: landscape | portrait | square
+  - Returns src URLs, thumbnails, alt text, and attribution HTML
+  - Use the returned src/thumb URLs directly in <img> tags
+  - You MUST include the credit_html somewhere on the page (footer is fine)
+  - Example: node src/image-search.js \"vintage office interior\" 3 landscape
+  - Search for images BEFORE writing the HTML so you have the URLs ready
+
+Do NOT use any other external resources. Pick only what the blueprint specifies.
 
 ═══ WHO I AM ═══
 ${IDENTITY}

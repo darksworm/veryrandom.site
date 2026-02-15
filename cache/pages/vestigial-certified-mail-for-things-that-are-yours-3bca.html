@@ -1,0 +1,883 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Vestigial - Certified Mail for Things That Are Yours</title>
+  <link rel="stylesheet" href="/assets/css/pico.min.css" />
+  <link rel="stylesheet" href="/assets/css/fonts.css" />
+  <style>
+    :root {
+      --paper: #D6CFC7;
+      --paper-aged: #CBC3B8;
+      --carbon: #2B2926;
+      --postal-blue: #6B8F9E;
+      --copper: #8B6B47;
+      --usps-green: #3D5E3A;
+      --hearing-red: #C4463A;
+      --clause-bg: #CBC3B8;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: 'Libre Baskerville', serif;
+      color: var(--carbon);
+      background: var(--paper);
+      font-size: 16px;
+      line-height: 1.85;
+      overflow-x: hidden;
+      animation: paperAge 600s linear forwards;
+      position: relative;
+      min-height: 100vh;
+    }
+
+    @keyframes paperAge {
+      from { background: var(--paper); }
+      to { background: var(--paper-aged); }
+    }
+
+    .mono { font-family: 'Fira Code', monospace; }
+    .scribble { font-family: 'Caveat', cursive; }
+
+    #stamp-layer {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      z-index: 5;
+    }
+
+    .stamp {
+      position: absolute;
+      left: 8px;
+      font-family: 'Fira Code', monospace;
+      font-weight: 700;
+      letter-spacing: 1px;
+      color: var(--usps-green);
+      opacity: 0.95;
+      transform: rotate(12deg);
+      border: 2px solid var(--usps-green);
+      padding: 0.1rem 0.35rem;
+      font-size: 0.78rem;
+      animation: stampFade 3s ease-out forwards;
+      background: transparent;
+    }
+
+    @keyframes stampFade {
+      0% { opacity: 0.95; }
+      100% { opacity: 0; }
+    }
+
+    .envelope {
+      min-height: 100vh;
+      position: relative;
+      display: grid;
+      place-items: center;
+      overflow: hidden;
+      border-bottom: 2px solid #b7afa4;
+      padding: 1rem;
+    }
+
+    .envelope-shell {
+      position: absolute;
+      inset: 0;
+      z-index: 2;
+      pointer-events: none;
+    }
+
+    .envelope-half {
+      position: absolute;
+      left: 0;
+      right: 0;
+      background: linear-gradient(180deg, #dbd3cb 0%, #d2cabf 100%);
+      transition: transform 0.8s ease-out, clip-path 0.8s ease-out;
+      will-change: transform, clip-path;
+    }
+
+    .envelope-top {
+      top: 0;
+      height: 50%;
+      clip-path: polygon(0 0, 100% 0, 100% 100%, 0 84%);
+      border-bottom: 1px solid #b8b0a4;
+    }
+
+    .envelope-bottom {
+      bottom: 0;
+      height: 50%;
+      clip-path: polygon(0 10%, 100% 0, 100% 100%, 0 100%);
+      border-top: 1px solid #b8b0a4;
+    }
+
+    .envelope.opened .envelope-top {
+      transform: translateY(-82%);
+      clip-path: polygon(0 0, 100% 0, 100% 0, 0 0);
+    }
+
+    .envelope.opened .envelope-bottom {
+      transform: translateY(82%);
+      clip-path: polygon(0 100%, 100% 100%, 100% 100%, 0 100%);
+    }
+
+    .envelope-content {
+      width: min(860px, 94vw);
+      border: 2px solid #b0a89d;
+      background: #e0d9d1;
+      padding: 0;
+      position: relative;
+      z-index: 3;
+      box-shadow: 0 8px 30px #0000001a;
+    }
+
+    .cert-bar {
+      background: var(--usps-green);
+      color: #f0efe9;
+      padding: 0.65rem 1rem;
+      display: flex;
+      justify-content: space-between;
+      gap: 1rem;
+      align-items: center;
+      font-size: 0.85rem;
+      border-bottom: 2px solid #2c452a;
+    }
+
+    .cert-bar span { white-space: nowrap; }
+
+    .env-inner {
+      padding: 1.2rem 1.2rem 1.4rem;
+      display: grid;
+      gap: 1rem;
+    }
+
+    .address-block {
+      font-size: 0.96rem;
+      margin: 0;
+    }
+
+    .to-field {
+      border-top: 1px dashed #9f978c;
+      border-bottom: 1px dashed #9f978c;
+      padding: 1rem 0;
+      margin: 0.25rem 0;
+    }
+
+    .instruction {
+      color: var(--postal-blue);
+      font-family: 'Fira Code', monospace;
+      letter-spacing: 0.06em;
+      text-align: center;
+      font-size: 0.84rem;
+      padding-top: 0.35rem;
+    }
+
+    .letter {
+      width: min(680px, calc(100vw - 2rem));
+      margin: 0 auto;
+      padding: 4rem 0 2.8rem;
+      position: relative;
+      z-index: 2;
+    }
+
+    .letter p {
+      margin: 1rem 0;
+      text-indent: 1.6rem;
+    }
+
+    .letter p.no-indent,
+    .letter h2,
+    .letter h3,
+    .letter blockquote,
+    .letter .tracking-line,
+    .letter .tier-title,
+    .letter .section-rule,
+    .letter .clause-block,
+    .letter .flowchart,
+    .letter .gallery-wrap,
+    .letter .skirmishes,
+    .letter footer {
+      text-indent: 0;
+    }
+
+    .letter h2 {
+      font-size: 1.35rem;
+      margin-top: 2.8rem;
+      margin-bottom: 1rem;
+      color: var(--carbon);
+      border-bottom: 1px solid var(--postal-blue);
+      padding-bottom: 0.5rem;
+    }
+
+    .clause-block {
+      background: var(--clause-bg);
+      border-left: 4px solid var(--postal-blue);
+      padding: 1rem;
+      margin: 1.2rem 0 1.5rem;
+      font-family: 'Fira Code', monospace;
+      font-size: 0.95rem;
+      position: relative;
+      line-height: 1.75;
+    }
+
+    .semicolon-live {
+      color: var(--hearing-red);
+      font-size: 2.1em;
+      vertical-align: middle;
+      animation: pulseSemi 3s infinite;
+      display: inline-block;
+      line-height: 0.6;
+    }
+
+    @keyframes pulseSemi {
+      0% { opacity: 0.4; }
+      50% { opacity: 1; }
+      100% { opacity: 0.4; }
+    }
+
+    .margin-note {
+      position: absolute;
+      right: -10rem;
+      top: 0.6rem;
+      color: var(--hearing-red);
+      font-family: 'Caveat', cursive;
+      font-size: 1.45rem;
+      transform: rotate(-3deg);
+      max-width: 9rem;
+      line-height: 1.1;
+    }
+
+    .tier-title {
+      margin: 1.8rem 0 0.35rem;
+      font-family: 'Fira Code', monospace;
+      border-bottom: 1px solid var(--postal-blue);
+      display: inline-block;
+      padding-bottom: 0.1rem;
+      font-size: 1rem;
+      color: var(--carbon);
+    }
+
+    .tracking-line {
+      margin: 2.6rem 0 2rem;
+      padding: 0.3rem 0;
+    }
+
+    .truck-track {
+      border-top: 2px dashed var(--postal-blue);
+      height: 30px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .truck {
+      position: absolute;
+      top: -13px;
+      left: -26px;
+      width: 28px;
+      height: 20px;
+      animation: truckMove 300s linear infinite;
+    }
+
+    @keyframes truckMove {
+      from { transform: translateX(0); }
+      to { transform: translateX(calc(100vw + 40px)); }
+    }
+
+    .delivery-copy {
+      margin-top: 0.25rem;
+      font-size: 11px;
+      letter-spacing: 0.03em;
+      color: var(--carbon);
+    }
+
+    .skirmishes {
+      margin-top: 2rem;
+    }
+
+    .skirmish-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 0.75rem;
+      margin-top: 1rem;
+    }
+
+    .skirmish-card {
+      background: #d9d1c7;
+      border: 1px solid #b9b0a3;
+      padding: 0.85rem;
+      min-height: 122px;
+      cursor: pointer;
+    }
+
+    .skirmish-card button {
+      all: unset;
+      display: block;
+      width: 100%;
+      min-height: 44px;
+      cursor: pointer;
+    }
+
+    .dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 999px;
+      background: var(--copper);
+      display: inline-block;
+      margin-right: 0.45rem;
+      animation: dotPulse 2s ease-in-out infinite;
+      vertical-align: middle;
+    }
+
+    @keyframes dotPulse {
+      0% { transform: scale(1); }
+      50% { transform: scale(1.4); }
+      100% { transform: scale(1); }
+    }
+
+    .status {
+      color: var(--postal-blue);
+      font-style: italic;
+      margin-top: 0.65rem;
+      font-size: 0.92rem;
+      line-height: 1.55;
+    }
+
+    .wall-note {
+      margin-top: 2.7rem;
+      margin-bottom: 0.7rem;
+    }
+
+    .gallery-wrap {
+      margin-top: 0.8rem;
+      overflow-x: auto;
+      scroll-snap-type: x mandatory;
+      display: flex;
+      gap: 1rem;
+      padding-bottom: 0.55rem;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    .polaroid {
+      min-width: min(280px, 78vw);
+      background: #f7f4ef;
+      border: 1px solid #b8afa2;
+      padding: 0.7rem 0.7rem 0.9rem;
+      box-shadow: 0 3px 10px #00000014;
+      scroll-snap-align: start;
+    }
+
+    .fake-photo {
+      height: 170px;
+      border: 1px solid #afa79a;
+      margin-bottom: 0.65rem;
+      background-size: cover;
+    }
+
+    .caption {
+      font-family: 'Caveat', cursive;
+      font-size: 1.15rem;
+      line-height: 1.25;
+      color: var(--carbon);
+    }
+
+    .flowchart {
+      margin-top: 2.7rem;
+      padding: 1rem;
+      border: 1px solid #b8aea1;
+      background: #d7cfc4;
+    }
+
+    .flow-step {
+      padding: 0.6rem 0.7rem;
+      border-left: 2px solid var(--postal-blue);
+      margin-bottom: 0.65rem;
+      background: #ddd5ca;
+    }
+
+    .flow-step.asked {
+      color: #5c554c;
+      background: #cec6bb;
+      border-left-color: #958e84;
+    }
+
+    .flow-q {
+      margin: 0 0 0.55rem;
+      text-indent: 0;
+    }
+
+    .flow-actions {
+      display: flex;
+      gap: 0.6rem;
+      flex-wrap: wrap;
+    }
+
+    .flow-btn {
+      font-family: 'Fira Code', monospace;
+      background: #f0ece5;
+      border: 1px solid #8c8375;
+      color: var(--carbon);
+      min-height: 44px;
+      min-width: 88px;
+      padding: 0.45rem 0.85rem;
+      font-size: 0.9rem;
+    }
+
+    .flow-btn:hover,
+    .flow-btn:focus-visible {
+      border-color: var(--copper);
+      color: var(--copper);
+      outline: none;
+    }
+
+    .flow-result {
+      margin-top: 0.8rem;
+      font-family: 'Caveat', cursive;
+      color: var(--hearing-red);
+      font-size: 2rem;
+      line-height: 1.1;
+    }
+
+    blockquote {
+      border-left: 4px solid var(--copper);
+      margin: 1.5rem 0;
+      padding: 0.45rem 0 0.45rem 0.9rem;
+      font-style: italic;
+    }
+
+    .tracking-small {
+      margin-top: -0.4rem;
+      margin-bottom: 1.2rem;
+      font-size: 0.83rem;
+      color: var(--carbon);
+    }
+
+    .big-semicolon {
+      margin: 3.2rem 0 1rem;
+      text-align: center;
+      color: var(--hearing-red);
+      font-size: clamp(220px, 42vw, 400px);
+      line-height: 0.78;
+      font-family: 'Libre Baskerville', serif;
+    }
+
+    .semi-caption {
+      text-align: center;
+      font-size: 12px;
+      color: var(--postal-blue);
+      margin-bottom: 2.3rem;
+    }
+
+    footer {
+      border-top: 1px solid #aea597;
+      padding: 1rem 0 2.1rem;
+      text-align: center;
+      font-family: 'Fira Code', monospace;
+      font-size: 11px;
+      line-height: 1.7;
+      color: var(--carbon);
+    }
+
+    .small-annot {
+      font-family: 'Caveat', cursive;
+      color: var(--copper);
+      font-size: 1.25rem;
+      margin-top: -0.4rem;
+      margin-bottom: 0.1rem;
+      transform: rotate(-2deg);
+    }
+
+    @media (min-width: 860px) {
+      .skirmish-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+    }
+
+    @media (max-width: 920px) {
+      .margin-note {
+        position: static;
+        max-width: none;
+        margin-top: 0.7rem;
+      }
+    }
+
+    @media (max-width: 640px) {
+      .envelope-content { width: 96vw; }
+      .cert-bar { flex-direction: column; align-items: flex-start; }
+      .letter { width: calc(100vw - 1.25rem); }
+      .flow-actions { gap: 0.45rem; }
+      .polaroid { min-width: 82vw; }
+      .big-semicolon { font-size: 240px; }
+    }
+  </style>
+</head>
+<body x-data="vestigialApp()" x-init="init()">
+  <div id="stamp-layer" aria-hidden="true">
+    <template x-for="stamp in visibleStamps" :key="stamp.id">
+      <div class="stamp" :style="`top:${stamp.top}px;`">CERTIFIED</div>
+    </template>
+  </div>
+
+  <section class="envelope" :class="opened ? 'opened' : ''">
+    <div class="envelope-shell" aria-hidden="true">
+      <div class="envelope-half envelope-top"></div>
+      <div class="envelope-half envelope-bottom"></div>
+    </div>
+
+    <article class="envelope-content" aria-label="Certified envelope">
+      <div class="cert-bar mono">
+        <span>CERTIFIED MAIL - RETURN RECEIPT REQUESTED</span>
+        <span x-text="formattedTracking"></span>
+      </div>
+      <div class="env-inner">
+        <p class="address-block mono">
+          VESTIGIAL<br />
+          A Certified-Mail Dispute Service<br />
+          c/o Leonard Krell<br />
+          Yonkers, NY 10701
+        </p>
+
+        <div class="to-field">
+          <p class="mono" style="margin:0 0 0.3rem;">TO:</p>
+          <p class="address-block mono" style="margin:0;" x-text="resolutionAddress"></p>
+        </div>
+
+        <p class="no-indent" style="margin:0; font-style: italic;">
+          This letter has been in transit for <span x-text="daysInTransit"></span> days.
+        </p>
+
+        <p class="instruction">SCROLL DOWN TO OPEN</p>
+      </div>
+    </article>
+  </section>
+
+  <div id="tear-trigger" style="height:1px; width:100%;"></div>
+
+  <main class="letter">
+    <p class="no-indent">Dear Occupant,</p>
+
+    <p>
+      You are reading this because something was taken from you. Not violently. Bureaucratically.
+      A clause was cited. A form was signed. A fixture, your fixture, the one you installed on a Saturday,
+      the one you chose because the brass matched nothing but felt right, was declared property of the building.
+    </p>
+
+    <p>
+      I know this because it happened to me. The year was 2017. The item was a 1974 avocado-green Warmrail heated
+      towel rack, serial number unknown, rewired by my own hand. The clause was 14.3. The semicolon was here:
+    </p>
+
+    <div class="clause-block">
+      14.3 Tenant-installed domestic fixtures shall remain with the premises upon vacancy<span class="semicolon-live">;</span>
+      items deemed decorative, removable, or sentimental may be reviewed solely at the discretion of ownership.
+      <div class="margin-note">This. This is where they got me.</div>
+    </div>
+
+    <p>
+      Nobody grabbed it with force. They grabbed it with punctuation. If that sentence made your jaw lock,
+      you are in the right place.
+    </p>
+
+    <h2>How We Proceed</h2>
+
+    <p class="tier-title">FIERY RESOLVE - $49.95</p>
+    <p>
+      Six envelopes. Pre-stamped. Pre-addressed. Each containing a letter that interprets
+      "fixtures shall remain" as "fixtures shall roam free," which is, I assure you, defensible if you have enough postage.
+    </p>
+
+    <p class="tier-title">RELENTLESS HEARTH - $149.00</p>
+    <p>
+      Three custom letters. Each one cites <em>Anderson v. Maple Ridge Properties</em> (2015, BCSC), which established that
+      a "removable domestic comfort" is not a fixture but a right. I have sent this citation to forty-seven landlords.
+      Thirty-nine have not responded. That is an 83% silence rate. In certified mail, silence is practically a confession.
+    </p>
+
+    <p class="tier-title">FOR THE ULTIMATE TILING - $29.99 add-on</p>
+    <p>
+      A fifty-page bound compilation of your entire correspondence history, overnighted to your landlord's headquarters.
+      The binding is thermal. The paper is 24lb. The timestamps are USPS. It lands on a desk. Someone has to open it.
+      That is the point.
+    </p>
+
+    <div class="small-annot">Yes, I measure justice in ounces and postage tiers.</div>
+
+    <div class="tracking-line" aria-hidden="true">
+      <div class="truck-track">
+        <div class="truck">
+          <svg viewBox="0 0 64 40" width="100%" height="100%" role="img" aria-label="mail truck">
+            <rect x="2" y="12" width="34" height="16" fill="#3D5E3A"></rect>
+            <rect x="36" y="16" width="16" height="12" fill="#6B8F9E"></rect>
+            <rect x="40" y="18" width="8" height="6" fill="#D6CFC7"></rect>
+            <circle cx="14" cy="31" r="5" fill="#2B2926"></circle>
+            <circle cx="44" cy="31" r="5" fill="#2B2926"></circle>
+          </svg>
+        </div>
+      </div>
+      <div class="delivery-copy mono">ESTIMATED DELIVERY: 6-8 WEEKS</div>
+    </div>
+
+    <section class="skirmishes">
+      <h2>Current Skirmishes</h2>
+      <p>Each matter is active. Each response is glacial. Click one for the latest non-resolution.</p>
+      <div class="skirmish-grid">
+        <template x-for="(item, index) in disputes" :key="item.name">
+          <article class="skirmish-card" x-data="{ open: false }">
+            <button @click="open = !open" :aria-expanded="open.toString()">
+              <p class="no-indent" style="margin:0 0 0.3rem; font-weight:700;">
+                <span class="dot" :style="`animation-delay:${index * 0.18}s`"></span><span x-text="item.name"></span>
+              </p>
+              <p class="mono" style="margin:0; font-size:0.82rem; letter-spacing:0.05em;" x-text="item.location"></p>
+              <p class="status" x-show="open" x-transition.duration.200ms x-text="item.status"></p>
+            </button>
+          </article>
+        </template>
+      </div>
+    </section>
+
+    <p class="wall-note no-indent"><strong>The Wall</strong> - proof that paper outlasts policy.</p>
+    <div class="gallery-wrap" aria-label="Fixture dispute gallery">
+      <article class="polaroid">
+        <div class="fake-photo" style="background-image:linear-gradient(130deg,#8B6B47,#6B8F9E,#b49d83);"></div>
+        <div class="caption">Clause 14.3. Settled after 8 letters. Brass warmer reinstalled. Portland, OR. June 2023.</div>
+      </article>
+      <article class="polaroid">
+        <div class="fake-photo" style="background-image:linear-gradient(145deg,#9aa5a9,#8B6B47,#d4c7b5);"></div>
+        <div class="caption">Mounting bracket "building property" until receipt #6 arrived. Cleveland, OH. August 2022.</div>
+      </article>
+      <article class="polaroid">
+        <div class="fake-photo" style="background-image:linear-gradient(120deg,#6B8F9E,#cdb89d,#8B6B47);"></div>
+        <div class="caption">Porcelain shelf liberated with case notes and stubborn stamps. Boise, ID. March 2024.</div>
+      </article>
+      <article class="polaroid">
+        <div class="fake-photo" style="background-image:linear-gradient(155deg,#a8a194,#6B8F9E,#8B6B47);"></div>
+        <div class="caption">Chrome rack deemed "structural" then quietly boxed and returned. Newark, NJ. January 2025.</div>
+      </article>
+      <article class="polaroid">
+        <div class="fake-photo" style="background-image:linear-gradient(100deg,#8B6B47,#ccb8a0,#7f969e);"></div>
+        <div class="caption">Eleven pages on removable anchors. Landlord folded on page nine. Tucson, AZ. May 2023.</div>
+      </article>
+      <article class="polaroid">
+        <div class="fake-photo" style="background-image:linear-gradient(135deg,#7e8f96,#d8cdbf,#8B6B47);"></div>
+        <div class="caption">Three letters, one hearing, one sheepish superintendent. Albany, NY. November 2024.</div>
+      </article>
+      <article class="polaroid">
+        <div class="fake-photo" style="background-image:linear-gradient(125deg,#c3b29d,#6B8F9E,#927253);"></div>
+        <div class="caption">Adhesive hooks called permanent. We mailed chemistry diagrams. Omaha, NE. July 2023.</div>
+      </article>
+      <article class="polaroid">
+        <div class="fake-photo" style="background-image:linear-gradient(165deg,#8B6B47,#adb2aa,#6B8F9E);"></div>
+        <div class="caption">Espresso mount recovered after certified packet labeled "Exhibit Warmth." Richmond, VA. February 2025.</div>
+      </article>
+    </div>
+
+    <section class="flowchart" x-data="flowchartApp()">
+      <h2>Is Your Item Truly Portable?</h2>
+
+      <template x-for="entry in history" :key="entry.id + '-' + entry.answer">
+        <div class="flow-step asked">
+          <p class="flow-q" x-text="entry.question"></p>
+          <p class="mono" style="margin:0; font-size:0.86rem;" x-text="'Answer logged: ' + entry.answer"></p>
+        </div>
+      </template>
+
+      <div class="flow-step" x-show="!done">
+        <p class="flow-q" x-text="currentQuestion.question"></p>
+        <div class="flow-actions">
+          <button type="button" class="flow-btn" @click="respond(currentQuestion.aLabel)"><span x-text="currentQuestion.aLabel"></span></button>
+          <button type="button" class="flow-btn" @click="respond(currentQuestion.bLabel)"><span x-text="currentQuestion.bLabel"></span></button>
+        </div>
+      </div>
+
+      <p class="flow-result" x-show="done">Your item is yours. Write the letter.</p>
+    </section>
+
+    <h2>Filed Testimony</h2>
+
+    <blockquote>
+      "On January 10, 2022, my landlord in White Plains removed the towel shelf I installed in 2019 and called it
+      an 'integrated fixture.' Vestigial mailed four rebuttals citing <em>Mendez v. Harbor Point Residential</em> (2018, NY Civ Ct).
+      On March 3, 2022, the shelf came back in a box with my name misspelled. I accepted both victories."
+    </blockquote>
+    <p class="tracking-small mono">USPS TRACKING: 7022 1970 0003 XXXX XXXX</p>
+
+    <blockquote>
+      "My espresso wall mount was declared part of the unit on September 14, 2023. Leonard sent a packet with
+      torque specs, install photos, and <em>Harris v. Urban Living</em> (2012, Ontario) highlighted in yellow. Hearing held
+      October 30, 2023. Outcome: mount returned, lease addendum amended, property manager visibly tired."
+    </blockquote>
+    <p class="tracking-small mono">USPS TRACKING: 7022 1970 0003 XXXX XXXX</p>
+
+    <blockquote>
+      "Case opened April 5, 2024 over brass robe hooks in a rent-stabilized unit. Opposing counsel cited
+      'fixtures shall remain.' Leonard circled the semicolon, mailed nine pages on punctuation ambiguity, and
+      referenced <em>Johnson v. Evergreen Realty</em> (2019, App Div). Hooks reinstalled June 18, 2024."
+    </blockquote>
+    <p class="tracking-small mono">USPS TRACKING: 7022 1970 0003 XXXX XXXX</p>
+
+    <p class="small-annot">The law is slow. Good. Slow things can still win.</p>
+
+    <div class="big-semicolon">;</div>
+    <div class="semi-caption mono">Clause 14.3. Yonkers, 2017. I am not going away.</div>
+
+    <footer>
+      <div>© 2018-2026 Vestigial. Second-class postage. Six to eight weeks.</div>
+      <div>Leonard Krell is not a licensed attorney. Leonard Krell does not need to be.</div>
+    </footer>
+  </main>
+
+  <script defer src="/assets/js/alpine.min.js"></script>
+  <script defer src="/assets/js/gsap.min.js"></script>
+  <script defer src="/assets/js/lucide.min.js"></script>
+  <script>
+    function vestigialApp() {
+      return {
+        opened: false,
+        tracking: '70221970000300010000',
+        resolutionAddress: '',
+        daysInTransit: 0,
+        stamps: [],
+        stampId: 1,
+        disputes: [
+          {
+            name: 'Wall Rack Showdown',
+            location: 'AUSTIN, TX',
+            status: "Landlord response postmarked April 5, 2023 cited Johnson v. Evergreen Realty. Our rebuttal on 'portable vs. plastered' mailed April 12. Awaiting."
+          },
+          {
+            name: 'Espresso Armistice',
+            location: 'CHICAGO, IL',
+            status: 'Building counsel requested manufacturer torque data on June 8, 2024. Certified packet with install log mailed June 14. Awaiting.'
+          },
+          {
+            name: 'Brass Hook Matter',
+            location: 'BUFFALO, NY',
+            status: 'Superintendent affidavit dated November 2, 2024 claims hooks are structural. Counter-affidavit mailed November 9 with photo timestamps. Awaiting.'
+          },
+          {
+            name: 'Mirror Bracket Hearing',
+            location: 'SEATTLE, WA',
+            status: 'Administrative note from February 1, 2025 asked for lease appendix B. Appendix B mailed with annotations February 7. Awaiting.'
+          },
+          {
+            name: 'Tile Rail Contest',
+            location: 'DENVER, CO',
+            status: 'Opposing party cited emergency maintenance exception on August 19, 2023. Clarification letter mailed August 25 with repair receipts. Awaiting.'
+          },
+          {
+            name: 'Shower Shelf Appeal',
+            location: 'SAVANNAH, GA',
+            status: 'Response card received January 17, 2025 acknowledged service but disputed ownership timeline. Supplemental chronology mailed January 24. Awaiting.'
+          },
+          {
+            name: 'Copper Rod Dispute',
+            location: 'PHOENIX, AZ',
+            status: 'Property group invoked uniform fixture policy on May 30, 2024. We mailed policy redlines and state guidance June 6. Awaiting.'
+          },
+          {
+            name: 'Warmrail Retrieval',
+            location: 'YONKERS, NY',
+            status: 'Hearing office logged packet #7 on December 12, 2025 and requested one additional serial statement. Serial statement mailed December 18. Awaiting.'
+          },
+          {
+            name: 'Anchor Bolt Standoff',
+            location: 'PORTLAND, OR',
+            status: 'Landlord letter dated March 11, 2024 disputed removability due to wall patching costs. Patch estimate and prior condition photos mailed March 18. Awaiting.'
+          },
+          {
+            name: 'Pantry Rail Petition',
+            location: 'COLUMBUS, OH',
+            status: 'Clerk memo from September 9, 2025 requested lease copy with initials page. Certified duplicate mailed September 15. Awaiting.'
+          },
+          {
+            name: 'Vanity Lamp Brief',
+            location: 'MIAMI, FL',
+            status: 'Counsel response dated July 22, 2024 asserted fixture merger under local code. Our code interpretation and exhibit tabs mailed July 29. Awaiting.'
+          },
+          {
+            name: 'Porcelain Hook Trial',
+            location: 'PROVIDENCE, RI',
+            status: 'Case manager postcard from October 3, 2025 confirmed receipt and deferred ruling pending owner statement. Owner statement not filed. Awaiting.'
+          }
+        ],
+        get formattedTracking() {
+          const padded = this.tracking.padStart(20, '0').slice(-20);
+          return padded.match(/.{1,4}/g).join(' ');
+        },
+        get visibleStamps() {
+          return this.stamps.slice(-3);
+        },
+        init() {
+          this.updateResolution();
+          this.updateDays();
+          window.addEventListener('resize', () => this.updateResolution());
+
+          const trigger = document.getElementById('tear-trigger');
+          if (trigger && 'IntersectionObserver' in window) {
+            const obs = new IntersectionObserver((entries) => {
+              entries.forEach((entry) => {
+                if (entry.isIntersecting) {
+                  this.opened = true;
+                }
+              });
+            }, { threshold: 0.08 });
+            obs.observe(trigger);
+          }
+
+          setInterval(() => {
+            try {
+              this.tracking = (BigInt(this.tracking) + 1n).toString();
+            } catch (e) {
+              this.tracking = '70221970000300010000';
+            }
+          }, 8000);
+
+          this.spawnStamp();
+          setInterval(() => this.spawnStamp(), 45000);
+
+          if (window.lucide && typeof window.lucide.createIcons === 'function') {
+            window.lucide.createIcons();
+          }
+        },
+        updateResolution() {
+          this.resolutionAddress = `OCCUPANT, Unit ${window.innerWidth}×${window.innerHeight}, The Building You Cannot Leave`;
+        },
+        updateDays() {
+          const start = new Date('2022-01-10T00:00:00');
+          const now = new Date();
+          this.daysInTransit = Math.floor((now.getTime() - start.getTime()) / 86400000);
+        },
+        spawnStamp() {
+          const topPos = Math.round(window.scrollY + (Math.random() * Math.max(window.innerHeight - 100, 80)) + 25);
+          this.stamps.push({ id: this.stampId++, top: topPos });
+        }
+      };
+    }
+
+    function flowchartApp() {
+      return {
+        idx: 0,
+        done: false,
+        history: [],
+        questions: [
+          { id: 'q1', question: 'Was your item attached to the wall?', aLabel: 'YES', bLabel: 'NO' },
+          { id: 'q2', question: 'Was it attached using Phillips-head screws or adhesive hooks?', aLabel: 'SCREWS', bLabel: 'HOOKS' },
+          { id: 'q3', question: 'Were there more than two screws?', aLabel: 'YES', bLabel: 'NO' },
+          { id: 'q4', question: 'Was it attached to a load-bearing wall?', aLabel: 'YES', bLabel: 'NO' },
+          { id: 'q5', question: "Did you install it yourself, or did a 'guy your landlord knows' do it?", aLabel: 'MYSELF', bLabel: 'LANDLORD GUY' },
+          { id: 'q6', question: "Does your lease contain the phrase 'fixtures shall remain'?", aLabel: 'YES', bLabel: 'NO' },
+          { id: 'q7', question: 'Does that phrase contain a semicolon?', aLabel: 'YES', bLabel: 'NO' }
+        ],
+        get currentQuestion() {
+          return this.questions[this.idx] || this.questions[this.questions.length - 1];
+        },
+        respond(answer) {
+          if (this.done) return;
+          const q = this.currentQuestion;
+          this.history.push({ id: q.id, question: q.question, answer: answer });
+          if (this.idx >= this.questions.length - 1) {
+            this.done = true;
+            return;
+          }
+          this.idx += 1;
+        }
+      };
+    }
+  </script>
+</body>
+</html>

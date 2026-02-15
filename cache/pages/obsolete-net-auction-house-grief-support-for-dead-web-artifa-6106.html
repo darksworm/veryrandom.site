@@ -1,0 +1,1124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Obsolete.net — Auction House & Grief Support for Dead Web Artifacts</title>
+<link rel="stylesheet" href="/assets/css/fonts.css">
+<script defer src="/assets/js/alpine.min.js"></script>
+<script src="/assets/js/gsap.min.js"></script>
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg: #0B0B0B;
+  --green: #8AFF00;
+  --orange: #FF6B35;
+  --gray: #A0A0A0;
+  --panel: #2A2A2A;
+  --red: #FF004D;
+  --bezel: #333333;
+  --banner-bg: #1a1a1a;
+}
+
+html, body {
+  background: #000;
+  font-family: 'Fira Code', monospace;
+  font-size: 16px;
+  color: var(--gray);
+  overflow: hidden;
+  height: 100%;
+  width: 100%;
+  cursor: crosshair;
+}
+
+/* Boot Sequence */
+#boot-screen {
+  position: fixed;
+  inset: 0;
+  background: #000;
+  z-index: 10000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Fira Code', monospace;
+  color: var(--green);
+  font-size: 16px;
+}
+
+#boot-content {
+  max-width: 600px;
+  width: 90%;
+}
+
+#boot-content .line {
+  margin-bottom: 8px;
+  white-space: pre;
+  min-height: 1.4em;
+}
+
+#progress-bar {
+  margin: 12px 0;
+  min-height: 1.4em;
+  white-space: pre;
+}
+
+.blink-cursor::after {
+  content: '█';
+  animation: cursorBlink 0.6s step-end infinite;
+}
+
+@keyframes cursorBlink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0; }
+}
+
+/* CRT Monitor */
+#crt-wrapper {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #000;
+  opacity: 0;
+}
+
+#crt-bezel {
+  position: relative;
+  width: min(850px, 95vw);
+  height: min(650px, 90vh);
+  background: var(--bezel);
+  border-radius: 24px;
+  padding: 20px;
+  box-shadow: 0 0 40px rgba(0,0,0,0.8), inset 0 0 20px rgba(0,0,0,0.5);
+}
+
+#power-led {
+  position: absolute;
+  bottom: 8px;
+  right: 30px;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--green);
+  animation: heartbeat 0.833s ease-in-out infinite;
+}
+
+@keyframes heartbeat {
+  0%, 100% { opacity: 0.3; box-shadow: none; }
+  50% { opacity: 1; box-shadow: 0 0 6px var(--green); }
+}
+
+#crt-screen {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  background: var(--bg);
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+/* Scan lines */
+#crt-screen::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: repeating-linear-gradient(
+    0deg,
+    transparent 0px,
+    transparent 2px,
+    rgba(0,0,0,0.08) 2px,
+    rgba(0,0,0,0.08) 4px
+  );
+  pointer-events: none;
+  z-index: 100;
+}
+
+/* CRT curvature overlay */
+#crt-screen::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse at center, transparent 60%, rgba(0,0,0,0.35) 100%);
+  pointer-events: none;
+  z-index: 101;
+}
+
+/* CRT flicker */
+.crt-flicker #crt-screen {
+  animation: flicker 0.1s linear;
+}
+
+@keyframes flicker {
+  0% { transform: translateX(0); filter: brightness(1); }
+  25% { transform: translateX(2px); filter: brightness(1.3); }
+  50% { transform: translateX(-1px); filter: brightness(1.1); }
+  75% { transform: translateX(1px); filter: brightness(1.2); }
+  100% { transform: translateX(0); filter: brightness(1); }
+}
+
+/* White flash for CRT warmup */
+#crt-flash {
+  position: absolute;
+  inset: 0;
+  background: #fff;
+  z-index: 200;
+  opacity: 0;
+  pointer-events: none;
+  border-radius: 12px;
+}
+
+/* Content area inside screen */
+#screen-content {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+}
+
+/* Banner Ad - Frame 3 */
+#banner-ad {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 48px;
+  background: var(--banner-bg);
+  border-bottom: 1px solid #333;
+  z-index: 50;
+  display: flex;
+  align-items: center;
+  overflow: hidden;
+  transform: translateY(-100%);
+}
+
+#banner-marquee {
+  display: inline-block;
+  white-space: nowrap;
+  font-family: 'Archivo Black', sans-serif;
+  font-size: 14px;
+  color: var(--green);
+  animation: marqueeScroll 20s linear infinite;
+  padding-left: 100%;
+}
+
+@keyframes marqueeScroll {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-100%); }
+}
+
+#banner-close {
+  position: absolute;
+  right: 8px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: 1px solid #555;
+  color: #777;
+  font-family: 'Fira Code', monospace;
+  font-size: 12px;
+  cursor: crosshair;
+  padding: 2px 6px;
+  z-index: 51;
+  min-width: 44px;
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+#banner-dismiss-msg {
+  position: absolute;
+  inset: 0;
+  background: var(--banner-bg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Fira Code', monospace;
+  font-size: 12px;
+  color: var(--orange);
+  z-index: 52;
+}
+
+/* Main panels area */
+#panels {
+  position: absolute;
+  top: 48px;
+  left: 0;
+  right: 0;
+  bottom: 0;
+}
+
+/* Frame 1 - Auction Feed */
+#auction-frame {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 62%;
+  height: 100%;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: 12px;
+  opacity: 0;
+  scrollbar-width: thin;
+  scrollbar-color: #444 var(--bg);
+}
+
+#auction-frame::-webkit-scrollbar { width: 8px; }
+#auction-frame::-webkit-scrollbar-track { background: var(--bg); }
+#auction-frame::-webkit-scrollbar-thumb { background: #444; border-radius: 4px; }
+
+.auction-card {
+  position: relative;
+  border: 1px solid #333;
+  background: var(--panel);
+  padding: 14px;
+  margin-bottom: 12px;
+  transition: border-color 0.3s;
+}
+
+.auction-card:hover .watermark {
+  opacity: 1;
+}
+
+.watermark {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Fira Code', monospace;
+  font-size: 28px;
+  font-weight: 700;
+  color: #1a1a1a;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.3s;
+  z-index: 0;
+  overflow: hidden;
+  letter-spacing: 4px;
+}
+
+.auction-card > *:not(.watermark) {
+  position: relative;
+  z-index: 1;
+}
+
+.item-name {
+  font-family: 'Fira Code', monospace;
+  font-weight: 700;
+  font-size: 15px;
+  color: var(--green);
+  margin-bottom: 4px;
+}
+
+.item-condition {
+  font-style: italic;
+  color: #888;
+  font-size: 13px;
+  margin-bottom: 8px;
+}
+
+.bid-line {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-bottom: 6px;
+}
+
+.current-bid {
+  color: var(--orange);
+  font-weight: 700;
+  font-size: 17px;
+  animation: bidPulse 2s ease-in-out infinite;
+}
+
+@keyframes bidPulse {
+  0%, 100% { opacity: 0.7; }
+  50% { opacity: 1; }
+}
+
+.bidder-name {
+  color: #777;
+  font-size: 12px;
+}
+
+.bid-btn {
+  background: none;
+  border: 1px solid var(--green);
+  color: var(--green);
+  font-family: 'Fira Code', monospace;
+  font-size: 13px;
+  padding: 6px 16px;
+  cursor: crosshair;
+  min-height: 44px;
+  min-width: 44px;
+  transition: background 0.2s;
+}
+
+.bid-btn:hover {
+  background: rgba(138,255,0,0.1);
+}
+
+.bid-btn:disabled {
+  border-color: #555;
+  color: #555;
+  cursor: wait;
+}
+
+.bid-progress {
+  width: 100%;
+  height: 16px;
+  background: #1a1a1a;
+  margin-top: 6px;
+  font-size: 10px;
+  color: var(--green);
+  overflow: hidden;
+  position: relative;
+}
+
+.bid-progress-bar {
+  height: 100%;
+  background: var(--green);
+  opacity: 0.3;
+  width: 0%;
+}
+
+.bid-progress-text {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 10px;
+}
+
+.keith-note {
+  font-family: 'Caveat', cursive;
+  font-size: 16px;
+  color: var(--orange);
+  margin-top: 8px;
+  display: inline-block;
+}
+
+/* Special highlight for MySpace cursor */
+.auction-card.white-whale {
+  animation: whaleGlow 3s ease-in-out infinite;
+}
+
+@keyframes whaleGlow {
+  0%, 100% { border-color: rgba(255,0,77,0.15); }
+  50% { border-color: rgba(255,0,77,0.4); }
+}
+
+/* Footer */
+#auction-footer {
+  padding: 20px 0 12px;
+  text-align: center;
+}
+
+.founder-quote {
+  color: #666;
+  font-size: 12px;
+  line-height: 1.6;
+  max-width: 500px;
+  margin: 0 auto 12px;
+}
+
+.hit-counter {
+  color: #555;
+  font-size: 12px;
+}
+
+/* Frame 2 - Chat */
+#chat-frame {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  width: 37%;
+  height: calc(100% - 16px);
+  background: var(--panel);
+  border: 1px solid #444;
+  display: flex;
+  flex-direction: column;
+  z-index: 10;
+  opacity: 0;
+  transform: translateX(40px);
+}
+
+#chat-titlebar {
+  background: linear-gradient(90deg, #1a3a6a 0%, #2a5aaa 50%, #1a3a6a 100%);
+  color: #fff;
+  padding: 4px 8px;
+  font-size: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-shrink: 0;
+  min-height: 28px;
+}
+
+.chat-title-text {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.online-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--green);
+  display: inline-block;
+  flex-shrink: 0;
+}
+
+.window-btns {
+  display: flex;
+  gap: 2px;
+}
+
+.win-btn {
+  width: 20px;
+  height: 20px;
+  background: #c0c0c0;
+  border: 1px solid #888;
+  font-size: 11px;
+  line-height: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: crosshair;
+  color: #000;
+  font-family: 'Fira Code', monospace;
+  min-width: 20px;
+  min-height: 20px;
+  padding: 0;
+}
+
+#chat-messages {
+  flex: 1;
+  overflow-y: auto;
+  padding: 8px;
+  font-size: 13px;
+  scrollbar-width: thin;
+  scrollbar-color: #444 var(--panel);
+}
+
+#chat-messages::-webkit-scrollbar { width: 6px; }
+#chat-messages::-webkit-scrollbar-track { background: var(--panel); }
+#chat-messages::-webkit-scrollbar-thumb { background: #444; border-radius: 3px; }
+
+.chat-msg {
+  margin-bottom: 10px;
+  line-height: 1.5;
+}
+
+.chat-timestamp {
+  color: #555;
+  font-size: 11px;
+  margin-right: 6px;
+}
+
+.chat-user {
+  font-weight: 700;
+  margin-right: 4px;
+}
+
+.chat-user.green { color: var(--green); }
+.chat-user.orange { color: var(--orange); }
+.chat-user.gray { color: #888; }
+.chat-user.you { color: var(--red); }
+
+.chat-text {
+  color: #ccc;
+}
+
+.typing-indicator {
+  color: #666;
+  font-style: italic;
+  margin-bottom: 6px;
+  font-size: 12px;
+}
+
+#chat-input-area {
+  border-top: 1px solid #444;
+  padding: 6px;
+  flex-shrink: 0;
+}
+
+#chat-input {
+  width: 100%;
+  background: #1a1a1a;
+  border: 1px solid #444;
+  color: #ccc;
+  font-family: 'Fira Code', monospace;
+  font-size: 13px;
+  padding: 8px;
+  min-height: 44px;
+  cursor: crosshair;
+}
+
+#chat-input::placeholder {
+  color: #555;
+}
+
+#chat-input:focus {
+  outline: 1px solid var(--green);
+  border-color: var(--green);
+}
+
+/* Close grief tooltip */
+.grief-tooltip {
+  position: absolute;
+  background: var(--bg);
+  border: 1px solid var(--red);
+  color: var(--red);
+  font-size: 11px;
+  padding: 4px 8px;
+  white-space: nowrap;
+  z-index: 99;
+  top: 32px;
+  right: 4px;
+  font-family: 'Fira Code', monospace;
+  pointer-events: none;
+}
+
+/* Mobile */
+@media (max-width: 768px) {
+  #crt-bezel {
+    width: 100vw;
+    height: 100vh;
+    border-radius: 0;
+    padding: 0;
+    background: var(--bg);
+  }
+
+  #crt-screen {
+    border-radius: 0;
+  }
+
+  #power-led { display: none; }
+
+  #auction-frame {
+    position: relative;
+    width: 100%;
+    height: auto;
+    min-height: 50vh;
+  }
+
+  #chat-frame {
+    position: relative;
+    width: 100%;
+    height: 50vh;
+    top: 0;
+    right: 0;
+    transform: none !important;
+    border: none;
+    border-top: 1px solid #444;
+  }
+
+  #panels {
+    position: relative;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .item-name { font-size: 14px; }
+  .current-bid { font-size: 15px; }
+
+  #banner-marquee { font-size: 12px; }
+}
+
+@media (max-width: 375px) {
+  .bid-line { gap: 8px; }
+  .auction-card { padding: 10px; }
+}
+</style>
+</head>
+<body>
+
+<!-- Boot Sequence -->
+<div id="boot-screen" x-data="bootSequence" x-show="showBoot" x-cloak>
+  <div id="boot-content">
+    <template x-for="(line, i) in lines" :key="i">
+      <div class="line" x-html="line"></div>
+    </template>
+    <div id="progress-bar" x-show="showProgress" x-html="progressDisplay"></div>
+    <template x-for="(line, i) in postLines" :key="'p'+i">
+      <div class="line" x-html="line"></div>
+    </template>
+  </div>
+</div>
+
+<!-- CRT Monitor -->
+<div id="crt-wrapper" x-data>
+  <div id="crt-bezel">
+    <div id="power-led"></div>
+    <div id="crt-screen">
+      <div id="crt-flash"></div>
+
+      <!-- Scan lines and curvature via ::before and ::after -->
+
+      <div id="screen-content" x-data="obsoleteNet">
+
+        <!-- Banner Ad -->
+        <div id="banner-ad">
+          <template x-if="!bannerDismissed">
+            <div style="width:100%;overflow:hidden;">
+              <div id="banner-marquee">
+                VINTAGE DIAL-UP TONES AS STRESS-RELIEF RINGTONES — Simulate 28.8Kbps Fury to Forget Your 5G Bills! — $9.99/download — AUTHENTIC MODEM HANDSHAKE RECORDINGS — Now with 56K Premium Pack — FREE SHIPPING ON ACOUSTIC COUPLERS —
+              </div>
+            </div>
+          </template>
+          <template x-if="bannerDismissed">
+            <div id="banner-dismiss-msg" x-text="bannerMsg"></div>
+          </template>
+          <button id="banner-close" @click="dismissBanner()" x-show="!bannerDismissed">[X]</button>
+        </div>
+
+        <!-- Panels -->
+        <div id="panels">
+
+          <!-- Auction Feed -->
+          <div id="auction-frame">
+            <template x-for="(item, idx) in auctions" :key="idx">
+              <div class="auction-card" :class="{'white-whale': item.isWhale}">
+                <div class="watermark">FILE NOT FOUND</div>
+                <div class="item-name" x-text="item.name"></div>
+                <div class="item-condition" x-text="item.condition"></div>
+                <div class="bid-line">
+                  <span class="current-bid" x-text="'$' + item.bid.toFixed(2)"></span>
+                  <span class="bidder-name" x-text="item.bidder"></span>
+                  <button class="bid-btn"
+                    @click="placeBid(idx)"
+                    :disabled="item.processing"
+                    x-text="item.processing ? 'PROCESSING...' : 'BID'">
+                  </button>
+                </div>
+                <template x-if="item.processing">
+                  <div class="bid-progress">
+                    <div class="bid-progress-bar" :style="'width:' + item.progress + '%'"></div>
+                    <div class="bid-progress-text">Processing via eBay Classic... <span x-text="Math.floor(item.progress) + '%'"></span></div>
+                  </div>
+                </template>
+                <div class="keith-note" :style="'transform: rotate(' + item.noteAngle + 'deg)'" x-text="item.note"></div>
+              </div>
+            </template>
+
+            <div id="auction-footer">
+              <div class="founder-quote">
+                EST. 2015 — "I wasn't mourning a cursor. I was mourning the version of the internet where you could close the browser and it would actually stop." — Keith Marion, Founder, 4am, file not found
+              </div>
+              <div class="hit-counter">You are visitor #<span x-text="visitorCount.toLocaleString()"></span></div>
+            </div>
+          </div>
+
+          <!-- Chat Frame -->
+          <div id="chat-frame">
+            <div id="chat-titlebar">
+              <span class="chat-title-text">
+                <span class="online-dot"></span>
+                grief_chat — 7 users online
+              </span>
+              <div class="window-btns" style="position:relative;">
+                <button class="win-btn" title="Minimize">_</button>
+                <button class="win-btn" title="Maximize">□</button>
+                <button class="win-btn" @click="showGriefTooltip = true; setTimeout(() => showGriefTooltip = false, 2000)" title="Close">×</button>
+                <div class="grief-tooltip" x-show="showGriefTooltip" x-cloak>You can't close grief</div>
+              </div>
+            </div>
+            <div id="chat-messages" x-ref="chatMessages">
+              <template x-for="(msg, i) in chatLog" :key="i">
+                <div class="chat-msg">
+                  <span class="chat-timestamp" x-text="msg.time"></span>
+                  <span class="chat-user" :class="msg.colorClass" x-text="msg.user + ':'"></span>
+                  <span class="chat-text" x-text="msg.text"></span>
+                </div>
+              </template>
+              <template x-for="(t, i) in typingUsers" :key="'t'+i">
+                <div class="typing-indicator" x-text="t + ' is typing...'"></div>
+              </template>
+            </div>
+            <div id="chat-input-area">
+              <input id="chat-input" type="text"
+                placeholder="Type your grief here..."
+                x-model="userMsg"
+                @keydown.enter="sendMessage()">
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+document.addEventListener('alpine:init', () => {
+
+  // ═══ BOOT SEQUENCE ═══
+  Alpine.data('bootSequence', () => ({
+    showBoot: true,
+    lines: [],
+    postLines: [],
+    showProgress: false,
+    progressDisplay: '',
+    async init() {
+      const isReturn = localStorage.getItem('obsolete_visited');
+      if (isReturn) {
+        await this.shortBoot();
+      } else {
+        await this.fullBoot();
+        localStorage.setItem('obsolete_visited', '1');
+      }
+      this.showBoot = false;
+      // Trigger CRT warmup
+      const wrapper = document.getElementById('crt-wrapper');
+      const flash = document.getElementById('crt-flash');
+      wrapper.style.opacity = '1';
+      flash.style.opacity = '1';
+      gsap.fromTo(flash, {opacity: 1}, {opacity: 0, duration: 0.4, delay: 0.1});
+      // Animate panels in
+      gsap.fromTo('#auction-frame', {opacity: 0}, {opacity: 1, duration: 0.6, delay: 0.3});
+      gsap.fromTo('#chat-frame', {opacity: 0, x: 40}, {opacity: 1, x: 0, duration: 0.5, delay: 0.6});
+      gsap.fromTo('#banner-ad', {y: -48}, {y: 0, duration: 0.3, delay: 0.9});
+    },
+    async fullBoot() {
+      await this.typeText('CONNECTING TO OBSOLETE.NET...');
+      await this.sleep(400);
+      this.showProgress = true;
+      await this.animateProgress();
+      await this.sleep(200);
+      await this.addPostLine('CARRIER DETECTED \u2014 28.8Kbps');
+      await this.sleep(600);
+      await this.addPostLine('AUTHENTICATING...');
+      await this.sleep(800);
+      await this.addPostLine('Welcome back. Nothing has changed. That\'s the point.');
+      await this.sleep(800);
+    },
+    async shortBoot() {
+      await this.typeText('RECONNECTING...');
+      await this.sleep(400);
+      await this.addPostLine('Welcome back. Still here. Still broken.');
+      await this.sleep(600);
+    },
+    async typeText(text) {
+      let display = '';
+      this.lines.push('');
+      const idx = this.lines.length - 1;
+      for (let i = 0; i < text.length; i++) {
+        display += text[i];
+        this.lines[idx] = display + '<span class="blink-cursor"></span>';
+        await this.sleep(35);
+      }
+      this.lines[idx] = display;
+    },
+    async animateProgress() {
+      const total = 30;
+      let filled = 0;
+      const targets = [
+        {to: Math.floor(total * 0.34), delay: 40},
+        {pause: 800},
+        {to: Math.floor(total * 0.71), delay: 35},
+        {pause: 800},
+        {to: total, delay: 30}
+      ];
+      for (const step of targets) {
+        if (step.pause) {
+          await this.sleep(step.pause);
+        } else {
+          while (filled < step.to) {
+            filled++;
+            const pct = Math.floor((filled / total) * 100);
+            this.progressDisplay = '[' + '\u2588'.repeat(filled) + '\u2591'.repeat(total - filled) + '] ' + pct + '%';
+            await this.sleep(step.delay);
+          }
+        }
+      }
+    },
+    async addPostLine(text) {
+      this.postLines.push(text);
+    },
+    sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
+  }));
+
+  // ═══ MAIN APP ═══
+  Alpine.data('obsoleteNet', () => {
+    const conditions = [
+      "Spiritually superior to cloud storage",
+      "Perfectly preserved for escaping app subscriptions",
+      "Slightly corrupted but ideal for post-update rage",
+      "Defunct. Immaculate. Yours.",
+      "Smells like freedom and dial-up",
+      "Certified pre-owned despair",
+      "Works perfectly if you lower your expectations",
+      "Last known specimen in captivity",
+      "Preserved in amber and regret",
+      "Factory sealed denial"
+    ];
+
+    const bidderParts1 = ["escaped_twitter","ctrl_alt_grieving","defrag_my_soul","404_feelings","unsubscribed_from_reality","nocookies_noproblems","last_netscape_user","bonzi_survivor","geocities_widow","IE6_apologist"];
+    const bidderParts2 = ["_for_IE6","_2003","_dot_exe","_at_56k","_on_MySpace"];
+
+    function randBidder() {
+      return bidderParts1[Math.floor(Math.random()*bidderParts1.length)] + bidderParts2[Math.floor(Math.random()*bidderParts2.length)];
+    }
+
+    const keithNotes = [
+      "I cried when I found this one",
+      "The seller claims this cured their insomnia",
+      "Bid carefully. This one has sentimental shrapnel.",
+      "I keep a backup copy. Don\u2019t tell anyone.",
+      "Found this at 3am. Didn\u2019t sleep after.",
+      "The seller was crying. I was crying. We shipped it anyway.",
+      "This belonged to someone who still uses Hotmail. Respect.",
+      "I have outbid myself twice on this one.",
+      "My therapist says this counts as progress.",
+      "Handle with existential care."
+    ];
+
+    const auctionItems = [
+      {name: "Fully Functional BonziBuddy Installer (1999)", bid: 512.75, isWhale: false},
+      {name: "Unreleased WinAmp Skin \u2014 'Alien Autopsy'", bid: 89.00, isWhale: false},
+      {name: "Netscape Navigator 4.08 Sealed CD-ROM", bid: 340.50, isWhale: false},
+      {name: "GeoCities 'Under Construction' GIF Collection (47 variants)", bid: 156.25, isWhale: false},
+      {name: "Original MySpace Anniversary Cursor .ani file", bid: 1204.00, isWhale: true},
+      {name: "Ask Jeeves Toolbar for IE5 \u2014 Factory Sealed", bid: 67.50, isWhale: false},
+      {name: "RealPlayer Buffering Sound \u2014 22min WAV", bid: 43.00, isWhale: false},
+      {name: "Flock Browser 'Bookmark Me!' Star GIF", bid: 28.75, isWhale: false},
+      {name: "Printed MapQuest Directions: NYC to LA (2003)", bid: 94.00, isWhale: false},
+      {name: "AOL Free Trial CD \u2014 1,000 Hours \u2014 Mint Condition", bid: 178.50, isWhale: false}
+    ];
+
+    const chatMessages = [
+      {user:"geocities_widow", text:"just found my old guestbook. 14 entries. all from me testing it. still more honest engagement than twitter", color:"green"},
+      {user:"defrag_my_soul", text:"does anyone else keep a folder of dead bookmarks? I open them sometimes. just to feel the 404.", color:"orange"},
+      {user:"escaped_twitter_for_IE6", text:"current bid on the bonziBuddy installer is $512. worth every penny for a privacy invasion you actually chose.", color:"green"},
+      {user:"ctrl_alt_grieving", text:"my therapist asked what I\u2019m grieving. I said \u2018the ability to close a tab and have it actually stop\u2019", color:"orange"},
+      {user:"404_feelings", text:"[broken Geocities MIDI link] this is how I unwind from crypto crashes", color:"gray"},
+      {user:"unsubscribed_from_reality", text:"remember when \u2018loading\u2019 meant something was coming? now everything loads instantly and nothing arrives", color:"green"},
+      {user:"last_netscape_user", text:"I still have Netscape installed on a VM. I open it sometimes and just... sit there. It asks for nothing.", color:"orange"},
+      {user:"bonzi_survivor", text:"Lost 3 hours to a CAPTCHA farm yesterday. Came here to feel human.", color:"gray"},
+      {user:"nocookies_noproblems", text:"hot take: the old internet wasn\u2019t better. it was just honest about being broken.", color:"green"},
+      {user:"IE6_apologist", text:"my smart fridge updated itself at 3am again. my 1997 mini fridge has never once betrayed me.", color:"orange"},
+      {user:"geocities_widow", text:"I typed my old Geocities URL into the wayback machine and it loaded faster than my bank\u2019s website", color:"green"},
+      {user:"defrag_my_soul", text:"someone just bid $67 on a sealed Ask Jeeves toolbar. the toolbar doesn\u2019t work. that\u2019s the point.", color:"orange"},
+      {user:"escaped_twitter_for_IE6", text:"modern tech trauma that led me here: Alexa played kazoo covers for 40 minutes and I couldn\u2019t make it stop", color:"green"},
+      {user:"ctrl_alt_grieving", text:"Keith\u2019s right. we\u2019re not mourning cursors. we\u2019re mourning the version of the internet where you could close the browser and it would actually stop.", color:"orange"},
+      {user:"404_feelings", text:"just sat through a \u2018simulated 56k\u2019 page load on the auction. it took 12 seconds. nothing tracked me for 12 seconds. I almost cried.", color:"gray"},
+      {user:"last_netscape_user", text:"the old internet was frustrating because it was limited. now it\u2019s frustrating because it\u2019s limitless. there\u2019s a difference.", color:"orange"},
+      {user:"bonzi_survivor", text:"my modern tech trauma: phone screen time report told me I averaged 7 hours a day. I don\u2019t remember any of them.", color:"gray"},
+      {user:"nocookies_noproblems", text:"today\u2019s bid: \u2018Printed MapQuest Directions NYC to LA, 2003.\u2019 47 pages. every wrong turn was your own fault. I miss that.", color:"green"},
+      {user:"IE6_apologist", text:"real talk: I\u2019d pay $500 for an internet connection that only works 4 hours a day and makes a horrible noise when it connects", color:"orange"},
+      {user:"geocities_widow", text:"...", color:"green"},
+      {user:"defrag_my_soul", text:"yeah", color:"orange"},
+      {user:"404_feelings", text:"same", color:"gray"},
+      {user:"ctrl_alt_grieving", text:"anyone else refresh their dead bookmarks folder just to watch them 404? no? just me?", color:"orange"},
+      {user:"unsubscribed_from_reality", text:"I found a floppy disk labeled \u2018IMPORTANT\u2019 in my closet. no computer I own can read it. I\u2019ve never felt more understood by an object.", color:"green"},
+      {user:"last_netscape_user", text:"...", color:"orange"},
+      {user:"bonzi_survivor", text:"the auction should add a \u2018cry and bid\u2019 button. save us the extra click.", color:"gray"},
+      {user:"nocookies_noproblems", text:"I just want one website that doesn\u2019t ask me to accept cookies. just one.", color:"green"},
+      {user:"geocities_widow", text:"my kid asked me what a screensaver was. I tried to explain but started describing freedom instead.", color:"green"},
+      {user:"IE6_apologist", text:"update: the fridge is now showing ads. the fridge. ads. in the fridge.", color:"orange"},
+      {user:"defrag_my_soul", text:"[dead link]", color:"orange"},
+      {user:"ctrl_alt_grieving", text:"has anyone actually won an auction here or do we just bid to feel something", color:"orange"},
+      {user:"404_feelings", text:"feeling something IS winning", color:"gray"},
+      {user:"escaped_twitter_for_IE6", text:"Keith if you\u2019re reading this: thank you for building a website where the loading screen is the best part", color:"green"}
+    ];
+
+    const userNames = ["new_to_grief","recently_unplugged","format_c_feelings","modem_mourner","pixel_pallbearer","cache_of_tears","dial_tone_devotee"];
+
+    const chatTimes = ["2:13 AM","2:17 AM","2:24 AM","2:31 AM","2:38 AM","2:42 AM","2:49 AM","2:55 AM","3:01 AM","3:07 AM","3:14 AM","3:19 AM","3:23 AM","3:28 AM","3:33 AM","3:38 AM","3:41 AM","3:47 AM"];
+
+    return {
+      auctions: [],
+      chatLog: [],
+      typingUsers: [],
+      userMsg: '',
+      myUsername: null,
+      showGriefTooltip: false,
+      bannerDismissed: false,
+      bannerMsg: '',
+      visitorCount: 0,
+      msgIndex: 3,
+      timeIndex: 5,
+      chatTimer: null,
+      flickerTimer: null,
+
+      init() {
+        // Build auction items
+        this.auctions = auctionItems.map((item, idx) => ({
+          ...item,
+          condition: conditions[idx % conditions.length],
+          bidder: randBidder(),
+          processing: false,
+          progress: 0,
+          note: item.isWhale
+            ? "This is the one. The one that started everything. I\u2019m not selling it. I just need people to know it exists."
+            : keithNotes[idx % keithNotes.length],
+          noteAngle: (Math.random() * 5 - 2).toFixed(1)
+        }));
+
+        // Visitor counter
+        let count = parseInt(localStorage.getItem('obsolete_visitors') || '8847203');
+        count++;
+        localStorage.setItem('obsolete_visitors', count.toString());
+        this.visitorCount = count;
+
+        // Seed initial chat messages
+        for (let i = 0; i < 3; i++) {
+          this.chatLog.push({
+            time: chatTimes[i],
+            user: chatMessages[i].user,
+            text: chatMessages[i].text,
+            colorClass: chatMessages[i].color
+          });
+        }
+
+        // Start chat drip
+        this.scheduleChatMessage();
+
+        // CRT flicker
+        this.scheduleFlicker();
+      },
+
+      scheduleChatMessage() {
+        const delay = 8000 + Math.random() * 7000;
+        this.chatTimer = setTimeout(() => {
+          // Sometimes show typing first
+          if (Math.random() > 0.3 && this.msgIndex < chatMessages.length) {
+            const upcoming = chatMessages[this.msgIndex];
+            this.typingUsers.push(upcoming.user);
+            this.scrollChat();
+
+            const typeDuration = 3000 + Math.random() * 5000;
+            setTimeout(() => {
+              const tIdx = this.typingUsers.indexOf(upcoming.user);
+              if (tIdx > -1) this.typingUsers.splice(tIdx, 1);
+
+              // Sometimes typing resolves to nothing
+              if (Math.random() > 0.15) {
+                this.addChatMessage(upcoming);
+                this.msgIndex++;
+              }
+              this.scheduleChatMessage();
+            }, typeDuration);
+          } else if (this.msgIndex < chatMessages.length) {
+            this.addChatMessage(chatMessages[this.msgIndex]);
+            this.msgIndex++;
+            this.scheduleChatMessage();
+          } else {
+            // Loop back
+            this.msgIndex = 0;
+            this.scheduleChatMessage();
+          }
+        }, delay);
+      },
+
+      addChatMessage(msg) {
+        const time = chatTimes[this.timeIndex % chatTimes.length];
+        this.timeIndex++;
+        this.chatLog.push({
+          time: time,
+          user: msg.user,
+          text: msg.text,
+          colorClass: msg.color
+        });
+        this.scrollChat();
+      },
+
+      scrollChat() {
+        this.$nextTick(() => {
+          const el = this.$refs.chatMessages;
+          if (el) el.scrollTop = el.scrollHeight;
+        });
+      },
+
+      sendMessage() {
+        if (!this.userMsg.trim()) return;
+        if (!this.myUsername) {
+          this.myUsername = userNames[Math.floor(Math.random() * userNames.length)];
+        }
+        const time = chatTimes[this.timeIndex % chatTimes.length];
+        this.timeIndex++;
+        this.chatLog.push({
+          time: time,
+          user: this.myUsername,
+          text: this.userMsg,
+          colorClass: 'you'
+        });
+        this.userMsg = '';
+        this.scrollChat();
+      },
+
+      placeBid(idx) {
+        const item = this.auctions[idx];
+        if (item.processing) return;
+        item.processing = true;
+        item.progress = 0;
+
+        // Stuttering progress bar
+        const steps = [
+          {target: 20, duration: 600},
+          {target: 34, duration: 400},
+          {target: 34, duration: 800}, // stall
+          {target: 58, duration: 500},
+          {target: 71, duration: 300},
+          {target: 71, duration: 800}, // stall
+          {target: 88, duration: 400},
+          {target: 100, duration: 300}
+        ];
+
+        let stepIdx = 0;
+        const runStep = () => {
+          if (stepIdx >= steps.length) {
+            // Done
+            const increment = 0.25 + Math.random() * 4.75;
+            item.bid = parseFloat((item.bid + increment).toFixed(2));
+            item.bidder = randBidder();
+            item.processing = false;
+            item.progress = 0;
+            return;
+          }
+          const step = steps[stepIdx];
+          gsap.fromTo(item, {progress: item.progress}, {
+            progress: step.target,
+            duration: step.duration / 1000,
+            ease: 'power1.inOut',
+            onComplete: () => {
+              stepIdx++;
+              runStep();
+            }
+          });
+        };
+        runStep();
+      },
+
+      dismissBanner() {
+        this.bannerDismissed = true;
+        this.bannerMsg = "This ad is permanent. Like your screen time addiction.";
+        setTimeout(() => {
+          this.bannerDismissed = false;
+        }, 2000);
+      },
+
+      scheduleFlicker() {
+        const delay = 30000 + Math.random() * 15000;
+        this.flickerTimer = setTimeout(() => {
+          document.getElementById('crt-bezel').classList.add('crt-flicker');
+          setTimeout(() => {
+            document.getElementById('crt-bezel').classList.remove('crt-flicker');
+          }, 150);
+          this.scheduleFlicker();
+        }, delay);
+      }
+    };
+  });
+});
+</script>
+
+</body>
+</html>

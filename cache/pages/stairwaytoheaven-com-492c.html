@@ -1,0 +1,1400 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>STAIRWAYTOHEAVEN.COM</title>
+  <link rel="stylesheet" href="/assets/css/pico.min.css" />
+  <link rel="stylesheet" href="/assets/css/fonts.css" />
+  <style>
+    :root {
+      --bg: #0A0A0F;
+      --bg-warm: #14100F;
+      --panel: #1A1E2E;
+      --gold: #C4A24E;
+      --peri: #8B9DC3;
+      --text: #E8E4DB;
+      --alert: #D44D2D;
+    }
+
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Inter', sans-serif;
+      font-size: 16px;
+      line-height: 1.5;
+      overflow-x: hidden;
+      transition: background-color 600s linear;
+      min-height: 100vh;
+    }
+    body.warming {
+      background-color: var(--bg-warm);
+    }
+
+    .grain-global {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      mix-blend-mode: overlay;
+      opacity: 0.2;
+      background-image:
+        radial-gradient(circle at 20% 20%, #8B9DC3 0.2px, transparent 0.2px),
+        radial-gradient(circle at 80% 80%, #E8E4DB 0.2px, transparent 0.2px);
+      background-size: 3px 3px, 4px 4px;
+      z-index: 99;
+    }
+
+    main { position: relative; z-index: 2; }
+    section { padding: 4rem 1rem; }
+    .container { width: min(1200px, 100% - 2rem); margin: 0 auto; }
+
+    .airport-nav {
+      font-family: 'Oswald', sans-serif;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0.75rem 1rem;
+      border-bottom: 1px solid #8B9DC3;
+      background: #0A0A0F;
+      font-size: 0.95rem;
+      min-height: 56px;
+      gap: 1rem;
+      flex-wrap: wrap;
+    }
+    .brand { color: var(--text); white-space: nowrap; }
+    .nav-links {
+      display: flex;
+      gap: 0.25rem;
+      align-items: center;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+    }
+    .nav-links a {
+      color: var(--peri);
+      text-decoration: none;
+      min-height: 44px;
+      display: inline-flex;
+      align-items: center;
+      padding: 0 0.7rem;
+      border: 1px solid transparent;
+    }
+    .nav-links a:hover,
+    .nav-links a:focus-visible {
+      border-color: #8B9DC3;
+      color: var(--text);
+    }
+    .live-wrap {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      color: var(--text);
+      font-size: 0.85rem;
+      padding-left: 0.5rem;
+    }
+    .live-dot {
+      width: 0.6rem;
+      height: 0.6rem;
+      border-radius: 50%;
+      background: var(--alert);
+      display: inline-block;
+      animation: pulseLive 1.4s infinite;
+    }
+
+    @keyframes pulseLive {
+      0% { transform: scale(0.9); }
+      50% { transform: scale(1.2); }
+      100% { transform: scale(0.9); }
+    }
+
+    #board {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      padding: 0;
+    }
+    .board-center {
+      width: min(1120px, 100% - 2rem);
+      margin: 0 auto;
+      font-family: 'Oswald', sans-serif;
+      letter-spacing: 0.09em;
+      text-transform: uppercase;
+      padding: 1rem 0 2.5rem;
+    }
+    .board-grid {
+      border: 1px solid #8B9DC3;
+      background: #0F1321;
+      box-shadow: 0 0 0 1px #1A1E2E inset;
+    }
+    .board-row,
+    .board-head {
+      display: grid;
+      grid-template-columns: 1.6fr 2fr 1.3fr 1fr;
+      gap: 0.4rem;
+      align-items: center;
+      padding: 0.85rem 0.8rem;
+      border-bottom: 1px solid #1A1E2E;
+      font-size: clamp(0.85rem, 1.4vw, 1.15rem);
+      line-height: 1.1;
+    }
+    .board-head { color: var(--peri); }
+    .board-rule {
+      font-family: 'IBM Plex Mono', monospace;
+      color: var(--peri);
+      padding: 0.3rem 0.8rem;
+      letter-spacing: 0;
+      font-size: 0.85rem;
+      border-bottom: 1px solid #1A1E2E;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: clip;
+    }
+    .board-row:last-child { border-bottom: 0; }
+    .status-live { color: var(--text); }
+    .status-live .mini-dot {
+      display: inline-block;
+      width: 0.5rem;
+      height: 0.5rem;
+      border-radius: 50%;
+      background: var(--alert);
+      margin-right: 0.35rem;
+      animation: pulseLive 1.2s infinite;
+      vertical-align: middle;
+    }
+    .watch-btn {
+      border: 1px solid #C4A24E;
+      color: var(--gold);
+      background: transparent;
+      min-height: 44px;
+      padding: 0.15rem 0.6rem;
+      font-family: 'Oswald', sans-serif;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      cursor: pointer;
+    }
+    .watch-btn:hover { box-shadow: 0 0 12px #C4A24E; }
+    .watch-btn[disabled] {
+      border-color: #8B9DC3;
+      color: #8B9DC3;
+      cursor: default;
+      box-shadow: none;
+    }
+    .board-meta {
+      margin-top: 1rem;
+      text-align: center;
+      font-size: 0.78rem;
+      letter-spacing: 0.09em;
+      color: var(--peri);
+      font-family: 'IBM Plex Mono', monospace;
+    }
+
+    #streams { background: #1A1E2E; }
+    .streams-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 1rem;
+      margin-bottom: 1.25rem;
+    }
+    .stream-panel {
+      position: relative;
+      min-height: 230px;
+      border: 1px solid #8B9DC3;
+      overflow: hidden;
+      background: linear-gradient(140deg, #1A1E2E, #141725, #1E2537);
+      animation: hueShift 30s infinite alternate ease-in-out;
+      transform: translateZ(0);
+    }
+    .stream-panel.selected {
+      border: 2px solid #C4A24E;
+      box-shadow: 0 0 16px #C4A24E;
+    }
+    .stream-label,
+    .rec {
+      position: absolute;
+      top: 0.6rem;
+      font-family: 'Oswald', sans-serif;
+      letter-spacing: 0.1em;
+      font-size: 0.8rem;
+      text-transform: uppercase;
+      color: var(--text);
+      z-index: 3;
+    }
+    .stream-label { left: 0.7rem; }
+    .rec { right: 0.7rem; color: #D44D2D; }
+    .rec .dot {
+      display: inline-block;
+      width: 0.5rem;
+      height: 0.5rem;
+      border-radius: 50%;
+      background: #D44D2D;
+      margin-right: 0.28rem;
+      animation: pulseLive 1s infinite;
+    }
+    .panel-viewers {
+      position: absolute;
+      bottom: 0.6rem;
+      right: 0.7rem;
+      font-family: 'IBM Plex Mono', monospace;
+      color: var(--text);
+      font-size: 0.78rem;
+      z-index: 3;
+    }
+    .panel-noise {
+      position: absolute;
+      inset: 0;
+      z-index: 2;
+      opacity: 0.35;
+      filter: url(#noiseFilter);
+      background: linear-gradient(0deg, #0A0A0F, #1A1E2E);
+      pointer-events: none;
+    }
+    .ghost {
+      position: absolute;
+      width: 45%;
+      height: 65%;
+      left: 30%;
+      top: 22%;
+      background: radial-gradient(circle at 50% 35%, #E8E4DB, #8B9DC3);
+      filter: blur(32px);
+      opacity: 0;
+      transition: opacity 3s ease;
+      z-index: 1;
+      border-radius: 48% 52% 43% 57%;
+      transform: translateY(0);
+    }
+    .ghost.show { opacity: 0.35; }
+    .panel-flash {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(135deg, #C4A24E, #E8E4DB);
+      opacity: 0;
+      z-index: 4;
+      pointer-events: none;
+    }
+    .ambient-line {
+      border-top: 1px solid #8B9DC3;
+      padding-top: 0.8rem;
+      min-height: 2.8rem;
+      font-family: 'IBM Plex Mono', monospace;
+      color: #E8E4DB;
+      font-size: 0.95rem;
+    }
+
+    @keyframes hueShift {
+      0% { background: linear-gradient(140deg, #1A1E2E, #141725, #1E2537); }
+      50% { background: linear-gradient(140deg, #162335, #1A1E2E, #222B40); }
+      100% { background: linear-gradient(140deg, #1C2233, #131724, #1B2740); }
+    }
+
+    #prayers { background: #0A0A0F; }
+    .prayers-column { width: min(600px, 100% - 2rem); margin: 0 auto; }
+    .zone-title {
+      font-family: 'Oswald', sans-serif;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      margin: 0;
+      color: #E8E4DB;
+      font-size: clamp(1.5rem, 2.8vw, 2rem);
+    }
+    .zone-sub {
+      margin: 0.3rem 0 1.2rem;
+      font-family: 'IBM Plex Mono', monospace;
+      color: #8B9DC3;
+      font-size: 0.82rem;
+      letter-spacing: 0.06em;
+    }
+    .prayer-feed {
+      display: grid;
+      gap: 0.75rem;
+      margin-bottom: 1rem;
+    }
+    .prayer-card {
+      border: 1px solid #8B9DC3;
+      background: #1A1E2E;
+      padding: 0.85rem;
+      animation: prayerIn 420ms ease;
+    }
+    .prayer-card.flash {
+      box-shadow: 0 0 0 1px #C4A24E inset, 0 0 14px #C4A24E;
+    }
+    .prayer-text {
+      margin: 0;
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 14px;
+      color: #E8E4DB;
+    }
+    .prayer-meta {
+      margin-top: 0.5rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      color: #8B9DC3;
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 0.75rem;
+    }
+    .mini-flame {
+      width: 0.7rem;
+      height: 1rem;
+      border-radius: 50% 50% 50% 50%;
+      background: #C4A24E;
+      display: inline-block;
+    }
+    .prayer-form {
+      border: 1px solid #C4A24E;
+      padding: 0.7rem;
+      background: #131725;
+      display: grid;
+      gap: 0.6rem;
+    }
+    .prayer-form input {
+      margin: 0;
+      min-height: 46px;
+      font-family: 'IBM Plex Mono', monospace;
+      color: #E8E4DB;
+      background: #0A0A0F;
+      border: 1px solid #8B9DC3;
+    }
+    .prayer-form input::placeholder { color: #8B9DC3; }
+    .post-btn {
+      min-height: 46px;
+      border: 1px solid #C4A24E;
+      background: #1A1E2E;
+      color: #C4A24E;
+      font-family: 'Oswald', sans-serif;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      cursor: pointer;
+    }
+    .session-count {
+      margin-top: 0.4rem;
+      color: #8B9DC3;
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 0.75rem;
+    }
+
+    @keyframes prayerIn {
+      from { transform: translateY(10px); }
+      to { transform: translateY(0); }
+    }
+
+    #offering {
+      background: #0A0A0F;
+    }
+    .offering-wrap {
+      display: grid;
+      grid-template-columns: 1.4fr 1fr;
+      gap: 1.5rem;
+      align-items: center;
+      width: min(980px, 100% - 2rem);
+      margin: 0 auto;
+    }
+    .candle-block { text-align: center; }
+    .offer-title {
+      font-family: 'Oswald', sans-serif;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      margin: 0;
+      font-size: clamp(1.5rem, 3vw, 2.2rem);
+    }
+    .offer-sub {
+      font-family: 'IBM Plex Mono', monospace;
+      color: #8B9DC3;
+      font-size: 0.86rem;
+      margin-top: 0.4rem;
+    }
+    .plate {
+      width: min(320px, 80vw);
+      aspect-ratio: 1/1;
+      margin: 1rem auto;
+      border: 2px solid #C4A24E;
+      border-radius: 50%;
+      display: grid;
+      place-items: center;
+      position: relative;
+    }
+    .flame {
+      width: 50px;
+      height: 84px;
+      position: relative;
+      filter: blur(0.2px);
+      transform: scale(1);
+      transition: transform 250ms ease;
+    }
+    .flame:before,
+    .flame:after {
+      content: "";
+      position: absolute;
+      bottom: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      border-radius: 50% 50% 45% 45%;
+    }
+    .flame:before {
+      width: 48px;
+      height: 76px;
+      background: #C4A24E;
+      animation: flicker 1.4s infinite ease-in-out;
+      filter: blur(1.2px);
+    }
+    .flame:after {
+      width: 24px;
+      height: 38px;
+      background: #E8E4DB;
+      bottom: 14px;
+      animation: flicker 1.1s infinite ease-in-out reverse;
+    }
+    .flame.lit-boost { transform: scale(1.25); }
+
+    @keyframes flicker {
+      0% { transform: translateX(-50%) scaleY(0.95); opacity: 1; }
+      50% { transform: translateX(-48%) scaleY(1.08); opacity: 0.94; }
+      100% { transform: translateX(-52%) scaleY(0.92); opacity: 1; }
+    }
+
+    .light-btn {
+      min-height: 46px;
+      padding: 0 1rem;
+      background: #1A1E2E;
+      color: #C4A24E;
+      border: 1px solid #C4A24E;
+      font-family: 'Oswald', sans-serif;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    .soothed {
+      margin-top: 0.7rem;
+      font-family: 'IBM Plex Mono', monospace;
+      color: #E8E4DB;
+      font-size: 0.9rem;
+      letter-spacing: 0.05em;
+    }
+    .still-burning {
+      margin-top: 0.5rem;
+      font-family: 'IBM Plex Mono', monospace;
+      color: #C4A24E;
+      font-size: 0.78rem;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+    }
+    .donation-ticker {
+      height: 260px;
+      overflow: hidden;
+      border-left: 1px solid #8B9DC3;
+      padding-left: 1rem;
+      font-family: 'IBM Plex Mono', monospace;
+      color: #8B9DC3;
+      font-size: 0.74rem;
+      position: relative;
+    }
+    .ticker-track {
+      position: absolute;
+      width: 100%;
+      animation: tickerMove 22s linear infinite;
+    }
+    .ticker-item { padding: 0.35rem 0; }
+
+    @keyframes tickerMove {
+      0% { transform: translateY(0); }
+      100% { transform: translateY(-50%); }
+    }
+
+    #upsell {
+      background: linear-gradient(180deg, #1A1E2E, #0A0A0F);
+    }
+    .upsell-wrap {
+      width: min(1100px, 100% - 2rem);
+      margin: 0 auto;
+      padding: 1rem 0;
+    }
+    .pricing {
+      display: grid;
+      grid-template-columns: 1fr auto 1fr;
+      gap: 1rem;
+      align-items: stretch;
+    }
+    .card {
+      padding: 1.2rem;
+      background: #121728;
+      min-height: 340px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+    .card h3 {
+      margin: 0 0 0.75rem;
+      font-family: 'Oswald', sans-serif;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: #E8E4DB;
+    }
+    .card ul {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+      display: grid;
+      gap: 0.55rem;
+      font-family: 'IBM Plex Mono', monospace;
+      color: #E8E4DB;
+      font-size: 0.86rem;
+    }
+    .free { border: 1px solid #8B9DC3; }
+    .premium {
+      border: 1px solid #C4A24E;
+      box-shadow: 0 0 16px #C4A24E;
+    }
+    .between {
+      align-self: center;
+      font-family: 'Crimson Pro', serif;
+      font-style: italic;
+      color: #E8E4DB;
+      font-size: 1.2rem;
+      text-align: center;
+      padding: 0 0.3rem;
+    }
+    .subscribe-btn {
+      margin-top: 0.9rem;
+      min-height: 46px;
+      border: 1px solid #C4A24E;
+      background: #1A1E2E;
+      color: #C4A24E;
+      font-family: 'Oswald', sans-serif;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      cursor: pointer;
+    }
+    .sub-note {
+      margin-top: 0.7rem;
+      font-family: 'Crimson Pro', serif;
+      font-style: italic;
+      color: #E8E4DB;
+      font-size: 1rem;
+    }
+
+    #archives {
+      background: #0A0A0F;
+      padding-bottom: 5rem;
+    }
+    .archive-title {
+      font-family: 'Oswald', sans-serif;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      margin: 0 0 1rem;
+    }
+    .h-scroll {
+      display: flex;
+      gap: 1rem;
+      overflow-x: auto;
+      scroll-snap-type: x mandatory;
+      padding-bottom: 0.5rem;
+      -webkit-overflow-scrolling: touch;
+    }
+    .h-scroll::-webkit-scrollbar { height: 8px; }
+    .h-scroll::-webkit-scrollbar-thumb { background: #8B9DC3; }
+    .story-card {
+      flex: 0 0 350px;
+      min-height: 420px;
+      border: 1px solid #8B9DC3;
+      background: #151A2A;
+      padding: 1rem;
+      scroll-snap-align: start;
+      transition: transform 180ms ease;
+    }
+    .route {
+      font-family: 'Oswald', sans-serif;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: #E8E4DB;
+      margin: 0;
+      font-size: 1rem;
+    }
+    .range {
+      margin: 0.3rem 0 0.9rem;
+      color: #8B9DC3;
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 0.76rem;
+      letter-spacing: 0.05em;
+    }
+    .story-text {
+      font-family: 'Crimson Pro', serif;
+      font-size: 1.12rem;
+      color: #E8E4DB;
+      line-height: 1.45;
+      margin: 0 0 1rem;
+    }
+    .story-meta,
+    .story-view {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 0.76rem;
+      color: #8B9DC3;
+      letter-spacing: 0.04em;
+      margin: 0.5rem 0 0;
+    }
+
+    #lena {
+      min-height: 100vh;
+      display: grid;
+      align-items: center;
+      background: #0A0A0F;
+    }
+    .lena-column {
+      width: min(650px, 100% - 2rem);
+      margin: 0 auto;
+      font-family: 'Crimson Pro', serif;
+      font-size: 20px;
+      line-height: 1.7;
+      color: #E8E4DB;
+    }
+    .note-block {
+      transform: translateY(18px);
+      clip-path: inset(0 0 100% 0);
+      transition: transform 700ms ease, clip-path 700ms ease;
+      margin-bottom: 1.5rem;
+    }
+    .note-block.visible {
+      transform: translateY(0);
+      clip-path: inset(0 0 0 0);
+    }
+    .final-line {
+      margin-top: 1.2rem;
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 0.8rem;
+      color: #8B9DC3;
+      letter-spacing: 0.04em;
+      transform: translateY(8px);
+      clip-path: inset(0 0 100% 0);
+      transition: transform 600ms ease, clip-path 600ms ease;
+    }
+    .final-line.show {
+      transform: translateY(0);
+      clip-path: inset(0 0 0 0);
+    }
+
+    footer {
+      border-top: 1px solid #1A1E2E;
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 1rem;
+      flex-wrap: wrap;
+      padding: 1rem;
+      font-family: 'Oswald', sans-serif;
+      text-transform: uppercase;
+      letter-spacing: 0.09em;
+      color: #8B9DC3;
+      font-size: 0.75rem;
+      background: #0A0A0F;
+    }
+    .footer-note {
+      font-family: 'Crimson Pro', serif;
+      text-transform: none;
+      letter-spacing: 0;
+      color: #E8E4DB;
+      font-style: italic;
+    }
+    .footer-note a { color: #C4A24E; text-decoration: none; }
+
+    .watch-note {
+      position: fixed;
+      left: 1rem;
+      bottom: 1rem;
+      background: #1A1E2E;
+      border: 1px solid #8B9DC3;
+      color: #E8E4DB;
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 0.77rem;
+      padding: 0.7rem 0.8rem;
+      max-width: 320px;
+      cursor: pointer;
+      transform: translateY(150%);
+      transition: transform 380ms ease;
+      z-index: 60;
+    }
+    .watch-note.show { transform: translateY(0); }
+
+    @media (max-width: 980px) {
+      .offering-wrap { grid-template-columns: 1fr; }
+      .donation-ticker {
+        border-left: 0;
+        border-top: 1px solid #8B9DC3;
+        padding-left: 0;
+        padding-top: 0.8rem;
+        height: 200px;
+      }
+      .pricing { grid-template-columns: 1fr; }
+      .between { order: 3; }
+    }
+
+    @media (max-width: 768px) {
+      section { padding: 3rem 0.75rem; }
+      .board-row,
+      .board-head {
+        grid-template-columns: 1.2fr 1.6fr 1.1fr 0.95fr;
+        font-size: 0.78rem;
+      }
+      .streams-grid { grid-template-columns: 1fr; }
+      .stream-panel { min-height: 210px; }
+      .nav-links { justify-content: flex-start; }
+    }
+
+    @media (max-width: 460px) {
+      .airport-nav { font-size: 0.82rem; }
+      .brand { width: 100%; }
+      .nav-links a { padding: 0 0.5rem; }
+      .board-rule { font-size: 0.72rem; }
+      .story-card { flex-basis: 300px; }
+      .lena-column { font-size: 18px; }
+      .watch-note { max-width: calc(100vw - 2rem); }
+    }
+  </style>
+</head>
+<body x-data="siteApp()" x-init="init()">
+  <svg width="0" height="0" style="position:absolute">
+    <filter id="noiseFilter">
+      <feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="2" stitchTiles="stitch" />
+      <feColorMatrix type="saturate" values="0" />
+    </filter>
+  </svg>
+
+  <div class="grain-global"></div>
+
+  <main>
+    <section id="board">
+      <nav class="airport-nav">
+        <div class="brand">STAIRWAYTOHEAVEN.COM</div>
+        <div class="nav-links">
+          <a href="#streams">Streams</a>
+          <a href="#prayers">Prayer Feed</a>
+          <a href="#offering">Offerings</a>
+          <a href="#lena">About Lena</a>
+          <span class="live-wrap"><span class="live-dot"></span>LIVE <span x-text="liveViewers"></span></span>
+        </div>
+      </nav>
+
+      <div class="board-center">
+        <div class="board-grid">
+          <div class="board-head">
+            <div>CHAPEL</div>
+            <div>AIRPORT</div>
+            <div>STATUS</div>
+            <div>STREAM</div>
+          </div>
+          <div class="board-rule">━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━</div>
+
+          <template x-for="(row, idx) in boardRows" :key="row.id">
+            <div class="board-row" :class="{ 'row-active': row.stream === 'WATCH' }">
+              <div x-text="row.scramble ? scrambleText(row.chapel.length) : row.chapel"></div>
+              <div x-text="row.scramble ? scrambleText(row.airport.length) : row.airport"></div>
+              <div>
+                <span x-show="!row.scramble && row.live" class="status-live"><span class="mini-dot"></span><span x-text="row.status"></span></span>
+                <span x-show="!row.scramble && !row.live" x-text="row.status"></span>
+                <span x-show="row.scramble" x-text="scrambleText(10)"></span>
+              </div>
+              <div>
+                <button
+                  class="watch-btn"
+                  :disabled="row.stream !== 'WATCH'"
+                  x-text="row.scramble ? scrambleText(6) : row.stream"
+                  @click="if(row.stream==='WATCH'){ selectStream(row.panelIndex); document.querySelector('#streams').scrollIntoView({behavior:'smooth'}); }"
+                ></button>
+              </div>
+            </div>
+          </template>
+        </div>
+        <div class="board-meta">8 CHAPELS STREAMING · 23 COUNTRIES · $2.99 PER PRAYER · SINCE 2017</div>
+      </div>
+    </section>
+
+    <section id="streams">
+      <div class="container">
+        <div class="streams-grid">
+          <template x-for="(panel, idx) in streamPanels" :key="panel.id">
+            <article class="stream-panel" :class="{ selected: selectedStream === idx }" @click="selectStream(idx)">
+              <div class="stream-label" x-text="panel.label"></div>
+              <div class="rec"><span class="dot"></span>REC</div>
+              <div class="ghost" :class="{ show: panel.ghost }"></div>
+              <div class="panel-noise"></div>
+              <div class="panel-flash" :id="'flash-'+idx"></div>
+              <div class="panel-viewers"><span x-text="panel.viewers"></span> WATCHING</div>
+            </article>
+          </template>
+        </div>
+        <div class="ambient-line"><span x-text="typedAmbient"></span><span x-show="typingCursor">_</span></div>
+      </div>
+    </section>
+
+    <section id="prayers">
+      <div class="prayers-column">
+        <h2 class="zone-title">PRAYER REQUESTS</h2>
+        <p class="zone-sub">$2.99 EACH · ALL PROCEEDS TO THE SPONSORED SERENITY FUND</p>
+
+        <div class="prayer-feed">
+          <template x-for="prayer in prayers" :key="prayer.id">
+            <article class="prayer-card" :class="{ flash: prayer.justAdded }">
+              <p class="prayer-text" x-text="prayer.text"></p>
+              <div class="prayer-meta">
+                <span x-text="prayer.meta"></span>
+                <span x-show="prayer.candle" class="mini-flame" aria-hidden="true"></span>
+              </div>
+            </article>
+          </template>
+        </div>
+
+        <form class="prayer-form" @submit.prevent="postPrayer">
+          <input
+            type="text"
+            x-model="prayerInput"
+            placeholder="Type your prayer..."
+            maxlength="260"
+            aria-label="Type your prayer"
+          />
+          <button class="post-btn" type="submit">POST · $2.99</button>
+        </form>
+        <div class="session-count">PRAYERS POSTED THIS SESSION: <span x-text="sessionPosts"></span></div>
+      </div>
+    </section>
+
+    <section id="offering">
+      <div class="offering-wrap">
+        <div class="candle-block">
+          <h2 class="offer-title">LIGHT A CANDLE</h2>
+          <div class="offer-sub">$5.00 · VISIBLE ACROSS ALL STREAMS</div>
+          <div class="plate">
+            <div class="flame" id="mainFlame" :class="{ 'lit-boost': flameBoost }"></div>
+          </div>
+          <button class="light-btn" @click="lightCandle"><i data-lucide="flame"></i>LIGHT</button>
+          <div class="soothed"><span x-text="formattedSoothed"></span> SOULS SOOTHED THIS HOUR</div>
+          <div class="still-burning" x-show="candleLit">YOUR CANDLE IS STILL BURNING</div>
+        </div>
+
+        <aside class="donation-ticker" aria-label="Recent donations">
+          <div class="ticker-track">
+            <template x-for="(don, idx) in loopingDonations" :key="idx">
+              <div class="ticker-item" x-text="don"></div>
+            </template>
+          </div>
+        </aside>
+      </div>
+    </section>
+
+    <section id="upsell">
+      <div class="upsell-wrap">
+        <h2 class="zone-title">FAITH ON THE FLY</h2>
+        <div class="pricing">
+          <article class="card free">
+            <div>
+              <h3>FREE TIER</h3>
+              <ul>
+                <li>PUBLIC FEEDS</li>
+                <li>PRAYER POSTING · $2.99/EACH</li>
+                <li>CANDLES · $5.00/EACH</li>
+                <li>AD-SUPPORTED</li>
+              </ul>
+            </div>
+          </article>
+
+          <p class="between">"Airport lounge for the soul"</p>
+
+          <article class="card premium">
+            <div>
+              <h3>PREMIUM — $9.99/MO</h3>
+              <ul>
+                <li>FAITH-ON-THE-FLY™ SCHEDULER</li>
+                <li>SYNC TO REAL CHAPEL SERVICES</li>
+                <li>CATHOLIC MASS · MUSLIM PRAYER · MEDITATION · SHABBAT</li>
+                <li>AD-FREE STREAMS</li>
+                <li>PRIORITY PRAYER PLACEMENT</li>
+                <li>CHAPEL SERVICE NOTIFICATIONS</li>
+              </ul>
+            </div>
+            <div>
+              <button class="subscribe-btn" @click="showSubscribe = true">SUBSCRIBE</button>
+              <p class="sub-note" x-show="showSubscribe">"We appreciate your faith. Your card will be charged the same way the airport charges $14 for a turkey wrap. Subscribe flow coming soon."</p>
+            </div>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section id="archives">
+      <div class="container">
+        <h2 class="archive-title">DELAYED DESTINIES · CURATED ARCHIVES</h2>
+        <div class="h-scroll" id="storyScroll" @scroll="onStoryScroll">
+          <template x-for="(story, idx) in stories" :key="story.id">
+            <article class="story-card" :style="`transform: translateY(${story.parallax}px);`">
+              <h3 class="route" x-text="story.route"></h3>
+              <p class="range" x-text="story.range"></p>
+              <p class="story-text" x-text="story.text"></p>
+              <p class="story-meta" x-text="story.meta"></p>
+              <p class="story-view" x-text="story.views"></p>
+            </article>
+          </template>
+        </div>
+      </div>
+    </section>
+
+    <section id="lena">
+      <div class="lena-column">
+        <p class="note-block">I built this site in 2017 after sitting on a vinyl bench at Denver International for five hours during a fog delay. I have a master's in comparative religion from Berkeley. I thought I'd study temples. Instead I study terminals.</p>
+        <p class="note-block">Gary Whitaker over at AirportWarZone films people screaming at baggage claim. He thinks I'm selling snake oil with incense. I think we're documenting the same thing from different angles. Airports do something to the human soul that no one talks about because everyone is too busy complaining about legroom.</p>
+        <p class="note-block">The chapels are the only honest rooms left. Everyone in them is between places. Between versions of themselves. They're doing the most vulnerable thing a person can do in a building that charges $8 for water.</p>
+        <p class="note-block">We turned every sacred impulse into a transaction a long time ago. I just made the transaction visible. $2.99. $5.00. $9.99 a month. At least I'm honest about it. At least the people in these chapels are honest about being scared.</p>
+        <p class="note-block">The livestream is always on. Someone is always praying. You will never meet them. That's the point.</p>
+        <div class="final-line" :class="{ show: finalLineVisible }">Currently streaming from 8 airports · 23 countries · The chapel at DEN has not been empty since March 2019</div>
+      </div>
+    </section>
+
+    <footer>
+      <div>© 2017-2025 STAIRWAYTOHEAVEN.COM · LENA SHAW · BERKELEY, CA</div>
+      <div>
+        SPONSORED SERENITY FUND PARTNER: DELTA AIR LINES
+        <div class="footer-note"><a href="javascript:void(0)">"Heavenly rates for extended layovers"</a></div>
+      </div>
+    </footer>
+
+    <div class="watch-note" :class="{ show: activeNotice }" x-show="activeNotice" @click="dismissNotice" x-text="activeNotice ? activeNotice.text : ''"></div>
+  </main>
+
+  <script src="/assets/js/alpine.min.js" defer></script>
+  <script src="/assets/js/gsap.min.js"></script>
+  <script src="/assets/js/lucide.min.js"></script>
+  <script>
+    function siteApp() {
+      return {
+        liveViewers: 847,
+        selectedStream: 0,
+        typedAmbient: '',
+        typingCursor: true,
+        prayerInput: '',
+        sessionPosts: 0,
+        candleLit: false,
+        flameBoost: false,
+        soulsSoothed: Math.floor(3800 + Math.random() * 700),
+        showSubscribe: false,
+        finalLineVisible: false,
+        activeNotice: null,
+        noticesQueue: [],
+        boardRows: [
+          { id: 'r1', chapel: 'INTERFAITH', airport: 'DENVER INTL DEN', status: 'LIVE', stream: 'WATCH', live: true, panelIndex: 0, scramble: false },
+          { id: 'r2', chapel: 'CATHOLIC MASS', airport: 'ATLANTA ATL', status: 'NEXT 08:00', stream: 'SCHEDULE', live: false, panelIndex: 1, scramble: false },
+          { id: 'r3', chapel: 'MUSLIM PRAYER', airport: 'DUBAI DXB', status: 'LIVE', stream: 'WATCH', live: true, panelIndex: 2, scramble: false },
+          { id: 'r4', chapel: 'MEDITATION', airport: 'NARITA NRT', status: 'CLOSED', stream: '—', live: false, panelIndex: 3, scramble: false }
+        ],
+        rowStatePools: [
+          [
+            { status: 'LIVE', stream: 'WATCH', live: true },
+            { status: 'NEXT 06:40', stream: 'SCHEDULE', live: false },
+            { status: 'LIVE', stream: 'WATCH', live: true }
+          ],
+          [
+            { status: 'NEXT 08:00', stream: 'SCHEDULE', live: false },
+            { status: 'LIVE', stream: 'WATCH', live: true },
+            { status: 'DELAYED', stream: 'SCHEDULE', live: false }
+          ],
+          [
+            { status: 'LIVE', stream: 'WATCH', live: true },
+            { status: 'NEXT 18:20', stream: 'SCHEDULE', live: false },
+            { status: 'LIVE', stream: 'WATCH', live: true }
+          ],
+          [
+            { status: 'CLOSED', stream: '—', live: false },
+            { status: 'NEXT 09:15', stream: 'SCHEDULE', live: false },
+            { status: 'CLEANING', stream: '—', live: false }
+          ]
+        ],
+        streamPanels: [
+          { id: 'p1', label: 'DEN · INTERFAITH · CAM 2', viewers: 214, ghost: false },
+          { id: 'p2', label: 'ATL · MASS · CAM 1', viewers: 137, ghost: false },
+          { id: 'p3', label: 'DXB · PRAYER · CAM 3', viewers: 189, ghost: false },
+          { id: 'p4', label: 'NRT · MEDITATION · CAM 1', viewers: 92, ghost: false }
+        ],
+        ambientLines: [
+          'A woman in Gate C14 has been sitting with her eyes closed for eleven minutes.',
+          'Someone just placed a book on the chair and left. The book is still open.',
+          'The fluorescent light in the southwest corner has been flickering since 3:42 AM.',
+          'A man is kneeling. He has been kneeling longer than most people kneel.',
+          'Two strangers are sitting three seats apart. Neither has looked at the other.',
+          'The cleaning crew came through at 04:15. They did not turn off the lights.',
+          'Someone wrote something on a prayer card, then put it back in the rack unfinished.',
+          'A flight attendant stepped in, crossed herself, then ran back to Gate A9.',
+          'A kid asked if this room has Wi-Fi. His mom said: not that kind.',
+          'Three carry-ons. One person. No one knows where the third bag came from.',
+          'A couple argued in whispers and left holding hands anyway.',
+          'Boarding started. Nobody in here moved.',
+          'The vending machine hum is louder than the prayers tonight.',
+          'A man in a suit asked for silence and then started crying himself.',
+          'There is a guitar case by the wall. It has not moved in an hour.',
+          'Someone lit a candle and watched the stream of another chapel doing the same.',
+          'Terminal weather delay. Chapel occupancy up 33 percent.',
+          'A teenager mouthed a prayer like a password they almost forgot.',
+          'A nun and a pilot shared a table and said absolutely nothing.',
+          'One chair remains empty in every frame, like reserved seating for doubt.'
+        ],
+        prayerSeed: [
+          { text: "For the man sleeping under his jacket at Gate B7 in O'Hare. Whatever he's going back to, let it be better than what he left.", meta: 'ORD · 2:34 AM CST', candle: true },
+          { text: "Flight AA214 JFK→ORD. Please let my connection hold. I can't miss another night of my daughter's life.", meta: 'JFK · 11:02 PM EST', candle: false },
+          { text: "I don't believe in any of this. I'm posting anyway. Terminal 5, Heathrow, and I just need someone to know I'm here.", meta: 'LHR · 6:17 AM GMT', candle: false },
+          { text: "For the couple holding hands in the DEN chapel right now. I don't know them. I've been watching for twenty minutes. I hope they're okay.", meta: 'STREAM · DEN CAM 1', candle: true },
+          { text: 'If my mother makes this surgery, I swear I will call more and complain less.', meta: 'SFO · 5:11 AM PST', candle: true },
+          { text: 'Delayed to nowhere. Please let me stop treating every goodbye like a rehearsal.', meta: 'SEA · 12:41 AM PST', candle: false },
+          { text: 'To whoever lost the blue backpack in Lisbon: it is still by the chapel door.', meta: 'LIS · 9:04 PM WET', candle: false },
+          { text: 'I am flying home to sign papers I do not want to sign.', meta: 'PHX · 7:19 PM MST', candle: true },
+          { text: 'Please let Dad wake up before I land.', meta: 'MSP · 4:44 AM CST', candle: true },
+          { text: 'For every pilot pretending to be calm over turbulence, bless your poker face.', meta: 'LAX · 8:17 PM PST', candle: false },
+          { text: 'The chapel at Gate D smells like coffee and panic. Keep us steady.', meta: 'MIA · 3:03 AM EST', candle: false },
+          { text: 'I keep saying this trip is business. It is not.', meta: 'BOS · 10:23 PM EST', candle: true },
+          { text: 'For the person humming in Arabic near Row 4. I needed that melody.', meta: 'DOH · 5:08 AM AST', candle: false },
+          { text: 'Let me land softer than I took off.', meta: 'HND · 1:15 PM JST', candle: true },
+          { text: 'My passport is valid. My courage is not. Please help.', meta: 'CDG · 6:02 AM CET', candle: false },
+          { text: 'I posted this because talking to strangers here feels easier than calling family.', meta: 'YYZ · 9:32 PM EST', candle: true },
+          { text: 'For everyone flying to funerals and pretending it is just another trip.', meta: 'DUB · 3:18 AM GMT', candle: true },
+          { text: 'I said I was fine. Please forgive the lie.', meta: 'SYD · 11:57 PM AEDT', candle: false },
+          { text: 'For the chaplain who keeps refilling tissues with no speeches attached.', meta: 'DEN · 2:12 AM MST', candle: true },
+          { text: 'A stranger prayed for me without asking my name. I needed that.', meta: 'ATL · 12:02 AM EST', candle: false },
+          { text: 'Keep this plane in one piece and my ego in smaller pieces.', meta: 'FRA · 7:22 AM CET', candle: false },
+          { text: 'For my son asleep across two chairs. Let him remember this as adventure.', meta: 'MAD · 11:45 PM CET', candle: true },
+          { text: 'Please let there be one honest conversation at baggage claim tonight.', meta: 'LAS · 1:40 AM PST', candle: false },
+          { text: 'I am scared of flying and even more scared of arriving.', meta: 'BCN · 4:07 AM CET', candle: true },
+          { text: 'To whoever left rosary beads on the radiator: thank you.', meta: 'EWR · 5:33 AM EST', candle: false },
+          { text: 'The interfaith room has a sign-in sheet. I signed as "Trying".', meta: 'IAD · 6:05 AM EST', candle: false },
+          { text: 'For my marriage, currently in a holding pattern over the Atlantic.', meta: 'KEF · 8:44 AM GMT', candle: true },
+          { text: 'I missed my connection and accidentally found silence. Keep me here a little longer.', meta: 'AMS · 3:14 AM CET', candle: true },
+          { text: 'I came for Wi-Fi, stayed for mercy.', meta: 'SIN · 1:50 PM SGT', candle: false },
+          { text: 'Please let the text I sent on taxiway be enough.', meta: 'MEX · 9:09 PM CST', candle: false }
+        ],
+        prayers: [],
+        donations: [
+          'Anonymous · DEN · 2 min ago',
+          'S.K. · NRT · 5 min ago',
+          'M.R. · ATL · 6 min ago',
+          'Anonymous · DXB · 8 min ago',
+          'LJ · ORD · 9 min ago',
+          'B.T. · JFK · 12 min ago',
+          'Anonymous · LHR · 13 min ago',
+          'Nora · BOS · 16 min ago',
+          'P.K. · HND · 18 min ago',
+          'Anonymous · CDG · 20 min ago',
+          'J. · DEN · 21 min ago',
+          'Anonymous · MIA · 22 min ago'
+        ],
+        stories: [
+          {
+            id: 's1',
+            route: 'NRT ·········· BOS',
+            range: 'MAR 15-17, 2023',
+            text: 'A violinist missed weather windows on both oceans, played Bach in two chapel corners, and left behind a boarding pass signed only with "for whoever sits next."',
+            meta: '3 DELAYS · 2 CHAPELS · 1 ACCIDENTAL PILGRIMAGE',
+            views: 'Witnessed by 2,847 viewers',
+            parallax: 0
+          },
+          {
+            id: 's2',
+            route: 'ATL ·········· MEX',
+            range: 'JUN 02-03, 2024',
+            text: 'A father promised his kid they were almost there for eleven hours straight. The kid slept on hymnals and woke up smiling anyway.',
+            meta: '4 GATE CHANGES · 1 BLESSING BAG · 0 MELTDOWNS',
+            views: 'Witnessed by 3,210 viewers',
+            parallax: 0
+          },
+          {
+            id: 's3',
+            route: 'DOH ·········· FCO',
+            range: 'SEP 09-10, 2022',
+            text: 'A retired nurse lit one digital candle for each name on a folded list, then missed her flight on purpose and said she finally felt on time.',
+            meta: '2 DELAYS · 3 PRAYERS · 1 MISSED BOARDING',
+            views: 'Witnessed by 1,998 viewers',
+            parallax: 0
+          },
+          {
+            id: 's4',
+            route: 'LAX ·········· SEA',
+            range: 'DEC 24, 2023',
+            text: 'Christmas Eve storm. A mechanic, a rabbi, and a TikTok dancer shared extension cords and silence for three hours.',
+            meta: '1 CANCELLATION · 2 CHAPELS · 1 IMPROMPTU CHOIR',
+            views: 'Witnessed by 4,112 viewers',
+            parallax: 0
+          },
+          {
+            id: 's5',
+            route: 'JFK ·········· KEF',
+            range: 'JAN 11-12, 2025',
+            text: 'A honeymoon couple fought about visas, then prayed over vending-machine tea, then laughed like strangers at a bus stop.',
+            meta: '2 DELAYS · 1 APOLOGY · 1 MIRACLE LEVEL COMPROMISE',
+            views: 'Witnessed by 2,701 viewers',
+            parallax: 0
+          },
+          {
+            id: 's6',
+            route: 'DEN ·········· DUB',
+            range: 'APR 05-07, 2021',
+            text: 'A grad student revised a thesis called "Portable Ritual" while sleeping in 38-minute bursts between chapel bells and boarding calls.',
+            meta: '5 DELAYS · 2 CHAPELS · 1 PHD SAVED',
+            views: 'Witnessed by 3,556 viewers',
+            parallax: 0
+          }
+        ],
+
+        get loopingDonations() {
+          return [...this.donations, ...this.donations];
+        },
+
+        get formattedSoothed() {
+          return this.soulsSoothed.toLocaleString('en-US');
+        },
+
+        init() {
+          document.body.classList.add('warming');
+          this.candleLit = localStorage.getItem('sth_candle_lit') === '1';
+          this.sessionPosts = Number(sessionStorage.getItem('sth_session_posts') || '0');
+          this.loadPrayers();
+          this.startAmbientTypewriter();
+          this.scheduleBoardFlip();
+          this.schedulePrayerFlow();
+          this.startLiveCounters();
+          this.streamPanels.forEach((_, idx) => this.scheduleGhost(idx));
+          this.soulsPulse();
+          this.setupLenaObserver();
+          this.setupTimedNotices();
+          if (window.lucide && window.lucide.createIcons) {
+            window.lucide.createIcons();
+          }
+        },
+
+        scrambleText(len) {
+          const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+          let out = '';
+          for (let i = 0; i < Math.max(4, len); i += 1) {
+            out += chars[Math.floor(Math.random() * chars.length)];
+          }
+          return out;
+        },
+
+        scheduleBoardFlip() {
+          const delay = 8000 + Math.floor(Math.random() * 4000);
+          setTimeout(() => {
+            const idx = Math.floor(Math.random() * this.boardRows.length);
+            this.flipRow(idx);
+            this.scheduleBoardFlip();
+          }, delay);
+        },
+
+        flipRow(idx) {
+          const row = this.boardRows[idx];
+          row.scramble = true;
+          setTimeout(() => {
+            const pool = this.rowStatePools[idx];
+            const next = pool[Math.floor(Math.random() * pool.length)];
+            row.status = next.status;
+            row.stream = next.stream;
+            row.live = next.live;
+            row.scramble = false;
+          }, 400);
+        },
+
+        selectStream(idx) {
+          this.selectedStream = idx;
+          this.streamPanels = this.streamPanels.map((panel, i) => {
+            panel.viewers = Math.max(70, panel.viewers + (i === idx ? 3 : 0));
+            return panel;
+          });
+        },
+
+        scheduleGhost(idx) {
+          const startAfter = 15000 + Math.floor(Math.random() * 10000);
+          setTimeout(() => {
+            this.streamPanels[idx].ghost = true;
+            setTimeout(() => {
+              this.streamPanels[idx].ghost = false;
+            }, 9000);
+            this.scheduleGhost(idx);
+          }, startAfter);
+        },
+
+        startAmbientTypewriter() {
+          let lineIndex = 0;
+          const runLine = () => {
+            const line = this.ambientLines[lineIndex % this.ambientLines.length];
+            let i = 0;
+            const typeStep = () => {
+              this.typingCursor = true;
+              if (i <= line.length) {
+                this.typedAmbient = line.slice(0, i);
+                i += 1;
+                setTimeout(typeStep, 50 + Math.floor(Math.random() * 25));
+              } else {
+                setTimeout(eraseStep, 6000);
+              }
+            };
+            const eraseStep = () => {
+              if (i >= 0) {
+                this.typedAmbient = line.slice(0, i);
+                i -= 1;
+                setTimeout(eraseStep, 24);
+              } else {
+                lineIndex += 1;
+                setTimeout(runLine, 250);
+              }
+            };
+            typeStep();
+          };
+          runLine();
+          setInterval(() => {
+            this.typingCursor = !this.typingCursor;
+          }, 420);
+        },
+
+        loadPrayers() {
+          const stored = JSON.parse(localStorage.getItem('sth_user_prayers') || '[]');
+          const starters = this.prayerSeed.slice(0, 8).map((p, i) => ({ ...p, id: `seed-${i}`, justAdded: false }));
+          const restored = stored.map((p, i) => ({ ...p, id: `user-${i}`, justAdded: false }));
+          this.prayers = [...restored, ...starters].slice(0, 14);
+        },
+
+        saveUserPrayers() {
+          const users = this.prayers.filter((p) => p.user === true).map(({ text, meta, candle, user }) => ({ text, meta, candle, user }));
+          localStorage.setItem('sth_user_prayers', JSON.stringify(users.slice(0, 50)));
+        },
+
+        pushPrayer(item) {
+          const prayer = {
+            ...item,
+            id: `pr-${Date.now()}-${Math.floor(Math.random() * 9999)}`,
+            justAdded: true
+          };
+          this.prayers.unshift(prayer);
+          if (this.prayers.length > 18) {
+            this.prayers.pop();
+          }
+          setTimeout(() => {
+            prayer.justAdded = false;
+          }, 1200);
+        },
+
+        schedulePrayerFlow() {
+          const nextIn = 10000 + Math.floor(Math.random() * 5000);
+          setTimeout(() => {
+            const pick = this.prayerSeed[Math.floor(Math.random() * this.prayerSeed.length)];
+            this.pushPrayer({ text: pick.text, meta: pick.meta, candle: Math.random() > 0.5, user: false });
+            this.schedulePrayerFlow();
+          }, nextIn);
+        },
+
+        postPrayer() {
+          const text = this.prayerInput.trim();
+          if (!text) return;
+          this.pushPrayer({ text, meta: 'JUST NOW · WEB CHECK-IN', candle: true, user: true });
+          this.prayerInput = '';
+          this.sessionPosts += 1;
+          sessionStorage.setItem('sth_session_posts', String(this.sessionPosts));
+          this.saveUserPrayers();
+        },
+
+        startLiveCounters() {
+          setInterval(() => {
+            const drift = Math.floor(Math.random() * 7) - 3;
+            this.liveViewers = Math.max(820, Math.min(900, this.liveViewers + drift));
+          }, 2800);
+          setInterval(() => {
+            this.streamPanels.forEach((panel) => {
+              panel.viewers = Math.max(70, panel.viewers + (Math.floor(Math.random() * 7) - 3));
+            });
+          }, 5000);
+        },
+
+        lightCandle() {
+          this.candleLit = true;
+          localStorage.setItem('sth_candle_lit', '1');
+          this.flameBoost = true;
+          this.soulsSoothed += 1;
+          setTimeout(() => { this.flameBoost = false; }, 300);
+
+          for (let i = 0; i < this.streamPanels.length; i += 1) {
+            const panelFlash = document.getElementById(`flash-${i}`);
+            if (panelFlash) {
+              gsap.fromTo(panelFlash, { opacity: 0.6 }, { opacity: 0, duration: 2, ease: 'power2.out' });
+            }
+          }
+
+          const flame = document.getElementById('mainFlame');
+          if (flame) {
+            gsap.fromTo(flame, { scale: 1 }, { scale: 1.24, duration: 0.22, yoyo: true, repeat: 1, ease: 'power2.inOut' });
+          }
+        },
+
+        soulsPulse() {
+          setInterval(() => {
+            this.soulsSoothed += 1;
+          }, 45000);
+        },
+
+        onStoryScroll(event) {
+          const left = event.target.scrollLeft;
+          this.stories = this.stories.map((story, idx) => {
+            story.parallax = Math.sin((left / 120) + idx) * 6;
+            return story;
+          });
+        },
+
+        setupLenaObserver() {
+          const blocks = document.querySelectorAll('.note-block');
+          const observer = new IntersectionObserver((entries) => {
+            entries.forEach((entry) => {
+              if (entry.isIntersecting) {
+                entry.target.classList.add('visible');
+                const visibleCount = document.querySelectorAll('.note-block.visible').length;
+                if (visibleCount === blocks.length && !this.finalLineVisible) {
+                  setTimeout(() => {
+                    this.finalLineVisible = true;
+                  }, 2000);
+                }
+              }
+            });
+          }, { threshold: 0.3 });
+          blocks.forEach((block) => observer.observe(block));
+        },
+
+        setupTimedNotices() {
+          const definitions = [
+            { minute: 3, key: 'sth_notice_3', text: 'You have been watching for 3 minutes. The average chapel visit is 4 minutes.' },
+            { minute: 5, key: 'sth_notice_5', text: 'You have been here longer than most people pray.' },
+            { minute: 10, key: 'sth_notice_10', text: 'The chapel is still open. It is always open.' }
+          ];
+
+          definitions.forEach((def) => {
+            if (localStorage.getItem(def.key) === '1') return;
+            setTimeout(() => {
+              this.enqueueNotice(def);
+            }, def.minute * 60 * 1000);
+          });
+        },
+
+        enqueueNotice(def) {
+          this.noticesQueue.push(def);
+          if (!this.activeNotice) {
+            this.showNextNotice();
+          }
+        },
+
+        showNextNotice() {
+          this.activeNotice = this.noticesQueue.shift() || null;
+        },
+
+        dismissNotice() {
+          if (!this.activeNotice) return;
+          localStorage.setItem(this.activeNotice.key, '1');
+          this.activeNotice = null;
+          setTimeout(() => this.showNextNotice(), 180);
+        }
+      };
+    }
+  </script>
+</body>
+</html>

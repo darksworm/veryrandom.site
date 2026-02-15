@@ -1,0 +1,1067 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>HazeDates — Where the Smoke Clears for Love</title>
+<link rel="stylesheet" href="/assets/css/fonts.css">
+<script defer src="/assets/js/alpine.min.js"></script>
+<script src="/assets/js/gsap.min.js"></script>
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --toxic-tangerine: #D4530E;
+  --sickly-yellow: #F5C45A;
+  --ash-gray: #3D3A3C;
+  --char-black: #1A1412;
+  --smoke-white: #E8DDD0;
+  --deep-ember: #8B2500;
+}
+
+html { scroll-behavior: smooth; }
+
+body {
+  font-family: 'Fira Code', monospace;
+  background: var(--char-black);
+  color: var(--smoke-white);
+  font-size: 16px;
+  line-height: 1.6;
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ═══ SECTION 1: THE SKY ═══ */
+.sky-section {
+  position: relative;
+  width: 100%;
+  height: 100vh;
+  min-height: 600px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+
+.sky-gradient {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  animation: skyPulse 60s ease-in-out infinite;
+}
+
+@keyframes skyPulse {
+  0%, 100% { background: linear-gradient(to top, #1A1412 0%, #1A1412 5%, #D4530E 45%, #F5C45A 85%, #F5C45A 100%); }
+  25% { background: linear-gradient(to top, #1A1412 0%, #1A1412 5%, #C44A0D 42%, #E8B84E 80%, #F5C45A 100%); }
+  50% { background: linear-gradient(to top, #1A1412 0%, #1A1412 8%, #D4530E 48%, #F5C45A 88%, #F5C45A 100%); }
+  75% { background: linear-gradient(to top, #1A1412 0%, #1A1412 3%, #E05A10 40%, #F0C050 82%, #F5C45A 100%); }
+}
+
+.particulate {
+  position: absolute;
+  border-radius: 50%;
+  background: var(--ash-gray);
+  pointer-events: none;
+  z-index: 1;
+}
+
+.sky-content {
+  position: relative;
+  z-index: 2;
+  padding: 0 24px;
+}
+
+.wordmark {
+  font-family: 'DM Serif Display', serif;
+  font-size: clamp(48px, 10vw, 72px);
+  color: var(--smoke-white);
+  letter-spacing: 2px;
+  margin-bottom: 16px;
+  text-shadow: 0 2px 20px rgba(212, 83, 14, 0.4);
+}
+
+.tagline {
+  font-family: 'Permanent Marker', cursive;
+  font-size: clamp(16px, 3vw, 20px);
+  color: var(--smoke-white);
+  max-width: 500px;
+  margin: 0 auto 32px;
+  line-height: 1.5;
+}
+
+.aqi-badge {
+  display: inline-block;
+  background: var(--ash-gray);
+  border: 1px solid var(--toxic-tangerine);
+  border-radius: 8px;
+  padding: 8px 20px;
+  font-family: 'Fira Code', monospace;
+  font-size: 14px;
+  letter-spacing: 1px;
+  margin-bottom: 48px;
+  animation: badgePulse 3s ease-in-out infinite;
+}
+
+@keyframes badgePulse {
+  0%, 100% { box-shadow: 0 0 10px rgba(212, 83, 14, 0.2); }
+  50% { box-shadow: 0 0 20px rgba(212, 83, 14, 0.5); }
+}
+
+.scroll-hint {
+  font-family: 'Fira Code', monospace;
+  font-size: 13px;
+  color: var(--smoke-white);
+  position: absolute;
+  bottom: 40px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 2;
+}
+
+/* ═══ SECTION 2: THE FORM ═══ */
+.form-section {
+  max-width: 680px;
+  margin: 0 auto;
+  padding: 80px 24px 60px;
+}
+
+.form-card {
+  background: var(--ash-gray);
+  border: 1px solid #524e50;
+  border-radius: 12px;
+  padding: 32px 28px;
+  margin-bottom: 40px;
+}
+
+.form-label {
+  font-family: 'Fira Code', monospace;
+  font-size: 11px;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  color: var(--sickly-yellow);
+  margin-bottom: 20px;
+  display: block;
+}
+
+/* Smoke Index Slider */
+.slider-track {
+  position: relative;
+  width: 100%;
+  height: 8px;
+  border-radius: 4px;
+  background: linear-gradient(to right, #F5C45A, #D4530E, #8B2500);
+  margin: 16px 0 12px;
+}
+
+.slider-input {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 100%;
+  height: 44px;
+  background: transparent;
+  cursor: pointer;
+  position: relative;
+  margin: 0;
+}
+
+.slider-input::-webkit-slider-runnable-track {
+  height: 8px;
+  border-radius: 4px;
+  background: linear-gradient(to right, #F5C45A, #D4530E, #8B2500);
+}
+
+.slider-input::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: var(--smoke-white);
+  border: 3px solid var(--toxic-tangerine);
+  margin-top: -8px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.4);
+}
+
+.slider-input::-moz-range-track {
+  height: 8px;
+  border-radius: 4px;
+  background: linear-gradient(to right, #F5C45A, #D4530E, #8B2500);
+  border: none;
+}
+
+.slider-input::-moz-range-thumb {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: var(--smoke-white);
+  border: 3px solid var(--toxic-tangerine);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.4);
+}
+
+.slider-endpoints {
+  display: flex;
+  justify-content: space-between;
+  font-size: 10px;
+  color: #B0A898;
+  margin-bottom: 20px;
+}
+
+.slider-endpoints span { max-width: 45%; }
+
+.slider-readout {
+  font-size: 14px;
+  line-height: 1.8;
+  margin-bottom: 12px;
+  min-height: 60px;
+}
+
+.health-note {
+  font-size: 12px;
+  font-style: italic;
+  color: var(--deep-ember);
+}
+
+/* Dropdown */
+.catalyst-select {
+  width: 100%;
+  padding: 14px 16px;
+  background: #2A2628;
+  color: var(--smoke-white);
+  border: 1px solid #524e50;
+  border-radius: 8px;
+  font-family: 'Fira Code', monospace;
+  font-size: 14px;
+  cursor: pointer;
+  min-height: 44px;
+  -webkit-appearance: none;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23E8DDD0' stroke-width='1.5' fill='none'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 16px center;
+}
+
+.catalyst-select option {
+  background: #2A2628;
+  color: var(--smoke-white);
+}
+
+/* Upload Zone */
+.upload-zone {
+  border: 2px dashed #524e50;
+  border-radius: 12px;
+  padding: 40px 20px;
+  text-align: center;
+  cursor: pointer;
+  transition: border-color 0.3s, background 0.3s;
+  min-height: 44px;
+}
+
+.upload-zone:hover, .upload-zone.dragover {
+  border-color: var(--toxic-tangerine);
+  background: rgba(212, 83, 14, 0.05);
+}
+
+.upload-icon { font-size: 32px; margin-bottom: 12px; }
+
+.upload-text {
+  font-size: 14px;
+  color: var(--smoke-white);
+}
+
+.upload-subtext {
+  font-size: 12px;
+  color: #B0A898;
+  margin-top: 8px;
+}
+
+.analysis-output {
+  background: #2A2628;
+  border: 1px solid #524e50;
+  border-radius: 8px;
+  padding: 20px;
+  font-size: 13px;
+  line-height: 1.8;
+  margin-top: 20px;
+  white-space: pre-wrap;
+  word-break: break-word;
+  min-height: 40px;
+}
+
+.analysis-cursor {
+  display: inline-block;
+  width: 8px;
+  height: 16px;
+  background: var(--toxic-tangerine);
+  animation: cursorBlink 0.8s step-end infinite;
+  vertical-align: text-bottom;
+}
+
+@keyframes cursorBlink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0; }
+}
+
+.marker-note {
+  font-family: 'Permanent Marker', cursive;
+  font-size: 16px;
+  color: var(--sickly-yellow);
+  margin-top: 16px;
+}
+
+/* Loading Bar */
+.loading-bar-track {
+  width: 100%;
+  height: 4px;
+  background: #2A2628;
+  border-radius: 2px;
+  margin-top: 16px;
+  overflow: hidden;
+}
+
+.loading-bar-fill {
+  width: 0%;
+  height: 100%;
+  background: linear-gradient(to right, var(--sickly-yellow), var(--toxic-tangerine));
+  border-radius: 2px;
+}
+
+/* Modal */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(26, 20, 18, 0.85);
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+}
+
+.modal-card {
+  background: var(--ash-gray);
+  border: 1px solid var(--toxic-tangerine);
+  border-radius: 12px;
+  padding: 36px 32px;
+  max-width: 520px;
+  width: 100%;
+  text-align: center;
+}
+
+.modal-card p {
+  font-size: 14px;
+  line-height: 1.9;
+  margin-bottom: 16px;
+}
+
+.modal-card .health-stat {
+  font-size: 12px;
+  color: var(--deep-ember);
+  font-style: italic;
+  margin-bottom: 24px;
+}
+
+.modal-buttons {
+  display: flex;
+  gap: 16px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.btn-primary {
+  background: var(--toxic-tangerine);
+  color: var(--smoke-white);
+  border: none;
+  padding: 14px 24px;
+  border-radius: 8px;
+  font-family: 'Fira Code', monospace;
+  font-size: 13px;
+  cursor: pointer;
+  min-height: 44px;
+  transition: background 0.2s;
+}
+
+.btn-primary:hover { background: #E05A10; }
+
+.btn-outline {
+  background: transparent;
+  color: var(--smoke-white);
+  border: 1px solid #524e50;
+  padding: 14px 24px;
+  border-radius: 8px;
+  font-family: 'Fira Code', monospace;
+  font-size: 13px;
+  cursor: pointer;
+  min-height: 44px;
+  transition: border-color 0.2s;
+}
+
+.btn-outline:hover { border-color: var(--smoke-white); }
+
+/* Pyro-heart */
+.pyroheart-card {
+  text-align: center;
+}
+
+.flame-heart {
+  position: relative;
+  width: 60px;
+  height: 56px;
+  margin: 0 auto 20px;
+}
+
+.flame-heart .flame {
+  position: absolute;
+  width: 30px;
+  height: 44px;
+  background: var(--toxic-tangerine);
+  border-radius: 50% 50% 50% 50% / 60% 60% 40% 40%;
+}
+
+.flame-heart .flame:first-child {
+  left: 4px;
+  transform: rotate(-15deg);
+}
+
+.flame-heart .flame:last-child {
+  right: 4px;
+  transform: rotate(15deg);
+}
+
+.pyroheart-title {
+  font-family: 'Permanent Marker', cursive;
+  font-size: 20px;
+  color: var(--toxic-tangerine);
+  margin-bottom: 4px;
+}
+
+.pyroheart-price {
+  font-size: 13px;
+  color: #B0A898;
+  margin-bottom: 16px;
+}
+
+.pyroheart-desc {
+  font-size: 13px;
+  line-height: 1.8;
+  margin-bottom: 24px;
+}
+
+.btn-subscribe {
+  background: var(--toxic-tangerine);
+  color: var(--smoke-white);
+  border: none;
+  padding: 14px 32px;
+  border-radius: 8px;
+  font-family: 'Fira Code', monospace;
+  font-size: 14px;
+  cursor: pointer;
+  min-height: 44px;
+  transition: all 0.3s;
+  min-width: 200px;
+}
+
+.btn-subscribe:hover { background: #E05A10; }
+
+.btn-subscribe.error {
+  background: transparent;
+  border: 1px solid var(--deep-ember);
+  color: var(--deep-ember);
+  cursor: default;
+  font-size: 12px;
+}
+
+/* ═══ SECTION 3: CARTER'S NOTE ═══ */
+.carter-section {
+  max-width: 580px;
+  margin: 0 auto;
+  padding: 80px 24px 40px;
+}
+
+.carter-prose {
+  font-size: clamp(14px, 2.5vw, 15px);
+  line-height: 2.0;
+  color: var(--smoke-white);
+}
+
+.carter-prose p { margin-bottom: 28px; }
+
+.evac-button-wrap {
+  margin-top: 48px;
+  text-align: center;
+  position: relative;
+}
+
+.btn-evac {
+  background: var(--ash-gray);
+  color: var(--smoke-white);
+  border: 1px solid #524e50;
+  padding: 14px 24px;
+  border-radius: 8px;
+  font-family: 'Fira Code', monospace;
+  font-size: 13px;
+  opacity: 0.35;
+  cursor: not-allowed;
+  position: relative;
+  min-height: 44px;
+}
+
+.evac-button-wrap:hover .evac-tooltip {
+  visibility: visible;
+  opacity: 1;
+}
+
+.evac-tooltip {
+  visibility: hidden;
+  opacity: 0;
+  position: absolute;
+  bottom: calc(100% + 12px);
+  left: 50%;
+  transform: translateX(-50%);
+  background: #2A2628;
+  border: 1px solid #524e50;
+  border-radius: 8px;
+  padding: 14px 18px;
+  font-size: 12px;
+  color: #B0A898;
+  width: max-content;
+  max-width: 320px;
+  text-align: left;
+  line-height: 1.6;
+  transition: opacity 0.3s, visibility 0.3s;
+  z-index: 10;
+  pointer-events: none;
+}
+
+.evac-tooltip::after {
+  content: '';
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  border: 6px solid transparent;
+  border-top-color: #2A2628;
+}
+
+/* ═══ SECTION 4: FOOTER ═══ */
+.footer-section {
+  text-align: center;
+  padding: 40px 24px 100px;
+}
+
+.footer-text {
+  font-size: 11px;
+  color: #706860;
+}
+
+.footer-credit {
+  font-size: 10px;
+  color: #504840;
+  margin-top: 12px;
+}
+
+.footer-credit a { color: #706860; }
+
+/* Still-here note */
+.still-here {
+  font-family: 'Permanent Marker', cursive;
+  font-size: 18px;
+  color: var(--sickly-yellow);
+  text-align: center;
+  margin-top: 48px;
+}
+
+/* Vignette overlay */
+.vignette-overlay {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 50;
+  transition: box-shadow 2s;
+}
+
+/* Degradation tint */
+.degradation-tint {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  transition: background 2s;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .form-card { padding: 24px 20px; }
+  .modal-card { padding: 28px 20px; }
+  .slider-endpoints { font-size: 9px; }
+  .particulate:nth-child(odd) { display: none; }
+}
+
+@media (max-width: 480px) {
+  .modal-buttons { flex-direction: column; }
+  .btn-primary, .btn-outline { width: 100%; }
+}
+</style>
+</head>
+<body x-data="hazeDatesApp()">
+
+<!-- Degradation overlays -->
+<div class="degradation-tint" :style="'background: rgba(212, 83, 14, ' + (degradeTint * 0.01) + ')'"></div>
+<div class="vignette-overlay" :style="'box-shadow: inset 0 0 ' + vignetteSpread + 'px rgba(212, 83, 14, ' + vignetteOpacity + ')'"></div>
+
+<!-- ═══ SECTION 1: THE SKY ═══ -->
+<section class="sky-section">
+  <div class="sky-gradient"></div>
+
+  <!-- Particulate matter -->
+  <template x-for="dot in particulates" :key="dot.id">
+    <div class="particulate"
+         :style="'left:' + dot.x + '%;top:' + dot.y + '%;width:' + dot.size + 'px;height:' + dot.size + 'px;opacity:' + dot.opacity"
+         :data-dot-id="dot.id"></div>
+  </template>
+
+  <div class="sky-content">
+    <h1 class="wordmark">HazeDates</h1>
+    <p class="tagline">Where the smoke clears for love, even if your lungs don't.</p>
+    <div class="aqi-badge">
+      <span :style="'color:' + aqiBadgeColor">AQI <span x-text="aqiValue"></span> — <span x-text="aqiLabel"></span></span>
+    </div>
+  </div>
+
+  <div class="scroll-hint" x-show="showScrollHint" x-transition.opacity.duration.1000ms>
+    ↓ Begin your profile
+  </div>
+</section>
+
+<!-- ═══ SECTION 2: THE FORM ═══ -->
+<section class="form-section">
+
+  <!-- 2a: Smoke Index Slider -->
+  <div class="form-card reveal-el">
+    <label class="form-label">Set Your Smoke Index</label>
+    <input type="range" class="slider-input" min="0" max="100" x-model="smokeIndex"
+           @input="recordInteraction('slider')" aria-label="Smoke Index slider">
+    <div class="slider-endpoints">
+      <span>2007 Greek Wildfires (AQI 150+)</span>
+      <span style="text-align:right">2023 Canadian Smoke Wave (AQI 500+)</span>
+    </div>
+    <div class="slider-readout" x-html="smokeReadout"></div>
+    <div class="health-note" x-text="smokeHealthNote"></div>
+  </div>
+
+  <!-- 2b: Primary Nostalgia Catalyst -->
+  <div class="form-card reveal-el">
+    <label class="form-label" for="catalyst-select">Primary Nostalgia Catalyst</label>
+    <select id="catalyst-select" class="catalyst-select" x-model="selectedCatalyst" @change="onCatalystChange()">
+      <option value="" disabled selected>Select your formative disaster...</option>
+      <option value="camp">2018 Camp Fire, Paradise CA — 85 lives, 153,336 acres</option>
+      <option value="australia">2019-2020 Australian Bushfires — 24M hectares, 3B animals</option>
+      <option value="westcoast">2020 West Coast Blazes — Canceled seasons, orange noon</option>
+      <option value="colorado">2012 Colorado — The year the Rockies vanished</option>
+      <option value="canada">2023 Canadian Smoke Wave — NYC looked like Mars</option>
+      <option value="blur">I don't remember which one. They've all blurred together.</option>
+    </select>
+  </div>
+
+  <!-- 2c: Sunset Photo Upload -->
+  <div class="form-card reveal-el">
+    <label class="form-label">Upload Your Best Toxic Sunset</label>
+    <div class="upload-zone"
+         @click="runAnalysis()"
+         @dragover.prevent="dragActive = true"
+         @dragleave.prevent="dragActive = false"
+         @drop.prevent="dragActive = false; runAnalysis()"
+         :class="{ 'dragover': dragActive }"
+         x-show="!analysisStarted">
+      <div class="upload-icon">🌅</div>
+      <div class="upload-text">Click to upload — or don't. We already know your sky.</div>
+      <div class="upload-subtext">JPG, PNG, or the memory you can't delete</div>
+    </div>
+
+    <template x-if="analysisStarted">
+      <div>
+        <div class="loading-bar-track" x-show="analysisLoading">
+          <div class="loading-bar-fill" :style="'width:' + loadingProgress + '%'"></div>
+        </div>
+        <div x-show="analysisLoading" style="margin-top:12px; font-size:12px; color:#B0A898;">
+          Running Saturation Score Analysis...
+        </div>
+        <div class="analysis-output" x-show="analysisText.length > 0">
+          <span x-text="analysisText"></span><span class="analysis-cursor" x-show="analysisTyping"></span>
+        </div>
+        <div class="marker-note" x-show="analysisComplete" x-transition.opacity.duration.1500ms>
+          your camera saw what your lungs felt
+        </div>
+      </div>
+    </template>
+  </div>
+
+  <!-- 2d: Advisory Modal -->
+  <template x-if="showModal">
+    <div class="modal-overlay" @click.self="showModal = false" x-transition.opacity>
+      <div class="modal-card">
+        <p style="font-size:16px; margin-bottom:24px; color:#F5C45A;">Before you message your match:</p>
+        <p>Shared trauma isn't a foundation for lasting relationships — it's just a shared view of fading horizons.</p>
+        <p class="health-stat">Prolonged exposure to wildfire smoke conditions has contributed to over 1 million ER visits nationwide since 2010.</p>
+        <p style="font-size:15px; color:#F5C45A;">Keep that inhaler handy.</p>
+        <div class="modal-buttons" style="margin-top:24px;">
+          <button class="btn-primary" @click="showModal = false">I understand the risks</button>
+          <button class="btn-outline" @click="showModal = false">Show me the sky again</button>
+        </div>
+      </div>
+    </div>
+  </template>
+
+  <!-- 2e: Pyro-heart Premium -->
+  <div class="form-card pyroheart-card reveal-el">
+    <div class="flame-heart" id="flame-heart">
+      <div class="flame"></div>
+      <div class="flame"></div>
+    </div>
+    <div class="pyroheart-title">PYRO-HEART&#8482; PREMIUM</div>
+    <div class="pyroheart-price">$4.99/mo — billed to your remaining lung capacity</div>
+    <p class="pyroheart-desc">Unlocks when your first date coincides with an active air quality alert (AQI&nbsp;>&nbsp;200). Current conditions may increase respiratory risks by 30%, but hey — love's worth the wheeze.</p>
+    <button class="btn-subscribe"
+            :class="{ 'error': subscribeState === 'error' }"
+            @click="handleSubscribe()"
+            x-text="subscribeLabel"
+            :disabled="subscribeState === 'processing'">
+    </button>
+  </div>
+
+</section>
+
+<!-- ═══ SECTION 3: CARTER'S NOTE ═══ -->
+<section class="carter-section">
+  <div class="carter-prose reveal-el">
+    <p>I built this in November 2018. I was living in Chico. My ex had left during the evacuation — not because of the fire, because of me. I spent two weeks breathing poison air and filing reports nobody would read. But those sunsets. You've seen the photos. That impossible orange. The most beautiful thing I'd ever witnessed was the sky trying to kill me.</p>
+    <p>I thought if I could find someone else who'd stood outside when they shouldn't have, who'd held up their phone to the horizon instead of packing their car — maybe that would be enough. Maybe that's what love is. Watching something burn and choosing to stay.</p>
+    <p>I know what HazeDates is. I know it's selling you your own grief as a feature. I know the Smoke Index is just a way to quantify how much damage you're willing to call beautiful.</p>
+    <p>I built it anyway.</p>
+  </div>
+
+  <div class="evac-button-wrap reveal-el">
+    <button class="btn-evac" disabled>&#128274; Evacuation Buddy Mode (Disabled — Season 2020)</button>
+    <div class="evac-tooltip">Originally designed to pair users during mandatory evacuations. 4.5 million acres burned that year. Feature deprecated. The matches outlasted the fire, but not by much.</div>
+  </div>
+
+  <div class="still-here" x-show="showStillHere" x-transition.opacity.duration.10000ms>
+    you're still here.
+  </div>
+</section>
+
+<!-- ═══ SECTION 4: FOOTER ═══ -->
+<footer class="footer-section">
+  <div class="footer-text">© 2018-2024 HazeDates — A Carter Finn project — Chico, CA — AQI data via EPA AirNow</div>
+  <div class="footer-credit">Photo by <a href="https://www.pexels.com/@david-kanigan-239927285">David Kanigan</a> on <a href="https://www.pexels.com">Pexels</a></div>
+</footer>
+
+<script>
+function hazeDatesApp() {
+  return {
+    // State
+    smokeIndex: 30,
+    selectedCatalyst: '',
+    interactedWith: new Set(),
+    interactionCount: 0,
+    showModal: false,
+    modalShown: false,
+
+    // Upload analysis
+    dragActive: false,
+    analysisStarted: false,
+    analysisLoading: false,
+    loadingProgress: 0,
+    analysisText: '',
+    analysisTyping: false,
+    analysisComplete: false,
+
+    // Subscribe
+    subscribeState: 'idle',
+
+    // AQI
+    aqiValue: 271,
+
+    // Degradation
+    startTime: Date.now(),
+    elapsedSeconds: 0,
+    degradeTint: 0,
+    vignetteSpread: 0,
+    vignetteOpacity: 0,
+    showStillHere: false,
+    showScrollHint: false,
+
+    // Particulates
+    particulates: [],
+    nextDotId: 0,
+
+    get smokeReadout() {
+      var v = parseInt(this.smokeIndex);
+      if (v < 33) {
+        return 'Moderate haze. You remember the sunsets but not the coughing.<br><span style="color:#B0A898;font-size:12px">Estimated match pool: 12,847</span>';
+      } else if (v < 66) {
+        return 'Significant particulate exposure. You photographed the sky before checking on your neighbors.<br><span style="color:#B0A898;font-size:12px">Estimated match pool: 8,203</span>';
+      } else {
+        return 'Hazardous conditions. You stayed when they told you to leave. So did your match.<br><span style="color:#B0A898;font-size:12px">Estimated match pool: 417</span>';
+      }
+    },
+
+    get smokeHealthNote() {
+      var v = parseInt(this.smokeIndex);
+      if (v < 33) return 'Associated with 15% increase in cardiovascular events over baseline.';
+      if (v < 66) return 'Prolonged exposure linked to 1.2 million ER visits since 2017.';
+      return 'At this level, average life expectancy reduction: 2.4 years. Your match understands.';
+    },
+
+    get aqiLabel() {
+      if (this.aqiValue < 301) return 'Very Unhealthy';
+      if (this.aqiValue < 401) return 'Hazardous';
+      return 'Beyond Index';
+    },
+
+    get aqiBadgeColor() {
+      if (this.aqiValue < 301) return '#D4530E';
+      if (this.aqiValue < 401) return '#8B2500';
+      return '#8B2500';
+    },
+
+    get subscribeLabel() {
+      if (this.subscribeState === 'idle') return 'Subscribe to Pyro-heart\u2122';
+      if (this.subscribeState === 'processing') return 'Processing...';
+      return 'Error: Air quality too good in your area. Try again during fire season.';
+    },
+
+    init() {
+      var self = this;
+
+      // Generate initial particulates
+      for (var i = 0; i < 45; i++) {
+        this.particulates.push({
+          id: this.nextDotId++,
+          x: Math.random() * 100,
+          y: Math.random() * 100,
+          size: 2 + Math.random() * 2.5,
+          opacity: 0.15 + Math.random() * 0.35
+        });
+      }
+
+      // Scroll hint after 8 seconds
+      setTimeout(function() { self.showScrollHint = true; }, 8000);
+
+      // Animate particulates drifting upward
+      this.$nextTick(function() {
+        self.animateParticulates();
+        self.animateRevealElements();
+        self.startFlameHeartPulse();
+      });
+
+      // Degradation timer
+      setInterval(function() {
+        self.elapsedSeconds = Math.floor((Date.now() - self.startTime) / 1000);
+        self.updateDegradation();
+      }, 1000);
+
+      // Spawn new particulates every 15 seconds after 90s
+      setInterval(function() {
+        if (self.elapsedSeconds > 90 && self.particulates.length < 120) {
+          var newDot = {
+            id: self.nextDotId++,
+            x: Math.random() * 100,
+            y: 100 + Math.random() * 10,
+            size: 2 + Math.random() * 2.5,
+            opacity: 0.15 + Math.random() * 0.35
+          };
+          self.particulates.push(newDot);
+          self.$nextTick(function() {
+            self.animateSingleDot(newDot.id);
+          });
+        }
+      }, 15000);
+    },
+
+    updateDegradation() {
+      // Starts at 90 seconds, caps at 600 (10 minutes)
+      if (this.elapsedSeconds < 90) return;
+      var progress = Math.min((this.elapsedSeconds - 90) / 510, 1);
+
+      // AQI climbs
+      this.aqiValue = Math.floor(271 + progress * 230);
+
+      // Orange tint creeps in
+      this.degradeTint = progress * 8;
+
+      // Vignette
+      this.vignetteSpread = Math.floor(progress * 200);
+      this.vignetteOpacity = progress * 0.25;
+
+      // "you're still here" at 7 minutes (420s)
+      if (this.elapsedSeconds >= 420 && !this.showStillHere) {
+        this.showStillHere = true;
+      }
+    },
+
+    animateParticulates() {
+      var self = this;
+      this.particulates.forEach(function(dot) {
+        self.animateSingleDot(dot.id);
+      });
+    },
+
+    animateSingleDot(dotId) {
+      var el = document.querySelector('[data-dot-id="' + dotId + '"]');
+      if (!el) return;
+      var duration = 20 + Math.random() * 40;
+      gsap.fromTo(el,
+        { y: 0 },
+        {
+          y: -(window.innerHeight + 100),
+          duration: duration,
+          ease: 'none',
+          repeat: -1,
+          delay: Math.random() * 10
+        }
+      );
+      // Slight horizontal drift
+      gsap.fromTo(el,
+        { x: 0 },
+        {
+          x: (Math.random() - 0.5) * 60,
+          duration: duration * 0.7,
+          ease: 'sine.inOut',
+          repeat: -1,
+          yoyo: true
+        }
+      );
+    },
+
+    animateRevealElements() {
+      var els = document.querySelectorAll('.reveal-el');
+      els.forEach(function(el, i) {
+        gsap.fromTo(el,
+          { opacity: 0, y: 40 },
+          {
+            opacity: 1,
+            y: 0,
+            duration: 0.8,
+            ease: 'power2.out',
+            scrollTrigger: false,
+            delay: 0.1
+          }
+        );
+        // Use IntersectionObserver for scroll reveals
+        var observer = new IntersectionObserver(function(entries) {
+          entries.forEach(function(entry) {
+            if (entry.isIntersecting) {
+              gsap.fromTo(entry.target,
+                { opacity: 0, y: 40 },
+                { opacity: 1, y: 0, duration: 0.8, ease: 'power2.out' }
+              );
+              observer.unobserve(entry.target);
+            }
+          });
+        }, { threshold: 0.15 });
+        // Reset for scroll reveal
+        el.style.opacity = '0';
+        el.style.transform = 'translateY(40px)';
+        observer.observe(el);
+      });
+    },
+
+    startFlameHeartPulse() {
+      var heart = document.getElementById('flame-heart');
+      if (!heart) return;
+      gsap.fromTo(heart,
+        { scale: 1 },
+        { scale: 1.1, duration: 0.8, ease: 'sine.inOut', repeat: -1, yoyo: true }
+      );
+    },
+
+    recordInteraction(type) {
+      if (this.interactedWith.has(type)) return;
+      this.interactedWith.add(type);
+      this.interactionCount++;
+      if (this.interactionCount >= 2 && !this.modalShown) {
+        this.modalShown = true;
+        var self = this;
+        setTimeout(function() { self.showModal = true; }, 600);
+      }
+    },
+
+    onCatalystChange() {
+      this.recordInteraction('catalyst');
+      // Brief orange flash
+      var flash = document.createElement('div');
+      flash.style.cssText = 'position:fixed;inset:0;background:rgba(212,83,14,0.12);pointer-events:none;z-index:60;';
+      document.body.appendChild(flash);
+      gsap.fromTo(flash, { opacity: 1 }, {
+        opacity: 0, duration: 0.6, ease: 'power2.out',
+        onComplete: function() { flash.remove(); }
+      });
+    },
+
+    runAnalysis() {
+      if (this.analysisStarted) return;
+      this.analysisStarted = true;
+      this.analysisLoading = true;
+      this.recordInteraction('upload');
+
+      var self = this;
+
+      // Loading bar fills over 3 seconds
+      var barEl = null;
+      this.$nextTick(function() {
+        barEl = document.querySelector('.loading-bar-fill');
+        if (barEl) {
+          gsap.fromTo(barEl,
+            { width: '0%' },
+            {
+              width: '100%',
+              duration: 3,
+              ease: 'power1.inOut',
+              onUpdate: function() {
+                self.loadingProgress = Math.round(gsap.getProperty(barEl, 'width', '%'));
+              },
+              onComplete: function() {
+                self.analysisLoading = false;
+                self.startTypewriter();
+              }
+            }
+          );
+        }
+      });
+    },
+
+    startTypewriter() {
+      var fullText = 'SATURATION SCORE: 78.4\nDOMINANT HEX: #E8641B\nEPA CORRELATION: This hue matches readings from\nButte County, CA \u2014 Nov 9, 2018, 2:47 PM\nAssociated health impact: 25% spike in asthma\npresentations within 72 hours\nMATCH COMPATIBILITY: Searching for complementary\ngloom levels...\nRESULT: 3 users within 12 miles share your\nexact shade of loss.';
+
+      this.analysisTyping = true;
+      this.analysisText = '';
+      var self = this;
+      var idx = 0;
+
+      var typeTimer = setInterval(function() {
+        if (idx < fullText.length) {
+          self.analysisText += fullText.charAt(idx);
+          idx++;
+        } else {
+          clearInterval(typeTimer);
+          self.analysisTyping = false;
+          self.analysisComplete = true;
+        }
+      }, 28);
+    },
+
+    handleSubscribe() {
+      if (this.subscribeState !== 'idle') return;
+      this.subscribeState = 'processing';
+      this.recordInteraction('subscribe');
+      var self = this;
+      setTimeout(function() {
+        self.subscribeState = 'error';
+      }, 2000);
+    }
+  };
+}
+</script>
+</body>
+</html>

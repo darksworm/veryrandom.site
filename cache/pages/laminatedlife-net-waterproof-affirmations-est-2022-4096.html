@@ -1,0 +1,1285 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LaminatedLife.net — Waterproof Affirmations — Est. 2022</title>
+<link rel="stylesheet" href="/assets/css/pico.min.css">
+<link rel="stylesheet" href="/assets/css/fonts.css">
+<script defer src="/assets/js/alpine.min.js"></script>
+<script src="/assets/js/gsap.min.js"></script>
+<script src="/assets/js/lucide.min.js"></script>
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --orange: #FF6B2B;
+  --green: #7EC8A0;
+  --blue: #8BA4C7;
+  --cream: #F5F0E6;
+  --dark: #2B2B2B;
+  --cardboard: #D4A574;
+  --fira: 'Fira Code', monospace;
+  --marker: 'Permanent Marker', cursive;
+  --oswald: 'Oswald', sans-serif;
+}
+
+html { scroll-behavior: auto !important; }
+
+body {
+  font-family: var(--fira);
+  font-size: 16px;
+  line-height: 1.6;
+  color: var(--dark);
+  background: var(--cream);
+  overflow-x: hidden;
+}
+
+/* Override Pico */
+:root {
+  --pico-font-family: 'Fira Code', monospace;
+  --pico-font-size: 16px;
+  --pico-line-height: 1.6;
+  --pico-color: #2B2B2B;
+  --pico-background-color: #F5F0E6;
+  --pico-text-color: #2B2B2B;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--oswald);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--dark);
+}
+
+/* ====== DRAWER REVEAL ====== */
+.drawer-reveal {
+  position: fixed;
+  inset: 0;
+  background: var(--dark);
+  z-index: 9999;
+  pointer-events: none;
+  clip-path: circle(0% at 50% 50%);
+  animation: drawerClose 0.01s forwards;
+}
+.drawer-reveal.opening {
+  animation: drawerOpen 1.5s ease-out forwards;
+}
+@keyframes drawerOpen {
+  0% { clip-path: circle(150% at 50% 50%); background: var(--dark); }
+  100% { clip-path: circle(0% at 50% 50%); background: var(--dark); }
+}
+
+.page-content {
+  opacity: 0;
+  transition: opacity 0.5s ease;
+}
+.page-content.visible { opacity: 1; }
+
+/* ====== LABEL TAPE NAV ====== */
+.label-tape {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 1000;
+  background: var(--dark);
+  color: #FFFFFF;
+  font-family: var(--oswald);
+  font-size: 12px;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  padding: 10px 20px;
+  text-align: center;
+  white-space: nowrap;
+  overflow: hidden;
+}
+.label-tape::after {
+  content: '';
+  position: absolute;
+  top: 2px;
+  right: -4px;
+  width: 50px;
+  height: 100%;
+  background: var(--dark);
+  transform: rotate(2deg);
+  box-shadow: -3px 3px 6px rgba(0,0,0,0.4);
+  transform-origin: top right;
+}
+
+/* ====== SECTION SHARED ====== */
+section { padding: 60px 20px; }
+.section-inner {
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+/* ====== HERO CARD ====== */
+.hero-section {
+  padding-top: 80px;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.card-container {
+  perspective: 800px;
+  width: 350px;
+  height: 220px;
+  cursor: pointer;
+  margin: 0 auto 30px;
+}
+.card-flipper {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  transform-style: preserve-3d;
+  transition: transform 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.card-flipper.flipped { transform: rotateY(180deg); }
+
+.card-front, .card-back {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  backface-visibility: hidden;
+  border-radius: 8px;
+  overflow: hidden;
+  border: 2px solid var(--cardboard);
+}
+
+.card-front {
+  background: var(--green);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+
+/* Laminate sheen */
+.card-front::before, .card-back::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    var(--sheen-angle, 135deg),
+    transparent 0%,
+    rgba(255,255,255,0.08) 35%,
+    rgba(255,255,255,0.25) 50%,
+    rgba(255,255,255,0.08) 65%,
+    transparent 100%
+  );
+  pointer-events: none;
+  z-index: 2;
+  border-radius: 8px;
+}
+
+/* Scratches */
+.card-front::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(23deg, transparent 48%, rgba(255,255,255,0.15) 49%, rgba(255,255,255,0.15) 49.5%, transparent 50%),
+    linear-gradient(-34deg, transparent 45%, rgba(255,255,255,0.12) 45.5%, rgba(255,255,255,0.12) 46%, transparent 46.5%),
+    linear-gradient(67deg, transparent 52%, rgba(255,255,255,0.1) 52.3%, rgba(255,255,255,0.1) 52.6%, transparent 53%),
+    linear-gradient(-12deg, transparent 40%, rgba(255,255,255,0.13) 40.3%, rgba(255,255,255,0.13) 40.6%, transparent 41%),
+    linear-gradient(45deg, transparent 60%, rgba(255,255,255,0.09) 60.2%, rgba(255,255,255,0.09) 60.5%, transparent 61%);
+  pointer-events: none;
+  z-index: 3;
+  border-radius: 8px;
+}
+
+.card-sun {
+  margin-bottom: 12px;
+}
+.card-front-text {
+  font-family: var(--fira);
+  font-size: 13px;
+  text-align: center;
+  color: var(--dark);
+  z-index: 1;
+  line-height: 1.5;
+}
+
+.card-back {
+  background: var(--cream);
+  transform: rotateY(180deg);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  position: relative;
+}
+.card-back-main {
+  font-family: var(--marker);
+  font-size: 24px;
+  color: var(--dark);
+  z-index: 1;
+  text-align: center;
+}
+.card-back-attr {
+  font-family: var(--fira);
+  font-size: 10px;
+  color: #555555;
+  margin-top: 12px;
+  z-index: 1;
+}
+
+/* Condensation droplet on card back */
+.condensation-drop {
+  position: absolute;
+  bottom: 15px;
+  right: 18px;
+  z-index: 4;
+  animation: condenseLoop 4s ease-in-out infinite;
+}
+@keyframes condenseLoop {
+  0% { transform: scale(0.5); opacity: 0.6; }
+  50% { transform: scale(1) translateY(0); opacity: 0.8; }
+  80% { transform: scale(1) translateY(20px); opacity: 0.2; }
+  100% { transform: scale(0.5) translateY(0); opacity: 0; }
+}
+
+.flip-hint {
+  font-family: var(--marker);
+  font-size: 20px;
+  color: var(--dark);
+  transform: rotate(-3deg);
+  margin-bottom: 40px;
+  text-align: center;
+}
+
+.hero-text {
+  max-width: 600px;
+  margin: 0 auto;
+  font-family: var(--fira);
+  font-size: 14px;
+  line-height: 1.8;
+  color: var(--dark);
+  text-align: left;
+  font-style: italic;
+}
+
+.hero-tagline {
+  font-family: var(--marker);
+  font-size: 22px;
+  color: var(--dark);
+  transform: rotate(-2deg);
+  margin-top: 30px;
+  text-align: center;
+}
+
+/* ====== CONVEYOR BELT ====== */
+.conveyor-section {
+  background: var(--green);
+  border-top: 3px dashed var(--orange);
+  border-bottom: 3px dashed var(--orange);
+  padding: 40px 0;
+  overflow: hidden;
+  position: relative;
+}
+.conveyor-section::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg width='20' height='20' xmlns='http://www.w3.org/2000/svg'%3E%3Ccircle cx='10' cy='10' r='2' fill='rgba(139,164,199,0.15)'/%3E%3C/svg%3E");
+  pointer-events: none;
+}
+
+.conveyor-track {
+  display: flex;
+  animation: marquee 30s linear infinite;
+  width: max-content;
+}
+@keyframes marquee {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+.conveyor-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-width: 160px;
+  padding: 20px 25px;
+  flex-shrink: 0;
+}
+.conveyor-icon {
+  width: 48px;
+  height: 48px;
+  margin-bottom: 10px;
+}
+.conveyor-icon svg { width: 48px; height: 48px; stroke: var(--dark); fill: none; stroke-width: 1.5; }
+.conveyor-label {
+  font-family: var(--fira);
+  font-size: 11px;
+  color: var(--dark);
+  text-align: center;
+  max-width: 130px;
+}
+
+/* ====== ARCHIVE GRID ====== */
+.archive-section {
+  background: var(--blue);
+  padding: 60px 20px;
+}
+.archive-section h2 {
+  font-family: var(--oswald);
+  text-align: center;
+  font-size: 28px;
+  color: var(--dark);
+  margin-bottom: 40px;
+  letter-spacing: 0.05em;
+}
+.archive-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 24px;
+  max-width: 700px;
+  margin: 0 auto;
+}
+@media (max-width: 768px) { .archive-grid { grid-template-columns: repeat(2, 1fr); } }
+@media (max-width: 500px) { .archive-grid { grid-template-columns: 1fr; max-width: 300px; } }
+
+.archive-card-wrap {
+  display: flex;
+  justify-content: center;
+}
+.archive-card {
+  width: 180px;
+  height: 120px;
+  border-radius: 6px;
+  position: relative;
+  overflow: hidden;
+  border: 1.5px solid var(--cardboard);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 10px;
+  text-align: center;
+}
+.archive-card::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, transparent 30%, rgba(255,255,255,0.2) 50%, transparent 70%);
+  pointer-events: none;
+  z-index: 2;
+}
+.archive-card::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(30deg, transparent 47%, rgba(255,255,255,0.1) 48%, transparent 49%),
+    linear-gradient(-20deg, transparent 44%, rgba(255,255,255,0.08) 44.5%, transparent 45%);
+  pointer-events: none;
+  z-index: 3;
+}
+.archive-month {
+  font-family: var(--oswald);
+  font-size: 10px;
+  color: var(--dark);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  margin-bottom: 4px;
+  z-index: 1;
+}
+.archive-symbol { font-size: 24px; margin-bottom: 4px; z-index: 1; }
+.archive-affirmation {
+  font-family: var(--fira);
+  font-size: 8px;
+  color: var(--dark);
+  line-height: 1.4;
+  z-index: 1;
+}
+.archive-card.yellowed { filter: sepia(0.4) brightness(0.95); }
+.archive-card.broken {
+  background: #E8E8E8;
+  justify-content: center;
+}
+.broken-icon {
+  font-family: var(--fira);
+  font-size: 10px;
+  color: #888888;
+  text-align: center;
+  z-index: 1;
+}
+.bertram-scrawl {
+  position: absolute;
+  font-family: var(--marker);
+  font-size: 14px;
+  color: #CC2222;
+  transform: rotate(-8deg);
+  z-index: 5;
+  white-space: nowrap;
+}
+
+.archive-toggle {
+  display: block;
+  margin: 30px auto 0;
+  font-family: var(--fira);
+  font-size: 13px;
+  background: var(--dark);
+  color: #FFFFFF;
+  border: none;
+  padding: 12px 24px;
+  cursor: pointer;
+  border-radius: 0;
+  min-height: 44px;
+}
+.archive-toggle:hover { background: var(--orange); }
+
+/* ====== TESTIMONIAL ====== */
+.testimonial-section {
+  background: var(--green);
+  padding: 60px 20px;
+}
+.testimonial-inner {
+  max-width: 700px;
+  margin: 0 auto;
+  display: flex;
+  gap: 30px;
+  align-items: flex-start;
+}
+@media (max-width: 600px) { .testimonial-inner { flex-direction: column; align-items: center; } }
+.testimonial-photo {
+  width: 140px;
+  height: 140px;
+  flex-shrink: 0;
+  background: var(--cardboard);
+  position: relative;
+  overflow: hidden;
+  border: 2px solid var(--dark);
+}
+/* CSS "photo" — mountain + stick figure */
+.testimonial-photo::before {
+  content: '';
+  position: absolute;
+  bottom: 0; left: 0; right: 0;
+  height: 60px;
+  background:
+    linear-gradient(135deg, transparent 30%, #6B8F71 30%, #6B8F71 50%, transparent 50%),
+    linear-gradient(225deg, transparent 20%, #5A7D60 20%, #5A7D60 45%, transparent 45%);
+}
+.testimonial-photo::after {
+  content: '';
+  position: absolute;
+  bottom: 55px;
+  left: 55px;
+  width: 3px;
+  height: 30px;
+  background: var(--dark);
+  box-shadow:
+    -8px 25px 0 0 var(--dark),
+    8px 25px 0 0 var(--dark),
+    0 -5px 0 4px var(--dark);
+  border-radius: 50% 50% 0 0;
+}
+.testimonial-text {
+  font-family: var(--fira);
+  font-size: 14px;
+  color: var(--dark);
+  font-style: italic;
+  line-height: 1.7;
+}
+.testimonial-attr {
+  font-family: var(--fira);
+  font-size: 12px;
+  color: var(--dark);
+  margin-top: 12px;
+  font-weight: 700;
+  font-style: normal;
+}
+.testimonial-meta {
+  font-family: var(--fira);
+  font-size: 11px;
+  color: #3D3D3D;
+  font-style: normal;
+}
+.testimonial-aside {
+  font-family: var(--marker);
+  font-size: 14px;
+  color: var(--dark);
+  margin-top: 20px;
+  max-width: 700px;
+  margin-left: auto;
+  margin-right: auto;
+  text-align: center;
+}
+
+/* ====== FAQ ====== */
+.faq-section {
+  background: var(--cream);
+  padding: 60px 20px;
+}
+.faq-inner {
+  max-width: 650px;
+  margin: 0 auto;
+}
+.faq-item { margin-bottom: 35px; }
+.faq-q {
+  font-family: var(--oswald);
+  font-size: 18px;
+  color: var(--orange);
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  margin-bottom: 8px;
+}
+.faq-a {
+  font-family: var(--fira);
+  font-size: 14px;
+  color: var(--dark);
+  line-height: 1.7;
+}
+.faq-strikethrough { text-decoration: line-through; }
+.faq-marker-note {
+  font-family: var(--marker);
+  font-size: 16px;
+  color: var(--dark);
+  margin-top: 6px;
+}
+
+/* ====== BLOG ====== */
+.blog-section {
+  background: #EDE8DC;
+  padding: 60px 20px;
+}
+.blog-inner { max-width: 650px; margin: 0 auto; }
+.blog-title {
+  font-family: var(--oswald);
+  font-size: 24px;
+  color: var(--dark);
+  text-transform: uppercase;
+  margin-bottom: 8px;
+}
+.blog-byline {
+  font-family: var(--fira);
+  font-size: 11px;
+  color: #555555;
+  margin-bottom: 4px;
+}
+.blog-date {
+  font-family: var(--fira);
+  font-size: 11px;
+  color: #777777;
+  margin-bottom: 20px;
+}
+.blog-photo {
+  width: 100%;
+  height: 200px;
+  background: linear-gradient(135deg, var(--cardboard), var(--green), var(--cream));
+  filter: blur(8px);
+  border-radius: 4px;
+  margin-bottom: 20px;
+}
+.blog-body {
+  font-family: var(--fira);
+  font-size: 14px;
+  color: var(--dark);
+  line-height: 1.8;
+}
+.blog-body p { margin-bottom: 16px; }
+
+/* ====== PRICING ====== */
+.pricing-section {
+  background: var(--cream);
+  padding: 60px 20px 80px;
+}
+.pricing-section h2 {
+  font-family: var(--oswald);
+  text-align: center;
+  font-size: 28px;
+  color: var(--dark);
+  margin-bottom: 50px;
+}
+.pricing-stack {
+  position: relative;
+  max-width: 400px;
+  margin: 0 auto;
+  height: 340px;
+}
+@media (max-width: 500px) { .pricing-stack { height: 360px; } }
+.pricing-card {
+  position: absolute;
+  width: 320px;
+  max-width: 85vw;
+  background: var(--cream);
+  border: 3px solid var(--orange);
+  padding: 24px;
+}
+.pricing-card:nth-child(1) { top: 0; left: 0; z-index: 3; }
+.pricing-card:nth-child(2) { top: 15px; left: 10px; z-index: 2; }
+.pricing-card:nth-child(3) { top: 30px; left: 20px; z-index: 1; }
+.pricing-card.active { z-index: 10 !important; box-shadow: 0 4px 20px rgba(0,0,0,0.15); }
+.pricing-tier {
+  font-family: var(--oswald);
+  font-size: 20px;
+  color: var(--dark);
+  text-transform: uppercase;
+}
+.pricing-price {
+  font-family: var(--fira);
+  font-size: 28px;
+  color: var(--orange);
+  font-weight: 700;
+  margin: 6px 0;
+}
+.pricing-desc {
+  font-family: var(--fira);
+  font-size: 12px;
+  color: var(--dark);
+  line-height: 1.6;
+  margin-bottom: 14px;
+}
+.pricing-popular {
+  font-family: var(--marker);
+  font-size: 13px;
+  color: var(--orange);
+  transform: rotate(-2deg);
+  display: inline-block;
+  margin-bottom: 8px;
+}
+.pricing-btn {
+  background: var(--orange);
+  color: #FFFFFF;
+  border: none;
+  font-family: var(--fira);
+  font-size: 13px;
+  padding: 10px 20px;
+  cursor: pointer;
+  min-height: 44px;
+  width: 100%;
+}
+.pricing-btn:hover { background: #E55A1B; }
+
+/* ====== MODAL ====== */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(43,43,43,0.8);
+  z-index: 2000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+.modal-box {
+  background: var(--cream);
+  border: 3px solid var(--orange);
+  padding: 30px;
+  max-width: 450px;
+  width: 100%;
+  position: relative;
+}
+.modal-close {
+  position: absolute;
+  top: 10px;
+  right: 14px;
+  font-size: 24px;
+  cursor: pointer;
+  background: none;
+  border: none;
+  font-family: var(--fira);
+  color: var(--dark);
+  min-width: 44px;
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.modal-title {
+  font-family: var(--oswald);
+  font-size: 22px;
+  text-transform: uppercase;
+  color: var(--dark);
+  margin-bottom: 20px;
+}
+.modal-box label {
+  font-family: var(--fira);
+  font-size: 12px;
+  color: var(--dark);
+  display: block;
+  margin-bottom: 4px;
+  margin-top: 12px;
+}
+.modal-box input[type="text"],
+.modal-box input[type="email"],
+.modal-box select {
+  width: 100%;
+  padding: 10px;
+  font-family: var(--fira);
+  font-size: 13px;
+  border: 2px solid var(--dark);
+  background: #FFFFFF;
+  color: var(--dark);
+  min-height: 44px;
+}
+.modal-box select { cursor: pointer; }
+.modal-check {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  margin-top: 16px;
+}
+.modal-check input[type="checkbox"] {
+  margin-top: 3px;
+  width: 20px;
+  height: 20px;
+  flex-shrink: 0;
+  cursor: pointer;
+}
+.modal-check span {
+  font-family: var(--fira);
+  font-size: 11px;
+  color: var(--dark);
+  line-height: 1.5;
+}
+.modal-submit {
+  background: var(--orange);
+  color: #FFFFFF;
+  border: none;
+  font-family: var(--fira);
+  font-size: 14px;
+  padding: 12px 24px;
+  cursor: pointer;
+  margin-top: 20px;
+  width: 100%;
+  min-height: 44px;
+}
+.modal-submit:hover { background: #E55A1B; }
+.modal-success {
+  font-family: var(--fira);
+  font-size: 14px;
+  color: var(--dark);
+  line-height: 1.7;
+  text-align: center;
+  padding: 20px 0;
+}
+.modal-success-marker {
+  font-family: var(--marker);
+  font-size: 16px;
+  color: var(--dark);
+  margin-top: 12px;
+}
+
+/* ====== REFERRAL ====== */
+.referral-section {
+  background: var(--cream);
+  padding: 40px 20px;
+  text-align: center;
+}
+.referral-inner { max-width: 550px; margin: 0 auto; }
+.referral-text {
+  font-family: var(--fira);
+  font-size: 13px;
+  color: var(--dark);
+  line-height: 1.7;
+  margin-bottom: 16px;
+}
+.referral-count {
+  font-family: var(--oswald);
+  font-size: 48px;
+  color: var(--orange);
+  margin: 10px 0;
+}
+.referral-btn {
+  background: var(--dark);
+  color: #FFFFFF;
+  border: none;
+  font-family: var(--fira);
+  font-size: 13px;
+  padding: 12px 24px;
+  cursor: pointer;
+  min-height: 44px;
+}
+.referral-btn:hover { background: var(--orange); }
+.referral-warning {
+  font-family: var(--fira);
+  font-size: 12px;
+  color: var(--orange);
+  margin-top: 14px;
+  line-height: 1.6;
+}
+
+/* ====== FOOTER ====== */
+.site-footer {
+  background: var(--blue);
+  padding: 40px 20px;
+  text-align: center;
+}
+.site-footer p {
+  font-family: var(--fira);
+  font-size: 11px;
+  color: var(--dark);
+  line-height: 1.8;
+  margin-bottom: 4px;
+}
+.site-footer a {
+  color: var(--dark);
+  font-size: 9px;
+  opacity: 0.92;
+}
+
+/* ====== CONDENSATION OVERLAY ====== */
+.condensation-overlay {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 800;
+  overflow: hidden;
+}
+.condensation-dot {
+  position: absolute;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(255,255,255,0.02) 30%, rgba(139,164,199,0.25) 100%);
+  opacity: 0;
+  animation: condenseDrift 8s ease-in-out infinite;
+}
+@keyframes condenseDrift {
+  0% { transform: scale(0.3); opacity: 0; }
+  20% { opacity: 0.3; transform: scale(0.7); }
+  50% { opacity: 0.25; transform: scale(1); }
+  80% { opacity: 0.1; transform: scale(1) translateY(30px); }
+  100% { opacity: 0; transform: scale(0.3) translateY(0); }
+}
+
+/* ====== TIME EASTER EGG ====== */
+.time-egg {
+  position: fixed;
+  bottom: 70px;
+  left: 20px;
+  font-family: var(--marker);
+  font-size: 14px;
+  color: var(--dark);
+  max-width: 260px;
+  z-index: 500;
+  transition: opacity 1s ease;
+}
+
+/* ====== RESPONSIVE ====== */
+@media (max-width: 768px) {
+  .card-container { width: 280px; height: 180px; }
+  .card-front-text { font-size: 11px; }
+  .hero-text { font-size: 13px; padding: 0 10px; }
+  .archive-section h2 { font-size: 22px; }
+  .pricing-stack { height: 360px; }
+  .pricing-card { width: 280px; }
+  .blog-title { font-size: 20px; }
+  .label-tape { font-size: 10px; padding: 8px 15px; }
+}
+@media (max-width: 375px) {
+  .pricing-card { width: 260px; max-width: 90vw; padding: 18px; }
+  .pricing-stack { height: 380px; }
+  .card-container { width: 250px; height: 160px; }
+  .card-front-text { font-size: 10px; }
+  .conveyor-item { min-width: 130px; padding: 15px; }
+}
+</style>
+</head>
+<body x-data="laminatedLife()" x-init="init()">
+
+<!-- Drawer Reveal -->
+<div class="drawer-reveal opening" x-ref="drawerReveal"></div>
+
+<!-- Condensation Overlay -->
+<div class="condensation-overlay" x-ref="condensation">
+  <div class="condensation-dot" style="width:6px;height:6px;top:15%;left:10%;animation-delay:0s;"></div>
+  <div class="condensation-dot" style="width:8px;height:8px;top:30%;left:85%;animation-delay:1.2s;"></div>
+  <div class="condensation-dot" style="width:5px;height:5px;top:55%;left:25%;animation-delay:2.5s;"></div>
+  <div class="condensation-dot" style="width:7px;height:7px;top:70%;left:60%;animation-delay:3.8s;"></div>
+  <div class="condensation-dot" style="width:4px;height:4px;top:40%;left:45%;animation-delay:5.1s;"></div>
+  <div class="condensation-dot" style="width:6px;height:6px;top:80%;left:75%;animation-delay:6.4s;"></div>
+  <div class="condensation-dot" style="width:5px;height:5px;top:20%;left:55%;animation-delay:7.2s;"></div>
+</div>
+
+<!-- Label Tape Nav -->
+<div class="label-tape">LAMINATEDLIFE.NET &mdash; WATERPROOF AFFIRMATIONS &mdash; EST. 2022 &mdash; DAYTON, OH</div>
+
+<!-- Page Content -->
+<div class="page-content" x-ref="pageContent">
+
+<!-- ===== SECTION 1: HERO ===== -->
+<section class="hero-section">
+  <div class="card-container" @click="flipped = !flipped" @mousemove="updateSheen($event)" role="button" tabindex="0" aria-label="Flip the affirmation card" @keydown.enter="flipped = !flipped">
+    <div class="card-flipper" :class="{ 'flipped': flipped }" x-ref="cardFlipper">
+      <!-- Front -->
+      <div class="card-front" :style="'--sheen-angle: ' + sheenAngle + 'deg'" x-ref="cardFront">
+        <div class="card-sun">
+          <svg width="50" height="50" viewBox="0 0 50 50" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <circle cx="27" cy="25" r="10" stroke="#2B2B2B" stroke-width="1.5" fill="#FFD166"/>
+            <line x1="27" y1="5" x2="27" y2="11" stroke="#2B2B2B" stroke-width="1.5"/>
+            <line x1="27" y1="39" x2="27" y2="45" stroke="#2B2B2B" stroke-width="1.5"/>
+            <line x1="7" y1="25" x2="13" y2="25" stroke="#2B2B2B" stroke-width="1.5"/>
+            <line x1="41" y1="25" x2="47" y2="25" stroke="#2B2B2B" stroke-width="1.5"/>
+            <line x1="13.8" y1="11.8" x2="18" y2="16" stroke="#2B2B2B" stroke-width="1.5"/>
+            <line x1="36" y1="34" x2="40.2" y2="38.2" stroke="#2B2B2B" stroke-width="1.5"/>
+            <line x1="40.2" y1="11.8" x2="36" y2="16" stroke="#2B2B2B" stroke-width="1.5"/>
+            <line x1="18" y1="34" x2="13.8" y2="38.2" stroke="#2B2B2B" stroke-width="1.5"/>
+          </svg>
+        </div>
+        <div class="card-front-text">YOU SURVIVED ANOTHER DAY<br>AND THAT'S NOT NOTHING</div>
+      </div>
+      <!-- Back -->
+      <div class="card-back" :style="'--sheen-angle: ' + sheenAngle + 'deg'">
+        <div class="card-back-main">You are enough</div>
+        <div class="card-back-attr">&mdash; Mom, 1993 (laminated)</div>
+        <div class="condensation-drop">
+          <svg width="10" height="14" viewBox="0 0 10 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <ellipse cx="5" cy="9" rx="4.5" ry="4.5" fill="url(#dropGrad)"/>
+            <path d="M5 1 C5 1 1 7 1 9 C1 11.5 3 13 5 13 C7 13 9 11.5 9 9 C9 7 5 1 5 1Z" fill="url(#dropGrad2)" opacity="0.6"/>
+            <defs>
+              <radialGradient id="dropGrad"><stop offset="0%" stop-color="rgba(255,255,255,0.3)"/><stop offset="100%" stop-color="rgba(139,164,199,0.5)"/></radialGradient>
+              <radialGradient id="dropGrad2"><stop offset="0%" stop-color="rgba(255,255,255,0.4)"/><stop offset="100%" stop-color="rgba(139,164,199,0.6)"/></radialGradient>
+            </defs>
+          </svg>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="flip-hint" x-show="!flipped"><em>flip it over</em></div>
+  <div class="flip-hint" x-show="flipped" style="transform:rotate(2deg)"><em>there it is</em></div>
+
+  <div class="hero-text">
+    My name is Agnes Abernathy. I am 54 years old. I live in Dayton, Ohio. After my divorce, the only thing that survived the water damage in my apartment was a laminated recipe card my mother gave me in 1993. It still said "You are enough" on the back in her handwriting. I sat on the kitchen floor for forty minutes. Then I bought a laminator. Then I bought eleven more.
+  </div>
+
+  <div class="hero-tagline">Everything goes away. So I laminate things.</div>
+</section>
+
+<!-- ===== SECTION 2: CONVEYOR BELT ===== -->
+<section class="conveyor-section">
+  <div class="conveyor-track">
+    <template x-for="set in [0,1]" :key="set">
+      <div style="display:flex;">
+        <div class="conveyor-item">
+          <div class="conveyor-icon"><svg viewBox="0 0 48 48"><path d="M28 4 L20 24 L26 24 L18 44" stroke-linecap="round" stroke-linejoin="round"/><path d="M14 18 L8 18 L8 30 L14 30" stroke-linecap="round" stroke-linejoin="round"/><path d="M34 18 L40 18 L40 30 L34 30" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+          <div class="conveyor-label">We find the clipart</div>
+        </div>
+        <div class="conveyor-item">
+          <div class="conveyor-icon"><svg viewBox="0 0 48 48"><rect x="8" y="6" width="32" height="36" rx="2" stroke-linecap="round"/><line x1="14" y1="16" x2="34" y2="16"/><line x1="14" y1="22" x2="34" y2="22"/><line x1="14" y1="28" x2="28" y2="28"/><rect x="16" y="36" width="16" height="4" rx="1"/></svg></div>
+          <div class="conveyor-label">We print the affirmation</div>
+        </div>
+        <div class="conveyor-item">
+          <div class="conveyor-icon"><svg viewBox="0 0 48 48"><rect x="4" y="16" width="40" height="16" rx="3"/><path d="M12 16 L12 10 L36 10 L36 16"/><path d="M12 32 L12 38 L36 38 L36 32"/><circle cx="38" cy="24" r="2" fill="#2B2B2B"/></svg></div>
+          <div class="conveyor-label">We laminate it (obviously)</div>
+        </div>
+        <div class="conveyor-item">
+          <div class="conveyor-icon"><svg viewBox="0 0 48 48"><rect x="10" y="8" width="28" height="32" rx="2"/><line x1="14" y1="14" x2="34" y2="14"/><line x1="16" y1="20" x2="32" y2="18"/><line x1="14" y1="24" x2="34" y2="26"/><line x1="16" y1="30" x2="30" y2="32"/></svg></div>
+          <div class="conveyor-label">We scratch it up</div>
+        </div>
+        <div class="conveyor-item">
+          <div class="conveyor-icon"><svg viewBox="0 0 48 48"><path d="M8 8 L40 8 L40 40 L8 40 Z"/><path d="M8 8 L14 14" stroke-dasharray="2 2"/><path d="M30 8 L30 14 L40 14"/></svg></div>
+          <div class="conveyor-label">We bend the corners</div>
+        </div>
+        <div class="conveyor-item">
+          <div class="conveyor-icon"><svg viewBox="0 0 48 48"><rect x="6" y="12" width="36" height="24" rx="2"/><path d="M6 14 L24 28 L42 14"/></svg></div>
+          <div class="conveyor-label">We mail it to you</div>
+        </div>
+        <div class="conveyor-item">
+          <div class="conveyor-icon"><svg viewBox="0 0 48 48"><path d="M10 20 L10 40 L38 40 L38 20"/><path d="M6 20 L24 8 L42 20"/><rect x="18" y="28" width="12" height="12"/></svg></div>
+          <div class="conveyor-label">You open it</div>
+        </div>
+        <div class="conveyor-item">
+          <div class="conveyor-icon"><svg viewBox="0 0 48 48"><circle cx="24" cy="14" r="6"/><path d="M16 44 L16 30 L24 38 L32 30 L32 44"/><line x1="16" y1="38" x2="32" y2="38" stroke-dasharray="3 2"/></svg></div>
+          <div class="conveyor-label">You sit on the kitchen floor for a minute</div>
+        </div>
+      </div>
+    </template>
+  </div>
+</section>
+
+<!-- ===== SECTION 3: ARCHIVE ===== -->
+<section class="archive-section">
+  <h2>Card of the Month Archive &mdash; 2018&ndash;2025</h2>
+  <div class="archive-grid">
+    <template x-for="(card, idx) in (showAll ? cards : cards.slice(0, 8))" :key="idx">
+      <div class="archive-card-wrap">
+        <div class="archive-card"
+          :class="{ 'yellowed': card.yellowed, 'broken': card.broken }"
+          :style="'transform: rotate(' + card.rot + 'deg); background:' + (card.broken ? '#E8E8E8' : card.bg || '#7EC8A0')">
+          <template x-if="card.broken">
+            <div class="broken-icon">&#9888;<br><span style="font-size:9px;" x-text="card.brokenAlt"></span></div>
+          </template>
+          <template x-if="!card.broken">
+            <div style="z-index:1;">
+              <div class="archive-month" x-text="card.month"></div>
+              <div class="archive-symbol" x-text="card.symbol"></div>
+              <div class="archive-affirmation" x-text="card.text"></div>
+            </div>
+          </template>
+          <template x-if="card.bertram">
+            <div class="bertram-scrawl">BERTRAM STOLE THIS MONTH</div>
+          </template>
+        </div>
+      </div>
+    </template>
+  </div>
+  <button class="archive-toggle" @click="showAll = !showAll" x-text="showAll ? 'Show fewer cards' : 'Show all 84 cards (some are missing)'"></button>
+</section>
+
+<!-- ===== SECTION 4: TESTIMONIAL ===== -->
+<section class="testimonial-section">
+  <div class="testimonial-inner">
+    <div class="testimonial-photo" role="img" aria-label="Photograph of Darlene K. on a mountain trail. Image quality: poor. Camera status: broken."></div>
+    <div>
+      <div class="testimonial-text">
+        "I clipped my March card to my backpack before a 14-mile hike in the Smokies. It rained the entire time. The card survived. My marriage did not, but the card survived, and honestly that was enough for that particular Tuesday."
+      </div>
+      <div class="testimonial-attr">&mdash; Darlene K., Asheville, NC</div>
+      <div class="testimonial-meta">Subscriber since 2021 &middot; Lamination Level: Advanced</div>
+    </div>
+  </div>
+  <div class="testimonial-aside">Darlene if you're reading this I'm sorry about the glitter in your last shipment</div>
+</section>
+
+<!-- ===== SECTION 5: FAQ ===== -->
+<section class="faq-section">
+  <div class="faq-inner">
+    <div class="faq-item">
+      <div class="faq-q">Why Are the Cards Already Scratched?</div>
+      <div class="faq-a">Because nobody trusts something pristine. A perfect affirmation card is a liar. Our Authenticity Guarantee means every card ships pre-loved: micro-scratches, bent corners, a slight warping from being left on a dashboard in July. These are not defects. They are proof someone carried it.</div>
+    </div>
+    <div class="faq-item">
+      <div class="faq-q">Who Is Bertram?</div>
+      <div class="faq-a">Bertram Fuchs was my co-founder and handled the technology. In April 2023 he relocated to Belize with our operating budget, our customer database, and my label printer. We do not discuss Bertram. We have moved on. (We have not moved on.)</div>
+    </div>
+    <div class="faq-item">
+      <div class="faq-q">What Happened with the Glitter?</div>
+      <div class="faq-a">In November 2023 the USPS revoked my mailing permit following what they described as "an incident involving excessive glitter contamination of mail processing equipment." I maintain that 3 ounces of biodegradable glitter per envelope is reasonable. We now ship via FedEx.</div>
+    </div>
+    <div class="faq-item">
+      <div class="faq-q">What Is BlessYourMess.cards?</div>
+      <div class="faq-a">A competing affirmation card service run by Brenda Sue Keller of Kettering, Ohio. Their cards are NOT laminated. They use STICKERS. Stickers peel. Stickers lie. <span class="faq-strikethrough">I have nothing further to say about Brenda Sue.</span></div>
+      <div class="faq-marker-note">She knows what she did.</div>
+    </div>
+    <div class="faq-item">
+      <div class="faq-q">Do You Ship Internationally?</div>
+      <div class="faq-a">Not since the incident.</div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== SECTION 6: BLOG ===== -->
+<section class="blog-section">
+  <div class="blog-inner">
+    <div class="blog-title">Affirmations in the Age of Ephemerality: Why Lamination Matters</div>
+    <div class="blog-byline">By Agnes Abernathy &mdash; Originally attributed to Chad, who turned out to also be Bertram</div>
+    <div class="blog-date">November 14, 2022</div>
+    <div class="blog-photo" role="img" aria-label="Blurry photograph of a person holding laminated cards in a garage. The person may be Agnes. The garage definitely smells like adhesive."></div>
+    <div class="blog-body">
+      <p>There is a particular cruelty to things that dissolve. Receipts fade. Photographs yellow. The note your daughter wrote on the fridge in second grade — the one that said "Mom you are a beautiful dinosaur" — will eventually curl at the edges and fall behind the appliance where it will live with dust and a 2014 coupon for Arby's. This is the condition we accept. Impermanence as a tax on caring.</p>
+      <p>But what if you refused? Not in a dramatic way. Not in a way that requires freezing your body or uploading your brain to a server farm in Nevada. What if you just took the thing — the small, stupid, beautiful thing someone said to make you feel less alone — and you sealed it in plastic? What if you scratched it up first so it looked like it had already been through something, like you, and then you mailed it to a stranger in a hand-addressed envelope? Would that matter? I don't know. But the cards are waterproof, and that's more than I can say for most things.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ===== SECTION 7: PRICING ===== -->
+<section class="pricing-section">
+  <h2>Subscribe</h2>
+  <div class="pricing-stack">
+    <div class="pricing-card" @click="activeCard = 0" :class="{ 'active': activeCard === 0 }">
+      <div class="pricing-tier">Single Card</div>
+      <div class="pricing-price">$4<span style="font-size:14px;color:#2B2B2B;">/mo</span></div>
+      <div class="pricing-desc">One pre-scratched affirmation, one envelope, one moment on the kitchen floor</div>
+      <button class="pricing-btn" @click.stop="openModal('Single Card')">Subscribe</button>
+    </div>
+    <div class="pricing-card" @click="activeCard = 1" :class="{ 'active': activeCard === 1 }">
+      <div class="pricing-tier">The Drawer</div>
+      <div class="pricing-price">$9<span style="font-size:14px;color:#2B2B2B;">/mo</span></div>
+      <div class="pricing-popular">most popular because people are generous</div>
+      <div class="pricing-desc">Three cards. For the kitchen, the car dashboard, and the one you'll give away</div>
+      <button class="pricing-btn" @click.stop="openModal('The Drawer')">Subscribe</button>
+    </div>
+    <div class="pricing-card" @click="activeCard = 2" :class="{ 'active': activeCard === 2 }">
+      <div class="pricing-tier">Agnes's Choice</div>
+      <div class="pricing-price">$15<span style="font-size:14px;color:#2B2B2B;">/mo</span></div>
+      <div class="pricing-desc">Five cards plus one Misprint &amp; Mistake card with a typo or off-center lamination. For the adventurous.</div>
+      <button class="pricing-btn" @click.stop="openModal('Agnes\'s Choice')">Subscribe</button>
+    </div>
+  </div>
+</section>
+
+<!-- ===== MODAL ===== -->
+<template x-if="modalOpen">
+  <div class="modal-overlay" @click.self="modalOpen = false">
+    <div class="modal-box">
+      <button class="modal-close" @click="modalOpen = false">&times;</button>
+      <div class="modal-title" x-text="'Subscribe: ' + modalTier"></div>
+      <template x-if="!subscribed">
+        <form @submit.prevent="submitSubscription()">
+          <label for="sub-name">Name</label>
+          <input type="text" id="sub-name" x-model="formName" required placeholder="Your name">
+          <label for="sub-email">Email</label>
+          <input type="email" id="sub-email" x-model="formEmail" required placeholder="you@example.com">
+          <label for="sub-level">Lamination Level</label>
+          <select id="sub-level" x-model="formLevel" required>
+            <option value="">Select your level</option>
+            <option>Beginner</option>
+            <option>Intermediate</option>
+            <option>Advanced</option>
+            <option>I Don't Want To Talk About It</option>
+          </select>
+          <div class="modal-check">
+            <input type="checkbox" id="sub-agree" x-model="formAgree" required>
+            <span><label for="sub-agree" style="display:inline;margin:0;font-size:11px;">I understand the cards will arrive pre-scratched and I will not contact the authorities</label></span>
+          </div>
+          <button type="submit" class="modal-submit" :disabled="!formAgree">Subscribe</button>
+        </form>
+      </template>
+      <template x-if="subscribed">
+        <div>
+          <div class="modal-success">Agnes got your message. She's laminating your welcome card right now.</div>
+          <div class="modal-success-marker">(She's not crying, it's the fumes from the laminator.)</div>
+        </div>
+      </template>
+    </div>
+  </div>
+</template>
+
+<!-- ===== SECTION 8: REFERRAL ===== -->
+<section class="referral-section">
+  <div class="referral-inner">
+    <div class="referral-text" style="font-family:var(--oswald);font-size:16px;text-transform:uppercase;letter-spacing:0.05em;margin-bottom:10px;">Bonus Lamination Points</div>
+    <div class="referral-text" x-show="referrals < 10">Refer a friend. They get a card. You get a point. Points are not redeemable for anything. They just accumulate, like regret, but shinier.</div>
+    <div class="referral-text" x-show="referrals >= 10 && referrals < 25" style="color:#FF6B2B;">Agnes is concerned about your referral enthusiasm. Please go outside.</div>
+    <div class="referral-text" x-show="referrals >= 25" style="color:#FF6B2B;">This is a cry for help. The number is 1-800-273-8255.</div>
+    <div class="referral-count" x-text="referrals"></div>
+    <button class="referral-btn" @click="addReferral()">Refer Someone (Hypothetically)</button>
+  </div>
+</section>
+
+<!-- ===== SECTION 9: FOOTER ===== -->
+<footer class="site-footer">
+  <p>&copy; 2022&ndash;2025 LaminatedLife.net &mdash; A division of Agnes Abernathy, LLC (the LLC is aspirational)</p>
+  <p>Dayton, Ohio &mdash; Where the laminator never stops</p>
+  <p>Not affiliated with BlessYourMess.cards (thank God)</p>
+  <p style="margin-top:10px;"><a href="javascript:void(0)">Bertram if you're reading this, you still owe me a label printer</a></p>
+</footer>
+
+</div><!-- /page-content -->
+
+<!-- Time Easter Egg -->
+<div class="time-egg" x-show="timeMsg !== ''" x-transition:enter="transition ease-out duration-1000" style="opacity:0.95;" x-text="timeMsg"></div>
+
+<script>
+function laminatedLife() {
+  return {
+    flipped: false,
+    sheenAngle: 135,
+    showAll: false,
+    activeCard: 0,
+    modalOpen: false,
+    modalTier: '',
+    subscribed: false,
+    formName: '',
+    formEmail: '',
+    formLevel: '',
+    formAgree: false,
+    referrals: 0,
+    timeMsg: '',
+    timeStart: Date.now(),
+    cards: [],
+
+    init() {
+      // Check localStorage for subscription
+      if (localStorage.getItem('laminated_subscribed') === 'true') {
+        this.subscribed = true;
+      }
+      // Load referrals
+      var stored = parseInt(localStorage.getItem('laminated_referrals'), 10);
+      if (!isNaN(stored)) this.referrals = stored;
+
+      // Build card archive
+      this.cards = this.buildCards();
+
+      // Drawer reveal timing
+      var self = this;
+      setTimeout(function() {
+        if (self.$refs.pageContent) self.$refs.pageContent.classList.add('visible');
+      }, 1600);
+
+      // Scroll-based sheen
+      window.addEventListener('scroll', function() {
+        var scrollMax = document.body.scrollHeight - window.innerHeight;
+        var pct = scrollMax > 0 ? (window.scrollY / scrollMax) : 0;
+        self.sheenAngle = 90 + (pct * 180);
+      });
+
+      // Time easter eggs
+      setInterval(function() {
+        var elapsed = (Date.now() - self.timeStart) / 1000;
+        if (elapsed > 420) {
+          self.timeMsg = "Okay, you're still here. Do you want to talk about it? Because Agnes has time.";
+        } else if (elapsed > 180) {
+          self.timeMsg = "You've been here a while. Agnes appreciates that. Most people just scroll past.";
+        }
+      }, 5000);
+
+      // Condensation repositioning
+      var dots = document.querySelectorAll('.condensation-dot');
+      dots.forEach(function(dot) {
+        dot.addEventListener('animationiteration', function() {
+          dot.style.top = (Math.random() * 90) + '%';
+          dot.style.left = (Math.random() * 90) + '%';
+        });
+      });
+    },
+
+    updateSheen: function(e) {
+      var rect = e.currentTarget.getBoundingClientRect();
+      var x = (e.clientX - rect.left) / rect.width;
+      var y = (e.clientY - rect.top) / rect.height;
+      this.sheenAngle = Math.round(((x + y) / 2) * 360);
+    },
+
+    buildCards: function() {
+      var data = [
+        { month: 'Jan 2022', symbol: '☀', text: 'The sun does not require your permission to rise', bg: '#7EC8A0' },
+        { month: 'Feb 2022', symbol: '♥', text: 'Love is just stubbornness with better PR', bg: '#7EC8A0' },
+        { month: 'Mar 2022', symbol: '🌧', text: 'Rain is just the sky admitting it held too much in', bg: '#7EC8A0' },
+        { month: 'Apr 2022', symbol: '🌱', text: 'Growth is mandatory. Enjoying it is optional.', bg: '#7EC8A0' },
+        { month: 'May 2022', symbol: '☕', text: 'You are someone\'s favorite cup of coffee', bg: '#7EC8A0', yellowed: true },
+        { month: 'Jun 2022', symbol: '🔑', text: 'You have not lost the key. You changed the lock.', bg: '#7EC8A0' },
+        { month: 'Jul 2022', symbol: '⚡', text: 'Your anxiety is just your ambition in a bad mood', bg: '#7EC8A0' },
+        { month: 'Aug 2022', symbol: '🌊', text: 'Float. You were not built to fight every wave.', bg: '#7EC8A0', yellowed: true },
+        { month: 'Sep 2022', broken: true, brokenAlt: 'clipart not found — Bertram had the backups', bg: '#E8E8E8' },
+        { month: 'Oct 2022', symbol: '🍂', text: 'Letting go is not giving up. Ask any tree.', bg: '#7EC8A0' },
+        { month: 'Nov 2022', symbol: '🕯', text: 'You are the warmest room in a cold building', bg: '#7EC8A0' },
+        { month: 'Dec 2022', broken: true, brokenAlt: 'clipart not found — Bertram had the backups', bg: '#E8E8E8' },
+        { month: 'Mar 2023', symbol: '🔒', text: '[REDACTED]', bg: '#7EC8A0', bertram: true },
+        { month: 'Jun 2023', symbol: '🧊', text: 'Feelings are temporary. Lamination is forever.', bg: '#7EC8A0' },
+        { month: 'Sep 2023', broken: true, brokenAlt: 'clipart not found — Bertram had the backups', bg: '#E8E8E8' },
+        { month: 'Jan 2024', symbol: '✉', text: 'Someone is thinking about you. Statistically.', bg: '#7EC8A0' }
+      ];
+      for (var i = 0; i < data.length; i++) {
+        data[i].rot = ((Math.random() * 6) - 3).toFixed(1);
+      }
+      return data;
+    },
+
+    openModal: function(tier) {
+      this.modalTier = tier;
+      this.modalOpen = true;
+    },
+
+    submitSubscription: function() {
+      this.subscribed = true;
+      localStorage.setItem('laminated_subscribed', 'true');
+    },
+
+    addReferral: function() {
+      this.referrals++;
+      localStorage.setItem('laminated_referrals', String(this.referrals));
+    }
+  };
+}
+</script>
+</body>
+</html>

@@ -79,6 +79,8 @@ background:radial-gradient(circle at 40% 35%,#e2c44d,var(--brass),#8a6d0a);
 box-shadow:0 2px 4px rgba(0,0,0,0.4),inset 0 1px 2px rgba(255,255,255,0.4);
 position:absolute;top:-10px;z-index:10;
 }
+/* Hide CSS pushpins on board cards — SVG pins render on top of strings instead */
+.board-grid .pushpin{visibility:hidden}
 .pushpin.left{left:20px}
 .pushpin.right{right:20px}
 .pushpin.center{left:50%;transform:translateX(-50%)}
@@ -109,8 +111,7 @@ transform-origin:top center;
 .theory-card:nth-child(5){transform:rotate(-1.8deg)}
 .theory-card:nth-child(6){transform:rotate(0.8deg)}
 .theory-card:hover{
-transform:rotate(0) scale(1.04) translateY(-6px)!important;
-box-shadow:6px 10px 20px rgba(0,0,0,0.25);z-index:20;
+box-shadow:6px 10px 20px rgba(0,0,0,0.25);
 }
 .theory-card .card-title{
 font-family:var(--font-marker);font-size:1.15rem;color:var(--garnet);
@@ -126,22 +127,24 @@ background:var(--garnet);color:#F0EBD8;font-family:var(--font-marker);
 font-size:0.65rem;padding:3px 8px;transform:rotate(6deg);
 }
 .card-expanded{
-display:none;margin-top:14px;padding-top:14px;
+margin-top:14px;padding-top:14px;
 border-top:1px dashed var(--olive);font-size:0.8rem;color:var(--onyx);line-height:1.6;
+overflow:hidden;max-height:0;opacity:0;
+transition:max-height 0.4s ease-out,opacity 0.3s ease-out;
 }
-.theory-card.open .card-expanded{display:block}
+.theory-card.open .card-expanded{max-height:300px;opacity:1}
 .theory-card.open{transform:rotate(0)!important}
 
 /* Red string SVG connections */
 .string-svg{
-position:absolute;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:0;
+position:absolute;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:15;
 }
-.string-svg line{
+.string-svg path{
 stroke:var(--garnet);stroke-width:2;opacity:0.5;
 transition:all 0.8s ease-in-out;
 }
-.theory-card:hover ~ .string-svg line,
-.board-section:hover .string-svg line{opacity:0.7}
+.theory-card:hover ~ .string-svg path,
+.board-section:hover .string-svg path{opacity:0.7}
 
 /* === MANIA METER SECTION === */
 .mania-section{
@@ -603,6 +606,8 @@ color:var(--garnet);text-align:center;
           bar.style.width = mania + '%';
         });
       }
+      /* Animate strings as card expands/collapses */
+      animateStrings(450);
     });
   });
 
@@ -640,51 +645,110 @@ color:var(--garnet);text-align:center;
   var stringSvg = document.getElementById('stringSvg');
   var boardGrid = document.getElementById('boardGrid');
 
+  /* Ensure SVG defs for pushpin gradient */
+  var pinGradDef = document.createElementNS('http://www.w3.org/2000/svg','defs');
+  var radGrad = document.createElementNS('http://www.w3.org/2000/svg','radialGradient');
+  radGrad.setAttribute('id','pinGrad');
+  radGrad.setAttribute('cx','40%'); radGrad.setAttribute('cy','35%'); radGrad.setAttribute('r','50%');
+  var s1 = document.createElementNS('http://www.w3.org/2000/svg','stop');
+  s1.setAttribute('offset','0%'); s1.setAttribute('stop-color','#e2c44d');
+  var s2 = document.createElementNS('http://www.w3.org/2000/svg','stop');
+  s2.setAttribute('offset','50%'); s2.setAttribute('stop-color','#C9A227');
+  var s3 = document.createElementNS('http://www.w3.org/2000/svg','stop');
+  s3.setAttribute('offset','100%'); s3.setAttribute('stop-color','#8a6d0a');
+  radGrad.appendChild(s1); radGrad.appendChild(s2); radGrad.appendChild(s3);
+  pinGradDef.appendChild(radGrad);
+
   function drawStrings(){
     if(!boardGrid || !stringSvg) return;
-    var gridRect = boardGrid.getBoundingClientRect();
+    var section = document.getElementById('boardSection');
+    var sectionRect = section.getBoundingClientRect();
     var svgRect = stringSvg.getBoundingClientRect();
-    stringSvg.setAttribute('viewBox', '0 0 ' + gridRect.width + ' ' + gridRect.height);
-    stringSvg.style.width = gridRect.width + 'px';
-    stringSvg.style.height = gridRect.height + 'px';
+    stringSvg.setAttribute('viewBox', '0 0 ' + sectionRect.width + ' ' + sectionRect.height);
+    stringSvg.style.width = sectionRect.width + 'px';
+    stringSvg.style.height = sectionRect.height + 'px';
     stringSvg.innerHTML = '';
+    stringSvg.appendChild(pinGradDef.cloneNode(true));
 
     var cardEls = boardGrid.querySelectorAll('.theory-card');
-    var centers = [];
+    /* Get pushpin positions (top center of each card) */
+    var pins = [];
     cardEls.forEach(function(c){
-      var r = c.getBoundingClientRect();
-      centers.push({
-        x: r.left - svgRect.left + r.width/2,
-        y: r.top - svgRect.top + r.height/2
-      });
+      var pin = c.querySelector('.pushpin');
+      if(pin){
+        var pr = pin.getBoundingClientRect();
+        pins.push({
+          x: pr.left - svgRect.left + pr.width/2,
+          y: pr.top - svgRect.top + pr.height/2
+        });
+      } else {
+        var r = c.getBoundingClientRect();
+        pins.push({
+          x: r.left - svgRect.left + r.width/2,
+          y: r.top - svgRect.top
+        });
+      }
     });
 
     var pairs = [[0,1],[1,4],[2,3],[0,4],[3,5],[1,2]];
+    /* Track which pin indices have strings */
+    var usedPins = {};
     pairs.forEach(function(p){
-      if(centers[p[0]] && centers[p[1]]){
-        var line = document.createElementNS('http://www.w3.org/2000/svg','line');
-        var offsetX1 = (Math.random()-0.5)*40;
-        var offsetY1 = (Math.random()-0.5)*30;
-        var offsetX2 = (Math.random()-0.5)*40;
-        var offsetY2 = (Math.random()-0.5)*30;
-        line.setAttribute('x1', centers[p[0]].x + offsetX1);
-        line.setAttribute('y1', centers[p[0]].y + offsetY1);
-        line.setAttribute('x2', centers[p[1]].x + offsetX2);
-        line.setAttribute('y2', centers[p[1]].y + offsetY2);
-        stringSvg.appendChild(line);
+      if(pins[p[0]] && pins[p[1]]){
+        usedPins[p[0]] = true;
+        usedPins[p[1]] = true;
+        var x1 = pins[p[0]].x, y1 = pins[p[0]].y;
+        var x2 = pins[p[1]].x, y2 = pins[p[1]].y;
+        /* midpoint with sag for natural string droop */
+        var mx = (x1 + x2) / 2;
+        var my = (y1 + y2) / 2;
+        var dist = Math.sqrt((x2-x1)*(x2-x1) + (y2-y1)*(y2-y1));
+        var sag = Math.min(dist * 0.15, 40);
+        var path = document.createElementNS('http://www.w3.org/2000/svg','path');
+        path.setAttribute('d',
+          'M ' + x1 + ' ' + y1 +
+          ' Q ' + mx + ' ' + (my + sag) + ' ' + x2 + ' ' + y2
+        );
+        path.setAttribute('fill', 'none');
+        stringSvg.appendChild(path);
       }
     });
+
+    /* Draw pushpin circles on top of strings */
+    Object.keys(usedPins).forEach(function(idx){
+      var pin = pins[idx];
+      var circle = document.createElementNS('http://www.w3.org/2000/svg','circle');
+      circle.setAttribute('cx', pin.x);
+      circle.setAttribute('cy', pin.y);
+      circle.setAttribute('r', 10);
+      circle.setAttribute('fill', 'url(#pinGrad)');
+      circle.setAttribute('stroke', 'rgba(0,0,0,0.3)');
+      circle.setAttribute('stroke-width', '0.5');
+      /* subtle shadow */
+      circle.setAttribute('filter', 'drop-shadow(0 2px 3px rgba(0,0,0,0.35))');
+      stringSvg.appendChild(circle);
+      /* highlight spot */
+      var highlight = document.createElementNS('http://www.w3.org/2000/svg','circle');
+      highlight.setAttribute('cx', pin.x - 2);
+      highlight.setAttribute('cy', pin.y - 2);
+      highlight.setAttribute('r', 3);
+      highlight.setAttribute('fill', 'rgba(255,255,255,0.35)');
+      stringSvg.appendChild(highlight);
+    });
+  }
+
+  /* Animate strings smoothly over duration ms */
+  function animateStrings(duration){
+    var start = performance.now();
+    function tick(now){
+      drawStrings();
+      if(now - start < duration) requestAnimationFrame(tick);
+    }
+    requestAnimationFrame(tick);
   }
 
   setTimeout(drawStrings, 500);
   window.addEventListener('resize', drawStrings);
-  /* Redraw strings every 8 seconds */
-  setInterval(function(){
-    var lines = stringSvg.querySelectorAll('line');
-    if(lines.length > 0){
-      drawStrings();
-    }
-  }, 8000);
 
   /* === MANIA METER SLIDER === */
   var maniaTrack = document.getElementById('maniaTrack');
